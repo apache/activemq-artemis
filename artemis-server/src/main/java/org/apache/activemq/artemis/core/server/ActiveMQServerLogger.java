@@ -43,9 +43,9 @@ import io.netty.channel.Channel;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
@@ -61,9 +61,9 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 import org.w3c.dom.Node;
@@ -1180,6 +1180,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
          "there is a high probability of a cluster split/failure due to connection timeout.",
       format = Message.Format.MESSAGE_FORMAT)
    void connectionTTLEqualsCheckPeriod(String connectionName, String ttl, String checkPeriod);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222203, value = "Classpath lacks a protocol-manager for protocol {0}, Protocol being ignored on acceptor {1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void noProtocolManagerFound(String protocol, String host);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

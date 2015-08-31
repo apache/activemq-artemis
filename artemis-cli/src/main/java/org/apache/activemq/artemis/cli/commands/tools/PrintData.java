@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.Artemis;
-import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -57,7 +56,7 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
-public class PrintData extends DataAbstract implements Action {
+public class PrintData extends LockAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {

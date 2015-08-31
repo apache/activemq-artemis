@@ -63,7 +63,11 @@ public class Artemis {
          System.err.println(configException.getMessage());
          System.out.println();
          System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
-         return null;
+         return configException;
+      }
+      catch (CLIException cliException) {
+         System.err.println(cliException.getMessage());
+         return cliException;
       }
       catch (RuntimeException re) {
          System.err.println(re.getMessage());
@@ -72,7 +76,7 @@ public class Artemis {
          Cli<Action> parser = builder(null).build();
 
          parser.parse("help").execute(ActionContext.system());
-         return null;
+         return re;
       }
    }
 

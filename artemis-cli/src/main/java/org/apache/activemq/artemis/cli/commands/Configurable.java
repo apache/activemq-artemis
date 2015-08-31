@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.cli.commands;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Help;
@@ -26,6 +28,7 @@ import io.airlift.airline.Option;
 import io.airlift.airline.model.CommandGroupMetadata;
 import io.airlift.airline.model.CommandMetadata;
 import io.airlift.airline.model.GlobalMetadata;
+import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
@@ -69,6 +72,35 @@ public abstract class Configurable extends ActionAbstract {
             }
             break;
          }
+      }
+   }
+
+   // There should be one lock per VM
+   // These will be locked as long as the VM is running
+   private static RandomAccessFile serverLockFile = null;
+   private static FileLock serverLockLock = null;
+
+   protected static void lock(File journalPlace) throws Exception {
+      journalPlace.mkdirs();
+      File fileLock = new File(journalPlace, "srv.lock");
+      RandomAccessFile file = new RandomAccessFile(fileLock, "rw");
+      serverLockLock = file.getChannel().tryLock();
+      if (serverLockLock == null) {
+         throw new CLIException("Error: There is another process using the journal at " + journalPlace + ". Cannot start the process!");
+      }
+   }
+
+   public static void unlock() {
+      try {
+         if (serverLockFile != null) {
+            serverLockFile.close();
+         }
+
+         if (serverLockLock != null) {
+            serverLockLock.close();
+         }
+      }
+      catch (Exception ignored) {
       }
    }
 

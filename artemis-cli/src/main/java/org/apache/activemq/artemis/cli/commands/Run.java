@@ -64,6 +64,10 @@ public class Run extends Configurable {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
+      FileConfiguration fileConfiguration = getFileConfiguration();
+
+      lock(fileConfiguration.getJournalLocation());
+
       Artemis.printBanner();
 
       createDirectories(getFileConfiguration());
@@ -89,7 +93,6 @@ public class Run extends Configurable {
          component.start();
          components.add(component);
       }
-
       return null;
    }
 

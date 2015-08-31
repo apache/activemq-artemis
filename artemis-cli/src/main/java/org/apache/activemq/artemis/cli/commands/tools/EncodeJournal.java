@@ -24,19 +24,17 @@ import java.util.List;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.Configurable;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format")
-public class EncodeJournal extends Configurable implements Action {
+public class EncodeJournal extends LockAbstract {
 
    @Option(name = "--directory", description = "The journal folder (default the journal folder from broker.xml)")
    public String directory;
