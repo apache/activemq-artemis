@@ -35,6 +35,7 @@ public class TransactionContextTest extends BasicOpenWireTest {
 
    @Before
    public void setup() throws Exception {
+      connection.start();
       underTest = new TransactionContext(connection);
    }
 
