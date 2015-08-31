@@ -57,6 +57,10 @@ under the License.
                   </goals>
                   <configuration>
                      <ignore>${noServer}</ignore>
+                     <args>
+                        <arg>--topics</arg>
+                        <arg>news,news.usa,news.usa.wrestling,news.europe,news.europe.sport,news.europe.entertainment</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>

@@ -24,9 +24,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.
@@ -37,13 +37,8 @@ public class TopicHierarchyExample {
 
    public static void main(final String[] args) throws Exception {
       Connection connection = null;
-      InitialContext initialContext = null;
       try {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
-
-         // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -110,9 +105,6 @@ public class TopicHierarchyExample {
       }
       finally {
          // Step 12. Be sure to close our resources!
-         if (initialContext != null) {
-            initialContext.close();
-         }
          if (connection != null) {
             connection.close();
          }
