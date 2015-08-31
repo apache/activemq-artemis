@@ -575,12 +575,17 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    }
 
    public void dispatchAsync(Command message) {
-      if (message.isMessageDispatch()) {
-         MessageDispatch md = (MessageDispatch) message;
-         TransmitCallback sub = md.getTransmitCallback();
-         protocolManager.postProcessDispatch(md);
-         if (sub != null) {
-            sub.onFailure();
+      if (!stopping.get()) {
+         dispatchSync(message);
+      }
+      else {
+         if (message.isMessageDispatch()) {
+            MessageDispatch md = (MessageDispatch) message;
+            TransmitCallback sub = md.getTransmitCallback();
+            protocolManager.postProcessDispatch(md);
+            if (sub != null) {
+               sub.onFailure();
+            }
          }
       }
    }
