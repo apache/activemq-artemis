@@ -16,7 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -68,6 +73,22 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
       Assert.assertTrue(cache.contains(id));
 
       cache.deleteFromCache(id);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+      OperationContextImpl.getContext().executeOnCompletion(new IOCallback() {
+         @Override
+         public void done() {
+            latch.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
+
+
+      Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));
 
       Assert.assertFalse(cache.contains(id));
    }
