@@ -53,6 +53,7 @@
 * [Intercepting Operations](intercepting-operations.md)
 * [Protocols and Interoperability](protocols-interoperability.md)
 * [Tools](tools.md)
+* [Maven Plugin](maven-plugin.md)
 * [Performance Tuning](perf-tuning.md)
 * [Configuration Reference](configuration-index.md)
 
