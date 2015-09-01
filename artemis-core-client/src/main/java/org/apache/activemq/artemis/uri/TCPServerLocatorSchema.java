@@ -76,10 +76,13 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
       return new URI(SchemaConstants.TCP, null, getHost(params), getPort(params), null, createQuery(params, query), fragment.toString());
    }
 
+   @SuppressWarnings("StringEquality")
    private static Map<String, Object> escapeIPv6Host(Map<String, Object> params) {
       String host = (String) params.get("host");
       String newHost = IPV6Util.encloseHost(host);
 
+      // We really want to check the objects here
+      // Some bug finders may report this as an error, hence the SupressWarnings on this method
       if (host != newHost) {
          params.put("host", "[" + host + "]");
       }
