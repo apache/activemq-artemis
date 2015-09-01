@@ -82,7 +82,7 @@ public abstract class Configurable extends ActionAbstract {
 
    protected static void lock(File journalPlace) throws Exception {
       journalPlace.mkdirs();
-      File fileLock = new File(journalPlace, "srv.lock");
+      File fileLock = new File(journalPlace, "cli.lock");
       RandomAccessFile file = new RandomAccessFile(fileLock, "rw");
       serverLockLock = file.getChannel().tryLock();
       if (serverLockLock == null) {
