@@ -59,6 +59,8 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server0</instance>
                      <clustered>true</clustered>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>
@@ -71,6 +73,8 @@ under the License.
                      <instance>${basedir}/target/server1</instance>
                      <clustered>true</clustered>
                      <portOffset>1</portOffset>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>
@@ -83,6 +87,8 @@ under the License.
                      <instance>${basedir}/target/server2</instance>
                      <clustered>true</clustered>
                      <portOffset>2</portOffset>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>
@@ -139,6 +145,8 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
+                     <!-- you may have to set export MAVEN_OPTS="-Djava.net.preferIPv4Stack=true"
+                          if you are on MacOS for instance -->
                      <clientClass>org.apache.activemq.artemis.jms.example.ClientSideLoadBalancingExample</clientClass>
                   </configuration>
                </execution>

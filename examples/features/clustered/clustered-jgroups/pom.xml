@@ -63,6 +63,8 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server0</instance>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>
@@ -78,6 +80,8 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server1</instance>
                      <configuration>${basedir}/target/classes/activemq/server1</configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>

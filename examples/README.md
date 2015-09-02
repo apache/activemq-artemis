@@ -22,6 +22,13 @@ directory but before you do you will need to up the memory used by running:
 ```
 export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m"
 ```
+
+if you are running a Mac OS, you may want to add this to run the clustered examples:
+
+```
+export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true"
+```
+
 ### Recreating the examples
 
 If you are trying to copy the examples somewhere else and modifying them. Consider asking Maven to explicitly list all the dependencies:
