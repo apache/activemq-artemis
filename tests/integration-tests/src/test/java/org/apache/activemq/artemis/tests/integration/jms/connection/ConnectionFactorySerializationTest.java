@@ -82,8 +82,8 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       Assert.assertEquals(dgc.getRefreshTimeout(), 5000);
       Assert.assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
       UDPBroadcastEndpointFactory befc = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
-      Assert.assertEquals(-1, befc.getLocalBindPort());
-      Assert.assertEquals(null, befc.getLocalBindAddress());
+      Assert.assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
+      Assert.assertEquals(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress"), befc.getLocalBindAddress());
       Assert.assertEquals(1234, befc.getGroupPort());
       Assert.assertEquals("1.2.3.4", befc.getGroupAddress());
    }

@@ -260,9 +260,9 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void jvmAllocatedMoreMemory(Long totalMemory1, Long totalMemory2);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212048, value = "local-bind-address specified for broadcast group but no local-bind-port specified so socket will NOT be bound to a local address/port",
+   @Message(id = 212048, value = "local-bind-address specified for broadcast group but no local-bind-port. Using random port for UDP Broadcast ({0})",
       format = Message.Format.MESSAGE_FORMAT)
-   void broadcastGroupBindError();
+   void broadcastGroupBindError(String hostAndPort);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212049,
