@@ -27,6 +27,7 @@ import java.net.MulticastSocket;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 /**
  * The configuration used to determine how the server will broadcast members.
@@ -35,7 +36,10 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
  */
 public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory {
 
-   private transient String localBindAddress = null;
+   // You can specify a property as a default. This is useful for testsuite running.
+   // for that reason we won't document this property as the proper way to do it is through configuration.
+   // these property names can change at any time, so don't use this on production systems
+   private transient String localBindAddress = getProperty(UDPBroadcastEndpointFactory.class.getName() + ".localBindAddress", null);
 
    private transient int localBindPort = -1;
 
@@ -170,9 +174,23 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          }
          else {
             if (localAddress != null) {
-               ActiveMQClientLogger.LOGGER.broadcastGroupBindError();
+               java.util.Random random = new java.util.Random(System.currentTimeMillis());
+
+               for (int i = 0; i < 100; i++) {
+                  int nextPort = RandomUtil.randomInterval(3000, 4000);
+                  try {
+                     broadcastingSocket = new DatagramSocket(nextPort, localAddress);
+                     ActiveMQClientLogger.LOGGER.broadcastGroupBindError(localAddress.toString() + ":" + nextPort);
+                     break;
+                  }
+                  catch (Exception e) {
+                     ActiveMQClientLogger.LOGGER.broadcastGroupBindErrorRetry(localAddress.toString() + ":" + nextPort, e);
+                  }
+               }
             }
-            broadcastingSocket = new DatagramSocket();
+            if (broadcastingSocket == null) {
+               broadcastingSocket = new DatagramSocket();
+            }
          }
 
          open = true;
@@ -231,13 +249,35 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       }
 
       private static boolean checkForPresence(String key, String value) {
-         try {
-            String tmp = System.getProperty(key);
-            return tmp != null && tmp.trim().toLowerCase().startsWith(value);
+         String tmp = getProperty(key, null);
+         return tmp != null && tmp.trim().toLowerCase().startsWith(value);
+      }
+
+   }
+
+   private static String getProperty(String key, String defaultValue) {
+      try {
+         String tmp = System.getProperty(key);
+         if (tmp == null) {
+            tmp = defaultValue;
          }
-         catch (Throwable t) {
-            return false;
-         }
+         return tmp;
+      }
+      catch (Throwable t) {
+         ActiveMQClientLogger.LOGGER.warn(t);
+         return defaultValue;
+      }
+   }
+
+   private static int getIntProperty(String key, String defaultValue) {
+      String value = getProperty(key, defaultValue);
+
+      try {
+         return Integer.parseInt(value);
+      }
+      catch (Throwable t) {
+         ActiveMQClientLogger.LOGGER.warn(t.getMessage(), t);
+         return Integer.parseInt(defaultValue);
       }
 
    }

@@ -378,39 +378,11 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
-      InetAddress localAddress = null;
-
-   outer:
-      while (networkInterfaces.hasMoreElements()) {
-         NetworkInterface networkInterface = networkInterfaces.nextElement();
-         if (networkInterface.isLoopback() || networkInterface.isVirtual() ||
-            !networkInterface.isUp() ||
-            !networkInterface.supportsMulticast()) {
-            continue;
-         }
-
-         Enumeration<InetAddress> en = networkInterface.getInetAddresses();
-
-         while (en.hasMoreElements()) {
-            InetAddress ia = en.nextElement();
-
-            if (ia.getAddress().length == 4) {
-               localAddress = ia;
-
-               break outer;
-            }
-         }
-      }
-
-      if (localAddress == null) {
-         log.warn("Can't find address to use");
-
-         return;
-      }
+      InetAddress localAddress = InetAddress.getLoopbackAddress();
 
       log.info("Local address is " + localAddress);
 
-      bg = newBroadcast(nodeID, RandomUtil.randomString(), localAddress, 6552, groupAddress, groupPort);
+      bg = newBroadcast(nodeID, RandomUtil.randomString(), localAddress, -1, groupAddress, groupPort);
 
       bg.start();
 

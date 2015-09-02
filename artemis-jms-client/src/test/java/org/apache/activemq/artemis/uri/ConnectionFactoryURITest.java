@@ -263,21 +263,26 @@ public class ConnectionFactoryURITest {
       discoveryGroupConfiguration.setName("foo").setRefreshTimeout(12345).setDiscoveryInitialWaitTimeout(5678).setBroadcastEndpointFactory(endpoint);
       ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(discoveryGroupConfiguration, JMSFactoryType.CF);
       URI tcp = parser.createSchema("udp", connectionFactoryWithHA);
-      ActiveMQConnectionFactory factory = parser.newObject(tcp, null);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(tcp.toString());
       DiscoveryGroupConfiguration dgc = factory.getDiscoveryGroupConfiguration();
       Assert.assertNotNull(dgc);
       BroadcastEndpointFactory befc = dgc.getBroadcastEndpointFactory();
       Assert.assertNotNull(befc);
       Assert.assertTrue(befc instanceof UDPBroadcastEndpointFactory);
       UDPBroadcastEndpointFactory ubgc = (UDPBroadcastEndpointFactory) befc;
-      Assert.assertEquals(ubgc.getGroupAddress(), "wahey");
-      Assert.assertEquals(ubgc.getGroupPort(), 3333);
+      Assert.assertEquals("wahey", ubgc.getGroupAddress());
+      Assert.assertEquals(3333, ubgc.getGroupPort());
+
       //these 2 are transient
-      Assert.assertEquals(ubgc.getLocalBindAddress(), null);
-      Assert.assertEquals(ubgc.getLocalBindPort(), -1);
-      Assert.assertEquals(dgc.getName(), "foo");
-      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
-      Assert.assertEquals(dgc.getRefreshTimeout(), 12345);
+      // These will take the System.properties used on the testsuite,
+      // for that reason we take them as != instead of checking for null
+      Assert.assertNotEquals("uhuh", ubgc.getLocalBindAddress());
+      Assert.assertNotEquals(555, ubgc.getLocalBindPort());
+
+      Assert.assertEquals("foo", dgc.getName());
+      Assert.assertEquals(5678, dgc.getDiscoveryInitialWaitTimeout());
+      Assert.assertEquals(12345, dgc.getRefreshTimeout());
 
       BeanUtilsBean bean = new BeanUtilsBean();
       checkEquals(bean, connectionFactoryWithHA, factory);

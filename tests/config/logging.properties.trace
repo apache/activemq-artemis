@@ -22,37 +22,37 @@
 loggers=org.jboss.logging,org.apache.activemq.artemis.core.server,org.apache.activemq.artemis.utils,org.apache.activemq.artemis.journal,org.apache.activemq.artemis.jms,org.apache.activemq.artemis.ra,org.apache.activemq.artemis.tests.unit,org.apache.activemq.artemis.tests.integration,org.apache.activemq.artemis.jms.tests
 
 # Root logger level
-logger.level=INFO
+logger.level=TRACE
 # ActiveMQ Artemis logger levels
 logger.org.apache.activemq.artemis.core.server.level=TRACE
-logger.org.apache.activemq.artemis.journal.level=INFO
-logger.org.apache.activemq.artemis.utils.level=INFO
-logger.org.apache.activemq.artemis.jms.level=INFO
-logger.org.apache.activemq.artemis.ra.level=INFO
-logger.org.apache.activemq.artemis.tests.unit.level=INFO
-logger.org.apache.activemq.artemis.tests.integration.level=INFO
-logger.org.apache.activemq.artemis.jms.tests.level=INFO
+logger.org.apache.activemq.artemis.journal.level=TRACE
+logger.org.apache.activemq.artemis.utils.level=TRACE
+logger.org.apache.activemq.artemis.jms.level=TRACE
+logger.org.apache.activemq.artemis.ra.level=TRACE
+logger.org.apache.activemq.artemis.tests.unit.level=TRACE
+logger.org.apache.activemq.artemis.tests.integration.level=TRACE
+logger.org.apache.activemq.artemis.jms.tests.level=TRACE
 
 # Root logger handlers
-logger.handlers=CONSOLE,TEST
+logger.handlers=CONSOLE,TEST,FILE
 #logger.handlers=CONSOLE,FILE
 
 # Console handler configuration
 handler.CONSOLE=org.jboss.logmanager.handlers.ConsoleHandler
 handler.CONSOLE.properties=autoFlush
-handler.CONSOLE.level=FINE
+handler.CONSOLE.level=INFO
 handler.CONSOLE.autoFlush=true
 handler.CONSOLE.formatter=PATTERN
 
 # File handler configuration
 handler.FILE=org.jboss.logmanager.handlers.FileHandler
-handler.FILE.level=FINE
+handler.FILE.level=TRACE
 handler.FILE.properties=autoFlush,fileName
 handler.FILE.autoFlush=true
 handler.FILE.fileName=target/activemq.log
 handler.FILE.formatter=PATTERN
 
-# Console handler configuration
+# Test handler
 handler.TEST=org.apache.activemq.artemis.logs.AssertionLoggerHandler
 handler.TEST.level=TRACE
 handler.TEST.formatter=PATTERN
