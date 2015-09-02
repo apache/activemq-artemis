@@ -109,7 +109,9 @@ public final class BindingsImpl implements Bindings {
             }
          }
 
-         bindings.add(binding);
+         if (!bindings.contains(binding)) {
+            bindings.add(binding);
+         }
       }
 
       bindingsMap.put(binding.getID(), binding);
@@ -141,7 +143,7 @@ public final class BindingsImpl implements Bindings {
       bindingsMap.remove(binding.getID());
 
       if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Removing binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+         ActiveMQServerLogger.LOGGER.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
       }
    }
 
@@ -509,54 +511,51 @@ public final class BindingsImpl implements Bindings {
 
       PrintWriter out = new PrintWriter(writer);
 
-      out.println("\n***************************************");
+      out.println("\n**************************************************");
 
       out.println("routingNameBindingMap:");
       if (routingNameBindingMap.isEmpty()) {
-         out.println("EMPTY!");
+         out.println("\tEMPTY!");
       }
       for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet()) {
-         out.print("key=" + entry.getKey() + ", value=" + entry.getValue());
-         //         for (Binding bind : entry.getValue())
-         //         {
-         //            out.print(bind + ",");
-         //         }
+         out.println("\tkey=" + entry.getKey() + ", value(s):");
+         for (Binding bind : entry.getValue()) {
+            out.println("\t\t" + bind);
+         }
          out.println();
       }
 
-      out.println();
-
-      out.println("RoutingNamePositions:");
+      out.println("routingNamePositions:");
       if (routingNamePositions.isEmpty()) {
-         out.println("EMPTY!");
+         out.println("\tEMPTY!");
       }
       for (Map.Entry<SimpleString, Integer> entry : routingNamePositions.entrySet()) {
-         out.println("key=" + entry.getKey() + ", value=" + entry.getValue());
+         out.println("\tkey=" + entry.getKey() + ", value=" + entry.getValue());
       }
 
       out.println();
 
-      out.println("BindingsMap:");
+      out.println("bindingsMap:");
 
       if (bindingsMap.isEmpty()) {
-         out.println("EMPTY!");
+         out.println("\tEMPTY!");
       }
       for (Map.Entry<Long, Binding> entry : bindingsMap.entrySet()) {
-         out.println("Key=" + entry.getKey() + ", value=" + entry.getValue());
+         out.println("\tkey=" + entry.getKey() + ", value=" + entry.getValue());
       }
 
       out.println();
 
-      out.println("ExclusiveBindings:");
+      out.println("exclusiveBindings:");
       if (exclusiveBindings.isEmpty()) {
-         out.println("EMPTY!");
+         out.println("\tEMPTY!");
       }
 
       for (Binding binding : exclusiveBindings) {
-         out.println(binding);
+         out.println("\t" + binding);
       }
 
-      out.println("#####################################################");
+      out.println("####################################################");
 
       return writer.toString();
    }
@@ -606,4 +605,7 @@ public final class BindingsImpl implements Bindings {
       return pos;
    }
 
+   public Map<SimpleString, List<Binding>> getRoutingNameBindingMap() {
+      return routingNameBindingMap;
+   }
 }

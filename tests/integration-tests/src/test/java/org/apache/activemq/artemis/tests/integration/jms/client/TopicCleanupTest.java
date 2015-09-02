@@ -22,15 +22,22 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
 /**
@@ -97,4 +104,53 @@ public class TopicCleanupTest extends JMSTestBase {
 
    }
 
+   @Test
+   public void testWildcardSubscriber() throws Exception {
+      ActiveMQTopic topic = (ActiveMQTopic) createTopic("topic.A");
+      Connection conn = cf.createConnection();
+      conn.start();
+
+      try {
+         Session consumerStarSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumerStar = consumerStarSession.createConsumer(ActiveMQJMSClient.createTopic("topic.*"));
+
+         Session consumerASession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumerA = consumerASession.createConsumer(topic);
+
+         Session producerSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producerA = producerSession.createProducer(topic);
+         TextMessage msg1 = producerSession.createTextMessage("text");
+         producerA.send(msg1);
+
+         consumerStar.close();
+         consumerA.close();
+
+         producerA.send(msg1);
+
+         conn.close();
+
+         boolean foundStrayRoutingBinding = false;
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(((ActiveMQTopic) topic).getAddress()));
+         Map<SimpleString, List<Binding>> routingNames = ((BindingsImpl) bindings).getRoutingNameBindingMap();
+         for (SimpleString key : routingNames.keySet()) {
+            if (!key.toString().equals(topic.getAddress())) {
+               foundStrayRoutingBinding = true;
+               assertEquals(0, ((LocalQueueBinding) routingNames.get(key).get(0)).getQueue().getMessageCount());
+            }
+         }
+
+         assertFalse(foundStrayRoutingBinding);
+      }
+      finally {
+         jmsServer.stop();
+
+         jmsServer.start();
+
+         try {
+            conn.close();
+         }
+         catch (Throwable igonred) {
+         }
+      }
+   }
 }
