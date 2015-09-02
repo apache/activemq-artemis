@@ -62,16 +62,18 @@ These are the required linux packages to be installed for the compilation to wor
 
 -   libaio-dev - Compilation support for libaio
 
+-   cmake
+
 -   A full JDK installed with the environment variable JAVA\_HOME set to
     its location
 
 To perform this installation on RHEL or Fedora, you can simply type this at a command line:
 
-    sudo yum install libtool gcc-c++ gcc libaio libaio-devel
+    sudo yum install libtool gcc-c++ gcc libaio libaio-devel cmake
 
 Or on Debian systems:
 
-    sudo apt-get install libtool gcc-g++ gcc libaio libaio-dev
+    sudo apt-get install libtool gcc-g++ gcc libaio libaio- cmake
 
 > **Note**
 >
@@ -82,26 +84,7 @@ Or on Debian systems:
 ## Invoking the compilation
 
 In the source distribution or git clone, in the `artemis-native` directory, execute the shell
-script `compile-native.sh`. This script will invoke the proper maven profile to perform the native build.
+script `compile-native.sh`. This script will invoke the proper commands to perform the native build.
 
-    someUser@someBox:/checkout-dir/artemis-native$ ./compile-native.sh
-    [INFO] Scanning for projects...
-    [INFO]
-    [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ Artemis Native POM 1.0.0
-    [INFO] ------------------------------------------------------------------------
-    [INFO]
-    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ artemis-native ---
-    [INFO] Using AOL: amd64-Linux-gpp
-    [INFO]
-    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ artemis-native ---
-    ...
+If you want more information refer to the [cmake web pages](http://cmake.org).
 
-The produced library will be at
-`./target/nar/artemis-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
-libartemis-native-RELEASE.so`. Simply move that file over
-`bin` with the proper rename [library
-path](#using-server.library.path).
-
-If you want to perform changes on the Apache ActiveMQ Artemis libaio code, you could
-just call make directly at the `native-src` directory.

@@ -250,4 +250,23 @@ tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
     yourself do you really need MDBs? Can you accomplish the same task
     using just a normal message consumer?
 
+## Troubleshooting
+
+### UDP not working
+
+In certain situations UDP used on discovery may not work. Typical situations are:
+
+1. The nodes are behind a firewall. If your nodes are on different machines then it is possible that the firewall is blocking the multicasts. you can test this by disabling the firewall for each node or adding the appropriate rules.
+2. You are using a home network or are behind a gateway. Typically home networks will redirect any UDP traffic to the Internet Service Provider which is then either dropped by the ISP or just lost. To fix this you will need to add a route to the firewall/gateway that will redirect any multicast traffic back on to the local network instead.
+3. All the nodes are in one machine. If this is the case then it is a similar problem to point 2 and the same solution should fix it. Alternatively you could add a multicast route to the loopback interface. On linux the command would be:
+```sh
+# you should run this as root
+route add -net 224.0.0.0 netmask 240.0.0.0 dev lo
+```
+ This will redirect any traffic directed to the 224.0.0.0 to the loopback interface. This will also work if you have no network at all.
+
+   * on Mac OS X, the command is slightly different:
+```sh
+sudo route add 224.0.0.0 127.0.0.1 -netmask 240.0.0.0
+```
 

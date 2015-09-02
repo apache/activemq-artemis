@@ -4,31 +4,191 @@ Examples
 The Apache ActiveMQ Artemis distribution comes with over 90 run out-of-the-box examples
 demonstrating many of the features.
 
-The examples are available in the distribution, in the `examples`
-directory. Examples are split into JMS and core examples. JMS examples
-show how a particular feature can be used by a normal JMS client. Core
-examples show how the equivalent feature can be used by a core messaging
-client.
+The examples are available in both the binary and source distribution under the `examples`
+directory. Examples are split by the following source tree:
+
+- features - Examples containing broker specific features.
+    - ha - examples showing failover and reconnection capabilities.
+    - clustered - examples showing load balancing and distribution capabilities.
+    - perf - examples allowing you to run a few performance tests on the server
+    - sub-modules - examples of integrated external modules.
+- protocols - Protocol specific examples
+    - openwire
+    - mqtt
+    - stomp
+    - amqp
 
 A set of Java EE examples are also provided which need WildFly installed
 to be able to run.
 
-JMS Examples
-============
+Examples
+========
 
-To run a JMS example, simply `cd` into the appropriate example directory
-and type `mvn verify -Pexample` (For details please read the readme.html in each
+To run any example, simply `cd` into the appropriate example directory
+and type `mvn verify` or `mvn install` (For details please read the readme.html in each
 example directory).
 
-Here's a listing of the examples with a brief description.
+You can use the profile -Pexamples to run multiple examples under any example tree.
 
-JMS AeroGear
-------------
+For each server, you will have a created server under ./target/server0 (some examples use more than one server).
 
-This example shows how you can send a message to a mobile device by
-leveraging AeroGears push technology which provides support for
-different push notification technologies like Google Cloud Messaging,
-Apple's APNs or Mozilla's SimplePush.
+You have the option to disable the server running (say if you want to start the server manually) by simply specifying the -PnoServer profile
+
+
+This will run the example without a server:
+
+``` sh
+# running an example without running the server
+mvn verify -PnoServer
+```
+
+Also under ./target there will be a script repeating the commands to create each server:
+
+Example this is create-server0.sh created for the queue example. It could be useful to see what we do on the example:
+```sh
+# These are the commands used to create server0
+/myInstallDirectory/apache-artemis-1.1.0/bin/artemis create --allow-anonymous --silent --force --no-web --user guest --password guest --role guest --port-offset 0 --data ./data --allow-anonymous --no-autotune --verbose /myInstallDirectory/apache-artemis-1.1.0/examples/features/standard/queue/target/server0
+```
+
+These examples are all using the [Maven plugin](maven-plugin.md), which can be useful for running your test servers as well.
+
+This is the common output when running an example. On this case taken from the Queue example:
+
+
+```sh
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building ActiveMQ Artemis JMS Queue Example 1.1.0
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
+[INFO]
+[INFO] --- maven-remote-resources-plugin:1.5:process (default) @ queue ---
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ queue ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ queue ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /work/apache-artemis-1.1.0/examples/features/standard/queue/target/classes
+[INFO]
+[INFO] --- maven-checkstyle-plugin:2.16:check (default) @ queue ---
+[INFO]
+[INFO] --- apache-rat-plugin:0.11:check (default) @ queue ---
+[INFO] RAT will not execute since it is configured to be skipped via system property 'rat.skip'.
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ queue ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /work/apache-artemis-1.1.0/examples/features/standard/queue/src/test/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ queue ---
+[INFO] No sources to compile
+[INFO]
+[INFO] --- maven-surefire-plugin:2.18.1:test (default-test) @ queue ---
+[INFO]
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ queue ---
+[INFO] Building jar: /work/apache-artemis-1.1.0/examples/features/standard/queue/target/queue-1.1.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.3:attach-descriptor (attach-descriptor) @ queue ---
+[INFO]
+[INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) > generate-sources @ queue >>>
+[INFO]
+[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
+[INFO]
+[INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) < generate-sources @ queue <<<
+[INFO]
+[INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ queue ---
+[INFO] Building jar: /work/apache-artemis-1.1.0/examples/features/standard/queue/target/queue-1.1.0-sources.jar
+[INFO]
+[INFO] >>> maven-source-plugin:2.2.1:jar (default) > generate-sources @ queue >>>
+[INFO]
+[INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ queue ---
+[INFO]
+[INFO] <<< maven-source-plugin:2.2.1:jar (default) < generate-sources @ queue <<<
+[INFO]
+[INFO] --- maven-source-plugin:2.2.1:jar (default) @ queue ---
+[INFO]
+[INFO] --- artemis-maven-plugin:1.1.0:create (create) @ queue ---
+[INFO] Local       id: local
+      url: file:///Users/apacheuser/.m2/repository/
+   layout: default
+snapshots: [enabled => true, update => always]
+ releases: [enabled => true, update => always]
+
+[INFO] Entries.size 2
+[INFO] ... key=project = MavenProject: org.apache.activemq.examples.broker:queue:1.1.0 @ /work/apache-artemis-1.1.0/examples/features/standard/queue/pom.xml
+[INFO] ... key=pluginDescriptor = Component Descriptor: role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisCLIPlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:1.1.0:cli'
+role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisCreatePlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:1.1.0:create'
+role: 'org.apache.maven.plugin.Mojo', implementation: 'org.apache.activemq.artemis.maven.ArtemisClientPlugin', role hint: 'org.apache.activemq:artemis-maven-plugin:1.1.0:runClient'
+---
+Executing org.apache.activemq.artemis.cli.commands.Create create --allow-anonymous --silent --force --no-web --user guest --password guest --role guest --port-offset 0 --data ./data --allow-anonymous --no-autotune --verbose /work/apache-artemis-1.1.0/examples/features/standard/queue/target/server0
+Home::/work/apache-artemis-1.1.0/examples/features/standard/queue/../../../.., Instance::.
+Creating ActiveMQ Artemis instance at: /work/apache-artemis-1.1.0/examples/features/standard/queue/target/server0
+
+You can now start the broker by executing:
+
+   "/work/apache-artemis-1.1.0/examples/features/standard/queue/target/server0/bin/artemis" run
+
+Or you can run the broker in the background using:
+
+   "/work/apache-artemis-1.1.0/examples/features/standard/queue/target/server0/bin/artemis-service" start
+
+[INFO] ###################################################################################################
+[INFO] create-server0.sh created with commands to reproduce server0
+[INFO] under /work/apache-artemis-1.1.0/examples/features/standard/queue/target
+[INFO] ###################################################################################################
+[INFO]
+[INFO] --- artemis-maven-plugin:1.1.0:cli (start) @ queue ---
+[INFO] awaiting server to start
+[INFO] awaiting server to start
+server-out:     _        _               _
+server-out:    / \  ____| |_  ___ __  __(_) _____
+server-out:   / _ \|  _ \ __|/ _ \  \/  | |/  __/
+server-out:  / ___ \ | \/ |_/  __/ |\/| | |\___ \
+server-out: /_/   \_\|   \__\____|_|  |_|_|/___ /
+server-out: Apache ActiveMQ Artemis 1.1.0
+server-out:
+server-out:
+server-out:17:30:25,091 INFO  [org.apache.activemq.artemis.integration.bootstrap] AMQ101000: Starting ActiveMQ Artemis Server
+server-out:17:30:25,120 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=./data/journal,bindingsDirectory=./data/bindings,largeMessagesDirectory=./data/large-messages,pagingDirectory=./data/paging)
+server-out:17:30:25,152 INFO  [org.apache.activemq.artemis.core.server] AMQ221013: Using NIO Journal
+server-out:17:30:25,195 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
+server-out:17:30:25,199 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-amqp-protocol]. Adding protocol support for: AMQP
+server-out:17:30:25,209 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-hornetq-protocol]. Adding protocol support for: HORNETQ
+server-out:17:30:25,211 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-mqtt-protocol]. Adding protocol support for: MQTT
+server-out:17:30:25,214 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-openwire-protocol]. Adding protocol support for: OPENWIRE
+server-out:17:30:25,335 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-stomp-protocol]. Adding protocol support for: STOMP
+[INFO] awaiting server to start
+server-out:17:30:25,781 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: trying to deploy queue jms.queue.DLQ
+server-out:17:30:25,835 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: trying to deploy queue jms.queue.ExpiryQueue
+server-out:17:30:25,933 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started Acceptor at 0.0.0.0:61616 for protocols [CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE]
+server-out:17:30:25,936 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started Acceptor at 0.0.0.0:5445 for protocols [HORNETQ,STOMP]
+server-out:17:30:25,939 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started Acceptor at 0.0.0.0:5672 for protocols [AMQP]
+server-out:17:30:25,944 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started Acceptor at 0.0.0.0:1883 for protocols [MQTT]
+server-out:17:30:25,948 INFO  [org.apache.activemq.artemis.core.server] AMQ221020: Started Acceptor at 0.0.0.0:61613 for protocols [STOMP]
+server-out:17:30:25,949 INFO  [org.apache.activemq.artemis.core.server] AMQ221007: Server is now live
+server-out:17:30:25,949 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 1.1.0 [nodeID=a855176b-50f0-11e5-937e-2fe9bb000966]
+[INFO] Server started
+[INFO]
+[INFO] --- artemis-maven-plugin:1.1.0:runClient (runClient) @ queue ---
+Sent message: This is a text message
+Received message: This is a text message
+[INFO]
+[INFO] --- artemis-maven-plugin:1.1.0:cli (stop) @ queue ---
+server-out:17:30:27,476 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 1.0.1-SNA
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 7.840 s
+[INFO] Finished at: 2015-09-01T17:30:27-04:00
+[INFO] Final Memory: 42M/508M
+[INFO] ------------------------------------------------------------------------
+
+```
 
 Applet
 ------
@@ -470,6 +630,8 @@ OpenWire
 
 The `Openwire` example shows how to configure an Apache ActiveMQ Artemis server to
 communicate with an Apache ActiveMQ Artemis JMS client that uses open-wire protocol.
+
+You will find the queue example for open wire, and the chat example.
 
 Paging
 ------
