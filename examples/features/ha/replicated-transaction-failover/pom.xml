@@ -62,7 +62,7 @@ under the License.
                   <configuration>
                      <instance>${basedir}/target/server0</instance>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>
-                     <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                     <javaOptions>-Dudp-address=${udp-address} -Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>
@@ -73,7 +73,7 @@ under the License.
                   <configuration>
                      <instance>${basedir}/target/server1</instance>
                      <configuration>${basedir}/target/classes/activemq/server1</configuration>
-                     <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                     <javaOptions>-Dudp-address=${udp-address} -Djava.net.preferIPv4Stack=true</javaOptions>
                   </configuration>
                </execution>
                <execution>

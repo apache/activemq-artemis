@@ -61,6 +61,8 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/server0</instance>
                      <dataFolder>../shared</dataFolder>
                      <sharedStore>true</sharedStore>
@@ -74,6 +76,8 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/server1</instance>
                      <dataFolder>../shared</dataFolder>
                      <sharedStore>true</sharedStore>

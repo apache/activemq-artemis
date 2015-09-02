@@ -60,6 +60,8 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/server0</instance>
                      <sharedStore>true</sharedStore>
                      <slave>false</slave>
@@ -73,6 +75,8 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/server1</instance>
                      <sharedStore>true</sharedStore>
                      <slave>true</slave>
@@ -86,6 +90,8 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <instance>${basedir}/target/server2</instance>
                      <sharedStore>true</sharedStore>
                      <slave>true</slave>

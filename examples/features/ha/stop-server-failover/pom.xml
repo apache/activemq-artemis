@@ -56,6 +56,7 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server0</instance>
                      <sharedStore>true</sharedStore>
@@ -70,6 +71,7 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
                      <ignore>${noServer}</ignore>
                      <instance>${basedir}/target/server1</instance>
                      <sharedStore>true</sharedStore>
