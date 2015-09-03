@@ -64,7 +64,6 @@ Example:
          <ignore>${noServer}</ignore>
       </configuration>
    </execution>
-
 ```
 
 
@@ -113,15 +112,15 @@ args | A string array of arguments passed to the method
 Example:
 
 ```xml
-               <execution>
-                  <id>runClient</id>
-                  <goals>
-                     <goal>runClient</goal>
-                  </goals>
-                  <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
-                  </configuration>
-               </execution>
+<execution>
+  <id>runClient</id>
+  <goals>
+     <goal>runClient</goal>
+  </goals>
+  <configuration>
+     <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
+  </configuration>
+</execution>
 ```
 
 ### Complete example
