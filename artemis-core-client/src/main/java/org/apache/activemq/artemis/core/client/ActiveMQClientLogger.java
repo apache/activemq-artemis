@@ -260,9 +260,9 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void jvmAllocatedMoreMemory(Long totalMemory1, Long totalMemory2);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212048, value = "local-bind-address specified for broadcast group but no local-bind-port specified so socket will NOT be bound to a local address/port",
+   @Message(id = 212048, value = "Random address ({0}) was already in use, trying another time",
       format = Message.Format.MESSAGE_FORMAT)
-   void broadcastGroupBindError();
+   void broadcastGroupBindErrorRetry(String hostAndPort, @Cause Throwable t);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212049,
@@ -308,6 +308,11 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212055, value = "Unable to close consumer", format = Message.Format.MESSAGE_FORMAT)
    void unableToCloseConsumer(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 212056, value = "local-bind-address specified for broadcast group but no local-bind-port. Using random port for UDP Broadcast ({0})",
+      format = Message.Format.MESSAGE_FORMAT)
+   void broadcastGroupBindError(String hostAndPort);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214000, value = "Failed to call onMessage", format = Message.Format.MESSAGE_FORMAT)

@@ -280,7 +280,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.myConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort() + "?" +
-         TransportConstants.LOCAL_ADDRESS_PROP_NAME + "=127.0.0.1&" +
+         TransportConstants.LOCAL_ADDRESS_PROP_NAME + "=Server1&" +
          TransportConstants.LOCAL_PORT_PROP_NAME + "=1198&" +
          ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
          ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
@@ -294,8 +294,8 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       UDPBroadcastEndpointFactory udpBroadcastEndpointFactory = (UDPBroadcastEndpointFactory) discoveryGroupConfiguration.getBroadcastEndpointFactory();
       //these 2 are transient so are ignored
-      Assert.assertEquals(null, udpBroadcastEndpointFactory.getLocalBindAddress());
-      Assert.assertEquals(-1, udpBroadcastEndpointFactory.getLocalBindPort());
+      Assert.assertNotEquals("Server1", udpBroadcastEndpointFactory.getLocalBindAddress());
+      Assert.assertNotEquals(1198, udpBroadcastEndpointFactory.getLocalBindPort());
       Assert.assertEquals(getUDPDiscoveryAddress(), udpBroadcastEndpointFactory.getGroupAddress());
       Assert.assertEquals(getUDPDiscoveryPort(), udpBroadcastEndpointFactory.getGroupPort());
    }

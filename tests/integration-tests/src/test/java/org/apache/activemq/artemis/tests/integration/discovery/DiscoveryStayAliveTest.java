@@ -30,10 +30,12 @@ import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * This is to make sure discovery works fine even when garbled data is sent
+ */
 public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
 
    ScheduledExecutorService scheduledExecutorService;
@@ -57,7 +59,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
+      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
 
       final AtomicInteger errors = new AtomicInteger(0);
       Thread t = new Thread() {
@@ -74,30 +76,45 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       };
       t.start();
 
-      BroadcastGroupImpl bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
-         setGroupPort(groupPort));
+      BroadcastGroupImpl bg = null;
 
-      bg.start();
+      try {
 
-      bg.addConnector(generateTC());
+         bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+            setGroupPort(groupPort));
 
-      for (int i = 0; i < 10; i++) {
-         BroadcastEndpointFactory factoryEndpoint = new UDPBroadcastEndpointFactory().setGroupAddress(address1).
-            setGroupPort(groupPort);
-         sendBadData(factoryEndpoint);
+         bg.start();
 
+         bg.addConnector(generateTC());
+
+         for (int i = 0; i < 10; i++) {
+            BroadcastEndpointFactory factoryEndpoint = new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+               setGroupPort(groupPort).setLocalBindAddress("localhost");
+            sendBadData(factoryEndpoint);
+
+         }
          Thread.sleep(100);
          assertTrue(t.isAlive());
          assertEquals(0, errors.get());
       }
+      finally {
 
-      bg.stop();
-      dg.stop();
+         if (bg != null) {
+            bg.stop();
+         }
 
-      t.join(5000);
+         if (dg != null) {
+            dg.stop();
+         }
 
-      Assert.assertFalse(t.isAlive());
+         t.join(1000);
 
+         // it will retry for a limited time only
+         for (int i = 0; t.isAlive() && i < 100; i++) {
+            t.interrupt();
+            Thread.sleep(100);
+         }
+      }
    }
 
    private static void sendBadData(BroadcastEndpointFactory factoryEndpoint) throws Exception {
@@ -120,5 +137,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       endpoint.openBroadcaster();
 
       endpoint.broadcast(bytes);
+
+      endpoint.close(true);
    }
 }

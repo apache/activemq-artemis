@@ -816,7 +816,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
             }
          } while (retry);
+      }
 
+      synchronized (topologyArrayGuard) {
          // We always wait for the topology, as the server
          // will send a single element if not cluster
          // so clients can know the id of the server they are connected to
@@ -824,7 +826,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          while (!isClosed() && !receivedTopology && timeout > System.currentTimeMillis()) {
             // Now wait for the topology
             try {
-               wait(1000);
+               topologyArrayGuard.wait(1000);
             }
             catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
@@ -847,7 +849,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          return factory;
       }
-
    }
 
    public boolean isHA() {
@@ -1410,10 +1411,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       updateArraysAndPairs();
 
       if (last) {
-         synchronized (this) {
+         synchronized (topologyArrayGuard) {
             receivedTopology = true;
             // Notify if waiting on getting topology
-            notifyAll();
+            topologyArrayGuard.notifyAll();
          }
       }
    }

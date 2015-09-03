@@ -56,7 +56,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
    protected static void verifyBroadcast(BroadcastGroup broadcastGroup,
                                          DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
-      Assert.assertTrue("broadcast received", discoveryGroup.waitForBroadcast(2000));
+      Assert.assertTrue("broadcast not received", discoveryGroup.waitForBroadcast(2000));
    }
 
    /**
@@ -147,7 +147,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
                                              int localPort,
                                              final InetAddress groupAddress,
                                              final int groupPort) throws Exception {
-      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null).setLocalBindPort(localPort));
+      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : "localhost").setLocalBindPort(localPort));
    }
 
    protected DiscoveryGroup newDiscoveryGroup(final String nodeID,
@@ -166,7 +166,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
                                               final int groupPort,
                                               final long timeout,
                                               NotificationService notif) throws Exception {
-      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null), notif);
+      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : "localhost"), notif);
    }
 
    protected final class FakeNodeManager extends NodeManager {
