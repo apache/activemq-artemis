@@ -29,11 +29,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.tcp.TcpTransport;
 import org.junit.After;
 import org.junit.Before;
@@ -340,9 +340,16 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
       try {
          if (flowControlConnection != null) {
             TcpTransport t = (TcpTransport) flowControlConnection.getTransport().narrow(TcpTransport.class);
+            try {
+               flowControlConnection.getTransport().stop();
+               flowControlConnection.close();
+            }
+            catch (Throwable ignored) {
+               // sometimes the disposed up can make the test to fail
+               // even worse I have seen this breaking every single test after this
+               // if not caught here
+            }
             t.getTransportListener().onException(new IOException("Disposed."));
-            flowControlConnection.getTransport().stop();
-            flowControlConnection.close();
          }
          if (asyncThread != null) {
             asyncThread.join();

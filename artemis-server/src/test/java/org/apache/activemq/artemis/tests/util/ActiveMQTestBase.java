@@ -292,6 +292,8 @@ public abstract class ActiveMQTestBase extends Assert {
 
             boolean failed = true;
 
+            boolean failedOnce = false;
+
             long timeout = System.currentTimeMillis() + 60000;
             while (failed && timeout > System.currentTimeMillis()) {
                buffer = new StringBuffer();
@@ -299,6 +301,7 @@ public abstract class ActiveMQTestBase extends Assert {
                failed = checkThread(buffer);
 
                if (failed) {
+                  failedOnce = true;
                   forceGC();
                   Thread.sleep(500);
                   log.info("There are still threads running, trying again");
@@ -309,10 +312,15 @@ public abstract class ActiveMQTestBase extends Assert {
             if (failed) {
                logAndSystemOut("Thread leaked on test " + this.getClass().getName() + "::" + this.getName() + "\n" +
                                   buffer);
-               logAndSystemOut("Thread leakage");
+               logAndSystemOut("Thread leakage! Failure!!!");
 
                fail("Thread leaked");
             }
+            else if (failedOnce) {
+               System.out.println("******************** Threads cleared after retries ********************");
+               System.out.println();
+            }
+
 
          }
          else {
@@ -598,12 +606,12 @@ public abstract class ActiveMQTestBase extends Assert {
     * Sends the message to both logger and System.out (for unit report)
     */
    public void logAndSystemOut(String message, Exception e) {
-      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
-      log0.info(message, e);
       System.out.println(message);
       if (e != null) {
          e.printStackTrace(System.out);
       }
+      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
+      log0.debug(message, e);
    }
 
    /**

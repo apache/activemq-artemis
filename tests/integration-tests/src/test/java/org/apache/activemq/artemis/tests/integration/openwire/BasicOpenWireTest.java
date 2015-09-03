@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -27,11 +23,15 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -91,8 +91,15 @@ public class BasicOpenWireTest extends OpenWireTestBase {
          Iterator<SimpleString> iterQueues = testQueues.values().iterator();
          while (iterQueues.hasNext()) {
             SimpleString coreQ = iterQueues.next();
-            if (server.locateQueue(coreQ) != null) {
-               this.server.destroyQueue(coreQ);
+            try {
+               this.server.destroyQueue(coreQ, null, false, true);
+            }
+            catch (ActiveMQNonExistentQueueException idontcare) {
+               // i don't care if this failed. it means it didn't find the queue
+            }
+            catch (Throwable e) {
+               // just print, what else can we do?
+               e.printStackTrace();
             }
             System.out.println("Destroyed queue: " + coreQ);
          }
