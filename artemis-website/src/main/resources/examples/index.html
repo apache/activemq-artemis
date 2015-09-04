@@ -48,9 +48,13 @@
         supports.</p>
 
         <p>Each example has its own instructions as to how they can be run, but for most of them it is as simple as running
-        <code>mvn verify -Pexample</code> from the example directory. This will start a broker with the correct configuration, run the
+        <code>mvn verify</code> from the example directory. This will start a broker with the correct configuration, run the
         example and then stop the broker.  You'll need to ensure there is not a broker already running as this may conflict
         with the broker that is configured and used in the example.</p>
+
+        <p>You may also run the example without starting the server by specifying -PnoServer (mvn -PnoServer verify). You can then use your own server for the example.</p>
+
+        <p>Notice that some examples will require special cases and multiple servers, for example in some Failover tests. Always refer to the README on each example.</p>
 
             <div></div>
         </div>
