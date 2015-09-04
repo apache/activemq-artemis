@@ -79,7 +79,7 @@ SYNOPSIS
 
 <h2>Starting the Broker</h2>
 
-Once the broker has been created, use the artemis (or artemis.cmd on windows) script of the under the bin directory of the newly created broker to manage the life cycle of the broker.
+Once the broker has been created, use the artemis (or artemis.cmd on windows) script found under the bin directory of the newly created broker to manage the life cycle of the broker.
 
 To run the Apache ActiveMQ Artemis broker with the default configuration, run the command shown below from the "bin" directory of the created broker.</br></br>
 
@@ -93,8 +93,6 @@ e.g.</br></br>
 
 $ ./artemis run --config xml:/home/artemis/bootstrap.xml</br></br>
 
-The distribution ships with a number of example configurations that can be used to get started.  You can find these under the "config" directory.</br></br>
-
 It is possible to configure run time paramters in the artemis.conf (artemis.conf.bat for windows) file under the "bin" directory of the broker directory.
 
 <h2>Stopping the Broker</h2>
@@ -105,12 +103,12 @@ $ ./artemis stop</br></br>
 
 <h2>Documentation</h2>
 
-The broker comes shipped with an in depth user manual and a bunch of examples to help you get started.  The manual is accessible from the broker website.  Start the broker then navigate to the <a href="http://localhost:8161">Apache ActiveMQ Artemis</a>.</br></br>
+The broker comes shipped with an in depth user manual and a bunch of examples to help you get started.  The manual is shipped with the broker and can be accessed from the brokers website.  Start the broker then navigate to the <a href="http://localhost:8161">Apache ActiveMQ Artemis</a>.  Alternatively, you can browse all of the documentation online on the <a href="http://activemq.apache.org/artemis/">Apache ActiveMQ Artemis Website</a>.</br></br>
 
 The examples are shipped inside the distribution folder under "examples"</br></br>
 
 <h2 id="release-notes---apache-activemq-artemis-1.1.0">Release Notes - Apache ActiveMQ Artemis 1.1.0</h2>
-<p>A complete list for JIRAs for the 1.1.0 release can be found at the <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12332642&amp;styleName=Html&amp;projectId=12315920&amp;Create=Create&amp;atl_token=A5KQ-2QAV-T4JA-FDED%7C708a588702fdb54724fe817fd07ee4c5610de292%7Clin">Apache ActiveMQ Artemis project JIRA</a></p>
+<p>A complete list of JIRAs for the 1.1.0 release can be found at the <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12332642&amp;styleName=Html&amp;projectId=12315920&amp;Create=Create&amp;atl_token=A5KQ-2QAV-T4JA-FDED%7C708a588702fdb54724fe817fd07ee4c5610de292%7Clin">Apache ActiveMQ Artemis project JIRA</a></p>
 <p>Overall Apache ActiveMQ Artemis 1.1.0 has several improvements and it's a nice polish on top of Apache ActiveMQ Artemis 1.0.0, things like better examples, better OpenWire support and the first release of MQTT.</p>
 <p>We would like to highlight the following accomplishments on this release:</p>
 <ul>
