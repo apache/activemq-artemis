@@ -58,7 +58,7 @@
          <artifactId>artemis-selector</artifactId>
          <version>${project.version}</version>
       </dependency>
-      
+
       <!-- stuff needed to resolve various classes during javadoc processing -->
       <dependency>
           <groupId>org.jboss.logging</groupId>
@@ -143,14 +143,14 @@
                               <exec executable="${gitbook.cmd}">
                                  <arg value="build" />
                                  <arg value="${basedir}/../docs/user-manual/en" />
-                                 <arg value="--output=${webapp-outdir-user-manual}" />
+                                 <arg value="${webapp-outdir-user-manual}" />
                               </exec>
                               <mkdir dir="${webapp-outdir-hacking-guide}/gitbook" />
                               <echo>executing ${gitbook.cmd}</echo>
                               <exec executable="${gitbook.cmd}">
                                  <arg value="build" />
                                  <arg value="${basedir}/../docs/hacking-guide/en" />
-                                 <arg value="--output=${webapp-outdir-hacking-guide}" />
+                                 <arg value="${webapp-outdir-hacking-guide}" />
                               </exec>
                            </target>
                         </configuration>
