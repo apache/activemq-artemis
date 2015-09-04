@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.mqtt</groupId>
       <artifactId>mqtt-examples</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.1.1-SNAPSHOT</version>
    </parent>
 
    <artifactId>artemis-mqtt-publish-example</artifactId>
