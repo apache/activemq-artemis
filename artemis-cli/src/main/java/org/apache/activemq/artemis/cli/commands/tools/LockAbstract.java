@@ -17,8 +17,6 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
-import java.io.File;
-
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
@@ -26,7 +24,7 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      lock(new File(getJournal()));
+      lockCLI(getLockPlace());
 
       return null;
    }

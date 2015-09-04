@@ -66,7 +66,7 @@ public class Run extends Configurable {
 
       FileConfiguration fileConfiguration = getFileConfiguration();
 
-      lock(fileConfiguration.getJournalLocation());
+      lockCLI(getLockPlace());
 
       Artemis.printBanner();
 

@@ -80,13 +80,25 @@ public abstract class Configurable extends ActionAbstract {
    private static RandomAccessFile serverLockFile = null;
    private static FileLock serverLockLock = null;
 
-   protected static void lock(File journalPlace) throws Exception {
-      journalPlace.mkdirs();
-      File fileLock = new File(journalPlace, "cli.lock");
-      RandomAccessFile file = new RandomAccessFile(fileLock, "rw");
-      serverLockLock = file.getChannel().tryLock();
-      if (serverLockLock == null) {
-         throw new CLIException("Error: There is another process using the journal at " + journalPlace + ". Cannot start the process!");
+   protected static void lockCLI(File lockPlace) throws Exception {
+      if (lockPlace != null) {
+         lockPlace.mkdirs();
+         File fileLock = new File(lockPlace, "cli.lock");
+         RandomAccessFile file = new RandomAccessFile(fileLock, "rw");
+         serverLockLock = file.getChannel().tryLock();
+         if (serverLockLock == null) {
+            throw new CLIException("Error: There is another process using the server at " + lockPlace + ". Cannot start the process!");
+         }
+      }
+   }
+
+   protected File getLockPlace() throws Exception {
+      String brokerInstance = getBrokerInstance();
+      if (brokerInstance != null) {
+         return new File(new File(brokerInstance),"lock");
+      }
+      else {
+         return null;
       }
    }
 
