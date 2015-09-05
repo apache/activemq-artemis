@@ -58,6 +58,7 @@ under the License.
             <module>amqp</module>
             <module>mqtt</module>
             <module>stomp</module>
+            <module>openwire</module>
          </modules>
       </profile>
    </profiles>
