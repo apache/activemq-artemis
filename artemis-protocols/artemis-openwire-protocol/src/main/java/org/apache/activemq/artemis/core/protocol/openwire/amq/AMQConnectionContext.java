@@ -244,7 +244,8 @@ public class AMQConnectionContext {
       // TODO: check what this means,
       //       on the activemq implementation this used to check on
       //       the connector, so this looks like a configuration option
-      return true;
+      // http://activemq.apache.org/configuring-transports.html
+      return false;
    }
 
 }
