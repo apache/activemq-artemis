@@ -92,6 +92,15 @@
             <skipActiveMQ5Tests>false</skipActiveMQ5Tests>
          </properties>
       </profile>
+      <profile>
+         <id>release</id>
+         <modules>
+            <module>activemq5-unit-tests</module>
+         </modules>
+         <properties>
+            <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
+         </properties>
+      </profile>
    </profiles>
 
    <modules>

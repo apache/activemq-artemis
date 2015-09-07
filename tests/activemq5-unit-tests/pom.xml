@@ -20,7 +20,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.1.1-SNAPSHOT</version>
    </parent>
 
    <artifactId>activemq5-unit-tests</artifactId>
@@ -44,7 +44,7 @@
       <jasypt-version>1.9.2</jasypt-version>
       <directory-version>2.0.0-M6</directory-version>
       <activeio-core-version>3.1.4</activeio-core-version>
-      
+
    </properties>
 
    <dependencies>
@@ -408,7 +408,7 @@
                </excludes>
             </configuration>
          </plugin>
- 
+
       </plugins>
    </build>
 

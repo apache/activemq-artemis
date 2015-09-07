@@ -62,6 +62,7 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
+            <module>client-side-load-balancing</module>
             <module>clustered-durable-subscription</module>
             <module>clustered-grouping</module>
             <module>clustered-jgroups</module>
