@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -1425,10 +1424,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
     */
    private File subFolder(String subFolder) {
       try {
-         // Resolve wont work without "/" as the last character
-         URI artemisHome = new URI(getBrokerInstance().toURI() + "/");
-         URI relative = artemisHome.resolve(subFolder);
-         return new File(relative.getPath());
+         return getBrokerInstance().toPath().resolve(subFolder).toFile();
       }
       catch (Exception e) {
          throw new RuntimeException(e);

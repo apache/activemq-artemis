@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -481,6 +483,68 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Configuration conf2 = conf.copy();
 
       Assert.assertTrue(conf.equals(conf2));
+   }
+
+   @Test
+   public void testResolvePath() throws Throwable {
+      // Validate that the resolve method will work even with artemis.instance doesn't exist
+
+      String oldProperty = System.getProperty("artemis.instance");
+
+      try {
+         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
+         ConfigurationImpl configuration = new ConfigurationImpl();
+         configuration.setJournalDirectory("./data-journal");
+         File journalLocation = configuration.getJournalLocation();
+         Assert.assertFalse("This path shouldn't resolve to a real folder", journalLocation.exists());
+      }
+      finally {
+         if (oldProperty == null) {
+            System.clearProperty("artemis.instance");
+         }
+         else {
+            System.setProperty("artemis.instance", oldProperty);
+         }
+      }
+
+   }
+
+   @Test
+   public void testAbsolutePath() throws Throwable {
+      // Validate that the resolve method will work even with artemis.instance doesn't exist
+
+      String oldProperty = System.getProperty("artemis.instance");
+
+      File tempFolder = null;
+      try {
+         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
+         tempFolder = File.createTempFile("journal-folder", "");
+         tempFolder.delete();
+
+         tempFolder = new File(tempFolder.getAbsolutePath());
+         tempFolder.mkdirs();
+
+         System.out.println("TempFolder = " + tempFolder.getAbsolutePath());
+
+         ConfigurationImpl configuration = new ConfigurationImpl();
+         configuration.setJournalDirectory(tempFolder.getAbsolutePath());
+         File journalLocation = configuration.getJournalLocation();
+
+         Assert.assertTrue(journalLocation.exists());
+      }
+      finally {
+         if (oldProperty == null) {
+            System.clearProperty("artemis.instance");
+         }
+         else {
+            System.setProperty("artemis.instance", oldProperty);
+         }
+
+         if (tempFolder != null) {
+            tempFolder.delete();
+         }
+      }
+
    }
 
    @Override
