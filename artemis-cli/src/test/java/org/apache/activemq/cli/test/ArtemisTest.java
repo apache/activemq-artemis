@@ -74,7 +74,7 @@ public class ArtemisTest {
 
    @Test
    public void testSync() throws Exception {
-      int writes = 2560;
+      int writes = 20;
       int tries = 10;
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true);
       System.out.println();
