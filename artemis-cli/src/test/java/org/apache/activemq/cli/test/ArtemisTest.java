@@ -64,12 +64,17 @@ public class ArtemisTest {
 
    @Test
    public void invalidCliDoesntThrowException() {
-      testCli("create");
+      testCli("--silent", "create");
    }
 
    @Test
    public void invalidPathDoesntThrowException() {
-      testCli("create", "/rawr");
+      if (isWindows()) {
+         testCli("create", "zzzzz:/rawr", "--silent");
+      }
+      else {
+         testCli("create", "/rawr", "--silent");
+      }
    }
 
    @Test
@@ -90,7 +95,7 @@ public class ArtemisTest {
       String queues = "q1,t2";
       String topics = "t1,t2";
       Run.setEmbedded(true);
-      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics);
+      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics, "--no-autotune");
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.internalExecute("run");
@@ -108,8 +113,8 @@ public class ArtemisTest {
          }
       }
 
-      Assert.assertEquals(Integer.valueOf(1000), Artemis.internalExecute("producer", "--message-count", "1000", "--verbose"));
-      Assert.assertEquals(Integer.valueOf(1000), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100", "--verbose"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = cf.createConnection();
@@ -159,5 +164,11 @@ public class ArtemisTest {
          e.printStackTrace();
          Assert.fail("Exception caught " + e.getMessage());
       }
+   }
+
+
+   public boolean isWindows() {
+      return System.getProperty("os.name", "null").toLowerCase().indexOf("win") >= 0;
+
    }
 }
