@@ -811,4 +811,70 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public void setMaxMessages(final Integer value) {
    }
 
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      if (!super.equals(o)) return false;
+
+      ActiveMQActivationSpec that = (ActiveMQActivationSpec) o;
+
+      if (acknowledgeMode != that.acknowledgeMode) return false;
+      if (subscriptionDurability != that.subscriptionDurability) return false;
+      if (shareSubscriptions != that.shareSubscriptions) return false;
+      if (strConnectorClassName != null ? !strConnectorClassName.equals(that.strConnectorClassName) : that.strConnectorClassName != null)
+         return false;
+      if (strConnectionParameters != null ? !strConnectionParameters.equals(that.strConnectionParameters) : that.strConnectionParameters != null)
+         return false;
+      if (ra != null ? !ra.equals(that.ra) : that.ra != null) return false;
+      if (connectionFactoryLookup != null ? !connectionFactoryLookup.equals(that.connectionFactoryLookup) : that.connectionFactoryLookup != null)
+         return false;
+      if (destination != null ? !destination.equals(that.destination) : that.destination != null) return false;
+      if (destinationType != null ? !destinationType.equals(that.destinationType) : that.destinationType != null)
+         return false;
+      if (messageSelector != null ? !messageSelector.equals(that.messageSelector) : that.messageSelector != null)
+         return false;
+      if (subscriptionName != null ? !subscriptionName.equals(that.subscriptionName) : that.subscriptionName != null)
+         return false;
+      if (user != null ? !user.equals(that.user) : that.user != null) return false;
+      if (password != null ? !password.equals(that.password) : that.password != null) return false;
+      if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null) return false;
+      if (transactionTimeout != null ? !transactionTimeout.equals(that.transactionTimeout) : that.transactionTimeout != null)
+         return false;
+      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null) return false;
+      if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null) return false;
+      if (parsedJndiParams != null ? !parsedJndiParams.equals(that.parsedJndiParams) : that.parsedJndiParams != null)
+         return false;
+      if (localTx != null ? !localTx.equals(that.localTx) : that.localTx != null) return false;
+      if (setupAttempts != null ? !setupAttempts.equals(that.setupAttempts) : that.setupAttempts != null) return false;
+      return !(setupInterval != null ? !setupInterval.equals(that.setupInterval) : that.setupInterval != null);
+
+   }
+
+   @Override
+   public int hashCode() {
+      int result = super.hashCode();
+      result = 31 * result + (strConnectorClassName != null ? strConnectorClassName.hashCode() : 0);
+      result = 31 * result + (strConnectionParameters != null ? strConnectionParameters.hashCode() : 0);
+      result = 31 * result + (ra != null ? ra.hashCode() : 0);
+      result = 31 * result + (connectionFactoryLookup != null ? connectionFactoryLookup.hashCode() : 0);
+      result = 31 * result + (destination != null ? destination.hashCode() : 0);
+      result = 31 * result + (destinationType != null ? destinationType.hashCode() : 0);
+      result = 31 * result + (messageSelector != null ? messageSelector.hashCode() : 0);
+      result = 31 * result + acknowledgeMode;
+      result = 31 * result + (subscriptionDurability ? 1 : 0);
+      result = 31 * result + (subscriptionName != null ? subscriptionName.hashCode() : 0);
+      result = 31 * result + (shareSubscriptions ? 1 : 0);
+      result = 31 * result + (user != null ? user.hashCode() : 0);
+      result = 31 * result + (password != null ? password.hashCode() : 0);
+      result = 31 * result + (maxSession != null ? maxSession.hashCode() : 0);
+      result = 31 * result + (transactionTimeout != null ? transactionTimeout.hashCode() : 0);
+      result = 31 * result + (useJNDI != null ? useJNDI.hashCode() : 0);
+      result = 31 * result + (jndiParams != null ? jndiParams.hashCode() : 0);
+      result = 31 * result + (parsedJndiParams != null ? parsedJndiParams.hashCode() : 0);
+      result = 31 * result + (localTx != null ? localTx.hashCode() : 0);
+      result = 31 * result + (setupAttempts != null ? setupAttempts.hashCode() : 0);
+      result = 31 * result + (setupInterval != null ? setupInterval.hashCode() : 0);
+      return result;
+   }
 }
