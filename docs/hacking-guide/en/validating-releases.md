@@ -4,7 +4,7 @@
 
 When a release is proposed a maven repository is staged.
 
-This information here was extracted from [Guide to Testing Staged Releases](https://maven.apache.org/guides/development/guide-testing-releases.html)
+This information was extracted from [Guide to Testing Staged Releases](https://maven.apache.org/guides/development/guide-testing-releases.html)
 
 For examples, the 1.1.0 release had the Maven Repository statged as [https://repository.apache.org/content/repositories/orgapacheactivemq-1066](https://repository.apache.org/content/repositories/orgapacheactivemq-1066).
 
