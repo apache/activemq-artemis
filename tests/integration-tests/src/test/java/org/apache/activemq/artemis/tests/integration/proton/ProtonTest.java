@@ -131,6 +131,7 @@ public class ProtonTest extends ActiveMQTestBase {
    @After
    public void tearDown() throws Exception {
       try {
+         Thread.sleep(250);
          if (connection != null) {
             connection.close();
          }
@@ -257,6 +258,10 @@ public class ProtonTest extends ActiveMQTestBase {
 
       cons.close();
 
+      for (int i = 0; i < 100 && serverQueue.getConsumerCount() != 0; i++) {
+         Thread.sleep(500);
+      }
+
       assertEquals(0, serverQueue.getConsumerCount());
 
       session.close();
@@ -330,7 +335,7 @@ public class ProtonTest extends ActiveMQTestBase {
       connection = createConnection();
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queue);
-      Thread.sleep(1000);
+      Thread.sleep(100);
       consumer.close();
       connection.close();
       Assert.assertEquals(numMessages, getMessageCount(q));
