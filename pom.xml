@@ -33,6 +33,26 @@
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
       <module>artemis-boot</module>
+      <module>artemis-web</module>
+      <module>artemis-website</module>
+      <module>artemis-cli</module>
+      <module>artemis-commons</module>
+      <module>artemis-selector</module>
+      <module>artemis-core-client</module>
+      <module>artemis-server</module>
+      <module>artemis-jms-client</module>
+      <module>artemis-jms-server</module>
+      <module>artemis-native</module>
+      <module>artemis-journal</module>
+      <module>artemis-ra</module>
+      <module>artemis-rest</module>
+      <module>artemis-service-extensions</module>
+      <module>artemis-maven-plugin</module>
+      <module>integration/activemq-spring-integration</module>
+      <module>integration/activemq-aerogear-integration</module>
+      <module>integration/activemq-vertx-integration</module>
+      <module>artemis-distribution</module>
+      <module>tests</module>
    </modules>
 
    <name>ActiveMQ Artemis Parent</name>
@@ -483,6 +503,23 @@
            </properties>
         </profile>
       <profile>
+         <id>jdk18</id>
+         <activation>
+            <jdk>1.8</jdk>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <configuration>
+                     <additionalparam>-Xdoclint:none</additionalparam>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
          <id>dev</id>
          <modules>
             <module>artemis-boot</module>
@@ -517,29 +554,6 @@
          <activation>
             <activeByDefault>true</activeByDefault>
          </activation>
-         <modules>
-            <module>artemis-dto</module>
-            <module>artemis-web</module>
-            <module>artemis-website</module>
-            <module>artemis-cli</module>
-            <module>artemis-commons</module>
-            <module>artemis-selector</module>
-            <module>artemis-core-client</module>
-            <module>artemis-server</module>
-            <module>artemis-jms-client</module>
-            <module>artemis-jms-server</module>
-            <module>artemis-native</module>
-            <module>artemis-journal</module>
-            <module>artemis-ra</module>
-            <module>artemis-rest</module>
-            <module>artemis-service-extensions</module>
-            <module>artemis-maven-plugin</module>
-            <module>integration/activemq-spring-integration</module>
-            <module>integration/activemq-aerogear-integration</module>
-            <module>integration/activemq-vertx-integration</module>
-            <module>artemis-distribution</module>
-            <module>tests</module>
-         </modules>
       </profile>
       <profile>
          <id>release</id>
@@ -593,13 +607,6 @@
                         </configuration>
                      </execution>
                   </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <configuration>
-                     <additionalparam>-Xdoclint:none</additionalparam>
-                  </configuration>
                </plugin>
             </plugins>
          </build>
