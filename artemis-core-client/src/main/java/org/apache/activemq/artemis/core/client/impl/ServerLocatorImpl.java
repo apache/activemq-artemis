@@ -561,32 +561,34 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
    }
 
-   private synchronized TransportConfiguration selectConnector() {
+   private TransportConfiguration selectConnector() {
       Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
 
       synchronized (topologyArrayGuard) {
          usedTopology = topologyArray;
       }
 
-      // if the topologyArray is null, we will use the initialConnectors
-      if (usedTopology != null) {
-         if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQClientLogger.LOGGER.trace("Selecting connector from toplogy.");
+      synchronized (this) {
+         // if the topologyArray is null, we will use the initialConnectors
+         if (usedTopology != null) {
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQClientLogger.LOGGER.trace("Selecting connector from toplogy.");
+            }
+            int pos = loadBalancingPolicy.select(usedTopology.length);
+            Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
+
+            return pair.getA();
          }
-         int pos = loadBalancingPolicy.select(usedTopology.length);
-         Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
+         else {
+            // Get from initialconnectors
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQClientLogger.LOGGER.trace("Selecting connector from initial connectors.");
+            }
 
-         return pair.getA();
-      }
-      else {
-         // Get from initialconnectors
-         if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQClientLogger.LOGGER.trace("Selecting connector from initial connectors.");
+            int pos = loadBalancingPolicy.select(initialConnectors.length);
+
+            return initialConnectors[pos];
          }
-
-         int pos = loadBalancingPolicy.select(initialConnectors.length);
-
-         return initialConnectors[pos];
       }
    }
 
@@ -1494,16 +1496,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    public void factoryClosed(final ClientSessionFactory factory) {
+      boolean isEmpty;
       synchronized (factories) {
          factories.remove(factory);
+         isEmpty = factories.isEmpty();
+      }
 
-         if (!clusterConnection && factories.isEmpty()) {
-            // Go back to using the broadcast or static list
-            synchronized (topologyArrayGuard) {
-               receivedTopology = false;
+      if (!clusterConnection && isEmpty) {
+         // Go back to using the broadcast or static list
+         synchronized (topologyArrayGuard) {
+            receivedTopology = false;
 
-               topologyArray = null;
-            }
+            topologyArray = null;
          }
       }
    }

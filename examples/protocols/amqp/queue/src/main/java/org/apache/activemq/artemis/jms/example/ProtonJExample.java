@@ -16,43 +16,46 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.qpid.amqp_1_0.client.Connection;
-import org.apache.qpid.amqp_1_0.client.Message;
-import org.apache.qpid.amqp_1_0.client.Receiver;
-import org.apache.qpid.amqp_1_0.client.Sender;
-import org.apache.qpid.amqp_1_0.client.Session;
-import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageProducer;
+import javax.jms.*;
+
+
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class ProtonJExample {
 
    public static void main(String[] args) throws Exception {
       Connection connection = null;
+      ConnectionFactory connectionFactory = new JmsConnectionFactory("amqp://localhost:5672");
 
       try {
+
+
          // Step 1. Create an amqp qpid 1.0 connection
-         connection = new Connection("localhost", 5672, null, null);
+         connection = connectionFactory.createConnection();
 
          // Step 2. Create a session
-         Session session = connection.createSession();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 3. Create a sender
-         Sender sender = session.createSender("jms.queue.exampleQueue");
+         Queue queue = session.createQueue("jms.queue.exampleQueue");
+         MessageProducer sender = session.createProducer(queue);
 
-         // Step 4. send a simple message
-         sender.send(new Message("I am an amqp message"));
+         // Step 4. send a few simple message
+         sender.send(session.createTextMessage("Hello world "));
+
+         connection.start();
 
          // Step 5. create a moving receiver, this means the message will be removed from the queue
-         Receiver rec = session.createMovingReceiver("jms.queue.exampleQueue");
+         MessageConsumer consumer = session.createConsumer(queue);
 
-         // Step 6. set some credit so we can receive
-         rec.setCredit(UnsignedInteger.valueOf(1), false);
 
          // Step 7. receive the simple message
-         Message m = rec.receive(5000);
-         System.out.println("message = " + m.getPayload());
+         TextMessage m = (TextMessage) consumer.receive(5000);
+         System.out.println("message = " + m.getText());
 
-         // Step 8. acknowledge the message
-         rec.acknowledge(m);
       }
       finally {
          if (connection != null) {

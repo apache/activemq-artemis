@@ -269,7 +269,7 @@ The message journal is configured using the following attributes in
     journal. The compacting algorithm won't start until you have at
     least `journal-compact-min-files`
 
-    Setting this to 0 will disable the feature to compact completely. 
+    Setting this to 0 will disable the feature to compact completely.
     This could be dangerous though as the journal could grow indefinitely.
     Use it wisely!
 
@@ -354,29 +354,3 @@ straightforward. Simply set the parameter `persistence-enabled` in
 Please note that if you set this parameter to false, then *zero*
 persistence will occur. That means no bindings data, message data, large
 message data, duplicate id caches or paging data will be persisted.
-
-## Import/Export the Journal Data
-
-You may want to inspect the existent records on each one of the journals
-used by Apache ActiveMQ Artemis, and you can use the export/import tool for that
-purpose.
-you can export the journal as a text file by using this command:
-
-`java -cp activemq-tools-jar-with-dependencies.jar export-journal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileOutput>`
-
-To import the file as binary data on the journal (Notice you also
-require netty.jar):
-
-`java -cp activemq-tools-jar-with-dependencies.jar import-journal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize> <FileInput>`
-
--   JournalDirectory: Use the configured folder for your selected folder. Example: ./activemq/data/journal
-
--   JournalPrefix: Use the prefix for your selected journal, as discussed above
-
--   FileExtension: Use the extension for your selected journal, as discussed above
-
--   FileSize: Use the size for your selected journal, as discussed above
-
--   FileOutput or FileInput: text file that will contain the exported data
-
-See [Tools](tools.md) for more information.
