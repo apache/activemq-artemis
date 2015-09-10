@@ -48,7 +48,7 @@ under the License.
          <id>release</id>
          <modules>
             <module>proton-cpp</module>
-            <module>proton-j</module>
+            <module>queue</module>
             <module>proton-ruby</module>
          </modules>
       </profile>
@@ -58,7 +58,7 @@ under the License.
             <!-- this one to be run manually
             <module>proton-cpp</module> -->
 
-            <module>proton-j</module>
+            <module>queue</module>
             <module>proton-ruby</module>
          </modules>
       </profile>
