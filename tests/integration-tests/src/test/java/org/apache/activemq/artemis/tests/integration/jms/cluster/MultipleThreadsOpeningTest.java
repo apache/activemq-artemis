@@ -23,8 +23,8 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
@@ -33,13 +33,17 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
    public void testMultipleOpen() throws Exception {
       cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(1)));
 
-      final int numberOfOpens = 2000;
+      final int numberOfOpens = 500;
       int numberOfThreads = 20;
       // I want all the threads aligned, just ready to start creating connections like in a car race
       final CountDownLatch flagAlignSemaphore = new CountDownLatch(numberOfThreads);
       final CountDownLatch flagStartRace = new CountDownLatch(1);
 
       class ThreadOpen extends Thread {
+
+         ThreadOpen(int i) {
+            super("MultipleThreadsOpeningTest/ThreadOpen::" + i);
+         }
 
          int errors = 0;
 
@@ -50,8 +54,8 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
                flagStartRace.await();
 
                for (int i = 0; i < numberOfOpens; i++) {
-                  if (i % 1000 == 0)
-                     System.out.println("tests " + i);
+                  if (i % 100 == 0)
+                     System.out.println("connections created on Thread " + Thread.currentThread() + " " + i);
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
                   sess.close();
@@ -68,18 +72,27 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
       ThreadOpen[] threads = new ThreadOpen[numberOfThreads];
 
       for (int i = 0; i < numberOfThreads; i++) {
-         threads[i] = new ThreadOpen();
+         threads[i] = new ThreadOpen(i);
          threads[i].start();
       }
 
       flagAlignSemaphore.await();
       flagStartRace.countDown();
 
-      for (ThreadOpen t : threads) {
-         // 5 minutes seems long but this may take a bit of time in a slower box
-         t.join(300000);
-         assertFalse(t.isAlive());
-         assertEquals("There are Errors on the test thread", 0, t.errors);
+      try {
+         for (ThreadOpen t : threads) {
+            t.join(60000);
+            assertFalse(t.isAlive());
+            assertEquals("There are Errors on the test thread", 0, t.errors);
+         }
+      }
+      finally {
+         for (ThreadOpen t : threads) {
+            if (t.isAlive()) {
+               t.interrupt();
+            }
+            t.join(1000);
+         }
       }
    }
 }
