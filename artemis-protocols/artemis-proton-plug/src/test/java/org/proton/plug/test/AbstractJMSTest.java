@@ -21,24 +21,22 @@ import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Queue;
+import javax.jms.Session;
 
 import java.lang.ref.WeakReference;
 
-import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
-import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.proton.plug.test.minimalserver.DumbServer;
 import org.proton.plug.test.minimalserver.MinimalServer;
 
 public class AbstractJMSTest {
 
-   protected final boolean useHawtJMS;
    protected final boolean useSASL;
 
    protected String address = "exampleQueue";
    protected MinimalServer server = new MinimalServer();
 
-   public AbstractJMSTest(boolean useHawtJMS, boolean useSASL) {
-      this.useHawtJMS = useHawtJMS;
+   public AbstractJMSTest(boolean useSASL) {
       this.useSASL = useSASL;
    }
 
@@ -77,34 +75,16 @@ public class AbstractJMSTest {
 
    protected ConnectionFactory createConnectionFactory() {
       if (useSASL) {
-         if (useHawtJMS) {
-            //            return new JmsConnectionFactory("aaaaaaaa", "aaaaaaa", "amqp://localhost:" + Constants.PORT);
-            return null;
-         }
-         else {
-            return new ConnectionFactoryImpl("localhost", Constants.PORT, "aaaaaaaa", "aaaaaaa");
-         }
+         return new JmsConnectionFactory("aaaaaaaa", "aaaaaaa", "amqp://localhost:5672");
       }
       else {
-         if (useHawtJMS) {
-            //            return new JmsConnectionFactory("amqp://localhost:" + Constants.PORT);
-            return null;
-         }
-         else {
-            return new ConnectionFactoryImpl("localhost", Constants.PORT, null, null);
-         }
+         return new JmsConnectionFactory( "amqp://localhost:5672");
 
       }
    }
 
-   protected Queue createQueue() {
-      if (useHawtJMS) {
-         //         return new JmsQueue(address);
-         return null;
-      }
-      else {
-         return new QueueImpl(address);
-      }
+   protected Queue createQueue(Session session) throws Exception {
+      return session.createQueue(address);
    }
 
 }

@@ -40,22 +40,15 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.qpid.amqp_1_0.client.Receiver;
-import org.apache.qpid.amqp_1_0.client.Sender;
-import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
-import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
-import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -737,153 +730,20 @@ public class ProtonTest extends ActiveMQTestBase {
       connection.close();
    }
 
-   @Test
-   public void testUsingPlainAMQP() throws Exception {
-      if (this.protocol != 0 && protocol != 3) {
-         return;
-      }
-
-      org.apache.qpid.amqp_1_0.client.Connection connection = null;
-
+   private javax.jms.Queue createQueue(String address) throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
-         // Step 1. Create an amqp qpid 1.0 connection
-         connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
-
-         // Step 2. Create a session
-         org.apache.qpid.amqp_1_0.client.Session session = connection.createSession();
-
-         // Step 3. Create a sender
-         Sender sender = session.createSender("jms.queue.exampleQueue");
-
-         // Step 4. send a simple message
-         sender.send(new org.apache.qpid.amqp_1_0.client.Message("I am an amqp message"));
-
-         // Step 5. create a moving receiver, this means the message will be removed from the queue
-         Receiver rec = session.createMovingReceiver("jms.queue.exampleQueue");
-
-         // Step 6. set some credit so we can receive
-         rec.setCredit(UnsignedInteger.valueOf(1), false);
-
-         // Step 7. receive the simple message
-         org.apache.qpid.amqp_1_0.client.Message m = rec.receive(5000);
-         System.out.println("message = " + m.getPayload());
-
-         // Step 8. acknowledge the message
-         rec.acknowledge(m);
+         return session.createQueue(address);
       }
       finally {
-         if (connection != null) {
-            // Step 9. close the connection
-            connection.close();
-         }
-      }
-   }
-
-   @Test
-   public void testUsingPlainAMQPSenderWithNonExistentQueue() throws Exception {
-      if (this.protocol != 0 && protocol != 3) {
-         return;
-      }
-
-      String queue = ResourceNames.JMS_QUEUE + RandomUtil.randomString();
-
-      org.apache.qpid.amqp_1_0.client.Connection connection = null;
-
-      try {
-         // Step 1. Create an amqp qpid 1.0 connection
-         connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
-
-         // Step 2. Create a session
-         org.apache.qpid.amqp_1_0.client.Session session = connection.createSession();
-
-         // Step 3. Create a sender
-         Sender sender = session.createSender(queue);
-
-         Assert.assertNotNull(server.locateQueue(new SimpleString(queue)));
-
-         // Step 4. send a simple message
-         sender.send(new org.apache.qpid.amqp_1_0.client.Message("I am an amqp message"));
-
-         // Step 5. create a moving receiver, this means the message will be removed from the queue
-         Receiver rec = session.createMovingReceiver(queue);
-
-         // Step 6. set some credit so we can receive
-         rec.setCredit(UnsignedInteger.valueOf(1), false);
-
-         // Step 7. receive the simple message
-         org.apache.qpid.amqp_1_0.client.Message m = rec.receive(5000);
-         System.out.println("message = " + m.getPayload());
-
-         // Step 8. acknowledge the message
-         rec.acknowledge(m);
-      }
-      finally {
-         if (connection != null) {
-            // Step 9. close the connection
-            connection.close();
-         }
-      }
-   }
-
-   @Test
-   public void testUsingPlainAMQPReceiverWithNonExistentQueue() throws Exception {
-      if (this.protocol != 0 && protocol != 3) {
-         return;
-      }
-
-      String queue = ResourceNames.JMS_QUEUE + RandomUtil.randomString();
-
-      org.apache.qpid.amqp_1_0.client.Connection connection = null;
-
-      try {
-         // Step 1. Create an amqp qpid 1.0 connection
-         connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
-
-         // Step 2. Create a session
-         org.apache.qpid.amqp_1_0.client.Session session = connection.createSession();
-
-         // Step 3. create a moving receiver, this means the message will be removed from the queue
-         Receiver rec = session.createMovingReceiver(queue);
-
-         Assert.assertNotNull(server.locateQueue(new SimpleString(queue)));
-
-         // Step 4. Create a sender
-         Sender sender = session.createSender(queue);
-
-         // Step 5. send a simple message
-         sender.send(new org.apache.qpid.amqp_1_0.client.Message("I am an amqp message"));
-
-         // Step 6. set some credit so we can receive
-         rec.setCredit(UnsignedInteger.valueOf(1), false);
-
-         // Step 7. receive the simple message
-         org.apache.qpid.amqp_1_0.client.Message m = rec.receive(5000);
-         System.out.println("message = " + m.getPayload());
-
-         // Step 8. acknowledge the message
-         rec.acknowledge(m);
-      }
-      finally {
-         if (connection != null) {
-            // Step 9. close the connection
-            connection.close();
-         }
-      }
-   }
-
-   private javax.jms.Queue createQueue(String address) {
-      if (protocol == 0 || protocol == 3) {
-         return new QueueImpl(address);
-      }
-      else {
-         return ActiveMQJMSClient.createQueue(address);
+         session.close();
       }
    }
 
    private javax.jms.Connection createConnection() throws JMSException {
       Connection connection;
       if (protocol == 3) {
-         factory = new ConnectionFactoryImpl("localhost", 5672, null, null);
+         factory = new JmsConnectionFactory("amqp://localhost:5672");
          connection = factory.createConnection();
          connection.setExceptionListener(new ExceptionListener() {
             @Override
@@ -894,7 +754,7 @@ public class ProtonTest extends ActiveMQTestBase {
          connection.start();
       }
       else if (protocol == 0) {
-         factory = new ConnectionFactoryImpl("localhost", 5672, "guest", "guest");
+         factory = new JmsConnectionFactory("guest", "guest", "amqp://localhost:5672");
          connection = factory.createConnection();
          connection.setExceptionListener(new ExceptionListener() {
             @Override
@@ -909,12 +769,12 @@ public class ProtonTest extends ActiveMQTestBase {
 
          if (protocol == 1) {
             transport = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
+            factory = new ActiveMQConnectionFactory("vm:/0");
          }
          else {
-            transport = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+            factory = new ActiveMQConnectionFactory();
          }
 
-         factory = new ActiveMQConnectionFactory(false, transport);
          connection = factory.createConnection("guest", "guest");
          connection.setExceptionListener(new ExceptionListener() {
             @Override
