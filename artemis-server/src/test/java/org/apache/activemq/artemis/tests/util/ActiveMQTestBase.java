@@ -1943,9 +1943,6 @@ public abstract class ActiveMQTestBase extends Assert {
                for (StackTraceElement el : elements) {
                   buffer.append(el + "\n");
                }
-
-               buffer.append("\n-- Interrupting being sent on " + aliveThread + "--\n");
-               aliveThread.interrupt();
             }
 
          }
