@@ -7,6 +7,12 @@ This file describes some minimum 'stuff one needs to know' to get started coding
 For details about the modifying the code, building the project, running tests, IDE integration, etc. see
 our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 
+## Documentation
+
+Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](http://activemq.apache.org/artemis/docs.html) website.
+
+Or you can also look at the current master version on [github](https://github.com/apache/activemq-artemis/blob/master/docs/user-manual/en/SUMMARY.md).
+
 ## Examples
 
 To run an example firstly make sure you have run
