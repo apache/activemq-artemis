@@ -27,7 +27,7 @@ under the License.
       <version>1.1.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-proton-j</artifactId>
+   <artifactId>queue</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Proton-J Example</name>
 
@@ -38,8 +38,8 @@ under the License.
    <dependencies>
       <dependency>
          <groupId>org.apache.qpid</groupId>
-         <artifactId>qpid-amqp-1-0-client</artifactId>
-         <version>0.22</version>
+         <artifactId>qpid-jms-client</artifactId>
+         <version>0.5.0</version>
       </dependency>
    </dependencies>
 
@@ -97,7 +97,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.amqp</groupId>
-                  <artifactId>artemis-proton-j</artifactId>
+                  <artifactId>queue</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>

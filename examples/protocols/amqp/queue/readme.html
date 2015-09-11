@@ -42,54 +42,5 @@ under the License.
          &lt;acceptor name="proton-acceptor"&gt;tcp://localhost:5672&lt;/acceptor&gt;
      </code>
      </pre>
-<h2>Example step-by-step</h2>
-<ol>
-    <li> Create an amqp qpid 1.0 connection.</li>
-        <pre class="prettyprint">
-           <code>connection= new Connection("localhost", 5672, null, null);</code>
-        </pre>
-
-    <li>Create a session</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession();</code>
-        </pre>
-
-    <li>Create a sender</li>
-        <pre class="prettyprint">
-           <code>Sender sender = session.createSender("testQueue");</code>
-        </pre>
-
-    <li>send a simple message</li>
-        <pre class="prettyprint">
-           <code>sender.send(new Message("I am an amqp message"));</code>
-        </pre>
-
-    <li>create a moving receiver, this means the message will be removed from the queue</li>
-        <pre class="prettyprint">
-           <code>Receiver rec = session.createMovingReceiver("testQueue");</code>
-        </pre>
-
-    <li>set some credit so we can receive</li>
-        <pre class="prettyprint">
-          <code>rec.setCredit(UnsignedInteger.valueOf(1), false);</code>
-        </pre>
-
-    <li>receive the simple message</li>
-        <pre class="prettyprint">
-          <code>Message m = rec.receive(5000);
-                System.out.println("message = " + m.getPayload());</code>
-        </pre>
-
-    <li>acknowledge the message</li>
-        <pre class="prettyprint">
-          <code>rec.acknowledge(m);</code>
-        </pre>
-
-    <li>close the connection</li>
-        <pre class="prettyprint">
-          <code>connection.close();</code>
-        </pre>
-</ol>
-
 </body>
 </html>

@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.Message;
@@ -59,16 +58,15 @@ public class ProtonTest extends AbstractJMSTest {
 
    protected Connection connection;
 
-   @Parameterized.Parameters(name = "useHawt={0} sasl={1}")
+   @Parameterized.Parameters(name = "sasl={0}")
    public static Collection<Object[]> data() {
-      List<Object[]> list = Arrays.asList(new Object[][]{{Boolean.FALSE, Boolean.TRUE}, {Boolean.FALSE, Boolean.FALSE}});
-
+      List<Object[]> list = Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
       System.out.println("Size = " + list.size());
       return list;
    }
 
-   public ProtonTest(boolean useHawtJMS, boolean useSASL) {
-      super(useHawtJMS, useSASL);
+   public ProtonTest(boolean useSASL) {
+      super(useSASL);
    }
 
    @Before
@@ -92,7 +90,6 @@ public class ProtonTest extends AbstractJMSTest {
    public void testMessagesReceivedInParallel() throws Throwable {
       final int numMessages = getNumberOfMessages();
       long time = System.currentTimeMillis();
-      final Queue queue = createQueue();
 
       final ArrayList<Throwable> exceptions = new ArrayList<>();
 
@@ -105,6 +102,7 @@ public class ProtonTest extends AbstractJMSTest {
                //               connectionConsumer = connection;
                connectionConsumer.start();
                Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               final Queue queue = createQueue(sessionConsumer);
                final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
                int count = numMessages;
@@ -143,6 +141,7 @@ public class ProtonTest extends AbstractJMSTest {
       Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
 
       t.start();
+      final Queue queue = createQueue(session);
 
       MessageProducer p = session.createProducer(queue);
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
@@ -156,14 +155,14 @@ public class ProtonTest extends AbstractJMSTest {
       }
 
       long taken = (System.currentTimeMillis() - time);
-      System.out.println("taken on send = " + taken + " usehawt = " + useHawtJMS + " sasl = " + useSASL);
+      System.out.println("taken on send = " + taken + " sasl = " + useSASL);
       t.join();
 
       for (Throwable e : exceptions) {
          throw e;
       }
       taken = (System.currentTimeMillis() - time);
-      System.out.println("taken = " + taken + " usehawt = " + useHawtJMS + " sasl = " + useSASL);
+      System.out.println("taken = " + taken + " sasl = " + useSASL);
 
       connection.close();
       //      assertEquals(0, q.getMessageCount());
@@ -171,9 +170,9 @@ public class ProtonTest extends AbstractJMSTest {
 
    @Test
    public void testSimpleCreateSessionAndClose() throws Throwable {
-      final QueueImpl queue = new QueueImpl(address);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue(address);
       Thread.sleep(1000);
       session.close();
       connection.close();
@@ -183,9 +182,9 @@ public class ProtonTest extends AbstractJMSTest {
    public void testSimpleBinary() throws Throwable {
       final int numMessages = 5;
       long time = System.currentTimeMillis();
-      final QueueImpl queue = new QueueImpl(address);
-
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      Queue queue = createQueue(session);
 
       byte[] bytes = new byte[0xf + 1];
       for (int i = 0; i <= 0xf; i++) {
@@ -230,8 +229,8 @@ public class ProtonTest extends AbstractJMSTest {
 
    @Test
    public void testMapMessage() throws Exception {
-      Queue queue = createQueue();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = createQueue(session);
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          MapMessage message = session.createMapMessage();
@@ -252,8 +251,8 @@ public class ProtonTest extends AbstractJMSTest {
 
    @Test
    public void testProperties() throws Exception {
-      Queue queue = createQueue();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = createQueue(session);
       MessageProducer p = session.createProducer(queue);
       TextMessage message = session.createTextMessage();
       message.setText("msg:0");
@@ -310,7 +309,7 @@ public class ProtonTest extends AbstractJMSTest {
       Session clientSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
 
-      MessageConsumer consumer = clientSession.createConsumer(createQueue());
+      MessageConsumer consumer = clientSession.createConsumer(createQueue(clientSession));
       for (int i = 0; i < 1; i++) {
          MapMessage msg = (MapMessage) consumer.receive(5000);
          System.out.println("Msg " + msg);
