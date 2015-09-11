@@ -78,7 +78,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.ProtonJExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.jms.example.AMQPQueueExample</clientClass>
                   </configuration>
                </execution>
                <execution>

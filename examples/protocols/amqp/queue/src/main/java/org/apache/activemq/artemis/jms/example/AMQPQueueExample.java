@@ -18,20 +18,21 @@ package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.*;
-
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
 
-public class ProtonJExample {
+public class AMQPQueueExample {
 
    public static void main(String[] args) throws Exception {
       Connection connection = null;
       ConnectionFactory connectionFactory = new JmsConnectionFactory("amqp://localhost:5672");
 
       try {
-
 
          // Step 1. Create an amqp qpid 1.0 connection
          connection = connectionFactory.createConnection();
@@ -50,7 +51,6 @@ public class ProtonJExample {
 
          // Step 5. create a moving receiver, this means the message will be removed from the queue
          MessageConsumer consumer = session.createConsumer(queue);
-
 
          // Step 7. receive the simple message
          TextMessage m = (TextMessage) consumer.receive(5000);

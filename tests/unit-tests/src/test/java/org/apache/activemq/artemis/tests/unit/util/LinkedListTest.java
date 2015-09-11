@@ -61,13 +61,13 @@ public class LinkedListTest extends ActiveMQTestBase {
       LinkedListImpl<MyObject> objs = new LinkedListImpl<MyObject>();
 
       // Initial add
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < 100; i++) {
          objs.addTail(new MyObject());
       }
 
       LinkedListIterator<MyObject> iter = objs.iterator();
 
-      for (int i = 0; i < 5000; i++) {
+      for (int i = 0; i < 500; i++) {
 
          for (int add = 0; add < 1000; add++) {
             objs.addTail(new MyObject());
@@ -78,12 +78,12 @@ public class LinkedListTest extends ActiveMQTestBase {
             iter.remove();
          }
 
-         if (i % 1000 == 0) {
-            assertCount(1000, count);
+         if (i % 100 == 0) {
+            assertCount(100, count);
          }
       }
 
-      assertCount(1000, count);
+      assertCount(100, count);
 
       while (iter.hasNext()) {
          iter.next();
