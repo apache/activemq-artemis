@@ -22,10 +22,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+import java.util.zip.InflaterOutputStream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -55,6 +62,7 @@ import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteSequence;
+import org.apache.activemq.util.ByteSequenceData;
 import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
@@ -85,8 +93,8 @@ public class OpenWireMessageConverter implements MessageConverter {
    private static final String AMQ_MSG_TX_ID = AMQ_PREFIX + "TX_ID";
    private static final String AMQ_MSG_USER_ID = AMQ_PREFIX + "USER_ID";
 
-   private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
    private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
+   private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
 
    @Override
    public ServerMessage inbound(Object message) {
@@ -118,9 +126,17 @@ public class OpenWireMessageConverter implements MessageConverter {
       ByteSequence contents = messageSend.getContent();
       if (contents != null) {
          ActiveMQBuffer body = coreMessage.getBodyBuffer();
+         boolean messageCompressed = messageSend.isCompressed();
+         if (messageCompressed) {
+            coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageCompressed);
+         }
+
          switch (coreType) {
             case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
-               ByteArrayInputStream tis = new ByteArrayInputStream(contents);
+               InputStream tis = new ByteArrayInputStream(contents);
+               if (messageCompressed) {
+                  tis = new InflaterInputStream(tis);
+               }
                DataInputStream tdataIn = new DataInputStream(tis);
                String text = MarshallingSupport.readUTF8(tdataIn);
                tdataIn.close();
@@ -128,6 +144,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                break;
             case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
                InputStream mis = new ByteArrayInputStream(contents);
+               if (messageCompressed) {
+                  mis = new InflaterInputStream(mis);
+               }
                DataInputStream mdataIn = new DataInputStream(mis);
                Map<String, Object> map = MarshallingSupport.unmarshalPrimitiveMap(mdataIn);
                mdataIn.close();
@@ -136,11 +155,33 @@ public class OpenWireMessageConverter implements MessageConverter {
                props.encode(body);
                break;
             case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
+               if (messageCompressed) {
+                  InputStream ois = new ByteArrayInputStream(contents);
+                  ois = new InflaterInputStream(ois);
+                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
+
+                  try {
+                     byte[] buf = new byte[1024];
+                     int n = ois.read(buf);
+                     while (n != -1) {
+                        decompressed.write(buf, 0, n);
+                        n = ois.read();
+                     }
+                     //read done
+                     contents = decompressed.toByteSequence();
+                  }
+                  finally {
+                     decompressed.close();
+                  }
+               }
                body.writeInt(contents.length);
                body.writeBytes(contents.data, contents.offset, contents.length);
                break;
             case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
                InputStream sis = new ByteArrayInputStream(contents);
+               if (messageCompressed) {
+                  sis = new InflaterInputStream(sis);
+               }
                DataInputStream sdis = new DataInputStream(sis);
                int stype = sdis.read();
                while (stype != -1) {
@@ -210,7 +251,47 @@ public class OpenWireMessageConverter implements MessageConverter {
                }
                sdis.close();
                break;
+            case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
+               if (messageCompressed) {
+                  Inflater inflater = new Inflater();
+                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
+                  try {
+                     int length = ByteSequenceData.readIntBig(contents);
+                     contents.offset = 0;
+                     byte[] data = Arrays.copyOfRange(contents.getData(), 4, contents.getLength());
+
+                     inflater.setInput(data);
+                     byte[] buffer = new byte[length];
+                     int count = inflater.inflate(buffer);
+                     decompressed.write(buffer, 0, count);
+                     contents = decompressed.toByteSequence();
+                  }
+                  catch (Exception e) {
+                     throw new IOException(e);
+                  }
+                  finally {
+                     inflater.end();
+                     decompressed.close();
+                  }
+               }
+               body.writeBytes(contents.data, contents.offset, contents.length);
+               break;
             default:
+               if (messageCompressed) {
+                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
+                  OutputStream os = new InflaterOutputStream(decompressed);
+                  try {
+                     os.write(contents.data, contents.offset, contents.getLength());
+                     contents = decompressed.toByteSequence();
+                  }
+                  catch (Exception e) {
+                     throw new IOException(e);
+                  }
+                  finally {
+                     os.close();
+                     decompressed.close();
+                  }
+               }
                body.writeBytes(contents.data, contents.offset, contents.length);
                break;
          }
@@ -317,7 +398,6 @@ public class OpenWireMessageConverter implements MessageConverter {
       if (userId != null) {
          coreMessage.putStringProperty(AMQ_MSG_USER_ID, userId);
       }
-      coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageSend.isCompressed());
       coreMessage.putBooleanProperty(AMQ_MSG_DROPPABLE, messageSend.isDroppable());
    }
 
@@ -357,7 +437,7 @@ public class OpenWireMessageConverter implements MessageConverter {
 
    public static MessageDispatch createMessageDispatch(ServerMessage message,
                                                        int deliveryCount,
-                                                       AMQConsumer consumer) throws IOException {
+                                                       AMQConsumer consumer) throws IOException, JMSException {
       ActiveMQMessage amqMessage = toAMQMessage(message, consumer.getMarshaller(), consumer.getActualDestination());
 
       MessageDispatch md = new MessageDispatch();
@@ -412,18 +492,25 @@ public class OpenWireMessageConverter implements MessageConverter {
       amqMsg.setBrokerInTime(brokerInTime);
 
       ActiveMQBuffer buffer = coreMessage.getBodyBufferCopy();
+      Boolean compressProp = (Boolean)coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
+      boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
+      amqMsg.setCompressed(isCompressed);
+
       if (buffer != null) {
          buffer.resetReaderIndex();
          byte[] bytes = null;
          synchronized (buffer) {
             if (coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
                SimpleString text = buffer.readNullableSimpleString();
-
                if (text != null) {
-                  ByteArrayOutputStream out = new ByteArrayOutputStream(text.length() + 4);
+                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(text.length() + 4);
+                  OutputStream out = bytesOut;
+                  if (isCompressed) {
+                     out = new DeflaterOutputStream(out);
+                  }
                   DataOutputStream dataOut = new DataOutputStream(out);
                   MarshallingSupport.writeUTF8(dataOut, text.toString());
-                  bytes = out.toByteArray();
+                  bytes = bytesOut.toByteArray();
                   out.close();
                }
             }
@@ -433,18 +520,33 @@ public class OpenWireMessageConverter implements MessageConverter {
 
                Map<String, Object> map = mapData.getMap();
                ByteArrayOutputStream out = new ByteArrayOutputStream(mapData.getEncodeSize());
-               DataOutputStream dataOut = new DataOutputStream(out);
+               OutputStream os = out;
+               if (isCompressed) {
+                  os = new DeflaterOutputStream(os);
+               }
+               DataOutputStream dataOut = new DataOutputStream(os);
                MarshallingSupport.marshalPrimitiveMap(map, dataOut);
-               bytes = out.toByteArray();
                dataOut.close();
+               bytes = out.toByteArray();
             }
             else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
                int len = buffer.readInt();
                bytes = new byte[len];
                buffer.readBytes(bytes);
+               if (isCompressed) {
+                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+                  DeflaterOutputStream out = new DeflaterOutputStream(bytesOut);
+                  out.write(bytes);
+                  out.close();
+                  bytes = bytesOut.toByteArray();
+               }
             }
             else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE) {
-               ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.readableBytes());
+               org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
+               OutputStream out = bytesOut;
+               if (isCompressed) {
+                  out = new DeflaterOutputStream(bytesOut);
+               }
                DataOutputStream dataOut = new DataOutputStream(out);
 
                boolean stop = false;
@@ -499,13 +601,52 @@ public class OpenWireMessageConverter implements MessageConverter {
                         break;
                   }
                }
-               bytes = out.toByteArray();
                dataOut.close();
+               bytes = bytesOut.toByteArray();
+            }
+            else if (coreType == org.apache.activemq.artemis.api.core.Message.BYTES_TYPE) {
+               int n = buffer.readableBytes();
+               bytes = new byte[n];
+               buffer.readBytes(bytes);
+               if (isCompressed) {
+                  int length = bytes.length;
+                  org.apache.activemq.util.ByteArrayOutputStream compressed = new org.apache.activemq.util.ByteArrayOutputStream();
+                  compressed.write(new byte[4]);
+                  Deflater deflater = new Deflater();
+                  try {
+                     deflater.setInput(bytes);
+                     deflater.finish();
+                     byte[] bytesBuf = new byte[1024];
+                     while (!deflater.finished()) {
+                        int count = deflater.deflate(bytesBuf);
+                        compressed.write(bytesBuf, 0, count);
+                     }
+                     ByteSequence byteSeq = compressed.toByteSequence();
+                     ByteSequenceData.writeIntBig(byteSeq, length);
+                     bytes = Arrays.copyOfRange(byteSeq.data, 0, byteSeq.length);
+                  }
+                  finally {
+                     deflater.end();
+                     compressed.close();
+                  }
+               }
             }
             else {
                int n = buffer.readableBytes();
                bytes = new byte[n];
                buffer.readBytes(bytes);
+               if (isCompressed) {
+                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+                  DeflaterOutputStream out = new DeflaterOutputStream(bytesOut);
+                  try {
+                     out.write(bytes);
+                     bytes = bytesOut.toByteArray();
+                  }
+                  finally {
+                     out.close();
+                     bytesOut.close();
+                  }
+               }
             }
 
             buffer.resetReaderIndex();// this is important for topics as the buffer
@@ -642,10 +783,6 @@ public class OpenWireMessageConverter implements MessageConverter {
          amqMsg.setUserID(userId);
       }
 
-      Boolean isCompressed = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
-      if (isCompressed != null) {
-         amqMsg.setCompressed(isCompressed);
-      }
       Boolean isDroppable = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_DROPPABLE);
       if (isDroppable != null) {
          amqMsg.setDroppable(isDroppable);
@@ -660,11 +797,12 @@ public class OpenWireMessageConverter implements MessageConverter {
             throw new IOException("failure to set dlq property " + dlqCause, e);
          }
       }
+
       Set<SimpleString> props = coreMessage.getPropertyNames();
       if (props != null) {
          for (SimpleString s : props) {
             String keyStr = s.toString();
-            if (keyStr.startsWith("__AMQ") || keyStr.startsWith("__HDR_")) {
+            if (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_")) {
                continue;
             }
             Object prop = coreMessage.getObjectProperty(s);
@@ -680,6 +818,13 @@ public class OpenWireMessageConverter implements MessageConverter {
                throw new IOException("exception setting property " + s + " : " + prop, e);
             }
          }
+      }
+      try {
+         amqMsg.onSend();
+         amqMsg.setCompressed(isCompressed);
+      }
+      catch (JMSException e) {
+         throw new IOException("Failed to covert to Openwire message", e);
       }
       return amqMsg;
    }
