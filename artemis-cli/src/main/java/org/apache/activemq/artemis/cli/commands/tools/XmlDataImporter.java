@@ -336,7 +336,7 @@ public final class XmlDataImporter extends ActionAbstract {
             managementSession.start();
             ActiveMQServerLogger.LOGGER.debug("Requesting ID for: " + queue);
             ClientMessage reply = requestor.request(managementMessage);
-            queueID = (Integer) ManagementHelper.getResult(reply);
+            queueID = (Long) ManagementHelper.getResult(reply);
             requestor.close();
             ActiveMQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
             queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
