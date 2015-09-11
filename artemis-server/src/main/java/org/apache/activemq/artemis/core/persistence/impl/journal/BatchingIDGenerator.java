@@ -92,6 +92,14 @@ public final class BatchingIDGenerator implements IDGenerator {
       counter.set(nextID);
    }
 
+   // for testcases
+   public void forceNextID(long nextID) {
+      long idJournal = counter.incrementAndGet();
+      counter.set(nextID);
+      storeID(idJournal, nextID);
+
+   }
+
    public long generateID() {
       long id = counter.getAndIncrement();
 

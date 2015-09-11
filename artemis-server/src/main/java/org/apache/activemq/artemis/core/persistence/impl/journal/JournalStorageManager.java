@@ -115,6 +115,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
@@ -460,6 +461,10 @@ public class JournalStorageManager implements StorageManager {
          }
       }
       largeMessagesToDelete.clear();
+   }
+
+   public IDGenerator getIDGenerator() {
+      return idGenerator;
    }
 
    /**

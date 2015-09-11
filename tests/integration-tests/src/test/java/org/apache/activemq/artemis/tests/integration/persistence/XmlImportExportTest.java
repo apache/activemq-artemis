@@ -25,6 +25,7 @@ import javax.jms.Session;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -40,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
+import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
@@ -52,11 +54,26 @@ import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * A test of the XML export/import functionality
  */
+@RunWith(value = Parameterized.class)
 public class XmlImportExportTest extends ActiveMQTestBase {
+
+   private boolean forceLongs;
+
+   @Parameterized.Parameters(name = "forceLongs={0}")
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
+
+   public XmlImportExportTest(boolean forceLongs) {
+      this.forceLongs = forceLongs;
+
+   }
 
    public static final int CONSUMER_TIMEOUT = 5000;
    private static final String QUEUE_NAME = "A1";
@@ -65,6 +82,15 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    private JMSServerManager jmsServer;
    private ClientSessionFactory factory;
    private InVMContext namingContext;
+
+   protected void checkForLongs() {
+      if (forceLongs) {
+         JournalStorageManager manager = (JournalStorageManager) server.getStorageManager();
+         BatchingIDGenerator idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
+         idGenerator.forceNextID(((long) Integer.MAX_VALUE) + 1L);
+      }
+   }
+
 
    @Test
    public void testMessageProperties() throws Exception {
@@ -114,6 +140,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -166,6 +193,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       jmsServer.start();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
+      checkForLongs();
       return addClientSession(factory.createSession(false, true, true));
    }
 
@@ -204,6 +232,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -257,6 +286,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -292,6 +322,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -368,6 +399,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -435,6 +467,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -509,6 +542,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -566,6 +600,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -590,7 +625,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       final String MY_QUEUE = "myQueue";
       final String MY_QUEUE2 = "myQueue2";
 
-      ActiveMQServer server = createServer(true);
+      server = createServer(true);
 
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
@@ -629,6 +664,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, true, true);
@@ -693,6 +729,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -717,7 +754,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      ActiveMQServer server = createServer(true);
+      server = createServer(true);
 
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
@@ -770,6 +807,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, true, true);
@@ -825,6 +863,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, false, true);
@@ -843,7 +882,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    @Test
    public void testBody() throws Exception {
       final String QUEUE_NAME = "A1";
-      ActiveMQServer server = createServer(true);
+      server = createServer(true);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();
@@ -868,6 +907,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -891,7 +931,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    @Test
    public void testBody2() throws Exception {
       final String QUEUE_NAME = "A1";
-      ActiveMQServer server = createServer(true);
+      server = createServer(true);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();
@@ -921,6 +961,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
+      checkForLongs();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
