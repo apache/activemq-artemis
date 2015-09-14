@@ -807,7 +807,4 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       this.inManagedTx = inManagedTx;
    }
 
-   public ActiveMQConnectionFactory getConnectionFactory() {
-      return connectionFactory;
-   }
 }
