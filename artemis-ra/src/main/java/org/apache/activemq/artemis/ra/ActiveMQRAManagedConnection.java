@@ -301,7 +301,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
          // we must close the ActiveMQConnectionFactory because it contains a ServerLocator
          if (connectionFactory != null) {
-            connectionFactory.close();
+            ra.closeConnectionFactory(mcf.getProperties());
          }
       }
       catch (Throwable e) {
