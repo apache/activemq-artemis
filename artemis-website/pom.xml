@@ -85,6 +85,35 @@
    <build>
       <plugins>
          <plugin>
+             <groupId>com.github.eirslett</groupId>
+             <artifactId>frontend-maven-plugin</artifactId>
+             <version>${frontend-maven-plugin-version}</version>
+             <executions>
+                 <execution>
+                     <id>install node and npm</id>
+                     <goals>
+                         <goal>install-node-and-npm</goal>
+                     </goals>
+                     <phase>generate-sources</phase>
+                     <configuration>
+                         <nodeVersion>v0.11.16</nodeVersion>
+                         <npmVersion>1.4.12</npmVersion>
+                     </configuration>
+                 </execution>
+                 <execution>
+                     <id>npm install</id>
+                     <goals>
+                         <goal>npm</goal>
+                     </goals>
+                     <phase>generate-sources</phase>
+                     <configuration>
+                         <arguments>install</arguments>
+                     </configuration>
+                 </execution>
+             </executions>
+         </plugin>
+
+         <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>2.10.1</version>
             <executions>
@@ -134,7 +163,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                            <target>
-                              <condition property="gitbook.cmd" value="gitbook.cmd" else="gitbook">
+                              <condition property="gitbook.cmd" value="${basedir}/node_modules/.bin/gitbook.cmd" else="${basedir}/node_modules/.bin/gitbook">
                                  <os family="windows" />
                               </condition>
                               <!-- lets generate the gitbook -->

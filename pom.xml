@@ -97,6 +97,8 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+      <frontend-maven-plugin-version>0.0.24</frontend-maven-plugin-version>
+
      <!--
 
        note for idea users:
@@ -1023,6 +1025,9 @@
                   <exclude>**/src/test/resources/keystore</exclude>
                   <exclude>**/*.log</exclude>
                   <exclude>**/*.redo</exclude>
+                  <exclude>**/node/**</exclude>
+                  <exclude>**/node_modules/**</exclude>
+                  <exclude>**/package.json</exclude>
                </excludes>
             </configuration>
             <executions>
