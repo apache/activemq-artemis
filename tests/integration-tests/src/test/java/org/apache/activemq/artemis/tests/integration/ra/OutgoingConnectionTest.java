@@ -363,4 +363,55 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
          }
       }
    }
+
+   @Test
+   public void testSharedActiveMQConnectionFactoryWithClose() throws Exception {
+      Session s = null;
+      Session s2 = null;
+      ActiveMQRAManagedConnection mc = null;
+      ActiveMQRAManagedConnection mc2 = null;
+
+      try {
+         server.getConfiguration().setSecurityEnabled(false);
+         resourceAdapter = new ActiveMQResourceAdapter();
+
+         resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
+         MyBootstrapContext ctx = new MyBootstrapContext();
+         resourceAdapter.start(ctx);
+         ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
+         ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
+         mcf.setResourceAdapter(resourceAdapter);
+         ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+
+         QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
+         s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         mc = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s).getManagedConnection();
+
+         QueueConnection queueConnection2 = qraConnectionFactory.createQueueConnection();
+         s2 = queueConnection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         mc2 = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s2).getManagedConnection();
+
+         mc.destroy();
+
+         MessageProducer producer = s2.createProducer(ActiveMQJMSClient.createQueue(MDBQUEUE));
+         producer.send(s2.createTextMessage("x"));
+      }
+      finally {
+         if (s != null) {
+            s.close();
+         }
+
+         if (mc != null) {
+            mc.destroy();
+         }
+
+         if (s2 != null) {
+            s2.close();
+         }
+
+         if (mc2 != null) {
+            mc2.destroy();
+         }
+      }
+   }
 }
