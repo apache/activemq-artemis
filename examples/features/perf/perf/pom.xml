@@ -57,6 +57,12 @@ under the License.
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-jms-client</artifactId>
+         <version>0.5.0</version>
+      </dependency>
+
    </dependencies>
 
    <profiles>
