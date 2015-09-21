@@ -25,6 +25,12 @@ public class PerfParams implements Serializable {
 
    private static final long serialVersionUID = -4336539641012356002L;
 
+   enum ClientLibraryType {
+      core, openwire, amqp
+   }
+
+   private ClientLibraryType libraryType;
+
    private int noOfMessagesToSend = 1000;
 
    private int noOfWarmupMessages;
@@ -46,8 +52,6 @@ public class PerfParams implements Serializable {
    private boolean disableMessageID;
 
    private boolean disableTimestamp;
-
-   private boolean openwire;
 
    private boolean dupsOK;
 
@@ -158,10 +162,28 @@ public class PerfParams implements Serializable {
    }
 
    public boolean isOpenwire() {
-      return openwire;
+      return libraryType.equals(ClientLibraryType.openwire);
    }
 
-   public void setOpenwire(boolean openwire) {
-      this.openwire = openwire;
+   public boolean isAMQP() {
+      return libraryType.equals(ClientLibraryType.amqp);
    }
+
+   public boolean isCore() {
+      return libraryType.equals(ClientLibraryType.core);
+   }
+
+   public ClientLibraryType getLibraryType() {
+      return libraryType;
+   }
+
+   public void setLibraryType(ClientLibraryType libraryType) {
+      this.libraryType = libraryType;
+   }
+
+
+   public void setLibraryType(String libraryType) {
+      this.libraryType = ClientLibraryType.valueOf(libraryType);
+   }
+
 }

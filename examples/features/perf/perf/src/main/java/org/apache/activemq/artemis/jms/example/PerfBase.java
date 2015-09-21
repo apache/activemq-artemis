@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 public abstract class PerfBase {
 
@@ -99,7 +100,7 @@ public abstract class PerfBase {
       boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowlege"));
       boolean disableMessageID = Boolean.valueOf(props.getProperty("disable-message-id"));
       boolean disableTimestamp = Boolean.valueOf(props.getProperty("disable-message-timestamp"));
-      boolean openwire = Boolean.valueOf(props.getProperty("openwire", "true"));
+      String clientLibrary = props.getProperty("client-library", "core");
       String uri = props.getProperty("server-uri", "tcp://localhost:61616");
 
       PerfBase.log.info("num-messages: " + noOfMessages);
@@ -115,7 +116,7 @@ public abstract class PerfBase {
       PerfBase.log.info("disable-message-timestamp: " + disableTimestamp);
       PerfBase.log.info("dups-ok-acknowledge: " + dupsOK);
       PerfBase.log.info("server-uri: " + uri);
-      PerfBase.log.info("openwire:" + openwire);
+      PerfBase.log.info("client-library:" + clientLibrary);
 
       PerfParams perfParams = new PerfParams();
       perfParams.setNoOfMessagesToSend(noOfMessages);
@@ -130,7 +131,7 @@ public abstract class PerfBase {
       perfParams.setDisableMessageID(disableMessageID);
       perfParams.setDisableTimestamp(disableTimestamp);
       perfParams.setDupsOK(dupsOK);
-      perfParams.setOpenwire(openwire);
+      perfParams.setLibraryType(clientLibrary);
       perfParams.setUri(uri);
 
       return perfParams;
@@ -160,13 +161,26 @@ public abstract class PerfBase {
 
          connection = factory.createConnection();
       }
-      else {
+      else if (perfParams.isCore()) {
          factory = new  org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(perfParams.getUri());
 
          destination = new org.apache.activemq.artemis.jms.client.ActiveMQQueue(perfParams.getDestinationName());
 
          connection = factory.createConnection();
 
+      }
+      else if (perfParams.isAMQP()) {
+         factory = new JmsConnectionFactory(perfParams.getUri());
+
+         destination = new org.apache.activemq.artemis.jms.client.ActiveMQQueue(perfParams.getDestinationName());
+
+         connection = factory.createConnection();
+
+         Session sessionX = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         destination = sessionX.createQueue(perfParams.getDestinationName());
+
+         sessionX.close();
       }
 
       session = connection.createSession(perfParams.isSessionTransacted(), perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE : Session.AUTO_ACKNOWLEDGE);

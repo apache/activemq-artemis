@@ -27,11 +27,11 @@ under the License.
   <body onload="prettyPrint()">
     <h1>JMS Simple Performance</h1>
 
-    <p>To start the server run <code>mvn verify -Pexample</code></p>
+    <p>To start the server run <code>mvn verify -Pserver</code></p>
 
-    <p>To start the listener run <code>mvn -Plistener package</code></p>
+    <p>To start the listener run <code>mvn -Plistener verify</code></p>
 
-    <p>To start the sender run <code>mvn -Psender package</code></p>
+    <p>To start the sender run <code>mvn -Psender verify</code></p>
 
     <p>To configure the clients simply edit the <code>perf.properties</code> or <code>client.jndi.properties</code> in the
         <code>src/main/resources</code> directory</p>
