@@ -715,65 +715,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    }
 
    @Test
-   public void testNullClientID() throws Exception {
-      ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      MyBootstrapContext ctx = new MyBootstrapContext();
-      qResourceAdapter.start(ctx);
-
-      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
-      spec.setResourceAdapter(qResourceAdapter);
-      spec.setUseJNDI(false);
-      spec.setDestination("mdbTopic");
-      spec.setSubscriptionDurability("Durable");
-      spec.setSubscriptionName("sub");
-      spec.setSetupAttempts(1);
-      spec.setShareSubscriptions(true);
-      spec.setMaxSession(1);
-
-      CountDownLatch latch = new CountDownLatch(5);
-      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
-      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
-      try {
-         qResourceAdapter.endpointActivation(endpointFactory, spec);
-         fail();
-      }
-      catch (Exception e) {
-         assertTrue(e instanceof InvalidPropertyException);
-         assertEquals("clientID", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
-      }
-   }
-
-   @Test
-   public void testEmptyClientID() throws Exception {
-      ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      MyBootstrapContext ctx = new MyBootstrapContext();
-      qResourceAdapter.start(ctx);
-
-      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
-      spec.setResourceAdapter(qResourceAdapter);
-      spec.setUseJNDI(false);
-      spec.setDestination("mdbTopic");
-      spec.setSubscriptionDurability("Durable");
-      spec.setSubscriptionName("sub");
-      spec.setClientID("");
-      spec.setSetupAttempts(1);
-      spec.setShareSubscriptions(true);
-      spec.setMaxSession(1);
-
-      CountDownLatch latch = new CountDownLatch(5);
-      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
-      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
-      try {
-         qResourceAdapter.endpointActivation(endpointFactory, spec);
-         fail();
-      }
-      catch (Exception e) {
-         assertTrue(e instanceof InvalidPropertyException);
-         assertEquals("clientID", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
-      }
-   }
-
-   @Test
    public void testBadDestinationType() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();

@@ -696,11 +696,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
             propsNotSet.add(new PropertyDescriptor("subscriptionName", ActiveMQActivationSpec.class));
             errorMessages.add("If subscription is durable then subscription name must be specified.");
          }
-
-         if ((isSubscriptionDurable() && getClientID() == null) || (isSubscriptionDurable() && getClientID() != null && getClientID().length() == 0)) {
-            propsNotSet.add(new PropertyDescriptor("clientID", ActiveMQActivationSpec.class));
-            errorMessages.add("If subscription is durable then clientID must be specified.");
-         }
       }
       catch (IntrospectionException e) {
          e.printStackTrace();
