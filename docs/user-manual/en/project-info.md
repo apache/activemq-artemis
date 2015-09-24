@@ -16,9 +16,7 @@ page:<http://activemq.apache.org/download.html>
     forum](http://activemq.2283324.n4.nabble.com/ActiveMQ-Dev-f2368404.html)
 
 -   Pop in and chat to us in our [IRC
-    channel](irc://irc.freenode.net:6667/activemq)
-
--   Follow us on [twitter](https://twitter.com/activemq)
+    channel](irc://irc.freenode.net:6667/apache-activemq)
 
 -   Apache ActiveMQ Artemis Git repository is <https://github.com/apache/activemq-artemis>
 
