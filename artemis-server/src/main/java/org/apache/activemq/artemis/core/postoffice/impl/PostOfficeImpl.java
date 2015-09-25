@@ -251,7 +251,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                SimpleString filterString = props.getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING);
 
                if (!props.containsProperty(ManagementHelper.HDR_DISTANCE)) {
-                  throw ActiveMQMessageBundle.BUNDLE.distancenotSpecified();
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / BINDING_ADDED: HDR_DISANCE not specified, giving up propagation on notifications");
+                  return;
                }
 
                int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
@@ -266,7 +267,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                TypedProperties props = notification.getProperties();
 
                if (!props.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
-                  throw new IllegalStateException("No cluster name");
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / BINDING_REMOVED: HDR_CLUSTER_NAME not specified, giving up propagation on notifications");
+                  return;
                }
 
                SimpleString clusterName = props.getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
@@ -274,7 +276,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.remove(clusterName);
 
                if (info == null) {
-                  throw new IllegalStateException("Cannot find queue info for queue " + clusterName);
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / BINDING_REMOVED: Cannot find queue info for queue \" + clusterName");
+                  return;
                }
 
                break;
@@ -283,7 +286,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                TypedProperties props = notification.getProperties();
 
                if (!props.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
-                  throw new IllegalStateException("No cluster name");
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CREATED: No clusterName defined");
+                  return;
                }
 
                SimpleString clusterName = props.getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
@@ -293,7 +297,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.get(clusterName);
 
                if (info == null) {
-                  throw new IllegalStateException("Cannot find queue info for queue " + clusterName);
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CREATED: Could not find queue created on clusterName = " + clusterName);
+                  return;
                }
 
                info.incrementConsumers();
@@ -311,7 +316,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                }
 
                if (!props.containsProperty(ManagementHelper.HDR_DISTANCE)) {
-                  throw new IllegalStateException("No distance");
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CREATED: No distance specified");
+                  return;
                }
 
                int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
@@ -320,7 +326,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   SimpleString queueName = props.getSimpleStringProperty(ManagementHelper.HDR_ROUTING_NAME);
 
                   if (queueName == null) {
-                     throw new IllegalStateException("No queue name");
+                     ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CREATED: No queue defined");
+                     return;
                   }
 
                   Binding binding = getBinding(queueName);
@@ -347,7 +354,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                SimpleString clusterName = props.getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
 
                if (clusterName == null) {
-                  throw new IllegalStateException("No cluster name");
+                  ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CLOSED: No cluster name");
+                  return;
                }
 
                SimpleString filterString = props.getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING);
@@ -368,7 +376,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                if (info.getNumberOfConsumers() == 0) {
                   if (!props.containsProperty(ManagementHelper.HDR_DISTANCE)) {
-                     throw new IllegalStateException("No cluster name");
+                     ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CLOSED: HDR_DISTANCE not defined");
+                     return;
                   }
 
                   int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
@@ -377,13 +386,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      SimpleString queueName = props.getSimpleStringProperty(ManagementHelper.HDR_ROUTING_NAME);
 
                      if (queueName == null) {
-                        throw new IllegalStateException("No queue name");
+                        ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CLOSED: No queue name");
+                        return;
                      }
 
                      Binding binding = getBinding(queueName);
 
                      if (binding == null) {
-                        throw new IllegalStateException("No queue " + queueName);
+                        ActiveMQServerLogger.LOGGER.debug("PostOffice notification / CONSUMER_CLOSED: Could not find queue " + queueName);
+                        return;
                      }
 
                      Queue queue = (Queue) binding.getBindable();
