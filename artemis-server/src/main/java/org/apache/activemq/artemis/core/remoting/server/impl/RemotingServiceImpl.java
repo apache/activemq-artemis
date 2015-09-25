@@ -422,11 +422,12 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       ConnectionEntry entry = connections.remove(remotingConnectionID);
 
       if (entry != null) {
+         ActiveMQServerLogger.LOGGER.debug("RemotingServiceImpl::removing connection ID " + remotingConnectionID);
          connectionCountLatch.countDown();
          return entry.connection;
       }
       else {
-         ActiveMQServerLogger.LOGGER.errorRemovingConnection();
+         ActiveMQServerLogger.LOGGER.debug("The connectionID::" + remotingConnectionID + " was already removed by some other module");
 
          return null;
       }
