@@ -22,12 +22,40 @@ under the License.
                xmlns="urn:activemq"
                xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
+   <jms xmlns="urn:activemq:jms">
+      <!--the queue used by the example-->
+      <queue name="exampleQueue"/>
+   </jms>
+
    <core xmlns="urn:activemq:core">
 
-      <persistence-enabled>false</persistence-enabled>
+      <bindings-directory>./data/bindings</bindings-directory>
 
+      <journal-directory>./data/journal</journal-directory>
+
+      <large-messages-directory>./data/largemessages</large-messages-directory>
+
+      <paging-directory>./data/paging</paging-directory>
+
+      <queues>
+         <queue name="jms">
+            <address></address>
+         </queue>
+      </queues>
+
+
+      <remoting-incoming-interceptors>
+         <class-name>org.apache.activemq.artemis.jms.example.MyStompInterceptor</class-name>
+         <class-name>org.apache.activemq.artemis.jms.example.RegularInterceptor</class-name>
+      </remoting-incoming-interceptors>
+
+      <remoting-outgoing-interceptors>
+         <class-name>org.apache.activemq.artemis.jms.example.RegularInterceptor</class-name>
+      </remoting-outgoing-interceptors>
+
+      <!-- Acceptors -->
       <acceptors>
-        <acceptor name="artemis">tcp://127.0.0.1:61616?protocols=STOMP</acceptor>
+         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
       </acceptors>
 
       <!-- Other config -->

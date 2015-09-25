@@ -45,6 +45,7 @@ under the License.
          <modules>
             <module>stomp</module>
             <module>stomp-websockets</module>
+            <module>stomp-embedded-interceptor</module>
             <module>stomp1.1</module>
             <module>stomp1.2</module>
          </modules>
@@ -53,6 +54,7 @@ under the License.
          <id>examples</id>
          <modules>
             <module>stomp</module>
+            <module>stomp-embedded-interceptor</module>
 
             <!-- has to be executed manually
             <module>stomp-websockets</module> -->
