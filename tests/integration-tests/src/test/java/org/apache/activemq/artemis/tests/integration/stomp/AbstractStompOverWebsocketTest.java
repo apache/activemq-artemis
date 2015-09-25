@@ -31,14 +31,13 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.string.StringDecoder;
 
-public class StompOverWebsocketTest extends StompTest {
+public abstract class AbstractStompOverWebsocketTest extends StompTest {
 
    private ChannelPromise handshakeFuture;
 
@@ -112,8 +111,7 @@ public class StompOverWebsocketTest extends StompTest {
       public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
          try {
             if (msg instanceof String) {
-               TextWebSocketFrame frame = new TextWebSocketFrame((String) msg);
-               ctx.write(frame, promise);
+               ctx.write(createFrame((String) msg), promise);
             }
             else {
                super.write(ctx, msg, promise);
@@ -124,4 +122,6 @@ public class StompOverWebsocketTest extends StompTest {
          }
       }
    }
+
+   abstract WebSocketFrame createFrame(String msg);
 }
