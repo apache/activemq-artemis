@@ -33,10 +33,14 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1047,6 +1051,213 @@ public class SecurityTest extends ActiveMQTestBase {
       // Step 18. Check permissions on news.us.usTopic for same: can't send but can receive
       checkUserReceiveNoSend(usQueueName, samConnection, adminSession);
 
+   }
+
+   @Test
+   public void testCustomSecurityManager() throws Exception {
+      final Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
+      final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager() {
+            public boolean validateUser(final String username, final String password) {
+               return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
+                  password.equals("frobnicate");
+            }
+            public boolean validateUserAndRole(
+               final String username,
+               final String password,
+               final Set<Role> requiredRoles,
+               final CheckType checkType) {
+
+               if ((username.equals("foo") || username.equals("bar") || username.equals("all")) &&
+                   password.equals("frobnicate")) {
+
+                  if (username.equals("all")) {
+                     return true;
+                  }
+                  else if (username.equals("foo")) {
+                     return checkType == CheckType.CONSUME || checkType == CheckType.CREATE_NON_DURABLE_QUEUE;
+                  }
+                  else if (username.equals("bar")) {
+                     return checkType == CheckType.SEND || checkType == CheckType.CREATE_NON_DURABLE_QUEUE;
+                  }
+                  else {
+                     return false;
+                  }
+               }
+               else {
+                  return false;
+               }
+            }
+         };
+      final ActiveMQServer server = addServer(new ActiveMQServerImpl(configuration, customSecurityManager));
+      server.start();
+
+      final ServerLocator locator = createInVMNonHALocator();
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
+      final ClientSessionFactory factory = createSessionFactory(locator);
+      ClientSession adminSession = factory.createSession("all", "frobnicate", false, true, true, false, -1);
+
+      final String queueName = "test.queue";
+      adminSession.createQueue(queueName, queueName, false);
+
+      // Wrong user name
+      try {
+         factory.createSession("baz", "frobnicate", false, true, true, false, -1);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Wrong password
+      try {
+         factory.createSession("foo", "xxx", false, true, true, false, -1);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Correct user and password, allowed to send but not receive
+      {
+         final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
+         checkUserReceiveNoSend(queueName, session, adminSession);
+      }
+
+      // Correct user and password, allowed to receive but not send
+      {
+         final ClientSession session = factory.createSession("bar", "frobnicate", false, true, true, false, -1);
+         checkUserSendNoReceive(queueName, session);
+      }
+
+   }
+
+   @Test
+   public void testCustomSecurityManager2() throws Exception {
+      final Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
+      final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager2() {
+            public boolean validateUser(final String username, final String password) {
+               return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
+                  password.equals("frobnicate");
+            }
+            public boolean validateUserAndRole(
+               final String username,
+               final String password,
+               final Set<Role> requiredRoles,
+               final CheckType checkType) {
+
+               fail("Unexpected call to overridden method");
+               return false;
+            }
+
+            public boolean validateUserAndRole(
+               final String username,
+               final String password,
+               final Set<Role> requiredRoles,
+               final CheckType checkType,
+               final String address) {
+
+               if ((username.equals("foo") || username.equals("bar") || username.equals("all")) &&
+                   password.equals("frobnicate")) {
+
+                  if (username.equals("all")) {
+                     return true;
+                  }
+                  else if (username.equals("foo")) {
+                     return address.equals("test.queue") && checkType == CheckType.CONSUME;
+                  }
+                  else if (username.equals("bar")) {
+                     return address.equals("test.queue") && checkType == CheckType.SEND;
+                  }
+                  else {
+                     return false;
+                  }
+               }
+               else {
+                  return false;
+               }
+            }
+         };
+      final ActiveMQServer server = addServer(new ActiveMQServerImpl(configuration, customSecurityManager));
+      server.start();
+
+      final ServerLocator locator = createInVMNonHALocator();
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
+      final ClientSessionFactory factory = createSessionFactory(locator);
+      ClientSession adminSession = factory.createSession("all", "frobnicate", false, true, true, false, -1);
+
+      final String queueName = "test.queue";
+      adminSession.createQueue(queueName, queueName, false);
+
+      final String otherQueueName = "other.queue";
+      adminSession.createQueue(otherQueueName, otherQueueName, false);
+
+      // Wrong user name
+      try {
+         factory.createSession("baz", "frobnicate", false, true, true, false, -1);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Wrong password
+      try {
+         factory.createSession("foo", "xxx", false, true, true, false, -1);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Correct user and password, wrong queue for sending
+      try {
+         final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
+         checkUserReceiveNoSend(otherQueueName, session, adminSession);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Correct user and password, wrong queue for receiving
+      try {
+         final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
+         checkUserReceiveNoSend(otherQueueName, session, adminSession);
+         Assert.fail("should throw exception");
+      }
+      catch (ActiveMQSecurityException se) {
+         //ok
+      }
+      catch (ActiveMQException e) {
+         fail("Invalid Exception type:" + e.getType());
+      }
+
+      // Correct user and password, allowed to send but not receive
+      {
+         final ClientSession session = factory.createSession("foo", "frobnicate", false, true, true, false, -1);
+         checkUserReceiveNoSend(queueName, session, adminSession);
+      }
+
+      // Correct user and password, allowed to receive but not send
+      {
+         final ClientSession session = factory.createSession("bar", "frobnicate", false, true, true, false, -1);
+         checkUserSendNoReceive(queueName, session);
+      }
    }
 
    // Check the user connection has both send and receive permissions on the queue
