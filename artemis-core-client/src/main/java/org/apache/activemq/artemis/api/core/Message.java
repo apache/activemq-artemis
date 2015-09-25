@@ -71,6 +71,8 @@ public interface Message {
 
    SimpleString HDR_LAST_VALUE_NAME = new SimpleString("_AMQ_LVQ_NAME");
 
+   SimpleString HDR_CONTENT_TYPE = new SimpleString("_AMQ_CONTENT_TYPE");
+
    byte DEFAULT_TYPE = 0;
 
    byte OBJECT_TYPE = 2;
