@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -118,7 +117,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @Override
-   public void addIncomingInterceptor(Interceptor interceptor) {
+   public void addIncomingInterceptor(BaseInterceptor interceptor) {
       incomingInterceptors.add(interceptor);
    }
 
@@ -132,7 +131,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
    }
 
    @Override
-   public void addOutgoingInterceptor(Interceptor interceptor) {
+   public void addOutgoingInterceptor(BaseInterceptor interceptor) {
       outgoingInterceptors.add(interceptor);
    }
 

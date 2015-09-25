@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
@@ -525,7 +524,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
-   public void addIncomingInterceptor(final Interceptor interceptor) {
+   public void addIncomingInterceptor(final BaseInterceptor interceptor) {
       incomingInterceptors.add(interceptor);
 
       updateProtocols();
@@ -537,7 +536,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
-   public boolean removeIncomingInterceptor(final Interceptor interceptor) {
+   public boolean removeIncomingInterceptor(final BaseInterceptor interceptor) {
       if (incomingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
@@ -548,7 +547,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
-   public void addOutgoingInterceptor(final Interceptor interceptor) {
+   public void addOutgoingInterceptor(final BaseInterceptor interceptor) {
       outgoingInterceptors.add(interceptor);
       updateProtocols();
    }
@@ -559,7 +558,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
-   public boolean removeOutgoingInterceptor(final Interceptor interceptor) {
+   public boolean removeOutgoingInterceptor(final BaseInterceptor interceptor) {
       if (outgoingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
