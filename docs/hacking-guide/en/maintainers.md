@@ -1,6 +1,6 @@
 # Notes for Maintainers
 
-Core ActiveMQ Artemis members have write access to the Apache ActiveMQ Artemis repositories and will be responsible for 
+Core ActiveMQ Artemis members have write access to the Apache ActiveMQ Artemis repositories and will be responsible for
 acknowledging and pushing commits contributed via pull requests on GitHub.
 
 Core ActiveMQ Artemis members are also able to push their own commits directly to the canonical Apache repository.
@@ -29,7 +29,7 @@ Please ensure the commit messages follow the 50/72 format as described [here](co
 
 ## Configuring git repositories
 
-Aside from the traditional `origin` and `upstream` repositories committers will need an additional reference for the 
+Aside from the traditional `origin` and `upstream` repositories committers will need an additional reference for the
 canonical Apache git repository where they will be merging and pushing pull-requests. For the purposes of this document,
 let's assume these ref/repo associations already exist as described in the [Working with the Code](code.md) section:
 
@@ -40,8 +40,8 @@ let's assume these ref/repo associations already exist as described in the [Work
 
         $ git remote add apache https://git-wip-us.apache.org/repos/asf/activemq-artemis.git
 
-1. Add the following section to your <artemis-repo>/.git/config statement to fetch all pull requests sent to the GitHub 
-   mirror.  We are using `upstream` as the remote repo name (as noted above), but the remote repo name may be different 
+1. Add the following section to your <artemis-repo>/.git/config statement to fetch all pull requests sent to the GitHub
+   mirror.  We are using `upstream` as the remote repo name (as noted above), but the remote repo name may be different
    if you choose. Just be sure to edit all references to the remote repo name so it's consistent.
 
         [remote "upstream"]
@@ -54,7 +54,7 @@ let's assume these ref/repo associations already exist as described in the [Work
 Here are the basic commands to retrieve pull requests, merge, and push them to the canonical Apache repository:
 
 1. Download all the remote branches etc... including all the pull requests.
-    
+
         $ git fetch --all
         Fetching origin
         Fetching upstream
@@ -65,7 +65,7 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
         Resolving deltas: 100% (78/78), done.
         From github.com:apache/activemq-artemis
          * [new ref]         refs/pull/105/head -> upstream/pr/105
-  
+
 1. Checkout the pull request you wish to review
 
         $ git checkout pr/105
@@ -78,29 +78,62 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
 
         $ git pull
 
-1. Create a new merge commit from the pull-request. IMPORTANT: The commit message here should be something like: "This 
-   closes #105" where "105" is the pull request ID.  The "#105" shows up as a link in the GitHub UI for navigating to 
-   the PR from the commit message. 
- 
+1. Create a new merge commit from the pull-request. IMPORTANT: The commit message here should be something like: "This
+   closes #105" where "105" is the pull request ID.  The "#105" shows up as a link in the GitHub UI for navigating to
+   the PR from the commit message.
+
         $ git merge --no-ff pr/105
 
 1. Push to the canonical Apache repo.
 
         $ git push apache master
 
-#### Notes:
+## Rebasing before you merge
+
+If the pull request gets too behind master, it would be better to rebase the branch before merging it.
+You can do that by either asking the author of the pull request to do such rebase (what is not always possible) or you could do it yourself during merging.
+
+In case you rebase the pull request it is mandatory that write "This closes #105" Where 105 is the pull request ID.
+
+There is a script that helps doing such thing at <project root>/scripts/merge-PR.sh.
+
+The script is assuming you have defined remotes named at upstream, apache and origin like specified previously here.
+
+to execute such script simply use:
+
+```
+$ <checkout-directory>/scripts/merge-pr.sh <PR number> Message on the PR
+```
+
+Example:
+
+```
+$  pwd
+/checkouts/apache-activemq-artemis
+
+$  ./scripts/merge-pr.sh 175 ARTEMIS-229 address on Security Interface
+```
+
+The previous example was taken from a real case that generated this [merge commit on #175](https://github.com/apache/activemq-artemis/commit/e85bb3ca4a75b0f1dfbe717ff90b34309e2de794).
+
+- After this you can push to the canonical Apache repo.
+```
+$ git push apache master
+```
+
+## Notes:
 
 The GitHub mirror repository (i.e. `upstream`) is cloning the canonical Apache repository.  Because of this there may be
-a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.  
-This may cause some difficulty when trying to push a PR to `apache` that has been merged on the out-of-date GitHub mirror.  
-You can wait for the mirror to update before performing the steps above or you can change your local master branch to 
+a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.
+This may cause some difficulty when trying to push a PR to `apache` that has been merged on the out-of-date GitHub mirror.
+You can wait for the mirror to update before performing the steps above or you can change your local master branch to
 track the master branch on the canonical Apache repository rather than the master branch on the GitHub mirror:
 
     $ git branch master -u apache/master
 
 Where `apache` points to the canonical Apache repository.
 
-If you'd like your local master branch to always track `upstream/master` (i.e. the GitHub mirror) then another way to 
+If you'd like your local master branch to always track `upstream/master` (i.e. the GitHub mirror) then another way to
 achieve this is to add another branch that tracks `apache/master` and push from that branch e.g.
 
     $ git checkout master
