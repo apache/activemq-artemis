@@ -110,7 +110,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
          return false;
       }
-      else if (!(frame instanceof TextWebSocketFrame)) {
+      else if (!(frame instanceof TextWebSocketFrame) && !(frame instanceof BinaryWebSocketFrame)) {
          throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
       }
       return true;

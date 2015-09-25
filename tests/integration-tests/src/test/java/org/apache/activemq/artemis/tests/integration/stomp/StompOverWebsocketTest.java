@@ -18,8 +18,13 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,10 +42,26 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.string.StringDecoder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class StompOverWebsocketTest extends StompTest {
 
    private ChannelPromise handshakeFuture;
+
+   private final boolean useBinaryFrames;
+
+   @Parameterized.Parameters(name = "useBinaryFrames={0}")
+   public static Collection<Object[]> data() {
+      List<Object[]> list = Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
+      return list;
+   }
+
+   public StompOverWebsocketTest(Boolean useBinaryFrames) {
+      super();
+      this.useBinaryFrames = useBinaryFrames;
+   }
 
    @Override
    protected void addChannelHandlers(SocketChannel ch) throws URISyntaxException {
@@ -112,8 +133,7 @@ public class StompOverWebsocketTest extends StompTest {
       public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
          try {
             if (msg instanceof String) {
-               TextWebSocketFrame frame = new TextWebSocketFrame((String) msg);
-               ctx.write(frame, promise);
+               ctx.write(createFrame((String) msg), promise);
             }
             else {
                super.write(ctx, msg, promise);
@@ -124,4 +144,15 @@ public class StompOverWebsocketTest extends StompTest {
          }
       }
    }
+
+
+   protected WebSocketFrame createFrame(String msg) {
+      if (useBinaryFrames) {
+         return new BinaryWebSocketFrame(Unpooled.copiedBuffer(msg, Charset.forName("UTF-8")));
+      }
+      else {
+         return new TextWebSocketFrame(msg);
+      }
+   }
+
 }
