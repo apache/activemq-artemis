@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
@@ -159,7 +160,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             return;
          }
 
-         if (!securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType)) {
+         final boolean validated;
+         if (securityManager instanceof ActiveMQSecurityManager2) {
+            final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
+            validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress);
+         }
+         else {
+            validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
+         }
+
+         if (!validated) {
             if (notificationService != null) {
                TypedProperties props = new TypedProperties();
 
