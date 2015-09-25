@@ -28,6 +28,49 @@ public class StompConnectionCleanupTest extends StompTestBase {
 
    private static final long CONNECTION_TTL = 2000;
 
+   // ARTEMIS-231
+   @Test
+   public void testConnectionCleanupWithTopicSubscription() throws Exception {
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+      frame = receiveFrame(10000);
+
+      //We send and consumer a message to ensure a STOMP connection and server session is created
+
+      System.out.println("Received frame: " + frame);
+
+      assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SUBSCRIBE\n" + "destination:" + getTopicPrefix() + getTopicName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = "DISCONNECT\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      // Now we wait until the connection is cleared on the server, which will happen some time after ttl, since no data
+      // is being sent
+
+      long start = System.currentTimeMillis();
+
+      while (true) {
+         int connCount = server.getActiveMQServer().getRemotingService().getConnections().size();
+
+         int sessionCount = server.getActiveMQServer().getSessions().size();
+
+         // All connections and sessions should be timed out including STOMP + JMS connection
+
+         if (connCount == 0 && sessionCount == 0) {
+            break;
+         }
+
+         Thread.sleep(10);
+
+         if (System.currentTimeMillis() - start > 10000) {
+            fail("Timed out waiting for connection to be cleared up");
+         }
+      }
+   }
+
    @Test
    public void testConnectionCleanup() throws Exception {
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
