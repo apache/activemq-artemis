@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
@@ -55,7 +54,7 @@ public interface ServiceRegistry {
     */
    Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices(List<ConnectorServiceConfiguration> configs);
 
-   void addIncomingInterceptor(Interceptor interceptor);
+   void addIncomingInterceptor(BaseInterceptor interceptor);
 
    /**
     * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances
@@ -65,7 +64,7 @@ public interface ServiceRegistry {
     */
    List<BaseInterceptor> getIncomingInterceptors(List<String> classNames);
 
-   void addOutgoingInterceptor(Interceptor interceptor);
+   void addOutgoingInterceptor(BaseInterceptor interceptor);
 
    /**
     * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances

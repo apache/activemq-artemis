@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -43,17 +42,17 @@ public interface RemotingService {
 
    ReusableLatch getConnectionCountLatch();
 
-   void addIncomingInterceptor(Interceptor interceptor);
+   void addIncomingInterceptor(BaseInterceptor interceptor);
 
    List<BaseInterceptor> getIncomingInterceptors();
 
-   void addOutgoingInterceptor(Interceptor interceptor);
+   void addOutgoingInterceptor(BaseInterceptor interceptor);
 
    List<BaseInterceptor> getOutgoinInterceptors();
 
-   boolean removeIncomingInterceptor(Interceptor interceptor);
+   boolean removeIncomingInterceptor(BaseInterceptor interceptor);
 
-   boolean removeOutgoingInterceptor(Interceptor interceptor);
+   boolean removeOutgoingInterceptor(BaseInterceptor interceptor);
 
    void stop(boolean criticalError) throws Exception;
 
