@@ -126,6 +126,7 @@ public abstract class Configurable extends ActionAbstract {
             fileConfiguration.setJournalDirectory(defaultLocation + "/journal");
             fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
             fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
+            fileConfiguration.setBrokerInstance(new File("."));
          }
          else {
             fileConfiguration = new FileConfiguration();
@@ -135,10 +136,10 @@ public abstract class Configurable extends ActionAbstract {
             FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(serverConfiguration);
             fileDeploymentManager.addDeployable(fileConfiguration).addDeployable(jmsConfiguration);
             fileDeploymentManager.readConfiguration();
+            fileConfiguration.setBrokerInstance(new File(getBrokerInstance()));
          }
       }
 
-      fileConfiguration.setBrokerInstance(new File(getBrokerInstance()));
 
       return fileConfiguration;
    }

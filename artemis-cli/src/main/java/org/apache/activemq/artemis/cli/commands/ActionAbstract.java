@@ -57,10 +57,6 @@ public abstract class ActionAbstract implements Action {
             brokerInstance = brokerInstance.replace("\\", "/");
             System.setProperty("artemis.instance", brokerInstance);
          }
-         if (brokerInstance == null) {
-            // if still null we will try to improvise with "."
-            brokerInstance = ".";
-         }
       }
       return brokerInstance;
    }

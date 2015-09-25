@@ -24,7 +24,14 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      lockCLI(getLockPlace());
+
+      if (getBrokerInstance() == null) {
+         System.err.println("Warning: You are running a data tool outside of any broker instance. Modifying data on a running server might break the server's data");
+         System.err.println();
+      }
+      else {
+         lockCLI(getLockPlace());
+      }
 
       return null;
    }
