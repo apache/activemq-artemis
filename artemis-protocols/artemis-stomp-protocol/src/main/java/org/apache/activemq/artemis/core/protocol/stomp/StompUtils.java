@@ -59,6 +59,10 @@ public class StompUtils {
       if (groupID != null) {
          msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
       }
+      String contentType = headers.remove(Stomp.Headers.CONTENT_TYPE);
+      if (contentType != null) {
+         msg.putStringProperty(Message.HDR_CONTENT_TYPE, SimpleString.toSimpleString(contentType));
+      }
       Object replyTo = headers.remove(Stomp.Headers.Send.REPLY_TO);
       if (replyTo != null) {
          msg.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, SimpleString.toSimpleString((String) replyTo));
@@ -96,12 +100,16 @@ public class StompUtils {
       if (message.getObjectProperty("JMSType") != null) {
          command.addHeader(Stomp.Headers.Message.TYPE, message.getObjectProperty("JMSType").toString());
       }
+      if (message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()) != null) {
+         command.addHeader(Stomp.Headers.CONTENT_TYPE, message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()));
+      }
 
       // now let's add all the message headers
       Set<SimpleString> names = message.getPropertyNames();
       for (SimpleString name : names) {
          String value = name.toString();
          if (name.equals(ClientMessageImpl.REPLYTO_HEADER_NAME) ||
+            name.equals(Message.HDR_CONTENT_TYPE) ||
             value.equals("JMSType") ||
             value.equals("JMSCorrelationID") ||
             value.equals(Stomp.Headers.Message.DESTINATION)) {
