@@ -80,38 +80,15 @@
       <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
       <webapp-outdir-user-manual>${basedir}/target/classes/user-manual</webapp-outdir-user-manual>
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
+
+      <frontend-maven-plugin-version>0.0.24</frontend-maven-plugin-version>
+      <nodeVersion>v0.10.32</nodeVersion>
+      <npmVersion>1.4.12</npmVersion>
+
    </properties>
 
    <build>
       <plugins>
-         <plugin>
-             <groupId>com.github.eirslett</groupId>
-             <artifactId>frontend-maven-plugin</artifactId>
-             <version>${frontend-maven-plugin-version}</version>
-             <executions>
-                 <execution>
-                     <id>install node and npm</id>
-                     <goals>
-                         <goal>install-node-and-npm</goal>
-                     </goals>
-                     <phase>generate-sources</phase>
-                     <configuration>
-                         <nodeVersion>v0.11.16</nodeVersion>
-                         <npmVersion>1.4.12</npmVersion>
-                     </configuration>
-                 </execution>
-                 <execution>
-                     <id>npm install</id>
-                     <goals>
-                         <goal>npm</goal>
-                     </goals>
-                     <phase>generate-sources</phase>
-                     <configuration>
-                         <arguments>install</arguments>
-                     </configuration>
-                 </execution>
-             </executions>
-         </plugin>
 
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
@@ -156,6 +133,34 @@
          <build>
             <plugins>
                <plugin>
+                  <groupId>com.github.eirslett</groupId>
+                  <artifactId>frontend-maven-plugin</artifactId>
+                  <version>${frontend-maven-plugin-version}</version>
+                  <executions>
+                     <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                           <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                           <nodeVersion>${nodeVersion}</nodeVersion>
+                           <npmVersion>${npmVersion}</npmVersion>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>npm install</id>
+                        <goals>
+                           <goal>npm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                           <arguments>install</arguments>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
                   <artifactId>maven-antrun-plugin</artifactId>
                   <version>1.6</version>
                   <executions>
@@ -167,14 +172,14 @@
                                  <os family="windows" />
                               </condition>
                               <!-- lets generate the gitbook -->
-                              <mkdir dir="${webapp-outdir-user-manual}/gitbook" />
+                              <mkdir dir="${webapp-outdir-user-manual}" />
                               <echo>executing ${gitbook.cmd}</echo>
                               <exec executable="${gitbook.cmd}">
                                  <arg value="build" />
                                  <arg value="${basedir}/../docs/user-manual/en" />
                                  <arg value="${webapp-outdir-user-manual}" />
                               </exec>
-                              <mkdir dir="${webapp-outdir-hacking-guide}/gitbook" />
+                              <mkdir dir="${webapp-outdir-hacking-guide}" />
                               <echo>executing ${gitbook.cmd}</echo>
                               <exec executable="${gitbook.cmd}">
                                  <arg value="build" />

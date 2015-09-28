@@ -97,8 +97,6 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-      <frontend-maven-plugin-version>0.0.24</frontend-maven-plugin-version>
-
      <!--
 
        note for idea users:
