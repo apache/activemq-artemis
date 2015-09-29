@@ -64,7 +64,7 @@ the `/var/lib` directory.  For example, to create an instance at '/var/lib/mybro
 the following commands in your command line shell:
 
     cd /var/lib
-    ${ARTEMIS_HOME}/bin/activemq create mybroker
+    ${ARTEMIS_HOME}/bin/artemis create mybroker
 
 A broker instance directory will contain the following sub directories:
 
@@ -193,15 +193,15 @@ Some of these properties may be mandatory in certain configurations and the syst
 Assuming you created the broker instance under `/var/lib/mybroker` all you need
 to do start running the broker instance is execute:
 
-    /var/lib/mybroker/bin/activemq run
+    /var/lib/mybroker/bin/artemis run
 
 Now that the broker is running, you can optionally run some of the included
 examples to verify the the broker is running properly.
 
-To stop the Apache ActiveMQ Artemis instance you will use the same `activemq` script, but with
+To stop the Apache ActiveMQ Artemis instance you will use the same `artemis` script, but with
 the `stop argument`.  Example:
 
-    /var/lib/mybroker/bin/activemq stop
+    /var/lib/mybroker/bin/artemis stop
 
 Please note that Apache ActiveMQ Artemis requires a Java 7 or later runtime to run.
 
@@ -211,8 +211,8 @@ used. The configuration can be changed e.g. by running
 config of your choosing.
 
 Environment variables are used to provide ease of changing ports, hosts and
-data directories used and can be found in `etc/activemq.profile` on linux and
-`etc\activemq.profile.cmd` on Windows.
+data directories used and can be found in `etc/artemis.profile` on linux and
+`etc\artemis.profile.cmd` on Windows.
 
 ## Server JVM settings
 
