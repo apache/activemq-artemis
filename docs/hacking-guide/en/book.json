@@ -3,6 +3,7 @@
     "description": "ActiveMQ Artemis Hacking Guide",
     "github": "apache/activemq-artemis",
     "githubHost": "https://github.com/",
+    "gitbook": "2.x.x",
     "links": {
         "home": "http://activemq.apache.org/",
         "issues": "http://activemq.apache.org/",
