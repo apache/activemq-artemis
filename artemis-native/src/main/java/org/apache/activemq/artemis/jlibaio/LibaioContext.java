@@ -49,7 +49,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * <br>
     * Or else the native module won't be loaded because of version mismatches
     */
-   private static final int EXPECTED_NATIVE_VERSION = 1;
+   private static final int EXPECTED_NATIVE_VERSION = 2;
 
    private static boolean loaded = false;
 

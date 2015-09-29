@@ -112,6 +112,15 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     } else {
+        //
+        // Accordingly to previous experiences we must hold Global Refs on Classes
+        // And
+        //
+        // Accordingly to IBM recommendations here:
+        // We don't need to hold a global reference on methods:
+        // http://www.ibm.com/developerworks/java/library/j-jni/index.html#notc
+        // Which actually caused core dumps
+
         jclass localRuntimeExceptionClass = (*env)->FindClass(env, "java/lang/RuntimeException");
         if (localRuntimeExceptionClass == NULL) {
             // pending exception...
@@ -147,13 +156,11 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         if (errorMethod == NULL) {
            return JNI_ERR;
         }
-        errorMethod = (jmethodID)(*env)->NewGlobalRef(env, (jobject)(errorMethod));
 
         doneMethod = (*env)->GetMethodID(env, submitClass, "done", "()V");
         if (doneMethod == NULL) {
            return JNI_ERR;
         }
-        doneMethod = (jmethodID)(*env)->NewGlobalRef(env, (jobject)(doneMethod));
 
         libaioContextClass = (*env)->FindClass(env, "org/apache/activemq/artemis/jlibaio/LibaioContext");
         if (libaioContextClass == NULL) {
@@ -165,7 +172,6 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         if (libaioContextDone == NULL) {
            return JNI_ERR;
         }
-        libaioContextDone = (jmethodID)(*env)->NewGlobalRef(env, (jobject)libaioContextDone);
 
         return JNI_VERSION_1_6;
     }
@@ -185,25 +191,12 @@ void JNI_OnUnload(JavaVM* vm, void* reserved) {
             (*env)->DeleteGlobalRef(env, ioExceptionClass);
         }
 
-        // Deleting global refs so their classes can be GCed
-        if (errorMethod != NULL) {
-            (*env)->DeleteGlobalRef(env, (jobject)errorMethod);
-        }
-
-        if (doneMethod != NULL) {
-            (*env)->DeleteGlobalRef(env, (jobject)doneMethod);
-        }
-
         if (submitClass != NULL) {
             (*env)->DeleteGlobalRef(env, (jobject)submitClass);
         }
 
         if (libaioContextClass != NULL) {
             (*env)->DeleteGlobalRef(env, (jobject)libaioContextClass);
-        }
-
-        if (libaioContextDone != NULL) {
-            (*env)->DeleteGlobalRef(env, (jobject)libaioContextDone);
         }
     }
 }
