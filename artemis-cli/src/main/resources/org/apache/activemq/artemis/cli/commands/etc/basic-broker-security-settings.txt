@@ -1,0 +1,5 @@
+
+   <basic-security
+           users="file:${artemis.instance}/etc/artemis-users.properties"
+           roles="file:${artemis.instance}/etc/artemis-roles.properties"
+           ${bootstrap.guest}/>

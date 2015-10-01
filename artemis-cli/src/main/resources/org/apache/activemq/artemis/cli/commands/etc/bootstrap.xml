@@ -18,10 +18,7 @@
 
 <broker xmlns="http://activemq.org/schema">
 
-   <basic-security
-           users="file:${artemis.instance}/etc/artemis-users.properties"
-           roles="file:${artemis.instance}/etc/artemis-roles.properties"
-           ${bootstrap.guest}/>
+${broker-security-settings}
 
    <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 

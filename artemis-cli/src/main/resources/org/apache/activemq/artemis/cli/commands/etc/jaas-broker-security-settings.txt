@@ -1,0 +1,2 @@
+
+   <jaas-security login-module="PropertiesLogin"/>

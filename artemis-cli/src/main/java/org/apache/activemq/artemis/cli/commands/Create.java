@@ -70,8 +70,16 @@ public class Create extends InputAbstract {
    public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
    public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
    public static final String ETC_BROKER_XML = "etc/broker.xml";
+
+   // The JAAS PropertiesLogin module uses role=user(s) syntax, but the basic security uses user=role(s) syntax so we need 2 different files here
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
+   public static final String ETC_ARTEMIS_ROLES_BASIC_PROPERTIES = "etc/artemis-roles-basic.properties";
+   public static final String ETC_ARTEMIS_ROLES_JAAS_PROPERTIES = "etc/artemis-roles-jaas.properties";
+
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
+   public static final String ETC_JAAS_BROKER_SECURITY_SETTINGS_TXT = "etc/jaas-broker-security-settings.txt";
+   public static final String ETC_BASIC_BROKER_SECURITY_SETTINGS_TXT = "etc/basic-broker-security-settings.txt";
+   public static final String ETC_LOGIN_CONFIG = "etc/login.config";
    public static final String ETC_REPLICATED_SETTINGS_TXT = "etc/replicated-settings.txt";
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
@@ -161,9 +169,23 @@ public class Create extends InputAbstract {
    @Option(name = "--aio", description = "Force aio journal on the configuration regardless of the library being available or not.")
    boolean forceLibaio;
 
+   @Option(name = "--broker-security", description = "Use basic, file-based security or JAAS login module for broker security (Default: basic)")
+   String brokerSecurity;
+
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
+
+   public String getBrokerSecurity() {
+      if (brokerSecurity == null) {
+         brokerSecurity = "basic";
+      }
+      return brokerSecurity;
+   }
+
+   public void setBrokerSecurity(String security) {
+      this.brokerSecurity = security;
+   }
 
    public int getMaxHops() {
       return maxHops;
@@ -535,6 +557,29 @@ public class Create extends InputAbstract {
 
       filters.put("${java-opts}", javaOptions);
 
+      if (isAllowAnonymous()) {
+         filters.put("${bootstrap.guest}", "default-user=\"" + getUser() + "\"");
+      }
+      else {
+         filters.put("${bootstrap.guest}", "");
+      }
+
+      if (brokerSecurity != null && brokerSecurity.equalsIgnoreCase("jaas")) {
+         filters.put("${broker-security-settings}", applyFilters(readTextFile(ETC_JAAS_BROKER_SECURITY_SETTINGS_TXT), filters));
+         filters.put("${login-config}", "-Djava.security.auth.login.config=" + path(directory, false) + "/etc/login.config");
+         write(ETC_LOGIN_CONFIG, filters, false);
+         write(ETC_ARTEMIS_ROLES_JAAS_PROPERTIES, filters, false);
+         File file = new File(directory, ETC_ARTEMIS_ROLES_JAAS_PROPERTIES);
+         file.renameTo(new File(directory, ETC_ARTEMIS_ROLES_PROPERTIES));
+      }
+      else {
+         filters.put("${broker-security-settings}", applyFilters(readTextFile(ETC_BASIC_BROKER_SECURITY_SETTINGS_TXT), filters));
+         filters.put("${login-config}", "");
+         write(ETC_ARTEMIS_ROLES_BASIC_PROPERTIES, filters, false);
+         File file = new File(directory, ETC_ARTEMIS_ROLES_BASIC_PROPERTIES);
+         file.renameTo(new File(directory, ETC_ARTEMIS_ROLES_PROPERTIES));
+      }
+
       if (IS_WINDOWS) {
          write(BIN_ARTEMIS_CMD, null, false);
          write(BIN_ARTEMIS_SERVICE_EXE);
@@ -553,13 +598,6 @@ public class Create extends InputAbstract {
 
       write(ETC_LOGGING_PROPERTIES, null, false);
 
-      if (isAllowAnonymous()) {
-         filters.put("${bootstrap.guest}", "default-user=\"" + getUser() + "\"");
-      }
-      else {
-         filters.put("${bootstrap.guest}", "");
-      }
-
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
       }
@@ -571,7 +609,6 @@ public class Create extends InputAbstract {
 
       write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
-      write(ETC_ARTEMIS_ROLES_PROPERTIES, filters, false);
       write(ETC_ARTEMIS_USERS_PROPERTIES, filters, false);
 
       context.out.println("");
