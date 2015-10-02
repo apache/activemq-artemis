@@ -65,19 +65,16 @@ under the License.
          <groupId>io.vertx</groupId>
          <artifactId>vertx-core</artifactId>
          <version>${vertx.version}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.vertx</groupId>
          <artifactId>vertx-platform</artifactId>
          <version>${vertx.version}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.vertx</groupId>
          <artifactId>vertx-hazelcast</artifactId>
          <version>${vertx.version}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -101,6 +98,8 @@ under the License.
                      <libList>
                         <arg>org.apache.activemq.examples.modules:artemis-vertx-example:${project.version}</arg>
                      </libList>
+                     <copyDependencies>true</copyDependencies>
+
                      <instance>${basedir}/target/server0</instance>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>
                   </configuration>
