@@ -51,7 +51,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private String variableName;
 
    @Parameter
-   private String pathSeparator = ";";
+   private String pathSeparator = File.pathSeparator;
 
    protected boolean isIgnore() {
       return false;
