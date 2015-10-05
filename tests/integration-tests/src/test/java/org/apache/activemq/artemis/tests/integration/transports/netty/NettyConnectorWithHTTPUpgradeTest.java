@@ -110,25 +110,27 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      HashMap<String, Object> httpParams = new HashMap<String, Object>();
+      HashMap<String, Object> httpAcceptorParams = new HashMap<String, Object>();
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
-      httpParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
-      httpParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
-      if (useSSL) {
-         httpParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-         httpParams.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
-         httpParams.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
-         httpParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
-         httpParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
-      }
+      httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+      httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
       acceptorName = randomString();
 
-      conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName));
+      conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpAcceptorParams, acceptorName));
 
       server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
 
       server.start();
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpParams));
+
+      HashMap<String, Object> httpConnectorParams = new HashMap<String, Object>();
+      httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
+      httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
+      if (useSSL) {
+         httpAcceptorParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+         httpAcceptorParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+         httpAcceptorParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      }
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, httpConnectorParams));
       addServerLocator(locator);
 
       // THe web server owns the HTTP port, not ActiveMQ Artemis.
