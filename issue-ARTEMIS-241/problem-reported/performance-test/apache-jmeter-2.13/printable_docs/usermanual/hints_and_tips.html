@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!-- start the processing -->
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../../docs/css/style.css"/>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+
+<title>Apache JMeter - User's Manual: Hints and Tips</title>
+</head>
+
+<body bgcolor="#ffffff" text="#000000" link="#525D76">
+<table border="0" cellspacing="0">
+<tr>
+<td align="left">
+<a href="http://www.apache.org"><img title="Apache Software Foundation" width="387" height="100" src="../../docs/images/asf-logo.gif" border="0"/></a>
+</td>
+<td align="right">
+<a href="http://jmeter.apache.org/"><img width="182" height="88" src="../../docs/images/logo.jpg" alt="Apache JMeter" title="Apache JMeter" border="0"/></a>
+</td>
+</tr>
+</table>
+<table border="0" cellspacing="4">
+<tr><td>
+<hr noshade size="1"/>
+</td></tr>
+<tr>
+<td align="left" valign="top">
+<table>
+<tr>
+<td bgcolor="#525D76">
+<div align="right"><a href="index.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Index</font></a></div>
+</td>
+<td bgcolor="#525D76">
+<div align="right"><a href="glossary.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Next</font></a></div>
+</td>
+<td bgcolor="#525D76">
+<div align="right"><a href="regular_expressions.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Prev</font></a></div>
+</td>
+</tr>
+</table>
+<br>
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+<tr><td bgcolor="#525D76">
+<font color="#ffffff" face="arial,helvetica,sanserif">
+<a name="hints"><strong>21. Hints and Tips</strong></a></font>
+</td></tr>
+<tr><td>
+<blockquote>
+<p>
+
+This section is a collection of various hints and tips that have been suggested by various questions on the JMeter User list.
+If you don't find what you are looking for here, please check the 
+<a href="http://wiki.apache.org/jmeter">
+JMeter Wiki
+</a>
+.
+Also, try search the JMeter User list; someone may well have already provided a solution.
+
+</p>
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+<tr><td bgcolor="#828DA6">
+<font color="#ffffff" face="arial,helvetica,sanserif">
+<a name="variable_and_threads"><strong>21.1 Passing variables between threads</strong></a>
+</font>
+</td></tr>
+<tr><td>
+<blockquote>
+<p>
+
+JMeter variables have thread scope. This is deliberate, so that threads can act indepently.
+However sometimes there is a need to pass variables between different threads, in the same or different Thread Groups.
+
+</p>
+<p>
+
+One way to do this is to use a property instead. 
+Properties are shared between all JMeter threads, so if one thread 
+<a href="functions.html#__setProperty">
+sets a property
+</a>
+,
+another thread can 
+<a href="functions.html#__P">
+read
+</a>
+ the updated value.
+
+</p>
+<p>
+
+If there is a lot of information that needs to be passed between threads, then consider using a file.
+For example you could use the 
+<a href="component_reference.html#Save_Responses_to_a_file">
+Save Responses to a file
+</a>
+
+listener or perhaps a BeanShell PostProcessor in one thread, and read the file using the HTTP Sampler "file:" protocol,
+and extract the information using a PostProcessor or BeanShell element.
+
+</p>
+<p>
+
+If you can derive the data before starting the test, then it may well be better to store it in a file,
+read it using CSV Dataset.
+
+</p>
+</blockquote>
+</td></tr>
+<tr><td><br></td></tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+<tr><td bgcolor="#828DA6">
+<font color="#ffffff" face="arial,helvetica,sanserif">
+<a name="debug_logging"><strong>21.2 Enabling Debug logging</strong></a>
+</font>
+</td></tr>
+<tr><td>
+<blockquote>
+<p>
+
+Most test elements include debug logging. If running a test plan from the GUI, 
+select the test element and use the Help Menu to enable or disable logging.
+The Help Menu also has an option to display the GUI and test element class names.
+You can use these to determine the correct property setting to change the logging level.
+
+</p>
+<p>
+
+It is sometimes very useful to see Log messages to debug dynamic scripting languages like BeanShell or
+groovy used in JMeter.
+Since version 2.6, you can view log messages directly in JMeter GUI, to do so:
+
+<ul>
+
+
+<li>
+use menu Options > Log Viewer, a log console will appear at the bottom of the interface
+</li>
+
+
+<li>
+Or click on the Warning icon in the upper right corner of GUI
+</li>
+
+
+</ul>
+
+By default this log console is disabled, you can enable it by changing in jmeter.properties:
+
+<ul>
+
+
+<li>
+jmeter.loggerpanel.display=true
+</li>
+
+
+</ul>
+
+
+To avoid using too much memory, this components limits the number of characters used by this panel:
+
+<ul>
+
+
+<li>
+jmeter.loggerpanel.maxlength=80000
+</li>
+
+
+</ul>
+
+
+</p>
+</blockquote>
+</td></tr>
+<tr><td><br></td></tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+<tr><td bgcolor="#828DA6">
+<font color="#ffffff" face="arial,helvetica,sanserif">
+<a name="searching"><strong>21.3 Searching</strong></a>
+</font>
+</td></tr>
+<tr><td>
+<blockquote>
+<p>
+
+It is sometimes hard to find in a Test Plan tree and elements using a variable or containing a certain URL or parameter.
+A new feature is now available since 2.6, you can access it in Menu Search.
+It provides search with following options:
+
+<ul>
+
+
+<li>
+Case Sensitive : Makes search case sensitive
+</li>
+
+
+<li>
+Regexp : Is text to search a regexp, if so Regexp will be searched in Tree of components, example "\btest\b" will match any component that contains test in searchable elements of the component
+</li>
+
+
+</ul>
+
+
+</p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='663' height='300' src="../../docs/images/screenshots/searching/raw-search.png"/><br>
+<font size="-1">Figure 1 - Search raw text in TreeView
+</font></td></tr></table></p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='667' height='319' src="../../docs/images/screenshots/searching/raw-search-result.png"/><br>
+<font size="-1">Figure 2 - Result in TreeView
+</font></td></tr></table></p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='642' height='307' src="../../docs/images/screenshots/searching/regexp-search.png"/><br>
+<font size="-1">Figure 3 - Search Regexp in TreeView (in this example we search whole word)
+</font></td></tr></table></p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='596' height='328' src="../../docs/images/screenshots/searching/regexp-search-result.png"/><br>
+<font size="-1">Figure 4 - Result in TreeView
+</font></td></tr></table></p>
+</blockquote>
+</td></tr>
+<tr><td><br></td></tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+<tr><td bgcolor="#828DA6">
+<font color="#ffffff" face="arial,helvetica,sanserif">
+<a name="toolbar"><strong>21.4 Toolbar icons size</strong></a>
+</font>
+</td></tr>
+<tr><td>
+<blockquote>
+<description>
+
+    
+<p>
+
+You can change the size of icons in the toolbar using the property 
+<pre>
+jmeter.toolbar.icons.size
+</pre>
+ with these values: 22x22 (default size), 32x32 or 48x48.
+    
+</p>
+
+
+</description>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='296' height='95' src="../../docs/images/screenshots/icons-22x22.jpg"/><br>
+<font size="-1">Icons with the size 22x22.
+</font></td></tr></table></p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='300' height='106' src="../../docs/images/screenshots/icons-32x32.jpg"/><br>
+<font size="-1">Icons with the size 32x32.
+</font></td></tr></table></p>
+<p><table border="0" cellspacing="0" cellpadding="0"><tr><td><img width='365' height='120' src="../../docs/images/screenshots/icons-48x48.jpg"/><br>
+<font size="-1">Icons with the size 48x48.
+</font></td></tr></table></p>
+</blockquote>
+</td></tr>
+<tr><td><br></td></tr>
+</table>
+</blockquote>
+</p>
+</td></tr>
+<tr><td><br></td></tr>
+</table>
+<br>
+<table>
+<tr>
+<td bgcolor="#525D76">
+<div align="right"><a href="index.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Index</font></a></div>
+</td>
+<td bgcolor="#525D76">
+<div align="right"><a href="glossary.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Next</font></a></div>
+</td>
+<td bgcolor="#525D76">
+<div align="right"><a href="regular_expressions.html"><font size=-1 color="#ffffff" face="arial,helvetica,sanserif">Prev</font></a></div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr><td>
+<hr noshade size="1"/>
+</td></tr>
+<tr>
+<td>
+<table width=100%>
+<tr>
+<td>
+<font color="#525D76" size="-1"><em>
+Copyright &copy; 1999-2015, Apache Software Foundation
+</em></font>
+</td>
+<td align="right">
+<font color="#525D76" size="-1"><em>
+$Id: $
+</em></font>
+</td>
+</tr>
+<tr><td colspan="2">
+<div align="center"><font color="#525D76" size="-1">
+Apache, Apache JMeter, JMeter, the Apache feather, and the Apache JMeter logo are
+trademarks of the Apache Software Foundation.
+</font>
+</div>
+</td></tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>
+<!-- end the processing -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
