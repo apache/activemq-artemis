@@ -73,7 +73,7 @@ application that requires messaging functionality internally but you
 don't want to expose that as an Apache ActiveMQ Artemis server you can directly
 instantiate and embed Apache ActiveMQ Artemis servers in your own application.
 
-For more information on embedding Apache ActiveMQ Artemis, see [Embedding Apache ActiveMQ Artemis](embedding-Apache ActiveMQ Artemis.md).
+For more information on embedding Apache ActiveMQ Artemis, see [Embedding Apache ActiveMQ Artemis](embedding-activemq.md).
 
 ## Apache ActiveMQ Artemis integrated with a Java EE application server
 
