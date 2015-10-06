@@ -25,8 +25,9 @@ my-broker/bin/artemis run
 - artemis-journal.jar
 - artemis-native.jar
 - netty-all.jar
-- geronimo-jms_2.0_spec.jar
 - javax.inject.jar
+- geronimo-jms_2.0_spec.jar
+
 
 4. Create a jndi.properties file with the connectionFactory Server Information:
 
