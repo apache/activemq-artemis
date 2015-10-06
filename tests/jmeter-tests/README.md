@@ -19,8 +19,8 @@ my-broker/bin/artemis run
 - jboss-logmanager.jar
 - jboss-logging.jar
 - commons-beanutils.jar
-- commons-logging.jar (already present at JMeter lib folder - may not be needed)
-- commons-collections:.ar (already present at JMeter lib folder - may not be needed)
+- commons-logging.jar (already present under JMeter's lib folder - may not be needed)
+- commons-collections.jar (already present under JMeter's lib folder - may not be needed)
 - artemis-selector.jar
 - artemis-journal.jar
 - artemis-native.jar
