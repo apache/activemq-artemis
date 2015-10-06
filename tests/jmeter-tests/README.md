@@ -5,6 +5,7 @@ Running the ActiveMQ Artemis JMeter Performance Testing Examples
 
 ```sh
 artemis create my-broker --queues exampleQueue --topics exampleTopic
+
 my-broker/bin/artemis run
 ```
 2. Download and Install JMeter's latest release: http://jmeter.apache.org/download_jmeter.cgi
