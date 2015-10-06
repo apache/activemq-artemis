@@ -47,7 +47,6 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
       this.restartBackup = restartBackup;
       this.allowAutoFailBack = allowAutoFailBack;
       this.scaleDownPolicy = scaleDownPolicy;
-      sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failbackDelay, failoverOnServerShutdown);
    }
 
    public long getFailbackDelay() {
@@ -67,6 +66,9 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
    }
 
    public SharedStoreMasterPolicy getSharedStoreMasterPolicy() {
+      if (sharedStoreMasterPolicy == null) {
+         sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failbackDelay, failoverOnServerShutdown);
+      }
       return sharedStoreMasterPolicy;
    }
 

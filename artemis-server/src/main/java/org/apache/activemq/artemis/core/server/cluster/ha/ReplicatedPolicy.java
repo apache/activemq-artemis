@@ -40,11 +40,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    /*
-   * this is used as the policy when the server is started after a failover
+   * this are only used as the policy when the server is started as a live after a failover
    * */
    private ReplicaPolicy replicaPolicy;
 
    public ReplicatedPolicy() {
+      replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName) {
@@ -54,7 +55,6 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       /*
       * we create this with sensible defaults in case we start after a failover
       * */
-      replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
    }
 
    public ReplicatedPolicy(boolean checkForLiveServer,
@@ -100,6 +100,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    }
 
    public ReplicaPolicy getReplicaPolicy() {
+      if (replicaPolicy == null) {
+         replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
+      }
       return replicaPolicy;
    }
 
@@ -145,6 +148,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    @Override
    public String getScaleDownClustername() {
       return null;
+   }
+
+   public void setAllowAutoFailBack(boolean allowAutoFailBack) {
+      this.allowAutoFailBack = allowAutoFailBack;
    }
 
    @Override
