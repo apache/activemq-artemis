@@ -152,47 +152,32 @@ public class TransportConfiguration implements Serializable {
       return params;
    }
 
+
    @Override
    public int hashCode() {
-      return factoryClassName.hashCode();
+      int result = name != null ? name.hashCode() : 0;
+      result = 31 * result + factoryClassName.hashCode();
+      result = 31 * result + (params != null ? params.hashCode() : 0);
+      return result;
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (other instanceof TransportConfiguration == false) {
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
          return false;
-      }
 
-      TransportConfiguration kother = (TransportConfiguration) other;
+      TransportConfiguration that = (TransportConfiguration) o;
 
-      if (factoryClassName.equals(kother.factoryClassName)) {
-         if (params == null || params.isEmpty()) {
-            return kother.params == null || kother.params.isEmpty();
-         }
-         else {
-            if (kother.params == null || kother.params.isEmpty()) {
-               return false;
-            }
-            else if (params.size() == kother.params.size()) {
-               for (Map.Entry<String, Object> entry : params.entrySet()) {
-                  Object thisVal = entry.getValue();
-
-                  Object otherVal = kother.params.get(entry.getKey());
-
-                  if (otherVal == null || !otherVal.equals(thisVal)) {
-                     return false;
-                  }
-               }
-               return true;
-            }
-            else {
-               return false;
-            }
-         }
-      }
-      else {
+      if (!factoryClassName.equals(that.factoryClassName))
          return false;
-      }
+      if (name != null ? !name.equals(that.name) : that.name != null)
+         return false;
+      if (params != null ? !params.equals(that.params) : that.params != null)
+         return false;
+
+      return true;
    }
 
    /**
