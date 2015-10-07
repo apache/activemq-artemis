@@ -105,6 +105,10 @@ public class TransportConfiguration implements Serializable {
       this.name = name;
    }
 
+   public TransportConfiguration newTransportConfig(String newName) {
+      return new TransportConfiguration(factoryClassName,  params, newName);
+   }
+
    /**
     * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
     * and any parameters needed.

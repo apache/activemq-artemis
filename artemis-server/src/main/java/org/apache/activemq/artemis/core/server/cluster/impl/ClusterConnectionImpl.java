@@ -73,6 +73,11 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener {
 
+   /** When getting member on node-up and down we have to remove the name from the transport config
+    *  as the setting we build here doesn't need to consider the name, so use the same name on all
+    *  the instances.  */
+   private static final String TRANSPORT_CONFIG_NAME = "topology-member";
+
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final ExecutorFactory executorFactory;
@@ -258,7 +263,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          // a cluster connection will connect to other nodes only if they are directly connected
          // through a static list of connectors or broadcasting using UDP.
          if (allowDirectConnectionsOnly) {
-            allowableConnections.addAll(Arrays.asList(staticTranspConfigs));
+            for (TransportConfiguration configuration : staticTranspConfigs) {
+               allowableConnections.add(configuration.newTransportConfig(TRANSPORT_CONFIG_NAME));
+            }
          }
       }
 
@@ -638,7 +645,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
-      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getLive())) {
+      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getLive().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
          return;
       }
 
