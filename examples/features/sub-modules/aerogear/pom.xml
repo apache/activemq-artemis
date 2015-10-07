@@ -60,10 +60,9 @@ under the License.
                   <configuration>
                      <ignore>${noServer}</ignore>
                      <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
-                     <libList>
+                     <libListWithDeps>
                         <param>org.apache.activemq:artemis-aerogear-integration:${project.version}</param>
-                     </libList>
-                     <copyDependencies>true</copyDependencies>
+                     </libListWithDeps>
                   </configuration>
                </execution>
                <execution>

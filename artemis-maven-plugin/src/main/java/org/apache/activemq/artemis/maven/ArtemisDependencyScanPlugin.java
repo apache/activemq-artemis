@@ -17,7 +17,8 @@
 package org.apache.activemq.artemis.maven;
 
 import java.io.File;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +29,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.artifact.Artifact;
 
 @Mojo(name = "dependency-scan", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
@@ -42,16 +42,20 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private PluginDescriptor descriptor;
 
    @Parameter
-   private String[] dependencyList;
+   private String[] libListWithDeps;
 
    @Parameter
-   private String[] individualList;
+   private String[] libList;
 
-   @Parameter(required = true)
+   @Parameter
    private String variableName;
 
    @Parameter
    private String pathSeparator = File.pathSeparator;
+
+   /** Where to copy the exploded dependencies. */
+   @Parameter
+   private File targetFolder;
 
    protected boolean isIgnore() {
       return false;
@@ -71,44 +75,35 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
          getLog().info("... key=" + entry.getKey() + " = " + entry.getValue());
       }
 
+
       try {
          StringBuffer buffer = new StringBuffer();
-         String separatorUsed = "";
-         if (dependencyList != null) {
-            for (String lib : dependencyList) {
-               getLog().debug("********************" + lib);
+         Set<File> filesSet = resolveDependencies(libListWithDeps, libList);
 
-               List<Artifact> artifactsList = explodeDependencies(newArtifact(lib));
-
-               for (Artifact artifact : artifactsList) {
-                  File artifactFile = resolveArtifact(artifact);
-                  buffer.append(separatorUsed);
-                  buffer.append(artifactFile.getAbsolutePath());
-                  separatorUsed = pathSeparator;
-               }
-            }
-         }
-
-         if (individualList != null) {
-            for (String lib : individualList) {
-               Artifact artifact = newArtifact(lib);
-               getLog().info("Single dpendency resolved::" + artifact);
-               File artifactFile = resolveArtifact(artifact);
+         if (variableName != null) {
+            String separatorUsed = "";
+            for (File f : filesSet) {
                buffer.append(separatorUsed);
-               buffer.append(artifactFile.getAbsolutePath());
+               buffer.append(f.getAbsolutePath());
                separatorUsed = pathSeparator;
             }
+
+            String classPathGenerated = buffer.toString();
+            project.getProperties().setProperty(variableName, classPathGenerated);
+            getLog().info("dependency-scan setting: " + variableName + "=" + classPathGenerated);
          }
 
-         String classPathGenerated = buffer.toString();
-         project.getProperties().setProperty(variableName, classPathGenerated);
-         getLog().info("dependency-scan setting: " + variableName + "=" + classPathGenerated);
+         if (targetFolder != null) {
+            targetFolder.mkdirs();
+            for (File file : filesSet) {
+               Files.copy(file.toPath(), targetFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+         }
       }
       catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
    }
-
 
 }

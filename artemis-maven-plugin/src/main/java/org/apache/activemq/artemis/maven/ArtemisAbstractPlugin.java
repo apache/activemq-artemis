@@ -20,8 +20,10 @@ package org.apache.activemq.artemis.maven;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.cli.commands.Configurable;
@@ -143,6 +145,32 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       }
       getLog().info(writer.toString());
       return dependencies;
+   }
+
+   protected Set<File> resolveDependencies(String[] dependencyListParameter, String[] individualListParameter) throws DependencyCollectionException, MojoFailureException, MojoExecutionException {
+      Set<File> filesSet = new HashSet<>();
+      if (dependencyListParameter != null) {
+         for (String lib : dependencyListParameter) {
+            getLog().debug("********************" + lib);
+
+            List<Artifact> artifactsList = explodeDependencies(newArtifact(lib));
+
+            for (Artifact artifact : artifactsList) {
+               File artifactFile = resolveArtifact(artifact);
+               filesSet.add(artifactFile);
+            }
+         }
+      }
+
+      if (individualListParameter != null) {
+         for (String lib : individualListParameter) {
+            Artifact artifact = newArtifact(lib);
+            getLog().debug("Single dpendency resolved::" + artifact);
+            File artifactFile = resolveArtifact(artifact);
+            filesSet.add(artifactFile);
+         }
+      }
+      return filesSet;
    }
 
 }

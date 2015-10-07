@@ -95,10 +95,9 @@ under the License.
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <libList>
+                     <libListWithDeps>
                         <arg>org.apache.activemq.examples.modules:artemis-vertx-example:${project.version}</arg>
-                     </libList>
-                     <copyDependencies>true</copyDependencies>
+                     </libListWithDeps>
 
                      <instance>${basedir}/target/server0</instance>
                      <configuration>${basedir}/target/classes/activemq/server0</configuration>

@@ -38,7 +38,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.aether.artifact.Artifact;
 
 @Mojo(name = "create", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
@@ -120,14 +119,15 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter
    ArrayList<String> args = new ArrayList<>();
 
+   /**
+    * Deprecated, use dependencyList and individualList
+    */
    @Parameter
    private String[] libList;
 
-   /**
-    * copy dependencies listed on libList.
-    */
    @Parameter
-   private boolean copyDependencies;
+   private String[] libListWithDeps;
+
 
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
@@ -290,30 +290,14 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
             }
          }
 
-         if (libList != null) {
+         Set<File> files = resolveDependencies(libListWithDeps, libList);
+
+         if (!files.isEmpty() ) {
             commandLineStream.println();
             commandLineStream.println("# This is a list of files that need to be installed under ./lib.");
             commandLineStream.println("# We are copying them from your maven lib home");
-
-            for (int i = 0; i < libList.length; i++) {
-
-               Artifact artifact = newArtifact(libList[i]);
-               getLog().debug("******************** Artifact::" + artifact);
-
-
-               if (copyDependencies) {
-                  getLog().debug("******************** exploring dependencies::" + artifact);
-                  List<Artifact> dependencies = explodeDependencies(artifact);
-                  for (Artifact artifactItem : dependencies) {
-                     File artifactFile = resolveArtifact(artifactItem);
-                     copyToLib(artifactFile, commandLineStream);
-                  }
-               }
-               else {
-                  File artifactFile = resolveArtifact(artifact);
-                  getLog().debug("*********** coping Artifact:: " + artifact + " file = " + artifactFile);
-                  copyToLib(artifactFile, commandLineStream);
-               }
+            for (File file : files) {
+               copyToLib(file, commandLineStream);
             }
          }
 
