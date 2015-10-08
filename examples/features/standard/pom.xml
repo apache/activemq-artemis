@@ -54,6 +54,7 @@ under the License.
             <module>expiry</module>
             <module>http-transport</module>
             <module>interceptor</module>
+            <module>interceptor-client</module>
             <module>instantiate-connection-factory</module>
             <module>jms-auto-closeable</module>
             <module>jms-bridge</module>
@@ -112,6 +113,7 @@ under the License.
             <module>expiry</module>
             <module>http-transport</module>
             <module>interceptor</module>
+            <module>interceptor-client</module>
             <module>jms-auto-closeable</module>
             <module>instantiate-connection-factory</module>
             <module>jms-bridge</module>
