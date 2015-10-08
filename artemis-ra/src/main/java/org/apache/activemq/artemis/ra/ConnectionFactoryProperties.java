@@ -118,6 +118,8 @@ public class ConnectionFactoryProperties {
 
    private String groupID;
 
+   private String protocolManagerFactoryStr;
+
    /**
     * @return the transportType
     */
@@ -679,6 +681,14 @@ public class ConnectionFactoryProperties {
       hasBeenUpdated = true;
    }
 
+   public String getProtocolManagerFactoryStr() {
+      return protocolManagerFactoryStr;
+   }
+
+   public void setProtocolManagerFactoryStr(String protocolManagerFactoryStr) {
+      this.protocolManagerFactoryStr = protocolManagerFactoryStr;
+   }
+
    public boolean isHasBeenUpdated() {
       return hasBeenUpdated;
    }
@@ -890,6 +900,12 @@ public class ConnectionFactoryProperties {
       }
       else if (!this.producerWindowSize.equals(other.producerWindowSize))
          return false;
+      else if (!protocolManagerFactoryStr.equals(other.protocolManagerFactoryStr))
+         return false;
+      if (this.protocolManagerFactoryStr == null) {
+         if (other.protocolManagerFactoryStr != null)
+            return false;
+      }
       if (this.reconnectAttempts == null) {
          if (other.reconnectAttempts != null)
             return false;
@@ -971,6 +987,7 @@ public class ConnectionFactoryProperties {
       result = prime * result + ((compressLargeMessage == null) ? 0 : compressLargeMessage.hashCode());
       result = prime * result + ((consumerWindowSize == null) ? 0 : consumerWindowSize.hashCode());
       result = prime * result + ((producerWindowSize == null) ? 0 : producerWindowSize.hashCode());
+      result = prime * result + ((protocolManagerFactoryStr == null) ? 0 : protocolManagerFactoryStr.hashCode());
       result = prime * result + ((consumerMaxRate == null) ? 0 : consumerMaxRate.hashCode());
       result = prime * result + ((confirmationWindowSize == null) ? 0 : confirmationWindowSize.hashCode());
       result = prime * result + ((failoverOnInitialConnection == null) ? 0 : failoverOnInitialConnection.hashCode());

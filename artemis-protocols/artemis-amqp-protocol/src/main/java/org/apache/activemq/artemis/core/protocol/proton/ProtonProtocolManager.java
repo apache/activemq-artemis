@@ -86,6 +86,11 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    }
 
    @Override
+   public boolean acceptsNoHandshake() {
+      return false;
+   }
+
+   @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
       ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;

@@ -257,6 +257,15 @@ public interface Configuration {
 
    Configuration addAcceptorConfiguration(final TransportConfiguration infos);
 
+   /**
+    * Add an acceptor to the config
+    * @param name the name of the acceptor
+    * @param uri the URI of the acceptor
+    * @return this
+    * @throws Exception in case of Parsing errors on the URI
+    */
+   Configuration addAcceptorConfiguration(String name, String uri) throws Exception;
+
    Configuration clearAcceptorConfigurations();
 
    /**
@@ -270,6 +279,8 @@ public interface Configuration {
    Configuration setConnectorConfigurations(Map<String, TransportConfiguration> infos);
 
    Configuration addConnectorConfiguration(final String key, final TransportConfiguration info);
+
+   Configuration addConnectorConfiguration(final String name, final String uri) throws Exception;
 
    Configuration clearConnectorConfigurations();
 

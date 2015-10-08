@@ -955,7 +955,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          public void runException() throws Exception {
             checkBindings(bindings);
 
-            ActiveMQConnectionFactory cf = internalCreateCF(storeConfig, cfConfig);
+            ActiveMQConnectionFactory cf = internalCreateCF(cfConfig);
 
             ArrayList<String> bindingsToAdd = new ArrayList<String>();
 
@@ -1075,8 +1075,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * @param cfConfig
     * @throws Exception
     */
-   private ActiveMQConnectionFactory internalCreateCF(final boolean persisted,
-                                                      final ConnectionFactoryConfiguration cfConfig) throws Exception {
+   private ActiveMQConnectionFactory internalCreateCF(final ConnectionFactoryConfiguration cfConfig) throws Exception {
       checkInitialised();
 
       ActiveMQConnectionFactory cf = connectionFactories.get(cfConfig.getName());
@@ -1168,6 +1167,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       cf.setFailoverOnInitialConnection(cfConfig.isFailoverOnInitialConnection());
       cf.setCompressLargeMessage(cfConfig.isCompressLargeMessages());
       cf.setGroupID(cfConfig.getGroupID());
+      cf.setProtocolManagerFactoryStr(cfConfig.getProtocolManagerFactoryStr());
       return cf;
    }
 
@@ -1445,7 +1445,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       List<PersistedConnectionFactory> cfs = storage.recoverConnectionFactories();
 
       for (PersistedConnectionFactory cf : cfs) {
-         internalCreateCF(true, cf.getConfig());
+         internalCreateCF(cf.getConfig());
       }
 
       List<PersistedDestination> destinations = storage.recoverDestinations();

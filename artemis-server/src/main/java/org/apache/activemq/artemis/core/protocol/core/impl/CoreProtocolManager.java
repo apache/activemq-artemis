@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +24,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -98,6 +98,11 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
 
+   @Override
+   public boolean acceptsNoHandshake() {
+      return false;
+   }
+
    /**
     * no need to implement this now
     *
@@ -162,23 +167,25 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    @Override
    public boolean isProtocol(byte[] array) {
-      String frameStart = new String(array, StandardCharsets.US_ASCII);
-      return frameStart.startsWith("ACTIVEMQ");
+      return isArtemis(ActiveMQBuffers.wrappedBuffer(array));
    }
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
       //if we are not an old client then handshake
-      if (buffer.getByte(0) == 'A' &&
+      if (isArtemis(buffer)) {
+         buffer.readBytes(7);
+      }
+   }
+
+   private boolean isArtemis(ActiveMQBuffer buffer) {
+      return buffer.getByte(0) == 'A' &&
          buffer.getByte(1) == 'R' &&
          buffer.getByte(2) == 'T' &&
          buffer.getByte(3) == 'E' &&
          buffer.getByte(4) == 'M' &&
          buffer.getByte(5) == 'I' &&
-         buffer.getByte(6) == 'S') {
-         //todo add some handshaking
-         buffer.readBytes(7);
-      }
+         buffer.getByte(6) == 'S';
    }
 
    @Override

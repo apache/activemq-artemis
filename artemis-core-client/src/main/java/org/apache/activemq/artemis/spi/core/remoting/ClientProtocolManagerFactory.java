@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+
 public interface ClientProtocolManagerFactory {
 
    ClientProtocolManager newProtocolManager();
+
+   void setLocator(ServerLocator locator);
+
+   ServerLocator getLocator();
 }

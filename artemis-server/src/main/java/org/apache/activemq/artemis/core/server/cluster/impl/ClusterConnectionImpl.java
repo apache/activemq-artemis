@@ -595,7 +595,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          serverLocator.setAfterConnectionInternalListener(this);
 
-         serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+         serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
 
          serverLocator.start(server.getExecutorFactory().getExecutor());
       }
@@ -760,7 +760,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       targetLocator.setAfterConnectionInternalListener(this);
 
-      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
 
       targetLocator.setNodeID(nodeId);
 

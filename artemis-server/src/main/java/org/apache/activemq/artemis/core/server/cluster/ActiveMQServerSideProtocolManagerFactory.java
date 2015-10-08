@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.cluster;
 
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.protocol.ServerPacketDecoder;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
@@ -27,10 +28,23 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
  */
 public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolManagerFactory {
 
-   private static final ActiveMQServerSideProtocolManagerFactory INSTANCE = new ActiveMQServerSideProtocolManagerFactory();
 
-   public static ActiveMQServerSideProtocolManagerFactory getInstance() {
-      return INSTANCE;
+   ServerLocator locator;
+
+   @Override
+   public ServerLocator getLocator() {
+      return locator;
+   }
+
+   @Override
+   public void setLocator(ServerLocator locator) {
+      this.locator = locator;
+   }
+
+   public static ActiveMQServerSideProtocolManagerFactory getInstance(ServerLocator locator) {
+      ActiveMQServerSideProtocolManagerFactory instance = new ActiveMQServerSideProtocolManagerFactory();
+      instance.setLocator(locator);
+      return instance;
    }
 
    private ActiveMQServerSideProtocolManagerFactory() {

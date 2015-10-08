@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,40 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.protocol.hornetq;
+package org.apache.activemq.artemis.tests.integration.interceptors;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
-import org.apache.activemq.artemis.core.protocol.hornetq.util.HQPropertiesConverter;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public class HQPropertiesConversionInterceptor implements Interceptor {
+public class Outgoing implements Interceptor {
 
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+      System.out.println("Outgoin:Packet : " + packet);
+      if (packet.getType() == PacketImpl.SESS_SEND) {
+         SessionSendMessage p = (SessionSendMessage) packet;
 
-   private final boolean replaceHQ;
+         p.getMessage().putStringProperty("Outgoing", "sending");
 
-   public HQPropertiesConversionInterceptor(final boolean replaceHQ) {
-      this.replaceHQ = replaceHQ;
-   }
-
-   @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-
-      if (HQPropertiesConverter.isMessagePacket(packet)) {
-         handleReceiveMessage((MessagePacketI) packet);
       }
+
       return true;
-   }
-
-   private void handleReceiveMessage(MessagePacketI messagePacket) {
-      if (replaceHQ) {
-         HQPropertiesConverter.replaceHQProperties(messagePacket.getMessage());
-      }
-      else {
-         HQPropertiesConverter.replaceAMQProperties(messagePacket.getMessage());
-      }
    }
 
 }

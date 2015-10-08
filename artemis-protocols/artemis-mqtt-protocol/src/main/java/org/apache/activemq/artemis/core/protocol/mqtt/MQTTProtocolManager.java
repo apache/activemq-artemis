@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.List;
+
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
@@ -31,8 +33,6 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-
-import java.util.List;
 
 /**
  * MQTTProtocolManager
@@ -78,6 +78,12 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener {
          return null;
       }
    }
+
+   @Override
+   public boolean acceptsNoHandshake() {
+      return false;
+   }
+
 
    @Override
    public void removeHandler(String name) {

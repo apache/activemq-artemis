@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.protocol.core.impl;
+
+package org.apache.activemq.artemis.core.protocol.hornetq.client;
 
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.protocol.hornetq.HQPropertiesConversionInterceptor;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
-public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManagerFactory {
+public class HornetQClientProtocolManagerFactory implements ClientProtocolManagerFactory {
 
-   private static final long serialVersionUID = 1;
-
-   private ActiveMQClientProtocolManagerFactory() {
-   }
 
    ServerLocator locator;
 
@@ -37,15 +35,12 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
    @Override
    public void setLocator(ServerLocator locator) {
       this.locator = locator;
+      locator.addIncomingInterceptor(new HQPropertiesConversionInterceptor(true));
+      locator.addOutgoingInterceptor(new HQPropertiesConversionInterceptor(false));
    }
 
-   public static final ActiveMQClientProtocolManagerFactory getInstance(ServerLocator locator) {
-      ActiveMQClientProtocolManagerFactory factory = new ActiveMQClientProtocolManagerFactory();
-      factory.setLocator(locator);
-      return factory;
-   }
-
+   @Override
    public ClientProtocolManager newProtocolManager() {
-      return new ActiveMQClientProtocolManager();
+      return new HornetQClientProtocolManager();
    }
 }

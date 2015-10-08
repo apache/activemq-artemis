@@ -154,7 +154,15 @@ public class ProtocolHandler {
 
          //if we get here we assume we use the core protocol as we match nothing else
          if (protocolToUse == null) {
-            protocolToUse = ActiveMQClient.DEFAULT_CORE_PROTOCOL;
+            for (Map.Entry<String, ProtocolManager> entry : protocolMap.entrySet()) {
+               if (entry.getValue().acceptsNoHandshake()) {
+                  protocolToUse = entry.getKey();
+                  break;
+               }
+            }
+            if (protocolToUse == null) {
+               protocolToUse = ActiveMQClient.DEFAULT_CORE_PROTOCOL;
+            }
          }
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();

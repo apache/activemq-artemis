@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionSendLargeMessage extends PacketImpl {
+public class SessionSendLargeMessage extends PacketImpl implements MessagePacketI {
 
    /**
     * Used only if largeMessage
@@ -40,6 +41,11 @@ public class SessionSendLargeMessage extends PacketImpl {
    // Public --------------------------------------------------------
 
    public MessageInternal getLargeMessage() {
+      return largeMessage;
+   }
+
+   @Override
+   public Message getMessage() {
       return largeMessage;
    }
 

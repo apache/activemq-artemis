@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 
 public interface ServerLocatorInternal extends ServerLocator {

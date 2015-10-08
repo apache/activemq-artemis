@@ -1329,7 +1329,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
       }
 
-      locators[node].setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      locators[node].setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locators[node]));
 
       locators[node].setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       addServerLocator(locators[node]);

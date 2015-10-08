@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -31,14 +34,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.QueueFactory;
-import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
+import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
-
-import java.util.List;
-import java.util.Map;
 
 /*
 * Instead of loading into its own post office this will use its parent server (the actual live server) and load into that.
@@ -88,7 +88,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
                         ResourceManager resourceManager,
                         Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
       ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer.getStorageManager());
-      locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator));
 
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory()) {
          scaleDownHandler.scaleDown(sessionFactory, resourceManager, duplicateIDMap, parentServer.getConfiguration().getManagementAddress(), parentServer.getNodeID());

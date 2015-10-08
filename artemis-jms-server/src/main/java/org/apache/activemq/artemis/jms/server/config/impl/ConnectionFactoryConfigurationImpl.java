@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jms.server.config.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -113,6 +114,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private String groupID = null;
 
+   private String protocolManagerFactoryStr;
+
    private JMSFactoryType factoryType = JMSFactoryType.CF;
 
    // Static --------------------------------------------------------
@@ -168,6 +171,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    public ConnectionFactoryConfiguration setConnectorNames(final List<String> connectorNames) {
       this.connectorNames = connectorNames;
       return this;
+   }
+
+
+   public ConnectionFactoryConfiguration setConnectorNames(final String...names) {
+      return this.setConnectorNames(Arrays.asList(names));
    }
 
    public boolean isHA() {
@@ -534,6 +542,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       groupID = BufferHelper.readNullableSimpleStringAsString(buffer);
 
       factoryType = JMSFactoryType.valueOf(buffer.readInt());
+
+      protocolManagerFactoryStr = BufferHelper.readNullableSimpleStringAsString(buffer);
    }
 
    @Override
@@ -618,6 +628,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeAsNullableSimpleString(buffer, groupID);
 
       buffer.writeInt(factoryType.intValue());
+
+      BufferHelper.writeAsNullableSimpleString(buffer, protocolManagerFactoryStr);
    }
 
    @Override
@@ -724,7 +736,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableSimpleString(groupID) +
 
-         DataConstants.SIZE_INT; // factoryType
+         DataConstants.SIZE_INT +
+          // factoryType
+
+         BufferHelper.sizeOfNullableSimpleString(protocolManagerFactoryStr);
 
       return size;
    }
@@ -747,6 +762,17 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public boolean isCompressLargeMessages() {
       return this.compressLargeMessage;
+   }
+
+   @Override
+   public ConnectionFactoryConfiguration setProtocolManagerFactoryStr(String protocolManagerFactoryStr) {
+      this.protocolManagerFactoryStr = protocolManagerFactoryStr;
+      return this;
+   }
+
+   @Override
+   public String getProtocolManagerFactoryStr() {
+      return protocolManagerFactoryStr;
    }
 
    // Public --------------------------------------------------------

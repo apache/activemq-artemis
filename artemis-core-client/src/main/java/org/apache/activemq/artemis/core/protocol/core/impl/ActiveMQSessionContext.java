@@ -114,6 +114,19 @@ public class ActiveMQSessionContext extends SessionContext {
    private int confirmationWindow;
    private final String name;
 
+   protected Channel getSessionChannel() {
+      return sessionChannel;
+   }
+
+   protected String getName() {
+      return name;
+   }
+
+   protected int getConfirmationWindow() {
+      return confirmationWindow;
+
+   }
+
    public ActiveMQSessionContext(String name,
                                  RemotingConnection remotingConnection,
                                  Channel sessionChannel,
@@ -536,7 +549,7 @@ public class ActiveMQSessionContext extends SessionContext {
                                final boolean autoCommitAcks,
                                final boolean preAcknowledge,
                                final SimpleString defaultAddress) throws ActiveMQException {
-      Packet createRequest = new CreateSessionMessage(name, sessionChannel.getID(), VersionLoader.getVersion().getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, defaultAddress == null ? null : defaultAddress.toString());
+      Packet createRequest = newCreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, defaultAddress);
       boolean retry;
       do {
          try {
@@ -562,6 +575,17 @@ public class ActiveMQSessionContext extends SessionContext {
             }
          }
       } while (retry && !session.isClosing());
+   }
+
+   protected CreateSessionMessage newCreateSession(String username,
+                                                   String password,
+                                                   int minLargeMessageSize,
+                                                   boolean xa,
+                                                   boolean autoCommitSends,
+                                                   boolean autoCommitAcks,
+                                                   boolean preAcknowledge,
+                                                   SimpleString defaultAddress) {
+      return new CreateSessionMessage(name, sessionChannel.getID(), VersionLoader.getVersion().getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindow, defaultAddress == null ? null : defaultAddress.toString());
    }
 
    @Override
@@ -724,7 +748,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return ((ActiveMQConsumerContext) consumer.getConsumerContext()).getId();
    }
 
-   private ClassLoader lookupTCCL() {
+   protected ClassLoader lookupTCCL() {
       return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
          public ClassLoader run() {
             return Thread.currentThread().getContextClassLoader();
@@ -733,7 +757,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
    }
 
-   private int calcWindowSize(final int windowSize) {
+   protected int calcWindowSize(final int windowSize) {
       int clientWindowSize;
       if (windowSize == -1) {
          // No flow control - buffer can increase without bound! Only use with

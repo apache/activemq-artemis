@@ -879,6 +879,22 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setProducerWindowSize(producerWindowSize);
    }
 
+   public String getProtocolManagerFactoryStr() {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("getProtocolManagerFactoryStr()");
+      }
+
+      return raProperties.getProtocolManagerFactoryStr();
+   }
+
+   public void setProtocolManagerFactoryStr(final String protocolManagerFactoryStr) {
+      if (ActiveMQResourceAdapter.trace) {
+         ActiveMQRALogger.LOGGER.trace("setProtocolManagerFactoryStr(" + protocolManagerFactoryStr + ")");
+      }
+
+      raProperties.setProtocolManagerFactoryStr(protocolManagerFactoryStr);
+   }
+
    /**
     * Get min large message size
     *
@@ -1970,6 +1986,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val5 = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
       if (val5 != null) {
          cf.setConnectionLoadBalancingPolicyClassName(val5);
+      }
+      val5 = overrideProperties.getProtocolManagerFactoryStr() != null ? overrideProperties.getProtocolManagerFactoryStr() : raProperties.getProtocolManagerFactoryStr();
+      if (val5 != null) {
+         cf.setProtocolManagerFactoryStr(val5);
       }
    }
 

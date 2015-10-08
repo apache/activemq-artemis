@@ -384,6 +384,12 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-name>JgroupsChannelRefName</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>ProtocolManagerConfig</description>" +
+      "         <config-property-name>ProtocolManagerFactoryStr</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
       "      </config-property>";
 
    private static String rootConfig = "<root>" + config + commentedOutConfigs + "</root>";
