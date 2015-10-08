@@ -280,9 +280,10 @@ public class ColocatedHAManager implements HAManager {
             integer += portOffset;
             params.put("port", integer.toString());
          }
-         Object serverId = params.get("server-id");
+         Object serverId = params.get("serverId");
          if (serverId != null) {
-            params.put("server-id", serverId.toString() + "(" + name + ")");
+            Integer newid = Integer.parseInt(serverId.toString()) + portOffset;
+            params.put("serverId", newid.toString());
          }
       }
    }
