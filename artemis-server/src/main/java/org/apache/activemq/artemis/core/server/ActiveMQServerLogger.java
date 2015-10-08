@@ -1441,4 +1441,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224065, value = "Failed to remove auto-created queue {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorRemovingAutoCreatedQueue(@Cause Exception e, SimpleString bindingName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224066, value = "Duplicated Acceptor {0} with parameters {1} classFactory={2} duplicated on the configuration", format = Message.Format.MESSAGE_FORMAT)
+   void duplicatedAcceptor(String name, String parameters, String classFactory);
+
 }
