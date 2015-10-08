@@ -107,7 +107,7 @@ public final class TopologyMemberImpl implements TopologyMember {
    }
 
    public boolean isMember(TransportConfiguration configuration) {
-      if (getConnector().getA() != null && getConnector().getA().equals(configuration) || getConnector().getB() != null && getConnector().getB().equals(configuration)) {
+      if (getConnector().getA() != null && getConnector().getA().isSameHost(configuration) || getConnector().getB() != null && getConnector().getB().isSameHost(configuration)) {
          return true;
       }
       else {
