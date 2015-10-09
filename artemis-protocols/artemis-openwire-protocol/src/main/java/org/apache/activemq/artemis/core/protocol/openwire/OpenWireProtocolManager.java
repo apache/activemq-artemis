@@ -150,6 +150,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    }
 
+   @Override
+   public boolean acceptsNoHandshake() {
+      return false;
+   }
+
    public ProtocolManagerFactory<Interceptor> getFactory() {
       return factory;
    }

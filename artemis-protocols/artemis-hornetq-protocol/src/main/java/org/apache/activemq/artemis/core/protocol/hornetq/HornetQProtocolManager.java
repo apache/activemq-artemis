@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * HornetQ Protocol Manager
@@ -52,6 +52,12 @@ class HornetQProtocolManager extends CoreProtocolManager {
          buffer.readBytes(7);
       }
    }
+
+   @Override
+   public boolean acceptsNoHandshake() {
+      return true;
+   }
+
 
    @Override
    public boolean isProtocol(byte[] array) {

@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * This represents the configuration of a single connection factory.
@@ -42,13 +43,14 @@ public class XARecoveryConfig {
    private final String username;
    private final String password;
    private final Map<String, String> properties;
+   private final ClientProtocolManagerFactory clientProtocolManager;
 
    public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory, String userName, String password, Map<String, String> properties) {
       if (factory.getServerLocator().getDiscoveryGroupConfiguration() != null) {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password, properties);
+         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password, properties, factory.getServerLocator().getProtocolManagerFactory());
       }
       else {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password, properties);
+         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password, properties, factory.getServerLocator().getProtocolManagerFactory());
       }
 
    }
@@ -57,12 +59,43 @@ public class XARecoveryConfig {
                            final TransportConfiguration[] transportConfiguration,
                            final String username,
                            final String password,
-                           final Map<String, String> properties) {
-      this.transportConfiguration = transportConfiguration;
+                           final Map<String, String> properties,
+                           final ClientProtocolManagerFactory clientProtocolManager) {
+      TransportConfiguration[] newTransportConfiguration = new TransportConfiguration[transportConfiguration.length];
+      for (int i = 0; i < transportConfiguration.length; i++) {
+         newTransportConfiguration[i] = transportConfiguration[i].newTransportConfig("");
+      }
+
+      this.transportConfiguration = newTransportConfiguration;
       this.discoveryConfiguration = null;
       this.username = username;
       this.password = password;
       this.ha = ha;
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this.clientProtocolManager = clientProtocolManager;
+   }
+
+
+   public XARecoveryConfig(final boolean ha,
+                           final TransportConfiguration[] transportConfiguration,
+                           final String username,
+                           final String password,
+                           final Map<String, String> properties) {
+      this(ha, transportConfiguration, username, password, properties, null);
+   }
+
+   public XARecoveryConfig(final boolean ha,
+                           final DiscoveryGroupConfiguration discoveryConfiguration,
+                           final String username,
+                           final String password,
+                           final Map<String, String> properties,
+                           final ClientProtocolManagerFactory clientProtocolManager) {
+      this.discoveryConfiguration = discoveryConfiguration;
+      this.transportConfiguration = null;
+      this.username = username;
+      this.password = password;
+      this.ha = ha;
+      this.clientProtocolManager = clientProtocolManager;
       this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
    }
 
@@ -71,12 +104,7 @@ public class XARecoveryConfig {
                            final String username,
                            final String password,
                            final Map<String, String> properties) {
-      this.discoveryConfiguration = discoveryConfiguration;
-      this.transportConfiguration = null;
-      this.username = username;
-      this.password = password;
-      this.ha = ha;
-      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
+      this(ha, discoveryConfiguration, username, password, properties, null);
    }
 
    public boolean isHA() {
@@ -103,6 +131,10 @@ public class XARecoveryConfig {
       return properties;
    }
 
+   public ClientProtocolManagerFactory getClientProtocolManager() {
+      return clientProtocolManager;
+   }
+
    /**
     * Create a serverLocator using the configuration
     *
@@ -110,10 +142,10 @@ public class XARecoveryConfig {
     */
    public ServerLocator createServerLocator() {
       if (getDiscoveryConfiguration() != null) {
-         return ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration());
+         return ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration()).setProtocolManagerFactory(clientProtocolManager);
       }
       else {
-         return ActiveMQClient.createServerLocator(isHA(), getTransportConfig());
+         return ActiveMQClient.createServerLocator(isHA(), getTransportConfig()).setProtocolManagerFactory(clientProtocolManager);
       }
 
    }

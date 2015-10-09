@@ -44,6 +44,8 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    ConnectionFactoryConfiguration setConnectorNames(List<String> connectorNames);
 
+   ConnectionFactoryConfiguration setConnectorNames(String...connectorNames);
+
    boolean isHA();
 
    ConnectionFactoryConfiguration setHA(boolean ha);
@@ -169,6 +171,10 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
    ConnectionFactoryConfiguration setGroupID(String groupID);
 
    ConnectionFactoryConfiguration setFactoryType(JMSFactoryType factType);
+
+   ConnectionFactoryConfiguration setProtocolManagerFactoryStr(String protocolManagerFactoryStr);
+
+   String getProtocolManagerFactoryStr();
 
    JMSFactoryType getFactoryType();
 }

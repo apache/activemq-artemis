@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +56,14 @@ public class ConnectionFactoryURITest {
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
 
    private static final String IPV6 = "fe80::baf6:b1ff:fe12:daf7%eth0";
+
+   private static Set<String> ignoreList = new HashSet<String>();
+
+   static {
+      ignoreList.add("protocolManagerFactoryStr");
+      ignoreList.add("incomingInterceptorList");
+      ignoreList.add("outgoingInterceptorList");
+   }
 
    @Test
    public void testIPv6() throws Exception {
@@ -379,6 +388,10 @@ public class ConnectionFactoryURITest {
                          ActiveMQConnectionFactory factory) throws IllegalAccessException, InvocationTargetException {
       PropertyDescriptor[] descriptors = bean.getPropertyUtils().getPropertyDescriptors(factory);
       for (PropertyDescriptor descriptor : descriptors) {
+         if (ignoreList.contains(descriptor.getName())) {
+            continue;
+         }
+         System.err.println("name::" + descriptor.getName());
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             if (descriptor.getPropertyType() == String.class) {
                String value = RandomUtil.randomString();

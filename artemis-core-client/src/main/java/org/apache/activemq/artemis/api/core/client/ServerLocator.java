@@ -769,6 +769,20 @@ public interface ServerLocator extends AutoCloseable {
 
    ClientProtocolManagerFactory getProtocolManagerFactory();
 
-   void setProtocolManagerFactory(ClientProtocolManagerFactory protocolManager);
+   ServerLocator setProtocolManagerFactory(ClientProtocolManagerFactory protocolManager);
+
+   /**
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * @return this
+    */
+   ServerLocator setIncomingInterceptorList(String interceptorList);
+
+   String getIncomingInterceptorList();
+
+   ServerLocator setOutgoingInterceptorList(String interceptorList);
+
+   String getOutgoingInterceptorList();
+
+
 
 }

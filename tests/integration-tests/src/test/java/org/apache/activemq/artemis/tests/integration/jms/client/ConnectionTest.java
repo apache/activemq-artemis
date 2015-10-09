@@ -44,19 +44,32 @@ public class ConnectionTest extends JMSTestBase {
 
    @Test
    public void testThroughNewConnectionFactory() throws Exception {
-      testThroughNewConnectionFactory(new ActiveMQConnectionFactory("vm://0"));
-      testThroughNewConnectionFactory(new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
-                                                                       "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
-                                                                       "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
-                                                                       "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
-                                                                       "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
-                                                                       "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
-                                                                       "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
-                                                                       "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
-                                                                       "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
-                                                                       "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-                                                                       "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
-                                                                       "port=61616&host=localhost#"));
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://0");
+      testThroughNewConnectionFactory(connectionFactory);
+
+      // Run it again with a cloned through serialization CF, simulating JNDI lookups
+      connectionFactory = serialClone(connectionFactory);
+      testThroughNewConnectionFactory(connectionFactory);
+
+
+      connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
+                                       "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
+                                       "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
+                                       "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
+                                       "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
+                                       "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
+                                       "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
+                                       "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
+                                       "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
+                                       "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
+                                       "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+                                       "port=61616&host=localhost#");
+
+      testThroughNewConnectionFactory(connectionFactory);
+
+      // Run it again with a cloned through serialization CF, simulating JNDI lookups
+      connectionFactory = serialClone(connectionFactory);
+      testThroughNewConnectionFactory(connectionFactory);
    }
 
    private void testThroughNewConnectionFactory(ActiveMQConnectionFactory factory) throws Exception {

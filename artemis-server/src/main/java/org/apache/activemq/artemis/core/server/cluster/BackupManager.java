@@ -207,7 +207,7 @@ public class BackupManager implements ActiveMQComponent {
             backupServerLocator.setIdentity("backupLocatorFor='" + server + "'");
             backupServerLocator.setReconnectAttempts(-1);
             backupServerLocator.setInitialConnectAttempts(-1);
-            backupServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+            backupServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(backupServerLocator));
          }
       }
 
@@ -332,7 +332,7 @@ public class BackupManager implements ActiveMQComponent {
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
-            locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+            locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(locator));
             return locator;
          }
          return null;

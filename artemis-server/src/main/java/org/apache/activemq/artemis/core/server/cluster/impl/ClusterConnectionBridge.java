@@ -129,7 +129,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    @Override
    protected ClientSessionFactoryInternal createSessionFactory() throws Exception {
-      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
       setSessionFactory(factory);
 

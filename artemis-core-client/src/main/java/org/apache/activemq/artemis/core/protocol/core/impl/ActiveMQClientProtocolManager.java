@@ -276,7 +276,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
             long sessionChannelID = connection.generateChannelID();
 
-            Packet request = new CreateSessionMessage(name, sessionChannelID, clientVersion.getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
+            Packet request = newCreateSessionPacket(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize, sessionChannelID);
 
             try {
                // channel1 reference here has to go away
@@ -325,10 +325,30 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             inCreateSessionLatch.countDown();
          }
       } while (retry);
+      return newSessionContext(name, confirmationWindowSize, sessionChannel, response);
 
+   }
+
+   protected Packet newCreateSessionPacket(Version clientVersion,
+                                           String name,
+                                           String username,
+                                           String password,
+                                           boolean xa,
+                                           boolean autoCommitSends,
+                                           boolean autoCommitAcks,
+                                           boolean preAcknowledge,
+                                           int minLargeMessageSize,
+                                           int confirmationWindowSize,
+                                           long sessionChannelID) {
+      return new CreateSessionMessage(name, sessionChannelID, clientVersion.getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
+   }
+
+   protected SessionContext newSessionContext(String name,
+                                            int confirmationWindowSize,
+                                            Channel sessionChannel,
+                                            CreateSessionResponseMessage response) {
       // these objects won't be null, otherwise it would keep retrying on the previous loop
       return new ActiveMQSessionContext(name, connection, sessionChannel, response.getServerVersion(), confirmationWindowSize);
-
    }
 
    public boolean cleanupBeforeFailover(ActiveMQException cause) {
@@ -398,7 +418,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       return connection;
    }
 
-   private void sendHandshake(Connection transportConnection) {
+   protected void sendHandshake(Connection transportConnection) {
       if (transportConnection.isUsingProtocolHandling()) {
          // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
          ActiveMQBuffer amqbuffer = connection.createTransportBuffer(handshake.length());

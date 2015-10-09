@@ -1269,7 +1269,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                                boolean isLast) {
          // if it is our connector then set the live id used for failover
-         if (connectorPair.getA() != null && connectorPair.getA().equals(connectorConfig)) {
+         if (connectorPair.getA() != null && connectorPair.getA().isSameHost(connectorConfig)) {
             liveNodeID = nodeID;
          }
          serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);

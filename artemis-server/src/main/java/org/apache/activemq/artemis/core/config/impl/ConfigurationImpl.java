@@ -51,6 +51,8 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
+import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 public class ConfigurationImpl implements Configuration, Serializable {
@@ -337,6 +339,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   public ConfigurationImpl addAcceptorConfiguration(final String name, final String uri) throws Exception {
+
+      AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
+
+      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+      for (TransportConfiguration config : configurations) {
+         addAcceptorConfiguration(config);
+      }
+
+      return this;
+   }
+
    public ConfigurationImpl clearAcceptorConfigurations() {
       acceptorConfigs.clear();
       return this;
@@ -355,6 +370,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
       connectorConfigs.put(key, info);
       return this;
    }
+
+
+   public ConfigurationImpl addConnectorConfiguration(final String name, final String uri) throws Exception {
+
+      ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
+
+      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+      for (TransportConfiguration config : configurations) {
+         addConnectorConfiguration(name, config);
+      }
+
+      return this;
+   }
+
 
    public ConfigurationImpl clearConnectorConfigurations() {
       connectorConfigs.clear();

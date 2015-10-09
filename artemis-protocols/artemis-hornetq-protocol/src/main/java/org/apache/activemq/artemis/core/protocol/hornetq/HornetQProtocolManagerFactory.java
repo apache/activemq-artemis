@@ -34,9 +34,8 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 final List<Interceptor> incomingInterceptors,
                                                 List<Interceptor> outgoingInterceptors) {
-      Interceptor propertyConversionInterceptor = new HQPropertiesConversionInterceptor();
-      incomingInterceptors.add(propertyConversionInterceptor);
-      outgoingInterceptors.add(propertyConversionInterceptor);
+      incomingInterceptors.add(new HQPropertiesConversionInterceptor(true));
+      outgoingInterceptors.add(new HQPropertiesConversionInterceptor(false));
       return new HornetQProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
    }
 

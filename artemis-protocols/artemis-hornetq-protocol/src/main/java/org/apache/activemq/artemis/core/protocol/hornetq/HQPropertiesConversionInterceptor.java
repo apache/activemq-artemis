@@ -19,76 +19,36 @@ package org.apache.activemq.artemis.core.protocol.hornetq;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacket;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
+import org.apache.activemq.artemis.core.protocol.hornetq.util.HQPropertiesConverter;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 public class HQPropertiesConversionInterceptor implements Interceptor {
 
-   private static Map<SimpleString, SimpleString> dictionary;
 
-   static {
-      Map<SimpleString, SimpleString> d = new HashMap<SimpleString, SimpleString>();
+   private final boolean replaceHQ;
 
-      // Add entries for outgoing messages
-      d.put(new SimpleString("_HQ_ACTUAL_EXPIRY"), new SimpleString("_AMQ_ACTUAL_EXPIRY"));
-      d.put(new SimpleString("_HQ_ORIG_ADDRESS"), new SimpleString("_AMQ_ORIG_ADDRESS"));
-      d.put(new SimpleString("_HQ_ORIG_QUEUE"), new SimpleString("_AMQ_ORIG_QUEUE"));
-      d.put(new SimpleString("_HQ_ORIG_MESSAGE_ID"), new SimpleString("_AMQ_ORIG_MESSAGE_ID"));
-      d.put(new SimpleString("_HQ_GROUP_ID"), new SimpleString("_AMQ_GROUP_ID"));
-      d.put(new SimpleString("_HQ_LARGE_COMPRESSED"), new SimpleString("_AMQ_LARGE_COMPRESSED"));
-      d.put(new SimpleString("_HQ_LARGE_SIZE"), new SimpleString("_AMQ_LARGE_SIZE"));
-      d.put(new SimpleString("_HQ_SCHED_DELIVERY"), new SimpleString("_AMQ_SCHED_DELIVERY"));
-      d.put(new SimpleString("_HQ_DUPL_ID"), new SimpleString("_AMQ_DUPL_ID"));
-      d.put(new SimpleString("_HQ_LVQ_NAME"), new SimpleString("_AMQ_LVQ_NAME"));
-
-      // Add entries for incoming messages
-      d.put(new SimpleString("_AMQ_ACTUAL_EXPIRY"), new SimpleString("_HQ_ACTUAL_EXPIRY"));
-      d.put(new SimpleString("_AMQ_ORIG_ADDRESS"), new SimpleString("_HQ_ORIG_ADDRESS"));
-      d.put(new SimpleString("_AMQ_ORIG_QUEUE"), new SimpleString("_HQ_ORIG_QUEUE"));
-      d.put(new SimpleString("_AMQ_ORIG_MESSAGE_ID"), new SimpleString("_HQ_ORIG_MESSAGE_ID"));
-      d.put(new SimpleString("_AMQ_GROUP_ID"), new SimpleString("_HQ_GROUP_ID"));
-      d.put(new SimpleString("_AMQ_LARGE_COMPRESSED"), new SimpleString("_HQ_LARGE_COMPRESSED"));
-      d.put(new SimpleString("_AMQ_LARGE_SIZE"), new SimpleString("_HQ_LARGE_SIZE"));
-      d.put(new SimpleString("_AMQ_SCHED_DELIVERY"), new SimpleString("_HQ_SCHED_DELIVERY"));
-      d.put(new SimpleString("_AMQ_DUPL_ID"), new SimpleString("_HQ_DUPL_ID"));
-      d.put(new SimpleString("_AMQ_LVQ_NAME"), new SimpleString("_HQ_LVQ_NAME"));
-
-      dictionary = Collections.unmodifiableMap(d);
+   public HQPropertiesConversionInterceptor(final boolean replaceHQ) {
+      this.replaceHQ = replaceHQ;
    }
 
    @Override
    public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-      if (isMessagePacket(packet)) {
-         handleReceiveMessage((MessagePacket) packet);
+
+      if (HQPropertiesConverter.isMessagePacket(packet)) {
+         handleReceiveMessage((MessagePacketI) packet);
       }
       return true;
    }
 
-   private void handleReceiveMessage(MessagePacket messagePacket) {
-      Message message = messagePacket.getMessage();
-      // We are modifying the key set so we iterate over a shallow copy.
-      for (SimpleString property : new HashSet<>(message.getPropertyNames())) {
-         if (dictionary.containsKey(property)) {
-            message.putObjectProperty(dictionary.get(property), message.removeProperty(property));
-         }
+   private void handleReceiveMessage(MessagePacketI messagePacket) {
+      if (replaceHQ) {
+         HQPropertiesConverter.replaceHQProperties(messagePacket.getMessage());
+      }
+      else {
+         HQPropertiesConverter.replaceAMQProperties(messagePacket.getMessage());
       }
    }
 
-   private boolean isMessagePacket(Packet packet) {
-      int type = packet.getType();
-      return type == PacketImpl.SESS_SEND ||
-         type == PacketImpl.SESS_SEND_CONTINUATION ||
-         type == PacketImpl.SESS_SEND_LARGE ||
-         type == PacketImpl.SESS_RECEIVE_LARGE_MSG ||
-         type == PacketImpl.SESS_RECEIVE_MSG;
-   }
 }

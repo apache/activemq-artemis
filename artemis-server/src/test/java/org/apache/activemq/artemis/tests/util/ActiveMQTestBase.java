@@ -24,11 +24,15 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -204,6 +208,18 @@ public abstract class ActiveMQTestBase extends Assert {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
+   }
+
+   protected <T> T serialClone(Object object) throws Exception {
+      System.out.println("object::" + object);
+      ByteArrayOutputStream bout = new ByteArrayOutputStream();
+      ObjectOutputStream obOut = new ObjectOutputStream(bout);
+      obOut.writeObject(object);
+
+      ByteArrayInputStream binput = new ByteArrayInputStream(bout.toByteArray());
+      ObjectInputStream obinp = new ObjectInputStream(binput);
+      return (T) obinp.readObject();
+
    }
 
    @After

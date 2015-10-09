@@ -80,7 +80,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private static final long serialVersionUID = -1615857864410205260L;
 
    // This is the default value
-   private ClientProtocolManagerFactory protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance();
+   private ClientProtocolManagerFactory protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance(this);
 
    private final boolean ha;
 
@@ -200,12 +200,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private String nodeID;
 
    private TransportConfiguration clusterTransportConfiguration;
-
-   /*
-   * *************WARNING***************
-   * remember that when adding any new classes that we have to support serialization with previous clients.
-   * If you need to, make them transient and handle the serialization yourself
-   * */
 
    private final Exception traceException = new Exception();
 
@@ -619,14 +613,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    public ClientProtocolManagerFactory getProtocolManagerFactory() {
       if (protocolManagerFactory == null) {
-         // this could happen over serialization from older versions
-         protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance();
+         // Default one in case it's null
+         protocolManagerFactory = ActiveMQClientProtocolManagerFactory.getInstance(this);
       }
       return protocolManagerFactory;
    }
 
-   public void setProtocolManagerFactory(ClientProtocolManagerFactory protocolManagerFactory) {
+   public ServerLocator setProtocolManagerFactory(ClientProtocolManagerFactory protocolManagerFactory) {
       this.protocolManagerFactory = protocolManagerFactory;
+      protocolManagerFactory.setLocator(this);
+      return this;
    }
 
    public void disableFinalizeCheck() {
@@ -860,8 +856,39 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return factory;
    }
 
+   @Override
    public boolean isHA() {
       return ha;
+   }
+
+   /**
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * @return this
+    */
+   @Override
+   public ServerLocator setIncomingInterceptorList(String interceptorList) {
+      feedInterceptors(incomingInterceptors, interceptorList);
+      return this;
+   }
+
+   @Override
+   public String getIncomingInterceptorList() {
+      return fromInterceptors(incomingInterceptors);
+   }
+
+   /**
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * @return this
+    */
+   @Override
+   public ServerLocator setOutgoingInterceptorList(String interceptorList) {
+      feedInterceptors(outgoingInterceptors, interceptorList);
+      return this;
+   }
+
+   @Override
+   public String getOutgoingInterceptorList() {
+      return fromInterceptors(outgoingInterceptors);
    }
 
    public boolean isCacheLargeMessagesClient() {
@@ -1775,4 +1802,40 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    public boolean isReceivedToplogy() {
       return receivedTopology;
    }
+
+   private String fromInterceptors(final List<Interceptor> interceptors) {
+      StringBuffer buffer = new StringBuffer();
+      boolean first = true;
+      for (Interceptor value : interceptors) {
+         if (!first) {
+            buffer.append(",");
+         }
+         first = false;
+         buffer.append(value.getClass().getName());
+      }
+
+      return buffer.toString();
+   }
+
+   private void feedInterceptors(final List<Interceptor> interceptors,  final String interceptorList) {
+      interceptors.clear();
+
+      if (interceptorList == null || interceptorList.trim().equals("")) {
+         return;
+      }
+      AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         public Object run() {
+
+            String[] arrayInterceptor = interceptorList.split(",");
+            for (String strValue : arrayInterceptor) {
+               Interceptor interceptor = (Interceptor) ClassloadingUtil.newInstanceFromClassLoader(strValue.trim());
+               interceptors.add(interceptor);
+            }
+            return null;
+         }
+      });
+
+   }
+
+
 }

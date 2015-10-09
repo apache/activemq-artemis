@@ -105,6 +105,11 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
    }
 
    @Override
+   public boolean acceptsNoHandshake() {
+      return false;
+   }
+
+   @Override
    public ProtocolManagerFactory<StompFrameInterceptor> getFactory() {
       return factory;
    }

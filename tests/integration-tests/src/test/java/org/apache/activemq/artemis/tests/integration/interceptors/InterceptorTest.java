@@ -14,7 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration;
+package org.apache.activemq.artemis.tests.integration.interceptors;
+
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -40,6 +50,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -1026,5 +1037,53 @@ public class InterceptorTest extends ActiveMQTestBase {
       Assert.assertNull(message);
 
       session.close();
+   }
+
+
+   @Test
+   public void testInterceptorOnURI() throws Exception {
+      locator.close();
+
+      String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
+
+      System.out.println(uri);
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+
+      // Serialize stuff to make sure the interceptors are on the URI
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+      objectOutputStream.close();
+      objectOutputStream.writeObject(factory);
+      ByteArrayInputStream input = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+      ObjectInputStream objectInputStream = new ObjectInputStream(input);
+
+      factory = (ActiveMQConnectionFactory) objectInputStream.readObject();
+
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession();
+      MessageProducer producer = session.createProducer(session.createQueue(QUEUE.toString()));
+
+      producer.send(session.createTextMessage("HelloMessage"));
+
+
+      connection.start();
+
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE.toString()));
+
+      TextMessage msg = (TextMessage) consumer.receive(5000);
+      Assert.assertNotNull(consumer);
+
+      Assert.assertEquals("HelloMessage", msg.getText());
+
+      Assert.assertEquals("was here", msg.getStringProperty("Incoming"));
+
+      Assert.assertEquals("sending", msg.getStringProperty("Outgoing"));
+
+      connection.close();
+
+      factory.close();
+
+
    }
 }

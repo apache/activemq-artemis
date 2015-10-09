@@ -182,7 +182,7 @@ public class ClusterController implements ActiveMQComponent {
       serverLocator.setReconnectAttempts(-1);
       serverLocator.setInitialConnectAttempts(-1);
       //this is used for replication so need to use the server packet decoder
-      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator));
       locators.put(name, serverLocator);
    }
 
@@ -237,7 +237,7 @@ public class ClusterController implements ActiveMQComponent {
     * @return the Cluster Control
     */
    public ClusterControl connectToNodeInCluster(ClientSessionFactoryInternal sf) {
-      sf.getServerLocator().setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
+      sf.getServerLocator().setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(sf.getServerLocator()));
       return new ClusterControl(sf, server);
    }
 

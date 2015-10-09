@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
@@ -23,13 +24,25 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
 
    private static final long serialVersionUID = 1;
 
-   private static final ActiveMQClientProtocolManagerFactory INSTANCE = new ActiveMQClientProtocolManagerFactory();
-
    private ActiveMQClientProtocolManagerFactory() {
    }
 
-   public static final ActiveMQClientProtocolManagerFactory getInstance() {
-      return INSTANCE;
+   ServerLocator locator;
+
+   @Override
+   public ServerLocator getLocator() {
+      return locator;
+   }
+
+   @Override
+   public void setLocator(ServerLocator locator) {
+      this.locator = locator;
+   }
+
+   public static final ActiveMQClientProtocolManagerFactory getInstance(ServerLocator locator) {
+      ActiveMQClientProtocolManagerFactory factory = new ActiveMQClientProtocolManagerFactory();
+      factory.setLocator(locator);
+      return factory;
    }
 
    public ClientProtocolManager newProtocolManager() {
