@@ -232,6 +232,20 @@
          <security-setting match="a2">
             <permission type="deleteNonDurableQueue" roles="a2.1"/>
          </security-setting>
+         <security-setting-plugin class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
+            <setting name="initialContextFactory" value="testInitialContextFactory"/>
+            <setting name="connectionURL" value="testConnectionURL"/>
+            <setting name="connectionUsername" value="testConnectionUsername"/>
+            <setting name="connectionPassword" value="testConnectionPassword"/>
+            <setting name="connectionProtocol" value="testConnectionProtocol"/>
+            <setting name="authentication" value="testAuthentication"/>
+            <setting name="destinationBase" value="testDestinationBase"/>
+            <setting name="filter" value="testFilter"/>
+            <setting name="roleAttribute" value="testRoleAttribute"/>
+            <setting name="adminPermissionValue" value="testAdminPermissionValue"/>
+            <setting name="readPermissionValue" value="testReadPermissionValue"/>
+            <setting name="writePermissionValue" value="testWritePermissionValue"/>
+         </security-setting-plugin>
       </security-settings>
 
       <address-settings>

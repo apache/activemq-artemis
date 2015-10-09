@@ -120,6 +120,121 @@ permissions in more specific security-setting blocks by simply not
 specifying them. Otherwise it would not be possible to deny permissions
 in sub-groups of addresses.
 
+## Security Setting Plugin
+
+Aside from configuring sets of permissions via XML these permissions can also be
+configured via plugins which implement `org.apache.activemq.artemis.core.server.SecuritySettingPlugin`.
+One or more plugins can be defined and configured alongside the normal XML, e.g.:
+
+    <security-settings>
+       ...
+       <security-setting-plugin class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
+          <setting name="initialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory"/>
+          <setting name="connectionURL" value="ldap://localhost:1024"/>
+          <setting name="connectionUsername" value="uid=admin,ou=system"/>
+          <setting name="connectionPassword" value="secret"/>
+          <setting name="connectionProtocol" value="s"/>
+          <setting name="authentication" value="simple"/>
+       </security-setting-plugin>
+    </security-settings>
+
+Most of this configuration is specific to the plugin implementation. However, there are two configuration details that
+will be specified for every implementation:
+
+-   `class-name`. This attribute of `security-setting-plugin` indicates the name of the class which implements
+    `org.apache.activemq.artemis.core.server.SecuritySettingPlugin`.
+
+-   `setting`. Each of these elements represents a name/value pair that will be passed to the implementation for configuration
+    purposes.
+
+See the JavaDoc on `org.apache.activemq.artemis.core.server.SecuritySettingPlugin` for further details about the interface
+and what each method is expected to do.
+
+### Available plugins
+
+#### LegacyLDAPSecuritySettingPlugin
+
+This plugin will read the security information that was previously handled by [`LDAPAuthorizationMap`](http://activemq.apache.org/security.html)
+and the [`cachedLDAPAuthorizationMap`](http://activemq.apache.org/cached-ldap-authorization-module.html) in Apache ActiveMQ 5.x
+and turn it into Artemis security settings where possible. The security implementations of ActiveMQ 5.x and Artemis don't
+match perfectly so some translation must occur to achieve near equivalent functionality.
+
+Here is an example of the plugin's configuration:
+
+    <security-setting-plugin class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
+       <setting name="initialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory"/>
+       <setting name="connectionURL" value="ldap://localhost:1024"/>
+       <setting name="connectionUsername" value="uid=admin,ou=system"/>
+       <setting name="connectionPassword" value="secret"/>
+       <setting name="connectionProtocol" value="s"/>
+       <setting name="authentication" value="simple"/>
+    </security-setting-plugin>
+
+-   `class-name`. The implementation is `org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin`.
+
+-   `initialContextFactory`. The initial context factory used to connect to LDAP. It must always be set to
+    `com.sun.jndi.ldap.LdapCtxFactory` (i.e. the default value).
+
+-   `connectionURL`. Specifies the location of the directory server using an ldap URL, `ldap://Host:Port`. You can
+    optionally qualify this URL, by adding a forward slash, `/`, followed by the DN of a particular node in the directory
+    tree. For example, `ldap://ldapserver:10389/ou=system`. The default is `ldap://localhost:1024`.
+
+-   `connectionUsername`. The DN of the user that opens the connection to the directory server. For example, `uid=admin,ou=system`.
+    Directory servers generally require clients to present username/password credentials in order to open a connection.
+
+-   `connectionPassword`. The password that matches the DN from `connectionUsername`. In the directory server, in the
+    DIT, the password is normally stored as a `userPassword` attribute in the corresponding directory entry.
+
+-   `connectionProtocol`. Currently the only supported value is a blank string. In future, this option will allow you to
+    select the Secure Socket Layer (SSL) for the connection to the directory server. Note: this option must be set
+    explicitly to an empty string, because it has no default value.
+
+-   `authentication`. Specifies the authentication method used when binding to the LDAP server. Can take either of the
+     values, `simple` (username and password, the default value) or `none` (anonymous). Note: Simple Authentication and
+     Security Layer (SASL) authentication is currently not supported.
+
+-   `destinationBase`. Specifies the DN of the node whose children provide the permissions for all destinations. In this
+    case the DN is a literal value (that is, no string substitution is performed on the property value).  For example, a
+    typical value of this property is `ou=destinations,o=ActiveMQ,ou=system` (i.e. the default value).
+
+-   `filter`. Specifies an LDAP search filter, which is used when looking up the permissions for any kind of destination.
+    The search filter attempts to match one of the children or descendants of the queue or topic node. The default value
+    is `(cn=*)`.
+
+-   `roleAttribute`. Specifies an attribute of the node matched by `filter`, whose value is the DN of a role. Default
+    value is `uniqueMember`.
+
+-   `adminPermissionValue`. Specifies a value that matches the `admin` permission. The default value is `admin`.
+
+-   `readPermissionValue`. Specifies a value that matches the `read` permission. The default value is `read`.
+
+-   `writePermissionValue`. Specifies a value that matches the `write` permission. The default value is `write`.
+
+The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value
+will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is. It's worth noting that
+since the name of queue or topic coming from LDAP will server as the "match" for the security-setting the security-setting
+may not be applied as expected to JMS destinations since Artemis always prefixes JMS destinations with "jms.queue." or
+"jms.topic." as necessary.
+
+ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
+[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 6 permission
+types - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`,
+and `manage`. Here's how the old types are mapped to the new types:
+
+-   `read` - `consume`
+-   `write` - `send`
+-   `admin` - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`
+
+As mentioned, there are a few places where a translation was performed to achieve some equivalence.:
+
+-   This mapping doesn't include the Artemis `manage` permission type since there is no type analogous for that in ActiveMQ
+    5.x.
+
+-   The `admin` permission in ActiveMQ 5.x relates to whether or not the broker will auto-create a destination if
+    it doesn't exist and the user sends a message to it. Artemis automatically allows the automatic creation of a
+    destination if the user has permission to send message to it. Therefore, the plugin will map the `admin` permission
+    to the 4 aforementioned permissions in Artemis.
+
 ## Secure Sockets Layer (SSL) Transport
 
 When messaging clients are connected to servers, or servers are

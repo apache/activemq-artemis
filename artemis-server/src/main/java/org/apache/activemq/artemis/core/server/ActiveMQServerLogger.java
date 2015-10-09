@@ -301,6 +301,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221050, value = "Activating Shared Store Slave", format = Message.Format.MESSAGE_FORMAT)
    void activatingSharedStoreSlave();
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221051, value = "Populating security roles from LDAP at: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void populatingSecurityRolesFromLDAP(String url);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
@@ -1445,4 +1449,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224065, value = "Failed to remove auto-created queue {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorRemovingAutoCreatedQueue(@Cause Exception e, SimpleString bindingName);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224066, value = "Error opening context for LDAP", format = Message.Format.MESSAGE_FORMAT)
+   void errorOpeningContextForLDAP(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224067, value = "Error populating security roles from LDAP", format = Message.Format.MESSAGE_FORMAT)
+   void errorPopulatingSecurityRolesFromLDAP(@Cause Exception e);
 }
