@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.deployers.impl;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +58,7 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -64,6 +67,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
@@ -82,11 +86,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    // Security Parsing
    public static final String SECURITY_ELEMENT_NAME = "security-setting";
 
+   public static final String SECURITY_PLUGIN_ELEMENT_NAME = "security-setting-plugin";
+
    private static final String PERMISSION_ELEMENT_NAME = "permission";
+
+   private static final String SETTING_ELEMENT_NAME = "setting";
 
    private static final String TYPE_ATTR_NAME = "type";
 
    private static final String ROLES_ATTR_NAME = "roles";
+
+   private static final String NAME_ATTR_NAME = "name";
+
+   private static final String VALUE_ATTR_NAME = "value";
 
    static final String CREATEDURABLEQUEUE_NAME = "createDurableQueue";
 
@@ -517,6 +529,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Pair<String, Set<Role>> securityItem = parseSecurityRoles(list.item(i));
             config.getSecurityRoles().put(securityItem.getA(), securityItem.getB());
          }
+         list = node.getElementsByTagName(SECURITY_PLUGIN_ELEMENT_NAME);
+         for (int i = 0; i < list.getLength(); i++) {
+            Pair<SecuritySettingPlugin, Map<String, String>> securityItem = parseSecuritySettingPlugins(list.item(i));
+            config.addSecuritySettingPlugin(securityItem.getA().init(securityItem.getB()).populateSecurityRoles());
+         }
       }
    }
 
@@ -641,6 +658,29 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       return securityMatch;
+   }
+
+   private Pair<SecuritySettingPlugin,Map<String,String>> parseSecuritySettingPlugins(Node item) {
+      final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
+      final Map<String, String> settings = new HashMap<>();
+      NodeList children = item.getChildNodes();
+      for (int j = 0; j < children.getLength(); j++) {
+         Node child = children.item(j);
+         final String nodeName = child.getNodeName();
+         if (SETTING_ELEMENT_NAME.equalsIgnoreCase(nodeName)) {
+            final String settingName = getAttributeValue(child, NAME_ATTR_NAME);
+            final String settingValue = getAttributeValue(child, VALUE_ATTR_NAME);
+            settings.put(settingName, settingValue);
+         }
+      }
+
+      SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged(new PrivilegedAction<SecuritySettingPlugin>() {
+         public SecuritySettingPlugin run() {
+            return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(clazz);
+         }
+      });
+
+      return new Pair<SecuritySettingPlugin, Map<String, String>>(securitySettingPlugin, settings);
    }
 
    /**
