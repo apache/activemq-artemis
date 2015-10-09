@@ -793,20 +793,24 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final void clearDataRecreateServerDirs() {
-      clearDataRecreateServerDirs(getTestDir());
+      clearDataRecreateServerDirs(0, false);
    }
 
-   protected void clearDataRecreateServerDirs(final String testDir1) {
+   protected final void clearDataRecreateServerDirs(int index, boolean backup) {
+      clearDataRecreateServerDirs(getTestDir(), index, backup);
+   }
+
+   protected void clearDataRecreateServerDirs(final String testDir1, int index, boolean backup) {
       // Need to delete the root
 
       File file = new File(testDir1);
       deleteDirectory(file);
       file.mkdirs();
 
-      recreateDirectory(getJournalDir(testDir1));
-      recreateDirectory(getBindingsDir(testDir1));
-      recreateDirectory(getPageDir(testDir1));
-      recreateDirectory(getLargeMessagesDir(testDir1));
+      recreateDirectory(getJournalDir(testDir1, index, backup));
+      recreateDirectory(getBindingsDir(testDir1, index, backup));
+      recreateDirectory(getPageDir(testDir1, index, backup));
+      recreateDirectory(getLargeMessagesDir(testDir1, index, backup));
       recreateDirectory(getClientLargeMessagesDir(testDir1));
       recreateDirectory(getTemporaryDir(testDir1));
    }
@@ -815,7 +819,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @return the journalDir
     */
    public String getJournalDir() {
-      return getJournalDir(getTestDir());
+      return getJournalDir(0, false);
    }
 
    protected static String getJournalDir(final String testDir1) {
@@ -834,7 +838,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @return the bindingsDir
     */
    protected String getBindingsDir() {
-      return getBindingsDir(getTestDir());
+      return getBindingsDir(0, false);
    }
 
    /**
@@ -859,7 +863,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @return the pageDir
     */
    protected String getPageDir() {
-      return getPageDir(getTestDir());
+      return getPageDir(0, false);
    }
 
    protected File getPageDirFile() {
@@ -886,7 +890,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @return the largeMessagesDir
     */
    protected String getLargeMessagesDir() {
-      return getLargeMessagesDir(getTestDir());
+      return getLargeMessagesDir(0, false);
    }
 
    /**

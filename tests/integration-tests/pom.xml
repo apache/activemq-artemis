@@ -261,6 +261,24 @@
          <version>1.0.1</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-server-integ</artifactId>
+         <version>${directory-version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-core-integ</artifactId>
+         <version>${directory-version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>bouncycastle</groupId>
+               <artifactId>bcprov-jdk15</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
    </dependencies>
 
    <build>
