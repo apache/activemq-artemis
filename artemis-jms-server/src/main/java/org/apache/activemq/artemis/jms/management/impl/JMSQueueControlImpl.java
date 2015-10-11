@@ -275,6 +275,25 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.changeMessagesPriority(filter, newPriority);
    }
 
+   public boolean retryMessage(final String jmsMessageID) throws Exception {
+
+      // Figure out messageID from JMSMessageID.
+      final String filter = createFilterForJMSMessageID(jmsMessageID);
+      Map<String,Object>[] messages = coreQueueControl.listMessages(filter);
+      if ( messages.length != 1) { // if no messages. There should not be more than one, JMSMessageID should be unique.
+         return false;
+      }
+
+      final Map<String,Object> messageToRedeliver = messages[0];
+      Long messageID = (Long)messageToRedeliver.get("messageID");
+      return messageID != null && coreQueueControl.retryMessage(messageID);
+   }
+
+   public int retryMessages() throws Exception {
+      return coreQueueControl.retryMessages();
+   }
+
+
    public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }
