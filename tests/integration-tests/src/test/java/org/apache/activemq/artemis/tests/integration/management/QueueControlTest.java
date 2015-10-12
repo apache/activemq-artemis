@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.management.Notification;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -42,15 +48,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.management.Notification;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class QueueControlTest extends ManagementTestBase {
 
@@ -796,7 +797,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       Assert.assertNotNull(clientMessage);
 
-      Assert.assertEquals(clientMessage.getBodyBuffer().readString(), "Put me on DLQ!");
+      Assert.assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       clientConsumer.close();
    }
@@ -2044,8 +2045,8 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    protected long getFirstMessageId(final QueueControl queueControl) throws Exception {
-      Map<String, Object>[] messages = queueControl.listMessages(null);
-      long messageID = (Long) messages[0].get("messageID");
-      return messageID;
+      JSONArray array = new JSONArray(queueControl.getFirstMessageAsJSON());
+      JSONObject object = (JSONObject)array.get(0);
+      return object.getLong("messageID");
    }
 }

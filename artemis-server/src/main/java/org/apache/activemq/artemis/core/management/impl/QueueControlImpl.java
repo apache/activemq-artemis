@@ -570,13 +570,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             }
          };
 
-         queue.retryMessages(singleMessageFilter);
+         return queue.retryMessages(singleMessageFilter) > 0;
       }
       finally {
          blockOnIO();
       }
-
-      return false;
    }
 
    public int retryMessages() throws Exception {
