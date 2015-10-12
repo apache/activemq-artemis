@@ -50,6 +50,11 @@ public class FakeQueue implements Queue {
    }
 
    @Override
+   public int retryMessages(Filter filter) throws Exception {
+      return 0;
+   }
+
+   @Override
    public void setConsumersRefCount(ReferenceCounter referenceCounter) {
 
    }

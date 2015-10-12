@@ -164,6 +164,8 @@ public interface Queue extends Bindable {
                       SimpleString toAddress,
                       boolean rejectDuplicates) throws Exception;
 
+   int retryMessages(Filter filter) throws Exception;
+
    void addRedistributor(long delay);
 
    void cancelRedistributor() throws Exception;

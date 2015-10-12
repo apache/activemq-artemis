@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -1525,6 +1526,50 @@ public class QueueImpl implements Queue {
       });
    }
 
+   public int retryMessages(Filter filter) throws Exception {
+
+      final HashMap<SimpleString, Long> queues = new HashMap<>();
+
+      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction() {
+         @Override
+         public void actMessage(Transaction tx, MessageReference ref) throws Exception {
+
+            SimpleString originalMessageAddress = ref.getMessage().getSimpleStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS);
+            SimpleString originalMessageQueue = ref.getMessage().getSimpleStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE);
+
+            if (originalMessageAddress != null) {
+
+               incDelivering();
+
+               Long targetQueue = null;
+               if (originalMessageQueue != null && !originalMessageQueue.equals(originalMessageAddress)) {
+                  targetQueue = queues.get(originalMessageQueue);
+                  if (targetQueue == null) {
+                     Binding binding = postOffice.getBinding(originalMessageQueue);
+
+                     if (binding != null && binding instanceof LocalQueueBinding) {
+                        targetQueue = ((LocalQueueBinding)binding).getID();
+                        queues.put(originalMessageQueue, targetQueue);
+                     }
+                  }
+               }
+
+               if (targetQueue != null) {
+                  move(originalMessageAddress, tx, ref, false, false, targetQueue.longValue());
+               }
+               else {
+                  move(originalMessageAddress, tx, ref, false, false);
+
+               }
+
+
+            }
+         }
+      });
+
+
+   }
+
    public synchronized boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception {
       LinkedListIterator<MessageReference> iter = iterator();
 
@@ -2057,10 +2102,19 @@ public class QueueImpl implements Queue {
                      final Transaction tx,
                      final MessageReference ref,
                      final boolean expiry,
-                     final boolean rejectDuplicate) throws Exception {
+                     final boolean rejectDuplicate,
+                     final long ... queueIDs) throws Exception {
       ServerMessage copyMessage = makeCopy(ref, expiry);
 
       copyMessage.setAddress(toAddress);
+
+      if (queueIDs != null && queueIDs.length > 0) {
+         ByteBuffer buffer = ByteBuffer.allocate(8 * queueIDs.length);
+         for (long id : queueIDs) {
+            buffer.putLong(id);
+         }
+         copyMessage.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
+      }
 
       postOffice.route(copyMessage, null, tx, false, rejectDuplicate);
 

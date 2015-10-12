@@ -908,6 +908,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public int retryMessages(Filter filter) throws Exception {
+         return 0;
+      }
+
+      @Override
       public int getConsumerCount() {
          return 0;
       }

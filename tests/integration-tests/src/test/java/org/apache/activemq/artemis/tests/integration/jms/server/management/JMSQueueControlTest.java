@@ -16,6 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.management.Notification;
+import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -39,6 +53,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
@@ -50,20 +65,6 @@ import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.management.Notification;
-import javax.naming.Context;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A QueueControlTest
@@ -808,6 +809,16 @@ public class JMSQueueControlTest extends ManagementTestBase {
       return testQueue;
    }
 
+   protected ActiveMQTopic createTestTopicWithDLQ(final String queueName, final ActiveMQQueue dlq) throws Exception {
+      serverManager.createTopic(false, queueName);
+      ActiveMQTopic testQueue = (ActiveMQTopic) ActiveMQJMSClient.createTopic(queueName);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      addressSettings.setMaxDeliveryAttempts(1);
+      server.getAddressSettingsRepository().addMatch(testQueue.getAddress(), addressSettings);
+      return testQueue;
+   }
+
    /**
     * Test retrying all messages put on DLQ - i.e. they should appear on the original queue.
     * @throws Exception
@@ -834,10 +845,64 @@ public class JMSQueueControlTest extends ManagementTestBase {
       Assert.assertEquals(0, getMessageCount(testQueueControl));
       Assert.assertEquals(numMessagesToTest,getMessageCount(dlqQueueControl));
 
+      Assert.assertEquals(10,getMessageCount(dlqQueueControl));
+
       dlqQueueControl.retryMessages();
 
       Assert.assertEquals(numMessagesToTest, getMessageCount(testQueueControl));
       Assert.assertEquals(0,getMessageCount(dlqQueueControl));
+
+      connection.close();
+   }
+
+   /**
+    * Test retrying all messages put on DLQ - i.e. they should appear on the original queue.
+    * @throws Exception
+    */
+   @Test
+   public void testRetryMessagesOnTopic() throws Exception {
+      ActiveMQQueue dlq = createDLQ(RandomUtil.randomString());
+      ActiveMQTopic testTopic = createTestTopicWithDLQ(RandomUtil.randomString(), dlq);
+
+      Connection connectionConsume = createConnection();
+      connectionConsume.setClientID("ID");
+      Session sessionConsume = connectionConsume.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer cons1 = sessionConsume.createDurableSubscriber(testTopic, "sub1");
+      MessageConsumer cons2 = sessionConsume.createDurableSubscriber(testTopic, "sub2");
+
+
+      final int numMessagesToTest = 10;
+      JMSUtil.sendMessages(testTopic, numMessagesToTest);
+
+
+      connectionConsume.start();
+      for (int i = 0; i < numMessagesToTest; i++) {
+         Assert.assertNotNull(cons1.receive(500));
+      }
+      sessionConsume.commit();
+
+      Assert.assertNull(cons1.receiveNoWait());
+
+      connectionConsume.start();
+      for (int i = 0; i < numMessagesToTest; i++) {
+         cons2.receive(500);
+      }
+      sessionConsume.rollback();
+      Assert.assertNull(cons2.receiveNoWait());
+
+      JMSQueueControl dlqQueueControl = createManagementControl(dlq);
+      dlqQueueControl.retryMessages();
+
+      Assert.assertNull("Retry is sending back to cons1 even though it succeeded", cons1.receiveNoWait());
+
+      for (int i = 0; i < numMessagesToTest; i++) {
+         Assert.assertNotNull(cons2.receive(500));
+      }
+      sessionConsume.commit();
+      Assert.assertNull(cons1.receiveNoWait());
+
+      connectionConsume.close();
+
    }
 
    /**

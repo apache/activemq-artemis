@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +36,12 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
@@ -558,16 +558,19 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
 
       try {
-         MessageReference message = queue.getReference(messageID);
-         if ( message == null ) {
-            return false;
-         }
-         else {
-            final String originalAddress = message.getMessage().getStringProperty(Message.HDR_ORIGINAL_ADDRESS);
-            if (originalAddress != null) {
-               return queue.moveReference(messageID, new SimpleString(originalAddress));
+         Filter singleMessageFilter = new Filter() {
+            @Override
+            public boolean match(ServerMessage message) {
+               return message.getMessageID() == messageID;
             }
-         }
+
+            @Override
+            public SimpleString getFilterString() {
+               return new SimpleString("custom filter for MESSAGEID= messageID");
+            }
+         };
+
+         queue.retryMessages(singleMessageFilter);
       }
       finally {
          blockOnIO();
@@ -580,25 +583,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       checkStarted();
       clearIO();
 
-      int retriedMessages = 0;
       try {
-         Iterator<MessageReference> messageIterator = queue.totalIterator();
-         while (messageIterator.hasNext()) {
-            MessageReference message = messageIterator.next();
-            // Will only try messages with Message.HDR_ORIGINAL_ADDRESS set.
-            final String originalAddress = message.getMessage().getStringProperty(Message.HDR_ORIGINAL_ADDRESS);
-            final long messageID = message.getMessage().getMessageID();
-            if ( originalAddress != null) {
-               if ( queue.moveReference(messageID, new SimpleString(originalAddress))) {
-                  retriedMessages++;
-               }
-            }
-         }
+         return queue.retryMessages(null);
       }
       finally {
          blockOnIO();
       }
-      return retriedMessages;
    }
 
    public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
