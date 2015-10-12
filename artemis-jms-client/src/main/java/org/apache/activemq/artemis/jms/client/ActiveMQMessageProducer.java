@@ -479,6 +479,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
+      catch (java.lang.IllegalStateException e) {
+         JMSException je = new IllegalStateException(e.getMessage());
+         je.setStackTrace(e.getStackTrace());
+         je.initCause(e);
+         throw je;
+      }
    }
 
    private void checkClosed() throws JMSException {
