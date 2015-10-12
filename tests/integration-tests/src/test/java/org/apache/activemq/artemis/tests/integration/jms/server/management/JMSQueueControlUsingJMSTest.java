@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -169,6 +170,18 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          public String listMessageCounterHistory() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterHistory");
+         }
+
+         public boolean retryMessage(@Parameter(name = "messageID", desc = "A message ID") long messageID) throws Exception {
+            return (Boolean) proxy.invokeOperation("retryMessage",messageID);
+         }
+
+         public int retryMessages() throws Exception {
+            return (Integer) proxy.invokeOperation("retryMessages");
+         }
+
+         public boolean retryMessage(final String messageID) throws Exception {
+            return (Boolean) proxy.invokeOperation("retryMessage",messageID);
          }
 
          @Override

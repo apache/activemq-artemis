@@ -792,6 +792,84 @@ public class JMSQueueControlTest extends ManagementTestBase {
       connection.close();
    }
 
+
+   protected ActiveMQQueue createDLQ(final String deadLetterQueueName) throws Exception {
+      serverManager.createQueue(false, deadLetterQueueName, null, true, deadLetterQueueName);
+      return (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueueName);
+   }
+
+   protected ActiveMQQueue createTestQueueWithDLQ(final String queueName, final ActiveMQQueue dlq) throws Exception {
+      serverManager.createQueue(false,queueName,null,true,queueName);
+      ActiveMQQueue testQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(queueName);
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      addressSettings.setMaxDeliveryAttempts(1);
+      server.getAddressSettingsRepository().addMatch(testQueue.getAddress(), addressSettings);
+      return testQueue;
+   }
+
+   /**
+    * Test retrying all messages put on DLQ - i.e. they should appear on the original queue.
+    * @throws Exception
+    */
+   @Test
+   public void testRetryMessages() throws Exception {
+      ActiveMQQueue dlq = createDLQ(RandomUtil.randomString());
+      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(),dlq);
+
+      final int numMessagesToTest = 10;
+      JMSUtil.sendMessages(testQueue, numMessagesToTest);
+
+      Connection connection = createConnection();
+      connection.start();
+      Session session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(testQueue);
+      for (int i = 0;i < numMessagesToTest;i++) {
+         Message msg = consumer.receive(500L);
+      }
+      session.rollback(); // All <numMessagesToTest> messages should now be on DLQ
+
+      JMSQueueControl testQueueControl = createManagementControl(testQueue);
+      JMSQueueControl dlqQueueControl = createManagementControl(dlq);
+      Assert.assertEquals(0, getMessageCount(testQueueControl));
+      Assert.assertEquals(numMessagesToTest,getMessageCount(dlqQueueControl));
+
+      dlqQueueControl.retryMessages();
+
+      Assert.assertEquals(numMessagesToTest, getMessageCount(testQueueControl));
+      Assert.assertEquals(0,getMessageCount(dlqQueueControl));
+   }
+
+   /**
+    * Test retrying a specific message on DLQ.
+    * Expected to be sent back to original queue.
+    * @throws Exception
+    */
+   @Test
+   public void testRetryMessage() throws Exception {
+      ActiveMQQueue dlq = createDLQ(RandomUtil.randomString());
+      ActiveMQQueue testQueue = createTestQueueWithDLQ(RandomUtil.randomString(),dlq);
+      String messageID = JMSUtil.sendMessages(testQueue,1)[0];
+
+      Connection connection = createConnection();
+      connection.start();
+      Session session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(testQueue);
+      consumer.receive(500L);
+      session.rollback(); // All <numMessagesToTest> messages should now be on DLQ
+
+      JMSQueueControl testQueueControl = createManagementControl(testQueue);
+      JMSQueueControl dlqQueueControl = createManagementControl(dlq);
+      Assert.assertEquals(0, getMessageCount(testQueueControl));
+      Assert.assertEquals(1,getMessageCount(dlqQueueControl));
+
+      dlqQueueControl.retryMessage(messageID);
+
+      Assert.assertEquals(1, getMessageCount(testQueueControl));
+      Assert.assertEquals(0,getMessageCount(dlqQueueControl));
+
+   }
+
    @Test
    public void testMoveMessage() throws Exception {
       String otherQueueName = RandomUtil.randomString();

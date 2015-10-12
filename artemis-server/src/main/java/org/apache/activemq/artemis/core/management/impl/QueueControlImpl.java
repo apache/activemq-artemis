@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -549,6 +550,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       finally {
          blockOnIO();
       }
+   }
+
+   public boolean retryMessage(final long messageID) throws Exception {
+
+      checkStarted();
+      clearIO();
+
+      try {
+         MessageReference message = queue.getReference(messageID);
+         if ( message == null ) {
+            return false;
+         }
+         else {
+            final String originalAddress = message.getMessage().getStringProperty(Message.HDR_ORIGINAL_ADDRESS);
+            if (originalAddress != null) {
+               return queue.moveReference(messageID, new SimpleString(originalAddress));
+            }
+         }
+      }
+      finally {
+         blockOnIO();
+      }
+
+      return false;
+   }
+
+   public int retryMessages() throws Exception {
+      checkStarted();
+      clearIO();
+
+      int retriedMessages = 0;
+      try {
+         Iterator<MessageReference> messageIterator = queue.totalIterator();
+         while (messageIterator.hasNext()) {
+            MessageReference message = messageIterator.next();
+            // Will only try messages with Message.HDR_ORIGINAL_ADDRESS set.
+            final String originalAddress = message.getMessage().getStringProperty(Message.HDR_ORIGINAL_ADDRESS);
+            final long messageID = message.getMessage().getMessageID();
+            if ( originalAddress != null) {
+               if ( queue.moveReference(messageID, new SimpleString(originalAddress))) {
+                  retriedMessages++;
+               }
+            }
+         }
+      }
+      finally {
+         blockOnIO();
+      }
+      return retriedMessages;
    }
 
    public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
