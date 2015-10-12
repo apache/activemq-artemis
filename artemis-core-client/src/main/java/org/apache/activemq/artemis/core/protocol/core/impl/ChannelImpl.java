@@ -228,9 +228,15 @@ public final class ChannelImpl implements Channel {
 
          try {
             if (failingOver) {
-               // TODO - don't hardcode this timeout
                try {
-                  failoverCondition.await(10000, TimeUnit.MILLISECONDS);
+                  if (connection.getBlockingCallFailoverTimeout() < 0) {
+                     failoverCondition.await();
+                  }
+                  else {
+                     if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
+                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for fail-over condition on non-blocking send");
+                     }
+                  }
                }
                catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
@@ -239,7 +245,7 @@ public final class ChannelImpl implements Channel {
 
             // Sanity check
             if (transferring) {
-               throw new IllegalStateException("Cannot send a packet while channel is doing failover");
+               throw ActiveMQClientMessageBundle.BUNDLE.cannotSendPacketDuringFailover();
             }
 
             if (resendCache != null && packet.isRequiresConfirmations()) {
@@ -302,7 +308,7 @@ public final class ChannelImpl implements Channel {
                   }
                   else {
                      if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
-                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for failover condition");
+                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for fail-over condition on blocking send");
                      }
                   }
                }
