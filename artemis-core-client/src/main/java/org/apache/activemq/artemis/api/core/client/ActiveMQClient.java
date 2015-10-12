@@ -72,7 +72,7 @@ public final class ActiveMQClient {
 
    public static final long DEFAULT_CALL_TIMEOUT = 30000;
 
-   public static final long DEFAULT_CALL_FAILOVER_TIMEOUT = -1;
+   public static final long DEFAULT_CALL_FAILOVER_TIMEOUT = 30000;
 
    public static final int DEFAULT_ACK_BATCH_SIZE = 1024 * 1024;
 

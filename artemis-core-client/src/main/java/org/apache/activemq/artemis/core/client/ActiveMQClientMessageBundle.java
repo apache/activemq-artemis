@@ -227,4 +227,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 119060, value = "Large Message Transmission interrupted on consumer shutdown.")
    ActiveMQLargeMessageInterruptedException largeMessageInterrupted();
+
+   @Message(id = 119061, value = "Cannot send a packet while channel is failing over.")
+   IllegalStateException cannotSendPacketDuringFailover();
 }
