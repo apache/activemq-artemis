@@ -460,8 +460,6 @@ public final class StompConnection implements RemotingConnection {
          stompListener.requestAccepted(request);
       }
 
-      System.out.println("Frame::" + request);
-
       String cmd = request.getCommand();
       try {
          if (isDestroyed()) {
