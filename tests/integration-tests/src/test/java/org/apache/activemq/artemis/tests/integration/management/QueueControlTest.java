@@ -748,6 +748,118 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    /**
+    * Test retry - get a message from DLQ and put on original queue.
+    */
+   @Test
+   public void testRetryMessage() throws Exception {
+      final SimpleString dla = new SimpleString("DLA");
+      final SimpleString qName = new SimpleString("q1");
+      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dlq = new SimpleString("DLQ1");
+      final String sampleText = "Put me on DLQ";
+
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
+      server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
+
+      session.createQueue(dla, dlq, null, false);
+      session.createQueue(adName, qName, null, false);
+
+      // Send message to queue.
+      ClientProducer producer = session.createProducer(adName);
+      producer.send(createTextMessage(session, sampleText));
+      session.start();
+
+      ClientConsumer clientConsumer = session.createConsumer(qName);
+      ClientMessage clientMessage = clientConsumer.receive(500);
+      clientMessage.acknowledge();
+      Assert.assertNotNull(clientMessage);
+
+      Assert.assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+
+      // force a rollback to DLQ
+      session.rollback();
+      clientMessage = clientConsumer.receiveImmediate();
+      Assert.assertNull(clientMessage);
+
+      QueueControl queueControl = createManagementControl(dla, dlq);
+      Assert.assertEquals(1, getMessageCount(queueControl));
+      final long messageID = getFirstMessageId(queueControl);
+
+      // Retry the message - i.e. it should go from DLQ to original Queue.
+      Assert.assertTrue(queueControl.retryMessage(messageID));
+
+      // Assert DLQ is empty...
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      // .. and that the message is now on the original queue once more.
+      clientMessage = clientConsumer.receive(500);
+      clientMessage.acknowledge();
+      Assert.assertNotNull(clientMessage);
+
+      Assert.assertEquals(clientMessage.getBodyBuffer().readString(), "Put me on DLQ!");
+
+      clientConsumer.close();
+   }
+
+   /**
+    * Test retry multiple messages from  DLQ to original queue.
+    */
+   @Test
+   public void testRetryMultipleMessages() throws Exception {
+      final SimpleString dla = new SimpleString("DLA");
+      final SimpleString qName = new SimpleString("q1");
+      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dlq = new SimpleString("DLQ1");
+      final String sampleText = "Put me on DLQ";
+      final int numMessagesToTest = 10;
+
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
+      server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
+
+      session.createQueue(dla, dlq, null, false);
+      session.createQueue(adName, qName, null, false);
+
+      // Send message to queue.
+      ClientProducer producer = session.createProducer(adName);
+      for (int i = 0; i < numMessagesToTest; i++) {
+         producer.send(createTextMessage(session, sampleText));
+      }
+
+      session.start();
+
+      // Read and rollback all messages to DLQ
+      ClientConsumer clientConsumer = session.createConsumer(qName);
+      for (int i = 0; i < numMessagesToTest; i++) {
+         ClientMessage clientMessage = clientConsumer.receive(500);
+         clientMessage.acknowledge();
+         Assert.assertNotNull(clientMessage);
+         Assert.assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+         session.rollback();
+      }
+
+      Assert.assertNull(clientConsumer.receiveImmediate());
+
+      QueueControl dlqQueueControl = createManagementControl(dla, dlq);
+      Assert.assertEquals(numMessagesToTest, getMessageCount(dlqQueueControl));
+
+      // Retry all messages - i.e. they should go from DLQ to original Queue.
+      Assert.assertEquals(numMessagesToTest, dlqQueueControl.retryMessages());
+
+      // Assert DLQ is empty...
+      Assert.assertEquals(0, getMessageCount(dlqQueueControl));
+
+      // .. and that the messages is now on the original queue once more.
+      for (int i = 0; i < numMessagesToTest; i++) {
+         ClientMessage clientMessage = clientConsumer.receive(500);
+         clientMessage.acknowledge();
+         Assert.assertNotNull(clientMessage);
+         Assert.assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      }
+
+      clientConsumer.close();
+   }
+
+   /**
     * <ol>
     * <li>send a message to queue</li>
     * <li>move all messages from queue to otherQueue using management method</li>
@@ -1929,5 +2041,11 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);
 
       return queueControl;
+   }
+
+   protected long getFirstMessageId(final QueueControl queueControl) throws Exception {
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      long messageID = (Long) messages[0].get("messageID");
+      return messageID;
    }
 }

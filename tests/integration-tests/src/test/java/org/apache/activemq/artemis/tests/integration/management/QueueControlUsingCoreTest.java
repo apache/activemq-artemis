@@ -229,6 +229,14 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (Boolean) proxy.invokeOperation("moveMessage", messageID, otherQueueName, rejectDuplicates);
          }
 
+         public boolean retryMessage(final long messageID) throws Exception {
+            return (Boolean) proxy.invokeOperation("retryMessage", messageID);
+         }
+
+         public int retryMessages() throws Exception {
+            return (Integer) proxy.invokeOperation("retryMessages");
+         }
+
          public int removeMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("removeMessages", filter);
          }
