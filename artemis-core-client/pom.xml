@@ -47,21 +47,10 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-selector</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
-      </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-all</artifactId>
       </dependency>
-
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>

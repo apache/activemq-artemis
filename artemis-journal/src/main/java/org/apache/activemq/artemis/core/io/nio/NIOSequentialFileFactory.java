@@ -20,10 +20,10 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
+import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
 public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
@@ -32,7 +32,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
    }
 
    public NIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener, final int maxIO) {
-      this(journalDir, false, JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
+      this(journalDir, false, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
    }
 
    public NIOSequentialFileFactory(final File journalDir, final boolean buffered, final int maxIO) {
@@ -43,7 +43,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
                                    final boolean buffered,
                                    final IOCriticalErrorListener listener,
                                    final int maxIO) {
-      this(journalDir, buffered, JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
+      this(journalDir, buffered, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, maxIO, false, listener);
    }
 
    public NIOSequentialFileFactory(final File journalDir,
