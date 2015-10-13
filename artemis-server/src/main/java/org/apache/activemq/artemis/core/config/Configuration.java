@@ -583,7 +583,7 @@ public interface Configuration {
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the AIO queue.
     * <br>
-    * Default value is {@link org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO}.
+    * Default value is {@link org.apache.activemq.artemis.ArtemisConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO}.
     */
    int getJournalBufferTimeout_AIO();
 
@@ -595,7 +595,7 @@ public interface Configuration {
    /**
     * Returns the buffer size (in bytes) for AIO.
     * <br>
-    * Default value is {@link org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_AIO}.
+    * Default value is {@link org.apache.activemq.artemis.ArtemisConstants#DEFAULT_JOURNAL_BUFFER_SIZE_AIO}.
     */
    int getJournalBufferSize_AIO();
 
@@ -618,7 +618,7 @@ public interface Configuration {
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the NIO.
     * <br>
-    * Default value is {@link org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO}.
+    * Default value is {@link org.apache.activemq.artemis.ArtemisConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO}.
     */
    int getJournalBufferTimeout_NIO();
 
@@ -630,7 +630,7 @@ public interface Configuration {
    /**
     * Returns the buffer size (in bytes) for NIO.
     * <br>
-    * Default value is {@link org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_NIO}.
+    * Default value is {@link org.apache.activemq.artemis.ArtemisConstants#DEFAULT_JOURNAL_BUFFER_SIZE_NIO}.
     */
    int getJournalBufferSize_NIO();
 

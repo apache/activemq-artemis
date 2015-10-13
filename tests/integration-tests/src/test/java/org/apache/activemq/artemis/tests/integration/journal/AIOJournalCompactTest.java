@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.BeforeClass;
 
 public class AIOJournalCompactTest extends NIOJournalCompactTest {
@@ -39,6 +39,6 @@ public class AIOJournalCompactTest extends NIOJournalCompactTest {
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile(), JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 100000, 10, false);
+      return new AIOSequentialFileFactory(getTestDirfile(), ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 100000, 10, false);
    }
 }

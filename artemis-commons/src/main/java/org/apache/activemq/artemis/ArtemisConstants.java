@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.artemis.ArtemisConstants;
+package org.apache.activemq.artemis;
 
-@Deprecated
-/**
- * @deprecated Use ArtemisConstants instead.
- */
-public final class JournalConstants extends ArtemisConstants {
+public class ArtemisConstants {
+   public static final int DEFAULT_JOURNAL_BUFFER_SIZE_AIO = 490 * 1024;
+   public static final int DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO = (int) (1000000000d / 2000);
+   public static final int DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO = (int) (1000000000d / 300);
+   public static final int DEFAULT_JOURNAL_BUFFER_SIZE_NIO = 490 * 1024;
 }
