@@ -104,7 +104,7 @@ public class ClientCrashTest extends ClientTestBase {
 
       System.out.println("VM Exited");
 
-      long timeout = ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD + 2000;
+      long timeout = ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD + 10000;
 
       assertActiveConnections(1, timeout);
       assertActiveSession(1, timeout);
@@ -138,7 +138,7 @@ public class ClientCrashTest extends ClientTestBase {
 
       System.out.println("VM Exited");
 
-      long timeout = ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD + 2000;
+      long timeout = ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD + 10000;
 
       assertActiveConnections(1, timeout);
       assertActiveSession(1, timeout);
