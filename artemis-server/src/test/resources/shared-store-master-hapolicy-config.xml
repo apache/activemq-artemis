@@ -22,11 +22,9 @@
       <ha-policy>
          <shared-store>
             <master>
-               <failback-delay>3456</failback-delay>
                <failover-on-shutdown>false</failover-on-shutdown>
             </master>
          </shared-store>
       </ha-policy>
    </core>
-
 </configuration>

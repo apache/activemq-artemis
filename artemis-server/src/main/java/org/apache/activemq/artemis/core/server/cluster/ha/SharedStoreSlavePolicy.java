@@ -25,8 +25,6 @@ import java.util.Map;
 
 public class SharedStoreSlavePolicy extends BackupPolicy {
 
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
-
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
@@ -37,24 +35,23 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
    public SharedStoreSlavePolicy() {
    }
 
-   public SharedStoreSlavePolicy(long failbackDelay,
-                                 boolean failoverOnServerShutdown,
+   public SharedStoreSlavePolicy(boolean failoverOnServerShutdown,
                                  boolean restartBackup,
                                  boolean allowAutoFailBack,
                                  ScaleDownPolicy scaleDownPolicy) {
-      this.failbackDelay = failbackDelay;
       this.failoverOnServerShutdown = failoverOnServerShutdown;
       this.restartBackup = restartBackup;
       this.allowAutoFailBack = allowAutoFailBack;
       this.scaleDownPolicy = scaleDownPolicy;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
    }
 
+   @Deprecated
    public void setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
    }
 
    public boolean isFailoverOnServerShutdown() {
@@ -67,7 +64,7 @@ public class SharedStoreSlavePolicy extends BackupPolicy {
 
    public SharedStoreMasterPolicy getSharedStoreMasterPolicy() {
       if (sharedStoreMasterPolicy == null) {
-         sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failbackDelay, failoverOnServerShutdown);
+         sharedStoreMasterPolicy = new SharedStoreMasterPolicy(failoverOnServerShutdown);
       }
       return sharedStoreMasterPolicy;
    }

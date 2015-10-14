@@ -18,9 +18,13 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public final class ReplicationResponseMessage extends PacketImpl {
+public class ReplicationResponseMessage extends PacketImpl {
 
    public ReplicationResponseMessage() {
       super(PacketImpl.REPLICATION_RESPONSE);
+   }
+
+   public ReplicationResponseMessage(byte replicationResponseV2) {
+      super(replicationResponseV2);
    }
 }

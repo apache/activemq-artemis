@@ -30,7 +30,7 @@
                <cluster-name>33rrrrr</cluster-name>
                <restart-backup>false</restart-backup>
                <allow-failback>true</allow-failback>
-               <failback-delay>9876</failback-delay>
+               <initial-replication-sync-timeout>9876</initial-replication-sync-timeout>
                <scale-down>
                   <!--a grouping of servers that can be scaled down to-->
                   <group-name>boo!</group-name>

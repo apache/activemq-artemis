@@ -51,9 +51,11 @@ public abstract class NodeManager implements ActiveMQComponent {
 
    public abstract void awaitLiveNode() throws Exception;
 
+   public abstract void awaitLiveStatus() throws Exception;
+
    public abstract void startBackup() throws Exception;
 
-   public abstract void startLiveNode() throws Exception;
+   public abstract ActivateCallback startLiveNode() throws Exception;
 
    public abstract void pauseLiveServer() throws Exception;
 

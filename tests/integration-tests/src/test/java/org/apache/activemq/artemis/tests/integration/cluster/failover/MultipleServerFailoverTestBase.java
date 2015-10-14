@@ -82,7 +82,6 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
-            ((SharedStoreMasterPolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
          }
          else {
             haPolicyConfiguration = new ReplicatedPolicyConfiguration();
@@ -128,11 +127,9 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-            ((SharedStoreSlavePolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
          }
          else {
             haPolicyConfiguration = new ReplicaPolicyConfiguration();
-            ((ReplicaPolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
             if (getNodeGroupName() != null) {
                ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
             }

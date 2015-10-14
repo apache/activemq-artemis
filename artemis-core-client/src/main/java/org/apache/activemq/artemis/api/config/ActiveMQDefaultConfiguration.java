@@ -374,8 +374,8 @@ public final class ActiveMQDefaultConfiguration {
    // Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
    private static boolean DEFAULT_ALLOW_AUTO_FAILBACK = true;
 
-   // if we have to start as a replicated server this is the delay to wait before fail-back occurs
-   private static long DEFAULT_FAILBACK_DELAY = 5000;
+   // When a replica comes online this is how long the replicating server will wait for a confirmation from the replica that the replication synchronization process is complete
+   private static long DEFAULT_INITIAL_REPLICATION_SYNC_TIMEOUT = 30000;
 
    // Will this backup server come live on a normal server shutdown
    private static boolean DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN = false;
@@ -987,8 +987,8 @@ public final class ActiveMQDefaultConfiguration {
    /**
     * if we have to start as a replicated server this is the delay to wait before fail-back occurs
     */
-   public static long getDefaultFailbackDelay() {
-      return DEFAULT_FAILBACK_DELAY;
+   public static long getDefaultInitialReplicationSyncTimeout() {
+      return DEFAULT_INITIAL_REPLICATION_SYNC_TIMEOUT;
    }
 
    /**

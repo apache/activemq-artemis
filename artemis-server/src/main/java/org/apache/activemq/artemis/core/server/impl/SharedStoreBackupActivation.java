@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.nio.channels.ClosedChannelException;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -29,9 +32,6 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
-
-import java.nio.channels.ClosedChannelException;
-import java.util.concurrent.TimeUnit;
 
 public final class SharedStoreBackupActivation extends Activation {
 
@@ -191,38 +191,51 @@ public final class SharedStoreBackupActivation extends Activation {
    }
 
    private class FailbackChecker implements Runnable {
+      BackupTopologyListener backupListener;
+
+      FailbackChecker() {
+         backupListener = new BackupTopologyListener(activeMQServer.getNodeID().toString());
+         activeMQServer.getClusterManager().getDefaultConnection(null).addClusterTopologyListener(backupListener);
+      }
 
       private boolean restarting = false;
 
       public void run() {
          try {
             if (!restarting && activeMQServer.getNodeManager().isAwaitingFailback()) {
-               ActiveMQServerLogger.LOGGER.awaitFailBack();
-               restarting = true;
-               Thread t = new Thread(new Runnable() {
-                  public void run() {
-                     try {
-                        ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");
+               if (backupListener.waitForBackup()) {
+                  ActiveMQServerLogger.LOGGER.awaitFailBack();
+                  restarting = true;
+                  Thread t = new Thread(new Runnable() {
+                     public void run() {
+                        try {
+                           ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");
 
-                        activeMQServer.stop(true, false, true);
-                        // We need to wait some time before we start the backup again
-                        // otherwise we may eventually start before the live had a chance to get it
-                        Thread.sleep(sharedStoreSlavePolicy.getFailbackDelay());
-                        synchronized (failbackCheckerGuard) {
-                           if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())
-                              return;
+                           NodeManager nodeManager = activeMQServer.getNodeManager();
+                           activeMQServer.stop(true, false, true);
 
-                           activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
-                           ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Starting backup node now after failback");
-                           activeMQServer.start();
+                           // ensure that the server to which we are failing back actually starts fully before we restart
+                           nodeManager.start();
+                           nodeManager.awaitLiveStatus();
+                           nodeManager.stop();
+
+                           synchronized (failbackCheckerGuard) {
+                              if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())
+                                 return;
+
+                              activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
+                              ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Starting backup node now after failback");
+                              activeMQServer.start();
+                           }
+                        }
+                        catch (Exception e) {
+                           ActiveMQServerLogger.LOGGER.serverRestartWarning();
+                           e.printStackTrace();
                         }
                      }
-                     catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.serverRestartWarning();
-                     }
-                  }
-               });
-               t.start();
+                  });
+                  t.start();
+               }
             }
          }
          catch (Exception e) {

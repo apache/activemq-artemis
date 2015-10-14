@@ -920,6 +920,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
 
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
+
       return configuration;
    }
 
@@ -932,7 +934,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
 
-      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
+      configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
 
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
 
@@ -948,8 +950,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
 
-      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
-
       return configuration;
    }
 
@@ -959,8 +959,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
 
       configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
-
-      configuration.setFailbackDelay(getLong(policyNode, "failback-delay", configuration.getFailbackDelay(), Validators.GT_ZERO));
 
       configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
 
