@@ -26,7 +26,6 @@
          <shared-store>
             <slave>
                <allow-failback>true</allow-failback>
-               <failback-delay>9876</failback-delay>
                <failover-on-shutdown>false</failover-on-shutdown>
                <restart-backup>false</restart-backup>
                <scale-down>

@@ -23,6 +23,7 @@ import java.nio.channels.FileLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
@@ -153,7 +154,7 @@ public class FileLockNodeManager extends NodeManager {
    }
 
    @Override
-   public void startLiveNode() throws Exception {
+   public ActivateCallback startLiveNode() throws Exception {
       setFailingBack();
 
       String timeoutMessage = lockAcquisitionTimeout == -1 ? "indefinitely" : lockAcquisitionTimeout + " milliseconds";
@@ -164,7 +165,29 @@ public class FileLockNodeManager extends NodeManager {
 
       ActiveMQServerLogger.LOGGER.obtainedLiveLock();
 
-      setLive();
+      return new ActivateCallback() {
+         @Override
+         public void preActivate() {
+         }
+
+         @Override
+         public void activated() {
+         }
+
+         @Override
+         public void deActivate() {
+         }
+
+         @Override
+         public void activationComplete() {
+            try {
+               setLive();
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
    }
 
    @Override
@@ -180,6 +203,13 @@ public class FileLockNodeManager extends NodeManager {
       if (liveLock != null) {
          liveLock.release();
          liveLock = null;
+      }
+   }
+
+   @Override
+   public void awaitLiveStatus() throws Exception {
+      while (getState() != LIVE) {
+         Thread.sleep(2000);
       }
    }
 

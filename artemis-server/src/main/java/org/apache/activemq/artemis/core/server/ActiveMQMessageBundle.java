@@ -359,4 +359,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119113, value = "Invalid message load balancing type {0}", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException invalidMessageLoadBalancingType(String val);
+
+   @Message(id = 119114, value = "Replication synchronization process timed out after waiting {0} milliseconds", format = Message.Format.MESSAGE_FORMAT)
+   IllegalStateException replicationSynchronizationTimeout(long timeout);
 }

@@ -37,7 +37,7 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
    * */
    private boolean allowFailBack = false;
 
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
+   private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    public ReplicaPolicyConfiguration() {
    }
@@ -101,12 +101,22 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
       return this;
    }
 
+   @Deprecated
    public ReplicaPolicyConfiguration setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
       return this;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
+   }
+
+   public long getInitialReplicationSyncTimeout() {
+      return initialReplicationSyncTimeout;
+   }
+
+   public ReplicaPolicyConfiguration setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
+      return this;
    }
 }

@@ -25,8 +25,6 @@ import java.util.Map;
 
 public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
 
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
-
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
@@ -34,17 +32,17 @@ public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
    public SharedStoreMasterPolicy() {
    }
 
-   public SharedStoreMasterPolicy(long failbackDelay, boolean failoverOnServerShutdown) {
-      this.failbackDelay = failbackDelay;
+   public SharedStoreMasterPolicy(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
    }
 
+   @Deprecated
    public void setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
    }
 
    public boolean isFailoverOnServerShutdown() {

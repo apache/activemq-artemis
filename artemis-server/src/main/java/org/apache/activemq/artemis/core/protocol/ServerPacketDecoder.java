@@ -35,6 +35,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REP
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_PAGE_WRITE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_PREPARE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_RESPONSE;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_RESPONSE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_SEND_LARGE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SCALEDOWN_ANNOUNCEMENT;
@@ -64,6 +65,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessageV2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
@@ -118,6 +120,10 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
          }
          case REPLICATION_RESPONSE: {
             packet = new ReplicationResponseMessage();
+            break;
+         }
+         case REPLICATION_RESPONSE_V2: {
+            packet = new ReplicationResponseMessageV2();
             break;
          }
          case REPLICATION_PAGE_WRITE: {

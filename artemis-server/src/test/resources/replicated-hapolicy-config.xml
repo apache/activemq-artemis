@@ -26,6 +26,7 @@
                <group-name>purple</group-name>
                <check-for-live-server>true</check-for-live-server>
                <cluster-name>abcdefg</cluster-name>
+               <initial-replication-sync-timeout>9876</initial-replication-sync-timeout>
             </master>
          </replication>
       </ha-policy>

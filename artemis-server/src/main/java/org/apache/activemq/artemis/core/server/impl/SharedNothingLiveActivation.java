@@ -157,7 +157,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
          Thread t = new Thread(new Runnable() {
             public void run() {
                try {
-                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack());
+                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack(), replicatedPolicy.getInitialReplicationSyncTimeout());
 
                   clusterConnection.nodeAnnounced(System.currentTimeMillis(), activeMQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
 
@@ -168,13 +168,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                      BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString());
                      clusterConnection.addClusterTopologyListener(listener1);
                      if (listener1.waitForBackup()) {
-                        try {
-                           Thread.sleep(replicatedPolicy.getFailbackDelay());
-                        }
-                        catch (InterruptedException e) {
-                           //
-                        }
-                        //if we have to many backups kept or arent configured to restart just stop, otherwise restart as a backup
+                        //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
                         if (!replicatedPolicy.getReplicaPolicy().isRestartBackup() && activeMQServer.countNumberOfCopiedJournals() >= replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() && replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() >= 0) {
                            activeMQServer.stop(true);
                            ActiveMQServerLogger.LOGGER.stopReplicatedBackupAfterFailback();

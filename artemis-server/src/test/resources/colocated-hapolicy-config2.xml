@@ -28,19 +28,15 @@
                <request-backup>false</request-backup>
                <backup-port-offset>33</backup-port-offset>
                <master>
-                  <failback-delay>1234</failback-delay>
                   <failover-on-shutdown>false</failover-on-shutdown>
                </master>
                <slave>
-                  <failback-delay>44</failback-delay>
                   <failover-on-shutdown>false</failover-on-shutdown>
                   <restart-backup>false</restart-backup>
                   <scale-down/>
                </slave>
             </colocated>
-
          </shared-store>
       </ha-policy>
-   </core>c
-
+   </core>
 </configuration>

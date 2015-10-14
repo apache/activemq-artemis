@@ -22,6 +22,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -91,15 +92,44 @@ public final class InVMNodeManager extends NodeManager {
    }
 
    @Override
+   public void awaitLiveStatus() throws Exception {
+      while (state != LIVE) {
+         Thread.sleep(10);
+      }
+   }
+
+   @Override
    public void startBackup() throws Exception {
       backupLock.acquire();
    }
 
    @Override
-   public void startLiveNode() throws Exception {
+   public ActivateCallback startLiveNode() throws Exception {
       state = FAILING_BACK;
       liveLock.acquire();
-      state = LIVE;
+      return new ActivateCallback() {
+         @Override
+         public void preActivate() {
+         }
+
+         @Override
+         public void activated() {
+         }
+
+         @Override
+         public void deActivate() {
+         }
+
+         @Override
+         public void activationComplete() {
+            try {
+               state = LIVE;
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
    }
 
    @Override
@@ -110,8 +140,6 @@ public final class InVMNodeManager extends NodeManager {
 
    @Override
    public void crashLiveServer() throws Exception {
-      //overkill as already set to live
-      state = LIVE;
       liveLock.release();
    }
 

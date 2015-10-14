@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
@@ -181,11 +182,32 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void awaitLiveStatus() throws Exception {
+      }
+
+      @Override
       public void startBackup() throws Exception {
       }
 
       @Override
-      public void startLiveNode() throws Exception {
+      public ActivateCallback startLiveNode() throws Exception {
+         return new ActivateCallback() {
+            @Override
+            public void preActivate() {
+            }
+
+            @Override
+            public void activated() {
+            }
+
+            @Override
+            public void deActivate() {
+            }
+
+            @Override
+            public void activationComplete() {
+            }
+         };
       }
 
       @Override

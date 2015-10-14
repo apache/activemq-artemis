@@ -113,8 +113,13 @@ the connection speed.
 
 > **Note**
 >
-> Synchronization occurs in parallel with current network traffic so
-> this won't cause any blocking on current clients.
+> In general, synchronization occurs in parallel with current network traffic so
+> this won't cause any blocking on current clients. However, there is a critical
+> moment at the end of this process where the replicating server must complete
+> the synchronization and ensure the replica acknowledges this completion. This
+> exchange between the replicating server and replica will block any journal
+> related operations. The maximum length of time that this exchange will block
+> is controlled by the `initial-replication-sync-timeout` configuration element.
 
 Replication will create a copy of the data at the backup. One issue to
 be aware of is: in case of a successful fail-over, the backup's data
@@ -257,11 +262,14 @@ HA strategy Replication for `master`:
     </tr>
     <tr>
         <td>`group-name`</td>
-        <td>Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers.</td>
+        <td>If set, backup servers will only pair with live servers with matching group-name.</td>
     </tr>
     <tr>
-        <td>`check-for-live-server`</td>
-        <td>If set, backup servers will only pair with live servers with matching group-name.</td>
+        <td>`initial-replication-sync-timeout`</td>
+        <td>The amount of time the replicating server will wait at the completion of the initial
+        replication process for the replica to acknowledge it has received all the necessary
+        data. The default is 30,000 milliseconds. <strong>Note</strong>: during this interval any
+        journal related operations will be blocked.</td>
     </tr>
     </tbody>
 </table>
@@ -309,8 +317,14 @@ HA strategy Replication for `slave`:
         failed over</td>
     </tr>
     <tr>
-        <td>`failback-delay`</td>
-        <td>delay to wait before fail-back occurs on (failed over live's) restart</td>
+        <td>`initial-replication-sync-timeout`</td>
+        <td>After failover and the slave has become live, this is
+        set on the new live server. It represents the amount of time
+        the replicating server will wait at the completion of the
+        initial replication process for the replica to acknowledge
+        it has received all the necessary data. The default is
+        30,000 milliseconds. <strong>Note</strong>: during this interval any
+        journal related operations will be blocked.</td>
     </tr>
     </tbody>
 </table>
@@ -405,15 +419,9 @@ stop. This configuration would look like:
        <shared-store>
           <slave>
              <allow-failback>true</allow-failback>
-             <failback-delay>5000</failback-delay>
           </slave>
        </shared-store>
     </ha-policy>
-
-
-The `failback-delay` configures how long the backup must wait after
-automatically stopping before it restarts. This is to gives the live
-server time to start and obtain its lock.
 
 In replication HA mode you need to set an extra property
 `check-for-live-server` to `true` in the `master` configuration. If set
@@ -492,13 +500,6 @@ HA strategy shared store for `master`:
     </thead>
     <tbody>
     <tr>
-        <td>`failback-delay`</td>
-        <td>If a backup server is detected as being live,
-        via the lock file, then the live server will wait
-        announce itself as a backup and wait this amount
-        of time (in ms) before starting as a live</td>
-    </tr>
-    <tr>
         <td>`failover-on-server-shutdown`</td>
         <td>If set to true then when this server is stopped
         normally the backup will become live assuming failover.
@@ -512,7 +513,7 @@ HA strategy shared store for `master`:
 The following table lists all the `ha-policy` configuration elements for
 HA strategy Shared Store for `slave`:
 
-<table summary="HA Replication Slave Policy" border="1">
+<table summary="HA Shared Store Slave Policy" border="1">
     <colgroup>
         <col/>
         <col/>
@@ -538,17 +539,6 @@ HA strategy Shared Store for `slave`:
         <td>Whether a server will automatically stop when a another
         places a request to take over its place. The use case is
         when the backup has failed over.</td>
-    </tr>
-    <tr>
-        <td>`failback-delay`</td>
-        <td>After failover and the slave has become live, this is
-        set on the new live server. When starting If a backup server
-        is detected as being live, via the lock file, then the live
-        server will wait announce itself as a backup and wait this
-        amount of time (in ms) before starting as a live, however
-        this is unlikely since this backup has just stopped anyway.
-        It is also used as the delay after failback before this backup
-        will restart (if `allow-failback` is set to true.</td>
     </tr>
     </tbody>
 </table>

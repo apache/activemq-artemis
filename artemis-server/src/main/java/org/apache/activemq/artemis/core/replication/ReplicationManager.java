@@ -58,12 +58,15 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessageV2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
@@ -115,6 +118,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    private CoreRemotingConnection remotingConnection;
 
    private volatile boolean inSync = true;
+
+   private final ReusableLatch synchronizationIsFinishedAcknowledgement = new ReusableLatch(0);
 
    /**
     * @param remotingConnection
@@ -392,8 +397,14 @@ public final class ReplicationManager implements ActiveMQComponent {
    private final class ResponseHandler implements ChannelHandler {
 
       public void handlePacket(final Packet packet) {
-         if (packet.getType() == PacketImpl.REPLICATION_RESPONSE) {
+         if (packet.getType() == PacketImpl.REPLICATION_RESPONSE || packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
             replicated();
+            if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
+               ReplicationResponseMessageV2 replicationResponseMessage = (ReplicationResponseMessageV2) packet;
+               if (replicationResponseMessage.isSynchronizationIsFinishedAcknowledgement()) {
+                  synchronizationIsFinishedAcknowledgement.countDown();
+               }
+            }
          }
       }
 
@@ -534,9 +545,18 @@ public final class ReplicationManager implements ActiveMQComponent {
     *
     * @param nodeID
     */
-   public void sendSynchronizationDone(String nodeID) {
+   public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout) {
       if (enabled) {
+         synchronizationIsFinishedAcknowledgement.countUp();
          sendReplicatePacket(new ReplicationStartSyncMessage(nodeID));
+         try {
+            if (!synchronizationIsFinishedAcknowledgement.await(initialReplicationSyncTimeout)) {
+               throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
+            }
+         }
+         catch (InterruptedException e) {
+            ActiveMQServerLogger.LOGGER.debug(e);
+         }
          inSync = false;
       }
    }

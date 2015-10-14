@@ -335,12 +335,13 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    Journal getMessageJournal();
 
    /**
-    * @see org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq.artemis.core.replication.ReplicationManager, org.apache.activemq.artemis.core.paging.PagingManager, String, boolean)
+    * @see org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq.artemis.core.replication.ReplicationManager, org.apache.activemq.artemis.core.paging.PagingManager, String, boolean, long)
     */
    void startReplication(ReplicationManager replicationManager,
                          PagingManager pagingManager,
                          String nodeID,
-                         boolean autoFailBack) throws Exception;
+                         boolean autoFailBack,
+                         long initialReplicationSyncTimeout) throws Exception;
 
    /**
     * Write message to page if we are paging.

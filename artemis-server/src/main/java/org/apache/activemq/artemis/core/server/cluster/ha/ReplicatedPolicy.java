@@ -31,13 +31,13 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private String clusterName;
 
+   private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
+
    /*
    * these are only set by the ReplicaPolicy after failover to decide if the live server can failback, these should not
    * be exposed in configuration.
    * */
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
-
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    /*
    * this are only used as the policy when the server is started as a live after a failover
@@ -48,10 +48,11 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName) {
+   public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName, long initialReplicationSyncTimeout) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       /*
       * we create this with sensible defaults in case we start after a failover
       * */
@@ -59,7 +60,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public ReplicatedPolicy(boolean checkForLiveServer,
                            boolean allowAutoFailBack,
-                           long failbackDelay,
+                           long initialReplicationSyncTimeout,
                            String groupName,
                            String clusterName,
                            ReplicaPolicy replicaPolicy) {
@@ -67,7 +68,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.clusterName = clusterName;
       this.groupName = groupName;
       this.allowAutoFailBack = allowAutoFailBack;
-      this.failbackDelay = failbackDelay;
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.replicaPolicy = replicaPolicy;
    }
 
@@ -83,12 +84,21 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       return allowAutoFailBack;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
    }
 
+   @Deprecated
    public void setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
+   }
+
+   public long getInitialReplicationSyncTimeout() {
+      return initialReplicationSyncTimeout;
+   }
+
+   public void setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
    }
 
    public String getClusterName() {

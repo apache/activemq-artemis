@@ -121,6 +121,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicatedPolicy.getGroupName(), "purple");
          assertTrue(replicatedPolicy.isCheckForLiveServer());
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
+         assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
       }
       finally {
          server.stop();
@@ -142,6 +143,8 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
          assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
          assertFalse(replicaPolicy.isRestartBackup());
+         assertTrue(replicaPolicy.isAllowFailback());
+         assertEquals(replicaPolicy.getInitialReplicationSyncTimeout(), 9876);
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");
@@ -219,7 +222,6 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          HAPolicy haPolicy = server.getHAPolicy();
          assertTrue(haPolicy instanceof SharedStoreMasterPolicy);
          SharedStoreMasterPolicy masterPolicy = (SharedStoreMasterPolicy) haPolicy;
-         assertEquals(masterPolicy.getFailbackDelay(), 3456);
          assertFalse(masterPolicy.isFailoverOnServerShutdown());
       }
       finally {
@@ -237,11 +239,10 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(activation instanceof SharedStoreBackupActivation);
          HAPolicy haPolicy = server.getHAPolicy();
          assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy replicaPolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertEquals(replicaPolicy.getFailbackDelay(), 9876);
-         assertFalse(replicaPolicy.isFailoverOnServerShutdown());
-         assertFalse(replicaPolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
+         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
+         assertFalse(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
+         assertFalse(sharedStoreSlavePolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");
          assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
@@ -264,11 +265,10 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(activation instanceof SharedStoreBackupActivation);
          HAPolicy haPolicy = server.getHAPolicy();
          assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy replicaPolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertEquals(replicaPolicy.getFailbackDelay(), 5678);
-         assertTrue(replicaPolicy.isFailoverOnServerShutdown());
-         assertTrue(replicaPolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
+         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
+         assertTrue(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
+         assertTrue(sharedStoreSlavePolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertEquals(scaleDownPolicy.getGroupName(), "boo!");
          assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
@@ -293,11 +293,10 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(activation instanceof SharedStoreBackupActivation);
          HAPolicy haPolicy = server.getHAPolicy();
          assertTrue(haPolicy instanceof SharedStoreSlavePolicy);
-         SharedStoreSlavePolicy replicaPolicy = (SharedStoreSlavePolicy) haPolicy;
-         assertEquals(replicaPolicy.getFailbackDelay(), 5678);
-         assertTrue(replicaPolicy.isFailoverOnServerShutdown());
-         assertTrue(replicaPolicy.isRestartBackup());
-         ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
+         SharedStoreSlavePolicy sharedStoreSlavePolicy = (SharedStoreSlavePolicy) haPolicy;
+         assertTrue(sharedStoreSlavePolicy.isFailoverOnServerShutdown());
+         assertTrue(sharedStoreSlavePolicy.isRestartBackup());
+         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       }
       finally {
@@ -349,10 +348,8 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertNotNull(livePolicy);
 
          assertFalse(livePolicy.isFailoverOnServerShutdown());
-         assertEquals(livePolicy.getFailbackDelay(), 1234);
          SharedStoreSlavePolicy backupPolicy = (SharedStoreSlavePolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
-         assertEquals(backupPolicy.getFailbackDelay(), 44);
          assertFalse(backupPolicy.isFailoverOnServerShutdown());
          assertFalse(backupPolicy.isRestartBackup());
       }

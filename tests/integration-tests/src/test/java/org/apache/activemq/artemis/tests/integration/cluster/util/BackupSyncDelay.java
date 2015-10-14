@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessageV2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -171,7 +172,7 @@ public class BackupSyncDelay implements Interceptor {
                   receivedUpToDate = true;
                   assert onHold == null;
                   onHold = packet;
-                  PacketImpl response = new ReplicationResponseMessage();
+                  PacketImpl response = new ReplicationResponseMessageV2(true);
                   channel.send(response);
                   return;
                }

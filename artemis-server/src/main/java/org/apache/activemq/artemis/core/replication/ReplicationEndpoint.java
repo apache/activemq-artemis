@@ -68,6 +68,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessageV2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage.SyncDataType;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
@@ -196,7 +197,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             handleLargeMessageEnd((ReplicationLargeMessageEndMessage) packet);
          }
          else if (type == PacketImpl.REPLICATION_START_FINISH_SYNC) {
-            handleStartReplicationSynchronization((ReplicationStartSyncMessage) packet);
+            response = handleStartReplicationSynchronization((ReplicationStartSyncMessage) packet);
          }
          else if (type == PacketImpl.REPLICATION_SYNC_FILE) {
             handleReplicationSynchronization((ReplicationSyncFileMessage) packet);
@@ -476,19 +477,23 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     *
     * @param packet
     * @throws Exception
+    * @return if the incoming packet indicates the synchronization is finished then return an acknowledgement otherwise
+    *         return an empty response
     */
-   private void handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception {
+   private ReplicationResponseMessageV2 handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception {
+      ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
       if (activation.isRemoteBackupUpToDate()) {
          throw ActiveMQMessageBundle.BUNDLE.replicationBackupUpToDate();
       }
 
       synchronized (this) {
          if (!started)
-            return;
+            return replicationResponseMessage;
 
          if (packet.isSynchronizationFinished()) {
             finishSynchronization(packet.getNodeID());
-            return;
+            replicationResponseMessage.setSynchronizationIsFinishedAcknowledgement(true);
+            return replicationResponseMessage;
          }
 
          switch (packet.getDataType()) {
@@ -523,6 +528,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
                throw ActiveMQMessageBundle.BUNDLE.replicationUnhandledDataType();
          }
       }
+
+      return replicationResponseMessage;
    }
 
    private void handleLargeMessageEnd(final ReplicationLargeMessageEndMessage packet) {
