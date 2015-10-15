@@ -147,6 +147,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private String liveNodeID;
 
+   private Set<ConnectionLifeCycleListener> lifeCycleListeners;
+
+   // We need to cache this value here since some listeners may be registered after connectionReadyForWrites was called.
+   private boolean connectionReadyForWrites;
+
+   private final Object connectionReadyLock = new Object();
+
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
                                    final long callTimeout,
@@ -214,6 +221,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       confirmationWindowWarning = new ConfirmationWindowWarning(serverLocator.getConfirmationWindowSize() < 0);
 
+      lifeCycleListeners = new HashSet<ConnectionLifeCycleListener>();
+
+      connectionReadyForWrites = true;
    }
 
    public void disableFinalizeCheck() {
@@ -223,6 +233,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public Lock lockFailover() {
       newFailoverLock.lock();
       return newFailoverLock;
+   }
+
+   @Override
+   public void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener) {
+      synchronized (connectionReadyLock) {
+         lifeCycleListener.connectionReadyForWrites(connection.getTransportConnection().getID(), connectionReadyForWrites);
+         lifeCycleListeners.add(lifeCycleListener);
+      }
    }
 
    public void connect(final int initialConnectAttempts,
@@ -356,6 +374,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
+      synchronized (connectionReadyLock) {
+         connectionReadyForWrites = ready;
+         for (ConnectionLifeCycleListener lifeCycleListener : lifeCycleListeners) {
+            lifeCycleListener.connectionReadyForWrites(connectionID, ready);
+         }
+      }
    }
 
    public synchronized int numConnections() {

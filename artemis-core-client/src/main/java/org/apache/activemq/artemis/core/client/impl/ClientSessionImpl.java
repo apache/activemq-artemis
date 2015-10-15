@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
@@ -629,6 +630,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public String getNodeId() {
       return sessionFactory.getLiveNodeId();
+   }
+
+   @Override
+   public void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener) {
+      sessionFactory.addLifeCycleListener(lifeCycleListener);
    }
 
    // ClientSessionInternal implementation
