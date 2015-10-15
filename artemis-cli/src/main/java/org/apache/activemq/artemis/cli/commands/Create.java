@@ -724,7 +724,7 @@ public class Create extends InputAbstract {
       }
    }
 
-   private boolean supportsLibaio() {
+   public boolean supportsLibaio() {
       if (forceLibaio) {
          // forcing libaio
          return true;
