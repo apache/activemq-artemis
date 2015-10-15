@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <limits.h>
 #include "org_apache_activemq_artemis_jlibaio_LibaioContext.h"
 #include "exception_helper.h"
 
@@ -53,7 +54,15 @@ struct io_control {
     int iocbPut;
     int iocbGet;
     int used;
+
 };
+
+// We need a fast and reliable way to stop the blocked poller
+// for that we need a dumb file,
+// We are using a temporary file for this.
+int dumbWriteHandler = 0;
+char dumbPath[PATH_MAX];
+
 
 jclass submitClass = NULL;
 jmethodID errorMethod = NULL;
@@ -112,6 +121,20 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     } else {
+
+        sprintf (dumbPath, "%s/artemisJLHandler_XXXXXX", P_tmpdir);
+        dumbWriteHandler = mkstemp (dumbPath);
+
+        #ifdef DEBUG
+           fprintf (stdout, "Creating temp file %s for dumb writes\n", dumbPath);
+           fflush(stdout);
+        #endif
+
+        if (dumbWriteHandler < 0) {
+           fprintf (stderr, "couldn't create stop file handler %s\n", dumbPath);
+           return JNI_ERR;
+        }
+
         //
         // Accordingly to previous experiences we must hold Global Refs on Classes
         // And
@@ -177,12 +200,25 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
 }
 
+inline void closeDumbHandlers() {
+    if (dumbWriteHandler != 0) {
+        #ifdef DEBUG
+           fprintf (stdout, "Closing and removing dump handler %s\n", dumbPath);
+        #endif
+        dumbWriteHandler = 0;
+        close(dumbWriteHandler);
+        unlink(dumbPath);
+    }
+}
+
 void JNI_OnUnload(JavaVM* vm, void* reserved) {
     JNIEnv* env;
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) {
         // Something is wrong but nothing we can do about this :(
         return;
     } else {
+        closeDumbHandlers();
+
         // delete global references so the GC can collect them
         if (runtimeExceptionClass != NULL) {
             (*env)->DeleteGlobalRef(env, runtimeExceptionClass);
@@ -200,6 +236,12 @@ void JNI_OnUnload(JavaVM* vm, void* reserved) {
         }
     }
 }
+
+JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_shutdownHook
+  (JNIEnv * env, jclass clazz) {
+    closeDumbHandlers();
+}
+
 
 static inline struct io_control * getIOControl(JNIEnv* env, jobject pointer) {
     struct io_control * ioControl = (struct io_control *) (*env)->GetDirectBufferAddress(env, pointer);
@@ -250,6 +292,23 @@ static inline void putIOCB(struct io_control * control, struct iocb * iocbBack) 
        control->iocbPut = 0;
     }
     pthread_mutex_unlock(&(control->iocbLock));
+}
+
+static inline short submit(JNIEnv * env, struct io_control * theControl, struct iocb * iocb) {
+    int result = io_submit(theControl->ioContext, 1, &iocb);
+
+    if (result < 0) {
+        // Putting the Global Ref and IOCB back in case of a failure
+        if (iocb->data != NULL && iocb->data != (void *) -1) {
+            (*env)->DeleteGlobalRef(env, (jobject)iocb->data);
+        }
+        putIOCB(theControl, iocb);
+
+        throwIOExceptionErrorNo(env, "Error while submitting IO: ", -result);
+        return 0;
+    }
+
+    return 1;
 }
 
 static inline void * getBuffer(JNIEnv* env, jobject pointer) {
@@ -342,11 +401,33 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_de
       return;
     }
 
-    io_queue_release(theControl->ioContext);
+    struct iocb * iocb = getIOCB(theControl);
+
+    if (iocb == NULL) {
+        throwIOException(env, "Not enough space in libaio queue");
+        return;
+    }
+
+    // Submitting a dumb write so the loop finishes
+    io_prep_pwrite(iocb, dumbWriteHandler, 0, 0, 0);
+    iocb->data = (void *) -1;
+    if (!submit(env, theControl, iocb)) {
+        return;
+    }
 
     // to make sure the poll has finished
     pthread_mutex_lock(&(theControl->pollLock));
     pthread_mutex_unlock(&(theControl->pollLock));
+
+    // To return any pending IOCBs
+    int result = io_getevents(theControl->ioContext, 0, 1, theControl->events, 0);
+    for (i = 0; i < result; i++) {
+        struct io_event * event = &(theControl->events[i]);
+        struct iocb * iocbp = event->obj;
+        putIOCB(theControl, iocbp);
+    }
+
+    io_queue_release(theControl->ioContext);
 
     pthread_mutex_destroy(&(theControl->pollLock));
     pthread_mutex_destroy(&(theControl->iocbLock));
@@ -389,20 +470,6 @@ JNIEXPORT int JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_ope
     return res;
 }
 
-static inline void submit(JNIEnv * env, struct io_control * theControl, struct iocb * iocb) {
-    int result = io_submit(theControl->ioContext, 1, &iocb);
-
-    if (result < 0) {
-        // Putting the Global Ref and IOCB back in case of a failure
-        (*env)->DeleteGlobalRef(env, (jobject)iocb->data);
-        putIOCB(theControl, iocb);
-
-        throwIOExceptionErrorNo(env, "Error while submitting IO: ", -result);
-    }
-
-    return;
-}
-
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_submitWrite
   (JNIEnv * env, jclass clazz, jint fileHandle, jobject contextPointer, jlong position, jint size, jobject bufferWrite, jobject callback) {
     struct io_control * theControl = getIOControl(env, contextPointer);
@@ -429,7 +496,7 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_su
     // also as the real intention is to hold the reference until the life cycle is complete
     iocb->data = (void *) (*env)->NewGlobalRef(env, callback);
 
-    return submit(env, theControl, iocb);
+    submit(env, theControl, iocb);
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_submitRead
@@ -454,14 +521,15 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_su
     // also as the real intention is to hold the reference until the life cycle is complete
     iocb->data = (void *) (*env)->NewGlobalRef(env, callback);
 
-    return submit(env, theControl, iocb);
+    submit(env, theControl, iocb);
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_blockedPoll
   (JNIEnv * env, jobject thisObject, jobject contextPointer) {
 
     #ifdef DEBUG
-       fprintf (stdout, "Running blockedPoll");
+       fprintf (stdout, "Running blockedPoll\n");
+       fflush(stdout);
     #endif
 
     int i;
@@ -472,37 +540,53 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_bl
     int max = theControl->queueSize;
     pthread_mutex_lock(&(theControl->pollLock));
 
-    for (;;) {
+    short running = 1;
+
+    while (running) {
 
         int result = io_getevents(theControl->ioContext, 1, max, theControl->events, 0);
 
         if (result < 0)
         {
-            #ifdef DEBUG
-               fprintf (stdout, "finished blockedPoll rutine with result=%d\n", result);
-            #endif
+            throwIOExceptionErrorNo(env, "Error while submitting IO: ", -result);
             break;
         }
         #ifdef DEBUG
            fprintf (stdout, "blockedPoll returned %d events\n", result);
+           fflush(stdout);
         #endif
 
         for (i = 0; i < result; i++)
         {
             #ifdef DEBUG
-               fprintf (stdout, "blockedPoll treading event %d\n", i);
+               fprintf (stdout, "blockedPoll treating event %d\n", i);
+               fflush(stdout);
             #endif
             struct io_event * event = &(theControl->events[i]);
             struct iocb * iocbp = event->obj;
+
+            if (iocbp->aio_fildes == dumbWriteHandler) {
+               #ifdef DEBUG
+                  fprintf (stdout, "Dumb write arrived, giving up the loop\n");
+                  fflush(stdout);
+               #endif
+               putIOCB(theControl, iocbp);
+               running = 0;
+               break;
+            }
+
+
             int eventResult = (int)event->res;
 
             #ifdef DEBUG
                 fprintf (stdout, "Poll res: %d totalRes=%d\n", eventResult, result);
+                fflush (stdout);
             #endif
 
             if (eventResult < 0) {
                 #ifdef DEBUG
                     fprintf (stdout, "Error: %s\n", strerror(-eventResult));
+                    fflush (stdout);
                 #endif
 
                 jstring jstrError = (*env)->NewStringUTF(env, strerror(-eventResult));
@@ -554,14 +638,15 @@ JNIEXPORT jint JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_po
                 fprintf (stdout, "Error: %s\n", strerror(-eventResult));
             #endif
 
-            jstring jstrError = (*env)->NewStringUTF(env, strerror(-eventResult));
+            if (iocbp->data != NULL && iocbp->data != (void *) -1) {
+                jstring jstrError = (*env)->NewStringUTF(env, strerror(-eventResult));
 
-            (*env)->CallVoidMethod(env, (jobject)(iocbp->data), errorMethod, (jint)(-eventResult), jstrError);
+                (*env)->CallVoidMethod(env, (jobject)(iocbp->data), errorMethod, (jint)(-eventResult), jstrError);
+            }
         }
 
-        (*env)->SetObjectArrayElement(env, callbacks, i, (jobject)iocbp->data);
-
-        if (iocbp->data != NULL) {
+        if (iocbp->data != NULL && iocbp->data != (void *) -1) {
+            (*env)->SetObjectArrayElement(env, callbacks, i, (jobject)iocbp->data);
             // We delete the globalRef after the completion of the callback
             (*env)->DeleteGlobalRef(env, (jobject)iocbp->data);
         }

@@ -657,19 +657,6 @@ public class LibaioTest {
       latch.await();
 
       System.out.println("time = " + (end - start) + " writes/second=" + NUMBER_OF_BLOCKS * 1000L / (end - start));
-      //
-      //      MultiThreadAsynchronousFileTest.debug((sync ? "Sync result:" : "Async result:") + " Records/Second = " +
-      //                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
-      //                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES *
-      //                                                  1000 /
-      //                                                  (endTime - startTime) +
-      //                                               " total time = " +
-      //                                               (endTime - startTime) +
-      //                                               " total number of records = " +
-      //                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
-      //                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
-
-      Thread.sleep(100);
 
       blockedContext.close();
       t.join();

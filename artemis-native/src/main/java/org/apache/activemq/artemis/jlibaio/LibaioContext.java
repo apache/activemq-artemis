@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
@@ -49,9 +51,13 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * <br>
     * Or else the native module won't be loaded because of version mismatches
     */
-   private static final int EXPECTED_NATIVE_VERSION = 2;
+   private static final int EXPECTED_NATIVE_VERSION = 3;
 
    private static boolean loaded = false;
+
+   private static final AtomicBoolean shuttingDown = new AtomicBoolean(false);
+
+   private static final AtomicInteger contexts = new AtomicInteger(0);
 
    public static boolean isLoaded() {
       return loaded;
@@ -81,6 +87,12 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
       for (String library : libraries) {
          if (loadLibrary(library)) {
             loaded = true;
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+               public void run() {
+                  shuttingDown.set(true);
+                  checkShutdown();
+               }
+            });
             break;
          }
          else {
@@ -92,6 +104,14 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          NativeLogger.LOGGER.debug("Couldn't locate LibAIO Wrapper");
       }
    }
+
+   private static void checkShutdown() {
+      if (contexts.get() == 0 && shuttingDown.get()) {
+         shutdownHook();
+      }
+   }
+
+   private static native void shutdownHook();
 
    /**
     * This is used to validate leaks on tests.
@@ -140,6 +160,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     */
    public LibaioContext(int queueSize, boolean useSemaphore) {
       try {
+         contexts.incrementAndGet();
          this.ioContext = newContext(queueSize);
       }
       catch (Exception e) {
@@ -170,6 +191,9 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
                            int size,
                            ByteBuffer bufferWrite,
                            Callback callback) throws IOException {
+      if (closed.get()) {
+         throw new IOException("Libaio Context is closed!");
+      }
       try {
          if (ioSpace != null) {
             ioSpace.acquire();
@@ -187,6 +211,9 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
                           int size,
                           ByteBuffer bufferWrite,
                           Callback callback) throws IOException {
+      if (closed.get()) {
+         throw new IOException("Libaio Context is closed!");
+      }
       try {
          if (ioSpace != null) {
             ioSpace.acquire();
@@ -208,11 +235,22 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
    @Override
    public void close() {
       if (!closed.getAndSet(true)) {
+
+         if (ioSpace != null) {
+            try {
+               ioSpace.tryAcquire(queueSize, 10, TimeUnit.SECONDS);
+            }
+            catch (Exception e) {
+               NativeLogger.LOGGER.error(e);
+            }
+         }
          totalMaxIO.addAndGet(-queueSize);
 
          if (ioContext != null) {
             deleteContext(ioContext);
          }
+         contexts.decrementAndGet();
+         checkShutdown();
       }
    }
 
@@ -308,17 +346,19 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     * {@link SubmitInfo#done()} are called.
     */
    public void poll() {
-      blockedPoll(ioContext);
+      if (!closed.get()) {
+         blockedPoll(ioContext);
+      }
    }
 
    /**
     * Called from the native layer
     */
    private void done(SubmitInfo info) {
+      info.done();
       if (ioSpace != null) {
          ioSpace.release();
       }
-      info.done();
    }
 
    /**
