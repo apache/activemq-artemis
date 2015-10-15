@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
@@ -95,6 +96,11 @@ public class DelegatingSession implements ClientSessionInternal {
 
    public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       session.acknowledge(consumer, message);
+   }
+
+   @Override
+   public void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener) {
+      session.addLifeCycleListener(lifeCycleListener);
    }
 
    public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {

@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -147,6 +148,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private String liveNodeID;
 
+   private Set<ConnectionLifeCycleListener> lifeCycleListeners;
+
+   // We need to cache this value here since some listeners may be registered after connectionReadyForWrites was called.
+   private Boolean connectionReadyForWrites;
+
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
                                    final long callTimeout,
@@ -214,6 +220,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       confirmationWindowWarning = new ConfirmationWindowWarning(serverLocator.getConfirmationWindowSize() < 0);
 
+      lifeCycleListeners = new HashSet<ConnectionLifeCycleListener>();
+
+      connectionReadyForWrites = new Boolean(true);
    }
 
    public void disableFinalizeCheck() {
@@ -223,6 +232,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    public Lock lockFailover() {
       newFailoverLock.lock();
       return newFailoverLock;
+   }
+
+   @Override
+   public synchronized void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener) {
+      lifeCycleListener.connectionReadyForWrites(connection.getTransportConnection().getID(), connectionReadyForWrites);
+      lifeCycleListeners.add(lifeCycleListener);
    }
 
    public void connect(final int initialConnectAttempts,
@@ -355,7 +370,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
-   public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
+   public synchronized void connectionReadyForWrites(final Object connectionID, final boolean ready) {
+      connectionReadyForWrites = ready;
+      for (ConnectionLifeCycleListener lifeCycleListener : lifeCycleListeners) {
+         lifeCycleListener.connectionReadyForWrites(connectionID, ready);
+      }
    }
 
    public synchronized int numConnections() {
