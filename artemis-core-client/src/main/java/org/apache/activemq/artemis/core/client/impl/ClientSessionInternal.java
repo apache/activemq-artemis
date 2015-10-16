@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
 public interface ClientSessionInternal extends ClientSession {
@@ -122,4 +123,6 @@ public interface ClientSessionInternal extends ClientSession {
    boolean isClosing();
 
    String getNodeId();
+
+   void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener);
 }

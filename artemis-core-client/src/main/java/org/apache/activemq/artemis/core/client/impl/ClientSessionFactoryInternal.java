@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 
 public interface ClientSessionFactoryInternal extends ClientSessionFactory {
@@ -57,4 +58,6 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
    ConfirmationWindowWarning getConfirmationWindowWarning();
 
    Lock lockFailover();
+
+   void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener);
 }

@@ -924,6 +924,7 @@ public class NettyConnector extends AbstractConnector {
       }
 
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         listener.connectionReadyForWrites(connectionID, ready);
       }
 
    }
