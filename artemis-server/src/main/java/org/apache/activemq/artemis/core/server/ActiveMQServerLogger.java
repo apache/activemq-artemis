@@ -723,7 +723,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222103, value = "transaction with xid {0} timed out", format = Message.Format.MESSAGE_FORMAT)
-   void unexpectedXid(Xid xid);
+   void timedOutXID(Xid xid);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222104, value = "IO Error completing the transaction, code = {0}, message = {1}", format = Message.Format.MESSAGE_FORMAT)

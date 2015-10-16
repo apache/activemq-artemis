@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.transaction.impl;
 
+import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -178,10 +177,13 @@ public class ResourceManagerImpl implements ResourceManager {
          long now = System.currentTimeMillis();
 
          for (Transaction tx : transactions.values()) {
+
             if (tx.hasTimedOut(now, defaultTimeoutSeconds)) {
-               transactions.remove(tx.getXid());
-               ActiveMQServerLogger.LOGGER.unexpectedXid(tx.getXid());
-               timedoutTransactions.add(tx);
+               Transaction removedTX = removeTransaction(tx.getXid());
+               if (removedTX != null) {
+                  ActiveMQServerLogger.LOGGER.timedOutXID(removedTX.getXid());
+                  timedoutTransactions.add(removedTX);
+               }
             }
          }
 
@@ -194,7 +196,6 @@ public class ResourceManagerImpl implements ResourceManager {
             }
          }
       }
-
       synchronized void setFuture(final Future<?> future) {
          this.future = future;
       }
@@ -208,6 +209,7 @@ public class ResourceManagerImpl implements ResourceManager {
       }
 
    }
+
 
    private static final class HeuristicCompletionHolder {
 

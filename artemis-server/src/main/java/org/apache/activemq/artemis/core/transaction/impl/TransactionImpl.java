@@ -271,6 +271,7 @@ public class TransactionImpl implements Transaction {
          beforeRollback();
 
          doRollback();
+         state = State.ROLLEDBACK;
 
          // We use the Callback even for non persistence
          // If we are using non-persistence with replication, the replication manager will have
@@ -283,7 +284,6 @@ public class TransactionImpl implements Transaction {
 
             public void done() {
                afterRollback();
-               state = State.ROLLEDBACK;
             }
          });
       }
