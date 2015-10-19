@@ -63,6 +63,18 @@ public class Artemis {
 
 
       ArrayList<URL> urls = new ArrayList<URL>();
+
+      // Without the etc on the config, things like JGroups configuration wouldn't be loaded
+      if (fileInstance != null) {
+         File etcFile = new File(fileInstance, "etc");
+         // Adding etc to the classLoader so modules can lookup for their configs
+         urls.add(etcFile.toURI().toURL());
+      }
+      if (fileHome != null) {
+         File etcFile = new File(fileHome, "etc");
+         // Adding etc to the classLoader so modules can lookup for their configs
+         urls.add(etcFile.toURI().toURL());
+      }
       for (File bootdir : dirs) {
          if (bootdir.exists() && bootdir.isDirectory()) {
 
@@ -96,13 +108,6 @@ public class Artemis {
       String loggingConfig = System.getProperty("logging.configuration");
       if (loggingConfig != null) {
          System.setProperty("logging.configuration", fixupFileURI(loggingConfig));
-      }
-
-      // Without the etc on the config, things like JGroups configuration wouldn't be loaded
-      if (fileInstance != null) {
-         File etcFile = new File(fileInstance, "etc");
-         // Adding etc to the classLoader so modules can lookup for their configs
-         urls.add(etcFile.toURI().toURL());
       }
 
       ClassLoader originalCL = Thread.currentThread().getContextClassLoader();
