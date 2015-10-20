@@ -305,7 +305,8 @@ public class JournalStorageManager implements StorageManager {
    public void startReplication(ReplicationManager replicationManager,
                                 PagingManager pagingManager,
                                 String nodeID,
-                                final boolean autoFailBack) throws Exception {
+                                final boolean autoFailBack,
+                                long initialReplicationSyncTimeout) throws Exception {
       if (!started) {
          throw new IllegalStateException("JournalStorageManager must be started...");
       }
@@ -376,7 +377,7 @@ public class JournalStorageManager implements StorageManager {
          storageManagerLock.writeLock().lock();
          try {
             if (replicator != null) {
-               replicator.sendSynchronizationDone(nodeID);
+               replicator.sendSynchronizationDone(nodeID, initialReplicationSyncTimeout);
                performCachedLargeMessageDeletes();
             }
          }

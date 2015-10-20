@@ -36,7 +36,7 @@ public class ReplicaPolicy extends BackupPolicy {
    //used if we create a replicated policy for when we become live.
    private boolean allowFailback = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
+   private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    private ReplicatedPolicy replicatedPolicy;
 
@@ -48,14 +48,14 @@ public class ReplicaPolicy extends BackupPolicy {
                         String groupName,
                         boolean restartBackup,
                         boolean allowFailback,
-                        long failbackDelay,
+                        long initialReplicationSyncTimeout,
                         ScaleDownPolicy scaleDownPolicy) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
       this.restartBackup = restartBackup;
       this.allowFailback = allowFailback;
-      this.failbackDelay = failbackDelay;
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.scaleDownPolicy = scaleDownPolicy;
    }
 
@@ -87,7 +87,7 @@ public class ReplicaPolicy extends BackupPolicy {
 
    public ReplicatedPolicy getReplicatedPolicy() {
       if (replicatedPolicy == null) {
-         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, failbackDelay, groupName, clusterName, this);
+         replicatedPolicy = new ReplicatedPolicy(false, allowFailback, initialReplicationSyncTimeout, groupName, clusterName, this);
       }
       return replicatedPolicy;
    }
@@ -137,12 +137,21 @@ public class ReplicaPolicy extends BackupPolicy {
       this.allowFailback = allowFailback;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
    }
 
+   @Deprecated
    public void setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
+   }
+
+   public long getInitialReplicationSyncTimeout() {
+      return initialReplicationSyncTimeout;
+   }
+
+   public void setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
    }
 
    @Override

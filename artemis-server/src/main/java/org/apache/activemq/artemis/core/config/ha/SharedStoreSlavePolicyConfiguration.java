@@ -22,8 +22,6 @@ import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 
 public class SharedStoreSlavePolicyConfiguration implements HAPolicyConfiguration {
 
-   private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
-
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    private boolean restartBackup = ActiveMQDefaultConfiguration.isDefaultRestartBackup();
@@ -76,13 +74,13 @@ public class SharedStoreSlavePolicyConfiguration implements HAPolicyConfiguratio
       return this;
    }
 
+   @Deprecated
    public long getFailbackDelay() {
-      return failbackDelay;
+      return -1;
    }
 
+   @Deprecated
    public SharedStoreSlavePolicyConfiguration setFailbackDelay(long failbackDelay) {
-      this.failbackDelay = failbackDelay;
       return this;
    }
-
 }

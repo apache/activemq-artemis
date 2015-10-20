@@ -55,10 +55,9 @@ public final class SharedStoreLiveActivation extends LiveActivation {
             }
             activeMQServer.getBackupManager().start();
             activeMQServer.getBackupManager().announceBackup();
-            Thread.sleep(sharedStoreMasterPolicy.getFailbackDelay());
          }
 
-         activeMQServer.getNodeManager().startLiveNode();
+         activeMQServer.registerActivateCallback(activeMQServer.getNodeManager().startLiveNode());
 
          if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING) {
             return;

@@ -473,7 +473,8 @@ public class NullStorageManager implements StorageManager {
    public void startReplication(final ReplicationManager replicationManager,
                                 final PagingManager pagingManager,
                                 final String nodeID,
-                                final boolean autoFailBack) throws Exception {
+                                final boolean autoFailBack,
+                                long initialReplicationSyncTimeout) throws Exception {
       // no-op
    }
 

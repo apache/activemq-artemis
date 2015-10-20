@@ -27,6 +27,8 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    private String clusterName = null;
 
+   private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
+
    public ReplicatedPolicyConfiguration() {
    }
 
@@ -60,5 +62,13 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
    public ReplicatedPolicyConfiguration setClusterName(String clusterName) {
       this.clusterName = clusterName;
       return this;
+   }
+
+   public long getInitialReplicationSyncTimeout() {
+      return initialReplicationSyncTimeout;
+   }
+
+   public void setInitialReplicationSyncTimeout(long initialReplicationSyncTimeout) {
+      this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
    }
 }

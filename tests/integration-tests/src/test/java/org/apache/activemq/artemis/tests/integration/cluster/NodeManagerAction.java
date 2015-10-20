@@ -49,7 +49,7 @@ public class NodeManagerAction {
       for (int action : work) {
          switch (action) {
             case START_LIVE:
-               nodeManager.startLiveNode();
+               nodeManager.startLiveNode().activationComplete();
                hasLiveLock = true;
                hasBackupLock = false;
                break;
