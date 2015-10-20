@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * Used to validate whether a user is authorized to connect to the
@@ -43,7 +44,8 @@ public interface ActiveMQSecurityManager2 extends ActiveMQSecurityManager {
     * @param roles     the user's roles
     * @param checkType which permission to validate
     * @param address   the address for which to perform authorization
+    * @param connection   the user's connection
     * @return true if the user is valid and they have the correct roles for the given destination address
     */
-   boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType, String address);
+   boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType, String address, RemotingConnection connection);
 }

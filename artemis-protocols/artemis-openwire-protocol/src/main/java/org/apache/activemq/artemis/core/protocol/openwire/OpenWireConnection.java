@@ -426,6 +426,11 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    }
 
    @Override
+   public RemotingConnection getRemotingConnection() {
+      return this;
+   }
+
+   @Override
    public Connection getTransportConnection() {
       return this.transportConnection;
    }
