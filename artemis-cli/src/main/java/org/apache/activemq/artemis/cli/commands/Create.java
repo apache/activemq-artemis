@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -168,6 +169,9 @@ public class Create extends InputAbstract {
 
    @Option(name = "--aio", description = "Force aio journal on the configuration regardless of the library being available or not.")
    boolean forceLibaio;
+
+   @Option(name = "--nio", description = "Force nio journal on the configuration regardless of the library being available or not.")
+   boolean forceNIO;
 
    @Option(name = "--broker-security", description = "Use basic, file-based security or JAAS login module for broker security (Default: basic)")
    String brokerSecurity;
@@ -422,13 +426,7 @@ public class Create extends InputAbstract {
       this.checkDirectory();
       super.execute(context);
 
-      try {
-         return run(context);
-      }
-      catch (Throwable e) {
-         e.printStackTrace(context.err);
-         throw e;
-      }
+      return run(context);
    }
 
    /**
@@ -454,6 +452,11 @@ public class Create extends InputAbstract {
    }
 
    public Object run(ActionContext context) throws Exception {
+
+      if (forceLibaio && forceNIO) {
+         throw new RuntimeException("You can't specify --nio and --aio in the same execution.");
+      }
+
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
       IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
 
@@ -620,23 +623,10 @@ public class Create extends InputAbstract {
       context.out.println("");
 
       if (!IS_WINDOWS || IS_CYGWIN) {
-
-         // Does it look like we are on a System V init system?
-         if (new File("/etc/init.d/").isDirectory()) {
-            context.out.println("Or you can setup the broker as system service and run it in the background:");
-            context.out.println("");
-            context.out.println("   sudo ln -s \"%s\" /etc/init.d/".format(service.getCanonicalPath()));
-            context.out.println("   /etc/init.d/artemis-service start");
-            context.out.println("");
-
-         }
-         else {
-
-            context.out.println("Or you can run the broker in the background using:");
-            context.out.println("");
-            context.out.println(String.format("   \"%s\" start", path(service, true)));
-            context.out.println("");
-         }
+         context.out.println("Or you can run the broker in the background using:");
+         context.out.println("");
+         context.out.println(String.format("   \"%s\" start", path(service, true)));
+         context.out.println("");
       }
 
       if (IS_WINDOWS) {
@@ -729,6 +719,10 @@ public class Create extends InputAbstract {
          // forcing libaio
          return true;
       }
+      else if (forceNIO) {
+         // forcing NIO
+         return false;
+      }
       else if (LibaioContext.isLoaded()) {
          try (LibaioContext context = new LibaioContext(1, true)) {
             File tmpFile = new File(directory, "validateAIO.bin");
@@ -787,16 +781,16 @@ public class Create extends InputAbstract {
       }
    }
 
-   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws IOException {
+   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws Exception {
       write(source, new File(directory, source), filters, unixTarget);
    }
 
    private void write(String source,
                       File target,
                       HashMap<String, String> filters,
-                      boolean unixTarget) throws IOException {
+                      boolean unixTarget) throws Exception {
       if (target.exists() && !force) {
-         throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
+         throw new CLIException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
       }
 
       String content = applyFilters(readTextFile(source), filters);
