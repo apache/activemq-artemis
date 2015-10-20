@@ -17,10 +17,13 @@
 
 package org.apache.activemq.artemis.core.security;
 
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+
 public interface SecurityAuth {
 
    String getUsername();
 
    String getPassword();
 
+   RemotingConnection getRemotingConnection();
 }
