@@ -163,7 +163,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          final boolean validated;
          if (securityManager instanceof ActiveMQSecurityManager2) {
             final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
-            validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress);
+            validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
          }
          else {
             validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
