@@ -992,6 +992,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
+    * if we have to start as a replicated server this is the delay to wait before fail-back occurs
+    * @deprecated  use getDefaultInitialReplicationSyncTimeout()
+    */
+   @Deprecated
+   public static long getDefaultFailbackDelay() {
+      return 5000;
+   }
+
+
+   /**
     * Will this backup server come live on a normal server shutdown
     */
    public static boolean isDefaultFailoverOnServerShutdown() {
