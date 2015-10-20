@@ -49,6 +49,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
    private static final String WEBSOCKET_PATH = "/stomp";
 
+   private HttpRequest httpRequest;
    private WebSocketServerHandshaker handshaker;
    private static final BinaryWebSocketEncoder BINARY_WEBSOCKET_ENCODER = new BinaryWebSocketEncoder();
 
@@ -75,6 +76,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
       // Handshake
       WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), "v10.stomp,v11.stomp", false);
+      this.httpRequest = req;
       this.handshaker = wsFactory.newHandshaker(req);
       if (this.handshaker == null) {
          WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(ctx.channel());
@@ -138,6 +140,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
    private String getWebSocketLocation(HttpRequest req) {
       return "ws://" + req.headers().get(HttpHeaders.Names.HOST) + WEBSOCKET_PATH;
+   }
+
+   public HttpRequest getHttpRequest() {
+      return this.httpRequest;
    }
 
    @Sharable
