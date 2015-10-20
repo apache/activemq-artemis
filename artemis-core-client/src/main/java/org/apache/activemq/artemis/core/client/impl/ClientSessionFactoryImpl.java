@@ -375,9 +375,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
       synchronized (connectionReadyLock) {
-         connectionReadyForWrites = ready;
-         for (ConnectionLifeCycleListener lifeCycleListener : lifeCycleListeners) {
-            lifeCycleListener.connectionReadyForWrites(connectionID, ready);
+         if (connectionReadyForWrites != ready) {
+            connectionReadyForWrites = ready;
+            for (ConnectionLifeCycleListener lifeCycleListener : lifeCycleListeners) {
+               lifeCycleListener.connectionReadyForWrites(connectionID, ready);
+            }
          }
       }
    }

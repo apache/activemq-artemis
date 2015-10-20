@@ -152,7 +152,6 @@ public class BridgeTest extends ActiveMQTestBase {
       final String forwardAddress = "forwardAddress";
       final String queueName1 = "queue1";
 
-      // Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
@@ -161,10 +160,9 @@ public class BridgeTest extends ActiveMQTestBase {
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-//      final int messageSize = 1024 * 1024 * 5;
-      final int messageSize = 1024 * 10;
+      final int messageSize = 1024 * 1024 * 5;
 
-      final int numMessages = 100000;
+      final int numMessages = 10;
 
       ArrayList<String> connectorConfig = new ArrayList<String>();
       connectorConfig.add(server1tc.getName());
@@ -270,7 +268,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int messageSize = 1024;
 
-      final int numMessages = 10000;
+      final int numMessages = 10;
 
       ArrayList<String> connectorConfig = new ArrayList<String>();
       connectorConfig.add(server1tc.getName());
