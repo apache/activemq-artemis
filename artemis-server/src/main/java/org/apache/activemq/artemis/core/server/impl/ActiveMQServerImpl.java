@@ -1881,15 +1881,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * move any older data away and log a warning about it.
     */
    void moveServerData() {
-      String[] dataDirs = new String[]{configuration.getBindingsDirectory(), configuration.getJournalDirectory(), configuration.getPagingDirectory(), configuration.getLargeMessagesDirectory()};
+      File[] dataDirs = new File[]{configuration.getBindingsLocation(),
+                                   configuration.getJournalLocation(),
+                                   configuration.getPagingLocation(),
+                                   configuration.getLargeMessagesLocation()};
+
       boolean allEmpty = true;
       int lowestSuffixForMovedData = 1;
       boolean redo = true;
 
       while (redo) {
          redo = false;
-         for (String dir : dataDirs) {
-            File fDir = new File(dir);
+         for (File fDir : dataDirs) {
             if (fDir.exists()) {
                if (!fDir.isDirectory()) {
                   throw ActiveMQMessageBundle.BUNDLE.journalDirIsFile(fDir);
@@ -1909,24 +1912,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (allEmpty)
          return;
 
-      for (String dir0 : dataDirs) {
-         File dir = new File(dir0);
+      for (File dir : dataDirs) {
          File newPath = new File(dir.getPath() + lowestSuffixForMovedData);
          if (dir.exists()) {
             if (!dir.renameTo(newPath)) {
                throw ActiveMQMessageBundle.BUNDLE.couldNotMoveJournal(dir);
             }
 
-            ActiveMQServerLogger.LOGGER.backupMovingDataAway(dir0, newPath.getPath());
+            ActiveMQServerLogger.LOGGER.backupMovingDataAway(dir.getAbsolutePath(), newPath.getPath());
          }
          /*
          * sometimes OS's can hold on to file handles for a while so we need to check this actually qorks and then wait
          * a while and try again if it doesn't
          * */
 
-         File dirToRecreate = new File(dir0);
          int count = 0;
-         while (!dirToRecreate.exists() && !dirToRecreate.mkdir()) {
+         while (!dir.exists() && !dir.mkdir()) {
             try {
                Thread.sleep(1000);
             }
