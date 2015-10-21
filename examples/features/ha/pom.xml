@@ -69,20 +69,14 @@ under the License.
          <modules>
             <module>application-layer-failover</module>
             <module>client-side-failoverlistener</module>
-
-            <!-- ARTEMIS-197 FIX ME:
             <module>colocated-failover</module>
-            <module>colocated-failover-scale-down</module> -->
-
+            <module>colocated-failover-scale-down</module>
             <module>ha-policy-autobackup</module>
             <module>multiple-failover</module>
             <module>multiple-failover-failback</module>
             <module>non-transaction-failover</module>
-
-            <!-- ARTEMIS-197 FIX ME:
             <module>replicated-failback</module>
-            <module>replicated-failback-static</module> -->
-
+            <module>replicated-failback-static</module>
             <module>replicated-multiple-failover</module>
             <module>replicated-transaction-failover</module>
             <module>scale-down</module>
