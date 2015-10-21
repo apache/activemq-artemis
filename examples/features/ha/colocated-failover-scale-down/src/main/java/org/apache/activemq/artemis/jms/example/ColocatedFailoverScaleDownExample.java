@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,6 +25,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
+
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -50,6 +50,8 @@ public class ColocatedFailoverScaleDownExample {
       try {
          server0 = ServerUtil.startServer(args[0], ColocatedFailoverScaleDownExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ColocatedFailoverScaleDownExample.class.getSimpleName() + "1", 1, 5000);
+
+         Thread.sleep(3000);
 
          // Step 1. Get an initial context for looking up JNDI for both servers
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
