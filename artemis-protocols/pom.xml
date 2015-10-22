@@ -36,6 +36,7 @@
       <module>artemis-openwire-protocol</module>
       <module>artemis-proton-plug</module>
       <module>artemis-hornetq-protocol</module>
+      <module>artemis-hqclient-protocol</module>
       <module>artemis-mqtt-protocol</module>
    </modules>
 
