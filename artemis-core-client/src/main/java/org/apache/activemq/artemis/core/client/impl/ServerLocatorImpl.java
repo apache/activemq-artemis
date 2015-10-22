@@ -242,7 +242,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private static synchronized ExecutorService getGlobalThreadPool() {
       if (globalThreadPool == null) {
-         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-global-threads", true, getThisClassLoader());
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-global-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
 
          globalThreadPool = Executors.newCachedThreadPool(factory);
       }
@@ -252,11 +257,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
       if (globalScheduledThreadPool == null) {
-         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, getThisClassLoader());
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
 
          globalScheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
 
-                                                                      factory);
+               factory);
       }
 
       return globalScheduledThreadPool;
@@ -274,7 +284,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       else {
          this.shutdownPool = true;
 
-         ThreadFactory factory = new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true, getThisClassLoader());
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-factory-threads-" + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
 
          if (threadPoolMaxSize == -1) {
             threadPool = Executors.newCachedThreadPool(factory);
@@ -283,19 +298,15 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             threadPool = Executors.newFixedThreadPool(threadPoolMaxSize, factory);
          }
 
-         factory = new ActiveMQThreadFactory("ActiveMQ-client-factory-pinger-threads-" + System.identityHashCode(this), true, getThisClassLoader());
+         factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-factory-pinger-threads-" + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
 
          scheduledThreadPool = Executors.newScheduledThreadPool(scheduledThreadPoolMaxSize, factory);
       }
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return ClientSessionFactoryImpl.class.getClassLoader();
-         }
-      });
-
    }
 
    private void instantiateLoadBalancingPolicy() {

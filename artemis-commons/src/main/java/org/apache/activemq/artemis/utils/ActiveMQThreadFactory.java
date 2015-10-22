@@ -36,6 +36,14 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
    private final AccessControlContext acc;
 
+   /**
+    * Construct a new instance.  The access control context of the calling thread will be the one used to create
+    * new threads if a security manager is installed.
+    *
+    * @param groupName the name of the thread group to assign threads to by default
+    * @param daemon whether the created threads should be daemon threads
+    * @param tccl the context class loader of newly created threads
+    */
    public ActiveMQThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl) {
       group = new ThreadGroup(groupName + "-" + System.identityHashCode(this));
 
@@ -45,12 +53,12 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
       this.daemon = daemon;
 
-      this.acc = (System.getSecurityManager() == null) ? null : AccessController.getContext();
+      this.acc = AccessController.getContext();
    }
 
    public Thread newThread(final Runnable command) {
       // create a thread in a privileged block if running with Security Manager
-      if (acc != null && System.getSecurityManager() != null) {
+      if (acc != null) {
          return AccessController.doPrivileged(new ThreadCreateAction(command), acc);
       }
       else {
@@ -76,7 +84,6 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
       t.setContextClassLoader(tccl);
-
       return t;
    }
 

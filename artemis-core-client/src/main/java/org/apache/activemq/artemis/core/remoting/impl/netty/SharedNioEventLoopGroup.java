@@ -44,14 +44,6 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
       super(numThreads, factory);
    }
 
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return ClientSessionFactoryImpl.class.getClassLoader();
-         }
-      });
-   }
-
    public static synchronized void forceShutdown() {
       if (instance != null) {
          instance.shutdown();
@@ -68,7 +60,12 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
          }
       }
       else {
-         instance = new SharedNioEventLoopGroup(numThreads, new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, getThisClassLoader()));
+         instance = new SharedNioEventLoopGroup(numThreads, AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         }));
       }
       instance.nioChannelFactoryCount.incrementAndGet();
       return instance;

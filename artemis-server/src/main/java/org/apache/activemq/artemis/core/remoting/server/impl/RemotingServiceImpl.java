@@ -188,21 +188,20 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          return;
       }
 
-      ClassLoader tccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
-
       // The remoting service maintains it's own thread pool for handling remoting traffic
       // If OIO each connection will have it's own thread
       // If NIO these are capped at nio-remoting-threads which defaults to num cores * 3
       // This needs to be a different thread pool to the main thread pool especially for OIO where we may need
       // to support many hundreds of connections, but the main thread pool must be kept small for better performance
 
-      ThreadFactory tFactory = new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
-                                                            "-" +
-                                                            System.identityHashCode(this), false, tccl);
+      ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+         @Override
+         public ThreadFactory run() {
+            return new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
+                                                                        "-" +
+                                                                        System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader());
+         }
+      });
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 

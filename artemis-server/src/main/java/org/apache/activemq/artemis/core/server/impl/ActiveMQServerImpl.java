@@ -1405,7 +1405,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * Executor based on the provided Thread pool.  Otherwise we create a new ThreadPool.
        */
       if (serviceRegistry.getExecutorService() == null) {
-         ThreadFactory tFactory = new ActiveMQThreadFactory("ActiveMQ-server-" + this.toString(), false, getThisClassLoader());
+         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
          if (configuration.getThreadPoolMaxSize() == -1) {
             threadPool = Executors.newCachedThreadPool(tFactory);
          }
@@ -1423,7 +1428,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * Scheduled ExecutorService otherwise we create a new one.
        */
       if (serviceRegistry.getScheduledExecutorService() == null) {
-         ThreadFactory tFactory = new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, getThisClassLoader());
+         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
          scheduledPool = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), tFactory);
       }
       else {
@@ -1782,15 +1792,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          managementService.addNotificationListener(groupingHandler1);
       }
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return ClientSessionFactoryImpl.class.getClassLoader();
-         }
-      });
-
    }
 
    /**

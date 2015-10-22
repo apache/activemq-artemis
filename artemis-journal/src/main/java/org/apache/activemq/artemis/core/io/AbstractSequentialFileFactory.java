@@ -112,7 +112,12 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       }
 
       if (isSupportsCallbacks()) {
-         writeExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this), true, AbstractSequentialFileFactory.getThisClassLoader()));
+         writeExecutor = Executors.newSingleThreadExecutor(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+            @Override
+            public ActiveMQThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this), true, AbstractSequentialFileFactory.class.getClassLoader());
+            }
+         }));
       }
    }
 
@@ -175,15 +180,6 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       }
 
       return Arrays.asList(fileNames);
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return AbstractSequentialFileFactory.class.getClassLoader();
-         }
-      });
-
    }
 
 }
