@@ -369,7 +369,7 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_MAX_SAVED_REPLICATED_JOURNALS_SIZE = 2;
 
    // Will this server, if a backup, restart once it has been stopped because of failback or scaling down.
-   private static boolean DEFAULT_RESTART_BACKUP = false;
+   private static boolean DEFAULT_RESTART_BACKUP = true;
 
    // Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
    private static boolean DEFAULT_ALLOW_AUTO_FAILBACK = true;
