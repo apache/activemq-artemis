@@ -266,7 +266,12 @@ public class NettyAcceptor implements Acceptor {
             threadsToUse = this.nioRemotingThreads;
          }
          channelClazz = NioServerSocketChannel.class;
-         eventLoopGroup = new NioEventLoopGroup(threadsToUse, new ActiveMQThreadFactory("activemq-netty-threads", true, getThisClassLoader()));
+         eventLoopGroup = new NioEventLoopGroup(threadsToUse, AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+            @Override
+            public ActiveMQThreadFactory run() {
+               return new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         }));
       }
 
       bootstrap = new ServerBootstrap();
@@ -681,14 +686,5 @@ public class NettyAcceptor implements Acceptor {
       public synchronized void cancel() {
          cancelled = true;
       }
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return ClientSessionFactoryImpl.class.getClassLoader();
-         }
-      });
-
    }
 }

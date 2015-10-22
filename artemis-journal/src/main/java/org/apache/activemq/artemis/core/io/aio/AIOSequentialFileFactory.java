@@ -186,7 +186,12 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          this.running.set(true);
 
-         pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), true, AIOSequentialFileFactory.getThisClassLoader()));
+         pollerExecutor = Executors.newCachedThreadPool(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+            @Override
+            public ActiveMQThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), true, AIOSequentialFileFactory.class.getClassLoader());
+            }
+         }));
 
          pollerExecutor.execute(new PollerRunnable());
       }
@@ -429,15 +434,6 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
             }
          }
       }
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return AIOSequentialFileFactory.class.getClassLoader();
-         }
-      });
-
    }
 
    @Override
