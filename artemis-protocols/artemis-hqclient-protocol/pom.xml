@@ -22,7 +22,7 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>artemis-hornetq-protocol</artifactId>
+   <artifactId>artemis-hqclient-protocol</artifactId>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
@@ -45,12 +45,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-hqclient-protocol</artifactId>
+         <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>

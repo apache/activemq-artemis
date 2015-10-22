@@ -59,6 +59,7 @@
             <include>org.apache.activemq:artemis-openwire-protocol</include>
             <include>org.apache.activemq:artemis-proton-plug</include>
             <include>org.apache.activemq:artemis-hornetq-protocol</include>
+            <include>org.apache.activemq:artemis-hqclient-protocol</include>
             <include>org.apache.activemq:artemis-stomp-protocol</include>
             <include>org.apache.activemq:artemis-mqtt-protocol</include>
             <include>org.apache.activemq:artemis-ra</include>
