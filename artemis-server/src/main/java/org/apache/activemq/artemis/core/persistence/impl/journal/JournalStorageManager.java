@@ -1813,7 +1813,12 @@ public class JournalStorageManager implements StorageManager {
 
       cleanupIncompleteFiles();
 
-      singleThreadExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-IO-SingleThread", true, getThisClassLoader()));
+      singleThreadExecutor = Executors.newSingleThreadExecutor(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
+         @Override
+         public ActiveMQThreadFactory run() {
+            return new ActiveMQThreadFactory("ActiveMQ-IO-SingleThread", true, JournalStorageManager.class.getClassLoader());
+         }
+      }));
 
       bindingsJournal.start();
 
@@ -2285,14 +2290,6 @@ public class JournalStorageManager implements StorageManager {
       else {
          return DummyOperationContext.getInstance();
       }
-   }
-
-   private static ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-         public ClassLoader run() {
-            return JournalStorageManager.class.getClassLoader();
-         }
-      });
    }
 
    // Inner Classes
