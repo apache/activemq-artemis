@@ -58,6 +58,8 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.xa.XAResource;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,6 +69,7 @@ import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public final class JMSBridgeImpl implements JMSBridge {
@@ -175,6 +178,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    private static final int FORWARD_MODE_NONTX = 2;
 
    private ActiveMQRegistry registry;
+
+   private ClassLoader moduleTccl;
 
    /*
     * Constructor for MBean
@@ -318,6 +323,12 @@ public final class JMSBridgeImpl implements JMSBridge {
       synchronized (stoppingGuard) {
          stopping = false;
       }
+
+      moduleTccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         public ClassLoader run() {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
 
       locateRecoveryRegistry();
 
@@ -1545,7 +1556,22 @@ public final class JMSBridgeImpl implements JMSBridge {
     * and 1 for the eventual failureHandler)
     */
    private ExecutorService createExecutor() {
-      return Executors.newFixedThreadPool(3);
+      ExecutorService service = Executors.newFixedThreadPool(3, new ThreadFactory() {
+         @Override
+         public Thread newThread(Runnable r) {
+            final Thread thr = new Thread(r);
+            if (moduleTccl != null) {
+               AccessController.doPrivileged(new PrivilegedAction() {
+                  public Object run() {
+                     thr.setContextClassLoader(moduleTccl);
+                     return null;
+                  }
+               });
+            }
+            return thr;
+         }
+      });
+      return service;
    }
 
    // Inner classes ---------------------------------------------------------------
