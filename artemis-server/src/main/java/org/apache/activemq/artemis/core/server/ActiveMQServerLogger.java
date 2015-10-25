@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
@@ -1001,8 +1002,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void groupingQueueRemoved(int size, SimpleString clusterName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222168, value = "The ''protocol'' property is deprecated, if you want this Acceptor to support multiple protocols use the ''protocols'' property, i.e. ''CORE,AMQP,STOMP''",
-      format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222168, value = "The ''" + TransportConstants.PROTOCOL_PROP_NAME + "'' property is deprecated. If you want this Acceptor to support multiple protocols, use the ''" + TransportConstants.PROTOCOLS_PROP_NAME + "'' property, e.g. with value ''CORE,AMQP,STOMP''",
+            format = Message.Format.MESSAGE_FORMAT)
    void warnDeprecatedProtocol();
 
    @LogMessage(level = Logger.Level.WARN)
