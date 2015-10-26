@@ -181,20 +181,14 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
    public void testCloseOneSessionOnGC() throws Exception {
       ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl) locator.createSessionFactory();
 
-      ClientSession session = sf.createSession(false, true, true);
+      {
+         ClientSession session = sf.createSession(false, true, true);
 
-      WeakReference<ClientSession> wses = new WeakReference<ClientSession>(session);
+         Assert.assertEquals(1, server.getRemotingService().getConnections().size());
+      }
 
-      Assert.assertEquals(1, server.getRemotingService().getConnections().size());
-
-      session = null;
-
-      ActiveMQTestBase.checkWeakReferences(wses);
-
-      for (int i = 0; i < 100 && sf.numSessions() != 0; i++) {
-         System.gc();
-         System.runFinalization();
-         Thread.sleep(100);
+      for (int i = 0; i < 1000 && sf.numSessions() != 0; i++) {
+         forceGC();
       }
 
       Assert.assertEquals(0, sf.numSessions());
