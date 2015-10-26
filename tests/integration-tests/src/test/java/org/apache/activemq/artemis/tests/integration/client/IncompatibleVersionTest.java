@@ -183,7 +183,6 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
       boolean result = false;
       try {
          serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "server", serverStartedString);
-         Thread.sleep(2000);
 
          Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 
@@ -219,18 +218,35 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
    private class ClientStarter {
 
       public void perform() throws Exception {
-         ServerLocator locator = null;
-         ClientSessionFactory sf = null;
-         try {
-            locator = createNettyNonHALocator();
-            sf = locator.createSessionFactory();
-            ClientSession session = sf.createSession(false, true, true);
-            log.info("### client: connected. server incrementingVersion = " + session.getVersion());
-            session.close();
+         final int timeout = 10000;
+         long time = System.currentTimeMillis();
+         boolean connected = false;
+
+         while (System.currentTimeMillis() - time < timeout) {
+            ServerLocator locator = null;
+            ClientSessionFactory sf = null;
+            try {
+               locator = createNettyNonHALocator();
+               sf = locator.createSessionFactory();
+               ClientSession session = sf.createSession(false, true, true);
+               session.close();
+               connected = true;
+               break;
+            }
+            catch (ActiveMQException e) {
+               log.info(e.getMessage());
+            }
+            catch (Exception e) {
+               log.info(e.getMessage());
+            }
+            finally {
+               closeSessionFactory(sf);
+               closeServerLocator(locator);
+               Thread.sleep(500);
+            }
          }
-         finally {
-            closeSessionFactory(sf);
-            closeServerLocator(locator);
+         if (!connected) {
+            System.exit(1);
          }
       }
    }
