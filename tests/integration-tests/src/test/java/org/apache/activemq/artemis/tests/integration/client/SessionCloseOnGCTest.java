@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.ref.WeakReference;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -25,8 +27,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.ref.WeakReference;
 
 public class SessionCloseOnGCTest extends ActiveMQTestBase {
 
@@ -190,6 +190,12 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       session = null;
 
       ActiveMQTestBase.checkWeakReferences(wses);
+
+      for (int i = 0; i < 100 && sf.numSessions() != 0; i++) {
+         System.gc();
+         System.runFinalization();
+         Thread.sleep(100);
+      }
 
       Assert.assertEquals(0, sf.numSessions());
       Assert.assertEquals(1, sf.numConnections());
