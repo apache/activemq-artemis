@@ -18,7 +18,7 @@
 -->
 
 <service>
-   <id>armetis-${artemis.instance.name}-${host}</id>
+   <id>artemis-${artemis.instance.name}-${host}</id>
    <name>ActiveMQ Artemis: ${artemis.instance.name} @ ${host}</name>
    <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
