@@ -59,7 +59,26 @@ public final class SpawnedVMSupport {
       return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
+   public static Process spawnVMWithLogMacher(String wordMatch, Runnable runnable, final String className,
+                                 final String[] vmargs,
+                                 final boolean logOutput,
+                                 final String... args) throws Exception {
+      return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
+   }
+
    public static Process spawnVM(final String className,
+                                 final String memoryArg1,
+                                 final String memoryArg2,
+                                 final String[] vmargs,
+                                 final boolean logOutput,
+                                 final boolean logErrorOutput,
+                                 final String... args) throws Exception {
+      return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, args);
+   }
+
+   public static Process spawnVM(final String wordMatch,
+                                 final Runnable wordRunning,
+                                 final String className,
                                  final String memoryArg1,
                                  final String memoryArg2,
                                  final String[] vmargs,
@@ -100,13 +119,13 @@ public final class SpawnedVMSupport {
       Process process = builder.start();
 
       if (logOutput) {
-         SpawnedVMSupport.startLogger(className, process);
+         SpawnedVMSupport.startLogger(wordMatch, wordRunning, className, process);
 
       }
 
       // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
       // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
-      ProcessLogger errorLogger = new ProcessLogger(logErrorOutput, process.getErrorStream(), className);
+      ProcessLogger errorLogger = new ProcessLogger(logErrorOutput, process.getErrorStream(), className, wordMatch, wordRunning);
       errorLogger.start();
 
       return process;
@@ -118,9 +137,18 @@ public final class SpawnedVMSupport {
     * @param process
     * @throws ClassNotFoundException
     */
-   public static void startLogger(final String className, final Process process) throws ClassNotFoundException {
-      ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), className);
+   public static void startLogger(final String wordMatch, final Runnable wordRunanble, final String className, final Process process) throws ClassNotFoundException {
+      ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), className, wordMatch, wordRunanble);
       outputLogger.start();
+   }
+
+   /**
+    * @param className
+    * @param process
+    * @throws ClassNotFoundException
+    */
+   public static void startLogger(final String className, final Process process) throws ClassNotFoundException {
+      startLogger(null, null, className, process);
    }
 
    /**
@@ -165,10 +193,18 @@ public final class SpawnedVMSupport {
 
       private final boolean print;
 
-      ProcessLogger(final boolean print, final InputStream is, final String className) throws ClassNotFoundException {
+      private final String wordMatch;
+      /**
+       * This will be executed when wordMatch is within any line on the log *
+       * * */
+      private final Runnable wordRunner;
+
+      ProcessLogger(final boolean print, final InputStream is, final String className, String wordMatch, Runnable wordRunner) throws ClassNotFoundException {
          this.is = is;
          this.print = print;
          this.className = className;
+         this.wordMatch = wordMatch;
+         this.wordRunner = wordRunner;
          setDaemon(true);
       }
 
@@ -179,6 +215,11 @@ public final class SpawnedVMSupport {
             BufferedReader br = new BufferedReader(isr);
             String line = null;
             while ((line = br.readLine()) != null) {
+               if (wordMatch != null && wordRunner != null) {
+                  if (line.contains(wordMatch)) {
+                     wordRunner.run();
+                  }
+               }
                if (print) {
                   System.out.println(className + ":" + line);
                }

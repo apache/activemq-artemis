@@ -19,15 +19,16 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -42,8 +43,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,6 +54,7 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class IncompatibleVersionTest extends ActiveMQTestBase {
 
+   private static final String WORD_START = "&*STARTED&*";
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    // Constants -----------------------------------------------------
 
@@ -182,9 +186,16 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
       Process serverProcess = null;
       boolean result = false;
       try {
-         serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "server", serverStartedString);
-         Thread.sleep(2000);
+         final CountDownLatch latch = new CountDownLatch(1);
+         Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+               latch.countDown();
+            }
+         };
 
+         serverProcess = SpawnedVMSupport.spawnVMWithLogMacher(WORD_START, runnable, "org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, true, "server", serverStartedString);
+         Assert.assertTrue(latch.await(30, TimeUnit.SECONDS));
          Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 
          if (client.waitFor() == 0) {
@@ -211,6 +222,8 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
          Configuration config = new ConfigurationImpl().setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
          server.start();
+
+         System.out.println(WORD_START);
 
          log.info("### server: " + startedString);
       }
