@@ -216,20 +216,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
 
       ActiveMQTestBase.checkWeakReferences(ref1, ref2, ref3);
 
-      int count = 0;
-      final int TOTAL_SLEEP_TIME = 400;
-      final int MAX_COUNT = 20;
-      while (count++ < MAX_COUNT) {
-         /*
-          * The assertion is vulnerable to races, both in the session closing as well as the return
-          * value of the sessions.size() (i.e. HashSet.size()).
-          */
-         synchronized (this) {
-            // synchronized block will (as a side effect) force sync all field values
-            if (sf.numSessions() == 0)
-               break;
-            Thread.sleep(TOTAL_SLEEP_TIME / MAX_COUNT);
-         }
+      for (int i = 0; i < 1000 && sf.numSessions() != 0; i++) {
+         forceGC();
       }
       Assert.assertEquals("# sessions", 0, sf.numSessions());
       Assert.assertEquals("# connections", 1, sf.numConnections());
