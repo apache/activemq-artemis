@@ -525,10 +525,12 @@ public abstract class ActiveMQTestBase extends Assert {
 
    public static void forceGC() {
       log.info("#test forceGC");
-      WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
+      AtomicInteger finalized = new AtomicInteger(0);
+      WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
       // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null) {
+      while (!(dumbReference.get() == null && finalized.get() == 1)) {
          System.gc();
+         System.runFinalization();
          try {
             Thread.sleep(100);
          }
@@ -2534,5 +2536,20 @@ public abstract class ActiveMQTestBase extends Assert {
     */
    public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
       assertTrue("Latch has got to return within a minute", latch.await(1, TimeUnit.MINUTES));
+   }
+
+   protected static class DumbReference {
+
+      private AtomicInteger finalized;
+
+      public DumbReference(AtomicInteger finalized) {
+         this.finalized = finalized;
+      }
+
+      public void finalize() throws Throwable {
+         System.out.println("FINALIZE");
+         finalized.incrementAndGet();
+         super.finalize();
+      }
    }
 }
