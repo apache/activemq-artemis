@@ -525,14 +525,15 @@ public abstract class ActiveMQTestBase extends Assert {
 
    public static void forceGC() {
       log.info("#test forceGC");
-      AtomicInteger finalized = new AtomicInteger(0);
+      CountDownLatch finalized = new CountDownLatch(1);
       WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
+
       // A loop that will wait GC, using the minimal time as possible
-      while (!(dumbReference.get() == null && finalized.get() == 1)) {
+      while (!(dumbReference.get() == null && finalized.getCount() == 0)) {
          System.gc();
          System.runFinalization();
          try {
-            Thread.sleep(100);
+            finalized.await(100, TimeUnit.MILLISECONDS);
          }
          catch (InterruptedException e) {
          }
@@ -2540,15 +2541,14 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected static class DumbReference {
 
-      private AtomicInteger finalized;
+      private CountDownLatch finalized;
 
-      public DumbReference(AtomicInteger finalized) {
+      public DumbReference(CountDownLatch finalized) {
          this.finalized = finalized;
       }
 
       public void finalize() throws Throwable {
-         System.out.println("FINALIZE");
-         finalized.incrementAndGet();
+         finalized.countDown();
          super.finalize();
       }
    }
