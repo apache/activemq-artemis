@@ -174,9 +174,6 @@ public abstract class NodeManager implements ActiveMQComponent {
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
          }
-         if (!fileCreated) {
-            throw new IllegalStateException("Unable to create server lock file");
-         }
       }
 
       @SuppressWarnings("resource")
