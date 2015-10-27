@@ -711,6 +711,42 @@
                         </xsd:attribute>
                      </xsd:complexType>
                   </xsd:element>
+                  <xsd:element name="security-setting-plugin" maxOccurs="unbounded" minOccurs="0">
+                     <xsd:complexType>
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              a plugin
+                           </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:sequence>
+                           <xsd:element name="setting" maxOccurs="unbounded" minOccurs="0">
+                              <xsd:complexType>
+                                 <xsd:attribute name="name" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                       <xsd:documentation>
+                                          the name of the setting
+                                       </xsd:documentation>
+                                    </xsd:annotation>
+                                 </xsd:attribute>
+                                 <xsd:attribute name="value" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                       <xsd:documentation>
+                                          the value for the setting
+                                       </xsd:documentation>
+                                    </xsd:annotation>
+                                 </xsd:attribute>
+                              </xsd:complexType>
+                           </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="class-name" type="xsd:string" use="required">
+                           <xsd:annotation>
+                              <xsd:documentation>
+                                 the name of the plugin class to instantiate
+                              </xsd:documentation>
+                           </xsd:annotation>
+                        </xsd:attribute>
+                     </xsd:complexType>
+                  </xsd:element>
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>

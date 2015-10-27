@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -852,10 +853,16 @@ public interface Configuration {
 
    Configuration addConnectorServiceConfiguration(ConnectorServiceConfiguration config);
 
+   Configuration setSecuritySettingPlugins(final List<SecuritySettingPlugin> plugins);
+
+   Configuration addSecuritySettingPlugin(final SecuritySettingPlugin plugin);
+
    /**
     * @return list of {@link ConnectorServiceConfiguration}
     */
    List<ConnectorServiceConfiguration> getConnectorServiceConfigurations();
+
+   List<SecuritySettingPlugin> getSecuritySettingPlugins();
 
    /**
     * The default password decoder

@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
@@ -208,6 +209,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private Map<String, ResourceLimitSettings> resourceLimitSettings = new HashMap<String, ResourceLimitSettings>();
 
    private Map<String, Set<Role>> securitySettings = new HashMap<String, Set<Role>>();
+
+   private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<SecuritySettingPlugin>();
 
    protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<ConnectorServiceConfiguration>();
 
@@ -964,6 +967,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Map<String, Set<Role>> getSecurityRoles() {
+      for (SecuritySettingPlugin securitySettingPlugin : securitySettingPlugins) {
+         securitySettings.putAll(securitySettingPlugin.getSecurityRoles());
+      }
       return securitySettings;
    }
 
@@ -975,6 +981,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public List<ConnectorServiceConfiguration> getConnectorServiceConfigurations() {
       return this.connectorServiceConfigurations;
+   }
+
+   public List<SecuritySettingPlugin> getSecuritySettingPlugins() {
+      return this.securitySettingPlugins;
    }
 
    public File getBrokerInstance() {
@@ -1033,6 +1043,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public ConfigurationImpl addConnectorServiceConfiguration(final ConnectorServiceConfiguration config) {
       this.connectorServiceConfigurations.add(config);
+      return this;
+   }
+
+   public ConfigurationImpl setSecuritySettingPlugins(final List<SecuritySettingPlugin> plugins) {
+      this.securitySettingPlugins = plugins;
+      return this;
+   }
+
+   public ConfigurationImpl addSecuritySettingPlugin(final SecuritySettingPlugin plugin) {
+      this.securitySettingPlugins.add(plugin);
       return this;
    }
 
