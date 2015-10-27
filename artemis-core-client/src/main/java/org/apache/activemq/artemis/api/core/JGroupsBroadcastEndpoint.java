@@ -110,15 +110,16 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
          channel.removeReceiver(receiver);
          clientOpened = false;
       }
-      internalCloseChannel();
+      internalCloseChannel(channel);
    }
 
    /**
     * Closes the channel used in this JGroups Broadcast.
     * Can be overridden by implementations that use an externally managed channel.
+    * @param channel
     */
-   protected synchronized void internalCloseChannel() {
-      channel.close();
+   protected synchronized void internalCloseChannel(JChannelWrapper channel) {
+      channel.close(true);
    }
 
    /**
@@ -161,10 +162,15 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
          this.channel = channel;
       }
 
-      public synchronized void close() {
+      public synchronized void close(boolean closeWrappedChannel) {
          refCount--;
          if (refCount == 0) {
-            JChannelManager.closeChannel(this.channelName, channel);
+            if (closeWrappedChannel) {
+               JChannelManager.closeChannel(this.channelName, channel);
+            }
+            else {
+               JChannelManager.removeChannel(this.channelName);
+            }
          }
       }
 
@@ -241,6 +247,13 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
          channel.setReceiver(null);
          channel.disconnect();
          channel.close();
+         JChannelWrapper wrapper = channels.remove(channelName);
+         if (wrapper == null) {
+            throw new IllegalStateException("Did not find channel " + channelName);
+         }
+      }
+
+      public static void removeChannel(String channelName) {
          JChannelWrapper wrapper = channels.remove(channelName);
          if (wrapper == null) {
             throw new IllegalStateException("Did not find channel " + channelName);

@@ -38,7 +38,7 @@ public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint {
    }
 
    @Override
-   protected synchronized void internalCloseChannel() {
-      // no-op, this version takes an externally managed channel.
+   protected synchronized void internalCloseChannel(JChannelWrapper channel) {
+      channel.close(false);
    }
 }
