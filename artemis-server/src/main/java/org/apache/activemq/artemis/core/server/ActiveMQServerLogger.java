@@ -1187,6 +1187,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void noProtocolManagerFound(String protocol, String host);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222204, value = "Duplicated Acceptor {0} with parameters {1} classFactory={2} duplicated on the configuration", format = Message.Format.MESSAGE_FORMAT)
+   void duplicatedAcceptor(String name, String parameters, String classFactory);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
@@ -1441,9 +1445,4 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224065, value = "Failed to remove auto-created queue {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorRemovingAutoCreatedQueue(@Cause Exception e, SimpleString bindingName);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 224066, value = "Duplicated Acceptor {0} with parameters {1} classFactory={2} duplicated on the configuration", format = Message.Format.MESSAGE_FORMAT)
-   void duplicatedAcceptor(String name, String parameters, String classFactory);
-
 }
