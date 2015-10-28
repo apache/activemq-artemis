@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.security.impl;
 
+import javax.security.cert.X509Certificate;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -101,7 +102,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       securityRepository.unRegisterListener(this);
    }
 
-   public void authenticate(final String user, final String password) throws Exception {
+   public void authenticate(final String user, final String password, X509Certificate[] certificates) throws Exception {
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
@@ -121,18 +122,25 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          }
 
-         if (!securityManager.validateUser(user, password)) {
+         boolean userIsValid = false;
+
+         if (securityManager instanceof ActiveMQSecurityManager2) {
+            userIsValid = ((ActiveMQSecurityManager2)securityManager).validateUser(user, password, certificates);
+         }
+         else {
+            userIsValid = securityManager.validateUser(user, password);
+         }
+
+         if (!userIsValid) {
             if (notificationService != null) {
                TypedProperties props = new TypedProperties();
-
-               props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
 
                Notification notification = new Notification(null, CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION, props);
 
                notificationService.sendNotification(notification);
             }
 
-            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser(user);
+            throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser();
          }
       }
    }

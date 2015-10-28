@@ -16,16 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
+import javax.security.cert.X509Certificate;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -34,6 +40,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -42,10 +49,10 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.junit.Assert;
@@ -103,6 +110,43 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testJAASSecurityManagerAuthenticationWithCerts() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
+      securityManager.setConfigurationName("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
+      server.start();
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try {
+         ClientSession session = cf.createSession();
+         session.close();
+      }
+      catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception");
+      }
+   }
+
+   @Test
    public void testJAASSecurityManagerAuthenticationBadPassword() throws Exception {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
       securityManager.setConfigurationName("PropertiesLogin");
@@ -116,6 +160,50 @@ public class SecurityTest extends ActiveMQTestBase {
       }
       catch (Exception e) {
          // ignore
+      }
+   }
+
+   /**
+    * This test requires a client-side certificate that will be trusted by the server but whose dname will be rejected
+    * by the CertLogin login module. I created this cert with the follow commands:
+    *
+    * keytool -genkey -keystore bad-client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
+    * keytool -export -keystore bad-client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
+    * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt -alias bad
+    */
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithBadClientCert() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
+      securityManager.setConfigurationName("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
+      server.start();
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "bad-client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try {
+         cf.createSession();
+         fail("Creating session here should fail due to authentication error.");
+      }
+      catch (ActiveMQException e) {
+         assertTrue(e.getType() == ActiveMQExceptionType.SECURITY_EXCEPTION);
       }
    }
 
@@ -223,6 +311,112 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testJAASSecurityManagerAuthorizationNegativeWithCerts() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
+      securityManager.setConfigurationName("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, false, false, false, false, false, false));
+      server.getConfiguration().getSecurityRoles().put("#", roles);
+
+      server.start();
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
+      server.createQueue(ADDRESS, NON_DURABLE_QUEUE, null, false, false);
+
+      ClientSession session = addClientSession(cf.createSession());
+
+      // CREATE_DURABLE_QUEUE
+      try {
+         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // DELETE_DURABLE_QUEUE
+      try {
+         session.deleteQueue(DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // CREATE_NON_DURABLE_QUEUE
+      try {
+         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // DELETE_NON_DURABLE_QUEUE
+      try {
+         session.deleteQueue(NON_DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // PRODUCE
+      try {
+         ClientProducer producer = session.createProducer(ADDRESS);
+         producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // CONSUME
+      try {
+         ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+   }
+
+   @Test
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
       final SimpleString ADDRESS = new SimpleString("address");
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
@@ -238,6 +432,102 @@ public class SecurityTest extends ActiveMQTestBase {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
+
+      // CREATE_DURABLE_QUEUE
+      try {
+         session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // DELETE_DURABLE_QUEUE
+      try {
+         session.deleteQueue(DURABLE_QUEUE);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // CREATE_NON_DURABLE_QUEUE
+      try {
+         session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // DELETE_NON_DURABLE_QUEUE
+      try {
+         session.deleteQueue(NON_DURABLE_QUEUE);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      session.createQueue(ADDRESS, DURABLE_QUEUE, true);
+
+      // PRODUCE
+      try {
+         ClientProducer producer = session.createProducer(ADDRESS);
+         producer.send(session.createMessage(true));
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // CONSUME
+      try {
+         session.createConsumer(DURABLE_QUEUE);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveWithCerts() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
+      securityManager.setConfigurationName("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-side-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-side-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
+
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", true, true, true, true, true, true, true));
+      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.start();
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = addClientSession(cf.createSession());
 
       // CREATE_DURABLE_QUEUE
       try {
@@ -1454,6 +1744,10 @@ public class SecurityTest extends ActiveMQTestBase {
       final Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager2() {
             public boolean validateUser(final String username, final String password) {
+               fail("Unexpected call to overridden method");
+               return false;
+            }
+            public boolean validateUser(final String username, final String password, final X509Certificate[] certificates) {
                return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
                   password.equals("frobnicate");
             }

@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.core.security;
 
+import javax.security.cert.X509Certificate;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public interface SecurityStore {
 
-   void authenticate(String user, String password) throws Exception;
+   void authenticate(String user, String password, X509Certificate[] certificates) throws Exception;
 
    void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
 

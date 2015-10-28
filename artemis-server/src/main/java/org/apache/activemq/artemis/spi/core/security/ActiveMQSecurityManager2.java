@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.security;
 
+import javax.security.cert.X509Certificate;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -33,11 +34,23 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 public interface ActiveMQSecurityManager2 extends ActiveMQSecurityManager {
 
    /**
+    * is this a valid user.
+    *
+    * This method is called instead of
+    * {@link ActiveMQSecurityManager#validateUser(String, String)}.
+    *
+    * @param user     the user
+    * @param password the users password
+    * @return true if a valid user
+    */
+   boolean validateUser(String user, String password, X509Certificate[] certificates);
+
+   /**
     * Determine whether the given user is valid and whether they have
     * the correct role for the given destination address.
     *
     * This method is called instead of
-    * {@link ActiveMQSecurityManager.validateUserAndRole}.
+    * {@link ActiveMQSecurityManager#validateUserAndRole(String, String, Set, CheckType)}.
     *
     * @param user      the user
     * @param password  the user's password

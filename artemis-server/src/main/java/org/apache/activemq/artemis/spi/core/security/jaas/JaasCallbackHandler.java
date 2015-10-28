@@ -18,44 +18,53 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.cert.X509Certificate;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 
 /**
- * A Standard JAAS callback handler for SSL certificate requests. Will only
- * handle callbacks of type CertificateCallback.
+ * A JAAS username password CallbackHandler.
  */
-public class JaasCertificateCallbackHandler implements CallbackHandler {
+public class JaasCallbackHandler implements CallbackHandler {
 
+   private final String username;
+   private final String password;
    final X509Certificate[] certificates;
 
-   /**
-    * Basic constructor.
-    *
-    * @param certs The certificate returned when calling back.
-    */
-   public JaasCertificateCallbackHandler(X509Certificate[] certs) {
-      certificates = certs;
+   public JaasCallbackHandler(String username, String password, X509Certificate[] certs) {
+      this.username = username;
+      this.password = password;
+      this.certificates = certs;
    }
 
-   /**
-    * Overriding handle method to handle certificates.
-    *
-    * @param callbacks The callbacks requested.
-    * @throws IOException
-    * @throws UnsupportedCallbackException Thrown if an unknown Callback type is
-    *                                      encountered.
-    */
    @Override
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
       for (int i = 0; i < callbacks.length; i++) {
          Callback callback = callbacks[i];
-         if (callback instanceof CertificateCallback) {
+         if (callback instanceof PasswordCallback) {
+            PasswordCallback passwordCallback = (PasswordCallback) callback;
+            if (password == null) {
+               passwordCallback.setPassword(null);
+            }
+            else {
+               passwordCallback.setPassword(password.toCharArray());
+            }
+         }
+         else if (callback instanceof NameCallback) {
+            NameCallback nameCallback = (NameCallback) callback;
+            if (username == null) {
+               nameCallback.setName(null);
+            }
+            else {
+               nameCallback.setName(username);
+            }
+         }
+         else if (callback instanceof CertificateCallback) {
             CertificateCallback certCallback = (CertificateCallback) callback;
 
             certCallback.setCertificates(certificates);
-
          }
          else {
             throw new UnsupportedCallbackException(callback);
