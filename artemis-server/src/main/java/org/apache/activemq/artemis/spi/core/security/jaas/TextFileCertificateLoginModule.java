@@ -19,9 +19,9 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.security.cert.X509Certificate;
 import java.io.File;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,21 +32,21 @@ import java.util.Set;
  * A LoginModule allowing for SSL certificate based authentication based on
  * Distinguished Names (DN) stored in text files. The DNs are parsed using a
  * Properties class where each line is <user_name>=<user_DN>. This class also
- * uses a group definition file where each line is <group_name>=<user_name_1>,<user_name_2>,etc.
- * The user and group files' locations must be specified in the
+ * uses a group definition file where each line is <role_name>=<user_name_1>,<user_name_2>,etc.
+ * The user and role files' locations must be specified in the
  * org.apache.activemq.jaas.textfiledn.user and
- * org.apache.activemq.jaas.textfiledn.user properties respectively. NOTE: This
+ * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This
  * class will re-read user and group files for every authentication (i.e it does
  * live updates of allowed groups and users).
  */
 public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
    private static final String USER_FILE = "org.apache.activemq.jaas.textfiledn.user";
-   private static final String GROUP_FILE = "org.apache.activemq.jaas.textfiledn.group";
+   private static final String ROLE_FILE = "org.apache.activemq.jaas.textfiledn.role";
 
    private File baseDir;
    private String usersFilePathname;
-   private String groupsFilePathname;
+   private String rolesFilePathname;
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -61,8 +61,8 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
          baseDir = new File(".");
       }
 
-      usersFilePathname = (String) options.get(USER_FILE) + "";
-      groupsFilePathname = (String) options.get(GROUP_FILE) + "";
+      usersFilePathname = options.get(USER_FILE) + "";
+      rolesFilePathname = options.get(ROLE_FILE) + "";
    }
 
    /**
@@ -98,7 +98,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
       Enumeration<Object> keys = users.keys();
       for (Enumeration<Object> vals = users.elements(); vals.hasMoreElements(); ) {
-         if (((String) vals.nextElement()).equals(dn)) {
+         if (vals.nextElement().equals(dn)) {
             return (String) keys.nextElement();
          }
          else {
@@ -110,38 +110,38 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    }
 
    /**
-    * Overriding to allow for group discovery based on text files.
+    * Overriding to allow for role discovery based on text files.
     *
     * @param username The name of the user being examined. This is the same
     *                 name returned by getUserNameForCertificates.
-    * @return A Set of name Strings for groups this user belongs to.
-    * @throws LoginException Thrown if unable to find group definition file.
+    * @return A Set of name Strings for roles this user belongs to.
+    * @throws LoginException Thrown if unable to find role definition file.
     */
    @Override
-   protected Set<String> getUserGroups(String username) throws LoginException {
-      File groupsFile = new File(baseDir, groupsFilePathname);
+   protected Set<String> getUserRoles(String username) throws LoginException {
+      File rolesFile = new File(baseDir, rolesFilePathname);
 
-      Properties groups = new Properties();
+      Properties roles = new Properties();
       try {
-         java.io.FileInputStream in = new java.io.FileInputStream(groupsFile);
-         groups.load(in);
+         java.io.FileInputStream in = new java.io.FileInputStream(rolesFile);
+         roles.load(in);
          in.close();
       }
       catch (IOException ioe) {
-         throw new LoginException("Unable to load group properties file " + groupsFile);
+         throw new LoginException("Unable to load role properties file " + rolesFile);
       }
-      Set<String> userGroups = new HashSet<String>();
-      for (Enumeration<Object> enumeration = groups.keys(); enumeration.hasMoreElements(); ) {
+      Set<String> userRoles = new HashSet<String>();
+      for (Enumeration<Object> enumeration = roles.keys(); enumeration.hasMoreElements(); ) {
          String groupName = (String) enumeration.nextElement();
-         String[] userList = (groups.getProperty(groupName) + "").split(",");
+         String[] userList = (roles.getProperty(groupName) + "").split(",");
          for (int i = 0; i < userList.length; i++) {
             if (username.equals(userList[i])) {
-               userGroups.add(groupName);
+               userRoles.add(groupName);
                break;
             }
          }
       }
 
-      return userGroups;
+      return userRoles;
    }
 }

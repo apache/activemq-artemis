@@ -81,7 +81,6 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
       Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
-      Assert.assertEquals(unknownUser, notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
    }
 
    @Test

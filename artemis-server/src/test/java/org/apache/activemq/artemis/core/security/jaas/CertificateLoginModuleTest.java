@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.activemq.artemis.spi.core.security.jaas.JaasCertificateCallbackHandler;
+import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.junit.Assert;
@@ -37,17 +37,17 @@ import org.junit.Test;
 public class CertificateLoginModuleTest extends Assert {
 
    private static final String USER_NAME = "testUser";
-   private static final List<String> GROUP_NAMES = new Vector<String>();
+   private static final List<String> ROLE_NAMES = new Vector<String>();
 
    private StubCertificateLoginModule loginModule;
 
    private Subject subject;
 
    public CertificateLoginModuleTest() {
-      GROUP_NAMES.add("testGroup1");
-      GROUP_NAMES.add("testGroup2");
-      GROUP_NAMES.add("testGroup3");
-      GROUP_NAMES.add("testGroup4");
+      ROLE_NAMES.add("testRole1");
+      ROLE_NAMES.add("testRole2");
+      ROLE_NAMES.add("testRole3");
+      ROLE_NAMES.add("testRole4");
    }
 
    @Before
@@ -55,9 +55,9 @@ public class CertificateLoginModuleTest extends Assert {
       subject = new Subject();
    }
 
-   private void loginWithCredentials(String userName, Set<String> groupNames) throws LoginException {
-      loginModule = new StubCertificateLoginModule(userName, new HashSet<String>(groupNames));
-      JaasCertificateCallbackHandler callbackHandler = new JaasCertificateCallbackHandler(null);
+   private void loginWithCredentials(String userName, Set<String> rolesNames) throws LoginException {
+      loginModule = new StubCertificateLoginModule(userName, new HashSet<String>(rolesNames));
+      JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
       loginModule.initialize(subject, callbackHandler, null, new HashMap());
 
@@ -67,9 +67,9 @@ public class CertificateLoginModuleTest extends Assert {
 
    private void checkPrincipalsMatch(Subject subject) {
       boolean nameFound = false;
-      boolean[] groupsFound = new boolean[GROUP_NAMES.size()];
-      for (int i = 0; i < groupsFound.length; ++i) {
-         groupsFound[i] = false;
+      boolean[] rolesFound = new boolean[ROLE_NAMES.size()];
+      for (int i = 0; i < rolesFound.length; ++i) {
+         rolesFound[i] = false;
       }
 
       for (Iterator iter = subject.getPrincipals().iterator(); iter.hasNext(); ) {
@@ -91,17 +91,17 @@ public class CertificateLoginModuleTest extends Assert {
 
          }
          else if (currentPrincipal instanceof RolePrincipal) {
-            int principalIdx = GROUP_NAMES.indexOf(((RolePrincipal) currentPrincipal).getName());
+            int principalIdx = ROLE_NAMES.indexOf(((RolePrincipal) currentPrincipal).getName());
 
             if (principalIdx < 0) {
-               fail("Unknown GroupPrincipal found.");
+               fail("Unknown RolePrincipal found.");
             }
 
-            if (!groupsFound[principalIdx]) {
-               groupsFound[principalIdx] = true;
+            if (!rolesFound[principalIdx]) {
+               rolesFound[principalIdx] = true;
             }
             else {
-               fail("GroupPrincipal found twice.");
+               fail("RolePrincipal found twice.");
             }
          }
          else {
@@ -113,7 +113,7 @@ public class CertificateLoginModuleTest extends Assert {
    @Test
    public void testLoginSuccess() throws IOException {
       try {
-         loginWithCredentials(USER_NAME, new HashSet<String>(GROUP_NAMES));
+         loginWithCredentials(USER_NAME, new HashSet<String>(ROLE_NAMES));
       }
       catch (Exception e) {
          fail("Unable to login: " + e.getMessage());
@@ -141,7 +141,7 @@ public class CertificateLoginModuleTest extends Assert {
    @Test
    public void testLogOut() throws IOException {
       try {
-         loginWithCredentials(USER_NAME, new HashSet<String>(GROUP_NAMES));
+         loginWithCredentials(USER_NAME, new HashSet<String>(ROLE_NAMES));
       }
       catch (Exception e) {
          fail("Unable to login: " + e.getMessage());

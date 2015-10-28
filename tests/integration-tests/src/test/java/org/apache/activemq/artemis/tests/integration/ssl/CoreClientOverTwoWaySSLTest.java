@@ -70,15 +70,15 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
 
    /**
-    * These artifacts are required for testing 2-way SSL
+    * These artifacts are required for testing 2-way SSL in addition to the artifacts for 1-way SSL
     *
     * Commands to create the JKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
+    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
     * Commands to create the JCEKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
+    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore client-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */

@@ -23,9 +23,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import javax.security.cert.X509Certificate;
 import java.io.IOException;
 import java.security.Principal;
-import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 /**
  * A LoginModule that allows for authentication based on SSL certificates.
  * Allows for subclasses to define methods used to verify user certificates and
- * find user groups. Uses CertificateCallbacks to retrieve certificates.
+ * find user roles. Uses CertificateCallbacks to retrieve certificates.
  */
 public abstract class CertificateLoginModule implements LoginModule {
 
@@ -44,7 +44,7 @@ public abstract class CertificateLoginModule implements LoginModule {
 
    private X509Certificate[] certificates;
    private String username;
-   private Set<String> groups;
+   private Set<String> roles;
    private Set<Principal> principals = new HashSet<Principal>();
    private boolean debug;
 
@@ -87,7 +87,7 @@ public abstract class CertificateLoginModule implements LoginModule {
          throw new FailedLoginException("No user for client certificate: " + getDistinguishedName(certificates));
       }
 
-      groups = getUserGroups(username);
+      roles = getUserRoles(username);
 
       if (debug) {
          ActiveMQServerLogger.LOGGER.debug("Certificate for user: " + username);
@@ -102,8 +102,8 @@ public abstract class CertificateLoginModule implements LoginModule {
    public boolean commit() throws LoginException {
       principals.add(new UserPrincipal(username));
 
-      for (String group : groups) {
-         principals.add(new RolePrincipal(group));
+      for (String role : roles) {
+         principals.add(new RolePrincipal(role));
       }
 
       subject.getPrincipals().addAll(principals);
@@ -147,13 +147,13 @@ public abstract class CertificateLoginModule implements LoginModule {
     * Helper method.
     */
    private void clear() {
-      groups.clear();
+      roles.clear();
       certificates = null;
    }
 
    /**
     * Should return a unique name corresponding to the certificates given. The
-    * name returned will be used to look up access levels as well as group
+    * name returned will be used to look up access levels as well as role
     * associations.
     *
     * @param certs The distinguished name.
@@ -162,14 +162,14 @@ public abstract class CertificateLoginModule implements LoginModule {
    protected abstract String getUserNameForCertificates(final X509Certificate[] certs) throws LoginException;
 
    /**
-    * Should return a set of the groups this user belongs to. The groups
+    * Should return a set of the roles this user belongs to. The roles
     * returned will be added to the user's credentials.
     *
     * @param username The username of the client. This is the same name that
     *                 getUserNameForDn returned for the user's DN.
-    * @return A Set of the names of the groups this user belongs to.
+    * @return A Set of the names of the roles this user belongs to.
     */
-   protected abstract Set<String> getUserGroups(final String username) throws LoginException;
+   protected abstract Set<String> getUserRoles(final String username) throws LoginException;
 
    protected String getDistinguishedName(final X509Certificate[] certs) {
       if (certs != null && certs.length > 0 && certs[0] != null) {

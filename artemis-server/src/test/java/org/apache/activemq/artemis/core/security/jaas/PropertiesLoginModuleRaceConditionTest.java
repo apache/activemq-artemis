@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.spi.core.security.jaas.JaasCredentialCallbackHandler;
+import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PropertiesLoginModuleRaceConditionTest {
 
-   private static final String GROUPS_FILE = "roles.properties";
+   private static final String ROLES_FILE = "roles.properties";
    private static final String USERS_FILE = "users.properties";
    private static final String USERNAME = "first";
    private static final String PASSWORD = "secret";
@@ -114,12 +114,12 @@ public class PropertiesLoginModuleRaceConditionTest {
       options.put("reload", "true"); // Used to simplify reproduction of the
       // race condition
       options.put("org.apache.activemq.jaas.properties.user", USERS_FILE);
-      options.put("org.apache.activemq.jaas.properties.role", GROUPS_FILE);
+      options.put("org.apache.activemq.jaas.properties.role", ROLES_FILE);
       options.put("baseDir", temp.getRoot().getAbsolutePath());
 
       errors = new ArrayBlockingQueue<Exception>(processorCount());
       pool = Executors.newFixedThreadPool(processorCount());
-      callback = new JaasCredentialCallbackHandler(USERNAME, PASSWORD);
+      callback = new JaasCallbackHandler(USERNAME, PASSWORD, null);
    }
 
    @After
@@ -182,7 +182,7 @@ public class PropertiesLoginModuleRaceConditionTest {
       for (int i = 0; i < 100; i++) {
          groups.put("group" + i, "first,second,third");
       }
-      store(groups, temp.newFile(GROUPS_FILE));
+      store(groups, temp.newFile(ROLES_FILE));
    }
 
    private void createUsers() throws FileNotFoundException, IOException {

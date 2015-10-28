@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.security.jaas;
 
 import javax.security.auth.login.LoginException;
-import java.security.cert.X509Certificate;
+import javax.security.cert.X509Certificate;
 import java.util.Set;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
@@ -40,7 +40,7 @@ public class StubCertificateLoginModule extends CertificateLoginModule {
       return userName;
    }
 
-   protected Set getUserGroups(String username) throws LoginException {
+   protected Set getUserRoles(String username) throws LoginException {
       lastUserName = username;
       return this.groupNames;
    }
