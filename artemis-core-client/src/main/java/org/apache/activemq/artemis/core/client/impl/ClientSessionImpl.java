@@ -142,6 +142,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
 
+   private final Executor closeExecutor;
+
    ClientSessionImpl(final ClientSessionFactoryInternal sessionFactory,
                      final String name,
                      final String username,
@@ -167,7 +169,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final String groupID,
                      final SessionContext sessionContext,
                      final Executor executor,
-                     final Executor flowControlExecutor) throws ActiveMQException {
+                     final Executor flowControlExecutor,
+                     final Executor closeExecutor) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
 
       this.name = name;
@@ -223,6 +226,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       sessionContext.setSession(this);
 
       confirmationWindowWarning = sessionFactory.getConfirmationWindowWarning();
+
+      this.closeExecutor = closeExecutor;
    }
 
    // ClientSession implementation
@@ -768,7 +773,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       final ClientConsumerInternal consumer = getConsumer(context);
 
       if (consumer != null) {
-         executor.execute(new Runnable() {
+         closeExecutor.execute(new Runnable() {
             @Override
             public void run() {
                try {
