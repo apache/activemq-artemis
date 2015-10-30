@@ -30,6 +30,10 @@ public class PageCountSyncServer extends SpawnedServerSupport {
       return SpawnedVMSupport.spawnVM(PageCountSyncServer.class.getName(), testDir, "" + timeToRun);
    }
 
+   public static Process spawnVMWithLogMacher(final String wordMatch, final Runnable runnable, final String testDir, final long timeToRun) throws Exception {
+      return SpawnedVMSupport.spawnVMWithLogMacher(wordMatch, runnable, PageCountSyncServer.class.getName(), null, true, testDir, "" + timeToRun);
+   }
+
    public void perform(final String folder, final long timeToRun) throws Exception {
 
       try {
@@ -37,6 +41,7 @@ public class PageCountSyncServer extends SpawnedServerSupport {
 
          server.start();
 
+         System.out.println(PageCountSyncOnNonTXTest.WORD_START);
          System.out.println("Server started!!!");
 
          System.out.println("Waiting " + timeToRun + " seconds");
