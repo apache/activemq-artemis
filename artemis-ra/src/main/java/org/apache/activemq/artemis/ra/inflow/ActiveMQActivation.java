@@ -30,9 +30,11 @@ import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -42,6 +44,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
@@ -111,8 +115,14 @@ public class ActiveMQActivation {
 
    private ActiveMQConnectionFactory factory;
 
+   private List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+
+   private Map<String, Long> removedNodes = new ConcurrentHashMap<String, Long>();
+
+   private boolean lastReceived = false;
+
    // Whether we are in the failure recovery loop
-   private final AtomicBoolean inFailure = new AtomicBoolean(false);
+   private final AtomicBoolean inReconnect = new AtomicBoolean(false);
    private XARecoveryConfig resourceRecovery;
 
    static {
@@ -338,6 +348,9 @@ public class ActiveMQActivation {
       Map<String, String> recoveryConfProps = new HashMap<String, String>();
       recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, ra.getJndiName());
       resourceRecovery = ra.getRecoveryManager().register(factory, spec.getUser(), spec.getPassword(), recoveryConfProps);
+      if (spec.isRebalanceConnections()) {
+         factory.getServerLocator().addClusterTopologyListener(new RebalancingListener());
+      }
 
       ActiveMQRALogger.LOGGER.debug("Setup complete " + this);
    }
@@ -430,6 +443,9 @@ public class ActiveMQActivation {
          ra.closeConnectionFactory(spec);
          factory = null;
       }
+
+      nodes.clear();
+      lastReceived = false;
 
       ActiveMQRALogger.LOGGER.debug("Tearing down complete " + this);
    }
@@ -610,27 +626,34 @@ public class ActiveMQActivation {
       return buffer.toString();
    }
 
+   public void rebalance() {
+      ActiveMQRALogger.LOGGER.rebalancingConnections();
+      reconnect(null);
+   }
+
    /**
-    * Handles any failure by trying to reconnect
+    * Drops all existing connection-related resources and reconnects
     *
-    * @param failure the reason for the failure
+    * @param failure if reconnecting in the event of a failure
     */
-   public void handleFailure(Throwable failure) {
-      if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
-         ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
-      }
-      else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
-         ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
-      }
-      else {
-         ActiveMQRALogger.LOGGER.failureInActivation(failure, spec);
+   public void reconnect(Throwable failure) {
+      if (failure != null) {
+         if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+            ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
+         }
+         else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+            ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
+         }
+         else {
+            ActiveMQRALogger.LOGGER.failureInActivation(failure, spec);
+         }
       }
       int reconnectCount = 0;
       int setupAttempts = spec.getSetupAttempts();
       long setupInterval = spec.getSetupInterval();
 
-      // Only enter the failure loop once
-      if (inFailure.getAndSet(true))
+      // Only enter the reconnect loop once
+      if (inReconnect.getAndSet(true))
          return;
       try {
          Throwable lastException = failure;
@@ -675,7 +698,7 @@ public class ActiveMQActivation {
       }
       finally {
          // Leaving failure recovery loop
-         inFailure.set(false);
+         inReconnect.set(false);
       }
    }
 
@@ -693,11 +716,55 @@ public class ActiveMQActivation {
             setup();
          }
          catch (Throwable t) {
-            handleFailure(t);
+            reconnect(t);
          }
       }
 
       public void release() {
+      }
+   }
+
+   private class RebalancingListener implements ClusterTopologyListener {
+      @Override
+      public void nodeUP(TopologyMember member, boolean last) {
+         boolean newNode = false;
+
+         String id = member.getNodeId();
+         if (!nodes.contains(id)) {
+            if (removedNodes.get(id) == null || (removedNodes.get(id) != null && removedNodes.get(id) < member.getUniqueEventID())) {
+               nodes.add(id);
+               newNode = true;
+            }
+         }
+
+         if (lastReceived && newNode) {
+            Runnable runnable = new Runnable() {
+               @Override
+               public void run() {
+                  rebalance();
+               }
+            };
+            Thread t = new Thread(runnable, "NodeUP Connection Rebalancer");
+            t.start();
+         }
+         else if (last) {
+            lastReceived = true;
+         }
+      }
+
+      @Override
+      public void nodeDown(long eventUID, String nodeID) {
+         if (nodes.remove(nodeID)) {
+            removedNodes.put(nodeID, eventUID);
+            Runnable runnable = new Runnable() {
+               @Override
+               public void run() {
+                  rebalance();
+               }
+            };
+            Thread t = new Thread(runnable, "NodeDOWN Connection Rebalancer");
+            t.start();
+         }
       }
    }
 }

@@ -73,6 +73,10 @@ public interface ActiveMQRALogger extends BasicLogger {
    @Message(id = 151005, value = "awaiting server availability", format = Message.Format.MESSAGE_FORMAT)
    void awaitingJMSServerCreation();
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 151006, value = "Cluster topology change detected. Re-balancing connections.", format = Message.Format.MESSAGE_FORMAT)
+   void rebalancingConnections();
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 152001, value = "problem resetting xa session after failure", format = Message.Format.MESSAGE_FORMAT)
    void problemResettingXASession();
