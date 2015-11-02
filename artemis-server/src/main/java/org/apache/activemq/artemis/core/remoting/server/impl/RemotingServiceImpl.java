@@ -205,15 +205,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
-      HashSet<TransportConfiguration> namelessAcceptors = new HashSet<>();
-
       for (TransportConfiguration info : acceptorsConfig) {
-         TransportConfiguration nameless = info.newTransportConfig("");
-         if (namelessAcceptors.contains(nameless)) {
-            ActiveMQServerLogger.LOGGER.duplicatedAcceptor(info.getName(), "" + info.getParams(), info.getFactoryClassName());
-            continue;
-         }
-         namelessAcceptors.add(nameless);
          try {
             AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
