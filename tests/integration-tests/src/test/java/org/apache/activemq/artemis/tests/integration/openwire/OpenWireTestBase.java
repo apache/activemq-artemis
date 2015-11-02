@@ -70,7 +70,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
 
-      serverConfig.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
       serverConfig.setSecurityEnabled(enableSecurity);
 
       extraServerConfig(serverConfig);
