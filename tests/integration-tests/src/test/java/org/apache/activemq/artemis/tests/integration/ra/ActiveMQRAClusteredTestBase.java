@@ -45,34 +45,49 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
       secondaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
 
-      secondaryServer = addServer(ActiveMQServers.newActiveMQServer(createSecondaryDefaultConfig(true, true), mbeanServer, usePersistence()));
+      secondaryServer = addServer(ActiveMQServers.newActiveMQServer(createSecondaryDefaultConfig(true), mbeanServer, usePersistence()));
       addServer(secondaryServer);
       secondaryJmsServer = new JMSServerManagerImpl(secondaryServer);
       secondaryJmsServer.start();
       waitForTopology(secondaryServer, 2);
+
    }
 
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
-      return createSecondaryDefaultConfig(netty, false);
+      return createSecondaryDefaultConfig(false);
    }
 
-   protected Configuration createSecondaryDefaultConfig(boolean netty, boolean secondary) throws Exception {
+   protected Configuration createSecondaryDefaultConfig(boolean secondary) throws Exception {
       HashMap invmMap = new HashMap();
       HashMap nettyMap = new HashMap();
       String primaryConnectorName = "invm2";
       String secondaryConnectorName = "invm";
-      String directoryPrefix = "first";
+      int index = 0;
 
       if (secondary) {
          invmMap.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
          nettyMap.put("port", "5545");
          primaryConnectorName = "invm";
          secondaryConnectorName = "invm2";
-         directoryPrefix = "second";
+         index = 1;
       }
 
-      ConfigurationImpl configuration = createBasicConfig().setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap)).setJournalDirectory(getTestDir() + "/" + directoryPrefix + "Journal/").setBindingsDirectory(getTestDir() + "/" + directoryPrefix + "Bind/").setLargeMessagesDirectory(getTestDir() + "/" + directoryPrefix + "Large/").setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page/").addConnectorConfiguration(secondaryConnectorName, secondaryConnector).addConnectorConfiguration(primaryConnectorName, primaryConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
+      ConfigurationImpl configuration = createBasicConfig(index)
+         .setJMXManagementEnabled(false)
+         .clearAcceptorConfigurations()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))
+         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap))
+         .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
+         .addConnectorConfiguration(primaryConnectorName, primaryConnector)
+         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName).setReconnectAttempts(0));
+
+      recreateDataDirectories(getTestDir(), index, false);
 
       return configuration;
+   }
+
+   @Override
+   protected boolean usePersistence() {
+      return true;
    }
 }

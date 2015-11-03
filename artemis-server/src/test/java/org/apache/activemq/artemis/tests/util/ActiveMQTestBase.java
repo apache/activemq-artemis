@@ -810,6 +810,10 @@ public abstract class ActiveMQTestBase extends Assert {
       deleteDirectory(file);
       file.mkdirs();
 
+      recreateDataDirectories(testDir1, index, backup);
+   }
+
+   protected void recreateDataDirectories(String testDir1, int index, boolean backup) {
       recreateDirectory(getJournalDir(testDir1, index, backup));
       recreateDirectory(getBindingsDir(testDir1, index, backup));
       recreateDirectory(getPageDir(testDir1, index, backup));
