@@ -16,12 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
+import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TransportConfigurationTest extends ActiveMQTestBase {
 
@@ -63,6 +69,75 @@ public class TransportConfigurationTest extends ActiveMQTestBase {
       Assert.assertEquals("192.168.0.10", addresses[2]);
    }
 
+   @Test
+   public void testSameHostNettyTrue() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put("host", "blah");
+      params1.put("port", "5467");
+      TransportConfiguration tc1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params1);
+      Map<String, Object> params2 = new HashMap<>();
+      params2.put("host", "blah");
+      params2.put("port", "5467");
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
+
+   @Test
+   public void testSameHostNettyFalse() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put("host", "blah");
+      params1.put("port", "5467");
+      TransportConfiguration tc1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params1);
+      Map<String, Object> params2 = new HashMap<>();
+      params2.put("host", "blah2");
+      params2.put("port", "5467");
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
+
+   @Test
+   public void testSameHostNettyTrueDefault() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put("host", TransportConstants.DEFAULT_HOST);
+      params1.put("port", TransportConstants.DEFAULT_PORT);
+      TransportConfiguration tc1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params1);
+      Map<String, Object> params2 = new HashMap<>();
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
+
+   @Test
+   public void testSameHostInVMTrue() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah");
+      TransportConfiguration tc1 = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1);
+      Map<String, Object> params2 = new HashMap<>();
+      params2.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah");
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
+
+   @Test
+   public void testSameHostInVMFalse() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah");
+      TransportConfiguration tc1 = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1);
+      Map<String, Object> params2 = new HashMap<>();
+      params2.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "blah3");
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertFalse(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
+
+
+   @Test
+   public void testSameHostInVMTrueDefault() {
+      Map<String, Object> params1 = new HashMap<>();
+      params1.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "0");
+      TransportConfiguration tc1 = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1);
+      Map<String, Object> params2 = new HashMap<>();
+      TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);
+      Assert.assertTrue(TransportConfigurationUtil.isSameHost(tc1, tc2));
+   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
@@ -1295,7 +1296,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                                boolean isLast) {
          // if it is our connector then set the live id used for failover
-         if (connectorPair.getA() != null && connectorPair.getA().isSameHost(connectorConfig)) {
+         if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), connectorConfig)) {
             liveNodeID = nodeID;
          }
          serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);

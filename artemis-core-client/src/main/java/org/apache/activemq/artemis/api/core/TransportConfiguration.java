@@ -174,7 +174,7 @@ public class TransportConfiguration implements Serializable {
 
       TransportConfiguration that = (TransportConfiguration) o;
 
-      if (!isSameHost(that)) {
+      if (!isSameParams(that)) {
          return false;
       }
 
@@ -184,7 +184,7 @@ public class TransportConfiguration implements Serializable {
       return true;
    }
 
-   public boolean isSameHost(TransportConfiguration that) {
+   public boolean isSameParams(TransportConfiguration that) {
       if (!factoryClassName.equals(that.factoryClassName))
          return false;
       if (params != null ? !params.equals(that.params) : that.params != null)
