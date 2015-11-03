@@ -45,7 +45,7 @@ under the License.
 ${journal-buffer.settings}
 ${connector-config.settings}
       <acceptors>
-         <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
+         <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports ActiveMQ Artemis Core, OpenWire, STOMP, AMQP, MQTT, and HornetQ Core. -->
          <!-- performance tests have shown that openWire performs best with these buffer sizes -->
          <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
 
@@ -55,7 +55,7 @@ ${connector-config.settings}
          <!-- STOMP Acceptor. -->
          <acceptor name="stomp">tcp://${host}:${stomp.port}?protocols=STOMP</acceptor>
 
-         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Artemis Core and STOMP for legacy HornetQ clients. -->
+         <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
          <acceptor name="hornetq">tcp://${host}:${hq.port}?protocols=HORNETQ,STOMP</acceptor>
 
          <!-- MQTT Acceptor -->
