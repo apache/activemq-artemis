@@ -82,7 +82,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
       String newHost = IPV6Util.encloseHost(host);
 
       // We really want to check the objects here
-      // Some bug finders may report this as an error, hence the SupressWarnings on this method
+      // Some bug finders may report this as an error, hence the SuppressWarnings on this method
       if (host != newHost) {
          params.put("host", "[" + host + "]");
       }
