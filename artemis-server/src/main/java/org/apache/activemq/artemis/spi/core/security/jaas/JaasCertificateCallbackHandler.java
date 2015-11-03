@@ -44,7 +44,7 @@ public class JaasCertificateCallbackHandler implements CallbackHandler {
     *
     * @param callbacks The callbacks requested.
     * @throws IOException
-    * @throws UnsupportedCallbackException Thrown if an unkown Callback type is
+    * @throws UnsupportedCallbackException Thrown if an unknown Callback type is
     *                                      encountered.
     */
    @Override

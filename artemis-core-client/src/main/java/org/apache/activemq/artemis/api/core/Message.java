@@ -57,12 +57,12 @@ public interface Message {
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    /**
-    * The original address of a message when a message is transfered through DLQ or expiry
+    * The original address of a message when a message is transferred through DLQ or expiry
     */
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
 
    /**
-    * The original address of a message when a message is transfered through DLQ or expiry
+    * The original address of a message when a message is transferred through DLQ or expiry
     */
    SimpleString HDR_ORIGINAL_QUEUE = new SimpleString("_AMQ_ORIG_QUEUE");
 

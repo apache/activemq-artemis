@@ -321,7 +321,7 @@ public class ClusterController implements ActiveMQComponent {
             if (packet.getType() == PacketImpl.CLUSTER_CONNECT) {
                ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
 
-               //if this acceptor isnt associated with a cluster connection use the default
+               //if this acceptor isn't associated with a cluster connection use the default
                if (clusterConnection == null) {
                   clusterConnection = server.getClusterManager().getDefaultConnection(null);
                }
