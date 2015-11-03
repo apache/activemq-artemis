@@ -394,7 +394,7 @@ Depending on the user login data, authentication proceeds as follows:
 
 -   User logs in with a valid password — the guest login module fails to authenticate the user (because the user has 
     presented a password while the credentialsInvalidate option is enabled) and authentication proceeds to the properties 
-    login module. The properties login module sucessfully authenticates the user and returns.
+    login module. The properties login module successfully authenticates the user and returns.
 
 -   User logs in with an invalid password — the guest login module fails to authenticate the user and authentication proceeds
     to the properties login module. The properties login module also fails to authenticate the user. The nett result is 

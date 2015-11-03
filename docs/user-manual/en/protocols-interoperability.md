@@ -23,7 +23,7 @@ is a whole section on configuring transports that can be found [here](configurin
 The default configuration shipped with the ActiveMQ Artemis distribution comes with a number of acceptors already
 defined, one for each of the above protocols plus a generic acceptor that supports all protocols.  To enable a
 protocol on a particular acceptor simply add a url parameter "protocol=AMQP,STOMP" to the acceptor url.  Where the value
-of the parameter is a comma separated list of protocol names.  If the protocol parameter is ommited from the url all
+of the parameter is a comma separated list of protocol names.  If the protocol parameter is omitted from the url all
 protocols are enabled.
 
     <!-- The following example enables only MQTT on port 1883 -->
@@ -159,7 +159,7 @@ but if something fails and the message does not reach it's destination (say due 
 may be lost.  This QoS has the least network traffic overhead and the least burden on the client and the broker and is often
 useful for telemetry data where it doesn't matter if some of the data is lost.
 
-* QoS 1: AT LEAST ONCE: Guarentees that a message will reach it's intended recipient one or more times.  The sender will
+* QoS 1: AT LEAST ONCE: Guarantees that a message will reach it's intended recipient one or more times.  The sender will
 continue to send the message until it receives an acknowledgment from the recipient, confirming it has received the message.
 The result of this QoS is that the recipient may receive the message multiple times, and also increases the network
 overhead than QoS 0, (due to acks).  In addition more burden is placed on the sender as it needs to store the message
@@ -189,14 +189,14 @@ Other subscribers to the will topic will receive the will message and can react 
 
 ### Wild card subscriptions
 
-MQTT addresses are hierarchical much like a file system, and use "/" charactor to separate heirarchical levels.
-Subscribers are able to subscribe to specific topics or to whole branches of a heirarchy.
+MQTT addresses are hierarchical much like a file system, and use "/" character to separate hierarchical levels.
+Subscribers are able to subscribe to specific topics or to whole branches of a hierarchy.
 
 To subscribe to branches of an address hierarchy a subscriber can use wild cards.
 
 There are 2 types of wild card in MQTT:
 
- * "#" Multi level wild card.  Adding this wild card to an address would match all branches of the address heirarchy
+ * "#" Multi level wild card.  Adding this wild card to an address would match all branches of the address hierarchy
  under a specified node.  For example:  /uk/#  Would match /uk/cities, /uk/cities/newcastle and also /uk/rivers/tyne.
  Subscribing to an address "#" would result in subscribing to all topics in the broker.  This can be useful, but should
  be done so with care since it has significant performance implications.

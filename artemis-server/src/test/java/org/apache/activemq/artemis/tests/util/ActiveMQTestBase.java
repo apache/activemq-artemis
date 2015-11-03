@@ -1271,7 +1271,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
       if (server.isStarted()) {
          log.info(threadDump("Server didn't start"));
-         fail("server didnt start: " + server);
+         fail("Server didn't start: " + server);
       }
    }
 

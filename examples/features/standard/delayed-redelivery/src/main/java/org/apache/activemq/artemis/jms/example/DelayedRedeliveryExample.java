@@ -85,7 +85,7 @@ public class DelayedRedeliveryExample {
          messageReceived = (TextMessage) messageConsumer.receive(3000);
 
          if (messageReceived != null) {
-            throw new IllegalStateException("Expected to recieve message.");
+            throw new IllegalStateException("Expected to receive message.");
          }
 
          System.out.println("Redelivery has been delayed so received message is " + messageReceived);
