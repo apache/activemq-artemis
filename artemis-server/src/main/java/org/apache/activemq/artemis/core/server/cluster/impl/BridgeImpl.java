@@ -571,7 +571,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-      ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(me, failedOver);
+      ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(failedOver);
 
       synchronized (connectionGuard) {
          keepConnecting = true;

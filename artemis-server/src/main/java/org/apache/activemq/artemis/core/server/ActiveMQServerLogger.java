@@ -694,7 +694,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222095, value = "Connection failed with failedOver={0}", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeConnectionFailed(@Cause Exception e, Boolean failedOver);
+   void bridgeConnectionFailed(Boolean failedOver);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222096, value = "Error on querying binding on bridge {0}. Retrying in 100 milliseconds", format = Message.Format.MESSAGE_FORMAT)
