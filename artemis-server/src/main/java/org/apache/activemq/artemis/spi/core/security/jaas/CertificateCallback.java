@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import javax.security.auth.callback.Callback;
-import java.security.cert.X509Certificate;
+import javax.security.cert.X509Certificate;
 
 /**
  * A Callback for SSL certificates.

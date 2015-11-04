@@ -19,16 +19,20 @@ package org.apache.activemq.artemis.spi.core.security;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.security.cert.X509Certificate;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.spi.core.security.jaas.JaasCredentialCallbackHandler;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
@@ -36,33 +40,51 @@ import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
  * The {@link Subject} returned by the login context is expecting to have a set of {@link RolePrincipal} for each
  * role of the user.
  */
-public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager {
+public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
    private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private String configurationName;
 
-   public boolean validateUser(final String user, final String password) {
+   @Override
+   public boolean validateUser(String user, String password) {
+      throw new UnsupportedOperationException("Invoke validateUser(String, String, X509Certificate[]) instead");
+   }
+
+   @Override
+   public boolean validateUser(final String user, final String password, X509Certificate[] certificates) {
       try {
-         getAuthenticatedSubject(user, password);
+         getAuthenticatedSubject(user, password, certificates);
          return true;
       }
       catch (LoginException e) {
-         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user: " + user, e);
+         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user", e);
          return false;
       }
    }
 
+   @Override
+   public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
+      throw new UnsupportedOperationException("Invoke validateUserAndRole(String, String, Set<Role>, CheckType, String, RemotingConnection) instead");
+   }
+
+   @Override
    public boolean validateUserAndRole(final String user,
                                       final String password,
                                       final Set<Role> roles,
-                                      final CheckType checkType) {
+                                      final CheckType checkType,
+                                      final String address,
+                                      final RemotingConnection connection) {
+      X509Certificate[] certificates = null;
+      if (connection.getTransportConnection() instanceof NettyConnection) {
+         certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
+      }
       Subject localSubject;
       try {
-         localSubject = getAuthenticatedSubject(user, password);
+         localSubject = getAuthenticatedSubject(user, password, certificates);
       }
       catch (LoginException e) {
-         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user: " + user, e);
+         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user", e);
          return false;
       }
 
@@ -85,15 +107,15 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager {
          }
 
          if (trace) {
-            ActiveMQServerLogger.LOGGER.trace("user " + user + (authorized ? " is " : " is NOT ") + "authorized");
+            ActiveMQServerLogger.LOGGER.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
          }
       }
 
       return authorized;
    }
 
-   private Subject getAuthenticatedSubject(final String user, final String password) throws LoginException {
-      LoginContext lc = new LoginContext(configurationName, new JaasCredentialCallbackHandler(user, password));
+   private Subject getAuthenticatedSubject(final String user, final String password, final X509Certificate[] certificates) throws LoginException {
+      LoginContext lc = new LoginContext(configurationName, new JaasCallbackHandler(user, password, certificates));
       lc.login();
       return lc.getSubject();
    }

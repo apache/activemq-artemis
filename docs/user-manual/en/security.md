@@ -522,7 +522,7 @@ managed using the X.500 system. It is implemented by `org.apache.activemq.artemi
         `javax.naming.directory.SearchControls.SUBTREE_SCOPE`).
 
 -   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it 
-should be set to `false`, or omitted; default is `false`
+    should be set to `false`, or omitted; default is `false`
 
 Add user entries under the node specified by the `userBase` option. When creating a new user entry in the directory, 
 choose an object class that supports the `userPassword` attribute (for example, the `person` or `inetOrgPerson` object 
@@ -538,6 +538,109 @@ corresponding user (where the DN is specified either fully, `uid=jdoe,ou=User,ou
 
 If you want to add roles to user entries, you would need to customize the directory schema, by adding a suitable 
 attribute type to the user entry's object class. The chosen attribute type must be capable of handling multiple values.
+
+#### CertificateLoginModule
+
+The JAAS certificate authentication login module must be used in combination with SSL and the clients must be configured
+with their own certificate. In this scenario, authentication is actually performed during the SSL/TLS handshake, not 
+directly by the JAAS certificate authentication plug-in. The role of the plug-in is as follows:
+
+-   To further constrain the set of acceptable users, because only the user DNs explicitly listed in the relevant 
+    properties file are eligible to be authenticated.
+
+-   To associate a list of groups with the received user identity, facilitating integration with the authorization feature.
+
+-   To require the presence of an incoming certificate (by default, the SSL/TLS layer is configured to treat the 
+    presence of a client certificate as optional).
+
+The JAAS certificate login module stores a collection of certificate DNs in a pair of flat files. The files associate a 
+username and a list of group IDs with each DN.
+
+The certificate login module is implemented by the following class:
+
+    org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule
+
+The following `CertLogin` login entry shows how to configure certificate login module in the login.config file:
+
+    CertLogin {
+        org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule
+            debug=true
+            org.apache.activemq.jaas.textfiledn.user="users.properties"
+            org.apache.activemq.jaas.textfiledn.role="roles.properties";
+    };
+
+In the preceding example, the JAAS realm is configured to use a single `org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule`
+login module. The options supported by this login module are as follows:
+
+-   `debug` - boolean flag; if true, enable debugging; this is used only for testing or debugging; normally, 
+    it should be set to `false`, or omitted; default is `false`
+
+-   `org.apache.activemq.jaas.textfiledn.user` - specifies the location of the user properties file (relative to the 
+     directory containing the login configuration file).
+
+-   `org.apache.activemq.jaas.textfiledn.role` - specifies the location of the role properties file (relative to the 
+    directory containing the login configuration file).
+
+In the context of the certificate login module, the `users.properties` file consists of a list of properties of the form,
+`UserName=StringifiedSubjectDN`. For example, to define the users, system, user, and guest, you could create a file like
+the following:
+
+    system=CN=system,O=Progress,C=US
+    user=CN=humble user,O=Progress,C=US
+    guest=CN=anon,O=Progress,C=DE
+
+Each username is mapped to a subject DN, encoded as a string (where the string encoding is specified by RFC 2253). For 
+example, the system username is mapped to the `CN=system,O=Progress,C=US` subject DN. When performing authentication,
+the plug-in extracts the subject DN from the received certificate, converts it to the standard string format, and 
+compares it with the subject DNs in the `users.properties` file by testing for string equality. Consequently, you must 
+be careful to ensure that the subject DNs appearing in the `users.properties` file are an exact match for the subject
+DNs extracted from the user certificates.
+
+Note: Technically, there is some residual ambiguity in the DN string format. For example, the `domainComponent` attribute
+could be represented in a string either as the string, `DC`, or as the OID, `0.9.2342.19200300.100.1.25`. Normally, you do 
+not need to worry about this ambiguity. But it could potentially be a problem, if you changed the underlying 
+implementation of the Java security layer.
+
+The easiest way to obtain the subject DNs from the user certificates is by invoking the `keytool` utility to print the 
+certificate contents. To print the contents of a certificate in a keystore, perform the following steps:
+
+1.   Export the certificate from the keystore file into a temporary file. For example, to export the certificate with 
+     alias `broker-localhost` from the `broker.ks` keystore file, enter the following command:
+
+        keytool -export -file broker.export -alias broker-localhost -keystore broker.ks -storepass password
+
+     After running this command, the exported certificate is in the file, `broker.export`.
+
+1.   Print out the contents of the exported certificate. For example, to print out the contents of `broker.export`, 
+     enter the following command:
+
+        keytool -printcert -file broker.export
+
+     Which should produce output similar to that shown here:
+
+        Owner: CN=localhost, OU=broker, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+        Issuer: CN=localhost, OU=broker, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+        Serial number: 4537c82e
+        Valid from: Thu Oct 19 19:47:10 BST 2006 until: Wed Jan 17 18:47:10 GMT 2007
+        Certificate fingerprints:
+                 MD5:  3F:6C:0C:89:A8:80:29:CC:F5:2D:DA:5C:D7:3F:AB:37
+                 SHA1: F0:79:0D:04:38:5A:46:CE:86:E1:8A:20:1F:7B:AB:3A:46:E4:34:5C
+
+     The string following `Owner:` gives the subject DN. The format used to enter the subject DN depends on your 
+     platform. The `Owner:` string above could be represented as either `CN=localhost,\ OU=broker,\ O=Unknown,\ L=Unknown,\ ST=Unknown,\ C=Unknown`
+     or `CN=localhost,OU=broker,O=Unknown,L=Unknown,ST=Unknown,C=Unknown`.
+
+The `roles.properties` file consists of a list of properties of the form, `Role=UserList`, where `UserList` is a 
+comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file
+like the following:
+
+    admins=system
+    users=system,user
+    guests=guest
+
+The simplest way to make the login configuration available to JAAS is to add the directory containing the file, 
+`login.config`, to your CLASSPATH.
+
 
 ## Changing the username/password for clustering
 
