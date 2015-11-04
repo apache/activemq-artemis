@@ -16,44 +16,20 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.xa;
 
-import java.lang.reflect.Field;
+import static org.jgroups.util.Util.assertTrue;
+
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
-import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
-import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
 import org.junit.Test;
-
-import static org.jgroups.util.Util.assertTrue;
 
 public class ServiceUtilsTest {
 
    @Test
-   public void testSetActiveMQXAResourceWrapperFactorySetsDefaultImplWhenNoOther() throws Exception {
-      List<ActiveMQXAResourceWrapperFactory> factories = new ArrayList<ActiveMQXAResourceWrapperFactory>();
-
-      Method method = ServiceUtils.class.getDeclaredMethod("setActiveMQXAResourceWrapperFactory", Iterable.class);
+   public void testGetActiveMQXAResourceWrapperFactoryLoadsService() throws Exception {
+      Method method = ServiceUtils.class.getDeclaredMethod("getActiveMQXAResourceWrapperFactory");
       method.setAccessible(true);
-      method.invoke(null, factories);
-
-      Field field = ServiceUtils.class.getDeclaredField("activeMQXAResourceWrapperFactory");
-      field.setAccessible(true);
-      assertTrue(field.get(null) instanceof ActiveMQXAResourceWrapperFactoryImpl);
-   }
-
-   @Test
-   public void testSetActiveMQXAResourceWrapperFactorySetsExtensionImplWhenSupplied() throws Exception {
-      List<ActiveMQXAResourceWrapperFactory> factories = new ArrayList<ActiveMQXAResourceWrapperFactory>();
-      factories.add(new MockActiveMQResourceWrapperFactory());
-
-      Method method = ServiceUtils.class.getDeclaredMethod("setActiveMQXAResourceWrapperFactory", Iterable.class);
-      method.setAccessible(true);
-      method.invoke(null, factories);
-
-      Field field = ServiceUtils.class.getDeclaredField("activeMQXAResourceWrapperFactory");
-      field.setAccessible(true);
-      assertTrue(field.get(null) instanceof MockActiveMQResourceWrapperFactory);
+      Object o = method.invoke(null);
+      assertTrue(o instanceof MockActiveMQResourceWrapperFactory);
    }
 }
