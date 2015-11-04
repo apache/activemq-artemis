@@ -25,87 +25,41 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
-public class PropertiesLoginModule implements LoginModule {
+public class PropertiesLoginModule extends PropertiesLoader implements LoginModule {
 
-   private static final String USER_FILE = "org.apache.activemq.jaas.properties.user";
-   private static final String GROUP_FILE = "org.apache.activemq.jaas.properties.role";
+   private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.user";
+   private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.role";
 
    private Subject subject;
    private CallbackHandler callbackHandler;
 
-   private boolean debug;
-   private boolean reload = false;
-   private static volatile PrincipalProperties users;
-   private static volatile PrincipalProperties roles;
+   private Properties users;
+   private Properties roles;
    private String user;
    private final Set<Principal> principals = new HashSet<Principal>();
-   private File baseDir;
    private boolean loginSucceeded;
-   //    private boolean decrypt = true;
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+   public void initialize(Subject subject,
+                          CallbackHandler callbackHandler,
+                          Map sharedState,
+                          Map options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       loginSucceeded = false;
 
-      debug = "true".equalsIgnoreCase((String) options.get("debug"));
-      if (options.get("reload") != null) {
-         reload = "true".equalsIgnoreCase((String) options.get("reload"));
-      }
-
-      if (options.get("baseDir") != null) {
-         baseDir = new File((String) options.get("baseDir"));
-      }
-
-      setBaseDir();
-      String usersFile = options.get(USER_FILE) + "";
-      File uf = baseDir != null ? new File(baseDir, usersFile) : new File(usersFile);
-
-      if (reload || users == null || uf.lastModified() > users.getReloadTime()) {
-         if (debug) {
-            ActiveMQServerLogger.LOGGER.debug("Reloading users from " + uf.getAbsolutePath());
-         }
-         users = new PrincipalProperties("user", uf, ActiveMQServerLogger.LOGGER);
-         //            if( decrypt ) {
-         //                try {
-         //                    EncryptionSupport.decrypt(users.getPrincipals());
-         //                } catch(NoClassDefFoundError e) {
-         //                    // this Happens whe jasypt is not on the classpath..
-         //                    decrypt = false;
-         //                    ActiveMQServerLogger.LOGGER.info("jasypt is not on the classpath: password decryption disabled.");
-         //                }
-         //            }
-      }
-
-      String groupsFile = options.get(GROUP_FILE) + "";
-      File gf = baseDir != null ? new File(baseDir, groupsFile) : new File(groupsFile);
-      if (reload || roles == null || gf.lastModified() > roles.getReloadTime()) {
-         if (debug) {
-            ActiveMQServerLogger.LOGGER.debug("Reloading roles from " + gf.getAbsolutePath());
-         }
-         roles = new PrincipalProperties("role", gf, ActiveMQServerLogger.LOGGER);
-      }
-   }
-
-   private void setBaseDir() {
-      if (baseDir == null) {
-         if (System.getProperty("java.security.auth.login.config") != null) {
-            baseDir = new File(System.getProperty("java.security.auth.login.config")).getParentFile();
-            if (debug) {
-               ActiveMQServerLogger.LOGGER.debug("Using basedir=" + baseDir.getAbsolutePath());
-            }
-         }
-      }
+      init(options);
+      users = load(USER_FILE_PROP_NAME, "user", options).getProps();
+      roles = load(ROLE_FILE_PROP_NAME, "role", options).getProps();
    }
 
    @Override
@@ -153,12 +107,12 @@ public class PropertiesLoginModule implements LoginModule {
       if (result) {
          principals.add(new UserPrincipal(user));
 
-         for (Map.Entry<String, String> entry : roles.entries()) {
-            String name = entry.getKey();
+         for (Map.Entry<Object, Object> entry : roles.entrySet()) {
+            String name = (String) entry.getKey();
+            String[] userList = ((String) entry.getValue()).split(",");
             if (debug) {
                ActiveMQServerLogger.LOGGER.debug("Inspecting role '" + name + "' with user(s): " + entry.getValue());
             }
-            String[] userList = entry.getValue().split(",");
             for (int i = 0; i < userList.length; i++) {
                if (user.equals(userList[i])) {
                   principals.add(new RolePrincipal(name));
@@ -203,13 +157,5 @@ public class PropertiesLoginModule implements LoginModule {
    private void clear() {
       user = null;
       loginSucceeded = false;
-   }
-
-   /**
-    * For test-usage only.
-    */
-   public static void resetUsersAndGroupsCache() {
-      users = null;
-      roles = null;
    }
 }

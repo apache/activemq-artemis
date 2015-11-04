@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
 import org.junit.After;
 import org.junit.Before;
@@ -126,7 +127,7 @@ public class PropertiesLoginModuleRaceConditionTest {
    public void after() throws InterruptedException {
       pool.shutdown();
       assertTrue(pool.awaitTermination(500, TimeUnit.SECONDS));
-      PropertiesLoginModule.resetUsersAndGroupsCache();
+      PropertiesLoader.resetUsersAndGroupsCache();
    }
 
    @Test
