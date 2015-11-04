@@ -1080,7 +1080,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             }
             else {
                if (ClientSessionFactoryImpl.isDebug) {
-                  ActiveMQClientLogger.LOGGER.debug("Backup is not active yet");
+                  ActiveMQClientLogger.LOGGER.debug("Backup is not active.");
                }
             }
 

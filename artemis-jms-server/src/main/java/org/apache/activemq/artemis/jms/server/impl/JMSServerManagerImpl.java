@@ -1360,7 +1360,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    private synchronized void checkInitialised() {
       if (!active) {
-         throw new IllegalStateException("Cannot access JMS Server, core server is not yet active");
+         throw new IllegalStateException("Cannot access JMS Server, core server is not active");
       }
    }
 

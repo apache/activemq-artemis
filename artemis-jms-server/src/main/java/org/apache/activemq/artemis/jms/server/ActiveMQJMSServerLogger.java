@@ -48,7 +48,7 @@ public interface ActiveMQJMSServerLogger extends BasicLogger {
    ActiveMQJMSServerLogger LOGGER = Logger.getMessageLogger(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121004, value = "JMS Server Manager Caching command for {0} since the JMS Server is not active yet",
+   @Message(id = 121004, value = "JMS Server Manager Caching command for {0} since the JMS Server is not active.",
       format = Message.Format.MESSAGE_FORMAT)
    void serverCachingCommand(Object runnable);
 

@@ -254,7 +254,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void restartingReplicatedBackupAfterFailback();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221040, value = "Remote group coordinators did not start yet", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221040, value = "Remote group coordinators has not started.", format = Message.Format.MESSAGE_FORMAT)
    void remoteGroupCoordinatorsNotStarted();
 
    @LogMessage(level = Logger.Level.INFO)
@@ -701,7 +701,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorQueryingBridge(@Cause Throwable t, SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222097, value = "Address {0} does not have any bindings yet, retry #({1})",
+   @Message(id = 222097, value = "Address {0} does not have any bindings, retry #({1})",
       format = Message.Format.MESSAGE_FORMAT)
    void errorQueryingBridge(SimpleString address, Integer retryCount);
 
