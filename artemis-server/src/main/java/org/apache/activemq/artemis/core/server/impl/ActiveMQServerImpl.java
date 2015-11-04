@@ -569,7 +569,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     *
     * @param criticalIOError whether we have encountered an IO error with the journal etc
     */
-   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) throws Exception {
+   void stop(boolean failoverOnServerShutdown, final boolean criticalIOError, boolean restarting) {
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
             return;
@@ -584,7 +584,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // aren't removed in case of failover
          if (groupingHandler != null) {
             managementService.removeNotificationListener(groupingHandler);
-            groupingHandler.stop();
+            stopComponent(groupingHandler);
          }
          stopComponent(clusterManager);
 
@@ -595,11 +595,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // allows for graceful shutdown
          if (remotingService != null && configuration.isGracefulShutdownEnabled()) {
             long timeout = configuration.getGracefulShutdownTimeout();
-            if (timeout == -1) {
-               remotingService.getConnectionCountLatch().await();
+            try {
+               if (timeout == -1) {
+                  remotingService.getConnectionCountLatch().await();
+               }
+               else {
+                  remotingService.getConnectionCountLatch().await(timeout);
+               }
             }
-            else {
-               remotingService.getConnectionCountLatch().await(timeout);
+            catch (InterruptedException e) {
+               ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(remotingService.getClass().getName());
             }
          }
 
@@ -626,24 +631,45 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       callDeActiveCallbacks();
 
       stopComponent(backupManager);
-      activation.preStorageClose();
+
+      try {
+         activation.preStorageClose();
+      }
+      catch (Throwable t) {
+         ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, activation.getClass().getName());
+      }
+
       stopComponent(pagingManager);
 
       if (storageManager != null)
-         storageManager.stop(criticalIOError);
+         try {
+            storageManager.stop(criticalIOError);
+         }
+         catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, storageManager.getClass().getName());
+         }
 
       // We stop remotingService before otherwise we may lock the system in case of a critical IO
       // error shutdown
       if (remotingService != null)
-         remotingService.stop(criticalIOError);
+         try {
+            remotingService.stop(criticalIOError);
+         }
+         catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, remotingService.getClass().getName());
+         }
 
       // Stop the management service after the remoting service to ensure all acceptors are deregistered with JMX
       if (managementService != null)
-         managementService.unregisterServer();
+         try {
+            managementService.unregisterServer();
+         }
+         catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, managementService.getClass().getName());
+         }
+
       stopComponent(managementService);
-
       stopComponent(resourceManager);
-
       stopComponent(postOffice);
 
       if (scheduledPool != null && !scheduledPoolSupplied) {
@@ -664,7 +690,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
          catch (InterruptedException e) {
-            // Ignore
+            ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(threadPool.getClass().getName());
          }
       }
 
@@ -673,8 +699,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (!scheduledPoolSupplied)
          scheduledPool = null;
 
-      if (securityStore != null)
-         securityStore.stop();
+      if (securityStore != null) {
+         try {
+            securityStore.stop();
+         }
+         catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, managementService.getClass().getName());
+         }
+      }
+
 
       pagingManager = null;
       securityStore = null;
@@ -696,11 +729,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // to display in the log message
       SimpleString tempNodeID = getNodeID();
       if (activation != null) {
-         activation.close(failoverOnServerShutdown, restarting);
+         try {
+            activation.close(failoverOnServerShutdown, restarting);
+         }
+         catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, activation.getClass().getName());
+         }
       }
-      if (backupActivationThread != null) {
 
-         backupActivationThread.join(30000);
+      if (backupActivationThread != null) {
+         try {
+            backupActivationThread.join(30000);
+         }
+         catch (InterruptedException e) {
+            ActiveMQServerLogger.LOGGER.interruptWhilstStoppingComponent(backupActivationThread.getClass().getName());
+         }
+
          if (backupActivationThread.isAlive()) {
             ActiveMQServerLogger.LOGGER.backupActivationDidntFinish(this);
             backupActivationThread.interrupt();
@@ -787,9 +831,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    }
 
-   static void stopComponent(ActiveMQComponent component) throws Exception {
-      if (component != null)
-         component.stop();
+   static void stopComponent(ActiveMQComponent component) {
+      try {
+         if (component != null) {
+            component.stop();
+         }
+      }
+      catch (Throwable t) {
+         ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, component.getClass().getName());
+      }
    }
 
    // ActiveMQServer implementation
