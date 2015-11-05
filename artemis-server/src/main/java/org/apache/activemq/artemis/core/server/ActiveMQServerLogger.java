@@ -1457,4 +1457,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224067, value = "Error populating security roles from LDAP", format = Message.Format.MESSAGE_FORMAT)
    void errorPopulatingSecurityRolesFromLDAP(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224068, value = "Unable to stop component: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorStoppingComponent(@Cause Throwable t, String componentClassName);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 224070, value = "Received Interrupt Exception whilst waiting for component to shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void interruptWhilstStoppingComponent(String componentClassName);
 }
