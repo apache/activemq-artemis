@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeAcceptorFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class AcceptorsTest extends ActiveMQTestBase {
    @Test
    public void testMultipleAcceptorsWithSameHostPortDifferentName() throws Exception
    {
-      final String acceptorFactoryClass = "org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeAcceptorFactory";
+      final String acceptorFactoryClass = FakeAcceptorFactory.class.getName();
 
       Map<String, Object> params = new HashMap<>();
       params.put("host", "localhost");
