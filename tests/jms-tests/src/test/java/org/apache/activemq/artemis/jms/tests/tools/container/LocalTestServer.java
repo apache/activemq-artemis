@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
@@ -45,7 +46,8 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 public class LocalTestServer implements Server, Runnable {
    // Constants ------------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ public class LocalTestServer implements Server, Runnable {
 
       javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();
       FileConfiguration fileConfiguration = new FileConfiguration();
-      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
       securityManager.getConfiguration().addRole("guest", "guest");

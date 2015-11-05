@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,6 +26,13 @@ import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 /**
  * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
@@ -45,7 +46,8 @@ public class EmbeddedExample {
       securityConfig.addUser("guest", "guest");
       securityConfig.addRole("guest", "guest");
       securityConfig.setDefaultUser("guest");
-      jmsServer.setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfig));
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfig);
+      jmsServer.setSecurityManager(securityManager);
 
       jmsServer.start();
       System.out.println("Started Embedded JMS Server");

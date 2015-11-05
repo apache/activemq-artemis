@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * Helper class to simplify bootstrap of ActiveMQ Artemis server.  Bootstraps from classpath-based config files.
@@ -95,7 +95,7 @@ public class EmbeddedActiveMQ {
          configuration = config;
       }
       if (securityManager == null) {
-         securityManager = new ActiveMQSecurityManagerImpl();
+         securityManager = new ActiveMQJAASSecurityManager();
       }
       if (mbeanServer == null) {
          activeMQServer = new ActiveMQServerImpl(configuration, securityManager);

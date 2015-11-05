@@ -20,12 +20,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.Test;
 
 public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
@@ -37,6 +38,8 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
 
    @Test
    public void testSimpleMessageReceivedOnQueueWithSecurityFails() throws Exception {
+      SecurityConfiguration emptyConfiguration = new SecurityConfiguration();
+      ((ActiveMQJAASSecurityManager)server.getSecurityManager()).setConfiguration(emptyConfiguration);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -61,7 +64,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
 
    @Test
    public void testSimpleMessageReceivedOnQueueWithSecuritySucceeds() throws Exception {
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
       securityManager.getConfiguration().addRole("testuser", "arole");
       Role role = new Role("arole", false, true, false, false, false, false, false);

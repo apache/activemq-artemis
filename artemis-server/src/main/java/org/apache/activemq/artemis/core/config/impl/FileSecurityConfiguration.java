@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
+@Deprecated
 public class FileSecurityConfiguration extends SecurityConfiguration {
 
    private final String usersUrl;

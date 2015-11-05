@@ -52,7 +52,7 @@ import org.apache.activemq.artemis.ra.ActiveMQRASession;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
@@ -76,7 +76,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");

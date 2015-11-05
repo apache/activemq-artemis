@@ -39,7 +39,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;keyStorePath=activemq/server0/activemq.example.keystore;keyStorePassword=activemqexample</acceptor>
+         <acceptor name="netty-ssl-acceptor">tcp://localhost:5500?sslEnabled=true;keyStorePath=${data.dir}/../etc/activemq.example.keystore;keyStorePassword=activemqexample</acceptor>
       </acceptors>
 
       <!-- Other config -->

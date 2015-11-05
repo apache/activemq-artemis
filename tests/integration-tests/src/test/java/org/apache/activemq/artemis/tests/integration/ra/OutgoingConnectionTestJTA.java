@@ -28,7 +28,6 @@ import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,8 +43,8 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,11 +66,11 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
    public void setUp() throws Exception {
       useDummyTransactionManager();
       super.setUp();
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);

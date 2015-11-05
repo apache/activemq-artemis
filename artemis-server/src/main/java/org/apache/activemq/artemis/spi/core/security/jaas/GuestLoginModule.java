@@ -106,7 +106,7 @@ public class GuestLoginModule implements LoginModule {
       }
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("commit");
+         ActiveMQServerLogger.LOGGER.debug("commit: " + loginSucceeded);
       }
       return loginSucceeded;
    }

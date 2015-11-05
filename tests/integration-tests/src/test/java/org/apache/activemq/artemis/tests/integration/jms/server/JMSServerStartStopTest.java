@@ -16,25 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.config.FileDeploymentManager;
-import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -43,6 +24,26 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JMSServerStartStopTest extends ActiveMQTestBase {
 
@@ -65,7 +66,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       deploymentManager.addDeployable(fileConfiguration);
       deploymentManager.readConfiguration();
 
-      ActiveMQSecurityManager sm = new ActiveMQSecurityManagerImpl();
+      ActiveMQJAASSecurityManager sm = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
       ActiveMQServer server = addServer(new ActiveMQServerImpl(fc, sm));
 

@@ -335,8 +335,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
    }
 
    private ActiveMQServer getActiveMQServer() {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("LDAPLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
       Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
          .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
          .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))

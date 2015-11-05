@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 
-import javax.management.MBeanServer;
-
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 /**
  * ActiveMQServers is a factory class for instantiating ActiveMQServer instances.
@@ -38,7 +39,7 @@ public final class ActiveMQServers {
    }
 
    public static ActiveMQServer newActiveMQServer(final Configuration config, final boolean enablePersistence) {
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, enablePersistence);
 
@@ -52,7 +53,7 @@ public final class ActiveMQServers {
    public static ActiveMQServer newActiveMQServer(final Configuration config,
                                                   final MBeanServer mbeanServer,
                                                   final boolean enablePersistence) {
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, enablePersistence);
 
@@ -83,7 +84,7 @@ public final class ActiveMQServers {
    }
 
    public static ActiveMQServer newActiveMQServer(Configuration config, String defUser, String defPass) {
-      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
 
       securityManager.getConfiguration().addUser(defUser, defPass);
 
@@ -97,9 +98,9 @@ public final class ActiveMQServers {
                                                   final boolean enablePersistence,
                                                   String user,
                                                   String password) {
-      ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
-
-      securityManager.getConfiguration().addUser(user, password);
+      SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+      securityConfiguration.addUser(user, password);
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, enablePersistence);
 

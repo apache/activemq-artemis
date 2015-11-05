@@ -79,13 +79,14 @@ import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -121,8 +122,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
@@ -1412,7 +1414,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                      NodeManager nodeManager,
                                                      final int id) {
       ActiveMQServer server;
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
       configuration.setPersistenceEnabled(realFiles);
       server = addServer(new InVMNodeManagerServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, nodeManager));
 
@@ -1453,7 +1455,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                               NodeManager backupNodeManager,
                                                               final int id) {
       ActiveMQServer server;
-      ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
+      ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
       configuration.setPersistenceEnabled(realFiles);
       server = new ColocatedActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, liveNodeManager, backupNodeManager);
 

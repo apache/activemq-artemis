@@ -300,8 +300,7 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
          .setAuthentication("simple")
          .populateSecurityRoles();
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("LDAPLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
       Configuration configuration = new ConfigurationImpl()
          .setSecurityEnabled(true)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))

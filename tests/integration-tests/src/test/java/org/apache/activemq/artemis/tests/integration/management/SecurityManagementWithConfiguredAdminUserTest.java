@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.Test;
-
-import java.util.Set;
 
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase {
 
@@ -81,7 +81,7 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser(validAdminUser, validAdminPassword);
       securityManager.getConfiguration().addUser(invalidAdminUser, invalidAdminPassword);
 
