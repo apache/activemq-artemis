@@ -489,14 +489,14 @@ public class LDAPLoginModule implements LoginModule {
 
    private String getLDAPPropertyValue(String propertyName) {
       for (int i = 0; i < config.length; i++)
-         if (config[i].getPropertyName() == propertyName)
+         if (config[i].getPropertyName().equals(propertyName))
             return config[i].getPropertyValue();
       return null;
    }
 
    private boolean isLoginPropertySet(String propertyName) {
       for (int i = 0; i < config.length; i++) {
-         if (config[i].getPropertyName() == propertyName && (config[i].getPropertyValue() != null && !"".equals(config[i].getPropertyValue())))
+         if (config[i].getPropertyName().equals(propertyName) && (config[i].getPropertyValue() != null && !"".equals(config[i].getPropertyValue())))
             return true;
       }
       return false;
