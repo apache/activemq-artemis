@@ -411,6 +411,10 @@ public class NettyAcceptor implements Acceptor {
       }
    }
 
+   public String getName() {
+      return name;
+   }
+
    /**
     * Transfers the Netty channel that has been created outside of this NettyAcceptor
     * to control it and configure it according to this NettyAcceptor setting.

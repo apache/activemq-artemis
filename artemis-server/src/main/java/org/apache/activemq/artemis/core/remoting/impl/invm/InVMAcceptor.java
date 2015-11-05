@@ -66,11 +66,17 @@ public final class InVMAcceptor implements Acceptor {
 
    private final long connectionsAllowed;
 
-   public InVMAcceptor(final ClusterConnection clusterConnection,
+   private final String name;
+
+   public InVMAcceptor(final String name,
+                       final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
                        final BufferHandler handler,
                        final ConnectionLifeCycleListener listener,
                        final Executor threadPool) {
+
+      this.name = name;
+
       this.clusterConnection = clusterConnection;
 
       this.configuration = configuration;
@@ -84,6 +90,10 @@ public final class InVMAcceptor implements Acceptor {
       executorFactory = new OrderedExecutorFactory(threadPool);
 
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
+   }
+
+   public String getName() {
+      return name;
    }
 
    public Map<String, Object> getConfiguration() {

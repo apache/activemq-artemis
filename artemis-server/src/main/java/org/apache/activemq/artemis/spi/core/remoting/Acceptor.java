@@ -29,6 +29,10 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
  */
 public interface Acceptor extends ActiveMQComponent {
 
+   /** The name of the acceptor used on the configuration.
+    *  for logging and debug purposes. */
+   String getName();
+
    /**
     * Pause the acceptor and stop it from receiving client requests.
     */

@@ -1292,8 +1292,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorWritingToInvmConnector(@Cause Exception e, Runnable runnable);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224028, value = "Failed to stop acceptor", format = Message.Format.MESSAGE_FORMAT)
-   void errorStoppingAcceptor();
+   @Message(id = 224028, value = "Failed to stop accepto {0}r", format = Message.Format.MESSAGE_FORMAT)
+   void errorStoppingAcceptor(String name);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224029, value = "large message sync: largeMessage instance is incompatible with it, ignoring data", format = Message.Format.MESSAGE_FORMAT)
