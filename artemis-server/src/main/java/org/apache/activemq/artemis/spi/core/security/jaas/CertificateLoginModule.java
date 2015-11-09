@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  * Allows for subclasses to define methods used to verify user certificates and
  * find user roles. Uses CertificateCallbacks to retrieve certificates.
  */
-public abstract class CertificateLoginModule implements LoginModule {
+public abstract class CertificateLoginModule extends PropertiesLoader implements LoginModule {
 
    private CallbackHandler callbackHandler;
    private Subject subject;
@@ -46,7 +46,6 @@ public abstract class CertificateLoginModule implements LoginModule {
    private String username;
    private Set<String> roles;
    private Set<Principal> principals = new HashSet<Principal>();
-   private boolean debug;
 
    /**
     * Overriding to allow for proper initialization. Standard JAAS.
@@ -56,11 +55,7 @@ public abstract class CertificateLoginModule implements LoginModule {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
 
-      debug = "true".equalsIgnoreCase((String) options.get("debug"));
-
-      if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("Initialized debug");
-      }
+      init(options);
    }
 
    /**

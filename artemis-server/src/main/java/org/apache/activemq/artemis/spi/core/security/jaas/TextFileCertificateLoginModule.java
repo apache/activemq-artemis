@@ -20,8 +20,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
-import java.io.File;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,16 +35,15 @@ import java.util.Set;
  * org.apache.activemq.jaas.textfiledn.user and
  * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This
  * class will re-read user and group files for every authentication (i.e it does
- * live updates of allowed groups and users).
+ * live updates of allowed roles and users).
  */
 public class TextFileCertificateLoginModule extends CertificateLoginModule {
 
-   private static final String USER_FILE = "org.apache.activemq.jaas.textfiledn.user";
-   private static final String ROLE_FILE = "org.apache.activemq.jaas.textfiledn.role";
+   private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.user";
+   private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.role";
 
-   private File baseDir;
-   private String usersFilePathname;
-   private String rolesFilePathname;
+   private Properties roles;
+   private Map<String, String> usersByDn;
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -54,15 +51,8 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
       super.initialize(subject, callbackHandler, sharedState, options);
-      if (System.getProperty("java.security.auth.login.config") != null) {
-         baseDir = new File(System.getProperty("java.security.auth.login.config")).getParentFile();
-      }
-      else {
-         baseDir = new File(".");
-      }
-
-      usersFilePathname = options.get(USER_FILE) + "";
-      rolesFilePathname = options.get(ROLE_FILE) + "";
+      usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      roles = load(ROLE_FILE_PROP_NAME, "", options).getProps();
    }
 
    /**
@@ -81,32 +71,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
          throw new LoginException("Client certificates not found. Cannot authenticate.");
       }
 
-      File usersFile = new File(baseDir, usersFilePathname);
-
-      Properties users = new Properties();
-
-      try {
-         java.io.FileInputStream in = new java.io.FileInputStream(usersFile);
-         users.load(in);
-         in.close();
-      }
-      catch (IOException ioe) {
-         throw new LoginException("Unable to load user properties file " + usersFile);
-      }
-
-      String dn = getDistinguishedName(certs);
-
-      Enumeration<Object> keys = users.keys();
-      for (Enumeration<Object> vals = users.elements(); vals.hasMoreElements(); ) {
-         if (vals.nextElement().equals(dn)) {
-            return (String) keys.nextElement();
-         }
-         else {
-            keys.nextElement();
-         }
-      }
-
-      return null;
+      return usersByDn.get(getDistinguishedName(certs));
    }
 
    /**
@@ -119,17 +84,6 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
     */
    @Override
    protected Set<String> getUserRoles(String username) throws LoginException {
-      File rolesFile = new File(baseDir, rolesFilePathname);
-
-      Properties roles = new Properties();
-      try {
-         java.io.FileInputStream in = new java.io.FileInputStream(rolesFile);
-         roles.load(in);
-         in.close();
-      }
-      catch (IOException ioe) {
-         throw new LoginException("Unable to load role properties file " + rolesFile);
-      }
       Set<String> userRoles = new HashSet<String>();
       for (Enumeration<Object> enumeration = roles.keys(); enumeration.hasMoreElements(); ) {
          String groupName = (String) enumeration.nextElement();
