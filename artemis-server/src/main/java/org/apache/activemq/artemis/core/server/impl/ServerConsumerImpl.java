@@ -40,9 +40,9 @@ import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.HandleStatus;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -304,7 +304,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
 
          if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQServerLogger.LOGGER.trace("Handling reference " + ref);
+            ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" + this + " Handling reference " + ref);
          }
          if (!browseOnly) {
             if (!preAcknowledge) {
@@ -379,6 +379,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public void close(final boolean failed) throws Exception {
+      if (isTrace)
+      {
+         ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" +  this + " being closed with failed=" + failed, new Exception("trace"));
+      }
+
       callback.removeReadyListener(this);
 
       setStarted(false);
@@ -399,6 +404,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       while (iter.hasNext()) {
          MessageReference ref = iter.next();
+
+         if (isTrace)
+         {
+            ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" +  this + " cancelling reference " + ref);
+         }
 
          ref.getQueue().cancel(tx, ref, true);
       }
@@ -507,29 +517,31 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       LinkedList<MessageReference> refs = new LinkedList<MessageReference>();
 
-      if (!deliveringRefs.isEmpty()) {
-         for (MessageReference ref : deliveringRefs) {
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("Cancelling reference for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
-            }
-            if (performACK) {
-               acknowledge(tx, ref.getMessage().getMessageID());
+      synchronized (lock) {
+         if (!deliveringRefs.isEmpty()) {
+            for (MessageReference ref : deliveringRefs) {
+               if (performACK) {
+                  ackReference(tx, ref);
 
-               performACK = false;
-            }
-            else {
-               if (!failed) {
-                  // We don't decrement delivery count if the client failed, since there's a possibility that refs
-                  // were actually delivered but we just didn't get any acks for them
-                  // before failure
-                  ref.decrementDeliveryCount();
+                  performACK = false;
+               }
+               else {
+                  refs.add(ref);
+                  if (!failed) {
+                     // We don't decrement delivery count if the client failed, since there's a possibility that refs
+                     // were actually delivered but we just didn't get any acks for them
+                     // before failure
+                     ref.decrementDeliveryCount();
+                  }
                }
 
-               refs.add(ref);
+               if (isTrace) {
+                  ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" + this + " Preparing Cancelling list for messageID = " + ref.getMessage().getMessageID() + ", ref = " + ref);
+               }
             }
-         }
 
-         deliveringRefs.clear();
+            deliveringRefs.clear();
+         }
       }
 
       return refs;
@@ -662,7 +674,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                throw ActiveMQMessageBundle.BUNDLE.consumerNoReference(id, messageID, messageQueue.getName());
             }
 
-            ref.getQueue().acknowledge(tx, ref);
+            ackReference(tx, ref);
             acks++;
          } while (ref.getMessage().getMessageID() != messageID);
 
@@ -692,6 +704,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   private void ackReference(Transaction tx, MessageReference ref) throws Exception {
+      if (tx == null) {
+         ref.getQueue().acknowledge(ref);
+      }
+      else {
+         ref.getQueue().acknowledge(tx, ref);
+      }
+   }
+
    public void individualAcknowledge(final Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return;
@@ -703,12 +724,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          throw new IllegalStateException("Cannot find ref to ack " + messageID);
       }
 
-      if (tx == null) {
-         ref.getQueue().acknowledge(ref);
-      }
-      else {
-         ref.getQueue().acknowledge(tx, ref);
-      }
+      ackReference(tx, ref);
+
       acks++;
    }
 
