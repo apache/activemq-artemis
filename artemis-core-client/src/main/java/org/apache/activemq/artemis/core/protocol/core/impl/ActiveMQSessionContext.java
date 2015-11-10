@@ -112,7 +112,7 @@ public class ActiveMQSessionContext extends SessionContext {
    private final Channel sessionChannel;
    private final int serverVersion;
    private int confirmationWindow;
-   private final String name;
+   private String name;
 
    protected Channel getSessionChannel() {
       return sessionChannel;
@@ -121,6 +121,11 @@ public class ActiveMQSessionContext extends SessionContext {
    protected String getName() {
       return name;
    }
+
+   public void resetName(String name) {
+      this.name = name;
+   }
+
 
    protected int getConfirmationWindow() {
       return confirmationWindow;

@@ -108,6 +108,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       }
 
+      @Override
+      public boolean isEffective() {
+         return false;
+      }
+
       public boolean hasTimedOut(long currentTime, int defaultTimeout) {
          return false;
       }

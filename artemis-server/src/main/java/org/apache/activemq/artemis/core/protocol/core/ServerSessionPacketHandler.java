@@ -115,6 +115,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 public class ServerSessionPacketHandler implements ChannelHandler {
 
+   private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+
    private final ServerSession session;
 
    private final StorageManager storageManager;
@@ -192,6 +194,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       boolean flush = false;
       boolean closeChannel = false;
       boolean requiresResponse = false;
+
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::handlePacket," + packet);
+      }
 
       try {
          try {
@@ -522,6 +528,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                              final Packet response,
                              final boolean flush,
                              final boolean closeChannel) {
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::scheduling response::" + response);
+      }
+
       storageManager.afterCompleteOperations(new IOCallback() {
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
@@ -529,6 +539,11 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             ActiveMQExceptionMessage exceptionMessage = new ActiveMQExceptionMessage(ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
+
+            if (isTrace) {
+               ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::response sent::" + response);
+            }
+
          }
 
          public void done() {

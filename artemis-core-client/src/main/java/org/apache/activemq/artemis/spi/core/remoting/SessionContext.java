@@ -59,6 +59,8 @@ public abstract class SessionContext {
       this.session = session;
    }
 
+   public abstract void resetName(String name);
+
    /**
     * it will eather reattach or reconnect, preferably reattaching it.
     *

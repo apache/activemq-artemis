@@ -379,8 +379,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public void close(final boolean failed) throws Exception {
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" +  this + " being closed with failed=" + failed, new Exception("trace"));
       }
 
@@ -405,8 +404,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       while (iter.hasNext()) {
          MessageReference ref = iter.next();
 
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" +  this + " cancelling reference " + ref);
          }
 

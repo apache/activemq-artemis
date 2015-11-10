@@ -782,8 +782,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       messageReceived = (TextMessage)consumer.receiveNoWait();
 
-      if (messageReceived != null)
-      {
+      if (messageReceived != null) {
          System.out.println("Message received " + messageReceived.getText());
       }
       Assert.assertNull(messageReceived);

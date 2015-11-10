@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
@@ -57,7 +58,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final ClientSessionFactoryInternal sessionFactory;
 
-   private final String name;
+   private String name;
 
    private final String username;
 
@@ -857,6 +858,15 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             boolean reattached = sessionContext.reattachOnNewConnection(backupConnection);
 
             if (!reattached) {
+
+               // We change the name of the Session, otherwise the server could close it while we are still sending the recreate
+               // in certain failure scenarios
+               // For instance the fact we didn't change the name of the session after failover or reconnect
+               // was the reason allowing multiple Sessions to be closed simultaneously breaking concurrency
+               this.name = UUIDGenerator.getInstance().generateStringUUID();
+
+               sessionContext.resetName(name);
+
                for (ClientConsumerInternal consumer : cloneConsumers()) {
                   consumer.clearAtFailover();
                }

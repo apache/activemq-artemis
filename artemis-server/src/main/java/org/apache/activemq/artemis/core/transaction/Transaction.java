@@ -33,6 +33,8 @@ public interface Transaction {
       ACTIVE, PREPARED, COMMITTED, ROLLEDBACK, SUSPENDED, ROLLBACK_ONLY
    }
 
+   boolean isEffective();
+
    void prepare() throws Exception;
 
    void commit() throws Exception;

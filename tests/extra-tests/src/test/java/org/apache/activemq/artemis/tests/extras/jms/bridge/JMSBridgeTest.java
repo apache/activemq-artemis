@@ -1727,7 +1727,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
    @Test
    public void testSetTMClass() throws Exception {
-      TransactionManagerLocatorImpl.tm = new DummyTransactionManager();
+      TransactionManagerLocatorImpl.setTransactionManager(new DummyTransactionManager());
 
       JMSBridgeImpl bridge = null;
       try {
