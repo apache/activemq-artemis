@@ -133,7 +133,9 @@ public class JMSTestBase extends ActiveMQTestBase {
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).
+         addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY)).
+         setTransactionTimeoutScanPeriod(100);
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, usePersistence()));
       jmsServer = new JMSServerManagerImpl(server);

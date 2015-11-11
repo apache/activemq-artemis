@@ -138,7 +138,6 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
 
       public void onMessage(Message message) {
          lastMessage = (ActiveMQMessage) message;
-         System.err.println(message);
       }
 
       public void reset(CountDownLatch latch) {

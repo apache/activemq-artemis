@@ -17,9 +17,14 @@
 package org.apache.activemq.artemis.tests.integration.remoting;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,6 +112,97 @@ public class ReconnectTest extends ActiveMQTestBase {
          server.stop();
       }
 
+   }
+
+   @Test
+   public void testMetadataAfterReconnectionNetty() throws Exception {
+      internalMetadataAfterRetry(true);
+   }
+
+   @Test
+   public void testMetadataAfterReconnectionInVM() throws Exception {
+      internalMetadataAfterRetry(false);
+   }
+
+   public void internalMetadataAfterRetry(final boolean isNetty) throws Exception {
+      final int pingPeriod = 1000;
+
+      ActiveMQServer server = createServer(false, isNetty);
+
+      server.start();
+
+      ClientSessionInternal session = null;
+
+      try {
+         for (int i = 0; i < 100; i++) {
+            ServerLocator locator = createFactory(isNetty);
+            locator.setClientFailureCheckPeriod(pingPeriod);
+            locator.setRetryInterval(1);
+            locator.setRetryIntervalMultiplier(1d);
+            locator.setReconnectAttempts(-1);
+            locator.setConfirmationWindowSize(-1);
+            ClientSessionFactory factory = createSessionFactory(locator);
+
+            session = (ClientSessionInternal) factory.createSession();
+
+            session.addMetaData("meta1", "meta1");
+
+            ServerSession[] sessions = countMetadata(server, "meta1", 1);
+            Assert.assertEquals(1, sessions.length);
+
+            final AtomicInteger count = new AtomicInteger(0);
+
+            final CountDownLatch latch = new CountDownLatch(1);
+
+            session.addFailoverListener(new FailoverEventListener() {
+               @Override
+               public void failoverEvent(FailoverEventType eventType) {
+                  if (eventType == FailoverEventType.FAILOVER_COMPLETED) {
+                     latch.countDown();
+                  }
+               }
+            });
+
+            sessions[0].getRemotingConnection().fail(new ActiveMQException("failure!"));
+
+            Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+
+            sessions = countMetadata(server, "meta1", 1);
+
+            Assert.assertEquals(1, sessions.length);
+
+            locator.close();
+         }
+      }
+      finally {
+         try {
+            session.close();
+         }
+         catch (Throwable e) {
+         }
+
+         server.stop();
+      }
+
+   }
+
+   private ServerSession[] countMetadata(ActiveMQServer server, String parameter, int expected) throws Exception {
+      List<ServerSession> sessionList = new LinkedList<ServerSession>();
+
+      for (int i = 0; i < 10 && sessionList.size() != expected; i++) {
+         sessionList.clear();
+         for (ServerSession sess : server.getSessions()) {
+            if (sess.getMetaData(parameter) != null) {
+               sessionList.add(sess);
+            }
+         }
+
+         if (sessionList.size() != expected) {
+            Thread.sleep(100);
+         }
+      }
+
+      return sessionList.toArray(new ServerSession[sessionList.size()]);
    }
 
    @Test

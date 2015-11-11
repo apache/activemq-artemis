@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.transaction.impl;
 
 import javax.transaction.xa.Xid;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -104,6 +103,11 @@ public class TransactionImpl implements Transaction {
    // Transaction implementation
    // -----------------------------------------------------------
 
+   public boolean isEffective() {
+      return state == State.PREPARED || state == State.COMMITTED;
+
+   }
+
    public void setContainsPersistent() {
       containsPersistent = true;
    }
@@ -142,6 +146,10 @@ public class TransactionImpl implements Transaction {
       storageManager.readLock();
       try {
          synchronized (timeoutLock) {
+            if (isEffective()) {
+               ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has already been prepared or committed before, just ignoring the prepare call");
+               return;
+            }
             if (state == State.ROLLBACK_ONLY) {
                if (exception != null) {
                   // this TX will never be rolled back,
@@ -197,6 +205,11 @@ public class TransactionImpl implements Transaction {
 
    public void commit(final boolean onePhase) throws Exception {
       synchronized (timeoutLock) {
+         if (state == State.COMMITTED) {
+            // I don't think this could happen, but just in case
+            ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has been committed before, just ignoring the commit call");
+            return;
+         }
          if (state == State.ROLLBACK_ONLY) {
             rollback();
 
@@ -248,15 +261,21 @@ public class TransactionImpl implements Transaction {
     */
    protected void doCommit() throws Exception {
       if (containsPersistent || xid != null && state == State.PREPARED) {
-
+         // ^^ These are the scenarios where we require a storage.commit
+         // for anything else we won't use the journal
          storageManager.commit(id);
-
-         state = State.COMMITTED;
       }
+
+      state = State.COMMITTED;
    }
 
    public void rollback() throws Exception {
       synchronized (timeoutLock) {
+         if (state == State.ROLLEDBACK) {
+            // I don't think this could happen, but just in case
+            ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has been rolledBack before, just ignoring the rollback call", new Exception("trace"));
+            return;
+         }
          if (xid != null) {
             if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
@@ -290,17 +309,21 @@ public class TransactionImpl implements Transaction {
    }
 
    public void suspend() {
-      if (state != State.ACTIVE) {
-         throw new IllegalStateException("Can only suspend active transaction");
+      synchronized (timeoutLock) {
+         if (state != State.ACTIVE) {
+            throw new IllegalStateException("Can only suspend active transaction");
+         }
+         state = State.SUSPENDED;
       }
-      state = State.SUSPENDED;
    }
 
    public void resume() {
-      if (state != State.SUSPENDED) {
-         throw new IllegalStateException("Can only resume a suspended transaction");
+      synchronized (timeoutLock) {
+         if (state != State.SUSPENDED) {
+            throw new IllegalStateException("Can only resume a suspended transaction");
+         }
+         state = State.ACTIVE;
       }
-      state = State.ACTIVE;
    }
 
    public Transaction.State getState() {
@@ -316,12 +339,19 @@ public class TransactionImpl implements Transaction {
    }
 
    public void markAsRollbackOnly(final ActiveMQException exception1) {
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
-      }
-      state = State.ROLLBACK_ONLY;
+      synchronized (timeoutLock) {
+         if (isEffective()) {
+            ActiveMQServerLogger.LOGGER.debug("Trying to mark transaction " + this.id + " xid=" + this.xid + " as rollbackOnly but it was already effective (prepared or committed!)");
+            return;
+         }
 
-      this.exception = exception1;
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+            ActiveMQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
+         }
+         state = State.ROLLBACK_ONLY;
+
+         this.exception = exception1;
+      }
    }
 
    public synchronized void addOperation(final TransactionOperation operation) {
@@ -425,6 +455,7 @@ public class TransactionImpl implements Transaction {
       return "TransactionImpl [xid=" + xid +
          ", id=" +
          id +
+         ", xid=" + xid +
          ", state=" +
          state +
          ", createTime=" +

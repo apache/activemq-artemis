@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,11 +38,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -57,10 +56,10 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityStore;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -996,7 +995,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          ActiveMQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
 
          try {
-            if (tx.getState() != Transaction.State.PREPARED) {
+            if (!tx.isEffective()) {
                // we don't want to rollback anything prepared here
                if (tx.getXid() != null) {
                   resourceManager.removeTransaction(tx.getXid());
@@ -1025,27 +1024,24 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    public synchronized void xaFailed(final Xid xid) throws Exception {
-      if (tx != null) {
-         final String msg = "Cannot start, session is already doing work in a transaction " + tx.getXid();
+      Transaction theTX = resourceManager.getTransaction(xid);
 
-         throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
+      if (theTX == null) {
+         theTX = newTransaction(xid);
+         resourceManager.putTransaction(xid, theTX);
+      }
+
+      if (theTX.isEffective()) {
+         ActiveMQServerLogger.LOGGER.debug("Client failed with Xid " + xid + " but the server already had it prepared");
+         tx = null;
       }
       else {
+         theTX.markAsRollbackOnly(new ActiveMQException("Can't commit as a Failover happened during the operation"));
+         tx = theTX;
+      }
 
-         tx = newTransaction(xid);
-         tx.markAsRollbackOnly(new ActiveMQException("Can't commit as a Failover happened during the operation"));
-
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
-         }
-
-         boolean added = resourceManager.putTransaction(xid, tx);
-
-         if (!added) {
-            final String msg = "Cannot start, there is already a xid " + tx.getXid();
-
-            throw new ActiveMQXAException(XAException.XAER_DUPID, msg);
-         }
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
       }
    }
 
