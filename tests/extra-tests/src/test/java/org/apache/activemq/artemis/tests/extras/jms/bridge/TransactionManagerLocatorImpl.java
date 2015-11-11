@@ -27,7 +27,6 @@ public class TransactionManagerLocatorImpl implements TransactionManagerLocator 
 
    @Override
    public TransactionManager getTransactionManager() {
-      new Exception("trace").printStackTrace();
       return tm;
    }
 
