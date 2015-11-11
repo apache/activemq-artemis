@@ -16,6 +16,5 @@
 ## ---------------------------------------------------------------------------
 BrokerDTO
 SecurityDTO
-BasicSecurityDTO
 JaasSecurityDTO
 

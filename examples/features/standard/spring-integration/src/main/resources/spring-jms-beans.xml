@@ -24,7 +24,8 @@ under the License.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-   <bean id="securityManager" class="org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl">
+   <bean id="securityManager" class="org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager">
+      <constructor-arg value="org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule"/>
       <constructor-arg>
          <bean class="org.apache.activemq.artemis.core.config.impl.SecurityConfiguration">
             <constructor-arg name="users">

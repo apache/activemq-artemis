@@ -24,16 +24,15 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,9 +99,9 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
 
    @Test
    public void testAutoCreateOnSendToQueueSecurity() throws Exception {
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
       Role role = new Role("rejectAll", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
@@ -184,9 +183,9 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
       Role role = new Role("allowAll", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);

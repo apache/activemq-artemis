@@ -71,10 +71,9 @@ under the License.
          </security-setting>
 
          <security-setting match="jms.queue.activemq.management">
-            <!--  only the admin role can interact with the management address  -->
-            <permission type="consume" roles="admin"/>
-            <permission type="send" roles="admin"/>
-            <permission type="manage" roles="admin"/>
+            <permission type="consume" roles="guest"/>
+            <permission type="send" roles="guest"/>
+            <permission type="manage" roles="guest"/>
          </security-setting>
       </security-settings>
 

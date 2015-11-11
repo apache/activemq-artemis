@@ -40,8 +40,7 @@ public class StreamClassPathTest {
       openStream(Create.ETC_LOGGING_PROPERTIES);
       openStream(Create.ETC_BOOTSTRAP_XML);
       openStream(Create.ETC_BROKER_XML);
-      openStream(Create.ETC_ARTEMIS_ROLES_BASIC_PROPERTIES);
-      openStream(Create.ETC_ARTEMIS_ROLES_JAAS_PROPERTIES);
+      openStream(Create.ETC_ARTEMIS_ROLES_PROPERTIES);
       openStream(Create.ETC_ARTEMIS_USERS_PROPERTIES);
       openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
       openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
@@ -51,8 +50,6 @@ public class StreamClassPathTest {
       openStream(Create.ETC_CONNECTOR_SETTINGS_TXT);
       openStream(Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
       openStream(Create.ETC_JOURNAL_BUFFER_SETTINGS);
-      openStream(Create.ETC_JAAS_BROKER_SECURITY_SETTINGS_TXT);
-      openStream(Create.ETC_BASIC_BROKER_SECURITY_SETTINGS_TXT);
    }
 
    private void openStream(String source) throws Exception {

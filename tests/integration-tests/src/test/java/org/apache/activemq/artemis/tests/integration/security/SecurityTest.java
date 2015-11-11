@@ -52,7 +52,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.junit.Assert;
@@ -93,8 +92,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthentication() throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("PropertiesLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -111,8 +109,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthenticationWithCerts() throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("CertLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -148,8 +145,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthenticationBadPassword() throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("PropertiesLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -173,8 +169,7 @@ public class SecurityTest extends ActiveMQTestBase {
     */
    @Test
    public void testJAASSecurityManagerAuthenticationWithBadClientCert() throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("CertLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -209,8 +204,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthenticationGuest() throws Exception {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("GuestLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("GuestLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -231,8 +225,7 @@ public class SecurityTest extends ActiveMQTestBase {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("PropertiesLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false));
@@ -316,8 +309,7 @@ public class SecurityTest extends ActiveMQTestBase {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("CertLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -422,8 +414,7 @@ public class SecurityTest extends ActiveMQTestBase {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("PropertiesLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true));
@@ -500,8 +491,7 @@ public class SecurityTest extends ActiveMQTestBase {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("CertLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -596,8 +586,7 @@ public class SecurityTest extends ActiveMQTestBase {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      securityManager.setConfigurationName("GuestLogin");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("GuestLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("bar", true, true, true, true, true, true, true));
@@ -672,7 +661,7 @@ public class SecurityTest extends ActiveMQTestBase {
    @Test
    public void testCreateSessionWithNullUserPass() throws Exception {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
       server.start();
@@ -718,7 +707,7 @@ public class SecurityTest extends ActiveMQTestBase {
    @Test
    public void testCreateSessionWithCorrectUserWrongPass() throws Exception {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -738,7 +727,7 @@ public class SecurityTest extends ActiveMQTestBase {
    @Test
    public void testCreateSessionWithCorrectUserCorrectPass() throws Exception {
       ActiveMQServer server = createServer();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -758,7 +747,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -777,7 +766,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -804,7 +793,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, true, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -823,7 +812,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -852,7 +841,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -871,7 +860,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -898,7 +887,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, true, false);
       Set<Role> roles = new HashSet<Role>();
@@ -917,7 +906,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, true, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -948,7 +937,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
 
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
 
       securityManager.getConfiguration().addUser("auser", "pass");
 
@@ -1010,7 +999,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -1040,7 +1029,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -1063,7 +1052,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
@@ -1091,7 +1080,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
@@ -1128,7 +1117,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
@@ -1179,7 +1168,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
@@ -1239,7 +1228,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
@@ -1331,7 +1320,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, false, false, false, false, true);
       Set<Role> roles = new HashSet<Role>();
@@ -1352,7 +1341,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -1383,7 +1372,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
       Role role = new Role("arole", false, false, true, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
@@ -1406,7 +1395,7 @@ public class SecurityTest extends ActiveMQTestBase {
    public void testComplexRoles() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("all", "all");
       securityManager.getConfiguration().addUser("bill", "activemq");
       securityManager.getConfiguration().addUser("andrew", "activemq1");
@@ -1537,7 +1526,7 @@ public class SecurityTest extends ActiveMQTestBase {
    public void _testComplexRoles2() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("all", "all");
       securityManager.getConfiguration().addUser("bill", "activemq");
       securityManager.getConfiguration().addUser("andrew", "activemq1");

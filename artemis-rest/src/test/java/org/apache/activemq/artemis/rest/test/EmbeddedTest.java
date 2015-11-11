@@ -27,11 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.config.impl.FileSecurityConfiguration;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
 import org.apache.activemq.artemis.rest.integration.EmbeddedRestActiveMQJMS;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -49,9 +50,12 @@ public class EmbeddedTest {
    public static void startEmbedded() throws Exception {
       server = new EmbeddedRestActiveMQJMS();
       server.getManager().setConfigResourcePath("activemq-rest.xml");
-      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("artemis-users.properties", "artemis-roles.properties", "guest", false, null);
-      securityConfiguration.start();
-      server.getEmbeddedJMS().setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfiguration));
+      SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+      securityConfiguration.addUser("guest", "guest");
+      securityConfiguration.addRole("guest", "guest");
+      securityConfiguration.setDefaultUser("guest");
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+      server.getEmbeddedJMS().setSecurityManager(securityManager);
       server.start();
       List<String> connectors = new ArrayList<>();
       connectors.add("in-vm");

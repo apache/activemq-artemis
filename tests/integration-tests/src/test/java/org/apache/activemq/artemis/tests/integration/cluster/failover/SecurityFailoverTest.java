@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 
 public class SecurityFailoverTest extends FailoverTest {
@@ -83,7 +83,7 @@ public class SecurityFailoverTest extends FailoverTest {
       backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setSecurityEnabled(true).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
-      ActiveMQSecurityManagerImpl securityManager = installSecurity(backupServer);
+      ActiveMQJAASSecurityManager securityManager = installSecurity(backupServer);
       securityManager.getConfiguration().setDefaultUser(null);
 
       liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setSecurityEnabled(true).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector);
@@ -100,8 +100,8 @@ public class SecurityFailoverTest extends FailoverTest {
    /**
     * @return
     */
-   protected ActiveMQSecurityManagerImpl installSecurity(TestableServer server) {
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getServer().getSecurityManager();
+   protected ActiveMQJAASSecurityManager installSecurity(TestableServer server) {
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getServer().getSecurityManager();
       securityManager.getConfiguration().addUser("a", "b");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();

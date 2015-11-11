@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  * A basic implementation of the ActiveMQSecurityManager. This can be used within an appserver and be deployed by
  * BasicUserCredentialsDeployer or used standalone or embedded.
  */
+@Deprecated
 public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
 
    private final SecurityConfiguration configuration;

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
@@ -45,10 +46,23 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private String configurationName;
+   private SecurityConfiguration configuration;
+
+   public ActiveMQJAASSecurityManager() {
+   }
+
+   public ActiveMQJAASSecurityManager(String configurationName) {
+      this.configurationName = configurationName;
+   }
+
+   public ActiveMQJAASSecurityManager(String configurationName, SecurityConfiguration configuration) {
+      this.configurationName = configurationName;
+      this.configuration = configuration;
+   }
 
    @Override
    public boolean validateUser(String user, String password) {
-      throw new UnsupportedOperationException("Invoke validateUser(String, String, X509Certificate[]) instead");
+      return validateUser(user, password, null);
    }
 
    @Override
@@ -99,9 +113,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
             Iterator<RolePrincipal> rolesForSubjectIter = rolesForSubject.iterator();
             while (!authorized && rolesForSubjectIter.hasNext()) {
                Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();
+               Principal subjectRole = rolesForSubjectIter.next();
                while (!authorized && rolesWithPermissionIter.hasNext()) {
-                  Principal role = rolesWithPermissionIter.next();
-                  authorized = rolesForSubjectIter.next().equals(role);
+                  Principal roleWithPermission = rolesWithPermissionIter.next();
+                  authorized = subjectRole.equals(roleWithPermission);
                }
             }
          }
@@ -115,7 +130,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    }
 
    private Subject getAuthenticatedSubject(final String user, final String password, final X509Certificate[] certificates) throws LoginException {
-      LoginContext lc = new LoginContext(configurationName, new JaasCallbackHandler(user, password, certificates));
+      LoginContext lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
       lc.login();
       return lc.getSubject();
    }
@@ -132,5 +147,17 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
    public void setConfigurationName(final String configurationName) {
       this.configurationName = configurationName;
+   }
+
+   public void setConfiguration(SecurityConfiguration configuration) {
+      this.configuration = configuration;
+   }
+
+   public SecurityConfiguration getConfiguration() {
+      if (configuration == null) {
+         configuration = new SecurityConfiguration();
+      }
+
+      return configuration;
    }
 }

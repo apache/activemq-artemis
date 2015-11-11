@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl;
@@ -52,7 +53,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -440,7 +441,7 @@ public class InterceptorTest extends ActiveMQTestBase {
    public void testInterceptUsernameOnQueues() throws Exception {
 
       SimpleString ANOTHER_QUEUE = QUEUE.concat("another");
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("dumb", "dumber");
       securityManager.getConfiguration().addUser("an", "other");
 
@@ -493,9 +494,9 @@ public class InterceptorTest extends ActiveMQTestBase {
    // This is testing if it's possible to intercept usernames and do some real stuff as users want
    @Test
    public void testInterceptUsernameOnConsumer() throws Exception {
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
-      securityManager.getConfiguration().addUser("dumb", "dumber");
-      securityManager.getConfiguration().addUser("an", "other");
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("dumb", "dumber");
+      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("an", "other");
 
       server.getRemotingService().addIncomingInterceptor(new InterceptUserOnCreateConsumer());
 

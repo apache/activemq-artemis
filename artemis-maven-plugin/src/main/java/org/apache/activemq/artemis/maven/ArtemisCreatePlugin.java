@@ -113,9 +113,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "ON_DEMAND")
    private String messageLoadBalancing;
 
-   @Parameter(defaultValue = "basic")
-   private String brokerSecurity;
-
    /**
     * For extra stuff not covered by the properties
     */
@@ -203,7 +200,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       ArrayList<String> listCommands = new ArrayList<>();
 
-      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder, "--broker-security", brokerSecurity);
+      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 
       if (allowAnonymous) {
          add(listCommands, "--allow-anonymous");

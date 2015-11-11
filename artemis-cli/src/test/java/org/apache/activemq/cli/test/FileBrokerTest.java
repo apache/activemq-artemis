@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.FileBroker;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class FileBrokerTest {
       serverDTO.configuration = "broker.xml";
       FileBroker broker = null;
       try {
-         broker = new FileBroker(serverDTO, new ActiveMQSecurityManagerImpl());
+         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager());
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
          Assert.assertNotNull(jmsServerManager);
@@ -57,7 +57,7 @@ public class FileBrokerTest {
       serverDTO.configuration = "broker-nojms.xml";
       FileBroker broker = null;
       try {
-         broker = new FileBroker(serverDTO, new ActiveMQSecurityManagerImpl());
+         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager());
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
          Assert.assertNull(jmsServerManager);

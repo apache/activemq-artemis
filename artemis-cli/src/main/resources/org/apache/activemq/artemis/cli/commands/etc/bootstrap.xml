@@ -18,7 +18,7 @@
 
 <broker xmlns="http://activemq.org/schema">
 
-${broker-security-settings}
+   <jaas-security domain="activemq"/>
 
    <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 

@@ -25,6 +25,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JaasSecurityDTO extends SecurityDTO {
 
-   @XmlAttribute(name = "login-module", required = true)
-   public String loginModule;
+   @XmlAttribute(name = "domain", required = true)
+   public String domain;
 }
