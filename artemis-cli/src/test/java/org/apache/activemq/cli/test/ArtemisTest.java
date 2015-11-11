@@ -194,6 +194,7 @@ public class ArtemisTest {
 
       try {
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100"));
+         Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--message-count", "100"));
       }
       finally {
          stopServer();
