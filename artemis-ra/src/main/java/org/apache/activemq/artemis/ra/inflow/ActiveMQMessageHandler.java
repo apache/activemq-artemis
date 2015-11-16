@@ -38,9 +38,9 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
@@ -292,6 +292,11 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          if (activation.getActivationSpec().getTransactionTimeout() > 0 && tm != null) {
             tm.setTransactionTimeout(activation.getActivationSpec().getTransactionTimeout());
          }
+
+         if (trace) {
+            ActiveMQRALogger.LOGGER.trace("HornetQMessageHandler::calling beforeDelivery on message " + message);
+         }
+
          endpoint.beforeDelivery(ActiveMQActivation.ONMESSAGE);
          beforeDelivery = true;
          msg.doBeforeReceive();
@@ -299,13 +304,17 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          //In the transacted case the message must be acked *before* onMessage is called
 
          if (transacted) {
-            message.acknowledge();
+            message.individualAcknowledge();
          }
 
          ((MessageListener) endpoint).onMessage(msg);
 
          if (!transacted) {
-            message.acknowledge();
+            message.individualAcknowledge();
+         }
+
+         if (trace) {
+            ActiveMQRALogger.LOGGER.trace("HornetQMessageHandler::calling afterDelivery on message " + message);
          }
 
          try {
@@ -313,6 +322,10 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          }
          catch (ResourceException e) {
             ActiveMQRALogger.LOGGER.unableToCallAfterDelivery(e);
+            // If we get here, The TX was already rolled back
+            // However we must do some stuff now to make sure the client message buffer is cleared
+            // so we mark this as rollbackonly
+            session.markRollbackOnly();
             return;
          }
          if (useLocalTx) {
@@ -340,13 +353,6 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                }
                catch (Exception e1) {
                   ActiveMQRALogger.LOGGER.warn("unnable to clear the transaction", e1);
-                  try {
-                     session.rollback();
-                  }
-                  catch (ActiveMQException e2) {
-                     ActiveMQRALogger.LOGGER.warn("Unable to rollback", e2);
-                     return;
-                  }
                }
             }
 
@@ -369,6 +375,10 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
                ActiveMQRALogger.LOGGER.unableToRollbackTX();
             }
          }
+
+         // This is to make sure we will issue a rollback after failures
+         // so that would cleanup consumer buffers among other things
+         session.markRollbackOnly();
       }
       finally {
          try {

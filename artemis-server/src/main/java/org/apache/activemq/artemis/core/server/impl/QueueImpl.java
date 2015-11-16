@@ -45,8 +45,8 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
@@ -58,10 +58,10 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -1548,7 +1548,7 @@ public class QueueImpl implements Queue {
                      Binding binding = postOffice.getBinding(originalMessageQueue);
 
                      if (binding != null && binding instanceof LocalQueueBinding) {
-                        targetQueue = ((LocalQueueBinding)binding).getID();
+                        targetQueue = ((LocalQueueBinding) binding).getID();
                         queues.put(originalMessageQueue, targetQueue);
                      }
                   }
@@ -1562,11 +1562,9 @@ public class QueueImpl implements Queue {
 
                }
 
-
             }
          }
       });
-
 
    }
 
@@ -2025,6 +2023,9 @@ public class QueueImpl implements Queue {
    private void internalAddRedistributor(final Executor executor) {
       // create the redistributor only once if there are no local consumers
       if (consumerSet.isEmpty() && redistributor == null) {
+         if (isTrace) {
+            ActiveMQServerLogger.LOGGER.trace("QueueImpl::Adding redistributor on queue " + this.toString());
+         }
          redistributor = new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE);
 
          consumerList.add(new ConsumerHolder(redistributor));
@@ -2103,7 +2104,7 @@ public class QueueImpl implements Queue {
                      final MessageReference ref,
                      final boolean expiry,
                      final boolean rejectDuplicate,
-                     final long ... queueIDs) throws Exception {
+                     final long... queueIDs) throws Exception {
       ServerMessage copyMessage = makeCopy(ref, expiry);
 
       copyMessage.setAddress(toAddress);

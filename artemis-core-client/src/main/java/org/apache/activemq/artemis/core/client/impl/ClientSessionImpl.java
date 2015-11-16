@@ -532,6 +532,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       rollbackOnly = false;
    }
 
+   public void markRollbackOnly() {
+      rollbackOnly = true;
+   }
+
    public ClientMessage createMessage(final byte type,
                                       final boolean durable,
                                       final long expiration,
@@ -1036,7 +1040,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       // we should never throw rollback if we have already prepared
       if (rollbackOnly) {
-         ActiveMQClientLogger.LOGGER.commitAfterFailover();
+         if (onePhase) {
+            throw new XAException(XAException.XAER_RMFAIL);
+         }
+         else {
+            ActiveMQClientLogger.LOGGER.commitAfterFailover();
+         }
       }
 
       // Note - don't need to flush acks since the previous end would have
