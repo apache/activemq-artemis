@@ -21,7 +21,9 @@ import java.io.Serializable;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.settings.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.apache.activemq.artemis.core.settings.SlowConsumerPolicy;
 import org.apache.activemq.artemis.utils.BufferHelper;
 
 /**

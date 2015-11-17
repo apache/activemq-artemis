@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.config.impl;
+package org.apache.activemq.artemis.core.config.xml;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.server.cluster.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.settings.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.SlowConsumerPolicy;
 
 /**
  * A Validators.
