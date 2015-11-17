@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -668,18 +669,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    public void acknowledge(final long consumerID, final long messageID) throws Exception {
-      ServerConsumer consumer = consumers.get(consumerID);
-
-      if (consumer == null) {
-         throw ActiveMQMessageBundle.BUNDLE.consumerDoesntExist(consumerID);
-      }
+      ServerConsumer consumer = findConsumer(consumerID);
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
          // have these messages to be stuck on the limbo until the server is restarted
          // The tx has already timed out, so we need to ack and rollback immediately
          Transaction newTX = newTransaction();
-         consumer.acknowledge(newTX, messageID);
+         try {
+            consumer.acknowledge(newTX, messageID);
+         }
+         catch (Exception e) {
+            // just ignored
+            // will log it just in case
+            ActiveMQServerLogger.LOGGER.debug("Ignored exception while acking messageID " + messageID +
+                                                 " on a rolledback TX", e);
+         }
          newTX.rollback();
       }
       else {
@@ -687,8 +692,24 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   public void individualAcknowledge(final long consumerID, final long messageID) throws Exception {
+   private ServerConsumer findConsumer(long consumerID) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
+
+      if (consumer == null) {
+         Transaction currentTX = tx;
+         ActiveMQIllegalStateException exception = ActiveMQMessageBundle.BUNDLE.consumerDoesntExist(consumerID);
+
+         if (currentTX != null) {
+            currentTX.markAsRollbackOnly(exception);
+         }
+
+         throw exception;
+      }
+      return consumer;
+   }
+
+   public void individualAcknowledge(final long consumerID, final long messageID) throws Exception {
+      ServerConsumer consumer = findConsumer(consumerID);
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just

@@ -93,6 +93,8 @@ public interface ClientSessionInternal extends ClientSession {
 
    void resetIfNeeded() throws ActiveMQException;
 
+   void markRollbackOnly();
+
    /**
     * This is used internally to control and educate the user
     * about using the thread boundaries properly.
