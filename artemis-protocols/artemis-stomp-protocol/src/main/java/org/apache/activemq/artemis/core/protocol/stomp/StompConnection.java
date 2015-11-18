@@ -77,8 +77,6 @@ public final class StompConnection implements RemotingConnection {
 
    private final Object failLock = new Object();
 
-   private boolean dataReceived;
-
    private final boolean enableMessageID;
 
    private StompVersions version;
@@ -208,15 +206,12 @@ public final class StompConnection implements RemotingConnection {
    }
 
    protected synchronized void setDataReceived() {
-      dataReceived = true;
+      // ignored because STOMP doesn't use connectionTtl
    }
 
    public synchronized boolean checkDataReceived() {
-      boolean res = dataReceived;
-
-      dataReceived = false;
-
-      return res;
+      // ignored because STOMP doesn't use connectionTtl
+      return true;
    }
 
    public void checkDestination(String destination) throws ActiveMQStompException {

@@ -4,6 +4,10 @@ In this section we will discuss connection time-to-live (TTL) and
 explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
+NOTE: The settings described in this section don't apply to STOMP
+connections.  STOMP uses heartbeats instead to detect dead
+connections.
+
 ## Cleaning up Dead Connection Resources on the Server
 
 Before an Apache ActiveMQ Artemis client application exits it is considered good

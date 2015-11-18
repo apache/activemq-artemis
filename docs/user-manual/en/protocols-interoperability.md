@@ -263,38 +263,27 @@ specified destination is mapped to an address. When a Stomp client
 subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
 `UNSUBSCRIBE` frame), the destination is mapped to an Apache ActiveMQ Artemis queue.
 
-### STOMP and connection-ttl
+### STOMP and heartbeats
 
 Well behaved STOMP clients will always send a DISCONNECT frame before
 closing their connections. In this case the server will clear up any
 server side resources such as sessions and consumers synchronously.
-However if STOMP clients exit without sending a DISCONNECT frame or if
-they crash the server will have no way of knowing immediately whether
-the client is still alive or not. STOMP connections therefore default to
-a connection-ttl value of 1 minute (see chapter on
-[connection-ttl](#connection-ttl) for more information. This value can
-be overridden using connection-ttl-override.
 
-If you need a specific connectionTtl for your stomp connections without
-affecting the connectionTtlOverride setting, you can configure your
-stomp acceptor with the "connectionTtl" property, which is used to set
-the ttl for connections that are created from that acceptor. For
-example:
+However, if STOMP clients exit without sending a DISCONNECT frame or
+if they crash, the server will have no way of knowing immediately
+whether the client is still alive or not. STOMP connections therefore
+will be terminated when client heartbeats aren't received in time.
+More precisely, they will be terminated when no data has been received
+after twice the negotiated heartbeat interval.
 
-    <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
-
-The above configuration will make sure that any stomp connection that is
-created from that acceptor will have its connection-ttl set to 20
-seconds.
+Note that [`connection-ttl`](#connection-ttl) and
+`connection-ttl-override` are ignored for STOMP connections.
 
 > **Note**
 >
-> Please note that the STOMP protocol version 1.0 does not contain any
-> heartbeat frame. It is therefore the user's responsibility to make
-> sure data is sent within connection-ttl or the server will assume the
-> client is dead and clean up server side resources. With `Stomp 1.1`
-> users can use heart-beats to maintain the life cycle of stomp
-> connections.
+> Please note that STOMP protocol version 1.0 doesn't support
+> heartbeats and therefore dead connections won't detected with this
+> protocol version.
 
 ### Stomp and JMS interoperability
 
