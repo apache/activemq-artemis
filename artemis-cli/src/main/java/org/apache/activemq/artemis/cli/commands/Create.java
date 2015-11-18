@@ -151,7 +151,7 @@ public class Create extends InputAbstract {
    @Option(name = "--password", description = "The user's password (Default: input)")
    String password;
 
-   @Option(name = "--role", description = "The name for the role created (Default: amq)")
+   @Option(name = "--role", description = "The name for the role created (Default: input)")
    String role;
 
    @Option(name = "--no-web", description = "This will remove the web server definition from bootstrap.xml")
@@ -370,7 +370,7 @@ public class Create extends InputAbstract {
 
    public String getRole() {
       if (role == null) {
-         role = "amq";
+         role = input("--role", "Please provide the default role:", "amq");
       }
       return role;
    }
