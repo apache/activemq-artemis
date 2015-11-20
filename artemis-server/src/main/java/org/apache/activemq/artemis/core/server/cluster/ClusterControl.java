@@ -197,4 +197,12 @@ public class ClusterControl implements AutoCloseable {
       ScaleDownAnnounceMessage announceMessage = new ScaleDownAnnounceMessage(targetNodeId, scaledDownNodeId);
       clusterChannel.send(announceMessage);
    }
+
+   public String getClusterUser() {
+      return clusterUser;
+   }
+
+   public String getClusterPassword() {
+      return clusterPassword;
+   }
 }

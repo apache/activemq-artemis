@@ -489,18 +489,30 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    }
 
+
+
    protected void createQueue(final int node,
                               final String address,
                               final String queueName,
                               final String filterVal,
                               final boolean durable) throws Exception {
+      createQueue(node, address, queueName, filterVal, durable, null, null);
+   }
+
+   protected void createQueue(final int node,
+                              final String address,
+                              final String queueName,
+                              final String filterVal,
+                              final boolean durable,
+                              final String user,
+                              final String password) throws Exception {
       ClientSessionFactory sf = sfs[node];
 
       if (sf == null) {
          throw new IllegalArgumentException("No sf at " + node);
       }
 
-      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      ClientSession session = addClientSession(sf.createSession(user, password, false, true, true, false, 0));
 
       String filterString = null;
 
@@ -541,6 +553,16 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               final String queueName,
                               final String filterVal,
                               boolean autoCommitAcks) throws Exception {
+      addConsumer(consumerID, node, queueName, filterVal, autoCommitAcks, null, null);
+   }
+
+   protected void addConsumer(final int consumerID,
+                              final int node,
+                              final String queueName,
+                              final String filterVal,
+                              boolean autoCommitAcks,
+                              final String user,
+                              final String password) throws Exception {
       try {
          if (consumers[consumerID] != null) {
             throw new IllegalArgumentException("Already a consumer at " + node);
@@ -552,7 +574,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No sf at " + node);
          }
 
-         ClientSession session = addClientSession(sf.createSession(false, false, autoCommitAcks));
+         ClientSession session = addClientSession(sf.createSession(user, password, false, false, autoCommitAcks, false, 0));
 
          String filterString = null;
 
@@ -1307,6 +1329,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupSessionFactory(final int node, final boolean netty, boolean ha) throws Exception {
+      setupSessionFactory(node, netty, ha, null, null);
+   }
+
+   protected void setupSessionFactory(final int node, final boolean netty, boolean ha, final String user, final String password) throws Exception {
       if (sfs[node] != null) {
          throw new IllegalArgumentException("Already a factory at " + node);
       }
@@ -1335,7 +1361,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       addServerLocator(locators[node]);
       ClientSessionFactory sf = createSessionFactory(locators[node]);
 
-      ClientSession session = sf.createSession();
+      ClientSession session = sf.createSession(user, password, false, true, true, false, 0);
       session.close();
       sfs[node] = sf;
    }
