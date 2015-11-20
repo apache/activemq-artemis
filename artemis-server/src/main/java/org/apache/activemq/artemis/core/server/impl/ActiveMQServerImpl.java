@@ -1622,6 +1622,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // this needs to be done before clustering is fully activated
       callActivateCallbacks();
 
+      checkForPotentialOOMEInAddressConfiguration();
+
       if (!scalingDown) {
          // Deploy any pre-defined diverts
          deployDiverts();
@@ -1671,6 +1673,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void deployQueuesFromConfiguration() throws Exception {
       for (CoreQueueConfiguration config : configuration.getQueueConfigurations()) {
          deployQueue(SimpleString.toSimpleString(config.getAddress()), SimpleString.toSimpleString(config.getName()), SimpleString.toSimpleString(config.getFilterString()), config.isDurable(), false);
+      }
+   }
+
+   private void checkForPotentialOOMEInAddressConfiguration() {
+      long totalMaxSizeBytes = 0;
+      long addressCount = 0;
+      for (SimpleString address : postOffice.getAddresses()) {
+         totalMaxSizeBytes += addressSettingsRepository.getMatch(address.toString()).getMaxSizeBytes();
+         addressCount++;
+      }
+
+      long maxMemory = Runtime.getRuntime().maxMemory();
+      if (totalMaxSizeBytes >= maxMemory) {
+         ActiveMQServerLogger.LOGGER.potentialOOME(addressCount, totalMaxSizeBytes, maxMemory);
       }
    }
 
