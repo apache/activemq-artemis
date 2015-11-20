@@ -81,21 +81,35 @@ public final class ConfigurationUtils {
          case COLOCATED: {
             ColocatedPolicyConfiguration pc = (ColocatedPolicyConfiguration) conf;
 
-            HAPolicyConfiguration backupConf = pc.getBackupConfig();
-            BackupPolicy backupPolicy;
-            if (backupConf == null) {
-               backupPolicy = new ReplicaPolicy();
-            }
-            else {
-               backupPolicy = (BackupPolicy) getHAPolicy(backupConf);
-            }
             HAPolicyConfiguration liveConf = pc.getLiveConfig();
             HAPolicy livePolicy;
+            //if null default to colocated
             if (liveConf == null) {
                livePolicy = new ReplicatedPolicy();
             }
             else {
                livePolicy = getHAPolicy(liveConf);
+            }
+            HAPolicyConfiguration backupConf = pc.getBackupConfig();
+            BackupPolicy backupPolicy;
+            if (backupConf == null) {
+               if (livePolicy instanceof ReplicatedPolicy) {
+                  backupPolicy = new ReplicaPolicy();
+               }
+               else if (livePolicy instanceof SharedStoreMasterPolicy) {
+                  backupPolicy = new SharedStoreSlavePolicy();
+               }
+               else {
+                  throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
+               }
+            }
+            else {
+               backupPolicy = (BackupPolicy) getHAPolicy(backupConf);
+            }
+
+            if ((livePolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) ||
+                  (livePolicy instanceof SharedStoreMasterPolicy && !(backupPolicy instanceof SharedStoreSlavePolicy))) {
+               throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
             }
             return new ColocatedPolicy(pc.isRequestBackup(), pc.getBackupRequestRetries(), pc.getBackupRequestRetryInterval(), pc.getMaxBackups(), pc.getBackupPortOffset(), pc.getExcludedConnectors(), livePolicy, backupPolicy);
          }

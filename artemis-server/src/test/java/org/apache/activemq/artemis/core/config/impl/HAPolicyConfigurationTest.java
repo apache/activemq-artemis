@@ -334,6 +334,31 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void colocatedTestNullBackup() throws Exception {
+      Configuration configuration = createConfiguration("colocated-hapolicy-config-null-backup.xml");
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      try {
+         server.start();
+         Activation activation = server.getActivation();
+         assertTrue(activation instanceof ColocatedActivation);
+         HAPolicy haPolicy = server.getHAPolicy();
+         assertTrue(haPolicy instanceof ColocatedPolicy);
+         ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
+         ReplicatedPolicy livePolicy = (ReplicatedPolicy) colocatedPolicy.getLivePolicy();
+         assertNotNull(livePolicy);
+
+         assertEquals(livePolicy.getGroupName(), "purple");
+         assertTrue(livePolicy.isCheckForLiveServer());
+         assertEquals(livePolicy.getClusterName(), "abcdefg");
+         ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
+         assertNotNull(backupPolicy);
+      }
+      finally {
+         server.stop();
+      }
+   }
+
+   @Test
    public void colocatedTest2() throws Exception {
       Configuration configuration = createConfiguration("colocated-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
@@ -352,6 +377,29 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertNotNull(backupPolicy);
          assertFalse(backupPolicy.isFailoverOnServerShutdown());
          assertFalse(backupPolicy.isRestartBackup());
+      }
+      finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void colocatedTest2nullbackup() throws Exception {
+      Configuration configuration = createConfiguration("colocated-hapolicy-config2-null-backup.xml");
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      try {
+         server.start();
+         Activation activation = server.getActivation();
+         assertTrue(activation instanceof ColocatedActivation);
+         HAPolicy haPolicy = server.getHAPolicy();
+         assertTrue(haPolicy instanceof ColocatedPolicy);
+         ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
+         SharedStoreMasterPolicy livePolicy = (SharedStoreMasterPolicy) colocatedPolicy.getLivePolicy();
+         assertNotNull(livePolicy);
+
+         assertFalse(livePolicy.isFailoverOnServerShutdown());
+         SharedStoreSlavePolicy backupPolicy = (SharedStoreSlavePolicy) colocatedPolicy.getBackupPolicy();
+         assertNotNull(backupPolicy);
       }
       finally {
          server.stop();
