@@ -169,6 +169,9 @@ public class Create extends InputAbstract {
    @Option(name = "--nio", description = "Force nio journal on the configuration regardless of the library being available or not.")
    boolean forceNIO;
 
+   @Option(name = "--disable-persistence", description = "Disable message persistence to the journal")
+   boolean disablePersistence;
+
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
@@ -403,6 +406,14 @@ public class Create extends InputAbstract {
       this.allowAnonymous = allowAnonymous;
    }
 
+   public boolean isDisablePersistence() {
+      return disablePersistence;
+   }
+
+   public void setDisablePersistence(boolean disablePersistence) {
+      this.disablePersistence = disablePersistence;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       this.checkDirectory();
@@ -454,6 +465,8 @@ public class Create extends InputAbstract {
       filters.put("${master-slave}", isSlave() ? "slave" : "master");
 
       filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
+
+      filters.put("${persistence-enabled}", isDisablePersistence() ? "false" : "true");
 
       if (replicated) {
          clustered = true;
