@@ -24,7 +24,10 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.osgi.service.component.annotations.Component;
 
+@Component(service = ProtocolManagerFactory.class)
 public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";

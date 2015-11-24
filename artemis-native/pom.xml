@@ -25,14 +25,8 @@
    </parent>
 
    <artifactId>artemis-native</artifactId>
-   <packaging>jar</packaging>
+   <packaging>bundle</packaging>
    <dependencies>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>

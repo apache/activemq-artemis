@@ -48,11 +48,13 @@
       <module>artemis-rest</module>
       <module>artemis-service-extensions</module>
       <module>artemis-maven-plugin</module>
+      <module>artemis-server-osgi</module>
       <module>integration/activemq-spring-integration</module>
       <module>integration/activemq-aerogear-integration</module>
       <module>integration/activemq-vertx-integration</module>
       <module>artemis-distribution</module>
       <module>tests</module>
+      <module>artemis-features</module>
    </modules>
 
    <name>ActiveMQ Artemis Parent</name>
@@ -489,8 +491,27 @@
             <version>1.2</version>
             <!-- License: Apache 2.0 -->
          </dependency>
+         
+
       </dependencies>
    </dependencyManagement>
+   
+   <dependencies>
+        <!--  OSGi support -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+   </dependencies>
 
    <profiles>
        <profile>
@@ -1038,6 +1059,12 @@
                   </goals>
                </execution>
             </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <version>3.0.0</version>
+            <extensions>true</extensions>
          </plugin>
       </plugins>
    </build>

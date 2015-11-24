@@ -22,7 +22,10 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.osgi.service.component.annotations.Component;
 
+@Component(service = ProtocolManagerFactory.class)
 public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
 
    public static final String HORNETQ_PROTOCOL_NAME = "HORNETQ";
@@ -31,6 +34,7 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
 
    private static String[] SUPPORTED_PROTOCOLS = {HORNETQ_PROTOCOL_NAME};
 
+   @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 final List<Interceptor> incomingInterceptors,
                                                 List<Interceptor> outgoingInterceptors) {

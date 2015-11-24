@@ -21,7 +21,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.protocol.hornetq.HQPropertiesConversionInterceptor;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
+import org.osgi.service.component.annotations.Component;
 
+@Component(service = ClientProtocolManagerFactory.class)
 public class HornetQClientProtocolManagerFactory implements ClientProtocolManagerFactory {
 
 

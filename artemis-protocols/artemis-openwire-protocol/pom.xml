@@ -63,4 +63,5 @@
       </dependency>
    </dependencies>
 
+   <packaging>bundle</packaging>
 </project>
