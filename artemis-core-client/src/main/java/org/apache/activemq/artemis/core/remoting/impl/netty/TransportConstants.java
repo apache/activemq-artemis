@@ -41,7 +41,7 @@ public class TransportConstants {
 
    public static final String HTTP_UPGRADE_ENABLED_PROP_NAME = "httpUpgradeEnabled";
 
-   public static final String HTTP_UPGRADE_ENDPOINT_PROP_NAME = "httpPpgradeEndpoint";
+   public static final String HTTP_UPGRADE_ENDPOINT_PROP_NAME = "httpUpgradeEndpoint";
 
    public static final String USE_SERVLET_PROP_NAME = "useServlet";
 
