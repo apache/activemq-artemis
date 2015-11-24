@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Component;
 import java.util.Collections;
 import java.util.List;
 
-@Component(service=ProtocolManagerFactory.class)
+@Component(service = ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
    private static final String AMQP_PROTOCOL_NAME = "AMQP";

@@ -34,96 +34,98 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * Tracks the available ProtocolManagerFactory services as well as the required protocols.
  * When a new service appears the factory is added to the server.
  * When all needed protocols are present the server is started.
- * When required a service disappears the server is stopped. 
+ * When required a service disappears the server is stopped.
  */
 @SuppressWarnings("rawtypes")
 public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManagerFactory<Interceptor>, ProtocolManagerFactory<Interceptor>> {
-    private static Logger LOG = Logger.getLogger(ProtocolTracker.class.getName());
-    private String name;
-    private BundleContext context;
-    private Map<String, Boolean> protocols;
-    private ProtocolTrackerCallBack callback;
+   private static Logger LOG = Logger.getLogger(ProtocolTracker.class.getName());
+   private String name;
+   private BundleContext context;
+   private Map<String, Boolean> protocols;
+   private ProtocolTrackerCallBack callback;
 
-    public ProtocolTracker(String name, BundleContext context, String[] requiredProtocols, ProtocolTrackerCallBack callback) {
-        this.name = name;
-        this.context = context;
-        this.callback = callback;
-        this.protocols = new HashMap<String, Boolean>();
-        for (String requiredProtocol : requiredProtocols) {
-            this.protocols.put(requiredProtocol, false);
-        }
-        LOG.info("Broker config " + name + " found. Tracking protocols " + Arrays.asList(requiredProtocols));
-    }
+   public ProtocolTracker(String name, BundleContext context, String[] requiredProtocols, ProtocolTrackerCallBack callback) {
+      this.name = name;
+      this.context = context;
+      this.callback = callback;
+      this.protocols = new HashMap<String, Boolean>();
+      for (String requiredProtocol : requiredProtocols) {
+         this.protocols.put(requiredProtocol, false);
+      }
+      LOG.info("Broker config " + name + " found. Tracking protocols " + Arrays.asList(requiredProtocols));
+   }
 
-    @Override
-    public ProtocolManagerFactory addingService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference) {
-        ProtocolManagerFactory<Interceptor> pmf = context.getService(reference);
-        callback.addFactory(pmf);
-        for (String protocol : pmf.getProtocols()) {
-            protocolAdded(protocol);
-        }
+   @Override
+   public ProtocolManagerFactory addingService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference) {
+      ProtocolManagerFactory<Interceptor> pmf = context.getService(reference);
+      callback.addFactory(pmf);
+      for (String protocol : pmf.getProtocols()) {
+         protocolAdded(protocol);
+      }
 
-        return pmf;
-    }
+      return pmf;
+   }
 
 
-    @Override
-    public void modifiedService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference, ProtocolManagerFactory<Interceptor> pmf) {
-        // Not supported
-    }
+   @Override
+   public void modifiedService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference, ProtocolManagerFactory<Interceptor> pmf) {
+      // Not supported
+   }
 
-    @Override
-    public void removedService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference, ProtocolManagerFactory<Interceptor> pmf) {
-        for (String protocol : pmf.getProtocols()) {
-            protocolRemoved(protocol);
-        }
-        callback.removeFactory(pmf);
-    }
- 
-    private void protocolAdded(String protocol) {
-        Boolean present = this.protocols.get(protocol);
-        if (present != null && !present) {
-            this.protocols.put(protocol, true);
-            List<String> missing = getMissing();
-            LOG.info("Required protocol " + protocol + " was added for broker " + name + ". " + 
-                (missing.isEmpty() ? "Starting broker." : "Still waiting for " + missing));
-            if (missing.isEmpty()) {
-                try {
-                    callback.start();
-                } catch (Exception e) {
-                    LOG.log(Level.WARNING, "Error starting broker " + name, e);
-                }
+   @Override
+   public void removedService(ServiceReference<ProtocolManagerFactory<Interceptor>> reference, ProtocolManagerFactory<Interceptor> pmf) {
+      for (String protocol : pmf.getProtocols()) {
+         protocolRemoved(protocol);
+      }
+      callback.removeFactory(pmf);
+   }
+
+   private void protocolAdded(String protocol) {
+      Boolean present = this.protocols.get(protocol);
+      if (present != null && !present) {
+         this.protocols.put(protocol, true);
+         List<String> missing = getMissing();
+         LOG.info("Required protocol " + protocol + " was added for broker " + name + ". " +
+            (missing.isEmpty() ? "Starting broker." : "Still waiting for " + missing));
+         if (missing.isEmpty()) {
+            try {
+               callback.start();
             }
-        }
-    }
-    
-
-    private void protocolRemoved(String protocol) {
-        Boolean present = this.protocols.get(protocol);
-        if (present != null && present) {
-            List<String> missing = getMissing();
-            LOG.info("Required protocol " + protocol + " was removed for broker " + name + ". " 
-                     + (missing.isEmpty() ? "Stopping broker. " : ""));
-            if (missing.isEmpty()) {
-                try {
-                    callback.stop();
-                } catch (Exception e) {
-                    LOG.log(Level.WARNING, "Error stopping broker " + name, e);
-                }
+            catch (Exception e) {
+               LOG.log(Level.WARNING, "Error starting broker " + name, e);
             }
-            this.protocols.put(protocol, false);
-        }
-    }
+         }
+      }
+   }
 
-    private List<String> getMissing() {
-        List<String> missing = new ArrayList<String>();
-        for (String protocol : protocols.keySet()) {
-            Boolean present = protocols.get(protocol);
-            if (!present) {
-                missing.add(protocol);
+
+   private void protocolRemoved(String protocol) {
+      Boolean present = this.protocols.get(protocol);
+      if (present != null && present) {
+         List<String> missing = getMissing();
+         LOG.info("Required protocol " + protocol + " was removed for broker " + name + ". "
+            + (missing.isEmpty() ? "Stopping broker. " : ""));
+         if (missing.isEmpty()) {
+            try {
+               callback.stop();
             }
-        }
-        return missing;
-    }
+            catch (Exception e) {
+               LOG.log(Level.WARNING, "Error stopping broker " + name, e);
+            }
+         }
+         this.protocols.put(protocol, false);
+      }
+   }
+
+   private List<String> getMissing() {
+      List<String> missing = new ArrayList<String>();
+      for (String protocol : protocols.keySet()) {
+         Boolean present = protocols.get(protocol);
+         if (!present) {
+            missing.add(protocol);
+         }
+      }
+      return missing;
+   }
 
 }
