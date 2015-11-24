@@ -267,7 +267,7 @@ public class ScaleDownDirectTest extends ClusterTestBase {
    private long performScaledown() throws Exception {
       ScaleDownHandler handler = new ScaleDownHandler(servers[0].getPagingManager(), servers[0].getPostOffice(), servers[0].getNodeManager(), servers[0].getClusterManager().getClusterController(), servers[0].getStorageManager());
 
-      return handler.scaleDownMessages(sfs[1], servers[1].getNodeID());
+      return handler.scaleDownMessages(sfs[1], servers[1].getNodeID(), servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
    }
 
 }

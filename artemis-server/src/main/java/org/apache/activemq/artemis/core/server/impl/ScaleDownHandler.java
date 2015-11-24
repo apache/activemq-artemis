@@ -91,19 +91,19 @@ public class ScaleDownHandler {
                          SimpleString targetNodeId) throws Exception {
       ClusterControl clusterControl = clusterController.connectToNodeInCluster((ClientSessionFactoryInternal) sessionFactory);
       clusterControl.authorize();
-      long num = scaleDownMessages(sessionFactory, targetNodeId);
+      long num = scaleDownMessages(sessionFactory, targetNodeId, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       ActiveMQServerLogger.LOGGER.info("Scaled down " + num + " messages total.");
-      scaleDownTransactions(sessionFactory, resourceManager);
-      scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress);
+      scaleDownTransactions(sessionFactory, resourceManager, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
+      scaleDownDuplicateIDs(duplicateIDMap, sessionFactory, managementAddress, clusterControl.getClusterUser(), clusterControl.getClusterPassword());
       clusterControl.announceScaleDown(new SimpleString(this.targetNodeId), nodeManager.getNodeId());
       return num;
    }
 
-   public long scaleDownMessages(ClientSessionFactory sessionFactory, SimpleString nodeId) throws Exception {
+   public long scaleDownMessages(ClientSessionFactory sessionFactory, SimpleString nodeId, String user, String password) throws Exception {
       long messageCount = 0;
       targetNodeId = nodeId != null ? nodeId.toString() : getTargetNodeId(sessionFactory);
 
-      try (ClientSession session = sessionFactory.createSession(false, true, true)) {
+      try (ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, 0)) {
          ClientProducer producer = session.createProducer();
 
          // perform a loop per address
@@ -307,9 +307,11 @@ public class ScaleDownHandler {
    }
 
    public void scaleDownTransactions(ClientSessionFactory sessionFactory,
-                                     ResourceManager resourceManager) throws Exception {
-      ClientSession session = sessionFactory.createSession(true, false, false);
-      ClientSession queueCreateSession = sessionFactory.createSession(false, true, true);
+                                     ResourceManager resourceManager,
+                                     String user,
+                                     String password) throws Exception {
+      ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
+      ClientSession queueCreateSession = sessionFactory.createSession(user, password, false, true, true, false, 0);
       List<Xid> preparedTransactions = resourceManager.getPreparedTransactions();
       Map<String, Long> queueIDs = new HashMap<>();
       for (Xid xid : preparedTransactions) {
@@ -398,8 +400,10 @@ public class ScaleDownHandler {
 
    public void scaleDownDuplicateIDs(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                      ClientSessionFactory sessionFactory,
-                                     SimpleString managementAddress) throws Exception {
-      ClientSession session = sessionFactory.createSession(true, false, false);
+                                     SimpleString managementAddress,
+                                     String user,
+                                     String password) throws Exception {
+      ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
       ClientProducer producer = session.createProducer(managementAddress);
       //todo - https://issues.jboss.org/browse/HORNETQ-1336
       for (SimpleString address : duplicateIDMap.keySet()) {

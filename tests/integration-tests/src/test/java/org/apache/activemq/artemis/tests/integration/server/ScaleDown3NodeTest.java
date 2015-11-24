@@ -46,8 +46,11 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
       setupLiveServer(0, isFileStorage(), false, isNetty(), true);
+      servers[0].getConfiguration().setSecurityEnabled(true);
       setupLiveServer(1, isFileStorage(), false, isNetty(), true);
+      servers[1].getConfiguration().setSecurityEnabled(true);
       setupLiveServer(2, isFileStorage(), false, isNetty(), true);
+      servers[2].getConfiguration().setSecurityEnabled(true);
       LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
       ScaleDownConfiguration scaleDownConfiguration0 = new ScaleDownConfiguration();
       haPolicyConfiguration0.setScaleDownConfiguration(scaleDownConfiguration0);
@@ -65,9 +68,9 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Assert.assertEquals(61617, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
       scaleDownConfiguration0.getConnectors().add(scaleDownConnector);
       startServers(0, 1, 2);
-      setupSessionFactory(0, isNetty());
-      setupSessionFactory(1, isNetty());
-      setupSessionFactory(2, isNetty());
+      setupSessionFactory(0, isNetty(), false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      setupSessionFactory(1, isNetty(), false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      setupSessionFactory(2, isNetty(), false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
       IntegrationTestLogger.LOGGER.info("===============================");
       IntegrationTestLogger.LOGGER.info("Node 0: " + servers[0].getClusterManager().getNodeId());
       IntegrationTestLogger.LOGGER.info("Node 1: " + servers[1].getClusterManager().getNodeId());
@@ -109,16 +112,16 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       final String queueName1 = "testQueue1";
 
       // create a queue on each node mapped to the same address
-      createQueue(0, addressName, queueName1, null, false);
-      createQueue(1, addressName, queueName1, null, false);
-      createQueue(2, addressName, queueName1, null, false);
+      createQueue(0, addressName, queueName1, null, false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      createQueue(1, addressName, queueName1, null, false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      createQueue(2, addressName, queueName1, null, false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
 
       // pause the SnF queue so that when the server tries to redistribute a message it won't actually go across the cluster bridge
       String snfAddress = "sf.cluster0." + servers[0].getNodeID().toString();
       Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))).getQueue();
       snfQueue.pause();
 
-      ClientSession session = sfs[2].createSession(false, true, false);
+      ClientSession session = sfs[2].createSession(servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword(), false, true, false, false, 0);
 
       Message message;
 
@@ -152,7 +155,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       }
 
       // add a consumer to node 0 to trigger redistribution here
-      addConsumer(0, 0, queueName1, null);
+      addConsumer(0, 0, queueName1, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
 
       // allow some time for redistribution to move the message to the SnF queue
       long timeout = 10000;
@@ -194,7 +197,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Assert.assertEquals(0, messageCount);
 
       // get the messages from queue 1 on node 1
-      addConsumer(0, 1, queueName1, null);
+      addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
       // allow some time for redistribution to move the message to node 1
       start = System.currentTimeMillis();
@@ -246,26 +249,26 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       final String queueName3 = "testQueue3";
 
       // create a queue on each node mapped to the same address
-      createQueue(0, addressName, queueName1, null, false);
-      createQueue(1, addressName, queueName1, null, false);
-      createQueue(2, addressName, queueName1, null, false);
+      createQueue(0, addressName, queueName1, null, false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      createQueue(1, addressName, queueName1, null, false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      createQueue(2, addressName, queueName1, null, false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
 
       // create a queue on each node mapped to the same address
-      createQueue(0, addressName, queueName2, null, false);
-      createQueue(1, addressName, queueName2, null, false);
-      createQueue(2, addressName, queueName2, null, false);
+      createQueue(0, addressName, queueName2, null, false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      createQueue(1, addressName, queueName2, null, false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      createQueue(2, addressName, queueName2, null, false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
 
       // create a queue on each node mapped to the same address
-      createQueue(0, addressName, queueName3, null, false);
-      createQueue(1, addressName, queueName3, null, false);
-      createQueue(2, addressName, queueName3, null, false);
+      createQueue(0, addressName, queueName3, null, false, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      createQueue(1, addressName, queueName3, null, false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      createQueue(2, addressName, queueName3, null, false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
 
       // pause the SnF queue so that when the server tries to redistribute a message it won't actually go across the cluster bridge
       String snfAddress = "sf.cluster0." + servers[0].getNodeID().toString();
       Queue snfQueue = ((LocalQueueBinding) servers[2].getPostOffice().getBinding(SimpleString.toSimpleString(snfAddress))).getQueue();
       snfQueue.pause();
 
-      ClientSession session = sfs[2].createSession(false, true, false);
+      ClientSession session = sfs[2].createSession(servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword(), false, true, false, false, 0);
 
       Message message;
       message = session.createMessage(false);
@@ -276,8 +279,8 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       }
 
       // add a consumer to node 0 to trigger redistribution here
-      addConsumer(0, 0, queueName1, null);
-      addConsumer(1, 0, queueName3, null);
+      addConsumer(0, 0, queueName1, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
+      addConsumer(1, 0, queueName3, null, true, servers[0].getConfiguration().getClusterUser(), servers[0].getConfiguration().getClusterPassword());
 
       // allow some time for redistribution to move the message to the SnF queue
       long timeout = 10000;
@@ -323,8 +326,8 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
 
       // get the messages from queue 1 on node 1
-      addConsumer(0, 1, queueName1, null);
-      addConsumer(1, 1, queueName3, null);
+      addConsumer(0, 1, queueName1, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
+      addConsumer(1, 1, queueName3, null, true, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
 
       // allow some time for redistribution to move the message to node 1
       start = System.currentTimeMillis();
