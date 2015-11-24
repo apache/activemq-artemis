@@ -49,7 +49,7 @@ public class JMSIndividualAckTest extends BasicOpenWireTest {
 
       // Consume the message...
       MessageConsumer consumer = session.createConsumer(queue);
-      Message msg = consumer.receive(1000);
+      Message msg = consumer.receive(5000);
       assertNotNull(msg);
       msg.acknowledge();
 
