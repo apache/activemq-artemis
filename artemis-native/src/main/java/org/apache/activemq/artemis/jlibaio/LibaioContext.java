@@ -26,8 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.netty.util.internal.ObjectUtil.checkNotNull;
-
 /**
  * This class is used as an aggregator for the {@link LibaioFile}.
  * <br>
@@ -308,6 +306,17 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
       int res = LibaioContext.open(file, direct);
 
       return new LibaioFile<>(res, null);
+   }
+   
+   /**
+    * Checks that the given argument is not null. If it is, throws {@link NullPointerException}.
+    * Otherwise, returns the argument.
+    */
+   private static <T> T checkNotNull(T arg, String text) {
+       if (arg == null) {
+           throw new NullPointerException(text);
+       }
+       return arg;
    }
 
    /**

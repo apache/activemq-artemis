@@ -41,7 +41,8 @@
       <dependency>
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
-         <scope>compile</scope>
+         <scope>provided</scope>
+         <optional>true</optional>
       </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>

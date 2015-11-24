@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="artemis-${pom.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+	
+	<feature name="netty-core" version="${netty.version}">
+		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+		<bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
+	</feature>
+
+	<feature name="artemis-core" version="${pom.version}">
+		<feature>transaction</feature>
+		<feature>netty-core</feature>
+		<feature>scr</feature>
+		<bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
+		<bundle>mvn:com.google.guava/guava/18.0</bundle>
+		<bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+		<bundle>mvn:commons-beanutils/commons-beanutils/1.9.2</bundle>
+		<bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
+
+		<bundle>mvn:org.jboss.logging/jboss-logging/3.1.4.GA</bundle>
+		<!-- <bundle>wrap:mvn:org.jboss.modules/jboss-modules/1.3.1.Final</bundle> -->
+		<!-- <bundle>mvn:org.jboss.logmanager/jboss-logmanager/1.5.3.Final</bundle>-->
+		<bundle>mvn:org.jgroups/jgroups/3.6.0.Final</bundle>
+
+		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
+
+	</feature>
+	
+	<feature name="artemis-amqp" version="${pom.version}">
+		<feature>artemis-core</feature>
+		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.qpid/0.32_1</bundle>
+		<bundle>wrap:mvn:org.apache.qpid/proton-j/0.10</bundle>
+		<bundle>wrap:mvn:org.apache.qpid/proton-jms/0.10</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-proton-plug/${pom.version}</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
+	</feature>
+	
+	<feature name="artemis-stomp" version="${pom.version}">
+		<feature>artemis-core</feature>
+		<bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${pom.version}</bundle>
+	</feature>
+	
+
+	<feature name="artemis-mqtt" version="${pom.version}">
+		<feature>artemis-core</feature>
+		<bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${pom.version}</bundle>
+	</feature>
+	
+	<feature name="artemis-hornetq" version="${pom.version}">
+		<feature>artemis-core</feature>
+		<bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${pom.version}</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${pom.version}</bundle>
+	</feature>
+
+</features>

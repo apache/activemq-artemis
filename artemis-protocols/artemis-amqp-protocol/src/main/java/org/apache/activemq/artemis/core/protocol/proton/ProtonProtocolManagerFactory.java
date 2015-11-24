@@ -21,10 +21,13 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.osgi.service.component.annotations.Component;
 
 import java.util.Collections;
 import java.util.List;
 
+@Component(service=ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
    private static final String AMQP_PROTOCOL_NAME = "AMQP";

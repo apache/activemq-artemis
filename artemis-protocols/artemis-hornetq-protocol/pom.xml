@@ -23,6 +23,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>artemis-hornetq-protocol</artifactId>
+   <packaging>bundle</packaging>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

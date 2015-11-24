@@ -22,7 +22,9 @@ import java.util.List;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.osgi.service.component.annotations.Component;
 
+@Component(service=ProtocolManagerFactory.class)
 public class MQTTProtocolManagerFactory implements ProtocolManagerFactory {
 
    public static final String MQTT_PROTOCOL_NAME = "MQTT";
