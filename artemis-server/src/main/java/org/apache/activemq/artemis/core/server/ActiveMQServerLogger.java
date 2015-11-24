@@ -1195,6 +1195,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222204, value = "Duplicated Acceptor {0} with parameters {1} classFactory={2} duplicated on the configuration", format = Message.Format.MESSAGE_FORMAT)
    void duplicatedAcceptor(String name, String parameters, String classFactory);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222205, value = "OutOfMemoryError possible! There are currently {0} addresses with a total max-size-bytes of {1} bytes, but the maximum memory available is {2} bytes.", format = Message.Format.MESSAGE_FORMAT)
+   void potentialOOME(long addressCount, long totalMaxSizeBytes, long maxMemory);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
