@@ -160,6 +160,19 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
          this.refCount = 1;
          this.channelName = channelName;
          this.channel = channel;
+
+         //we always add this for the first ref count
+         channel.setReceiver(new ReceiverAdapter() {
+
+            @Override
+            public void receive(org.jgroups.Message msg) {
+               synchronized (receivers) {
+                  for (JGroupsReceiver r : receivers) {
+                     r.receive(msg);
+                  }
+               }
+            }
+         });
       }
 
       public synchronized void close(boolean closeWrappedChannel) {
@@ -171,6 +184,8 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
             else {
                JChannelManager.removeChannel(this.channelName);
             }
+            //we always remove the receiver as its no longer needed
+            channel.setReceiver(null);
          }
       }
 
@@ -183,17 +198,6 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       public synchronized void connect() throws Exception {
          if (channel.isConnected())
             return;
-         channel.setReceiver(new ReceiverAdapter() {
-
-            @Override
-            public void receive(org.jgroups.Message msg) {
-               synchronized (receivers) {
-                  for (JGroupsReceiver r : receivers) {
-                     r.receive(msg);
-                  }
-               }
-            }
-         });
          channel.connect(channelName);
       }
 
