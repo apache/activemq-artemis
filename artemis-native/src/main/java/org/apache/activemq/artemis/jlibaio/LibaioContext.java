@@ -314,7 +314,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     */
    private static <T> T checkNotNull(T arg, String text) {
       if (arg == null) {
-          throw new NullPointerException(text);
+         throw new NullPointerException(text);
       }
       return arg;
    }
