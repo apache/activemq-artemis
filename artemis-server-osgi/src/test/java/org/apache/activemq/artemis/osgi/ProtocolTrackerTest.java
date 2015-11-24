@@ -32,6 +32,7 @@ public class ProtocolTrackerTest {
         EasyMock.expectLastCall();
 
         callback.removeFactory(protA.factory);
+        EasyMock.expectLastCall();
         callback.stop();
         EasyMock.expectLastCall();
 

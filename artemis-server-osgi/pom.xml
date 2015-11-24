@@ -112,7 +112,6 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
-						<Bundle-Activator>org.apache.activemq.artemis.osgi.Activator</Bundle-Activator>
 						<_exportcontents>*</_exportcontents>
 					</instructions>
 				</configuration>

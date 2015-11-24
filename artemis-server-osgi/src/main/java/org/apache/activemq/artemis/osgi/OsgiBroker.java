@@ -36,43 +36,36 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.util.tracker.ServiceTracker;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
+@Component(configurationPid="org.apache.activemq.artemis")
 public class OsgiBroker {
-    private final String name;
-
-    private final String configurationUrl;
-
-    private final String brokerInstance;
-
-    private boolean started;
-
-    private final ActiveMQSecurityManager securityManager;
-
+    private String name;
+    private String configurationUrl;
     private Map<String, ActiveMQComponent> components;
-
     private Map<String, ServiceRegistration<?>> registrations;
-
-    private BundleContext context;
-
     private ServiceTracker tracker;
 
-    public OsgiBroker(BundleContext context, String name, String brokerInstance, String configuration, ActiveMQSecurityManager security) {
-        this.context = context;
-        this.name = name;
-        this.brokerInstance = brokerInstance;
-        this.securityManager = security;
-        this.configurationUrl = configuration;
-    }
-
-    
-    public synchronized void start() throws Exception {
-        if (tracker != null) {
-            return;
+    @Activate
+    public void activate(ComponentContext cctx) throws Exception {
+        BundleContext context = cctx.getBundleContext();
+        Dictionary<String, Object> properties = cctx.getProperties();
+        configurationUrl = getMandatory(properties, "config");
+        name = getMandatory(properties, "name");
+        String domain = getMandatory(properties, "domain");
+        ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
+        String brokerInstance = null;
+        String karafDataDir = System.getProperty("karaf.data");
+        if (karafDataDir != null) {
+            brokerInstance = karafDataDir + "/artemis/" + name;
         }
 
         // todo if we start to pullout more configs from the main config then we
@@ -86,7 +79,7 @@ public class OsgiBroker {
         FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(configurationUrl);
         fileDeploymentManager.addDeployable(configuration).addDeployable(jmsConfiguration).readConfiguration();
 
-        components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer());
+        components = fileDeploymentManager.buildService(security, ManagementFactory.getPlatformMBeanServer());
 
         final ActiveMQServer server = (ActiveMQServer)components.get("core");
 
@@ -129,8 +122,16 @@ public class OsgiBroker {
         ProtocolTracker trackerCust = new ProtocolTracker(name, context, requiredProtocols, callback);
         tracker = new ServiceTracker(context, ProtocolManagerFactory.class, trackerCust);
         tracker.open();
-        started = true;
     }
+    
+    private String getMandatory(Dictionary<String, ?> properties, String key) {
+        String value = (String) properties.get(key);
+        if (value == null) {
+            throw new IllegalStateException("Property " + key + " must be set");
+        }
+        return value;
+    }
+
 
     private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
         ArrayList<String> protocols = new ArrayList<String>();
@@ -143,16 +144,9 @@ public class OsgiBroker {
         return protocols.toArray(new String[]{});
     }
 
+    @Deactivate
     public void stop() throws Exception {
-        if (!started) {
-            return;
-        }
         tracker.close();
-        tracker = null;
-    }
-
-    public boolean isStarted() {
-        return started;
     }
 
     public Map<String, ActiveMQComponent> getComponents() {
