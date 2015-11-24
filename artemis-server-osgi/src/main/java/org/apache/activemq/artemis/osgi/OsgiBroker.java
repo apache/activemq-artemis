@@ -56,8 +56,8 @@ public class OsgiBroker {
 
     @Activate
     public void activate(ComponentContext cctx) throws Exception {
-        BundleContext context = cctx.getBundleContext();
-        Dictionary<String, Object> properties = cctx.getProperties();
+        final BundleContext context = cctx.getBundleContext();
+        final Dictionary<String, Object> properties = cctx.getProperties();
         configurationUrl = getMandatory(properties, "config");
         name = getMandatory(properties, "name");
         String domain = getMandatory(properties, "domain");
@@ -104,6 +104,7 @@ public class OsgiBroker {
                 for (int i = mqComponents.length - 1; i >= 0; i--) {
                     mqComponents[i].stop();
                 }
+                unregister();
             }
             
             @Override
@@ -112,6 +113,7 @@ public class OsgiBroker {
                 for (ActiveMQComponent component : componentsByStartOrder) {
                     component.start();
                 }
+                register(context, properties);
             }
             
             @Override
