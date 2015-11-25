@@ -75,7 +75,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
    public void testInsertAndLoad() throws Exception {
 
       SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      JournalImpl impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
+      JournalImpl impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 
@@ -91,7 +91,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
       impl.stop();
 
       factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
+      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 
@@ -108,7 +108,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
       impl.stop();
 
       factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
+      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 
@@ -136,7 +136,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
    public void testInsertUpdateAndLoad() throws Exception {
 
       SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      JournalImpl impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
+      JournalImpl impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 
@@ -153,7 +153,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
       impl.stop();
 
       factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      impl = new JournalImpl(10 * 1024 * 1024, 10, 0, 0, factory, "amq", "amq", 1000);
+      impl = new JournalImpl(10 * 1024 * 1024, 10, 10, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 
@@ -170,7 +170,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
       impl.stop();
 
       factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
-      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
+      impl = new JournalImpl(10 * 1024 * 1024, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
 

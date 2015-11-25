@@ -86,7 +86,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
 
-      Journal localJMS = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
+      Journal localJMS = new JournalImpl(1024 * 1024, 2, config.getJournalPoolFiles(), config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
 
       if (replicator != null) {
          jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);

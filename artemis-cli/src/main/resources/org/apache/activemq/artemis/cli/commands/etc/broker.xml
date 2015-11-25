@@ -43,7 +43,9 @@ under the License.
 
       <large-messages-directory>${data.dir}/large-messages</large-messages-directory>
 
-      <journal-min-files>10</journal-min-files>
+      <journal-min-files>2</journal-min-files>
+
+      <journal-pool-files>-1</journal-pool-files>
 ${journal-buffer.settings}
 ${connector-config.settings}
       <acceptors>

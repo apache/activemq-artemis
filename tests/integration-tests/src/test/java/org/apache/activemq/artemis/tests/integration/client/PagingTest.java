@@ -1496,7 +1496,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       List<PreparedTransactionInfo> list = new ArrayList<>();
 
-      JournalImpl jrn = new JournalImpl(config.getJournalFileSize(), 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
+      JournalImpl jrn = new JournalImpl(config.getJournalFileSize(), 2, 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
       jrn.start();
       jrn.load(records, list, null);
 

@@ -98,7 +98,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
    @Override
    public void createJournal() throws Exception {
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
+      journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
 
          @Override
          public void onCompactDone() {

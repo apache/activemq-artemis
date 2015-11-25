@@ -106,7 +106,7 @@ public final class DescribeJournal {
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null, 1);
 
-      JournalImpl bindings = new JournalImpl(1024 * 1024, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
+      JournalImpl bindings = new JournalImpl(1024 * 1024, 2, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
       describeJournal(bindingsFF, bindings, bindingsDir);
    }
 
@@ -117,7 +117,7 @@ public final class DescribeJournal {
       // Will use only default values. The load function should adapt to anything different
       ConfigurationImpl defaultValues = new ConfigurationImpl();
 
-      JournalImpl messagesJournal = new JournalImpl(defaultValues.getJournalFileSize(), defaultValues.getJournalMinFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
+      JournalImpl messagesJournal = new JournalImpl(defaultValues.getJournalFileSize(), defaultValues.getJournalMinFiles(), defaultValues.getJournalPoolFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
 
       return describeJournal(messagesFF, messagesJournal, messagesDir);
    }

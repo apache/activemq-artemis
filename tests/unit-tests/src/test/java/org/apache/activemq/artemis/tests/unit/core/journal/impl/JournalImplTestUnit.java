@@ -121,7 +121,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    @Test
    public void testParams() throws Exception {
       try {
-         new JournalImpl(JournalImpl.MIN_FILE_SIZE - 1, 10, 0, 0, fileFactory, filePrefix, fileExtension, 1);
+         new JournalImpl(JournalImpl.MIN_FILE_SIZE - 1, 10, 10, 0, 0, fileFactory, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
       }
@@ -130,7 +130,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       try {
-         new JournalImpl(10 * 1024, 1, 0, 0, fileFactory, filePrefix, fileExtension, 1);
+         new JournalImpl(10 * 1024, 1, 0, 0, 0, fileFactory, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
       }
@@ -139,7 +139,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       try {
-         new JournalImpl(10 * 1024, 10, 0, 0, null, filePrefix, fileExtension, 1);
+         new JournalImpl(10 * 1024, 10, 0, 0, 0, null, filePrefix, fileExtension, 1);
 
          Assert.fail("Should throw exception");
       }
@@ -148,7 +148,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       try {
-         new JournalImpl(10 * 1024, 10, 0, 0, fileFactory, null, fileExtension, 1);
+         new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, null, fileExtension, 1);
 
          Assert.fail("Should throw exception");
       }
@@ -157,7 +157,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       try {
-         new JournalImpl(10 * 1024, 10, 0, 0, fileFactory, filePrefix, null, 1);
+         new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, filePrefix, null, 1);
 
          Assert.fail("Should throw exception");
       }
@@ -166,7 +166,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       }
 
       try {
-         new JournalImpl(10 * 1024, 10, 0, 0, fileFactory, filePrefix, null, 0);
+         new JournalImpl(10 * 1024, 10, 0, 0, 0, fileFactory, filePrefix, null, 0);
 
          Assert.fail("Should throw exception");
       }
@@ -563,6 +563,103 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       for (String file : files1) {
          Assert.assertTrue(files4.contains(file));
       }
+
+      stopJournal();
+   }
+
+
+   @Test
+   public void testOrganicallyGrowNoLimit() throws Exception {
+      setup(2, -1, 10 * 1024, true, 50);
+      createJournal();
+      journal.setAutoReclaim(true);
+      startJournal();
+      load();
+
+      List<String> files1 = fileFactory.listFiles(fileExtension);
+
+      Assert.assertEquals(2, files1.size());
+
+      Assert.assertEquals(0, journal.getDataFilesCount());
+      Assert.assertEquals(0, journal.getFreeFilesCount());
+      Assert.assertEquals(1, journal.getOpenedFilesCount());
+      Assert.assertEquals(0, journal.getIDMapSize());
+
+      // Fill all the files
+
+      for (int i = 0; i < 200; i++) {
+         add(i);
+         journal.forceMoveNextFile();
+      }
+
+
+      for (int i = 0; i < 200; i++) {
+         delete(i);
+      }
+      journal.forceMoveNextFile();
+
+      journal.checkReclaimStatus();
+
+
+
+      files1 = fileFactory.listFiles(fileExtension);
+      Assert.assertTrue(files1.size() > 200);
+
+      int numberOfFiles = files1.size();
+
+      for (int i = 300; i < 350; i++) {
+         add(i);
+         journal.forceMoveNextFile();
+      }
+      journal.checkReclaimStatus();
+
+
+      files1 = fileFactory.listFiles(fileExtension);
+      Assert.assertTrue(files1.size() > 200);
+
+      Assert.assertEquals(numberOfFiles, files1.size());
+
+      System.out.println("we have " + files1.size() + " files now");
+
+      stopJournal();
+   }
+
+   @Test
+   public void testOrganicallyWithALimit() throws Exception {
+      setup(2, 5, 10 * 1024, true, 50);
+      createJournal();
+      journal.setAutoReclaim(true);
+      startJournal();
+      load();
+
+      List<String> files1 = fileFactory.listFiles(fileExtension);
+
+      Assert.assertEquals(2, files1.size());
+
+      Assert.assertEquals(0, journal.getDataFilesCount());
+      Assert.assertEquals(0, journal.getFreeFilesCount());
+      Assert.assertEquals(1, journal.getOpenedFilesCount());
+      Assert.assertEquals(0, journal.getIDMapSize());
+
+      // Fill all the files
+
+      for (int i = 0; i < 200; i++) {
+         add(i);
+         journal.forceMoveNextFile();
+      }
+
+      journal.checkReclaimStatus();
+
+
+      for (int i = 0; i < 200; i++) {
+         delete(i);
+      }
+      journal.forceMoveNextFile();
+
+      journal.checkReclaimStatus();
+
+      files1 = fileFactory.listFiles(fileExtension);
+      Assert.assertTrue("supposed to have less than 10 but it had " + files1.size() + " files created", files1.size() < 10);
 
       stopJournal();
    }
