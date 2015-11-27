@@ -207,6 +207,12 @@
             <!-- Eclipse Public License - v 1.0 -->
          </dependency>
 
+         <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections-testframework</artifactId>
+            <version>3.2.1</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
          <!-- ## End Test Dependencies ## -->
 
          <!-- ### Build Time Dependencies ### -->
@@ -289,6 +295,13 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_2.0_spec</artifactId>
             <version>${geronimo.jms.2.spec.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+
+         <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
             <!-- License: Apache 2.0 -->
          </dependency>
 
@@ -491,11 +504,11 @@
             <version>1.2</version>
             <!-- License: Apache 2.0 -->
          </dependency>
-         
+
 
       </dependencies>
    </dependencyManagement>
-   
+
    <dependencies>
         <!--  OSGi support -->
         <dependency>
@@ -510,7 +523,7 @@
             <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
-        
+
    </dependencies>
 
    <profiles>
