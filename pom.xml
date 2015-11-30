@@ -1053,6 +1053,7 @@
                   <exclude>**/.checkstyle</exclude>
                   <exclude>**/.factorypath</exclude>
                   <exclude>ratReport.txt</exclude>
+                  <exclude>**/org.apache.activemq.artemis.cfg</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
                   <exclude>**/*.bin</exclude>
