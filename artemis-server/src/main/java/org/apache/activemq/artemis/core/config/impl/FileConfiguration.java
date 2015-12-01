@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.config.impl;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.deployers.Deployable;
-import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;

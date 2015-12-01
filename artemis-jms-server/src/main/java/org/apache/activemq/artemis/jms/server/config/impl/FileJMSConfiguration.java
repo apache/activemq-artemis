@@ -17,7 +17,8 @@
 package org.apache.activemq.artemis.jms.server.config.impl;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.impl.Validators;
+import org.apache.activemq.artemis.core.config.xml.Validators;
+import org.apache.activemq.artemis.core.config.xml.XMLConfigurationUtil;
 import org.apache.activemq.artemis.core.deployers.Deployable;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -26,7 +27,6 @@ import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

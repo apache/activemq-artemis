@@ -71,9 +71,9 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
+import org.apache.activemq.artemis.core.server.cluster.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
@@ -1486,7 +1486,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
     * backup case.
     * <br>
     * Use
-    * {@link #setupClusterConnectionWithBackups(String, String, org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])}
+    * {@link #setupClusterConnectionWithBackups(String, String, org.apache.activemq.artemis.core.server.cluster.MessageLoadBalancingType, int, boolean, int, int[])}
     * to add it.
     *
     * @param node
