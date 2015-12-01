@@ -68,6 +68,15 @@
 									<file>target/classes/features.xml</file>
 									<type>xml</type>
 								</artifact>
+								<artifact>
+									<file>target/classes/artemis.xml</file>
+									<classifier>artemis</classifier>
+									<type>xml</type>
+								</artifact>
+								<artifact>
+									<file>target/classes/org.apache.activemq.artemis.cfg</file>
+									<type>cfg</type>
+								</artifact>
 							</artifacts>
 						</configuration>
 					</execution>
