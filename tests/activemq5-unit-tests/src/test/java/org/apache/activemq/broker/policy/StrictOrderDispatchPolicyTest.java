@@ -122,10 +122,10 @@ public class StrictOrderDispatchPolicyTest extends TopicSubscriptionTest {
 
       // Get basis of order
       Iterator<MessageConsumer> i = consumers.keySet().iterator();
-      MessageIdList messageOrder = (MessageIdList) consumers.get(i.next());
+      MessageIdList messageOrder = consumers.get(i.next());
 
       for (; i.hasNext(); ) {
-         MessageIdList messageIdList = (MessageIdList) consumers.get(i.next());
+         MessageIdList messageIdList = consumers.get(i.next());
          assertTrue("Messages are not ordered.", messageOrder.equals(messageIdList));
       }
    }

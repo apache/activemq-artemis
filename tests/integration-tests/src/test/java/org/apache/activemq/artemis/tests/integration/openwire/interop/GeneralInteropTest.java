@@ -289,7 +289,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          msg.writeByte((byte) 2);
          msg.writeBytes(new byte[]{6, 7});
          msg.writeChar('b');
-         msg.writeDouble((double) 6.5);
+         msg.writeDouble(6.5);
          msg.writeFloat((float) 93.9);
          msg.writeInt(7657);
          msg.writeLong(239999L);
@@ -566,7 +566,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       streamMessage.writeByte((byte) 2);
       streamMessage.writeBytes(new byte[]{6, 7});
       streamMessage.writeChar('b');
-      streamMessage.writeDouble((double) 6.5);
+      streamMessage.writeDouble(6.5);
       streamMessage.writeFloat((float) 93.9);
       streamMessage.writeInt(7657);
       streamMessage.writeLong(239999L);

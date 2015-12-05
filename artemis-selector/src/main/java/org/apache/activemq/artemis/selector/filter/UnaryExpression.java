@@ -105,7 +105,7 @@ public abstract class UnaryExpression implements Expression {
 
             int count = 0;
             for (Iterator<Object> i = inList.iterator(); i.hasNext(); ) {
-               Object o = (Object) i.next();
+               Object o = i.next();
                if (count != 0) {
                   answer.append(", ");
                }

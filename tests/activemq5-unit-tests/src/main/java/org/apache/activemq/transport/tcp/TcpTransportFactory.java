@@ -98,7 +98,7 @@ public class TcpTransportFactory extends TransportFactory {
    @SuppressWarnings("rawtypes")
    public Transport compositeConfigure(Transport transport, WireFormat format, Map options) {
 
-      TcpTransport tcpTransport = (TcpTransport) transport.narrow(TcpTransport.class);
+      TcpTransport tcpTransport = transport.narrow(TcpTransport.class);
       IntrospectionSupport.setProperties(tcpTransport, options);
 
       Map<String, Object> socketOptions = IntrospectionSupport.extractProperties(options, "socket.");

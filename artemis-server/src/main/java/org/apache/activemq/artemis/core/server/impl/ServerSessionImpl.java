@@ -464,7 +464,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         ManagementService managementService2,
                                         boolean supportLargeMessage,
                                         Integer credits) throws Exception {
-      return new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
+      return new ServerConsumerImpl(consumerID, this, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
    }
 
    @Override

@@ -108,7 +108,7 @@ public class RawRollbackSharedConsumerTests {
       List<String> msgs = new ArrayList<String>();
       MessageConsumer consumer = session.createConsumer(queue);
       while (next != null) {
-         next = (String) receiveAndConvert(consumer);
+         next = receiveAndConvert(consumer);
          if (next != null)
             msgs.add(next);
       }

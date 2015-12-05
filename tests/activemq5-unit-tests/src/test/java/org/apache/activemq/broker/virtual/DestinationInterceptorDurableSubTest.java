@@ -173,7 +173,7 @@ public class DestinationInterceptorDurableSubTest extends EmbeddedBrokerTestSupp
          // AMQ-4571 only removed the latter not the former on unsubscribe(), so we need
          // to check against both.
          ObjectName[] names = (ObjectName[]) mbsc.getAttribute(new ObjectName(JMX_CONTEXT_BASE_NAME + topicName), "Subscriptions");
-         ObjectInstance instance = (ObjectInstance) mbsc.getObjectInstance(new ObjectName(JMX_CONTEXT_BASE_NAME +
+         ObjectInstance instance = mbsc.getObjectInstance(new ObjectName(JMX_CONTEXT_BASE_NAME +
                                                                                              topicName +
                                                                                              ",endpoint=Consumer,clientId=myId1,consumerId=Durable(myId1_" +
                                                                                              subName +

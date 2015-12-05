@@ -114,7 +114,7 @@ public class OptimizeAcknowledgeWithExpiredMsgsTest {
       MessageConsumer consumer = session.createConsumer(destination);
 
       final MyMessageListener listener = new MyMessageListener();
-      connection.setExceptionListener((ExceptionListener) listener);
+      connection.setExceptionListener(listener);
 
       // ***** Producer Code *****
       MessageProducer producer = session.createProducer(destination);

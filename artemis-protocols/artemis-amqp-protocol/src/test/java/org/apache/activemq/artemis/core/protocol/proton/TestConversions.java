@@ -133,7 +133,7 @@ public class TestConversions extends Assert {
       AmqpValue value = (AmqpValue) outMessage.getBody();
       Map mapoutput = (Map) value.getValue();
 
-      assertEquals(Integer.valueOf(1), (Integer) mapoutput.get("someint"));
+      assertEquals(Integer.valueOf(1), mapoutput.get("someint"));
 
       System.out.println("output = " + obj);
 

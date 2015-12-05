@@ -230,7 +230,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
             }
             else {
                try {
-                  response = ((Command) command).visit(this);
+                  response = command.visit(this);
                }
                catch (Exception e) {
                   if (responseRequired) {

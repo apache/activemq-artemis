@@ -58,7 +58,7 @@ public class JMSConsumer3Test extends BasicOpenWireTest {
    @Test
    public void testMutiReceiveWithPrefetch1() throws Exception {
       // Set prefetch to 1
-      ((ActiveMQConnection) connection).getPrefetchPolicy().setAll(1);
+      connection.getPrefetchPolicy().setAll(1);
       connection.start();
 
       // Use all the ack modes

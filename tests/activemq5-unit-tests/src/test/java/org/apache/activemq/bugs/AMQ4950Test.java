@@ -161,7 +161,7 @@ public class AMQ4950Test extends BrokerRestartTestSupport {
 
    private void assertTransactionGoneFromFailoverState(ActiveMQXAConnection connection1, Xid tid) throws Exception {
 
-      FailoverTransport transport = (FailoverTransport) connection1.getTransport().narrow(FailoverTransport.class);
+      FailoverTransport transport = connection1.getTransport().narrow(FailoverTransport.class);
       TransactionInfo info = new TransactionInfo(connection1.getConnectionInfo().getConnectionId(), new XATransactionId(tid), TransactionInfo.COMMIT_ONE_PHASE);
       assertNull("transaction should not exist in the state tracker", transport.getStateTracker().processCommitTransactionOnePhase(info));
    }

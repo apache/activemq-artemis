@@ -75,7 +75,7 @@ public class AMQ2103Test extends BrokerTestSupport {
       factory.setCopyMessageOnSend(false);
 
       Connection connection = factory.createConnection();
-      Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = new ActiveMQQueue("testQ");
       MessageConsumer consumer = session.createConsumer(destination);
       connection.start();

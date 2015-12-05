@@ -466,10 +466,10 @@ public class SelectorTest {
       message.setByteProperty("byteProp", (byte) 123);
       message.setByteProperty("byteProp2", (byte) 33);
       message.setShortProperty("shortProp", (short) 123);
-      message.setIntProperty("intProp", (int) 123);
-      message.setLongProperty("longProp", (long) 123);
-      message.setFloatProperty("floatProp", (float) 123);
-      message.setDoubleProperty("doubleProp", (double) 123);
+      message.setIntProperty("intProp", 123);
+      message.setLongProperty("longProp", 123);
+      message.setFloatProperty("floatProp", 123);
+      message.setDoubleProperty("doubleProp", 123);
 
       message.setIntProperty("rank", 123);
       message.setIntProperty("version", 2);

@@ -94,7 +94,7 @@ public class LoadTestBurnIn extends JmsTestSupport {
 
    @Override
    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-      return new ActiveMQConnectionFactory(((TransportConnector) broker.getTransportConnectors().get(0)).getServer().getConnectURI());
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
    }
 
    public void initCombosForTestSendReceive() {

@@ -30,7 +30,7 @@ public class ReceiveShipping {
 
    public static void main(String[] args) throws Exception {
       ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
-      Destination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress("jms.queue.shipping");
+      Destination destination = ActiveMQDestination.fromAddress("jms.queue.shipping");
 
       Connection conn = factory.createConnection();
       try {

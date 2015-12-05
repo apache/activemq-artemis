@@ -82,7 +82,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
       // Get message count
       for (int i = 1; i <= BROKER_COUNT; i++) {
          for (int j = 0; j < CONSUMER_COUNT; j++) {
-            MessageIdList msgs = getConsumerMessages("Broker" + i, (MessageConsumer) consumerMap.get("Consumer:" + i + ":" + j));
+            MessageIdList msgs = getConsumerMessages("Broker" + i, consumerMap.get("Consumer:" + i + ":" + j));
             assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, msgs.getMessageCount());
          }
       }

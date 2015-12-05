@@ -89,7 +89,7 @@ public class AMQ2171Test implements Thread.UncaughtExceptionHandler {
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          @SuppressWarnings("unchecked")
-         Enumeration<Message> unread = (Enumeration<Message>) session.createBrowser(destination).getEnumeration();
+         Enumeration<Message> unread = session.createBrowser(destination).getEnumeration();
 
          int count = 0;
          while (unread.hasMoreElements()) {

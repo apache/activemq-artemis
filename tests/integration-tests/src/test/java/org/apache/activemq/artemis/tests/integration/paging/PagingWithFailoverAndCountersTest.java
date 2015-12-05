@@ -357,7 +357,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       waitForServerToStart(server);
       Queue queue = server.locateQueue(SimpleString.toSimpleString("cons2"));
 
-      int messageCount = (int) getMessageCount(queue);
+      int messageCount = getMessageCount(queue);
 
       assertTrue(messageCount >= 0);
 

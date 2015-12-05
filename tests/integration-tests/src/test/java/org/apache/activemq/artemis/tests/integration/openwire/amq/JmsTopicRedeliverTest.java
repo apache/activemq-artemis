@@ -52,7 +52,7 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
    public void setUp() throws Exception {
       super.setUp();
 
-      initRedeliveryDelay = ((ActiveMQConnection) connection).getRedeliveryPolicy().getInitialRedeliveryDelay();
+      initRedeliveryDelay = connection.getRedeliveryPolicy().getInitialRedeliveryDelay();
 
       if (durable) {
          connection.setClientID(getClass().getName());

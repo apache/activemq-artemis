@@ -66,7 +66,7 @@ public class MBeanOperationTimeoutTest {
       objectNameStr += ",destinationType=Queue,destinationName=" + destinationName;
 
       ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
-      QueueViewMBean proxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      QueueViewMBean proxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
       long count = proxy.getQueueSize();
       assertEquals("Queue size", count, messageCount);

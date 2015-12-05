@@ -77,7 +77,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setCopyMessageOnSend(false);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageConsumer consumer = session.createConsumer(destination);
                connection.start();
                consumerStarted.countDown();
@@ -106,7 +106,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setCopyMessageOnSend(false);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(destination);
                ActiveMQObjectMessage message = (ActiveMQObjectMessage) session.createObjectMessage();
                message.setObject(obj);
@@ -149,7 +149,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setCopyMessageOnSend(false);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageConsumer consumer = session.createConsumer(destination);
                connection.start();
                consumerStarted.countDown();
@@ -177,7 +177,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setOptimizedMessageDispatch(true);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageConsumer consumer = session.createConsumer(destination);
                connection.start();
                consumerStarted.countDown();
@@ -207,7 +207,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setCopyMessageOnSend(false);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageConsumer consumer = session.createConsumer(destination);
                connection.start();
                consumerStarted.countDown();
@@ -236,7 +236,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
                factory.setCopyMessageOnSend(false);
 
                Connection connection = factory.createConnection();
-               Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(destination);
                ActiveMQObjectMessage message = (ActiveMQObjectMessage) session.createObjectMessage();
                message.setObject(obj);

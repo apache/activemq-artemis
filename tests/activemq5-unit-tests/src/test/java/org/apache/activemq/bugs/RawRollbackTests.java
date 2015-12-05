@@ -108,7 +108,7 @@ public class RawRollbackTests {
       String next = "";
       List<String> msgs = new ArrayList<String>();
       while (next != null) {
-         next = (String) receiveAndConvert(session);
+         next = receiveAndConvert(session);
          if (next != null)
             msgs.add(next);
       }

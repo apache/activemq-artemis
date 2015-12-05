@@ -48,7 +48,7 @@ public class Artemis {
 
    /** This is a good method for booting an embedded command */
    public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Throwable {
-      return execute(artemisHome, artemisInstance, (String[]) args.toArray(new String[args.size()]));
+      return execute(artemisHome, artemisInstance, args.toArray(new String[args.size()]));
    }
 
    /** This is a good method for booting an embedded command */

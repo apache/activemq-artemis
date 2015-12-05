@@ -613,7 +613,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    protected ActiveMQPrefetchPolicy getPrefetchPolicy() {
-      return ((ActiveMQConnection) connection).getPrefetchPolicy();
+      return connection.getPrefetchPolicy();
    }
 
    // This test won't work with xa tx so no beginTx() has been added.

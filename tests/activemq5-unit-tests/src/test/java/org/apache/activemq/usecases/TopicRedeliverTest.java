@@ -165,7 +165,7 @@ public class TopicRedeliverTest extends TestSupport {
       Session consumerSession = connection.createSession(true, Session.CLIENT_ACKNOWLEDGE);
       MessageConsumer consumer = null;
       if (topic) {
-         consumer = consumerSession.createConsumer((Topic) destination);
+         consumer = consumerSession.createConsumer(destination);
       }
       else {
          consumer = consumerSession.createConsumer(destination);

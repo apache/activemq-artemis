@@ -507,8 +507,8 @@ public class InterceptorTest extends ActiveMQTestBase {
    @Test
    public void testInterceptUsernameOnConsumer() throws Exception {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("dumb", "dumber");
-      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("an", "other");
+      securityManager.getConfiguration().addUser("dumb", "dumber");
+      securityManager.getConfiguration().addUser("an", "other");
 
       server.getRemotingService().addIncomingInterceptor(new InterceptUserOnCreateConsumer());
 

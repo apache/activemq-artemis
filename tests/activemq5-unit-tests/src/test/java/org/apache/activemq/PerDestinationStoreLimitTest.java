@@ -190,7 +190,7 @@ public class PerDestinationStoreLimitTest extends JmsTestSupport {
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
-         TcpTransport t = (TcpTransport) connection.getTransport().narrow(TcpTransport.class);
+         TcpTransport t = connection.getTransport().narrow(TcpTransport.class);
          t.getTransportListener().onException(new IOException("Disposed."));
          connection.getTransport().stop();
          super.tearDown();

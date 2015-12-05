@@ -28,7 +28,7 @@ public class JmsSend {
 
    public static void main(String[] args) throws Exception {
       ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
-      Destination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress("jms.queue.orders");
+      Destination destination = ActiveMQDestination.fromAddress("jms.queue.orders");
 
       Connection conn = factory.createConnection();
       try {
