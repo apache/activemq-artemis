@@ -64,7 +64,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
 
    @Override
    protected void registerConnectionFactory() throws Exception {
-      List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
       createCF(connectorConfigs, "/cf");

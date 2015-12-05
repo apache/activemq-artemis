@@ -200,7 +200,7 @@ public class TransportConstants {
    public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
 
    static {
-      Set<String> allowableAcceptorKeys = new HashSet<String>();
+      Set<String> allowableAcceptorKeys = new HashSet<>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME);
@@ -237,7 +237,7 @@ public class TransportConstants {
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
-      Set<String> allowableConnectorKeys = new HashSet<String>();
+      Set<String> allowableConnectorKeys = new HashSet<>();
       allowableConnectorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HTTP_ENABLED_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME);

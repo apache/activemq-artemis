@@ -825,7 +825,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                                         final int msgStart,
                                                         final int msgEnd,
                                                         final int... consumerIDs) throws Exception {
-      HashMap<SimpleString, Integer> groupIdsReceived = new HashMap<SimpleString, Integer>();
+      HashMap<SimpleString, Integer> groupIdsReceived = new HashMap<>();
       for (int i = 0; i < consumerIDs.length; i++) {
          ConsumerHolder holder = consumers[consumerIDs[i]];
 
@@ -1096,7 +1096,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       // First get one from each consumer to determine the order, then we sort them in this order
 
-      List<OrderedConsumerHolder> sorted = new ArrayList<OrderedConsumerHolder>();
+      List<OrderedConsumerHolder> sorted = new ArrayList<>();
 
       for (int consumerID : consumerIDs) {
          ConsumerHolder holder = consumers[consumerID];
@@ -1167,9 +1167,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    protected void verifyReceiveRoundRobinInSomeOrderWithCounts(final boolean ack,
                                                                final int[] messageCounts,
                                                                final int... consumerIDs) throws Exception {
-      List<LinkedList<Integer>> receivedCounts = new ArrayList<LinkedList<Integer>>();
+      List<LinkedList<Integer>> receivedCounts = new ArrayList<>();
 
-      Set<Integer> counts = new HashSet<Integer>();
+      Set<Integer> counts = new HashSet<>();
 
       for (int consumerID : consumerIDs) {
          ConsumerHolder holder = consumers[consumerID];
@@ -1178,7 +1178,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No consumer at " + consumerID);
          }
 
-         LinkedList<Integer> list = new LinkedList<Integer>();
+         LinkedList<Integer> list = new LinkedList<>();
 
          receivedCounts.add(list);
 
@@ -1275,7 +1275,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          throw new IllegalArgumentException("No consumer at " + consumerID);
       }
 
-      List<Integer> ints = new ArrayList<Integer>();
+      List<Integer> ints = new ArrayList<>();
 
       ClientMessage message = null;
 
@@ -1539,7 +1539,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       TransportConfiguration connector = createTransportConfiguration(netty, false, params);
 
-      List<String> connectorPairs = new ArrayList<String>();
+      List<String> connectorPairs = new ArrayList<>();
       connectorPairs.add(connector.getName());
 
       UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
@@ -1587,7 +1587,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       TransportConfiguration connector = createTransportConfiguration(netty, false, params);
 
-      List<String> connectorPairs = new ArrayList<String>();
+      List<String> connectorPairs = new ArrayList<>();
       connectorPairs.add(connector.getName());
 
       UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
@@ -1647,7 +1647,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (nodeTo != -1) {
          TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(nodeTo, netty));
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
-         pairs = new ArrayList<String>();
+         pairs = new ArrayList<>();
          pairs.add(serverTotc.getName());
       }
       Configuration config = serverFrom.getConfiguration();
@@ -1681,7 +1681,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       if (nodeTo != -1) {
          TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(nodeTo, netty));
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
-         pairs = new ArrayList<String>();
+         pairs = new ArrayList<>();
          pairs.add(serverTotc.getName());
       }
       Configuration config = serverFrom.getConfiguration();
@@ -1707,7 +1707,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(connectorFrom.getName(), connectorFrom);
 
-      List<String> pairs = new ArrayList<String>();
+      List<String> pairs = new ArrayList<>();
       for (int element : nodesTo) {
          TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
@@ -1737,7 +1737,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(connectorFrom.getName(), connectorFrom);
 
-      List<String> pairs = new ArrayList<String>();
+      List<String> pairs = new ArrayList<>();
       for (int element : nodesTo) {
          TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
@@ -1775,7 +1775,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
       serverFrom.getConfiguration().getConnectorConfigurations().put(name, connectorFrom);
 
-      List<String> pairs = new ArrayList<String>();
+      List<String> pairs = new ArrayList<>();
       for (int element : nodesTo) {
          TransportConfiguration serverTotc = createTransportConfiguration(netty, false, generateParams(element, netty));
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);

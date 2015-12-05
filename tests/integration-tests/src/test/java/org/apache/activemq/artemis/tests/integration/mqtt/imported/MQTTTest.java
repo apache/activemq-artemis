@@ -293,7 +293,7 @@ public class MQTTTest extends MQTTTestSupport {
       String RETAINED = "retained";
       publisher.publish("foo", RETAINED.getBytes(), AT_LEAST_ONCE, true);
 
-      List<String> messages = new ArrayList<String>();
+      List<String> messages = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          messages.add("TEST MESSAGE:" + i);
       }
@@ -629,7 +629,7 @@ public class MQTTTest extends MQTTTestSupport {
       mqtt.setKeepAlive((short) 2);
       mqtt.setCleanSession(true);
 
-      final List<PUBLISH> publishList = new ArrayList<PUBLISH>();
+      final List<PUBLISH> publishList = new ArrayList<>();
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
@@ -715,7 +715,7 @@ public class MQTTTest extends MQTTTestSupport {
       final MQTT mqtt = createMQTTConnection("resend", false);
       mqtt.setKeepAlive((short) 5);
 
-      final List<PUBLISH> publishList = new ArrayList<PUBLISH>();
+      final List<PUBLISH> publishList = new ArrayList<>();
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
@@ -785,7 +785,7 @@ public class MQTTTest extends MQTTTestSupport {
       final MQTT mqtt = createMQTTConnection("nonclean-packetid", false);
       mqtt.setKeepAlive((short) 15);
 
-      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<Short, PUBLISH>();
+      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<>();
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
@@ -860,7 +860,7 @@ public class MQTTTest extends MQTTTestSupport {
    // If there is a good reason for this we should follow ActiveMQ.
    public void testPacketIdGeneratorCleanSession() throws Exception {
       final String[] cleanClientIds = new String[]{"", "clean-packetid", null};
-      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<Short, PUBLISH>();
+      final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<>();
       MQTT[] mqtts = new MQTT[cleanClientIds.length];
       for (int i = 0; i < cleanClientIds.length; i++) {
          mqtts[i] = createMQTTConnection("", true);

@@ -40,7 +40,7 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext {
       super(sessionSPI, connection, session);
    }
 
-   protected Map<Object, AbstractProtonContextSender> serverSenders = new HashMap<Object, AbstractProtonContextSender>();
+   protected Map<Object, AbstractProtonContextSender> serverSenders = new HashMap<>();
 
    /**
     * The consumer object from the broker or the key used to store the sender

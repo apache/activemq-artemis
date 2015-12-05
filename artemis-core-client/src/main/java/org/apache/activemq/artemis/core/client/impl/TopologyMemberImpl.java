@@ -46,7 +46,7 @@ public final class TopologyMemberImpl implements TopologyMember {
       this.nodeId = nodeId;
       this.backupGroupName = backupGroupName;
       this.scaleDownGroupName = scaleDownGroupName;
-      this.connector = new Pair<TransportConfiguration, TransportConfiguration>(a, b);
+      this.connector = new Pair<>(a, b);
       uniqueEventID = System.currentTimeMillis();
    }
 

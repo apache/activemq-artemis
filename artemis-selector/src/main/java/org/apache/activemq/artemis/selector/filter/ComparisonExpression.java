@@ -28,10 +28,10 @@ import java.util.regex.Pattern;
  */
 public abstract class ComparisonExpression extends BinaryExpression implements BooleanExpression {
 
-   public static final ThreadLocal<Boolean> CONVERT_STRING_EXPRESSIONS = new ThreadLocal<Boolean>();
+   public static final ThreadLocal<Boolean> CONVERT_STRING_EXPRESSIONS = new ThreadLocal<>();
 
    boolean convertStringExpressions = false;
-   private static final Set<Character> REGEXP_CONTROL_CHARS = new HashSet<Character>();
+   private static final Set<Character> REGEXP_CONTROL_CHARS = new HashSet<>();
 
    /**
     * @param left

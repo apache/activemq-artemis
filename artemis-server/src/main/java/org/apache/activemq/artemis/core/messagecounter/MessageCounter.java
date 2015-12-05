@@ -98,7 +98,7 @@ public class MessageCounter {
       resetCounter();
 
       // initialize message history
-      dayCounters = new ArrayList<DayCounter>();
+      dayCounters = new ArrayList<>();
 
       setHistoryLimit(daycountmax);
    }
@@ -261,7 +261,7 @@ public class MessageCounter {
    public List<DayCounter> getHistory() {
       updateHistory(0);
 
-      return new ArrayList<DayCounter>(dayCounters);
+      return new ArrayList<>(dayCounters);
    }
 
    /**

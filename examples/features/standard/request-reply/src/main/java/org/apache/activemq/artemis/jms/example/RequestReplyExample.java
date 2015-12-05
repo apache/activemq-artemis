@@ -44,7 +44,7 @@ import javax.naming.InitialContext;
 public class RequestReplyExample {
 
    public static void main(final String[] args) throws Exception {
-      final Map<String, TextMessage> requestMap = new HashMap<String, TextMessage>();
+      final Map<String, TextMessage> requestMap = new HashMap<>();
       Connection connection = null;
       InitialContext initialContext = null;
 

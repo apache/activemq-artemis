@@ -121,7 +121,7 @@ public class AMQStackOverFlowTest extends TestCase {
       //memoryManager.getMemoryUsage().setLimit(10);
       brokerService.setSystemUsage(memoryManager);
 
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
 
       final PolicyEntry entry = new PolicyEntry();
       entry.setQueue(">");

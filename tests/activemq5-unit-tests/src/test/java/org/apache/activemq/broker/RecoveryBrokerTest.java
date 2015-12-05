@@ -53,9 +53,9 @@ public class RecoveryBrokerTest extends BrokerRestartTestSupport {
       ActiveMQDestination dest3 = new ActiveMQTopic("TEST.C");
       ActiveMQDestination wildDest = new ActiveMQTopic("TEST.>");
 
-      ArrayList<MessageId> sentBeforeRestart = new ArrayList<MessageId>();
-      ArrayList<MessageId> sentBeforeCreateConsumer = new ArrayList<MessageId>();
-      ArrayList<MessageId> sentAfterCreateConsumer = new ArrayList<MessageId>();
+      ArrayList<MessageId> sentBeforeRestart = new ArrayList<>();
+      ArrayList<MessageId> sentBeforeCreateConsumer = new ArrayList<>();
+      ArrayList<MessageId> sentAfterCreateConsumer = new ArrayList<>();
 
       // Setup a first connection
       {

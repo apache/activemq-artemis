@@ -67,8 +67,8 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
    final int numMessages = 800;
    final int consumerSleepTime = 20;
    StringBuilder brokersUrl = new StringBuilder();
-   HashMap<ActiveMQQueue, AtomicInteger> accumulators = new HashMap<ActiveMQQueue, AtomicInteger>();
-   private ArrayList<Throwable> exceptions = new ArrayList<Throwable>();
+   HashMap<ActiveMQQueue, AtomicInteger> accumulators = new HashMap<>();
+   private ArrayList<Throwable> exceptions = new ArrayList<>();
 
    protected void buildUrlList() throws Exception {
       for (int i = 0; i < numBrokers; i++) {
@@ -216,7 +216,7 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
    }
 
    private List<ConsumerState> startAllGWConsumers(int nBrokers) throws Exception {
-      List<ConsumerState> consumerStates = new LinkedList<ConsumerState>();
+      List<ConsumerState> consumerStates = new LinkedList<>();
       for (int id = 0; id < nBrokers; id++) {
          ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("failover:(tcp://localhost:" + (portBase + id) + ")");
          connectionFactory.setWatchTopicAdvisories(false);
@@ -321,7 +321,7 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
          }
       });
       LOG.info("verify infos " + broker.getBrokerName() + ", len: " + regionBroker.getPeerBrokerInfos().length);
-      List<String> missing = new ArrayList<String>();
+      List<String> missing = new ArrayList<>();
       for (int i = 0; i < max; i++) {
          missing.add("B" + i);
       }
@@ -353,6 +353,6 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
       String brokerName;
       QueueReceiver receiver;
       ActiveMQDestination destination;
-      Vector<Integer> expected = new Vector<Integer>();
+      Vector<Integer> expected = new Vector<>();
    }
 }

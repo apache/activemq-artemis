@@ -158,7 +158,7 @@ public class NegativeQueueTest extends AutoFailTestSupport {
       Session session = producerConnection.createSession(TRANSACTED, Session.AUTO_ACKNOWLEDGE);
       Destination queue = session.createQueue(QUEUE_1_NAME);
       MessageProducer producer = session.createProducer(queue);
-      List<TextMessage> senderList = new ArrayList<TextMessage>();
+      List<TextMessage> senderList = new ArrayList<>();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          TextMessage msg = session.createTextMessage(i + " " + formatter.format(new Date()));
          senderList.add(msg);
@@ -183,10 +183,10 @@ public class NegativeQueueTest extends AutoFailTestSupport {
       final CountDownLatch latch1 = new CountDownLatch(1);
       final CountDownLatch latch2 = new CountDownLatch(1);
       Connection[] consumerConnections1 = new Connection[NUM_CONSUMERS];
-      List<Message> consumerList1 = new ArrayList<Message>();
+      List<Message> consumerList1 = new ArrayList<>();
       Connection[] consumerConnections2 = new Connection[NUM_CONSUMERS];
       Connection[] producerConnections2 = new Connection[NUM_CONSUMERS];
-      List<Message> consumerList2 = new ArrayList<Message>();
+      List<Message> consumerList2 = new ArrayList<>();
 
       for (int ix = 0; ix < NUM_CONSUMERS; ix++) {
          producerConnections2[ix] = factory.createConnection();

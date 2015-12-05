@@ -170,7 +170,7 @@ public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestS
       NetworkConnector bridge = bridgeBrokers(local, remote);
       bridge.setDecreaseNetworkConsumerPriority(true);
 
-      LinkedList<ActiveMQDestination> excludedDestinations = new LinkedList<ActiveMQDestination>();
+      LinkedList<ActiveMQDestination> excludedDestinations = new LinkedList<>();
       excludedDestinations.add(new ActiveMQQueue("Consumer.*.VirtualTopic.>"));
 
       bridge.setExcludedDestinations(excludedDestinations);

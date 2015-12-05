@@ -33,7 +33,7 @@ public class AddressImpl implements Address {
 
    private final boolean containsWildCard;
 
-   private final List<Address> linkedAddresses = new ArrayList<Address>();
+   private final List<Address> linkedAddresses = new ArrayList<>();
 
    public AddressImpl(final SimpleString address) {
       this.address = address;

@@ -63,7 +63,7 @@ public class JmsMultipleClientsTestSupport {
 
    protected static final Logger LOG = LoggerFactory.getLogger(JmsMultipleClientsTestSupport.class);
 
-   protected Map<MessageConsumer, MessageIdList> consumers = new HashMap<MessageConsumer, MessageIdList>(); // Map of consumer with messages
+   protected Map<MessageConsumer, MessageIdList> consumers = new HashMap<>(); // Map of consumer with messages
    // received
    protected int consumerCount = 1;
    protected int producerCount = 1;

@@ -26,7 +26,7 @@ import java.util.List;
 public class TopicServiceManager extends DestinationServiceManager {
 
    protected TopicPushStore pushStore;
-   protected List<TopicDeployment> topics = new ArrayList<TopicDeployment>();
+   protected List<TopicDeployment> topics = new ArrayList<>();
    protected TopicDestinationsResource destination;
 
    public TopicPushStore getPushStore() {

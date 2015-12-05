@@ -61,7 +61,7 @@ public class AMQ4092Test extends TestCase {
    private BrokerService brokerService;
 
    private ActiveMQQueue destination;
-   private HashMap<Thread, Throwable> exceptions = new HashMap<Thread, Throwable>();
+   private HashMap<Thread, Throwable> exceptions = new HashMap<>();
    private ExceptionListener exceptionListener = new ExceptionListener() {
       @Override
       public void onException(JMSException exception) {

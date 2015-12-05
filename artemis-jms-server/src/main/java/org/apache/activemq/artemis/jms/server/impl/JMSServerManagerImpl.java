@@ -104,20 +104,20 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    private BindingRegistry registry;
 
-   private final Map<String, ActiveMQQueue> queues = new HashMap<String, ActiveMQQueue>();
+   private final Map<String, ActiveMQQueue> queues = new HashMap<>();
 
-   private final Map<String, ActiveMQTopic> topics = new HashMap<String, ActiveMQTopic>();
+   private final Map<String, ActiveMQTopic> topics = new HashMap<>();
 
-   private final Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<String, ActiveMQConnectionFactory>();
+   private final Map<String, ActiveMQConnectionFactory> connectionFactories = new HashMap<>();
 
-   private final Map<String, List<String>> queueBindings = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> queueBindings = new HashMap<>();
 
-   private final Map<String, List<String>> topicBindings = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> topicBindings = new HashMap<>();
 
-   private final Map<String, List<String>> connectionFactoryBindings = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> connectionFactoryBindings = new HashMap<>();
 
    // We keep things cached if objects are created while the JMS is not active
-   private final List<Runnable> cachedCommands = new ArrayList<Runnable>();
+   private final List<Runnable> cachedCommands = new ArrayList<>();
 
    private final ActiveMQServer server;
 
@@ -133,7 +133,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    private JMSStorageManager storage;
 
-   private final Map<String, List<String>> unRecoveredBindings = new HashMap<String, List<String>>();
+   private final Map<String, List<String>> unRecoveredBindings = new HashMap<>();
 
    public JMSServerManagerImpl(final ActiveMQServer server) throws Exception {
       this.server = server;
@@ -224,7 +224,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
             unbindBindings(connectionFactoryBindings);
 
-            for (String connectionFactory : new HashSet<String>(connectionFactories.keySet())) {
+            for (String connectionFactory : new HashSet<>(connectionFactories.keySet())) {
                shutdownConnectionFactory(connectionFactory);
             }
 
@@ -290,7 +290,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          }
 
          if (bindingsList == null) {
-            bindingsList = new ArrayList<String>();
+            bindingsList = new ArrayList<>();
             mapBindings.put(name, bindingsList);
          }
 
@@ -336,7 +336,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          }
 
          if (bindingsList == null) {
-            bindingsList = new ArrayList<String>();
+            bindingsList = new ArrayList<>();
             mapBindings.put(record.getName(), bindingsList);
          }
 
@@ -494,7 +494,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
                String[] usedBindings = null;
 
                if (bindings != null) {
-                  ArrayList<String> bindingsToAdd = new ArrayList<String>();
+                  ArrayList<String> bindingsToAdd = new ArrayList<>();
 
                   for (String bindingsItem : bindings) {
                      if (bindToBindings(bindingsItem, destination)) {
@@ -546,7 +546,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               ArrayList<String> bindingsToAdd = new ArrayList<String>();
+               ArrayList<String> bindingsToAdd = new ArrayList<>();
 
                if (bindings != null) {
                   for (String bindingsItem : bindings) {
@@ -989,7 +989,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
             ActiveMQConnectionFactory cf = internalCreateCF(cfConfig);
 
-            ArrayList<String> bindingsToAdd = new ArrayList<String>();
+            ArrayList<String> bindingsToAdd = new ArrayList<>();
 
             for (String bindingsItem : bindings) {
                if (bindToBindings(bindingsItem, cf)) {
@@ -1302,7 +1302,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          return "";
       }
 
-      ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
+      ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
       Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
          @Override
          public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
@@ -1332,7 +1332,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          return "<h3>*** Prepared Transaction Details ***</h3><p>No entry.</p>";
       }
 
-      ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
+      ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
       Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
          @Override
          public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
@@ -1411,7 +1411,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private void addToBindings(Map<String, List<String>> map, String name, String... bindings) {
       List<String> list = map.get(name);
       if (list == null) {
-         list = new ArrayList<String>();
+         list = new ArrayList<>();
          map.put(name, list);
       }
       for (String bindingsItem : bindings) {

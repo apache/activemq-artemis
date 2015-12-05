@@ -86,7 +86,7 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator {
    public void nodeUP(TopologyMember topologyMember, boolean last) {
       try {
          lock.lock();
-         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
 
          if (topologyMember.getNodeId().equals(myNodeID)) {
             if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {

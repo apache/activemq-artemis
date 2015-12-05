@@ -42,7 +42,7 @@ public class ConnectionHangOnStartupTest {
    // connection sooner)
    protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
    protected BrokerService master = null;
-   protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
+   protected AtomicReference<BrokerService> slave = new AtomicReference<>();
 
    @After
    public void tearDown() throws Exception {
@@ -84,7 +84,7 @@ public class ConnectionHangOnStartupTest {
 
    @Test(timeout = 60000)
    public void testInitialWireFormatNegotiationTimeout() throws Exception {
-      final AtomicReference<Connection> conn = new AtomicReference<Connection>();
+      final AtomicReference<Connection> conn = new AtomicReference<>();
       final CountDownLatch connStarted = new CountDownLatch(1);
 
       Thread t = new Thread() {

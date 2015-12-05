@@ -394,10 +394,10 @@ public class TransactionImpl implements Transaction {
    public synchronized List<TransactionOperation> getAllOperations() {
 
       if (operations != null) {
-         return new ArrayList<TransactionOperation>(operations);
+         return new ArrayList<>(operations);
       }
       else {
-         return new ArrayList<TransactionOperation>();
+         return new ArrayList<>();
       }
    }
 
@@ -430,7 +430,7 @@ public class TransactionImpl implements Transaction {
 
    private void checkCreateOperations() {
       if (operations == null) {
-         operations = new ArrayList<TransactionOperation>();
+         operations = new ArrayList<>();
       }
    }
 

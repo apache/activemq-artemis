@@ -42,7 +42,7 @@ public class ProducerListenerTest extends EmbeddedBrokerTestSupport implements P
    protected Session consumerSession2;
    protected int consumerCounter;
    protected ProducerEventSource producerEventSource;
-   protected BlockingQueue<ProducerEvent> eventQueue = new ArrayBlockingQueue<ProducerEvent>(1000);
+   protected BlockingQueue<ProducerEvent> eventQueue = new ArrayBlockingQueue<>(1000);
    private Connection connection;
 
    public void testProducerEvents() throws Exception {

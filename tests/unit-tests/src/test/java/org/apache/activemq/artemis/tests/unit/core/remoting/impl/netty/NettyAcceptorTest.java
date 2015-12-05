@@ -71,7 +71,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
          }
       };
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
 
          @Override

@@ -129,7 +129,7 @@ public class VmTransportNetworkBrokerTest extends TestCase {
     */
    public Thread[] filterDaemonThreads(Thread[] threads) throws Exception {
 
-      List<Thread> threadList = new ArrayList<Thread>(Arrays.asList(threads));
+      List<Thread> threadList = new ArrayList<>(Arrays.asList(threads));
 
       // Can't use an Iterator as it would raise a
       // ConcurrentModificationException when trying to remove an element

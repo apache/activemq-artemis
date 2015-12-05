@@ -34,10 +34,10 @@ public class InvalidConnectorTest extends JMSTestBase {
 
    @Test
    public void testInvalidConnector() throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "0.0.0.0");
 
-      List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
 
       int retryInterval = 1000;

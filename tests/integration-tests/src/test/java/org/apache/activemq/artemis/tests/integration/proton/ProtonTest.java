@@ -94,7 +94,7 @@ public class ProtonTest extends ActiveMQTestBase {
       super.setUp();
       disableCheckThread();
       server = this.createServer(true, true);
-      HashMap<String, Object> params = new HashMap<String, Object>();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "5672");
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);

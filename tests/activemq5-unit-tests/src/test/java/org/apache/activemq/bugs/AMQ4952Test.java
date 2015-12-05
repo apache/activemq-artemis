@@ -297,7 +297,7 @@ public class AMQ4952Test {
    protected BrokerService createProducerBroker() throws Exception {
 
       String networkToPorts[] = new String[]{"2006"};
-      HashMap<String, String> networkProps = new HashMap<String, String>();
+      HashMap<String, String> networkProps = new HashMap<>();
 
       networkProps.put("networkTTL", "10");
       networkProps.put("conduitSubscriptions", "true");
@@ -313,7 +313,7 @@ public class AMQ4952Test {
       // lazy init listener on broker start
       TransportConnector transportConnector = new TransportConnector();
       transportConnector.setUri(new URI("tcp://localhost:2003"));
-      List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+      List<TransportConnector> transportConnectors = new ArrayList<>();
       transportConnectors.add(transportConnector);
       broker.setTransportConnectors(transportConnectors);
 
@@ -379,7 +379,7 @@ public class AMQ4952Test {
       // lazy init listener on broker start
       TransportConnector transportConnector = new TransportConnector();
       transportConnector.setUri(new URI(scheme + "://localhost:" + listenPort));
-      List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+      List<TransportConnector> transportConnectors = new ArrayList<>();
       transportConnectors.add(transportConnector);
       broker.setTransportConnectors(transportConnectors);
 

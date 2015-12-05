@@ -32,7 +32,7 @@ public class SelectorTest {
 
    class MockMessage implements Filterable {
 
-      HashMap<String, Object> properties = new HashMap<String, Object>();
+      HashMap<String, Object> properties = new HashMap<>();
       private String text;
       private Object destination;
       private String messageId;

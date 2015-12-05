@@ -53,8 +53,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    protected int batchCount = 10;
    protected int batchSize = 20;
 
-   private List<Message> unackMessages = new ArrayList<Message>(MESSAGE_COUNT);
-   private List<Message> ackMessages = new ArrayList<Message>(MESSAGE_COUNT);
+   private List<Message> unackMessages = new ArrayList<>(MESSAGE_COUNT);
+   private List<Message> ackMessages = new ArrayList<>(MESSAGE_COUNT);
    private boolean resendPhase;
 
    @Override
@@ -175,7 +175,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       System.out.println("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -212,7 +212,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       System.out.println("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -254,7 +254,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       System.out.println("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
@@ -303,7 +303,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       System.out.println("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
@@ -348,7 +348,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       System.out.println("Sent 0: " + outbound[0]);
       System.out.println("Sent 1: " + outbound[1]);
 
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -400,7 +400,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       System.out.println("Sent 0: " + outbound[0]);
       System.out.println("Sent 1: " + outbound[1]);
 
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       beginTx();
       TextMessage message = (TextMessage) consumer.receive(1000);
       assertEquals(outbound[0], message);
@@ -551,7 +551,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
    @Test
    public void testChangeMutableObjectInObjectMessageThenRollback() throws Exception {
-      ArrayList<String> list = new ArrayList<String>();
+      ArrayList<String> list = new ArrayList<>();
       list.add("First");
       Message outbound = session.createObjectMessage(list);
       outbound.setStringProperty("foo", "abc");

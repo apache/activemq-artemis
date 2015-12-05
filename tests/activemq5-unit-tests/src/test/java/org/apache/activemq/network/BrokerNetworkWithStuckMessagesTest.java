@@ -90,8 +90,8 @@ public class BrokerNetworkWithStuckMessagesTest {
    private BrokerService secondRemoteBroker;
    private DemandForwardingBridge bridge;
 
-   protected Map<String, BrokerService> brokers = new HashMap<String, BrokerService>();
-   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected Map<String, BrokerService> brokers = new HashMap<>();
+   protected ArrayList<StubConnection> connections = new ArrayList<>();
 
    protected TransportConnector connector;
    protected TransportConnector remoteConnector;
@@ -491,7 +491,7 @@ public class BrokerNetworkWithStuckMessagesTest {
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue destination = session.createQueue(queueName);
          QueueBrowser browser = session.createBrowser(destination);
-         List<Message> list = new ArrayList<Message>();
+         List<Message> list = new ArrayList<>();
          for (Enumeration<Message> enumn = browser.getEnumeration(); enumn.hasMoreElements(); ) {
             list.add(enumn.nextElement());
          }
@@ -511,7 +511,7 @@ public class BrokerNetworkWithStuckMessagesTest {
    }
 
    private Object[] browseQueueWithJmx(BrokerService broker) throws Exception {
-      Hashtable<String, String> params = new Hashtable<String, String>();
+      Hashtable<String, String> params = new Hashtable<>();
       params.put("brokerName", broker.getBrokerName());
       params.put("type", "Broker");
       params.put("destinationType", "Queue");

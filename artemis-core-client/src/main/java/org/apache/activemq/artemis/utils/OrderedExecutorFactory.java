@@ -56,7 +56,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
     */
    private static final class OrderedExecutor implements Executor {
 
-      private final ConcurrentLinkedQueue<Runnable> tasks = new ConcurrentLinkedQueue<Runnable>();
+      private final ConcurrentLinkedQueue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
       // @protected by tasks
       private boolean running;

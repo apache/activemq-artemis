@@ -48,7 +48,7 @@ public class PageStressTest extends ActiveMQTestBase {
    public void testStopDuringDepage() throws Exception {
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings setting = new AddressSettings().setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);

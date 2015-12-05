@@ -73,7 +73,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
       final ClientSession session = sf.createSession(false, true, true);
 
-      final LinkedBlockingDeque<Boolean> failureQueue = new LinkedBlockingDeque<Boolean>();
+      final LinkedBlockingDeque<Boolean> failureQueue = new LinkedBlockingDeque<>();
 
       final CountDownLatch ready = new CountDownLatch(1);
 
@@ -158,8 +158,8 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -229,7 +229,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
          }
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();

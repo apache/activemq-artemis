@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailoverTestBase {
 
-   protected Map<Integer, TestableServer> servers = new HashMap<Integer, TestableServer>();
+   protected Map<Integer, TestableServer> servers = new HashMap<>();
    protected ServerLocatorImpl locator;
    private NodeManager nodeManager;
    final boolean sharedStore = true;

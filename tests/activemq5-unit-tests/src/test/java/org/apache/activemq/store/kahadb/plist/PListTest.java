@@ -44,7 +44,7 @@ public class PListTest {
    private PListImpl plist;
    final ByteSequence payload = new ByteSequence(new byte[400]);
    final String idSeed = new String("Seed" + Arrays.toString(new byte[1024]));
-   final Vector<Throwable> exceptions = new Vector<Throwable>();
+   final Vector<Throwable> exceptions = new Vector<>();
    ExecutorService executor;
 
    private PListEntry getFirst(PList plist) throws IOException {
@@ -65,7 +65,7 @@ public class PListTest {
    @Test
    public void testAddLast() throws Exception {
       final int COUNT = 1000;
-      Map<String, ByteSequence> map = new LinkedHashMap<String, ByteSequence>();
+      Map<String, ByteSequence> map = new LinkedHashMap<>();
       for (int i = 0; i < COUNT; i++) {
          String test = new String("test" + i);
          ByteSequence bs = new ByteSequence(test.getBytes());
@@ -86,7 +86,7 @@ public class PListTest {
    @Test
    public void testAddFirst() throws Exception {
       final int COUNT = 1000;
-      Map<String, ByteSequence> map = new LinkedHashMap<String, ByteSequence>();
+      Map<String, ByteSequence> map = new LinkedHashMap<>();
       for (int i = 0; i < COUNT; i++) {
          String test = new String("test" + i);
          ByteSequence bs = new ByteSequence(test.getBytes());
@@ -110,7 +110,7 @@ public class PListTest {
    }
 
    protected void doTestRemove(final int COUNT) throws IOException {
-      Map<String, ByteSequence> map = new LinkedHashMap<String, ByteSequence>();
+      Map<String, ByteSequence> map = new LinkedHashMap<>();
       for (int i = 0; i < COUNT; i++) {
          String test = new String("test" + i);
          ByteSequence bs = new ByteSequence(test.getBytes());
@@ -136,7 +136,7 @@ public class PListTest {
    @Test
    public void testDestroyNonEmpty() throws Exception {
       final int COUNT = 1000;
-      Map<String, ByteSequence> map = new LinkedHashMap<String, ByteSequence>();
+      Map<String, ByteSequence> map = new LinkedHashMap<>();
       for (int i = 0; i < COUNT; i++) {
          String test = new String("test" + i);
          ByteSequence bs = new ByteSequence(test.getBytes());
@@ -193,7 +193,7 @@ public class PListTest {
 
       final ByteSequence payload = new ByteSequence(new byte[1024 * 2]);
 
-      final Vector<Throwable> exceptions = new Vector<Throwable>();
+      final Vector<Throwable> exceptions = new Vector<>();
       final int iterations = 1000;
       final int numLists = 10;
 
@@ -627,7 +627,7 @@ public class PListTest {
       }
    }
 
-   final Map<PList, Object> locks = new HashMap<PList, Object>();
+   final Map<PList, Object> locks = new HashMap<>();
 
    private Object plistLocks(PList plist) {
       Object lock = null;

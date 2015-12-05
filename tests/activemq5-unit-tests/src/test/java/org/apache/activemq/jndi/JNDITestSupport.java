@@ -38,7 +38,7 @@ public abstract class JNDITestSupport extends TestCase {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JNDITestSupport.class);
 
-   protected Hashtable<String, String> environment = new Hashtable<String, String>();
+   protected Hashtable<String, String> environment = new Hashtable<>();
    protected Context context;
 
    protected void assertConnectionFactoryPresent(String lookupName) throws NamingException {

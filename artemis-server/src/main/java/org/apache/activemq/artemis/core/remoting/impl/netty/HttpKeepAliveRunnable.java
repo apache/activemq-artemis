@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
  */
 public class HttpKeepAliveRunnable implements Runnable {
 
-   private final List<HttpAcceptorHandler> handlers = new ArrayList<HttpAcceptorHandler>();
+   private final List<HttpAcceptorHandler> handlers = new ArrayList<>();
 
    private boolean closed = false;
 

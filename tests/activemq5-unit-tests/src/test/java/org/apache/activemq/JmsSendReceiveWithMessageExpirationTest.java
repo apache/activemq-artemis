@@ -145,7 +145,7 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
          producerNormal.send(producerDestination, message);
       }
 
-      Vector<Message> messages = new Vector<Message>();
+      Vector<Message> messages = new Vector<>();
       Message received;
       while ((received = consumer.receive(1000)) != null) {
          messages.add(received);
@@ -158,7 +158,7 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
 
       assertEquals("got all (normal plus one with ttl) messages", messageCount + 1, messages.size());
 
-      Vector<Message> dlqMessages = new Vector<Message>();
+      Vector<Message> dlqMessages = new Vector<>();
       while ((received = dlqConsumer.receive(1000)) != null) {
          dlqMessages.add(received);
       }

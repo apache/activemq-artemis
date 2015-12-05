@@ -89,7 +89,7 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
       CountDownLatch latchStart = new CountDownLatch(1);
 
-      ArrayList<BaseThread> threads = new ArrayList<BaseThread>();
+      ArrayList<BaseThread> threads = new ArrayList<>();
 
       ProducerThread[] prod = new ProducerThread[numberOfProducers];
       for (int i = 0; i < numberOfProducers; i++) {

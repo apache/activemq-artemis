@@ -164,7 +164,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       if (recoveryConnectionFactory == null) {
          recoveryConnectionFactory = ra.createRecoveryActiveMQConnectionFactory(mcfProperties);
 
-         Map<String, String> recoveryConfProps = new HashMap<String, String>();
+         Map<String, String> recoveryConfProps = new HashMap<>();
          recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, ra.getJndiName());
          resourceRecovery = ra.getRecoveryManager().register(recoveryConnectionFactory, null, null, recoveryConfProps);
       }

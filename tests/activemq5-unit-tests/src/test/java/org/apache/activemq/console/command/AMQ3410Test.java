@@ -71,7 +71,7 @@ public class AMQ3410Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.addAll(DEFAULT_TOKENS);
 
@@ -88,7 +88,7 @@ public class AMQ3410Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--factory");
       tokens.add(DummyConnectionFactory.class.getCanonicalName());
@@ -108,7 +108,7 @@ public class AMQ3410Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--factory");
       tokens.add("org.apache.activemq.console.command.TestAMQ3410.DoesntExistFactory");
@@ -135,7 +135,7 @@ public class AMQ3410Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--factory");
       tokens.add(InvalidConnectionFactory.class.getCanonicalName());
@@ -164,7 +164,7 @@ public class AMQ3410Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--factory");
       tokens.add("java.lang.Object");

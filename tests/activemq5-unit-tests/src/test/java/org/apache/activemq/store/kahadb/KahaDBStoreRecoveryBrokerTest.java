@@ -152,7 +152,7 @@ public class KahaDBStoreRecoveryBrokerTest extends RecoveryBrokerTest {
       connection.send(sessionInfo);
       connection.send(producerInfo);
 
-      ArrayList<String> expected = new ArrayList<String>();
+      ArrayList<String> expected = new ArrayList<>();
 
       int MESSAGE_COUNT = 10000;
       for (int i = 0; i < MESSAGE_COUNT; i++) {

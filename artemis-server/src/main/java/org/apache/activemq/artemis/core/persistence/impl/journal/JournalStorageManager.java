@@ -206,11 +206,11 @@ public class JournalStorageManager implements StorageManager {
    private final Configuration config;
 
    // Persisted core configuration
-   private final Map<SimpleString, PersistedRoles> mapPersistedRoles = new ConcurrentHashMap<SimpleString, PersistedRoles>();
+   private final Map<SimpleString, PersistedRoles> mapPersistedRoles = new ConcurrentHashMap<>();
 
-   private final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<SimpleString, PersistedAddressSetting>();
+   private final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
 
-   private final Set<Long> largeMessagesToDelete = new HashSet<Long>();
+   private final Set<Long> largeMessagesToDelete = new HashSet<>();
 
    public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory) {
       this(config, executorFactory, null);
@@ -489,7 +489,7 @@ public class JournalStorageManager implements StorageManager {
     * @throws Exception
     */
    private Map<SimpleString, Collection<Integer>> getPageInformationForSync(PagingManager pagingManager) throws Exception {
-      Map<SimpleString, Collection<Integer>> info = new HashMap<SimpleString, Collection<Integer>>();
+      Map<SimpleString, Collection<Integer>> info = new HashMap<>();
       for (SimpleString storeName : pagingManager.getStoreNames()) {
          PagingStore store = pagingManager.getPageStore(storeName);
          info.put(storeName, store.getCurrentIds());
@@ -528,18 +528,18 @@ public class JournalStorageManager implements StorageManager {
     */
    private Map<Long, Pair<String, Long>> recoverPendingLargeMessages() throws Exception {
 
-      Map<Long, Pair<String, Long>> largeMessages = new HashMap<Long, Pair<String, Long>>();
+      Map<Long, Pair<String, Long>> largeMessages = new HashMap<>();
       // only send durable messages... // listFiles append a "." to anything...
       List<String> filenames = largeMessagesFactory.listFiles("msg");
 
-      List<Long> idList = new ArrayList<Long>();
+      List<Long> idList = new ArrayList<>();
       for (String filename : filenames) {
          Long id = getLargeMessageIdFromFilename(filename);
          if (!largeMessagesToDelete.contains(id)) {
             idList.add(id);
             SequentialFile seqFile = largeMessagesFactory.createSequentialFile(filename);
             long size = seqFile.size();
-            largeMessages.put(id, new Pair<String, Long>(filename, size));
+            largeMessages.put(id, new Pair<>(filename, size));
          }
       }
 
@@ -1201,13 +1201,13 @@ public class JournalStorageManager implements StorageManager {
 
    @Override
    public List<PersistedAddressSetting> recoverAddressSettings() throws Exception {
-      ArrayList<PersistedAddressSetting> list = new ArrayList<PersistedAddressSetting>(mapPersistedAddressSettings.values());
+      ArrayList<PersistedAddressSetting> list = new ArrayList<>(mapPersistedAddressSettings.values());
       return list;
    }
 
    @Override
    public List<PersistedRoles> recoverPersistedRoles() throws Exception {
-      ArrayList<PersistedRoles> list = new ArrayList<PersistedRoles>(mapPersistedRoles.values());
+      ArrayList<PersistedRoles> list = new ArrayList<>(mapPersistedRoles.values());
       return list;
    }
 
@@ -1286,21 +1286,21 @@ public class JournalStorageManager implements StorageManager {
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
                                                     final JournalLoader journalLoader) throws Exception {
-      List<RecordInfo> records = new ArrayList<RecordInfo>();
+      List<RecordInfo> records = new ArrayList<>();
 
-      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
-      Map<Long, ServerMessage> messages = new HashMap<Long, ServerMessage>();
+      Map<Long, ServerMessage> messages = new HashMap<>();
       readLock();
       try {
 
          JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(messages));
 
-         ArrayList<LargeServerMessage> largeMessages = new ArrayList<LargeServerMessage>();
+         ArrayList<LargeServerMessage> largeMessages = new ArrayList<>();
 
-         Map<Long, Map<Long, AddMessageRecord>> queueMap = new HashMap<Long, Map<Long, AddMessageRecord>>();
+         Map<Long, Map<Long, AddMessageRecord>> queueMap = new HashMap<>();
 
-         Map<Long, PageSubscription> pageSubscriptions = new HashMap<Long, PageSubscription>();
+         Map<Long, PageSubscription> pageSubscriptions = new HashMap<>();
 
          final int totalSize = records.size();
 
@@ -1327,7 +1327,7 @@ public class JournalStorageManager implements StorageManager {
 
                   if (pendingLargeMessages != null) {
                      // it could be null on tests, and we don't need anything on that case
-                     pendingLargeMessages.add(new Pair<Long, Long>(record.id, pending.largeMessageID));
+                     pendingLargeMessages.add(new Pair<>(record.id, pending.largeMessageID));
                   }
                   break;
                }
@@ -1359,7 +1359,7 @@ public class JournalStorageManager implements StorageManager {
                   Map<Long, AddMessageRecord> queueMessages = queueMap.get(encoding.queueID);
 
                   if (queueMessages == null) {
-                     queueMessages = new LinkedHashMap<Long, AddMessageRecord>();
+                     queueMessages = new LinkedHashMap<>();
 
                      queueMap.put(encoding.queueID, queueMessages);
                   }
@@ -1478,12 +1478,12 @@ public class JournalStorageManager implements StorageManager {
                   List<Pair<byte[], Long>> ids = duplicateIDMap.get(encoding.address);
 
                   if (ids == null) {
-                     ids = new ArrayList<Pair<byte[], Long>>();
+                     ids = new ArrayList<>();
 
                      duplicateIDMap.put(encoding.address, ids);
                   }
 
-                  ids.add(new Pair<byte[], Long>(encoding.duplID, record.id));
+                  ids.add(new Pair<>(encoding.duplID, record.id));
 
                   break;
                }
@@ -1805,9 +1805,9 @@ public class JournalStorageManager implements StorageManager {
    @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos) throws Exception {
-      List<RecordInfo> records = new ArrayList<RecordInfo>();
+      List<RecordInfo> records = new ArrayList<>();
 
-      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
@@ -2173,9 +2173,9 @@ public class JournalStorageManager implements StorageManager {
 
          Transaction tx = new TransactionImpl(preparedTransaction.id, xid, this);
 
-         List<MessageReference> referencesToAck = new ArrayList<MessageReference>();
+         List<MessageReference> referencesToAck = new ArrayList<>();
 
-         Map<Long, ServerMessage> messages = new HashMap<Long, ServerMessage>();
+         Map<Long, ServerMessage> messages = new HashMap<>();
 
          // Use same method as load message journal to prune out acks, so they don't get added.
          // Then have reacknowledge(tx) methods on queue, which needs to add the page size
@@ -2329,7 +2329,7 @@ public class JournalStorageManager implements StorageManager {
                switch (b) {
                   case ADD_LARGE_MESSAGE_PENDING: {
                      long messageID = buff.readLong();
-                     if (!pendingLargeMessages.remove(new Pair<Long, Long>(recordDeleted.id, messageID))) {
+                     if (!pendingLargeMessages.remove(new Pair<>(recordDeleted.id, messageID))) {
                         ActiveMQServerLogger.LOGGER.largeMessageNotFound(recordDeleted.id);
                      }
                      installLargeMessageConfirmationOnTX(tx, recordDeleted.id);
@@ -3372,7 +3372,7 @@ public class JournalStorageManager implements StorageManager {
 
    final class TXLargeMessageConfirmationOperation extends TransactionOperationAbstract {
 
-      public List<Long> confirmedMessages = new LinkedList<Long>();
+      public List<Long> confirmedMessages = new LinkedList<>();
 
       @Override
       public void afterRollback(Transaction tx) {

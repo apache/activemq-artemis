@@ -49,7 +49,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
    @Override
    @Before
    public void setUp() throws Exception {
-      HashMap<String, Object> params = new HashMap<String, Object>();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, "" + 5445);
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PROTOCOLS_PROP_NAME, "HORNETQ");
       TransportConfiguration transportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -217,7 +217,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
    }
 
    private org.hornetq.api.core.client.ClientSession createHQClientSession() throws Exception {
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
       map.put("host", "localhost");
       map.put("port", 5445);
 
@@ -228,7 +228,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
    }
 
    private ClientSession createCoreClientSession() throws Exception {
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
       map.put("host", "localhost");
       map.put("port", 61616);
 

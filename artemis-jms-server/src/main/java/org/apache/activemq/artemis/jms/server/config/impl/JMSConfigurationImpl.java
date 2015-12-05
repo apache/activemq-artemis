@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 
 public class JMSConfigurationImpl implements JMSConfiguration {
 
-   private List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<ConnectionFactoryConfiguration>();
+   private List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<>();
 
-   private List<JMSQueueConfiguration> queueConfigurations = new ArrayList<JMSQueueConfiguration>();
+   private List<JMSQueueConfiguration> queueConfigurations = new ArrayList<>();
 
-   private List<TopicConfiguration> topicConfigurations = new ArrayList<TopicConfiguration>();
+   private List<TopicConfiguration> topicConfigurations = new ArrayList<>();
 
    private String domain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
 

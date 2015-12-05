@@ -47,11 +47,11 @@ public class FailoverClusterTestSupport extends TestCase {
 
    private String clientUrl;
 
-   private final Map<String, BrokerService> brokers = new HashMap<String, BrokerService>();
-   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private final Map<String, BrokerService> brokers = new HashMap<>();
+   private final List<ActiveMQConnection> connections = new ArrayList<>();
 
    protected void assertClientsConnectedToTwoBrokers() {
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          if (c.getTransportChannel().getRemoteAddress() != null) {
             set.add(c.getTransportChannel().getRemoteAddress());
@@ -61,7 +61,7 @@ public class FailoverClusterTestSupport extends TestCase {
    }
 
    protected void assertClientsConnectedToThreeBrokers() {
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          if (c.getTransportChannel().getRemoteAddress() != null) {
             set.add(c.getTransportChannel().getRemoteAddress());
@@ -71,7 +71,7 @@ public class FailoverClusterTestSupport extends TestCase {
    }
 
    protected void assertClientsConnectionsEvenlyDistributed(double minimumPercentage) {
-      Map<String, Double> clientConnectionCounts = new HashMap<String, Double>();
+      Map<String, Double> clientConnectionCounts = new HashMap<>();
       int total = 0;
       for (ActiveMQConnection c : connections) {
          String key = c.getTransportChannel().getRemoteAddress();

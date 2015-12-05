@@ -71,7 +71,7 @@ public final class TypedProperties {
    }
 
    public TypedProperties(final TypedProperties other) {
-      properties = other.properties == null ? null : new HashMap<SimpleString, PropertyValue>(other.properties);
+      properties = other.properties == null ? null : new HashMap<>(other.properties);
       size = other.size;
    }
 
@@ -376,7 +376,7 @@ public final class TypedProperties {
       else {
          int numHeaders = buffer.readInt();
 
-         properties = new HashMap<SimpleString, PropertyValue>(numHeaders);
+         properties = new HashMap<>(numHeaders);
          size = 0;
 
          for (int i = 0; i < numHeaders; i++) {
@@ -546,7 +546,7 @@ public final class TypedProperties {
 
    private void checkCreateProperties() {
       if (properties == null) {
-         properties = new HashMap<SimpleString, PropertyValue>();
+         properties = new HashMap<>();
       }
    }
 
@@ -935,7 +935,7 @@ public final class TypedProperties {
    }
 
    public Map<String, Object> getMap() {
-      Map<String, Object> m = new HashMap<String, Object>();
+      Map<String, Object> m = new HashMap<>();
       for (Entry<SimpleString, PropertyValue> entry : properties.entrySet()) {
          Object val = entry.getValue().getValue();
          if (val instanceof SimpleString) {

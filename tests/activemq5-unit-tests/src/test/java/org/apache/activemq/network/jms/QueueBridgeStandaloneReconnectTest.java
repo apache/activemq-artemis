@@ -51,7 +51,7 @@ public class QueueBridgeStandaloneReconnectTest {
    private Destination outbound;
    private Destination inbound;
 
-   private final ArrayList<Connection> connections = new ArrayList<Connection>();
+   private final ArrayList<Connection> connections = new ArrayList<>();
 
    @Test(timeout = 60 * 1000)
    public void testSendAndReceiveOverConnectedBridges() throws Exception {

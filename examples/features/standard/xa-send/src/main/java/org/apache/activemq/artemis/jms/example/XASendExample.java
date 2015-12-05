@@ -43,7 +43,7 @@ public class XASendExample {
 
    public static void main(final String[] args) throws Exception {
       AtomicBoolean result = new AtomicBoolean(true);
-      final ArrayList<String> receiveHolder = new ArrayList<String>();
+      final ArrayList<String> receiveHolder = new ArrayList<>();
       XAConnection connection = null;
       InitialContext initialContext = null;
       try {

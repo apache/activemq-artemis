@@ -59,7 +59,7 @@ public class AMQ2584ConcurrentDlqTest extends org.apache.activemq.TestSupport {
    Session consumerSession;
    Session producerSession;
    MessageProducer producer;
-   Vector<TopicSubscriber> duralbeSubs = new Vector<TopicSubscriber>();
+   Vector<TopicSubscriber> duralbeSubs = new Vector<>();
    final int numMessages = 1000;
    final int numDurableSubs = 2;
 

@@ -123,7 +123,7 @@ public class NodeManagerTest extends ActiveMQTestBase {
 
    public void performWork(NodeManagerAction... actions) throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
-      List<NodeRunner> nodeRunners = new ArrayList<NodeRunner>();
+      List<NodeRunner> nodeRunners = new ArrayList<>();
       Thread[] threads = new Thread[actions.length];
       for (NodeManagerAction action : actions) {
          NodeRunner nodeRunner = new NodeRunner(nodeManager, action);

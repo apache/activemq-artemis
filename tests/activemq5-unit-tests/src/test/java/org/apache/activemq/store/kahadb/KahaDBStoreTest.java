@@ -41,7 +41,7 @@ public class KahaDBStoreTest {
    ActiveMQMessage message;
    ProducerId producerId = new ProducerId("1.1.1");
    private static final int MESSAGE_COUNT = 2000;
-   private Vector<Throwable> exceptions = new Vector<Throwable>();
+   private Vector<Throwable> exceptions = new Vector<>();
 
    @Before
    public void initStore() throws Exception {

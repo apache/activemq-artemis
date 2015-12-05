@@ -144,7 +144,7 @@ public class JDBCMessagePriorityTest extends MessagePriorityTest {
 
       final AtomicInteger[] messageCounts = new AtomicInteger[maxPriority];
       final long[] messageIds = new long[maxPriority];
-      Vector<ProducerThread> producers = new Vector<ProducerThread>();
+      Vector<ProducerThread> producers = new Vector<>();
       for (int priority = 0; priority < maxPriority; priority++) {
          producers.add(new ProducerThread(topic, MSG_NUM, priority));
          messageCounts[priority] = new AtomicInteger(0);
@@ -156,7 +156,7 @@ public class JDBCMessagePriorityTest extends MessagePriorityTest {
       }
 
       final int closeFrequency = MSG_NUM / 2;
-      HashMap<String, String> dups = new HashMap<String, String>();
+      HashMap<String, String> dups = new HashMap<>();
       sub = consumerSession.createDurableSubscriber(topic, subName);
       for (int i = 0; i < MSG_NUM * maxPriority; i++) {
          Message msg = sub.receive(10000);
@@ -197,7 +197,7 @@ public class JDBCMessagePriorityTest extends MessagePriorityTest {
       sub.close();
 
       final int TO_SEND = 2000;
-      final Vector<Message> duplicates = new Vector<Message>();
+      final Vector<Message> duplicates = new Vector<>();
       final int[] dups = new int[TO_SEND * 4];
       long start;
       double max = 0, sum = 0;

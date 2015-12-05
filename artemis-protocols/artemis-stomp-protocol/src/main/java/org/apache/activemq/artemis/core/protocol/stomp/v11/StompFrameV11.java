@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 public class StompFrameV11 extends StompFrame {
 
    //stomp 1.1 talks about repetitive headers.
-   protected final List<Header> allHeaders = new ArrayList<Header>();
+   protected final List<Header> allHeaders = new ArrayList<>();
 
    public StompFrameV11(String command, Map<String, String> headers, byte[] content) {
       super(command, headers, content);

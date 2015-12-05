@@ -55,9 +55,9 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    private ActiveMQBuffer writingChannel;
 
-   private final Set<Long> recordsSnapshot = new ConcurrentHashSet<Long>();
+   private final Set<Long> recordsSnapshot = new ConcurrentHashSet<>();
 
-   protected final List<JournalFile> newDataFiles = new ArrayList<JournalFile>();
+   protected final List<JournalFile> newDataFiles = new ArrayList<>();
 
    // Static --------------------------------------------------------
 

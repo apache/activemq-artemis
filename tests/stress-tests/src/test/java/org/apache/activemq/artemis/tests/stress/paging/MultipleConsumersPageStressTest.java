@@ -71,11 +71,11 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
    private volatile boolean runningConsumer = true;
 
-   ArrayList<TestProducer> producers = new ArrayList<TestProducer>();
+   ArrayList<TestProducer> producers = new ArrayList<>();
 
-   ArrayList<TestConsumer> consumers = new ArrayList<TestConsumer>();
+   ArrayList<TestConsumer> consumers = new ArrayList<>();
 
-   ArrayList<Throwable> exceptions = new ArrayList<Throwable>();
+   ArrayList<Throwable> exceptions = new ArrayList<>();
 
    @Test
    public void testOpenConsumerEveryTimeDefaultFlowControl0() throws Throwable {
@@ -96,7 +96,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       server = createServer(true, createDefaultInVMConfig(), 10024, 200024, settings);
       server.start();

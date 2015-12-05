@@ -902,7 +902,7 @@ public class XARecoveryBrokerTest extends BrokerRestartTestSupport {
       // consumer (PrefetchSubscription) cannot handle in a tx
       // atm. The matching is based on messageId rather than messageId
       // and destination
-      Set<ConsumerInfo> consumerInfos = new HashSet<ConsumerInfo>();
+      Set<ConsumerInfo> consumerInfos = new HashSet<>();
       for (ActiveMQDestination dest : destinationList(destination)) {
          ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo, dest);
          consumerInfo.setPrefetchSize(numMessages);

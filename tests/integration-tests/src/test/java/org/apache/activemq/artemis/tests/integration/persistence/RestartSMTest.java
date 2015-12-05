@@ -74,11 +74,11 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          journal.start();
 
-         List<QueueBindingInfo> queueBindingInfos = new ArrayList<QueueBindingInfo>();
+         List<QueueBindingInfo> queueBindingInfos = new ArrayList<>();
 
          journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
 
-         Map<Long, Queue> queues = new HashMap<Long, Queue>();
+         Map<Long, Queue> queues = new HashMap<>();
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
@@ -88,11 +88,11 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          journal.start();
 
-         queues = new HashMap<Long, Queue>();
+         queues = new HashMap<>();
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
-         queueBindingInfos = new ArrayList<QueueBindingInfo>();
+         queueBindingInfos = new ArrayList<>();
 
          journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
 

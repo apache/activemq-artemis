@@ -244,7 +244,7 @@ public class JMSTest extends JMSTestCase {
 
       conn.start();
 
-      final AtomicReference<Message> message = new AtomicReference<Message>();
+      final AtomicReference<Message> message = new AtomicReference<>();
       final CountDownLatch latch = new CountDownLatch(1);
 
       new Thread(new Runnable() {
@@ -294,7 +294,7 @@ public class JMSTest extends JMSTestCase {
 
       MessageConsumer cons = sessionConsumer.createConsumer(queue1);
 
-      final AtomicReference<Message> message = new AtomicReference<Message>();
+      final AtomicReference<Message> message = new AtomicReference<>();
       final CountDownLatch latch = new CountDownLatch(1);
 
       cons.setMessageListener(new MessageListener() {

@@ -60,7 +60,7 @@ public class TopicClusterTest extends TestCase implements MessageListener {
    protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
    protected MessageProducer[] producers;
    protected Connection[] connections;
-   protected List<BrokerService> services = new ArrayList<BrokerService>();
+   protected List<BrokerService> services = new ArrayList<>();
    protected String groupId;
 
    @Override

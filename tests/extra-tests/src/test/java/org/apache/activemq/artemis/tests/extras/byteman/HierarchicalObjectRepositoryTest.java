@@ -50,7 +50,7 @@ public class HierarchicalObjectRepositoryTest {
       latch = new CountDownLatch(1);
       latch2 = new CountDownLatch(1);
       executor = Executors.newSingleThreadExecutor();
-      repo = new HierarchicalObjectRepository<String>();
+      repo = new HierarchicalObjectRepository<>();
       addToRepo(repo, A);
    }
 

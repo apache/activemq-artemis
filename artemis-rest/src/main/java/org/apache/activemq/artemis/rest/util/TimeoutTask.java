@@ -30,9 +30,9 @@ public class TimeoutTask implements Runnable {
    protected boolean running = true;
    protected int interval = 10;
    protected final Lock callbacksLock = new ReentrantLock();
-   protected Map<String, Callback> callbacks = new HashMap<String, Callback>();
+   protected Map<String, Callback> callbacks = new HashMap<>();
    protected final Lock pendingCallbacksLock = new ReentrantLock();
-   protected Map<String, Callback> pendingCallbacks = new HashMap<String, Callback>();
+   protected Map<String, Callback> pendingCallbacks = new HashMap<>();
    protected Thread thread;
 
    public TimeoutTask(int interval) {
@@ -107,7 +107,7 @@ public class TimeoutTask implements Runnable {
 
          // First, test all known callbacks for timeouts.
          // If the timeout is true, then move it to a separate map.
-         Map<String, Callback> expiredCallbacks = new HashMap<String, Callback>();
+         Map<String, Callback> expiredCallbacks = new HashMap<>();
 
          int liveConsumers = 0;
          int deadConsumers = 0;
@@ -115,7 +115,7 @@ public class TimeoutTask implements Runnable {
          callbacksLock.lock();
          try {
             long startTime = System.currentTimeMillis();
-            List<String> tokens = new ArrayList<String>(callbacks.size());
+            List<String> tokens = new ArrayList<>(callbacks.size());
             for (String token : callbacks.keySet()) {
                tokens.add(token);
             }
@@ -154,7 +154,7 @@ public class TimeoutTask implements Runnable {
          // Finally, freely shutdown all expired consumers.
          if (expiredCallbacks.size() > 0) {
             long startTime = System.currentTimeMillis();
-            List<String> tokens = new ArrayList<String>(expiredCallbacks.size());
+            List<String> tokens = new ArrayList<>(expiredCallbacks.size());
             for (String token : expiredCallbacks.keySet()) {
                tokens.add(token);
             }

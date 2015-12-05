@@ -519,7 +519,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    private void createCustomSslServer(String cipherSuites, String protocols) throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);

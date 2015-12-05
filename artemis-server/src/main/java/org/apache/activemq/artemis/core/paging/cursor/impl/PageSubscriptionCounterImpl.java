@@ -62,13 +62,13 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private final AtomicLong pendingValue = new AtomicLong(0);
 
-   private final LinkedList<Long> incrementRecords = new LinkedList<Long>();
+   private final LinkedList<Long> incrementRecords = new LinkedList<>();
 
    // We are storing pending counters for non transactional writes on page
    // we will recount a page case we still see pending records
    // as soon as we close a page we remove these records replacing by a regular page increment record
    // A Map per pageID, each page will have a set of IDs, with the increment on each one
-   private final Map<Long, Pair<Long, AtomicInteger>> pendingCounters = new HashMap<Long, Pair<Long, AtomicInteger>>();
+   private final Map<Long, Pair<Long, AtomicInteger>> pendingCounters = new HashMap<>();
 
    private LinkedList<Pair<Long, Integer>> loadList;
 
@@ -115,7 +115,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          // not syncing this to disk may cause the page files to be out of sync on pages.
          // we can't afford the case where a page file is written without a record here
          long id = storage.storePendingCounter(this.subscriptionID, page.getPageId(), increment);
-         pendingInfo = new Pair<Long, AtomicInteger>(id, new AtomicInteger(1));
+         pendingInfo = new Pair<>(id, new AtomicInteger(1));
          pendingCounters.put((long) page.getPageId(), pendingInfo);
       }
       else {
@@ -257,10 +257,10 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    @Override
    public void loadInc(long id, int add) {
       if (loadList == null) {
-         loadList = new LinkedList<Pair<Long, Integer>>();
+         loadList = new LinkedList<>();
       }
 
-      loadList.add(new Pair<Long, Integer>(id, add));
+      loadList.add(new Pair<>(id, add));
    }
 
    @Override
@@ -308,7 +308,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
             return;
          }
          valueReplace = value.get();
-         deleteList = new ArrayList<Long>(incrementRecords);
+         deleteList = new ArrayList<>(incrementRecords);
          incrementRecords.clear();
       }
 
@@ -365,7 +365,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private static class CounterOperations extends TransactionOperationAbstract implements TransactionOperation {
 
-      LinkedList<ItemOper> operations = new LinkedList<ItemOper>();
+      LinkedList<ItemOper> operations = new LinkedList<>();
 
       @Override
       public void afterCommit(Transaction tx) {

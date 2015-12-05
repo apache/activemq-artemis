@@ -43,9 +43,9 @@ public class WireformatNegociationTest extends CombinationTestSupport {
    private Transport clientTransport;
    private Transport serverTransport;
 
-   private final AtomicReference<WireFormatInfo> clientWF = new AtomicReference<WireFormatInfo>();
-   private final AtomicReference<WireFormatInfo> serverWF = new AtomicReference<WireFormatInfo>();
-   private final AtomicReference<Exception> asyncError = new AtomicReference<Exception>();
+   private final AtomicReference<WireFormatInfo> clientWF = new AtomicReference<>();
+   private final AtomicReference<WireFormatInfo> serverWF = new AtomicReference<>();
+   private final AtomicReference<Exception> asyncError = new AtomicReference<>();
    private final AtomicBoolean ignoreAsycError = new AtomicBoolean();
 
    private final CountDownLatch negotiationCounter = new CountDownLatch(2);

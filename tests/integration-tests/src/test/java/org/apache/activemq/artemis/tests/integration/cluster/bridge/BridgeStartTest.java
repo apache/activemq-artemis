@@ -73,10 +73,10 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
    @Test
    public void testStartStop() throws Exception {
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
@@ -91,31 +91,31 @@ public class BridgeStartTest extends ActiveMQTestBase {
          final String forwardAddress = "forwardAddress";
          final String queueName1 = "queue1";
 
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         Map<String, TransportConfiguration> connectors = new HashMap<>();
          TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
          TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
          connectors.put(server1tc.getName(), server1tc);
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<String>();
+         ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
          CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
          CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
@@ -220,10 +220,10 @@ public class BridgeStartTest extends ActiveMQTestBase {
       // shutdown, messages will get resent when it is started, so the dup id cache needs
       // to be persisted
 
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
@@ -237,31 +237,31 @@ public class BridgeStartTest extends ActiveMQTestBase {
       final String forwardAddress = "forwardAddress";
       final String queueName1 = "queue1";
 
-      Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
       connectors.put(server1tc.getName(), server1tc);
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<String>();
+      ArrayList<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
       final String bridgeName = "bridge1";
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(500).setReconnectAttempts(-1).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
       ServerLocator locator = null;
@@ -406,10 +406,10 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
    @Test
    public void testTargetServerNotAvailableNoReconnectTries() throws Exception {
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
@@ -424,31 +424,31 @@ public class BridgeStartTest extends ActiveMQTestBase {
       final String queueName1 = "queue1";
       ServerLocator locator = null;
       try {
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         Map<String, TransportConfiguration> connectors = new HashMap<>();
          TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
          TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
          connectors.put(server1tc.getName(), server1tc);
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<String>();
+         ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
          CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
          CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
@@ -538,10 +538,10 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
    @Test
    public void testManualStopStart() throws Exception {
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, false, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
@@ -556,31 +556,31 @@ public class BridgeStartTest extends ActiveMQTestBase {
       final String queueName1 = "queue1";
       ServerLocator locator = null;
       try {
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         Map<String, TransportConfiguration> connectors = new HashMap<>();
          TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
          TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
          connectors.put(server1tc.getName(), server1tc);
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<String>();
+         ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(1).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
          CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
          CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 

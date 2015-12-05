@@ -84,7 +84,7 @@ public class FailoverStaticNetworkTest {
       // lazy init listener on broker start
       TransportConnector transportConnector = new TransportConnector();
       transportConnector.setUri(new URI(scheme + "://localhost:" + listenPort));
-      List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+      List<TransportConnector> transportConnectors = new ArrayList<>();
       transportConnectors.add(transportConnector);
       broker.setTransportConnectors(transportConnectors);
       if (networkToPorts != null && networkToPorts.length > 0) {
@@ -191,7 +191,7 @@ public class FailoverStaticNetworkTest {
    }
 
    private Set<String> getNetworkBridgeMBeanName(BrokerService brokerB) throws Exception {
-      Set<String> names = new HashSet<String>();
+      Set<String> names = new HashSet<>();
       for (ObjectName objectName : brokerB.getManagementContext().queryNames(null, null)) {
          if (objectName.getKeyProperty("networkBridge") != null) {
             names.add(objectName.getKeyProperty("networkBridge"));
@@ -202,7 +202,7 @@ public class FailoverStaticNetworkTest {
 
    @Test
    public void testSendReceiveFailoverDuplex() throws Exception {
-      final Vector<Throwable> errors = new Vector<Throwable>();
+      final Vector<Throwable> errors = new Vector<>();
       final String dataDir = "target/data/shared";
       brokerA = createBroker("61617", dataDir);
       brokerA.start();
@@ -224,7 +224,7 @@ public class FailoverStaticNetworkTest {
       });
       executor.shutdown();
 
-      HashMap<String, String> networkConnectorProps = new HashMap<String, String>();
+      HashMap<String, String> networkConnectorProps = new HashMap<>();
       networkConnectorProps.put("duplex", "true");
       brokerB = createBroker("tcp", "62617", new String[]{"61617", "63617"}, networkConnectorProps);
       brokerB.start();
@@ -268,7 +268,7 @@ public class FailoverStaticNetworkTest {
       });
       executor.shutdown();
 
-      HashMap<String, String> networkConnectorProps = new HashMap<String, String>();
+      HashMap<String, String> networkConnectorProps = new HashMap<>();
       networkConnectorProps.put("duplex", "true");
       networkConnectorProps.put("networkTTL", "2");
 
@@ -330,7 +330,7 @@ public class FailoverStaticNetworkTest {
 
    @Test
    public void testRepeatedSendReceiveWithMasterSlaveAlternateDuplex() throws Exception {
-      HashMap<String, String> networkConnectorProps = new HashMap<String, String>();
+      HashMap<String, String> networkConnectorProps = new HashMap<>();
       networkConnectorProps.put("duplex", "true");
 
       doTestRepeatedSendReceiveWithMasterSlaveAlternate(networkConnectorProps);

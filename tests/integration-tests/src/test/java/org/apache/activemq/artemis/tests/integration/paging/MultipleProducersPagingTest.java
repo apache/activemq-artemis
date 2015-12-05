@@ -64,7 +64,7 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
 
    private AtomicLong msgReceived;
    private AtomicLong msgSent;
-   private final Set<Connection> connections = new HashSet<Connection>();
+   private final Set<Connection> connections = new HashSet<>();
    private EmbeddedJMS jmsServer;
    private ConnectionFactory cf;
    private Queue queue;

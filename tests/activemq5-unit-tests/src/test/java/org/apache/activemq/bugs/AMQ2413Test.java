@@ -69,7 +69,7 @@ public class AMQ2413Test extends CombinationTestSupport implements MessageListen
    public boolean useVMCursor = false;
    public boolean useOptimizeAcks = false;
 
-   private final ArrayList<Service> services = new ArrayList<Service>(CONSUMER_COUNT + PRODUCER_COUNT);
+   private final ArrayList<Service> services = new ArrayList<>(CONSUMER_COUNT + PRODUCER_COUNT);
    AtomicInteger count = new AtomicInteger(0);
    Semaphore receivedMessages;
    AtomicBoolean running = new AtomicBoolean(false);
@@ -180,7 +180,7 @@ public class AMQ2413Test extends CombinationTestSupport implements MessageListen
 
    }
 
-   HashMap<ProducerId, boolean[]> tracker = new HashMap<ProducerId, boolean[]>();
+   HashMap<ProducerId, boolean[]> tracker = new HashMap<>();
 
    private synchronized void track(Message message) {
       try {
@@ -224,7 +224,7 @@ public class AMQ2413Test extends CombinationTestSupport implements MessageListen
    }
 
    private void verifyTracking() {
-      Vector<MessageId> missing = new Vector<MessageId>();
+      Vector<MessageId> missing = new Vector<>();
       for (ProducerId pid : tracker.keySet()) {
          boolean[] ids = tracker.get(pid);
          for (int i = 1; i < TO_SEND + 1; i++) {

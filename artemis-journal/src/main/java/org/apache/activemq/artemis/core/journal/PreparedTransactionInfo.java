@@ -25,9 +25,9 @@ public class PreparedTransactionInfo {
 
    public final byte[] extraData;
 
-   public final List<RecordInfo> records = new ArrayList<RecordInfo>();
+   public final List<RecordInfo> records = new ArrayList<>();
 
-   public final List<RecordInfo> recordsToDelete = new ArrayList<RecordInfo>();
+   public final List<RecordInfo> recordsToDelete = new ArrayList<>();
 
    public PreparedTransactionInfo(final long id, final byte[] extraData) {
       this.id = id;

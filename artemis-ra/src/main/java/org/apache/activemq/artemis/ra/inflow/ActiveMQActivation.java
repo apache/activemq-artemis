@@ -111,13 +111,13 @@ public class ActiveMQActivation {
     */
    private SimpleString topicTemporaryQueue;
 
-   private final List<ActiveMQMessageHandler> handlers = new ArrayList<ActiveMQMessageHandler>();
+   private final List<ActiveMQMessageHandler> handlers = new ArrayList<>();
 
    private ActiveMQConnectionFactory factory;
 
    private List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
 
-   private Map<String, Long> removedNodes = new ConcurrentHashMap<String, Long>();
+   private Map<String, Long> removedNodes = new ConcurrentHashMap<>();
 
    private boolean lastReceived = false;
 
@@ -272,7 +272,7 @@ public class ActiveMQActivation {
     * @return the list of XAResources for this activation endpoint
     */
    public List<XAResource> getXAResources() {
-      List<XAResource> xaresources = new ArrayList<XAResource>();
+      List<XAResource> xaresources = new ArrayList<>();
       for (ActiveMQMessageHandler handler : handlers) {
          XAResource xares = handler.getXAResource();
          if (xares != null) {
@@ -345,7 +345,7 @@ public class ActiveMQActivation {
          handler.start();
       }
 
-      Map<String, String> recoveryConfProps = new HashMap<String, String>();
+      Map<String, String> recoveryConfProps = new HashMap<>();
       recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, ra.getJndiName());
       resourceRecovery = ra.getRecoveryManager().register(factory, spec.getUser(), spec.getPassword(), recoveryConfProps);
       if (spec.isRebalanceConnections()) {

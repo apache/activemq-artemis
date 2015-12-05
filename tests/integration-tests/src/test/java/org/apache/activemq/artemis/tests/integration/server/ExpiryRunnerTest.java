@@ -252,7 +252,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
 
    private static class DummyMessageHandler implements Runnable {
 
-      List<String> payloads = new ArrayList<String>();
+      List<String> payloads = new ArrayList<>();
 
       private final ClientConsumer consumer;
 

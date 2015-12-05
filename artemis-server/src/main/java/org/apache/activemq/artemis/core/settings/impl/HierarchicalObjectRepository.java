@@ -49,7 +49,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * all the matches
     */
-   private final Map<String, Match<T>> matches = new HashMap<String, Match<T>>();
+   private final Map<String, Match<T>> matches = new HashMap<>();
 
    /**
     * Certain values cannot be removed after installed.
@@ -58,7 +58,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * this could cause issues on shutdown.
     * Notice you can still change these values. You just can't remove them.
     */
-   private final Set<String> immutables = new HashSet<String>();
+   private final Set<String> immutables = new HashSet<>();
 
    /**
     * a regex comparator
@@ -68,7 +68,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * a cache
     */
-   private final Map<String, T> cache = new ConcurrentHashMap<String, T>();
+   private final Map<String, T> cache = new ConcurrentHashMap<>();
 
    /**
     * Need a lock instead of using multiple {@link ConcurrentHashMap}s.
@@ -89,7 +89,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * any registered listeners, these get fired on changes to the repository
     */
-   private final ArrayList<HierarchicalRepositoryChangeListener> listeners = new ArrayList<HierarchicalRepositoryChangeListener>();
+   private final ArrayList<HierarchicalRepositoryChangeListener> listeners = new ArrayList<>();
 
    @Override
    public void disableListeners() {
@@ -123,7 +123,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    public List<T> values() {
       lock.readLock().lock();
       try {
-         ArrayList<T> values = new ArrayList<T>(matches.size());
+         ArrayList<T> values = new ArrayList<>(matches.size());
 
          for (Match<T> matchValue : matches.values()) {
             values.add(matchValue.getValue());
@@ -152,7 +152,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             immutables.add(match);
          }
          Match.verify(match);
-         Match<T> match1 = new Match<T>(match);
+         Match<T> match1 = new Match<>(match);
          match1.setValue(value);
          matches.put(match, match1);
       }
@@ -228,9 +228,9 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * @return
     */
    private List<Match<T>> sort(final Map<String, Match<T>> possibleMatches) {
-      List<String> keys = new ArrayList<String>(possibleMatches.keySet());
+      List<String> keys = new ArrayList<>(possibleMatches.keySet());
       Collections.sort(keys, matchComparator);
-      List<Match<T>> matches1 = new ArrayList<Match<T>>(possibleMatches.size());
+      List<Match<T>> matches1 = new ArrayList<>(possibleMatches.size());
       for (String key : keys) {
          matches1.add(possibleMatches.get(key));
       }
@@ -350,7 +350,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * @return
     */
    private Map<String, Match<T>> getPossibleMatches(final String match) {
-      HashMap<String, Match<T>> possibleMatches = new HashMap<String, Match<T>>();
+      HashMap<String, Match<T>> possibleMatches = new HashMap<>();
 
       for (Entry<String, Match<T>> entry : matches.entrySet()) {
          Match<T> entryMatch = entry.getValue();

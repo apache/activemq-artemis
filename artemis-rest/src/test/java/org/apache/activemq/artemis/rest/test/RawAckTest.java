@@ -58,7 +58,7 @@ public class RawAckTest {
       activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
       activeMQServer.start();
 
-      HashMap<String, Object> transportConfig = new HashMap<String, Object>();
+      HashMap<String, Object> transportConfig = new HashMap<>();
 
       serverLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
       sessionFactory = serverLocator.createSessionFactory();

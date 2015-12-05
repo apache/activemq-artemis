@@ -43,7 +43,7 @@ public class JournalFileImpl implements JournalFile {
 
    private final int version;
 
-   private final Map<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<JournalFile, AtomicInteger>();
+   private final Map<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
       this.file = file;

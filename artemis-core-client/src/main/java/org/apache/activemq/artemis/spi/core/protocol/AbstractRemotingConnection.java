@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 public abstract class AbstractRemotingConnection implements RemotingConnection {
 
-   protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();
-   protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<CloseListener>();
+   protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
+   protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
    protected final Connection transportConnection;
    protected final Executor executor;
    protected final long creationTime;
@@ -47,11 +47,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
 
    @Override
    public List<FailureListener> getFailureListeners() {
-      return new ArrayList<FailureListener>(failureListeners);
+      return new ArrayList<>(failureListeners);
    }
 
    protected void callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID) {
-      final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
+      final List<FailureListener> listenersClone = new ArrayList<>(failureListeners);
 
       for (final FailureListener listener : listenersClone) {
          try {
@@ -71,7 +71,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    }
 
    protected void callClosingListeners() {
-      final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
+      final List<CloseListener> listenersClone = new ArrayList<>(closeListeners);
 
       for (final CloseListener listener : listenersClone) {
          try {
@@ -140,7 +140,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
 
    @Override
    public List<CloseListener> removeCloseListeners() {
-      List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
+      List<CloseListener> ret = new ArrayList<>(closeListeners);
 
       closeListeners.clear();
 

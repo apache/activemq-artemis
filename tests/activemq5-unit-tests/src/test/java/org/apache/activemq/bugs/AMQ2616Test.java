@@ -40,7 +40,7 @@ public class AMQ2616Test extends TestCase {
 
    private static final int NUMBER = 2000;
    private BrokerService brokerService;
-   private final ArrayList<Thread> threads = new ArrayList<Thread>();
+   private final ArrayList<Thread> threads = new ArrayList<>();
    private final String ACTIVEMQ_BROKER_BIND = "tcp://0.0.0.0:0";
    private final AtomicBoolean shutdown = new AtomicBoolean();
 

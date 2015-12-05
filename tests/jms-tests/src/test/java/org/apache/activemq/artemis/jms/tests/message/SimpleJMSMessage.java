@@ -199,7 +199,7 @@ public class SimpleJMSMessage implements Message {
       this.priority = priority;
    }
 
-   private final Map<String, Object> properties = new HashMap<String, Object>();
+   private final Map<String, Object> properties = new HashMap<>();
 
    @Override
    public void clearProperties() throws JMSException {

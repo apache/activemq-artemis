@@ -62,7 +62,7 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
    }
 
    public static Map<NetworkInterface, InetAddress> getAddressForEachNetworkInterface() throws Exception {
-      Map<NetworkInterface, InetAddress> map = new HashMap<NetworkInterface, InetAddress>();
+      Map<NetworkInterface, InetAddress> map = new HashMap<>();
       Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
       while (ifaces.hasMoreElements()) {
          NetworkInterface iface = ifaces.nextElement();
@@ -183,10 +183,10 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
                               final int localPort) throws Exception {
       System.out.println("acceptor=" + acceptorHost + ", connector=" + connectorHost + ", mustConnect=" + mustConnect);
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(getHostPropertyKey(), acceptorHost);
       TransportConfiguration acceptorConfig = new TransportConfiguration(getAcceptorFactoryClassName(), params);
-      Set<TransportConfiguration> transportConfigs = new HashSet<TransportConfiguration>();
+      Set<TransportConfiguration> transportConfigs = new HashSet<>();
       transportConfigs.add(acceptorConfig);
 
       Configuration config = createDefaultNettyConfig();
@@ -195,7 +195,7 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
       try {
          messagingService.start();
 
-         params = new HashMap<String, Object>();
+         params = new HashMap<>();
          params.put(getHostPropertyKey(), connectorHost);
          if (localPort != 0) {
             params.put(getLocalPortProperty(), localPort);

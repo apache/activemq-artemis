@@ -50,7 +50,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
    @Test
    public void testPagingManager() throws Exception {
 
-      HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<AddressSettings>();
+      HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
       addressSettings.setDefault(new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
       final StorageManager storageManager = new NullStorageManager();

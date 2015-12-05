@@ -45,7 +45,7 @@ import org.w3c.dom.Document;
 @Path(Constants.PATH_FOR_QUEUES)
 public class QueueDestinationsResource {
 
-   private Map<String, QueueResource> queues = new ConcurrentHashMap<String, QueueResource>();
+   private Map<String, QueueResource> queues = new ConcurrentHashMap<>();
    private QueueServiceManager manager;
 
    public QueueDestinationsResource(QueueServiceManager manager) {

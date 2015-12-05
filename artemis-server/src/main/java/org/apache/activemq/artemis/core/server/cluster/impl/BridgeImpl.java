@@ -98,7 +98,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final SimpleString forwardingAddress;
 
-   private final java.util.Queue<MessageReference> refs = new ConcurrentLinkedQueue<MessageReference>();
+   private final java.util.Queue<MessageReference> refs = new ConcurrentLinkedQueue<>();
 
    private final Transformer transformer;
 
@@ -228,7 +228,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public List<MessageReference> getDeliveringMessages() {
       synchronized (this) {
-         return new ArrayList<MessageReference>(refs);
+         return new ArrayList<>(refs);
       }
    }
 
@@ -270,7 +270,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private void cancelRefs() {
       MessageReference ref;
 
-      LinkedList<MessageReference> list = new LinkedList<MessageReference>();
+      LinkedList<MessageReference> list = new LinkedList<>();
 
       while ((ref = refs.poll()) != null) {
          if (isTrace) {

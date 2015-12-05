@@ -47,7 +47,7 @@ public class AbstractJMSTest {
 
    public static void forceGC() {
       System.out.println("#test forceGC");
-      WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
+      WeakReference<Object> dumbReference = new WeakReference<>(new Object());
       // A loop that will wait GC, using the minimalserver time as possible
       while (dumbReference.get() != null) {
          System.gc();

@@ -70,7 +70,7 @@ public abstract class UnaryExpression implements Expression {
          t = elements;
       }
       else {
-         t = new HashSet<Object>(elements);
+         t = new HashSet<>(elements);
       }
       final Collection<Object> inList = t;
 

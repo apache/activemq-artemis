@@ -62,7 +62,7 @@ public class AMQ4889Test {
       brokerService = new BrokerService();
       brokerService.setPersistent(false);
 
-      ArrayList<BrokerPlugin> plugins = new ArrayList<BrokerPlugin>();
+      ArrayList<BrokerPlugin> plugins = new ArrayList<>();
       BrokerPlugin authenticationPlugin = configureAuthentication();
       plugins.add(authenticationPlugin);
       BrokerPlugin[] array = new BrokerPlugin[plugins.size()];
@@ -82,7 +82,7 @@ public class AMQ4889Test {
    }
 
    protected BrokerPlugin configureAuthentication() throws Exception {
-      List<AuthenticationUser> users = new ArrayList<AuthenticationUser>();
+      List<AuthenticationUser> users = new ArrayList<>();
       users.add(new AuthenticationUser(USER, GOOD_USER_PASSWORD, "users"));
       SimpleAuthenticationPlugin authenticationPlugin = new SimpleAuthenticationPlugin(users);
 

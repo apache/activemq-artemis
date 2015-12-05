@@ -125,7 +125,7 @@ public class AddressControlTest extends ManagementTestBase {
       Object[] roles = addressControl.getRoles();
       Assert.assertEquals(0, roles.length);
 
-      Set<Role> newRoles = new HashSet<Role>();
+      Set<Role> newRoles = new HashSet<>();
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 
@@ -158,7 +158,7 @@ public class AddressControlTest extends ManagementTestBase {
       RoleInfo[] roles = RoleInfo.from(jsonString);
       Assert.assertEquals(0, roles.length);
 
-      Set<Role> newRoles = new HashSet<Role>();
+      Set<Role> newRoles = new HashSet<>();
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 

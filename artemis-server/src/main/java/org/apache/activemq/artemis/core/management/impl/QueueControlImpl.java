@@ -357,7 +357,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Map<String, List<MessageReference>> msgs = queue.getDeliveringMessages();
 
-         Map<String, Map<String, Object>[]> msgRet = new HashMap<String, Map<String, Object>[]>();
+         Map<String, Map<String, Object>[]> msgRet = new HashMap<>();
 
          for (Map.Entry<String, List<MessageReference>> entry : msgs.entrySet()) {
             msgRet.put(entry.getKey(), convertMessagesToMaps(entry.getValue()));
@@ -390,7 +390,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          Filter filter = FilterImpl.createFilter(filterStr);
-         List<Map<String, Object>> messages = new ArrayList<Map<String, Object>>();
+         List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
          LinkedListIterator<MessageReference> iterator = queue.totalIterator();
          try {
@@ -433,7 +433,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         List<Map<String, Object>> messages = new ArrayList<Map<String, Object>>();
+         List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
          LinkedListIterator<MessageReference> iterator = queue.totalIterator();
          try {

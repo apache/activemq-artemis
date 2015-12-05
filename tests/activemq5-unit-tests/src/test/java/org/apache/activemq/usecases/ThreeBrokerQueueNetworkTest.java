@@ -130,7 +130,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
       Destination dest = createDestination("TEST.FOO", false);
 
       // Send messages for broker A
-      HashMap<String, Object> props = new HashMap<String, Object>();
+      HashMap<String, Object> props = new HashMap<>();
       props.put("broker", "BROKER_A");
       sendMessages("BrokerB", dest, MESSAGE_COUNT, props);
 
@@ -176,7 +176,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
       Thread.sleep(2000); //et subscriptions get propagated
 
       // Send messages for broker A
-      HashMap<String, Object> props = new HashMap<String, Object>();
+      HashMap<String, Object> props = new HashMap<>();
       props.put("broker", "BROKER_A");
       sendMessages("BrokerB", dest, MESSAGE_COUNT, props);
 

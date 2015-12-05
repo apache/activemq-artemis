@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 public class PushConsumerResource {
 
-   protected Map<String, PushConsumer> consumers = new ConcurrentHashMap<String, PushConsumer>();
+   protected Map<String, PushConsumer> consumers = new ConcurrentHashMap<>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected final String startup = Long.toString(System.currentTimeMillis());

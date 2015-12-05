@@ -57,7 +57,7 @@ public class AMQ2021Test implements ExceptionListener, UncaughtExceptionHandler 
 
    private static final Logger log = LoggerFactory.getLogger(AMQ2021Test.class);
    BrokerService brokerService;
-   ArrayList<Thread> threads = new ArrayList<Thread>();
+   ArrayList<Thread> threads = new ArrayList<>();
    Vector<Throwable> exceptions;
 
    @Rule
@@ -88,7 +88,7 @@ public class AMQ2021Test implements ExceptionListener, UncaughtExceptionHandler 
       brokerService.addConnector(ACTIVEMQ_BROKER_BIND);
       brokerService.start();
       destination = new ActiveMQTopic(name.getMethodName());
-      exceptions = new Vector<Throwable>();
+      exceptions = new Vector<>();
 
       CONSUMER_BROKER_URL = brokerService.getTransportConnectors().get(0).getPublishableConnectString() + CONSUMER_BROKER_URL;
       PRODUCER_BROKER_URL = brokerService.getTransportConnectors().get(0).getPublishableConnectString();

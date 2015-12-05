@@ -54,7 +54,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected String messageTextPrefix = "";
    protected boolean topic = true;
 
-   protected Map<String, SimpleString> testQueues = new HashMap<String, SimpleString>();
+   protected Map<String, SimpleString> testQueues = new HashMap<>();
 
    @Override
    @Before

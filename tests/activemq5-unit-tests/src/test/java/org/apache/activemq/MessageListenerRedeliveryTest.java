@@ -263,7 +263,7 @@ public class MessageListenerRedeliveryTest extends TestCase {
       final CountDownLatch gotMessage = new CountDownLatch(2);
       final AtomicInteger count = new AtomicInteger(0);
       final int maxDeliveries = getRedeliveryPolicy().getMaximumRedeliveries();
-      final ArrayList<String> received = new ArrayList<String>();
+      final ArrayList<String> received = new ArrayList<>();
       consumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message message) {

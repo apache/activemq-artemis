@@ -102,7 +102,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
       volatile boolean failed;
 
-      ArrayList<Throwable> errors = new ArrayList<Throwable>();
+      ArrayList<Throwable> errors = new ArrayList<>();
 
       boolean isFailed() {
          return failed;
@@ -287,7 +287,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
          session.start();
 
-         List<Integer> counts = new ArrayList<Integer>(1000);
+         List<Integer> counts = new ArrayList<>(1000);
          int lastCount = -1;
          boolean counterGap = false;
          while (true) {
@@ -408,7 +408,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
             ClientConsumer consumer = null;
             do {
-               ArrayList<Integer> msgs = new ArrayList<Integer>();
+               ArrayList<Integer> msgs = new ArrayList<>();
                try {
                   if (consumer == null) {
                      consumer = session.createConsumer(FailoverTestBase.ADDRESS);

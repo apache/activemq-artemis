@@ -413,7 +413,7 @@ public final class XMLUtil {
    }
 
    private static List<Node> filter(final NodeList nl, final short[] typesToFilter) {
-      List<Node> nodes = new ArrayList<Node>();
+      List<Node> nodes = new ArrayList<>();
 
    outer:
       for (int i = 0; i < nl.getLength(); i++) {

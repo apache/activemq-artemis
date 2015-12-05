@@ -40,7 +40,7 @@ public class TwoBrokerTopicSendReceiveTest extends JmsTopicSendReceiveWithTwoCon
 
    protected ActiveMQConnectionFactory sendFactory;
    protected ActiveMQConnectionFactory receiveFactory;
-   protected HashMap<String, BrokerService> brokers = new HashMap<String, BrokerService>();
+   protected HashMap<String, BrokerService> brokers = new HashMap<>();
 
    @Override
    protected void setUp() throws Exception {

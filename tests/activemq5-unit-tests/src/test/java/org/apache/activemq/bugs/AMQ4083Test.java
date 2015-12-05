@@ -484,7 +484,7 @@ public class AMQ4083Test {
          producerNormal.send(queue, message);
       }
 
-      ArrayList<Message> messages = new ArrayList<Message>();
+      ArrayList<Message> messages = new ArrayList<>();
       Message received;
       while ((received = consumer.receive(1000)) != null) {
          messages.add(received);
@@ -497,7 +497,7 @@ public class AMQ4083Test {
 
       assertEquals("got messages", messageCount + 1, messages.size());
 
-      ArrayList<Message> dlqMessages = new ArrayList<Message>();
+      ArrayList<Message> dlqMessages = new ArrayList<>();
       while ((received = dlqConsumer.receive(1000)) != null) {
          dlqMessages.add(received);
       }

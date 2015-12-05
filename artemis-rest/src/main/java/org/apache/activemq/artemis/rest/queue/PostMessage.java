@@ -206,7 +206,7 @@ public class PostMessage {
    }
 
    public void init() throws Exception {
-      pool = new ArrayBlockingQueue<Pooled>(poolSize);
+      pool = new ArrayBlockingQueue<>(poolSize);
       for (int i = 0; i < poolSize; i++) {
          addPooled();
       }

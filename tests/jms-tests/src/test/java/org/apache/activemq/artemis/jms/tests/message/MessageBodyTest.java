@@ -570,7 +570,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
 
       ProxyAssertSupport.assertFalse(m2.itemExists("sausages"));
 
-      HashSet<String> itemNames = new HashSet<String>();
+      HashSet<String> itemNames = new HashSet<>();
       @SuppressWarnings("unchecked")
       Enumeration<String> en = m2.getMapNames();
       while (en.hasMoreElements()) {

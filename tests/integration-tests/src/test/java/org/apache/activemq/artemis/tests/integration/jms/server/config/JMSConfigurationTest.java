@@ -54,7 +54,7 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
 
       JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
-      List<TransportConfiguration> transportConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> transportConfigs = new ArrayList<>();
       transportConfigs.add(connectorConfig);
 
       ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName(RandomUtil.randomString()).setConnectorNames(registerConnectors(coreServer, transportConfigs)).setBindings("/cf/binding1", "/cf/binding2");

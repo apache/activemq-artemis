@@ -117,7 +117,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
          }
 
          do {
-            List<Runner> threads = new ArrayList<Runner>();
+            List<Runner> threads = new ArrayList<>();
 
             for (int i = 0; i < numThreads; i++) {
                Runner runner = new Runner(runnable, i);

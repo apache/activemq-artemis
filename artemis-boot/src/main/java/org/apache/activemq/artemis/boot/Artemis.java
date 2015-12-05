@@ -53,7 +53,7 @@ public class Artemis {
 
    /** This is a good method for booting an embedded command */
    public static Object execute(File fileHome, File fileInstance, String ... args) throws Throwable {
-      ArrayList<File> dirs = new ArrayList<File>();
+      ArrayList<File> dirs = new ArrayList<>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
       }
@@ -62,7 +62,7 @@ public class Artemis {
       }
 
 
-      ArrayList<URL> urls = new ArrayList<URL>();
+      ArrayList<URL> urls = new ArrayList<>();
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
       if (fileInstance != null) {
@@ -79,7 +79,7 @@ public class Artemis {
          if (bootdir.exists() && bootdir.isDirectory()) {
 
             // Find the jar files in the directory..
-            ArrayList<File> files = new ArrayList<File>();
+            ArrayList<File> files = new ArrayList<>();
             for (File f : bootdir.listFiles()) {
                if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
                   files.add(f);

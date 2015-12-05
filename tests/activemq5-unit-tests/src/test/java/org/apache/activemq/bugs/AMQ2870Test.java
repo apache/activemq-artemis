@@ -65,7 +65,7 @@ public class AMQ2870Test extends org.apache.activemq.TestSupport {
       LOG.info("Running on [" + osName + "]");
       PersistenceAdapterChoice[] kahaDb = {PersistenceAdapterChoice.KahaDB};
       PersistenceAdapterChoice[] levelDb = {PersistenceAdapterChoice.LevelDB};
-      List<PersistenceAdapterChoice[]> choices = new ArrayList<PersistenceAdapterChoice[]>();
+      List<PersistenceAdapterChoice[]> choices = new ArrayList<>();
       choices.add(kahaDb);
       if (!osName.equalsIgnoreCase("AIX") && !osName.equalsIgnoreCase("SunOS")) {
          choices.add(levelDb);

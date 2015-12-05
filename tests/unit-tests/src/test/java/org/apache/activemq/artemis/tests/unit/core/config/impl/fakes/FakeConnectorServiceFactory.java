@@ -48,12 +48,12 @@ public class FakeConnectorServiceFactory implements ConnectorServiceFactory {
 
    @Override
    public Set<String> getAllowableProperties() {
-      return new HashSet<String>();
+      return new HashSet<>();
    }
 
    @Override
    public Set<String> getRequiredProperties() {
-      return new HashSet<String>();
+      return new HashSet<>();
    }
 
    public ConnectorService getConnectorService() {

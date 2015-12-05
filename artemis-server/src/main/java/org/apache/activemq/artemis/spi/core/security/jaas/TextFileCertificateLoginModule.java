@@ -84,7 +84,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
     */
    @Override
    protected Set<String> getUserRoles(String username) throws LoginException {
-      Set<String> userRoles = new HashSet<String>();
+      Set<String> userRoles = new HashSet<>();
       for (Enumeration<Object> enumeration = roles.keys(); enumeration.hasMoreElements(); ) {
          String groupName = (String) enumeration.nextElement();
          String[] userList = (roles.getProperty(groupName) + "").split(",");

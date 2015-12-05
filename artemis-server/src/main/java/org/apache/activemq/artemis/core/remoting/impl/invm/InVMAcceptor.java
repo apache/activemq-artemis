@@ -48,7 +48,7 @@ public final class InVMAcceptor implements Acceptor {
 
    private final ConnectionLifeCycleListener listener;
 
-   private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<String, Connection>();
+   private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
    private volatile boolean started;
 

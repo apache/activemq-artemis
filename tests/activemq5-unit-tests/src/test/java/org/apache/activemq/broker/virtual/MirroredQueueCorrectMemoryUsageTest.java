@@ -88,7 +88,7 @@ public class MirroredQueueCorrectMemoryUsageTest extends EmbeddedBrokerTestSuppo
       broker.setDestinationInterceptors(destinationInterceptors);
       // Create the destination policy for the topics and queues
       PolicyMap policyMap = new PolicyMap();
-      List<PolicyEntry> entries = new LinkedList<PolicyEntry>();
+      List<PolicyEntry> entries = new LinkedList<>();
       // Create Topic policy entry
       PolicyEntry policyEntry = new PolicyEntry();
       super.useTopic = true;

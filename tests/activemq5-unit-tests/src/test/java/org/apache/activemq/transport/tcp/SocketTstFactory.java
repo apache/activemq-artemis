@@ -36,7 +36,7 @@ public class SocketTstFactory extends SocketFactory {
 
    private static final Logger LOG = LoggerFactory.getLogger(SocketTstFactory.class);
 
-   private static final ConcurrentMap<InetAddress, Integer> closeIter = new ConcurrentHashMap<InetAddress, Integer>();
+   private static final ConcurrentMap<InetAddress, Integer> closeIter = new ConcurrentHashMap<>();
 
    private class SocketTst {
 

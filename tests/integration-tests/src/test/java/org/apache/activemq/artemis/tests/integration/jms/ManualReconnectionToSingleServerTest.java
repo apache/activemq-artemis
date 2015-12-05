@@ -149,7 +149,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       configuration.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(QUEUE_NAME).setBindings(QUEUE_NAME));
 
-      ArrayList<TransportConfiguration> configs = new ArrayList<TransportConfiguration>();
+      ArrayList<TransportConfiguration> configs = new ArrayList<>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
       ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(registerConnectors(server, configs)).setBindings("/cf").setRetryInterval(1000).setReconnectAttempts(-1);
       configuration.getConnectionFactoryConfigurations().add(cfConfig);

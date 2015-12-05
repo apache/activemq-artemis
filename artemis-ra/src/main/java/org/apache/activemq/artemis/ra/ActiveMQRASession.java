@@ -105,8 +105,8 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       this.mc = mc;
       this.cri = cri;
       sf = null;
-      consumers = new HashSet<MessageConsumer>();
-      producers = new HashSet<MessageProducer>();
+      consumers = new HashSet<>();
+      producers = new HashSet<>();
    }
 
    /**

@@ -120,7 +120,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
       final ClientSession sessionReceive = sf.createSession(true, true);
       sessionReceive.start();
 
-      final ArrayList<Throwable> errors = new ArrayList<Throwable>();
+      final ArrayList<Throwable> errors = new ArrayList<>();
 
       Thread tReceive = new Thread() {
          @Override

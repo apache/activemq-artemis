@@ -93,7 +93,7 @@ public class PropertiesLoginModuleRaceConditionTest {
 
             Subject subject = new Subject();
             PropertiesLoginModule module = new PropertiesLoginModule();
-            module.initialize(subject, callback, new HashMap<Object, Object>(), options);
+            module.initialize(subject, callback, new HashMap<>(), options);
             module.login();
             module.commit();
          }
@@ -111,14 +111,14 @@ public class PropertiesLoginModuleRaceConditionTest {
       createUsers();
       createGroups();
 
-      options = new HashMap<String, String>();
+      options = new HashMap<>();
       options.put("reload", "true"); // Used to simplify reproduction of the
       // race condition
       options.put("org.apache.activemq.jaas.properties.user", USERS_FILE);
       options.put("org.apache.activemq.jaas.properties.role", ROLES_FILE);
       options.put("baseDir", temp.getRoot().getAbsolutePath());
 
-      errors = new ArrayBlockingQueue<Exception>(processorCount());
+      errors = new ArrayBlockingQueue<>(processorCount());
       pool = Executors.newFixedThreadPool(processorCount());
       callback = new JaasCallbackHandler(USERNAME, PASSWORD, null);
    }

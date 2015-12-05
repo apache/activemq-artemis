@@ -48,7 +48,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
    // Constructors --------------------------------------------------
 
    public SimpleJMSStreamMessage() {
-      content = new ArrayList<Object>();
+      content = new ArrayList<>();
       position = 0;
       size = 0;
       offset = 0;

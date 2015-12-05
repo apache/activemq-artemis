@@ -161,16 +161,16 @@ public abstract class ActiveMQTestBase extends Assert {
    protected static final long WAIT_TIMEOUT = 30000;
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
-   private static Set<Thread> alreadyFailedThread = new HashSet<Thread>();
+   private static Set<Thread> alreadyFailedThread = new HashSet<>();
 
-   private final Collection<ActiveMQServer> servers = new ArrayList<ActiveMQServer>();
-   private final Collection<ServerLocator> locators = new ArrayList<ServerLocator>();
-   private final Collection<ClientSessionFactory> sessionFactories = new ArrayList<ClientSessionFactory>();
-   private final Collection<ClientSession> clientSessions = new HashSet<ClientSession>();
-   private final Collection<ClientConsumer> clientConsumers = new HashSet<ClientConsumer>();
-   private final Collection<ClientProducer> clientProducers = new HashSet<ClientProducer>();
-   private final Collection<ActiveMQComponent> otherComponents = new HashSet<ActiveMQComponent>();
-   private final Set<ExecutorService> executorSet = new HashSet<ExecutorService>();
+   private final Collection<ActiveMQServer> servers = new ArrayList<>();
+   private final Collection<ServerLocator> locators = new ArrayList<>();
+   private final Collection<ClientSessionFactory> sessionFactories = new ArrayList<>();
+   private final Collection<ClientSession> clientSessions = new HashSet<>();
+   private final Collection<ClientConsumer> clientConsumers = new HashSet<>();
+   private final Collection<ClientProducer> clientProducers = new HashSet<>();
+   private final Collection<ActiveMQComponent> otherComponents = new HashSet<>();
+   private final Set<ExecutorService> executorSet = new HashSet<>();
 
    private boolean checkThread = true;
    private String testDir;
@@ -466,7 +466,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected Map<String, Object> generateInVMParams(final int node) {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
 
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
 
@@ -547,7 +547,7 @@ public abstract class ActiveMQTestBase extends Assert {
       long waitUntil = System.currentTimeMillis() + timeout;
       // A loop that will wait GC, using the minimal time as possible
       while (ref.get() != null && System.currentTimeMillis() < waitUntil) {
-         ArrayList<String> list = new ArrayList<String>();
+         ArrayList<String> list = new ArrayList<>();
          for (int i = 0; i < 1000; i++) {
             list.add("Some string with garbage with concatenation " + i);
          }
@@ -750,7 +750,7 @@ public abstract class ActiveMQTestBase extends Assert {
       // The connectors need to be pre-configured at main config object but this method is taking
       // TransportConfigurations directly
       // So this will first register them at the config and then generate a list of objects
-      ArrayList<String> connectors = new ArrayList<String>();
+      ArrayList<String> connectors = new ArrayList<>();
       for (TransportConfiguration tnsp : connectorConfigs) {
          String name1 = RandomUtil.randomString();
 
@@ -1017,7 +1017,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * You can pass a list of properties to be ignored, as some properties will have a pre-defined domain (not being possible to use random-values on them)
     */
    protected void validateGettersAndSetters(final Object pojo, final String... ignoredProperties) throws Exception {
-      HashSet<String> ignoreSet = new HashSet<String>();
+      HashSet<String> ignoreSet = new HashSet<>();
 
       for (String ignore : ignoredProperties) {
          ignoreSet.add(ignore);
@@ -1186,7 +1186,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected static final Map<String, Object> generateParams(final int node, final boolean netty) {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
 
       if (netty) {
          params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
@@ -1203,7 +1203,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY);
       }
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
 
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
 
@@ -1215,7 +1215,7 @@ public abstract class ActiveMQTestBase extends Assert {
          return new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       }
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
 
       server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
@@ -1242,7 +1242,7 @@ public abstract class ActiveMQTestBase extends Assert {
          }
       }
       if (params == null)
-         params = new HashMap<String, Object>();
+         params = new HashMap<>();
       return new TransportConfiguration(className, params);
    }
 
@@ -1531,7 +1531,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @return
     */
    protected final TransportConfiguration createInVMTransportConnectorConfig(final int serverID, String name1) {
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
 
       if (serverID != 0) {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, serverID);
@@ -1631,14 +1631,14 @@ public abstract class ActiveMQTestBase extends Assert {
          SequentialFileFactory messagesFF = new NIOSequentialFileFactory(new File(getJournalDir()), null, 1);
 
          messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
-         final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
-         final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
+         final List<RecordInfo> committedRecords = new LinkedList<>();
+         final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
          messagesJournal.start();
 
          messagesJournal.load(committedRecords, preparedTransactions, null, false);
 
-         return new Pair<List<RecordInfo>, List<PreparedTransactionInfo>>(committedRecords, preparedTransactions);
+         return new Pair<>(committedRecords, preparedTransactions);
       }
       finally {
          try {
@@ -1661,7 +1661,7 @@ public abstract class ActiveMQTestBase extends Assert {
     * @throws Exception
     */
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception {
-      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
+      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<>();
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
 
       JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
@@ -1694,7 +1694,7 @@ public abstract class ActiveMQTestBase extends Assert {
     */
    protected HashMap<Integer, AtomicInteger> internalCountJournalLivingRecords(Configuration config,
                                                                                boolean messageJournal) throws Exception {
-      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
+      final HashMap<Integer, AtomicInteger> recordsType = new HashMap<>();
       SequentialFileFactory ff;
 
       JournalImpl journal;
@@ -1709,8 +1709,8 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       journal.start();
 
-      final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
-      final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
+      final List<RecordInfo> committedRecords = new LinkedList<>();
+      final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
       journal.load(committedRecords, preparedTransactions, null, false);
 
@@ -2251,7 +2251,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    private List<QueueBinding> getLocalQueueBindings(final PostOffice postOffice,
                                                     final String address) throws Exception {
-      ArrayList<QueueBinding> bindingsFound = new ArrayList<QueueBinding>();
+      ArrayList<QueueBinding> bindingsFound = new ArrayList<>();
 
       Bindings bindings = postOffice.getBindingsForAddress(new SimpleString(address));
 

@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 public final class RoutingContextImpl implements RoutingContext {
 
    // The pair here is Durable and NonDurable
-   private final Map<SimpleString, RouteContextList> map = new HashMap<SimpleString, RouteContextList>();
+   private final Map<SimpleString, RouteContextList> map = new HashMap<>();
 
    private Transaction transaction;
 
@@ -119,9 +119,9 @@ public final class RoutingContextImpl implements RoutingContext {
 
    private static class ContextListing implements RouteContextList {
 
-      private final List<Queue> durableQueue = new ArrayList<Queue>(1);
+      private final List<Queue> durableQueue = new ArrayList<>(1);
 
-      private final List<Queue> nonDurableQueue = new ArrayList<Queue>(1);
+      private final List<Queue> nonDurableQueue = new ArrayList<>(1);
 
       private final List<Queue> ackedQueues = new ArrayList<>();
 

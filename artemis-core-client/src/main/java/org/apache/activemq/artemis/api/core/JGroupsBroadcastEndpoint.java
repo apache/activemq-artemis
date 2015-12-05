@@ -134,7 +134,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
     */
    private static final class JGroupsReceiver extends ReceiverAdapter {
 
-      private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<byte[]>();
+      private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<>();
 
       @Override
       public void receive(org.jgroups.Message msg) {
@@ -160,7 +160,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       int refCount = 1;
       JChannel channel;
       String channelName;
-      final List<JGroupsReceiver> receivers = new ArrayList<JGroupsReceiver>();
+      final List<JGroupsReceiver> receivers = new ArrayList<>();
 
       public JChannelWrapper(String channelName, JChannel channel) throws Exception {
          this.refCount = 1;

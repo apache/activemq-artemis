@@ -41,7 +41,7 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
    public void setUp() throws Exception {
       super.setUp();
 
-      mapExpectedCFs = new HashMap<String, PersistedConnectionFactory>();
+      mapExpectedCFs = new HashMap<>();
    }
 
    protected void addSetting(PersistedConnectionFactory setting) throws Exception {
@@ -54,7 +54,7 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
 
       createJMSStorage();
 
-      List<String> transportConfigs = new ArrayList<String>();
+      List<String> transportConfigs = new ArrayList<>();
 
       for (int i = 0; i < 5; i++) {
          transportConfigs.add("c1-" + i);
@@ -126,16 +126,16 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
          str[i] = "str" + i;
       }
 
-      List<String> connectorConfigs = new ArrayList<String>();
-      Map<String, Object> liveParams = new HashMap<String, Object>();
+      List<String> connectorConfigs = new ArrayList<>();
+      Map<String, Object> liveParams = new HashMap<>();
       liveParams.put(TransportConstants.PORT_PROP_NAME, 5665);
-      Map<String, Object> backupParams = new HashMap<String, Object>();
+      Map<String, Object> backupParams = new HashMap<>();
       backupParams.put(TransportConstants.PORT_PROP_NAME, 5775);
-      Map<String, Object> liveParams2 = new HashMap<String, Object>();
+      Map<String, Object> liveParams2 = new HashMap<>();
       liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
 
       ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(connectorConfigs).setBindings(str).setCallTimeout(RandomUtil.randomPositiveLong());
-      List<Pair<String, String>> connectors = new ArrayList<Pair<String, String>>();
+      List<Pair<String, String>> connectors = new ArrayList<>();
       connectors.add(new Pair<String, String>(RandomUtil.randomString(), null));
       //config.setConnectorNames(connectors);
 

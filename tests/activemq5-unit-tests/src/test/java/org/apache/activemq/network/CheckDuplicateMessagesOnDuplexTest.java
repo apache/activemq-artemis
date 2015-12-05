@@ -180,7 +180,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
       localBroker.setManagementContext(managementContext);
       PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/local");
       localBroker.setPersistenceAdapter(persistenceAdapter);
-      List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+      List<TransportConnector> transportConnectors = new ArrayList<>();
       DebugTransportFactory tf = new DebugTransportFactory();
       TransportServer transport = tf.doBind(URI.create("nio://127.0.0.1:23539"));
       TransportConnector transportConnector = new TransportConnector(transport);
@@ -200,7 +200,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
       remoteBroker.setManagementContext(managementContext);
       PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/remote");
       remoteBroker.setPersistenceAdapter(persistenceAdapter);
-      List<NetworkConnector> networkConnectors = new ArrayList<NetworkConnector>();
+      List<NetworkConnector> networkConnectors = new ArrayList<>();
       DiscoveryNetworkConnector networkConnector = new DiscoveryNetworkConnector();
       networkConnector.setName("to local");
       // set maxInactivityDuration to 0, otherwise the broker restarts while you are in the debugger

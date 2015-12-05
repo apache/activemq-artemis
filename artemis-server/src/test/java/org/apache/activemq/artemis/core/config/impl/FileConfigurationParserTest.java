@@ -106,7 +106,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
       //if we change key, it should be able to decode correctly
       codec = new DefaultSensitiveStringCodec();
-      Map<String, String> prop = new HashMap<String, String>();
+      Map<String, String> prop = new HashMap<>();
       prop.put("key", "newkey");
       codec.init(prop);
 

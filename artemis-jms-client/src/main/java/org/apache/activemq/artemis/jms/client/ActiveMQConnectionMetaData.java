@@ -86,7 +86,7 @@ public class ActiveMQConnectionMetaData implements ConnectionMetaData {
 
    @Override
    public Enumeration getJMSXPropertyNames() throws JMSException {
-      Vector<Object> v = new Vector<Object>();
+      Vector<Object> v = new Vector<>();
       v.add("JMSXGroupID");
       v.add("JMSXGroupSeq");
       v.add("JMSXDeliveryCount");

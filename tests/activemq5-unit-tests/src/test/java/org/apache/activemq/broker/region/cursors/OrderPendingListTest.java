@@ -270,7 +270,7 @@ public class OrderPendingListTest {
 
    static class TestPendingList implements PendingList {
 
-      private final LinkedList<MessageReference> theList = new LinkedList<MessageReference>();
+      private final LinkedList<MessageReference> theList = new LinkedList<>();
 
       @Override
       public boolean isEmpty() {

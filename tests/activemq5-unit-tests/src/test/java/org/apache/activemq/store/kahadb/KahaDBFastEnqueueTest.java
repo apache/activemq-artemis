@@ -58,7 +58,7 @@ public class KahaDBFastEnqueueTest {
    private final String payloadString = new String(new byte[6 * 1024]);
    private final boolean useBytesMessage = true;
    private final int parallelProducer = 20;
-   private final Vector<Exception> exceptions = new Vector<Exception>();
+   private final Vector<Exception> exceptions = new Vector<>();
    long toSend = 10000;
 
    // use with:

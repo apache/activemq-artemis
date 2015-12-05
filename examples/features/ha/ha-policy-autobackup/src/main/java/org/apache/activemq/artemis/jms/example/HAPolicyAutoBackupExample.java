@@ -136,7 +136,7 @@ public class HAPolicyAutoBackupExample {
    private static void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException {
       final CountDownLatch latch = new CountDownLatch(backups);
       ((ActiveMQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener() {
-         List<TransportConfiguration> backups = new ArrayList<TransportConfiguration>();
+         List<TransportConfiguration> backups = new ArrayList<>();
 
          @Override
          public void nodeUP(TopologyMember member, boolean last) {

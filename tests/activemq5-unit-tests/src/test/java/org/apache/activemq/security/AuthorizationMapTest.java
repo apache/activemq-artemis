@@ -94,7 +94,7 @@ public class AuthorizationMapTest extends TestCase {
    protected AuthorizationMap createWildcardAuthorizationMap() {
       DefaultAuthorizationMap answer = new DefaultAuthorizationMap();
 
-      List<DestinationMapEntry> entries = new ArrayList<DestinationMapEntry>();
+      List<DestinationMapEntry> entries = new ArrayList<>();
 
       AuthorizationEntry entry = new AuthorizationEntry();
       entry.setQueue(">");
@@ -129,7 +129,7 @@ public class AuthorizationMapTest extends TestCase {
    protected AuthorizationMap createAuthorizationMap() {
       DefaultAuthorizationMap answer = new DefaultAuthorizationMap();
 
-      List<DestinationMapEntry> entries = new ArrayList<DestinationMapEntry>();
+      List<DestinationMapEntry> entries = new ArrayList<>();
 
       AuthorizationEntry entry = new AuthorizationEntry();
       entry.setGroupClass("org.apache.activemq.jaas.GroupPrincipal");
@@ -162,7 +162,7 @@ public class AuthorizationMapTest extends TestCase {
    protected AuthorizationMap createAuthorizationMapWithTempDest() {
       DefaultAuthorizationMap answer = new DefaultAuthorizationMap();
 
-      List<DestinationMapEntry> entries = new ArrayList<DestinationMapEntry>();
+      List<DestinationMapEntry> entries = new ArrayList<>();
 
       AuthorizationEntry entry = new AuthorizationEntry();
       entry.setQueue(">");

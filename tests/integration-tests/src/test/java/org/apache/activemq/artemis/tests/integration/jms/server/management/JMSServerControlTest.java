@@ -1027,11 +1027,11 @@ public class JMSServerControlTest extends ManagementTestBase {
 
    class FakeJMSStorageManager implements JMSStorageManager {
 
-      Map<String, PersistedDestination> destinationMap = new HashMap<String, PersistedDestination>();
+      Map<String, PersistedDestination> destinationMap = new HashMap<>();
 
-      Map<String, PersistedConnectionFactory> connectionFactoryMap = new HashMap<String, PersistedConnectionFactory>();
+      Map<String, PersistedConnectionFactory> connectionFactoryMap = new HashMap<>();
 
-      ConcurrentHashMap<String, List<String>> persistedJNDIMap = new ConcurrentHashMap<String, List<String>>();
+      ConcurrentHashMap<String, List<String>> persistedJNDIMap = new ConcurrentHashMap<>();
 
       JMSStorageManager delegate;
 

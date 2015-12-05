@@ -126,7 +126,7 @@ public class AMQ2983Test {
    @Test
    public void testNoStickyKahaDbLogFilesOnConcurrentTransactionalConsumer() throws Exception {
 
-      List<Thread> consumerThreads = new ArrayList<Thread>();
+      List<Thread> consumerThreads = new ArrayList<>();
       for (int i = 0; i < MAX_CONSUMER; i++) {
          ConsumerThread thread = new ConsumerThread();
          thread.start();

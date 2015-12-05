@@ -106,7 +106,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
    public boolean persistentTestMessages;
    public boolean networkIsAlwaysSendSync;
 
-   private Vector<Throwable> exceptions = new Vector<Throwable>();
+   private Vector<Throwable> exceptions = new Vector<>();
 
    public static Test suite() {
       return suite(NetworkBridgeProducerFlowControlTest.class);

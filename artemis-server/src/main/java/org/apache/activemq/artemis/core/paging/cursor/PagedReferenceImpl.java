@@ -64,7 +64,7 @@ public class PagedReferenceImpl implements PagedReference {
       if (returnMessage == null) {
          // reference is gone, we will reconstruct it
          returnMessage = subscription.queryMessage(position);
-         message = new WeakReference<PagedMessage>(returnMessage);
+         message = new WeakReference<>(returnMessage);
       }
       return returnMessage;
    }
@@ -85,7 +85,7 @@ public class PagedReferenceImpl implements PagedReference {
       else {
          this.messageEstimate = message.getMessage().getMemoryEstimate();
       }
-      this.message = new WeakReference<PagedMessage>(message);
+      this.message = new WeakReference<>(message);
       this.subscription = subscription;
    }
 

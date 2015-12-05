@@ -58,8 +58,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       s1.close();
       s2.close();
 
-      WeakReference<ClientSession> wrs1 = new WeakReference<ClientSession>(s1);
-      WeakReference<ClientSession> wrs2 = new WeakReference<ClientSession>(s2);
+      WeakReference<ClientSession> wrs1 = new WeakReference<>(s1);
+      WeakReference<ClientSession> wrs2 = new WeakReference<>(s2);
 
       s1 = null;
       s2 = null;
@@ -69,7 +69,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       locator = null;
       ActiveMQTestBase.checkWeakReferences(wrs1, wrs2);
 
-      WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
+      WeakReference<ClientSessionFactory> fref = new WeakReference<>(factory);
 
       factory.close();
 
@@ -90,8 +90,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       s1.close();
       s2.close();
 
-      WeakReference<ClientSession> wrs1 = new WeakReference<ClientSession>(s1);
-      WeakReference<ClientSession> wrs2 = new WeakReference<ClientSession>(s2);
+      WeakReference<ClientSession> wrs1 = new WeakReference<>(s1);
+      WeakReference<ClientSession> wrs2 = new WeakReference<>(s2);
 
       s1 = null;
       s2 = null;
@@ -101,7 +101,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       locator = null;
       ActiveMQTestBase.checkWeakReferences(wrs1, wrs2);
 
-      WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
+      WeakReference<ClientSessionFactory> fref = new WeakReference<>(factory);
 
       factory.close();
 
@@ -120,8 +120,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       s1.close();
       s2.close();
 
-      WeakReference<ClientSession> wrs1 = new WeakReference<ClientSession>(s1);
-      WeakReference<ClientSession> wrs2 = new WeakReference<ClientSession>(s2);
+      WeakReference<ClientSession> wrs1 = new WeakReference<>(s1);
+      WeakReference<ClientSession> wrs2 = new WeakReference<>(s2);
 
       s1 = null;
       s2 = null;
@@ -131,7 +131,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       locator = null;
       ActiveMQTestBase.checkWeakReferences(wrs1, wrs2);
 
-      WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
+      WeakReference<ClientSessionFactory> fref = new WeakReference<>(factory);
 
       factory = null;
 
@@ -145,8 +145,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       ClientSession s1 = factory.createSession();
       ClientSession s2 = factory.createSession();
 
-      WeakReference<ClientSession> wrs1 = new WeakReference<ClientSession>(s1);
-      WeakReference<ClientSession> wrs2 = new WeakReference<ClientSession>(s2);
+      WeakReference<ClientSession> wrs1 = new WeakReference<>(s1);
+      WeakReference<ClientSession> wrs2 = new WeakReference<>(s2);
 
       s1 = null;
       s2 = null;
@@ -156,7 +156,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
       locator = null;
       ActiveMQTestBase.checkWeakReferences(wrs1, wrs2);
 
-      WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
+      WeakReference<ClientSessionFactory> fref = new WeakReference<>(factory);
 
       factory = null;
 
@@ -167,7 +167,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
    public void testValidateFactoryGC5() throws Exception {
       ClientSessionFactory factory = locator.createSessionFactory();
 
-      WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
+      WeakReference<ClientSessionFactory> fref = new WeakReference<>(factory);
 
       factory = null;
 
@@ -206,9 +206,9 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, server.getRemotingService().getConnections().size());
 
-      WeakReference<ClientSession> ref1 = new WeakReference<ClientSession>(session1);
-      WeakReference<ClientSession> ref2 = new WeakReference<ClientSession>(session2);
-      WeakReference<ClientSession> ref3 = new WeakReference<ClientSession>(session3);
+      WeakReference<ClientSession> ref1 = new WeakReference<>(session1);
+      WeakReference<ClientSession> ref2 = new WeakReference<>(session2);
+      WeakReference<ClientSession> ref3 = new WeakReference<>(session3);
 
       session1 = null;
       session2 = null;

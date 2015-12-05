@@ -52,7 +52,7 @@ public class TopicDurableConnectStatsTest extends org.apache.activemq.TestSuppor
    private static final Logger LOG = LoggerFactory.getLogger(TopicDurableConnectStatsTest.class);
    private BrokerService broker;
    private ActiveMQTopic topic;
-   private final Vector<Throwable> exceptions = new Vector<Throwable>();
+   private final Vector<Throwable> exceptions = new Vector<>();
    private final int messageSize = 4000;
    protected MBeanServerConnection mbeanServer;
    protected String domain = "org.apache.activemq";

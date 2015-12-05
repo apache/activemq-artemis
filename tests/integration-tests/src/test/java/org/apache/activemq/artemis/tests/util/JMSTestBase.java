@@ -61,7 +61,7 @@ public class JMSTestBase extends ActiveMQTestBase {
 
    protected ConnectionFactory cf;
    protected Connection conn;
-   private final Set<JMSContext> contextSet = new HashSet<JMSContext>();
+   private final Set<JMSContext> contextSet = new HashSet<>();
    private final Random random = new Random();
    protected InVMNamingContext namingContext;
 
@@ -203,7 +203,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    }
 
    protected void registerConnectionFactory() throws Exception {
-      List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       createCF(connectorConfigs, "/cf");

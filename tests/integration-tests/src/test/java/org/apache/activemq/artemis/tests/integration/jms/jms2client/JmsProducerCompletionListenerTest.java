@@ -113,7 +113,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
    @Test
    public void testInvalidCallFromListener() throws InterruptedException {
       JMSConsumer consumer = context.createConsumer(queue);
-      List<InvalidCompletionListener> listeners = new ArrayList<InvalidCompletionListener>();
+      List<InvalidCompletionListener> listeners = new ArrayList<>();
       for (int i = 0; i < 3; i++) {
          InvalidCompletionListener cl = new InvalidCompletionListener(context, i);
          listeners.add(cl);

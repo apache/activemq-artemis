@@ -202,7 +202,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          return;
       }
 
-      Hashtable<String, String> env = new Hashtable<String, String>();
+      Hashtable<String, String> env = new Hashtable<>();
       env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
       if (connectionUsername != null && !"".equals(connectionUsername)) {
          env.put(Context.SECURITY_PRINCIPAL, connectionUsername);
@@ -242,7 +242,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       searchControls.setReturningAttributes(new String[]{roleAttribute});
       searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-      Map<String, Set<Role>> securityRoles = new HashMap<String, Set<Role>>();
+      Map<String, Set<Role>> securityRoles = new HashMap<>();
       try {
          NamingEnumeration<SearchResult> searchResults = context.search(destinationBase, filter, searchControls);
          int i = 0;

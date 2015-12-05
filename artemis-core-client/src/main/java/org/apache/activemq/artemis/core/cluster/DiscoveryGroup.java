@@ -49,7 +49,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
-   private final List<DiscoveryListener> listeners = new ArrayList<DiscoveryListener>();
+   private final List<DiscoveryListener> listeners = new ArrayList<>();
 
    private final String name;
 
@@ -59,7 +59,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private final Object waitLock = new Object();
 
-   private final Map<String, DiscoveryEntry> connectors = new ConcurrentHashMap<String, DiscoveryEntry>();
+   private final Map<String, DiscoveryEntry> connectors = new ConcurrentHashMap<>();
 
    private final long timeout;
 
@@ -67,7 +67,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private final String nodeID;
 
-   private final Map<String, String> uniqueIDMap = new HashMap<String, String>();
+   private final Map<String, String> uniqueIDMap = new HashMap<>();
 
    private final BroadcastEndpoint endpoint;
 
@@ -192,7 +192,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
    }
 
    public synchronized List<DiscoveryEntry> getDiscoveryEntries() {
-      List<DiscoveryEntry> list = new ArrayList<DiscoveryEntry>(connectors.values());
+      List<DiscoveryEntry> list = new ArrayList<>(connectors.values());
 
       return list;
    }

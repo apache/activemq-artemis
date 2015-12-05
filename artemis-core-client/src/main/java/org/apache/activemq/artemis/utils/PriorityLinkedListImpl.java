@@ -40,7 +40,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       levels = (LinkedListImpl<T>[]) Array.newInstance(LinkedListImpl.class, priorities);
 
       for (int i = 0; i < priorities; i++) {
-         levels[i] = new LinkedListImpl<T>();
+         levels[i] = new LinkedListImpl<>();
       }
    }
 

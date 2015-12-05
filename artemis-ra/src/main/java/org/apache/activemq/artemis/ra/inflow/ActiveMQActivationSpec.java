@@ -691,8 +691,8 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          ActiveMQRALogger.LOGGER.trace("validate()");
       }
 
-      List<String> errorMessages = new ArrayList<String>();
-      List<PropertyDescriptor> propsNotSet = new ArrayList<PropertyDescriptor>();
+      List<String> errorMessages = new ArrayList<>();
+      List<PropertyDescriptor> propsNotSet = new ArrayList<>();
 
       try {
          if (destination == null || destination.trim().equals("")) {

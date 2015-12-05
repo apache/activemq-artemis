@@ -44,7 +44,7 @@ abstract public class QueueMasterSlaveTestSupport extends JmsTopicSendReceiveWit
    private static final transient Logger LOG = LoggerFactory.getLogger(QueueMasterSlaveTestSupport.class);
 
    protected BrokerService master;
-   protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
+   protected AtomicReference<BrokerService> slave = new AtomicReference<>();
    protected CountDownLatch slaveStarted = new CountDownLatch(1);
    protected int inflightMessageCount;
    protected int failureCount = 50;

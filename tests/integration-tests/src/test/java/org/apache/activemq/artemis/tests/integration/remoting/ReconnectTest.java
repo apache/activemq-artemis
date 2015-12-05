@@ -188,7 +188,7 @@ public class ReconnectTest extends ActiveMQTestBase {
    }
 
    private ServerSession[] countMetadata(ActiveMQServer server, String parameter, int expected) throws Exception {
-      List<ServerSession> sessionList = new LinkedList<ServerSession>();
+      List<ServerSession> sessionList = new LinkedList<>();
 
       for (int i = 0; i < 10 && sessionList.size() != expected; i++) {
          sessionList.clear();
@@ -241,7 +241,7 @@ public class ReconnectTest extends ActiveMQTestBase {
          // One for beforeReconnecto from the Factory, and one for the commit about to be done
          final CountDownLatch latchCommit = new CountDownLatch(2);
 
-         final ArrayList<Thread> threadToBeInterrupted = new ArrayList<Thread>();
+         final ArrayList<Thread> threadToBeInterrupted = new ArrayList<>();
 
          factory.addFailureListener(new SessionFailureListener() {
 

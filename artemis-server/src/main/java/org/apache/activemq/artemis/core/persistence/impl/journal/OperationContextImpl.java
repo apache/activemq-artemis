@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  */
 public class OperationContextImpl implements OperationContext {
 
-   private static final ThreadLocal<OperationContext> threadLocalContext = new ThreadLocal<OperationContext>();
+   private static final ThreadLocal<OperationContext> threadLocalContext = new ThreadLocal<>();
 
    public static void clearContext() {
       OperationContextImpl.threadLocalContext.set(null);
@@ -136,7 +136,7 @@ public class OperationContextImpl implements OperationContext {
 
       synchronized (this) {
          if (tasks == null) {
-            tasks = new LinkedList<TaskHolder>();
+            tasks = new LinkedList<>();
             minimalReplicated = replicationLineUp.intValue();
             minimalStore = storeLineUp.intValue();
             minimalPage = pageLineUp.intValue();

@@ -319,7 +319,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       Connection targetConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
-      final List<Message> messages = new LinkedList<Message>();
+      final List<Message> messages = new LinkedList<>();
       MessageListener listener = new MessageListener() {
 
          @Override
@@ -378,7 +378,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       Connection targetConn = JMSBridgeImplTest.createConnectionFactory().createConnection();
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
-      final List<Message> messages = new LinkedList<Message>();
+      final List<Message> messages = new LinkedList<>();
       final CountDownLatch latch = new CountDownLatch(numMessages);
       MessageListener listener = new MessageListener() {
          @Override
@@ -480,7 +480,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    @Test
    public void testExceptionOnSourceAndRetrySucceeds() throws Exception {
-      final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
+      final AtomicReference<Connection> sourceConn = new AtomicReference<>();
       ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName())) {
          private static final long serialVersionUID = -8866390811966688830L;
 
@@ -530,7 +530,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    @Test
    public void testExceptionOnSourceAndRetryFails() throws Exception {
-      final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
+      final AtomicReference<Connection> sourceConn = new AtomicReference<>();
       ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY)) {
          private static final long serialVersionUID = 8216804886099984645L;
          boolean firstTime = true;
@@ -587,7 +587,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    public void testStartWithSpecificTCCL() throws Exception {
       MockContextClassLoader mockTccl = setMockTCCL();
       try {
-         final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
+         final AtomicReference<Connection> sourceConn = new AtomicReference<>();
          ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName())) {
             private static final long serialVersionUID = -8866390811966688830L;
 

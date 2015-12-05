@@ -197,7 +197,7 @@ public class FailoverTest extends FailoverTestBase {
       final ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
 
-      final Map<Integer, ClientMessage> received = new HashMap<Integer, ClientMessage>();
+      final Map<Integer, ClientMessage> received = new HashMap<>();
 
       consumer.setMessageHandler(new MessageHandler() {
 
@@ -260,7 +260,7 @@ public class FailoverTest extends FailoverTestBase {
       final ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
 
-      final Map<Integer, ClientMessage> received = new HashMap<Integer, ClientMessage>();
+      final Map<Integer, ClientMessage> received = new HashMap<>();
 
       Thread t = new Thread() {
          @Override
@@ -1427,12 +1427,12 @@ public class FailoverTest extends FailoverTestBase {
 
       final int numConsumersPerSession = 5;
 
-      Map<ClientSession, List<ClientConsumer>> sessionConsumerMap = new HashMap<ClientSession, List<ClientConsumer>>();
+      Map<ClientSession, List<ClientConsumer>> sessionConsumerMap = new HashMap<>();
 
       for (int i = 0; i < numSessions; i++) {
          ClientSession session = createSession(sf, true, true);
 
-         List<ClientConsumer> consumers = new ArrayList<ClientConsumer>();
+         List<ClientConsumer> consumers = new ArrayList<>();
 
          for (int j = 0; j < numConsumersPerSession; j++) {
             SimpleString queueName = new SimpleString("queue" + i + "-" + j);

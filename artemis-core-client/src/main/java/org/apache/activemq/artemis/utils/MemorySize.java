@@ -105,7 +105,7 @@ public class MemorySize {
    }
 
    private static void forceGC() {
-      WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
+      WeakReference<Object> dumbReference = new WeakReference<>(new Object());
       // A loop that will wait GC, using the minimal time as possible
       while (dumbReference.get() != null) {
          System.gc();

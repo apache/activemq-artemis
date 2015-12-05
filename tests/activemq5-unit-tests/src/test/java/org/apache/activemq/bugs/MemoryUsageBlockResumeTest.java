@@ -65,7 +65,7 @@ public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.Un
    Destination bigDestination = new ActiveMQQueue("FooTwoBig");
 
    private String connectionUri;
-   private final Vector<Throwable> exceptions = new Vector<Throwable>();
+   private final Vector<Throwable> exceptions = new Vector<>();
 
    @Test(timeout = 60 * 1000)
    public void testBlockByOtherResumeNoException() throws Exception {

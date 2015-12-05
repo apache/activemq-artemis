@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class StubCompositeTransport extends StubTransport implements CompositeTransport {
 
-   private List<URI> transportURIs = new ArrayList<URI>();
+   private List<URI> transportURIs = new ArrayList<>();
 
    /**
     * @see org.apache.activemq.transport.CompositeTransport#add(java.net.URI[])

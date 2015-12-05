@@ -408,7 +408,7 @@ public abstract class MessageImpl implements MessageInternal {
 
    @Override
    public Map<String, Object> toMap() {
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
 
       map.put("messageID", messageID);
       if (userID != null) {

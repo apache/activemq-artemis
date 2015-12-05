@@ -68,6 +68,6 @@ public class ThreeBrokerQueueNetworkUsingTcpTest extends ThreeBrokerQueueNetwork
    public void setUp() throws Exception {
       super.setUp();
 
-      bridges = new ArrayList<DemandForwardingBridge>();
+      bridges = new ArrayList<>();
    }
 }

@@ -73,7 +73,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert {
 
    @Test
    public void testCalculationOnMultiThread() throws Throwable {
-      final ConcurrentHashSet<Long> hashSet = new ConcurrentHashSet<Long>();
+      final ConcurrentHashSet<Long> hashSet = new ConcurrentHashSet<>();
 
       final TimeAndCounterIDGenerator seq = new TimeAndCounterIDGenerator();
 

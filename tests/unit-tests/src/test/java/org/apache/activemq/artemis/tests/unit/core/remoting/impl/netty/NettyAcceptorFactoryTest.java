@@ -40,7 +40,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
    public void testCreateAcceptor() throws Exception {
       NettyAcceptorFactory factory = new NettyAcceptorFactory();
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       BufferHandler handler = new BufferHandler() {
 
          @Override

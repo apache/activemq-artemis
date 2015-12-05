@@ -160,7 +160,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
       Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
-      List<String> targetServersOnConnection = new ArrayList<String>();
+      List<String> targetServersOnConnection = new ArrayList<>();
 
       for (int targetNode = 0; targetNode < getNumberOfServers(); targetNode++) {
          if (targetNode == node) {
@@ -196,7 +196,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
       addServer(server);
 
-      return new Pair<ActiveMQServer, NodeManager>(server, nodeManager);
+      return new Pair<>(server, nodeManager);
    }
 
    protected ActiveMQServer setupBackupServer(final int node,
@@ -207,7 +207,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
       Configuration configuration = createBasicConfig(useSharedStorage() ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(useSharedStorage() ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
 
-      List<String> targetServersOnConnection = new ArrayList<String>();
+      List<String> targetServersOnConnection = new ArrayList<>();
 
       for (int targetNode = 0; targetNode < getNumberOfServers(); targetNode++) {
          //         if (targetNode == node)

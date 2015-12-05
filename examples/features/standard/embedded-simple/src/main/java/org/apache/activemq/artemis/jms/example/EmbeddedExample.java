@@ -53,7 +53,7 @@ public class EmbeddedExample {
       System.out.println("Started Embedded JMS Server");
 
       JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("in-vm");
       jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
       jmsServerManager.createQueue(false, "exampleQueue", null, false, "queue/exampleQueue");

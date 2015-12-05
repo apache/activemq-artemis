@@ -49,7 +49,7 @@ public class AMQ1866 extends TestCase {
 
    private static final Logger log = LoggerFactory.getLogger(ConsumerThread.class);
    private BrokerService brokerService;
-   private ArrayList<Thread> threads = new ArrayList<Thread>();
+   private ArrayList<Thread> threads = new ArrayList<>();
 
    private final String ACTIVEMQ_BROKER_BIND = "tcp://localhost:0";
    private String ACTIVEMQ_BROKER_URI;

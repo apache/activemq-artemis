@@ -722,13 +722,13 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
    static final class MockJournalFile implements JournalFile {
 
-      private final Set<Long> transactionIDs = new HashSet<Long>();
+      private final Set<Long> transactionIDs = new HashSet<>();
 
-      private final Set<Long> transactionTerminationIDs = new HashSet<Long>();
+      private final Set<Long> transactionTerminationIDs = new HashSet<>();
 
-      private final Set<Long> transactionPrepareIDs = new HashSet<Long>();
+      private final Set<Long> transactionPrepareIDs = new HashSet<>();
 
-      private final Map<JournalFile, Integer> negCounts = new HashMap<JournalFile, Integer>();
+      private final Map<JournalFile, Integer> negCounts = new HashMap<>();
 
       private int posCount;
 

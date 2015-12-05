@@ -28,7 +28,7 @@ public class FailoverPriorityTest extends FailoverClusterTestSupport {
    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
    private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
-   private final HashMap<String, String> urls = new HashMap<String, String>();
+   private final HashMap<String, String> urls = new HashMap<>();
 
    @Override
    public void setUp() throws Exception {

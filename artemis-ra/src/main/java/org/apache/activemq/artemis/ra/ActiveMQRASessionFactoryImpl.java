@@ -108,17 +108,17 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    /**
     * The sessions
     */
-   private final Set<ActiveMQRASession> sessions = new HashSet<ActiveMQRASession>();
+   private final Set<ActiveMQRASession> sessions = new HashSet<>();
 
    /**
     * The temporary queues
     */
-   private final Set<TemporaryQueue> tempQueues = new HashSet<TemporaryQueue>();
+   private final Set<TemporaryQueue> tempQueues = new HashSet<>();
 
    /**
     * The temporary topics
     */
-   private final Set<TemporaryTopic> tempTopics = new HashSet<TemporaryTopic>();
+   private final Set<TemporaryTopic> tempTopics = new HashSet<>();
 
    /**
     * Constructor

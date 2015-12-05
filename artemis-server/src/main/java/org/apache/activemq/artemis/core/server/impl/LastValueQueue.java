@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
  */
 public class LastValueQueue extends QueueImpl {
 
-   private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<SimpleString, HolderReference>();
+   private final Map<SimpleString, HolderReference> map = new ConcurrentHashMap<>();
 
    public LastValueQueue(final long persistenceID,
                          final SimpleString address,

@@ -57,7 +57,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    public static final byte TYPE = org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
 
    public static Map<String, Object> coreMaptoJMSMap(final Map<String, Object> coreMessage) {
-      Map<String, Object> jmsMessage = new HashMap<String, Object>();
+      Map<String, Object> jmsMessage = new HashMap<>();
 
       String deliveryMode = (Boolean) coreMessage.get("durable") ? "PERSISTENT" : "NON_PERSISTENT";
       byte priority = (Byte) coreMessage.get("priority");
@@ -95,7 +95,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    // Static --------------------------------------------------------
 
-   private static final HashSet<String> reservedIdentifiers = new HashSet<String>();
+   private static final HashSet<String> reservedIdentifiers = new HashSet<>();
 
    static {
       ActiveMQMessage.reservedIdentifiers.add("NULL");

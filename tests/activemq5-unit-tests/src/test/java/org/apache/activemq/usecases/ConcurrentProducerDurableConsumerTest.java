@@ -69,7 +69,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
    private final int consumerCount = 5;
    BrokerService broker;
    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
-   protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<MessageConsumer, TimedMessageListener>();
+   protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<>();
    protected MessageIdList allMessagesList = new MessageIdList();
    private final int messageSize = 1024;
 
@@ -80,7 +80,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
       TestSupport.PersistenceAdapterChoice[] kahaDb = {TestSupport.PersistenceAdapterChoice.KahaDB};
       TestSupport.PersistenceAdapterChoice[] levelDb = {TestSupport.PersistenceAdapterChoice.LevelDB};
       TestSupport.PersistenceAdapterChoice[] mem = {TestSupport.PersistenceAdapterChoice.MEM};
-      List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<TestSupport.PersistenceAdapterChoice[]>();
+      List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<>();
       choices.add(kahaDb);
       choices.add(levelDb);
       choices.add(mem);
@@ -400,7 +400,7 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
       long batchReceiptAccumulator = 0;
       long maxReceiptTime = 0;
       AtomicLong count = new AtomicLong(0);
-      Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<Integer, MessageIdList>(new HashMap<Integer, MessageIdList>());
+      Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<>(new HashMap<Integer, MessageIdList>());
 
       @Override
       public void onMessage(Message message) {

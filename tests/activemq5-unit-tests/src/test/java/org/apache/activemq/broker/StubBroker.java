@@ -23,8 +23,8 @@ import org.apache.activemq.command.ConnectionInfo;
 
 public class StubBroker extends EmptyBroker {
 
-   public LinkedList<AddConnectionData> addConnectionData = new LinkedList<AddConnectionData>();
-   public LinkedList<RemoveConnectionData> removeConnectionData = new LinkedList<RemoveConnectionData>();
+   public LinkedList<AddConnectionData> addConnectionData = new LinkedList<>();
+   public LinkedList<RemoveConnectionData> removeConnectionData = new LinkedList<>();
 
    public class AddConnectionData {
 

@@ -97,7 +97,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final long connectionTTL;
 
-   private final Set<ClientSessionInternal> sessions = new HashSet<ClientSessionInternal>();
+   private final Set<ClientSessionInternal> sessions = new HashSet<>();
 
    private final Object createSessionLock = new Object();
 
@@ -123,9 +123,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private int reconnectAttempts;
 
-   private final Set<SessionFailureListener> listeners = new ConcurrentHashSet<SessionFailureListener>();
+   private final Set<SessionFailureListener> listeners = new ConcurrentHashSet<>();
 
-   private final Set<FailoverEventListener> failoverListeners = new ConcurrentHashSet<FailoverEventListener>();
+   private final Set<FailoverEventListener> failoverListeners = new ConcurrentHashSet<>();
 
    private Connector connector;
 
@@ -222,7 +222,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       confirmationWindowWarning = new ConfirmationWindowWarning(serverLocator.getConfirmationWindowSize() < 0);
 
-      lifeCycleListeners = new HashSet<ConnectionLifeCycleListener>();
+      lifeCycleListeners = new HashSet<>();
 
       connectionReadyForWrites = true;
    }
@@ -456,7 +456,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private void closeCleanSessions(boolean close) {
       HashSet<ClientSessionInternal> sessionsToClose;
       synchronized (sessions) {
-         sessionsToClose = new HashSet<ClientSessionInternal>(sessions);
+         sessionsToClose = new HashSet<>(sessions);
       }
       // work on a copied set. the session will be removed from sessions when session.close() is
       // called
@@ -633,7 +633,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
          if (connection == null) {
             synchronized (sessions) {
-               sessionsToClose = new HashSet<ClientSessionInternal>(sessions);
+               sessionsToClose = new HashSet<>(sessions);
             }
             callFailoverListeners(FailoverEventType.FAILOVER_FAILED);
             callSessionFailureListeners(me, true, false, scaleDownTargetNodeID);
@@ -697,7 +697,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                             final boolean afterReconnect,
                                             final boolean failedOver,
                                             final String scaleDownTargetNodeID) {
-      final List<SessionFailureListener> listenersClone = new ArrayList<SessionFailureListener>(listeners);
+      final List<SessionFailureListener> listenersClone = new ArrayList<>(listeners);
 
       for (final SessionFailureListener listener : listenersClone) {
          try {
@@ -741,7 +741,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                   final ActiveMQException cause) {
       HashSet<ClientSessionInternal> sessionsToFailover;
       synchronized (sessions) {
-         sessionsToFailover = new HashSet<ClientSessionInternal>(sessions);
+         sessionsToFailover = new HashSet<>(sessions);
       }
 
       for (ClientSessionInternal session : sessionsToFailover) {
@@ -1195,7 +1195,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       private final WeakReference<PingRunnable> pingRunnable;
 
       ActualScheduledPinger(final PingRunnable runnable) {
-         pingRunnable = new WeakReference<PingRunnable>(runnable);
+         pingRunnable = new WeakReference<>(runnable);
       }
 
       @Override

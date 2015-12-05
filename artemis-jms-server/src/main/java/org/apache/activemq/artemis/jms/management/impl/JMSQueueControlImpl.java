@@ -220,7 +220,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    @Override
    public Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception {
       try {
-         Map<String, Map<String, Object>[]> returnMap = new HashMap<String, Map<String, Object>[]>();
+         Map<String, Map<String, Object>[]> returnMap = new HashMap<>();
 
          // the workingMap from the queue-control
          Map<String, Map<String, Object>[]> workingMap = coreQueueControl.listDeliveringMessages();

@@ -132,7 +132,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase {
       }
       Assert.assertEquals(0, roles.length);
 
-      Set<Role> newRoles = new HashSet<Role>();
+      Set<Role> newRoles = new HashSet<>();
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 

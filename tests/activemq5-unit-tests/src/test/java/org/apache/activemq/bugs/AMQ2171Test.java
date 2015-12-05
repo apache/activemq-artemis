@@ -43,7 +43,7 @@ public class AMQ2171Test implements Thread.UncaughtExceptionHandler {
 
    private String brokerUri;
    private String brokerUriNoPrefetch;
-   private Collection<Throwable> exceptions = new CopyOnWriteArrayList<Throwable>();
+   private Collection<Throwable> exceptions = new CopyOnWriteArrayList<>();
 
    @Before
    public void setUp() throws Exception {

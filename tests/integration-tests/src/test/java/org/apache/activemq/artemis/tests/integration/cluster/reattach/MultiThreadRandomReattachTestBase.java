@@ -297,8 +297,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -323,7 +323,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sendMessages(sessSend, producer, numMessages, threadNum);
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
@@ -375,8 +375,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -403,7 +403,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          session.start();
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
@@ -457,8 +457,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -489,7 +489,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sessSend.commit();
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
@@ -557,8 +557,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + " sub" + i);
@@ -592,7 +592,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          session.start();
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
@@ -684,8 +684,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -741,8 +741,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -800,8 +800,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -873,8 +873,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
@@ -1159,14 +1159,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
                                 final int numMessages,
                                 final int threadNum) throws Exception {
       // We make sure the messages arrive in the order they were sent from a particular producer
-      Map<ClientConsumer, Map<Integer, Integer>> counts = new HashMap<ClientConsumer, Map<Integer, Integer>>();
+      Map<ClientConsumer, Map<Integer, Integer>> counts = new HashMap<>();
 
       for (int i = 0; i < numMessages; i++) {
          for (ClientConsumer consumer : consumers) {
             Map<Integer, Integer> consumerCounts = counts.get(consumer);
 
             if (consumerCounts == null) {
-               consumerCounts = new HashMap<Integer, Integer>();
+               consumerCounts = new HashMap<>();
                counts.put(consumer, consumerCounts);
             }
 
@@ -1206,7 +1206,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       CountDownLatch latch = new CountDownLatch(1);
 
-      private final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
+      private final Map<Integer, Integer> counts = new HashMap<>();
 
       volatile String failure;
 

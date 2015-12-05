@@ -54,8 +54,8 @@ public class MessageGroupDelayedTest extends JmsTestSupport {
    BrokerService broker;
    protected TransportConnector connector;
 
-   protected HashMap<String, Integer> messageCount = new HashMap<String, Integer>();
-   protected HashMap<String, Set<String>> messageGroups = new HashMap<String, Set<String>>();
+   protected HashMap<String, Integer> messageCount = new HashMap<>();
+   protected HashMap<String, Set<String>> messageGroups = new HashMap<>();
 
    public static Test suite() {
       return suite(MessageGroupDelayedTest.class);

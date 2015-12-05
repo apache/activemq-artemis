@@ -111,8 +111,8 @@ public class AMQ3961Test {
    }
 
    public static final int MESSAGE_COUNT = 16;
-   private final List<TestServerSession> processedSessions = new LinkedList<TestServerSession>();
-   private final List<TestServerSession> committedSessions = new LinkedList<TestServerSession>();
+   private final List<TestServerSession> processedSessions = new LinkedList<>();
+   private final List<TestServerSession> committedSessions = new LinkedList<>();
 
    @Test
    public void testPrefetchInDurableSubscription() throws Exception {
@@ -162,7 +162,7 @@ public class AMQ3961Test {
 
          final LinkedList<TestServerSession> collected;
          synchronized (processedSessions) {
-            collected = new LinkedList<TestServerSession>(processedSessions);
+            collected = new LinkedList<>(processedSessions);
             processedSessions.clear();
          }
 

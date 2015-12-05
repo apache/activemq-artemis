@@ -59,7 +59,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
    @Test
    public void testFillBuffer() {
-      final ArrayList<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+      final ArrayList<ByteBuffer> buffers = new ArrayList<>();
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver {
 
@@ -128,7 +128,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
    @Test
    public void testTimingAndFlush() throws Exception {
-      final ArrayList<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+      final ArrayList<ByteBuffer> buffers = new ArrayList<>();
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver {
 

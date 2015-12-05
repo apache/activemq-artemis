@@ -60,7 +60,7 @@ public class SelectorTranslator {
 
       int matchPos = 0;
 
-      List<Integer> positions = new ArrayList<Integer>();
+      List<Integer> positions = new ArrayList<>();
 
       boolean replaceInQuotes = match.charAt(0) == quote;
 

@@ -397,7 +397,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
    @Test
    public void testConfiguration() throws Exception {
       Method[] methods = ActiveMQResourceAdapter.class.getMethods();
-      Map<String, Method> methodList = new HashMap<String, Method>();
+      Map<String, Method> methodList = new HashMap<>();
       for (Method method : methods) {
          if (method.getName().startsWith("set")) {
             methodList.put(method.getName(), method);

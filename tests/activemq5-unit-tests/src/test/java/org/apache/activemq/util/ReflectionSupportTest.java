@@ -31,9 +31,9 @@ import org.apache.activemq.command.ActiveMQTopic;
 
 public class ReflectionSupportTest extends TestCase {
 
-   List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
+   List<ActiveMQDestination> favorites = new ArrayList<>();
    String favoritesString = "[queue://test, topic://test]";
-   List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
+   List<ActiveMQDestination> nonFavorites = new ArrayList<>();
    String nonFavoritesString = "[topic://test1]";
 
    @Override
@@ -45,7 +45,7 @@ public class ReflectionSupportTest extends TestCase {
 
    public void testSetProperties() throws URISyntaxException {
       SimplePojo pojo = new SimplePojo();
-      HashMap<String, String> map = new HashMap<String, String>();
+      HashMap<String, String> map = new HashMap<>();
       map.put("age", "27");
       map.put("name", "Hiram");
       map.put("enabled", "true");

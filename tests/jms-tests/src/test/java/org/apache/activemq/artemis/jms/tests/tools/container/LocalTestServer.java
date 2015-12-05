@@ -54,7 +54,7 @@ public class LocalTestServer implements Server, Runnable {
 
    private boolean started = false;
 
-   private final HashMap<String, List<String>> allBindings = new HashMap<String, List<String>>();
+   private final HashMap<String, List<String>> allBindings = new HashMap<>();
    private JMSServerManagerImpl jmsServerManager;
 
    // Static ---------------------------------------------------------------------------------------
@@ -269,10 +269,10 @@ public class LocalTestServer implements Server, Runnable {
                                        final int dupsOkBatchSize,
                                        final boolean blockOnAcknowledge,
                                        final String... jndiBindings) throws Exception {
-      List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
-      ArrayList<String> connectors = new ArrayList<String>();
+      ArrayList<String> connectors = new ArrayList<>();
       connectors.add("netty");
 
       getJMSServerManager().createConnectionFactory(objectName, false, type, connectors, clientId, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, prefetchSize, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, blockOnAcknowledge, true, true, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, dupsOkBatchSize, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, jndiBindings);
@@ -358,7 +358,7 @@ public class LocalTestServer implements Server, Runnable {
       ObjectName objectName = ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(s);
       TopicControl topic = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), objectName, TopicControl.class, false);
       Object[] subInfos = topic.listAllSubscriptions();
-      List<String> subs = new ArrayList<String>();
+      List<String> subs = new ArrayList<>();
       for (Object o : subInfos) {
          Object[] data = (Object[]) o;
          subs.add((String) data[2]);

@@ -45,7 +45,7 @@ public class DestinationListenerTest extends EmbeddedBrokerTestSupport implement
    protected ActiveMQConnection connection;
    protected ActiveMQQueue sampleQueue = new ActiveMQQueue("foo.bar");
    protected ActiveMQTopic sampleTopic = new ActiveMQTopic("cheese");
-   protected List<ActiveMQDestination> newDestinations = new ArrayList<ActiveMQDestination>();
+   protected List<ActiveMQDestination> newDestinations = new ArrayList<>();
 
    public void testDestiationSourceHasInitialDestinations() throws Exception {
       Thread.sleep(1000);

@@ -33,7 +33,7 @@ public class FakeConsumer implements Consumer {
 
    private int delayCountdown = 0;
 
-   private final LinkedList<MessageReference> references = new LinkedList<MessageReference>();
+   private final LinkedList<MessageReference> references = new LinkedList<>();
 
    private final Filter filter;
 

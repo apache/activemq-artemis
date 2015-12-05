@@ -110,7 +110,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      HashMap<String, Object> httpAcceptorParams = new HashMap<String, Object>();
+      HashMap<String, Object> httpAcceptorParams = new HashMap<>();
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
       httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
@@ -122,7 +122,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
       server.start();
 
-      HashMap<String, Object> httpConnectorParams = new HashMap<String, Object>();
+      HashMap<String, Object> httpConnectorParams = new HashMap<>();
       httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
       if (useSSL) {

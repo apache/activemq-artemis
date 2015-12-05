@@ -37,7 +37,7 @@ public class StompUtils {
    // Static --------------------------------------------------------
 
    public static void copyStandardHeadersFromFrameToMessage(StompFrame frame, ServerMessageImpl msg) throws Exception {
-      Map<String, String> headers = new HashMap<String, String>(frame.getHeadersMap());
+      Map<String, String> headers = new HashMap<>(frame.getHeadersMap());
 
       String priority = headers.remove(Stomp.Headers.Send.PRIORITY);
       if (priority != null) {

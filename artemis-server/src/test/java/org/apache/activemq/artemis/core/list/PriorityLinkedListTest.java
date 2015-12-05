@@ -79,7 +79,7 @@ public final class PriorityLinkedListTest extends Assert {
    private PriorityLinkedListImpl<Wibble> list;
 
    protected PriorityLinkedListImpl<Wibble> getList() {
-      return new PriorityLinkedListImpl<Wibble>(10);
+      return new PriorityLinkedListImpl<>(10);
    }
 
    @Before

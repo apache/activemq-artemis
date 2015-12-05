@@ -1817,7 +1817,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
@@ -1944,7 +1944,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
@@ -2238,7 +2238,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);

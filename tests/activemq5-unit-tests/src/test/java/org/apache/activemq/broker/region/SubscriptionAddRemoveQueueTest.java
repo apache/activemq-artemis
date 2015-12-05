@@ -69,7 +69,7 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
    Queue queue;
 
    ConsumerInfo info = new ConsumerInfo();
-   List<SimpleImmediateDispatchSubscription> subs = new ArrayList<SimpleImmediateDispatchSubscription>();
+   List<SimpleImmediateDispatchSubscription> subs = new ArrayList<>();
    ConnectionContext context = new ConnectionContext();
    ProducerBrokerExchange producerBrokerExchange = new ProducerBrokerExchange();
    ProducerInfo producerInfo = new ProducerInfo();
@@ -354,7 +354,7 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
 
       @Override
       public List<MessageReference> remove(ConnectionContext context, Destination destination) throws Exception {
-         return new ArrayList<MessageReference>(dispatched);
+         return new ArrayList<>(dispatched);
       }
 
       @Override

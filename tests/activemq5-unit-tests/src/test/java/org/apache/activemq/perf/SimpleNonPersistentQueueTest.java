@@ -64,7 +64,7 @@ public class SimpleNonPersistentQueueTest extends SimpleQueueTest {
    @Override
    protected void configureBroker(BrokerService answer, String uri) throws Exception {
       // answer.setPersistent(false);
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setQueue(">");
       entry.setMemoryLimit(1024 * 1024 * 1); // Set to 1 MB

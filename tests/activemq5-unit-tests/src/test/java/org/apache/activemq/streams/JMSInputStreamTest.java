@@ -121,7 +121,7 @@ public class JMSInputStreamTest extends JmsTestSupport {
       String name2 = "PROPERTY_2";
       String value1 = "VALUE_1";
       String value2 = "VALUE_2";
-      Map<String, Object> jmsProperties = new HashMap<String, Object>();
+      Map<String, Object> jmsProperties = new HashMap<>();
       jmsProperties.put(name1, value1);
       jmsProperties.put(name2, value2);
       setUpConnection(jmsProperties, -1);
@@ -157,7 +157,7 @@ public class JMSInputStreamTest extends JmsTestSupport {
       String name2 = "PROPERTY_2";
       String value1 = "VALUE_1";
       String value2 = "VALUE_2";
-      Map<String, Object> jmsProperties = new HashMap<String, Object>();
+      Map<String, Object> jmsProperties = new HashMap<>();
       jmsProperties.put(name1, value1);
       jmsProperties.put(name2, value2);
 

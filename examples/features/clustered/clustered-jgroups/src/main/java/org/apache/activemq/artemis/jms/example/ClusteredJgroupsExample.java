@@ -42,7 +42,7 @@ public class ClusteredJgroupsExample {
 
       try {
          // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         Hashtable<String, Object> properties = new Hashtable<>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
@@ -55,7 +55,7 @@ public class ClusteredJgroupsExample {
          ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 1
-         properties = new Hashtable<String, Object>();
+         properties = new Hashtable<>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          ic1 = new InitialContext(properties);

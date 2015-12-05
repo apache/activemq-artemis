@@ -33,7 +33,7 @@ public class UUIDTest extends ActiveMQTestBase {
 
    @Test
    public void testManyUUIDs() throws Exception {
-      Set<String> uuidsSet = new HashSet<String>();
+      Set<String> uuidsSet = new HashSet<>();
 
       UUIDGenerator gen = UUIDGenerator.getInstance();
       for (int i = 0; i < getTimes(); i++) {

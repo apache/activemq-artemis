@@ -60,9 +60,9 @@ public class NonBlockingConsumerRedeliveryTest {
    @Test
    public void testMessageDeleiveredWhenNonBlockingEnabled() throws Exception {
 
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
+      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<>();
+      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<>();
 
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -112,9 +112,9 @@ public class NonBlockingConsumerRedeliveryTest {
    @Test
    public void testMessageDeleiveredInCorrectOrder() throws Exception {
 
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
+      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<>();
+      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<>();
 
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -178,9 +178,9 @@ public class NonBlockingConsumerRedeliveryTest {
    @Test
    public void testMessageDeleiveryDoesntStop() throws Exception {
 
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
+      final LinkedHashSet<Message> beforeRollback = new LinkedHashSet<>();
+      final LinkedHashSet<Message> afterRollback = new LinkedHashSet<>();
 
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -229,7 +229,7 @@ public class NonBlockingConsumerRedeliveryTest {
 
    @Test
    public void testNonBlockingMessageDeleiveryIsDelayed() throws Exception {
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
 
       ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
       connection.getRedeliveryPolicy().setInitialRedeliveryDelay(TimeUnit.SECONDS.toMillis(6));
@@ -271,7 +271,7 @@ public class NonBlockingConsumerRedeliveryTest {
 
    @Test
    public void testNonBlockingMessageDeleiveryWithRollbacks() throws Exception {
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
 
       ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
       final Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -343,8 +343,8 @@ public class NonBlockingConsumerRedeliveryTest {
 
    @Test
    public void testNonBlockingMessageDeleiveryWithAllRolledBack() throws Exception {
-      final LinkedHashSet<Message> received = new LinkedHashSet<Message>();
-      final LinkedHashSet<Message> dlqed = new LinkedHashSet<Message>();
+      final LinkedHashSet<Message> received = new LinkedHashSet<>();
+      final LinkedHashSet<Message> dlqed = new LinkedHashSet<>();
 
       ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
       connection.getRedeliveryPolicy().setMaximumRedeliveries(5);

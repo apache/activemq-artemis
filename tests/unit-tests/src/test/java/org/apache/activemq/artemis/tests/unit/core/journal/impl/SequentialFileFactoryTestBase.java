@@ -73,7 +73,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
    @Test
    public void testCreateAndListFiles() throws Exception {
-      List<String> expectedFiles = new ArrayList<String>();
+      List<String> expectedFiles = new ArrayList<>();
 
       final int numFiles = 10;
 

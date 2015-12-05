@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.rest.util.TimeoutTask;
 
 public class ConsumersResource implements TimeoutTask.Callback {
 
-   protected ConcurrentMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<String, QueueConsumer>();
+   protected ConcurrentMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected final String startup = Long.toString(System.currentTimeMillis());

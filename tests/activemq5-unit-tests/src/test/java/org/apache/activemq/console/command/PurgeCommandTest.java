@@ -237,7 +237,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_WITH_PROPERTY);
 
@@ -263,7 +263,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX);
 
@@ -314,7 +314,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX_SQL_AND);
 
@@ -352,7 +352,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX_SQL_OR);
 
@@ -403,7 +403,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add("(XTestProperty LIKE '1:*') AND (JMSPriority>3)");
 

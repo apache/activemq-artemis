@@ -130,7 +130,7 @@ public final class ChannelImpl implements Channel {
       this.confWindowSize = confWindowSize;
 
       if (confWindowSize != -1) {
-         resendCache = new ConcurrentLinkedQueue<Packet>();
+         resendCache = new ConcurrentLinkedQueue<>();
       }
       else {
          resendCache = null;

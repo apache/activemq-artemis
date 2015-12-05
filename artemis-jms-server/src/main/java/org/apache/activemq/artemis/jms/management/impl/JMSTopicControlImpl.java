@@ -260,7 +260,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
    private Object[] listSubscribersInfos(final DurabilityType durability) {
       List<QueueControl> queues = getQueues(durability);
-      List<Object[]> subInfos = new ArrayList<Object[]>(queues.size());
+      List<Object[]> subInfos = new ArrayList<>(queues.size());
 
       for (QueueControl queue : queues) {
          String clientID = null;
@@ -342,7 +342,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
    private List<QueueControl> getQueues(final DurabilityType durability) {
       try {
-         List<QueueControl> matchingQueues = new ArrayList<QueueControl>();
+         List<QueueControl> matchingQueues = new ArrayList<>();
          String[] queues = addressControl.getQueueNames();
          for (String queue : queues) {
             QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue);

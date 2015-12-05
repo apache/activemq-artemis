@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class StubTransportListener implements TransportListener {
 
-   private final Queue<Object> commands = new ConcurrentLinkedQueue<Object>();
-   private final Queue<Object> exceptions = new ConcurrentLinkedQueue<Object>();
+   private final Queue<Object> commands = new ConcurrentLinkedQueue<>();
+   private final Queue<Object> exceptions = new ConcurrentLinkedQueue<>();
 
    public Queue<Object> getCommands() {
       return commands;

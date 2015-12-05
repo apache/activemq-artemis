@@ -49,9 +49,9 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
    private final Filter queueFilter;
 
-   private final Set<Filter> filters = new HashSet<Filter>();
+   private final Set<Filter> filters = new HashSet<>();
 
-   private final Map<SimpleString, Integer> filterCounts = new HashMap<SimpleString, Integer>();
+   private final Map<SimpleString, Integer> filterCounts = new HashMap<>();
 
    private int consumerCount;
 

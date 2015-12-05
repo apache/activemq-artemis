@@ -87,7 +87,7 @@ public class QueueWorkerPrefetchTest extends TestCase implements MessageListener
     */
    private final AtomicLong acksReceived = new AtomicLong(0);
 
-   private final AtomicReference<CountDownLatch> latch = new AtomicReference<CountDownLatch>();
+   private final AtomicReference<CountDownLatch> latch = new AtomicReference<>();
 
    private String connectionUri;
 

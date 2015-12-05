@@ -77,7 +77,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
    protected TransportConfiguration generateTC(String debug) {
       String className = "org.foo.bar." + debug + "|" + UUIDGenerator.getInstance().generateStringUUID() + "";
       String name = UUIDGenerator.getInstance().generateStringUUID();
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(UUIDGenerator.getInstance().generateStringUUID(), 123);
       params.put(UUIDGenerator.getInstance().generateStringUUID(), UUIDGenerator.getInstance().generateStringUUID());
       params.put(UUIDGenerator.getInstance().generateStringUUID(), true);
@@ -99,7 +99,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
                                                       List<DiscoveryEntry> actual) {
       assertNotNull(actual);
 
-      List<TransportConfiguration> sortedExpected = new ArrayList<TransportConfiguration>(expected);
+      List<TransportConfiguration> sortedExpected = new ArrayList<>(expected);
       Collections.sort(sortedExpected, new Comparator<TransportConfiguration>() {
 
          @Override
@@ -107,7 +107,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
             return o2.toString().compareTo(o1.toString());
          }
       });
-      List<DiscoveryEntry> sortedActual = new ArrayList<DiscoveryEntry>(actual);
+      List<DiscoveryEntry> sortedActual = new ArrayList<>(actual);
       Collections.sort(sortedActual, new Comparator<DiscoveryEntry>() {
          @Override
          public int compare(DiscoveryEntry o1, DiscoveryEntry o2) {

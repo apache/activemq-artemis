@@ -54,7 +54,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
    private Connection conn;
 
    private ActiveMQConnectionFactory jbcf;
-   private final Set<ActiveMQConnectionFactory> connectionFactories = new HashSet<ActiveMQConnectionFactory>();
+   private final Set<ActiveMQConnectionFactory> connectionFactories = new HashSet<>();
 
    @Override
    @Before

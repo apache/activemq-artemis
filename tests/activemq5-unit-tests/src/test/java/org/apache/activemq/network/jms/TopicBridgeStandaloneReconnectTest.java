@@ -51,7 +51,7 @@ public class TopicBridgeStandaloneReconnectTest {
    private Destination outbound;
    private Destination inbound;
 
-   private final ArrayList<Connection> connections = new ArrayList<Connection>();
+   private final ArrayList<Connection> connections = new ArrayList<>();
 
    @Test
    public void testSendAndReceiveOverConnectedBridges() throws Exception {

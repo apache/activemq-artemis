@@ -41,7 +41,7 @@ public class MessageIdList extends Assert implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(MessageIdList.class);
 
-   private final List<String> messageIds = new ArrayList<String>();
+   private final List<String> messageIds = new ArrayList<>();
    private final Object semaphore;
    private boolean verbose;
    private MessageListener parent;
@@ -86,7 +86,7 @@ public class MessageIdList extends Assert implements MessageListener {
     */
    public List<String> flushMessages() {
       synchronized (semaphore) {
-         List<String> answer = new ArrayList<String>(messageIds);
+         List<String> answer = new ArrayList<>(messageIds);
          messageIds.clear();
          return answer;
       }
@@ -94,7 +94,7 @@ public class MessageIdList extends Assert implements MessageListener {
 
    public synchronized List<String> getMessageIds() {
       synchronized (semaphore) {
-         return new ArrayList<String>(messageIds);
+         return new ArrayList<>(messageIds);
       }
    }
 

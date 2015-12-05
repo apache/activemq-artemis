@@ -373,7 +373,7 @@ public class ConsumerTest extends ActiveMQTestBase {
    @Test
    public void testReceiveAndResend() throws Exception {
 
-      final Set<Object> sessions = new ConcurrentHashSet<Object>();
+      final Set<Object> sessions = new ConcurrentHashSet<>();
       final AtomicInteger errors = new AtomicInteger(0);
 
       final SimpleString QUEUE_RESPONSE = SimpleString.toSimpleString("QUEUE_RESPONSE");

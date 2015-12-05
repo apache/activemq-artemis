@@ -39,7 +39,7 @@ public class MBeanInfoHelper {
    // Public --------------------------------------------------------
 
    public static MBeanOperationInfo[] getMBeanOperationsInfo(final Class mbeanInterface) {
-      List<MBeanOperationInfo> operations = new ArrayList<MBeanOperationInfo>();
+      List<MBeanOperationInfo> operations = new ArrayList<>();
 
       for (Method method : mbeanInterface.getMethods()) {
          if (!MBeanInfoHelper.isGetterMethod(method) && !MBeanInfoHelper.isSetterMethod(method) &&

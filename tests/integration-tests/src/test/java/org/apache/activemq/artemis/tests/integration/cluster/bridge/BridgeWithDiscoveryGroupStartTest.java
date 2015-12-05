@@ -70,10 +70,10 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
    @Test
    public void testStartStop() throws Exception {
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", TransportConstants.DEFAULT_PORT + 1);
       }
@@ -83,7 +83,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
       ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
       ServerLocator locator = null;
       try {
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         Map<String, TransportConfiguration> connectors = new HashMap<>();
          TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
          TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
          connectors.put(server1tc.getName(), server1tc);
@@ -98,7 +98,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          final String groupAddress = getUDPDiscoveryAddress();
          final int port = getUDPDiscoveryPort();
 
-         ArrayList<String> list = new ArrayList<String>();
+         ArrayList<String> list = new ArrayList<>();
          list.add(server1tc.getName());
 
          UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
@@ -113,21 +113,21 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
          final String bridgeName = "bridge1";
 
-         ArrayList<String> staticConnectors = new ArrayList<String>();
+         ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
          server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
          CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
          CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 

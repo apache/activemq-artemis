@@ -314,7 +314,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public Enumeration getMapNames() throws JMSException {
       Set<SimpleString> simplePropNames = map.getPropertyNames();
-      Set<String> propNames = new HashSet<String>(simplePropNames.size());
+      Set<String> propNames = new HashSet<>(simplePropNames.size());
 
       for (SimpleString str : simplePropNames) {
          propNames.add(str.toString());

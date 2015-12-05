@@ -117,7 +117,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final StorageManager storageManager;
 
-   protected final java.util.Queue<MessageReference> deliveringRefs = new ConcurrentLinkedQueue<MessageReference>();
+   protected final java.util.Queue<MessageReference> deliveringRefs = new ConcurrentLinkedQueue<>();
 
    private final SessionCallback callback;
 
@@ -260,7 +260,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public List<MessageReference> getDeliveringMessages() {
-      List<MessageReference> refs = new LinkedList<MessageReference>();
+      List<MessageReference> refs = new LinkedList<>();
       synchronized (lock) {
          List<MessageReference> refsOnConsumer = session.getInTXMessagesForConsumer(this.id);
          if (refsOnConsumer != null) {
@@ -529,7 +529,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          largeMessageDeliverer = null;
       }
 
-      LinkedList<MessageReference> refs = new LinkedList<MessageReference>();
+      LinkedList<MessageReference> refs = new LinkedList<>();
 
       synchronized (lock) {
          if (!deliveringRefs.isEmpty()) {

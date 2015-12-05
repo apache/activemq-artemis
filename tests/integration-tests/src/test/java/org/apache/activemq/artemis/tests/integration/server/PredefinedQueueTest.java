@@ -68,7 +68,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       CoreQueueConfiguration queue3 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName3);
 
-      List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfs = new ArrayList<>();
 
       queueConfs.add(queue1);
       queueConfs.add(queue2);
@@ -287,7 +287,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       CoreQueueConfiguration queue2 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName2);
 
-      List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfs = new ArrayList<>();
 
       queueConfs.add(queue1);
       queueConfs.add(queue2);

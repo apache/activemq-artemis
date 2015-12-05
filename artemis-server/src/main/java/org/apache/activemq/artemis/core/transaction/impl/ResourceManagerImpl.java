@@ -36,9 +36,9 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class ResourceManagerImpl implements ResourceManager {
 
-   private final ConcurrentMap<Xid, Transaction> transactions = new ConcurrentHashMap<Xid, Transaction>();
+   private final ConcurrentMap<Xid, Transaction> transactions = new ConcurrentHashMap<>();
 
-   private final List<HeuristicCompletionHolder> heuristicCompletions = new ArrayList<HeuristicCompletionHolder>();
+   private final List<HeuristicCompletionHolder> heuristicCompletions = new ArrayList<>();
 
    private final int defaultTimeoutSeconds;
 
@@ -113,7 +113,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
    @Override
    public List<Xid> getPreparedTransactions() {
-      List<Xid> xids = new ArrayList<Xid>();
+      List<Xid> xids = new ArrayList<>();
 
       for (Map.Entry<Xid, Transaction> entry : transactions.entrySet()) {
          if (entry.getValue().getState() == Transaction.State.PREPARED) {
@@ -125,7 +125,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
    @Override
    public Map<Xid, Long> getPreparedTransactionsWithCreationTime() {
-      Map<Xid, Long> xidsWithCreationTime = new HashMap<Xid, Long>();
+      Map<Xid, Long> xidsWithCreationTime = new HashMap<>();
 
       for (Map.Entry<Xid, Transaction> entry : transactions.entrySet()) {
          xidsWithCreationTime.put(entry.getKey(), entry.getValue().getCreateTime());
@@ -162,7 +162,7 @@ public class ResourceManagerImpl implements ResourceManager {
    }
 
    private List<Xid> getHeuristicCompletedTransactions(final boolean isCommit) {
-      List<Xid> xids = new ArrayList<Xid>();
+      List<Xid> xids = new ArrayList<>();
       for (HeuristicCompletionHolder holder : heuristicCompletions) {
          if (holder.isCommit == isCommit) {
             xids.add(holder.xid);
@@ -183,7 +183,7 @@ public class ResourceManagerImpl implements ResourceManager {
             return;
          }
 
-         Set<Transaction> timedoutTransactions = new HashSet<Transaction>();
+         Set<Transaction> timedoutTransactions = new HashSet<>();
 
          long now = System.currentTimeMillis();
 

@@ -75,11 +75,11 @@ public class NestedMapAndListPropertyTest extends JmsTopicSendReceiveWithTwoConn
 
       answer.setStringProperty("textField", data[index]);
 
-      Map<String, Object> grandChildMap = new HashMap<String, Object>();
+      Map<String, Object> grandChildMap = new HashMap<>();
       grandChildMap.put("x", "abc");
       grandChildMap.put("y", Arrays.asList(new Object[]{"a", "b", "c"}));
 
-      Map<String, Object> nestedMap = new HashMap<String, Object>();
+      Map<String, Object> nestedMap = new HashMap<>();
       nestedMap.put("a", "foo");
       nestedMap.put("b", new Integer(23));
       nestedMap.put("c", new Long(45));

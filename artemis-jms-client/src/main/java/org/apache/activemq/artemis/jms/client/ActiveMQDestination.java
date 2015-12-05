@@ -202,7 +202,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          throw new JMSRuntimeException("Invalid message queue name: " + queueName);
       }
 
-      Pair<String, String> pair = new Pair<String, String>(parts[0].toString(), parts[1].toString());
+      Pair<String, String> pair = new Pair<>(parts[0].toString(), parts[1].toString());
 
       return pair;
    }

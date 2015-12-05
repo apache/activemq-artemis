@@ -622,7 +622,7 @@ public class PagingStoreImpl implements PagingStore {
 
    }
 
-   private final Queue<OurRunnable> onMemoryFreedRunnables = new ConcurrentLinkedQueue<OurRunnable>();
+   private final Queue<OurRunnable> onMemoryFreedRunnables = new ConcurrentLinkedQueue<>();
 
    private class MemoryFreedRunnablesExecutor implements Runnable {
 
@@ -929,7 +929,7 @@ public class PagingStoreImpl implements PagingStore {
       private final PageTransactionInfo pageTransaction;
       private final StorageManager storageManager;
       private final PagingManager pagingManager;
-      private final Set<PagingStore> usedStores = new HashSet<PagingStore>();
+      private final Set<PagingStore> usedStores = new HashSet<>();
 
       private boolean stored = false;
 
@@ -1069,7 +1069,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public Collection<Integer> getCurrentIds() throws Exception {
-      List<Integer> ids = new ArrayList<Integer>();
+      List<Integer> ids = new ArrayList<>();
       if (fileFactory != null) {
          for (String fileName : fileFactory.listFiles("page")) {
             ids.add(getPageIdFromFileName(fileName));

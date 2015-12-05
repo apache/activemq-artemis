@@ -87,7 +87,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
    private final ReentrantReadWriteLock processLock = new ReentrantReadWriteLock(true);
    private int restartCount = 0;
    private final AtomicInteger onlineCount = new AtomicInteger(0);
-   static final Vector<Throwable> exceptions = new Vector<Throwable>();
+   static final Vector<Throwable> exceptions = new Vector<>();
 
    // long form of test that found https://issues.apache.org/jira/browse/AMQ-3805
    @Ignore("short version in org.apache.activemq.usecases.DurableSubscriptionOfflineTest.testNoDuplicateOnConcurrentSendTranCommitAndActivate" + " and org.apache.activemq.usecases.DurableSubscriptionOfflineTest.testOrderOnActivateDeactivate")
@@ -292,7 +292,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
       ClientType(String... messageTypes) {
          this.messageTypes = messageTypes;
-         messageTypeSet = new HashSet<String>(Arrays.asList(messageTypes));
+         messageTypeSet = new HashSet<>(Arrays.asList(messageTypes));
 
          StringBuilder sb = new StringBuilder("TYPE in (");
          for (int i = 0; i < messageTypes.length; i++) {
@@ -333,7 +333,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
 
       private int clientRover = 0;
 
-      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<Client>();
+      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
 
       private boolean end;
 
@@ -434,7 +434,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
       private final ClientType clientType;
       private final String selector;
 
-      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<Message>();
+      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<>();
       private final HashSet<Integer> processed = CHECK_REDELIVERY ? new HashSet<Integer>(10000) : null;
 
       private ActiveMQMessageConsumer consumer = null;
@@ -702,7 +702,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
          setDaemon(true);
       }
 
-      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<String>();
+      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<>();
 
       @Override
       public void run() {
@@ -732,7 +732,7 @@ public class DurableSubProcessConcurrentCommitActivateNoDuplicateTest {
          LOG.info("Housekeeper sweeping.");
 
          int closed = 0;
-         ArrayList<String> sweeped = new ArrayList<String>();
+         ArrayList<String> sweeped = new ArrayList<>();
          try {
             for (String clientId : abandonedSubscriptions) {
                LOG.info("Sweeping out subscription of " + clientId + ".");

@@ -116,13 +116,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private final int reaperPriority;
 
-   private final ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = new ConcurrentHashMap<SimpleString, DuplicateIDCache>();
+   private final ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = new ConcurrentHashMap<>();
 
    private final int idCacheSize;
 
    private final boolean persistIDCache;
 
-   private final Map<SimpleString, QueueInfo> queueInfos = new HashMap<SimpleString, QueueInfo>();
+   private final Map<SimpleString, QueueInfo> queueInfos = new HashMap<>();
 
    private final Object notificationLock = new Object();
 
@@ -311,7 +311,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                   List<SimpleString> filterStrings = info.getFilterStrings();
 
                   if (filterStrings == null) {
-                     filterStrings = new ArrayList<SimpleString>();
+                     filterStrings = new ArrayList<>();
 
                      info.setFilterStrings(filterStrings);
                   }
@@ -743,7 +743,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          queue.reload(reference);
       }
       else {
-         List<MessageReference> refs = new ArrayList<MessageReference>(1);
+         List<MessageReference> refs = new ArrayList<>(1);
 
          refs.add(reference);
 
@@ -773,7 +773,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          boolean routed = bindings.redistribute(copyRedistribute, originatingQueue, context);
 
          if (routed) {
-            return new Pair<RoutingContext, ServerMessage>(context, copyRedistribute);
+            return new Pair<>(context, copyRedistribute);
          }
       }
 
@@ -912,7 +912,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // However if the client resends the message after receiving, it needs to be removed
          if ((name.startsWith(MessageImpl.HDR_ROUTE_TO_IDS) && !name.equals(MessageImpl.HDR_ROUTE_TO_IDS)) || (name.startsWith(MessageImpl.HDR_ROUTE_TO_ACK_IDS) && !name.equals(MessageImpl.HDR_ROUTE_TO_ACK_IDS))) {
             if (valuesToRemove == null) {
-               valuesToRemove = new LinkedList<SimpleString>();
+               valuesToRemove = new LinkedList<>();
             }
             valuesToRemove.add(name);
          }
@@ -945,7 +945,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    private static class PageDelivery extends TransactionOperationAbstract {
 
-      private final Set<Queue> queues = new HashSet<Queue>();
+      private final Set<Queue> queues = new HashSet<>();
 
       public void addQueues(List<Queue> queueList) {
          queues.addAll(queueList);
@@ -972,7 +972,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public void processRoute(final ServerMessage message,
                             final RoutingContext context,
                             final boolean direct) throws Exception {
-      final List<MessageReference> refs = new ArrayList<MessageReference>();
+      final List<MessageReference> refs = new ArrayList<>();
 
       Transaction tx = context.getTransaction();
 
@@ -1124,7 +1124,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          List<Queue> durableQueues = entry.getValue().getDurableQueues();
          List<Queue> nonDurableQueues = entry.getValue().getNonDurableQueues();
 
-         final List<Queue> queues = new ArrayList<Queue>(durableQueues.size() + nonDurableQueues.size());
+         final List<Queue> queues = new ArrayList<>(durableQueues.size() + nonDurableQueues.size());
 
          queues.addAll(durableQueues);
          queues.addAll(nonDurableQueues);
@@ -1292,7 +1292,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             Map<SimpleString, Binding> nameMap = addressManager.getBindings();
 
-            List<Queue> queues = new ArrayList<Queue>();
+            List<Queue> queues = new ArrayList<>();
 
             for (Binding binding : nameMap.values()) {
                if (binding.getType() == BindingType.LOCAL_QUEUE) {

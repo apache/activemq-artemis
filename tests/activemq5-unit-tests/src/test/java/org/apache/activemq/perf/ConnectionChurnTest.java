@@ -45,7 +45,7 @@ public class ConnectionChurnTest extends TestCase {
 
    public void testPerformance() throws Exception {
       ConnectionFactory factory = createConnectionFactory();
-      List<Connection> list = new ArrayList<Connection>();
+      List<Connection> list = new ArrayList<>();
       for (int i = 0; i < CONNECTION_COUNT; i++) {
          Connection connection = factory.createConnection();
          connection.start();

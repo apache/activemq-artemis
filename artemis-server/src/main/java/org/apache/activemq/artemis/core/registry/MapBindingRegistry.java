@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 public class MapBindingRegistry implements BindingRegistry {
 
-   protected ConcurrentMap<String, Object> registry = new ConcurrentHashMap<String, Object>();
+   protected ConcurrentMap<String, Object> registry = new ConcurrentHashMap<>();
 
    @Override
    public Object lookup(String name) {

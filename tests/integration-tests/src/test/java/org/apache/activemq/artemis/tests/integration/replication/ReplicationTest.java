@@ -340,7 +340,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       final AtomicInteger lastError = new AtomicInteger(0);
 
-      final List<String> msgsResult = new ArrayList<String>();
+      final List<String> msgsResult = new ArrayList<>();
 
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -498,7 +498,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       setupServer(true);
 
-      final ArrayList<Integer> executions = new ArrayList<Integer>();
+      final ArrayList<Integer> executions = new ArrayList<>();
 
       StorageManager storage = getStorage();
       manager = liveServer.getReplicationManager();

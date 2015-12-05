@@ -36,7 +36,7 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
 
    private static SharedNioEventLoopGroup instance;
 
-   private final AtomicReference<ScheduledFuture<?>> shutdown = new AtomicReference<ScheduledFuture<?>>();
+   private final AtomicReference<ScheduledFuture<?>> shutdown = new AtomicReference<>();
    private final AtomicLong nioChannelFactoryCount = new AtomicLong();
    private final Promise<?> terminationPromise = ImmediateEventExecutor.INSTANCE.newPromise();
 

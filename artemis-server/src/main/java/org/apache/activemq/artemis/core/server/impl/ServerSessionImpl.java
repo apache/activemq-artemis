@@ -114,7 +114,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final RemotingConnection remotingConnection;
 
-   protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<Long, ServerConsumer>();
+   protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
 
    protected Transaction tx;
 
@@ -132,7 +132,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile boolean started = false;
 
-   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<SimpleString, TempQueueCleanerUpper>();
+   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
 
    protected final String name;
 
@@ -158,7 +158,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private QueueCreator queueCreator;
 
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<SimpleString, Pair<UUID, AtomicLong>>();
+   protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<>();
 
    private final long creationTime = System.currentTimeMillis();
 
@@ -311,7 +311,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public Set<ServerConsumer> getServerConsumers() {
-      Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
+      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
       return Collections.unmodifiableSet(consumersClone);
    }
 
@@ -339,7 +339,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       //putting closing of consumers outside the sync block
       //https://issues.jboss.org/browse/HORNETQ-1141
-      Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
+      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
          try {
@@ -649,7 +649,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
-      List<SimpleString> names = new ArrayList<SimpleString>();
+      List<SimpleString> names = new ArrayList<>();
 
       // make an exception for the management address (see HORNETQ-29)
       if (address.equals(managementAddress)) {
@@ -1159,7 +1159,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public List<Xid> xaGetInDoubtXids() {
-      List<Xid> xids = new ArrayList<Xid>();
+      List<Xid> xids = new ArrayList<>();
 
       xids.addAll(resourceManager.getPreparedTransactions());
       xids.addAll(resourceManager.getHeuristicCommittedTransactions());
@@ -1366,7 +1366,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void setTransferring(final boolean transferring) {
-      Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
+      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
          consumer.setTransferring(transferring);
@@ -1376,7 +1376,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public void addMetaData(String key, String data) {
       if (metaData == null) {
-         metaData = new HashMap<String, String>();
+         metaData = new HashMap<>();
       }
       metaData.put(key, data);
    }
@@ -1511,11 +1511,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses() {
-      return new HashMap<SimpleString, Pair<UUID, AtomicLong>>(targetAddressInfos);
+      return new HashMap<>(targetAddressInfos);
    }
 
    private void setStarted(final boolean s) {
-      Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
+      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
          consumer.setStarted(s);
@@ -1551,7 +1551,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                            final Transaction theTx) throws Exception {
       boolean wasStarted = started;
 
-      List<MessageReference> toCancel = new ArrayList<MessageReference>();
+      List<MessageReference> toCancel = new ArrayList<>();
 
       for (ServerConsumer consumer : consumers.values()) {
          if (wasStarted) {
@@ -1621,7 +1621,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
 
          if (value == null) {
-            targetAddressInfos.put(msg.getAddress(), new Pair<UUID, AtomicLong>(msg.getUserID(), new AtomicLong(1)));
+            targetAddressInfos.put(msg.getAddress(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
          }
          else {
             value.setA(msg.getUserID());

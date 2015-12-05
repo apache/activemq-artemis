@@ -119,7 +119,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
          return e;
       }
 
-      private final List<MessageReference> refs = new ArrayList<MessageReference>();
+      private final List<MessageReference> refs = new ArrayList<>();
 
       public List<MessageReference> getReferences() {
          return refs;

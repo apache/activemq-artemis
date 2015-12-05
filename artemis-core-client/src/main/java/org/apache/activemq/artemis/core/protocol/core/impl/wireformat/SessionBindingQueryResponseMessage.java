@@ -74,7 +74,7 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
    public void decodeRest(final ActiveMQBuffer buffer) {
       exists = buffer.readBoolean();
       int numQueues = buffer.readInt();
-      queueNames = new ArrayList<SimpleString>(numQueues);
+      queueNames = new ArrayList<>(numQueues);
       for (int i = 0; i < numQueues; i++) {
          queueNames.add(buffer.readSimpleString());
       }

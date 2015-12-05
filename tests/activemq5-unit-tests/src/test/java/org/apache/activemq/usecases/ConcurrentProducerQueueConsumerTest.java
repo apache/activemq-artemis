@@ -60,7 +60,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentProducerQueueConsumerTest.class);
 
    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
-   protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<MessageConsumer, TimedMessageListener>();
+   protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<>();
    protected MessageIdList allMessagesList = new MessageIdList();
 
    private BrokerService broker;
@@ -354,7 +354,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
       long batchReceiptAccumulator = 0;
       long maxReceiptTime = 0;
 
-      final Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<Integer, MessageIdList>(new HashMap<Integer, MessageIdList>());
+      final Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<>(new HashMap<Integer, MessageIdList>());
 
       @Override
       public void onMessage(Message message) {

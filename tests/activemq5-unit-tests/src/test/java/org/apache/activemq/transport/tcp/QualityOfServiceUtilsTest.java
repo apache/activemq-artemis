@@ -58,7 +58,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
    }
 
    public void testValidDiffServNames() {
-      Map<String, Integer> namesToExpected = new HashMap<String, Integer>();
+      Map<String, Integer> namesToExpected = new HashMap<>();
       namesToExpected.put("CS0", Integer.valueOf("000000", 2));
       namesToExpected.put("CS1", Integer.valueOf("001000", 2));
       namesToExpected.put("CS2", Integer.valueOf("010000", 2));

@@ -132,7 +132,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
          else {
             b = null;
          }
-         pair = new Pair<TransportConfiguration, TransportConfiguration>(a, b);
+         pair = new Pair<>(a, b);
          last = buffer.readBoolean();
       }
    }

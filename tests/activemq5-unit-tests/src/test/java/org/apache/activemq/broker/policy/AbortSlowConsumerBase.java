@@ -54,7 +54,7 @@ public class AbortSlowConsumerBase extends JmsMultipleClientsTestSupport impleme
    protected boolean abortConnection = false;
    protected long checkPeriod = 2 * 1000;
    protected long maxSlowDuration = 5 * 1000;
-   protected final List<Throwable> exceptions = new ArrayList<Throwable>();
+   protected final List<Throwable> exceptions = new ArrayList<>();
 
    @Override
    @Before

@@ -28,10 +28,10 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
 
    protected static final String HEADER_RECEIPT = "receipt";
 
-   protected static final Set<String> validCommands = new HashSet<String>();
+   protected static final Set<String> validCommands = new HashSet<>();
    protected String command;
-   protected List<Header> headers = new ArrayList<Header>();
-   protected Set<String> headerKeys = new HashSet<String>();
+   protected List<Header> headers = new ArrayList<>();
+   protected Set<String> headerKeys = new HashSet<>();
    protected String body;
    protected String EOL = "\n";
 

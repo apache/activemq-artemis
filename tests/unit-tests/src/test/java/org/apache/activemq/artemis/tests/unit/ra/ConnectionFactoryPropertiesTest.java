@@ -39,12 +39,12 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    private static final SortedSet<String> UNSUPPORTED_RA_PROPERTIES;
 
    static {
-      UNSUPPORTED_CF_PROPERTIES = new TreeSet<String>();
+      UNSUPPORTED_CF_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_CF_PROPERTIES.add("discoveryGroupName");
       UNSUPPORTED_CF_PROPERTIES.add("incomingInterceptorList");
       UNSUPPORTED_CF_PROPERTIES.add("outgoingInterceptorList");
 
-      UNSUPPORTED_RA_PROPERTIES = new TreeSet<String>();
+      UNSUPPORTED_RA_PROPERTIES = new TreeSet<>();
       UNSUPPORTED_RA_PROPERTIES.add("HA");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelName");
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsFile");
@@ -83,10 +83,10 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    }
 
    private static void compare(String name1, SortedSet<String> set1, String name2, SortedSet<String> set2) {
-      Set<String> onlyInSet1 = new TreeSet<String>(set1);
+      Set<String> onlyInSet1 = new TreeSet<>(set1);
       onlyInSet1.removeAll(set2);
 
-      Set<String> onlyInSet2 = new TreeSet<String>(set2);
+      Set<String> onlyInSet2 = new TreeSet<>(set2);
       onlyInSet2.removeAll(set1);
 
       if (!onlyInSet1.isEmpty() || !onlyInSet2.isEmpty()) {
@@ -97,7 +97,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    }
 
    private SortedSet<String> findAllPropertyNames(Class<?> clazz) throws Exception {
-      SortedSet<String> names = new TreeSet<String>();
+      SortedSet<String> names = new TreeSet<>();
       for (PropertyDescriptor propDesc : getBeanInfo(clazz).getPropertyDescriptors()) {
          if (propDesc == null || propDesc.getWriteMethod() == null) {
             continue;
@@ -110,22 +110,22 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testEquality() throws Exception {
       ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames1 = new ArrayList<String>();
+      List<String> connectorClassNames1 = new ArrayList<>();
       connectorClassNames1.add("myConnector");
       cfp1.setParsedConnectorClassNames(connectorClassNames1);
-      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params1 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<>();
+      Map<String, Object> params1 = new HashMap<>();
       params1.put("port", "0");
       connectionParameters1.add(params1);
       cfp1.setParsedConnectionParameters(connectionParameters1);
       cfp1.setAutoGroup(true);
 
       ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames2 = new ArrayList<String>();
+      List<String> connectorClassNames2 = new ArrayList<>();
       connectorClassNames2.add("myConnector");
       cfp2.setParsedConnectorClassNames(connectorClassNames2);
-      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params2 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<>();
+      Map<String, Object> params2 = new HashMap<>();
       params2.put("port", "0");
       connectionParameters2.add(params2);
       cfp2.setParsedConnectionParameters(connectionParameters2);
@@ -137,22 +137,22 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testInequality() throws Exception {
       ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames1 = new ArrayList<String>();
+      List<String> connectorClassNames1 = new ArrayList<>();
       connectorClassNames1.add("myConnector");
       cfp1.setParsedConnectorClassNames(connectorClassNames1);
-      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params1 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<>();
+      Map<String, Object> params1 = new HashMap<>();
       params1.put("port", "0");
       connectionParameters1.add(params1);
       cfp1.setParsedConnectionParameters(connectionParameters1);
       cfp1.setAutoGroup(true);
 
       ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames2 = new ArrayList<String>();
+      List<String> connectorClassNames2 = new ArrayList<>();
       connectorClassNames2.add("myConnector");
       cfp2.setParsedConnectorClassNames(connectorClassNames2);
-      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params2 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<>();
+      Map<String, Object> params2 = new HashMap<>();
       params2.put("port", "1");
       connectionParameters2.add(params2);
       cfp2.setParsedConnectionParameters(connectionParameters2);
@@ -164,22 +164,22 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
    @Test
    public void testInequality2() throws Exception {
       ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames1 = new ArrayList<String>();
+      List<String> connectorClassNames1 = new ArrayList<>();
       connectorClassNames1.add("myConnector");
       cfp1.setParsedConnectorClassNames(connectorClassNames1);
-      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params1 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<>();
+      Map<String, Object> params1 = new HashMap<>();
       params1.put("port", "0");
       connectionParameters1.add(params1);
       cfp1.setParsedConnectionParameters(connectionParameters1);
       cfp1.setAutoGroup(true);
 
       ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
-      List<String> connectorClassNames2 = new ArrayList<String>();
+      List<String> connectorClassNames2 = new ArrayList<>();
       connectorClassNames2.add("myConnector2");
       cfp2.setParsedConnectorClassNames(connectorClassNames2);
-      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
-      Map<String, Object> params2 = new HashMap<String, Object>();
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<>();
+      Map<String, Object> params2 = new HashMap<>();
       params2.put("port", "0");
       connectionParameters2.add(params2);
       cfp2.setParsedConnectionParameters(connectionParameters2);

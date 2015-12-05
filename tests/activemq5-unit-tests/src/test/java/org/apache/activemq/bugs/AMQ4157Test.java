@@ -55,7 +55,7 @@ public class AMQ4157Test {
    private final int parallelProducer = 20;
    private final int parallelConsumer = 100;
 
-   private final Vector<Exception> exceptions = new Vector<Exception>();
+   private final Vector<Exception> exceptions = new Vector<>();
    long toSend = 1000;
 
    @Test

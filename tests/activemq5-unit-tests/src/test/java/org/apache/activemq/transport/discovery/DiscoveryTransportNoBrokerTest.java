@@ -53,7 +53,7 @@ public class DiscoveryTransportNoBrokerTest extends CombinationTestSupport {
       broker.start();
       broker.waitUntilStarted();
 
-      Vector<String> existingNames = new Vector<String>();
+      Vector<String> existingNames = new Vector<>();
       Thread[] threads = getThreads();
       for (Thread t : threads) {
          existingNames.add(t.getName());

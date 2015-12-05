@@ -36,12 +36,12 @@ import org.apache.activemq.util.ServiceSupport;
 
 public class StubConnection implements Service {
 
-   private final BlockingQueue<Object> dispatchQueue = new LinkedBlockingQueue<Object>();
+   private final BlockingQueue<Object> dispatchQueue = new LinkedBlockingQueue<>();
    private Connection connection;
    private Transport transport;
    private boolean shuttingDown;
    private TransportListener listener;
-   public AtomicReference<Throwable> error = new AtomicReference<Throwable>();
+   public AtomicReference<Throwable> error = new AtomicReference<>();
 
    public StubConnection(BrokerService broker) throws Exception {
       this(TransportFactory.connect(broker.getVmConnectorURI()));

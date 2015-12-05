@@ -42,7 +42,7 @@ public class ActiveMQAdmin implements Admin {
    {
       try {
          // Use the jetty JNDI context since it's mutable.
-         final Hashtable<String, String> env = new Hashtable<String, String>();
+         final Hashtable<String, String> env = new Hashtable<>();
          env.put("java.naming.factory.initial", "org.eclipse.jetty.jndi.InitialContextFactory");
          env.put("java.naming.factory.url.pkgs", "org.eclipse.jetty.jndi");
          ;

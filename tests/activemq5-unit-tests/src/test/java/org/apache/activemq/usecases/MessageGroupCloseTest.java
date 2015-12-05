@@ -44,10 +44,10 @@ public class MessageGroupCloseTest extends TestCase {
 
    private int messagesSent, messagesRecvd1, messagesRecvd2, messageGroupCount, errorCountFirstForConsumer, errorCountWrongConsumerClose, errorCountDuplicateClose;
    // groupID, count
-   private HashMap<String, Integer> messageGroups1 = new HashMap<String, Integer>();
-   private HashMap<String, Integer> messageGroups2 = new HashMap<String, Integer>();
-   private HashSet<String> closedGroups1 = new HashSet<String>();
-   private HashSet<String> closedGroups2 = new HashSet<String>();
+   private HashMap<String, Integer> messageGroups1 = new HashMap<>();
+   private HashMap<String, Integer> messageGroups2 = new HashMap<>();
+   private HashSet<String> closedGroups1 = new HashSet<>();
+   private HashSet<String> closedGroups2 = new HashSet<>();
    // with the prefetch too high, this bug is not realized
    private static final String connStr = "vm://localhost?broker.persistent=false&broker.useJmx=false&jms.prefetchPolicy.all=1";
 

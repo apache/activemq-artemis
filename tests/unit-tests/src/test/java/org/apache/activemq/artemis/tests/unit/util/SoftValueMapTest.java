@@ -40,7 +40,7 @@ public class SoftValueMapTest extends ActiveMQTestBase {
       // each buffer will be 1/10th of the maxMemory
       int bufferSize = (int) (maxMemory / 100);
 
-      SoftValueHashMap<Long, Value> softCache = new SoftValueHashMap<Long, Value>(100);
+      SoftValueHashMap<Long, Value> softCache = new SoftValueHashMap<>(100);
 
       final int MAX_ELEMENTS = 1000;
 
@@ -59,7 +59,7 @@ public class SoftValueMapTest extends ActiveMQTestBase {
    public void testEvictionsLeastUsed() {
       forceGC();
 
-      SoftValueHashMap<Long, Value> softCache = new SoftValueHashMap<Long, Value>(200);
+      SoftValueHashMap<Long, Value> softCache = new SoftValueHashMap<>(200);
 
       for (long i = 0; i < 100; i++) {
          Value v = new Value(new byte[1]);
@@ -99,7 +99,7 @@ public class SoftValueMapTest extends ActiveMQTestBase {
       Value two = new Value(new byte[100]);
       Value three = new Value(new byte[100]);
 
-      SoftValueHashMap<Integer, Value> softCache = new SoftValueHashMap<Integer, Value>(2);
+      SoftValueHashMap<Integer, Value> softCache = new SoftValueHashMap<>(2);
       softCache.put(3, three);
       softCache.put(2, two);
       softCache.put(1, one);

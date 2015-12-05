@@ -87,7 +87,7 @@ public class ObjectMessageTest extends MessageTestBase {
 
    @Test
    public void testVectorOnObjectMessage() throws Exception {
-      java.util.Vector<String> vectorOnMessage = new java.util.Vector<String>();
+      java.util.Vector<String> vectorOnMessage = new java.util.Vector<>();
       vectorOnMessage.add("world!");
       ((ObjectMessage) message).setObject(vectorOnMessage);
 
@@ -104,7 +104,7 @@ public class ObjectMessageTest extends MessageTestBase {
    @Test
    public void testObjectIsolation() throws Exception {
       ObjectMessage msgTest = session.createObjectMessage();
-      ArrayList<String> list = new ArrayList<String>();
+      ArrayList<String> list = new ArrayList<>();
       list.add("hello");
       msgTest.setObject(list);
 
@@ -193,7 +193,7 @@ public class ObjectMessageTest extends MessageTestBase {
          pathIgnore = classLocation.toString();
       }
 
-      ArrayList<URL> urls = new ArrayList<URL>();
+      ArrayList<URL> urls = new ArrayList<>();
       while (tokenString.hasMoreElements()) {
          String value = tokenString.nextToken();
          URL itemLocation = new File(value).toURI().toURL();

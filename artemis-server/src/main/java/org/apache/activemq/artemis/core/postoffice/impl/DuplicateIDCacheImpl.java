@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    // ByteHolder, position
-   private final Map<ByteArrayHolder, Integer> cache = new ConcurrentHashMap<ByteArrayHolder, Integer>();
+   private final Map<ByteArrayHolder, Integer> cache = new ConcurrentHashMap<>();
 
    private final SimpleString address;
 
@@ -62,7 +62,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
       cacheSize = size;
 
-      ids = new ArrayList<Pair<ByteArrayHolder, Long>>(size);
+      ids = new ArrayList<>(size);
 
       this.storageManager = storageManager;
 
@@ -79,7 +79,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          if (count < cacheSize) {
             ByteArrayHolder bah = new ByteArrayHolder(id.getA());
 
-            Pair<ByteArrayHolder, Long> pair = new Pair<ByteArrayHolder, Long>(bah, id.getB());
+            Pair<ByteArrayHolder, Long> pair = new Pair<>(bah, id.getB());
 
             cache.put(bah, ids.size());
 
@@ -205,7 +205,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          holder.pos = pos;
       }
       else {
-         id = new Pair<ByteArrayHolder, Long>(holder, recordID >= 0 ? recordID : null);
+         id = new Pair<>(holder, recordID >= 0 ? recordID : null);
 
          ids.add(id);
 

@@ -620,7 +620,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setPasswordCodec(DefaultSensitiveStringCodec.class.getName() + ";key=anotherkey");
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> prop = new HashMap<String, String>();
+      Map<String, String> prop = new HashMap<>();
 
       prop.put("key", "anotherkey");
       codec.init(prop);

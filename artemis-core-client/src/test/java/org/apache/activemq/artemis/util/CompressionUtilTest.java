@@ -43,7 +43,7 @@ public class CompressionUtilTest extends Assert {
       AtomicLong counter = new AtomicLong(0);
       DeflaterReader reader = new DeflaterReader(inputStream, counter);
 
-      ArrayList<Integer> zipHolder = new ArrayList<Integer>();
+      ArrayList<Integer> zipHolder = new ArrayList<>();
       int b = reader.read();
 
       while (b != -1) {
@@ -79,7 +79,7 @@ public class CompressionUtilTest extends Assert {
       DeflaterReader reader = new DeflaterReader(inputStream, counter);
 
       byte[] buffer = new byte[7];
-      ArrayList<Integer> zipHolder = new ArrayList<Integer>();
+      ArrayList<Integer> zipHolder = new ArrayList<>();
 
       int n = reader.read(buffer);
       while (n != -1) {
@@ -122,7 +122,7 @@ public class CompressionUtilTest extends Assert {
       ByteArrayInputStream byteInput = new ByteArrayInputStream(zipBytes);
 
       InflaterReader inflater = new InflaterReader(byteInput);
-      ArrayList<Integer> holder = new ArrayList<Integer>();
+      ArrayList<Integer> holder = new ArrayList<>();
       int read = inflater.read();
 
       while (read != -1) {

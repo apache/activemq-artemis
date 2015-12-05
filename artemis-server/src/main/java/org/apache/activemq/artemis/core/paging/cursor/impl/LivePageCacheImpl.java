@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
  */
 public class LivePageCacheImpl implements LivePageCache {
 
-   private final List<PagedMessage> messages = new LinkedList<PagedMessage>();
+   private final List<PagedMessage> messages = new LinkedList<>();
 
    private final Page page;
 

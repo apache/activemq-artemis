@@ -49,7 +49,7 @@ public class ManagementContextXBeanConfigTest extends TestCase {
       assertEquals(2011, brokerService.getManagementContext().getConnectorPort());
       assertEquals("test.domain", brokerService.getManagementContext().getJmxDomainName());
       // Make sure the broker is registered in the right jmx domain.
-      Hashtable<String, String> map = new Hashtable<String, String>();
+      Hashtable<String, String> map = new Hashtable<>();
       map.put("type", "Broker");
       map.put("brokerName", JMXSupport.encodeObjectNamePart("localhost"));
       ObjectName on = new ObjectName("test.domain", map);
@@ -59,7 +59,7 @@ public class ManagementContextXBeanConfigTest extends TestCase {
 
    public void testSuccessAuthentication() throws Exception {
       JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:2011/jmxrmi");
-      Map<String, Object> env = new HashMap<String, Object>();
+      Map<String, Object> env = new HashMap<>();
       env.put(JMXConnector.CREDENTIALS, new String[]{"admin", "activemq"});
       JMXConnector connector = JMXConnectorFactory.connect(url, env);
       assertAuthentication(connector);

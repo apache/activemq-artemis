@@ -147,7 +147,7 @@ public class NettyAcceptor implements Acceptor {
 
    private final int nioRemotingThreads;
 
-   private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<Object, NettyServerConnection>();
+   private final ConcurrentMap<Object, NettyServerConnection> connections = new ConcurrentHashMap<>();
 
    private final Map<String, Object> configuration;
 

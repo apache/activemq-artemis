@@ -117,7 +117,7 @@ public class ConcurrentHashSetTest extends Assert {
 
    @Before
    public void setUp() throws Exception {
-      set = new ConcurrentHashSet<String>();
+      set = new ConcurrentHashSet<>();
       element = RandomUtil.randomString();
    }
 

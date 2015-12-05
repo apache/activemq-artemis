@@ -76,7 +76,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
    public void testValidateLeak() throws Throwable {
       System.out.println("location::" + getBindingsDir());
 
-      List<PagePositionImpl> positions = new ArrayList<PagePositionImpl>();
+      List<PagePositionImpl> positions = new ArrayList<>();
 
       for (int i = 0; i < 300; i++) {
          positions.add(new PagePositionImpl(3, 3));
@@ -100,7 +100,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
       // This is just to validate the rules are correctly applied on byteman
       assertEquals("You have changed something on PagePositionImpl in such way that these byteman rules are no longer working", 0, pagePosInstances.get());
 
-      final ArrayList<Exception> errors = new ArrayList<Exception>();
+      final ArrayList<Exception> errors = new ArrayList<>();
       // A backup that will be waiting to be activated
       Configuration config = createDefaultNettyConfig();
 

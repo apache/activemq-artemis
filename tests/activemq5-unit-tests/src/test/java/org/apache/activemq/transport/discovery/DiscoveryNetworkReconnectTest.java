@@ -123,7 +123,7 @@ public class DiscoveryNetworkReconnectTest {
          allowing(managementContext).registerMBean(with(any(Object.class)), with(equal(new ObjectName("Test:type=Broker,brokerName=BrokerNC,destinationType=Topic,destinationName=ActiveMQ.Advisory.MasterBroker"))));
          allowing(managementContext).registerMBean(with(any(Object.class)), with(equal(new ObjectName("Test:type=Broker,brokerName=BrokerNC,service=jobScheduler,jobSchedulerName=JMS"))));
 
-         atLeast(maxReconnects - 1).of(managementContext).registerMBean(with(any(Object.class)), with(new NetworkBridgeObjectNameMatcher<ObjectName>(new ObjectName("Test:type=Broker,brokerName=BrokerNC,connector=networkConnectors,networkConnectorName=NC,networkBridge=localhost/127.0.0.1_" + proxy.getUrl().getPort()))));
+         atLeast(maxReconnects - 1).of(managementContext).registerMBean(with(any(Object.class)), with(new NetworkBridgeObjectNameMatcher<>(new ObjectName("Test:type=Broker,brokerName=BrokerNC,connector=networkConnectors,networkConnectorName=NC,networkBridge=localhost/127.0.0.1_" + proxy.getUrl().getPort()))));
          will(new CustomAction("signal register network mbean") {
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
@@ -132,7 +132,7 @@ public class DiscoveryNetworkReconnectTest {
                return new ObjectInstance((ObjectName) invocation.getParameter(1), "discription");
             }
          });
-         atLeast(maxReconnects - 1).of(managementContext).unregisterMBean(with(new NetworkBridgeObjectNameMatcher<ObjectName>(new ObjectName("Test:type=Broker,brokerName=BrokerNC,connector=networkConnectors,networkConnectorName=NC,networkBridge=localhost/127.0.0.1_" + proxy.getUrl().getPort()))));
+         atLeast(maxReconnects - 1).of(managementContext).unregisterMBean(with(new NetworkBridgeObjectNameMatcher<>(new ObjectName("Test:type=Broker,brokerName=BrokerNC,connector=networkConnectors,networkConnectorName=NC,networkBridge=localhost/127.0.0.1_" + proxy.getUrl().getPort()))));
          will(new CustomAction("signal unregister network mbean") {
             @Override
             public Object invoke(Invocation invocation) throws Throwable {

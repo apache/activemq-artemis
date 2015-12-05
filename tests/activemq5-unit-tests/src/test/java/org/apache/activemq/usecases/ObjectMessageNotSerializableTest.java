@@ -44,7 +44,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
 
    BrokerService broker;
    AtomicInteger numReceived = new AtomicInteger(0);
-   final Vector<Throwable> exceptions = new Vector<Throwable>();
+   final Vector<Throwable> exceptions = new Vector<>();
 
    public static Test suite() {
       return suite(ObjectMessageNotSerializableTest.class);
@@ -138,7 +138,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       final MyObject obj = new MyObject("A message");
 
       final CountDownLatch consumerStarted = new CountDownLatch(3);
-      final Vector<Throwable> exceptions = new Vector<Throwable>();
+      final Vector<Throwable> exceptions = new Vector<>();
       Thread vmConsumerThread = new Thread("Consumer Thread") {
          @Override
          public void run() {

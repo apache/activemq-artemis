@@ -119,8 +119,8 @@ public class MessageGroupReconnectDistributionTest {
       final AtomicLong totalConsumed = new AtomicLong(0);
 
       ExecutorService executorService = Executors.newFixedThreadPool(numConsumers);
-      final ArrayList<AtomicLong> consumedCounters = new ArrayList<AtomicLong>(numConsumers);
-      final ArrayList<AtomicLong> batchCounters = new ArrayList<AtomicLong>(numConsumers);
+      final ArrayList<AtomicLong> consumedCounters = new ArrayList<>(numConsumers);
+      final ArrayList<AtomicLong> batchCounters = new ArrayList<>(numConsumers);
 
       for (int i = 0; i < numConsumers; i++) {
          consumedCounters.add(new AtomicLong(0L));

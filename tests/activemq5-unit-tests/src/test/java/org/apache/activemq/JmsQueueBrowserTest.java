@@ -363,7 +363,7 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       @SuppressWarnings("unchecked")
       Enumeration<Message> browserView = browser.getEnumeration();
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
       for (int i = 0; i < numMessages; i++) {
          Message m1 = consumer.receive(5000);
          assertNotNull("m1 is null for index: " + i, m1);

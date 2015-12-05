@@ -562,7 +562,7 @@ public class StompDecoder {
 
       command = null;
 
-      headers = new HashMap<String, String>();
+      headers = new HashMap<>();
 
       this.headerBytesCopyStart = -1;
 

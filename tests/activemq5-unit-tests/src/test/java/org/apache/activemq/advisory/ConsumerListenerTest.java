@@ -44,7 +44,7 @@ public class ConsumerListenerTest extends EmbeddedBrokerTestSupport implements C
    protected Session consumerSession2;
    protected int consumerCounter;
    protected ConsumerEventSource consumerEventSource;
-   protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<ConsumerEvent>(1000);
+   protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<>(1000);
    private Connection connection;
 
    public void testConsumerEvents() throws Exception {

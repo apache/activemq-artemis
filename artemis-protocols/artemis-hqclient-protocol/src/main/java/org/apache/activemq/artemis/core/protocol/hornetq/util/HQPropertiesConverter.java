@@ -33,7 +33,7 @@ public class HQPropertiesConverter {
    private static Map<SimpleString, SimpleString> amqHqDictionary;
 
    static {
-      Map<SimpleString, SimpleString> d = new HashMap<SimpleString, SimpleString>();
+      Map<SimpleString, SimpleString> d = new HashMap<>();
 
       // Add entries for outgoing messages
       d.put(new SimpleString("_HQ_ACTUAL_EXPIRY"), new SimpleString("_AMQ_ACTUAL_EXPIRY"));

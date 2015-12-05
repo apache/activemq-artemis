@@ -760,7 +760,7 @@ public class FailoverTransactionTest extends TestSupport {
       }});
       broker.start();
 
-      Vector<Connection> connections = new Vector<Connection>();
+      Vector<Connection> connections = new Vector<>();
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
       configureConnectionFactory(cf);
       Connection connection = cf.createConnection();
@@ -785,7 +785,7 @@ public class FailoverTransactionTest extends TestSupport {
       produceMessage(producerSession, destination);
       produceMessage(producerSession, destination);
 
-      final Vector<Message> receivedMessages = new Vector<Message>();
+      final Vector<Message> receivedMessages = new Vector<>();
       final CountDownLatch commitDoneLatch = new CountDownLatch(1);
       final AtomicBoolean gotTransactionRolledBackException = new AtomicBoolean(false);
       Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -924,7 +924,7 @@ public class FailoverTransactionTest extends TestSupport {
       }});
       broker.start();
 
-      Vector<Connection> connections = new Vector<Connection>();
+      Vector<Connection> connections = new Vector<>();
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
       configureConnectionFactory(cf);
       Connection connection = cf.createConnection();
@@ -941,13 +941,13 @@ public class FailoverTransactionTest extends TestSupport {
       final Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
       final int sessionCount = 10;
-      final Stack<Session> sessions = new Stack<Session>();
+      final Stack<Session> sessions = new Stack<>();
       for (int i = 0; i < sessionCount; i++) {
          sessions.push(connection.createSession(false, Session.AUTO_ACKNOWLEDGE));
       }
 
       final int consumerCount = 1000;
-      final Deque<MessageConsumer> consumers = new ArrayDeque<MessageConsumer>();
+      final Deque<MessageConsumer> consumers = new ArrayDeque<>();
       for (int i = 0; i < consumerCount; i++) {
          consumers.push(consumerSession.createConsumer(destination));
       }
@@ -1150,7 +1150,7 @@ public class FailoverTransactionTest extends TestSupport {
 
       final CountDownLatch commitDone = new CountDownLatch(1);
 
-      final Vector<Exception> exceptions = new Vector<Exception>();
+      final Vector<Exception> exceptions = new Vector<>();
 
       // commit may fail if other consumer gets the message on restart
       Executors.newSingleThreadExecutor().execute(new Runnable() {

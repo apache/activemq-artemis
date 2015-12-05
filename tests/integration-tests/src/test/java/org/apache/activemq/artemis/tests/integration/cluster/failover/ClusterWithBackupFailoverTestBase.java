@@ -286,7 +286,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    }
 
    private ClientSession[] exploreSessions(final int node) {
-      HashSet<ClientSession> sessions = new HashSet<ClientSession>();
+      HashSet<ClientSession> sessions = new HashSet<>();
 
       for (ConsumerHolder holder : consumers) {
          if (holder != null && holder.getNode() == node && holder.getSession() != null) {

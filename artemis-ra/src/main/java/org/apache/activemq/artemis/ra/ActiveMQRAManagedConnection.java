@@ -479,7 +479,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       if (xaResource == null) {
          ClientSessionInternal csi = (ClientSessionInternal) xaSession.getXAResource();
          ActiveMQRAXAResource activeMQRAXAResource = new ActiveMQRAXAResource(this, xaSession.getXAResource());
-         Map<String, Object> xaResourceProperties = new HashMap<String, Object>();
+         Map<String, Object> xaResourceProperties = new HashMap<>();
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, ra.getJndiName());
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, csi.getNodeId());
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, ActiveMQResourceAdapter.PRODUCT_NAME);

@@ -259,7 +259,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    private void debugList(boolean fail, ScheduledDeliveryHandlerImpl handler, long numberOfExpectedMessages) {
       List<MessageReference> refs = handler.getScheduledReferences();
 
-      HashSet<Long> messages = new HashSet<Long>();
+      HashSet<Long> messages = new HashSet<>();
 
       long lastTime = -1;
 

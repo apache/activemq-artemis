@@ -114,7 +114,7 @@ public class TempQueueMemoryTest extends EmbeddedBrokerTestSupport {
             }
          }
       }
-      Vector<Thread> threads = new Vector<Thread>(numProducers);
+      Vector<Thread> threads = new Vector<>(numProducers);
       for (int i = 0; i < numProducers; i++) {
          threads.add(new Producer(messagesToSend / numProducers));
       }

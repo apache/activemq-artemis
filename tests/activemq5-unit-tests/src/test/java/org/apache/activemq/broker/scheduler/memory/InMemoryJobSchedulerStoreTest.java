@@ -46,7 +46,7 @@ public class InMemoryJobSchedulerStoreTest {
       store.setDirectory(directory);
       final int NUMBER = 1000;
       store.start();
-      List<ByteSequence> list = new ArrayList<ByteSequence>();
+      List<ByteSequence> list = new ArrayList<>();
       for (int i = 0; i < NUMBER; i++) {
          ByteSequence buff = new ByteSequence(new String("testjob" + i).getBytes());
          list.add(buff);

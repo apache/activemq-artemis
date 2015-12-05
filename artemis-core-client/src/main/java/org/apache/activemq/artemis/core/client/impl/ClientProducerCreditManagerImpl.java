@@ -27,9 +27,9 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
    public static final int MAX_UNREFERENCED_CREDITS_CACHE_SIZE = 1000;
 
-   private final Map<SimpleString, ClientProducerCredits> producerCredits = new LinkedHashMap<SimpleString, ClientProducerCredits>();
+   private final Map<SimpleString, ClientProducerCredits> producerCredits = new LinkedHashMap<>();
 
-   private final Map<SimpleString, ClientProducerCredits> unReferencedCredits = new LinkedHashMap<SimpleString, ClientProducerCredits>();
+   private final Map<SimpleString, ClientProducerCredits> unReferencedCredits = new LinkedHashMap<>();
 
    private final ClientSessionInternal session;
 

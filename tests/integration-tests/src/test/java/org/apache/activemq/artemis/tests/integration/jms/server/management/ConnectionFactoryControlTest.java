@@ -95,7 +95,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase {
       JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
       this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), listener, null, null);
 
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("invm");
 
       this.jmsServerManager.createConnectionFactory("NewCF", false, JMSFactoryType.CF, connectors, "/NewConnectionFactory");

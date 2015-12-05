@@ -56,7 +56,7 @@ public class AMQ2401Test extends TestCase implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(AMQ2401Test.class);
 
-   private final ArrayList<Service> services = new ArrayList<Service>(CONSUMER_COUNT + PRODUCER_COUNT);
+   private final ArrayList<Service> services = new ArrayList<>(CONSUMER_COUNT + PRODUCER_COUNT);
    private int count = 0;
    private CountDownLatch latch;
 

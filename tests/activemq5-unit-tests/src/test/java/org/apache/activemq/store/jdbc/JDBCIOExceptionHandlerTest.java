@@ -121,7 +121,7 @@ public class JDBCIOExceptionHandlerTest extends TestCase {
       master.start();
       master.waitUntilStarted();
 
-      final AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
+      final AtomicReference<BrokerService> slave = new AtomicReference<>();
 
       Thread slaveThread = new Thread() {
          @Override

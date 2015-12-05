@@ -553,7 +553,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public Set<String> getPropertyNames() {
       try {
          Set<SimpleString> simplePropNames = properties.getPropertyNames();
-         Set<String> propNames = new HashSet<String>(simplePropNames.size());
+         Set<String> propNames = new HashSet<>(simplePropNames.size());
 
          for (SimpleString str : simplePropNames) {
             propNames.add(str.toString());

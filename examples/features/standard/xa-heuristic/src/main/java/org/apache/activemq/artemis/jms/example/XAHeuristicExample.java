@@ -51,7 +51,7 @@ public class XAHeuristicExample {
 
    public static void main(final String[] args) throws Exception {
       Boolean result = true;
-      final ArrayList<String> receiveHolder = new ArrayList<String>();
+      final ArrayList<String> receiveHolder = new ArrayList<>();
       XAConnection connection = null;
       InitialContext initialContext = null;
       try {

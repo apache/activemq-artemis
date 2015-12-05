@@ -60,7 +60,7 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       int len = buffer.readInt();
-      xids = new ArrayList<Xid>(len);
+      xids = new ArrayList<>(len);
       for (int i = 0; i < len; i++) {
          Xid xid = XidCodecSupport.decodeXid(buffer);
 

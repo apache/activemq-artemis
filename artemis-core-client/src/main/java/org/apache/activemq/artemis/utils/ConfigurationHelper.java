@@ -124,7 +124,7 @@ public class ConfigurationHelper {
    }
 
    public static Set<String> checkKeys(final Set<String> allowableKeys, final Set<String> keys) {
-      Set<String> invalid = new HashSet<String>();
+      Set<String> invalid = new HashSet<>();
 
       for (String key : keys) {
          if (!allowableKeys.contains(key)) {
@@ -135,7 +135,7 @@ public class ConfigurationHelper {
    }
 
    public static Set<String> checkKeysExist(final Set<String> requiredKeys, final Set<String> keys) {
-      Set<String> invalid = new HashSet<String>(requiredKeys);
+      Set<String> invalid = new HashSet<>(requiredKeys);
 
       for (String key : keys) {
          if (requiredKeys.contains(key)) {

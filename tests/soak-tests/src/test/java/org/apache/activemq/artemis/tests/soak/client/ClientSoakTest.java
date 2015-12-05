@@ -76,7 +76,7 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
       DivertConfiguration divert2 = new DivertConfiguration().setName("dv2").setRoutingName("nm2").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString()).setExclusive(true);
 
-      ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
+      ArrayList<DivertConfiguration> divertList = new ArrayList<>();
       divertList.add(divert1);
       divertList.add(divert2);
 

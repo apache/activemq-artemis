@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 public class JDBCIOExceptionHandlerMockeryTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(JDBCIOExceptionHandlerMockeryTest.class);
-   private HashMap<Thread, Throwable> exceptions = new HashMap<Thread, Throwable>();
+   private HashMap<Thread, Throwable> exceptions = new HashMap<>();
 
    @Test
    public void testShutdownWithoutTransportRestart() throws Exception {

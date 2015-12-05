@@ -72,7 +72,7 @@ public class TcpTransportFactory extends TransportFactory {
    @Override
    public TransportServer doBind(final URI location) throws IOException {
       try {
-         Map<String, String> options = new HashMap<String, String>(URISupport.parseParameters(location));
+         Map<String, String> options = new HashMap<>(URISupport.parseParameters(location));
 
          ServerSocketFactory serverSocketFactory = createServerSocketFactory();
          TcpTransportServer server = createTcpTransportServer(location, serverSocketFactory);

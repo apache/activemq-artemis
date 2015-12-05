@@ -85,8 +85,8 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
    final AtomicLong forwardFailures = new AtomicLong(0);
 
    protected final AtomicBoolean shutdown = new AtomicBoolean(false);
-   HashSet<NetworkConnector> networkConnectors = new HashSet<NetworkConnector>();
-   HashSet<Connection> advisoryConsumerConnections = new HashSet<Connection>();
+   HashSet<NetworkConnector> networkConnectors = new HashSet<>();
+   HashSet<Connection> advisoryConsumerConnections = new HashSet<>();
    Appender slowDownAppender;
 
    CountDownLatch consumerDemandExists;
@@ -117,7 +117,7 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
 
       waitForBridgeFormation(1);
 
-      HashSet<NetworkBridge> bridgesStart = new HashSet<NetworkBridge>();
+      HashSet<NetworkBridge> bridgesStart = new HashSet<>();
       for (NetworkConnector networkConnector : networkConnectors) {
          bridgesStart.addAll(networkConnector.activeBridges());
       }
@@ -150,7 +150,7 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
       LOG.info("shutting down");
       shutdown.compareAndSet(false, true);
 
-      HashSet<NetworkBridge> bridgesEnd = new HashSet<NetworkBridge>();
+      HashSet<NetworkBridge> bridgesEnd = new HashSet<>();
       for (NetworkConnector networkConnector : networkConnectors) {
          bridgesEnd.addAll(networkConnector.activeBridges());
       }
@@ -203,7 +203,7 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
 
       waitForBridgeFormation(1);
 
-      HashSet<NetworkBridge> bridgesStart = new HashSet<NetworkBridge>();
+      HashSet<NetworkBridge> bridgesStart = new HashSet<>();
       for (NetworkConnector networkConnector : networkConnectors) {
          bridgesStart.addAll(networkConnector.activeBridges());
       }
@@ -235,7 +235,7 @@ public class RequestReplyTempDestRemovalAdvisoryRaceTest extends JmsMultipleBrok
       LOG.info("shutting down");
       shutdown.compareAndSet(false, true);
 
-      HashSet<NetworkBridge> bridgesEnd = new HashSet<NetworkBridge>();
+      HashSet<NetworkBridge> bridgesEnd = new HashSet<>();
       for (NetworkConnector networkConnector : networkConnectors) {
          bridgesEnd.addAll(networkConnector.activeBridges());
       }

@@ -72,7 +72,7 @@ public abstract class ActiveMQServerTestCase {
     * Some testcases are time sensitive, and we need to make sure a GC would happen before certain scenarios
     */
    public static void forceGC() {
-      WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
+      WeakReference<Object> dumbReference = new WeakReference<>(new Object());
       // A loop that will wait GC, using the minimal time as possible
       while (dumbReference.get() != null) {
          System.gc();
@@ -84,7 +84,7 @@ public abstract class ActiveMQServerTestCase {
       }
    }
 
-   protected static List<Server> servers = new ArrayList<Server>();
+   protected static List<Server> servers = new ArrayList<>();
 
    protected static Topic topic1;
    protected static Topic topic2;
@@ -95,8 +95,8 @@ public abstract class ActiveMQServerTestCase {
    protected Queue queue3;
    protected Queue queue4;
 
-   private final Set<Connection> connectionsSet = new HashSet<Connection>();
-   private final Set<JMSContext> contextSet = new HashSet<JMSContext>();
+   private final Set<Connection> connectionsSet = new HashSet<>();
+   private final Set<JMSContext> contextSet = new HashSet<>();
 
    @Rule
    public TestRule watcher = new TestWatcher() {
@@ -191,7 +191,7 @@ public abstract class ActiveMQServerTestCase {
    }
 
    protected HashMap<String, Object> getConfiguration() {
-      return new HashMap<String, Object>();
+      return new HashMap<>();
    }
 
    protected void deployAndLookupAdministeredObjects() throws Exception {

@@ -44,7 +44,7 @@ public class FailoverClusterTest extends TestCase {
    private BrokerService brokerB;
    private String clientUrl;
 
-   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private final List<ActiveMQConnection> connections = new ArrayList<>();
 
    public void testClusterConnectedAfterClients() throws Exception {
       createClients();
@@ -52,7 +52,7 @@ public class FailoverClusterTest extends TestCase {
          brokerB = createBrokerB(BROKER_BIND_ADDRESS);
       }
       Thread.sleep(3000);
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          set.add(c.getTransportChannel().getRemoteAddress());
       }
@@ -66,7 +66,7 @@ public class FailoverClusterTest extends TestCase {
          brokerB = createBrokerB(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
       }
       Thread.sleep(3000);
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          set.add(c.getTransportChannel().getRemoteAddress());
       }

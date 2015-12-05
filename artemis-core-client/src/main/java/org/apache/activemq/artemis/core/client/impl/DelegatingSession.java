@@ -51,7 +51,7 @@ public class DelegatingSession implements ClientSessionInternal {
 
    private volatile boolean closed;
 
-   private static Set<DelegatingSession> sessions = new ConcurrentHashSet<DelegatingSession>();
+   private static Set<DelegatingSession> sessions = new ConcurrentHashSet<>();
 
    public static volatile boolean debug;
 

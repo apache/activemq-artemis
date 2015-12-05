@@ -69,7 +69,7 @@ public class LDAPAuthorizationMapTest extends AbstractLdapTestUnit {
    @Test
    public void testOpen() throws Exception {
       DirContext ctx = authMap.open();
-      HashSet<String> set = new HashSet<String>();
+      HashSet<String> set = new HashSet<>();
       NamingEnumeration<NameClassPair> list = ctx.list("ou=destinations,o=ActiveMQ,ou=system");
       while (list.hasMore()) {
          NameClassPair ncp = list.next();

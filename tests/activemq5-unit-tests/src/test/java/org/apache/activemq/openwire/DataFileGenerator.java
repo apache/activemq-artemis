@@ -51,7 +51,7 @@ public abstract class DataFileGenerator extends org.junit.Assert {
     */
    public static ArrayList<DataFileGenerator> getAllDataFileGenerators() throws Exception {
       // System.out.println("Looking for generators in : "+classFileDir);
-      ArrayList<DataFileGenerator> l = new ArrayList<DataFileGenerator>();
+      ArrayList<DataFileGenerator> l = new ArrayList<>();
       File[] files = CLASS_FILE_DIR.listFiles();
       for (int i = 0; files != null && i < files.length; i++) {
          File file = files[i];

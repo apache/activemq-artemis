@@ -66,8 +66,8 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
     * using the StubLoginModule
     */
    void createLoginConfig() {
-      HashMap<String, String> sslConfigOptions = new HashMap<String, String>();
-      HashMap<String, String> configOptions = new HashMap<String, String>();
+      HashMap<String, String> sslConfigOptions = new HashMap<>();
+      HashMap<String, String> configOptions = new HashMap<>();
 
       sslConfigOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, "true");
       sslConfigOptions.put(StubLoginModule.USERS_PROPERTY, DN_USERNAME);

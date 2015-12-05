@@ -86,7 +86,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    private List<PagePosition> recoveredACK;
 
-   private final SortedMap<Long, PageCursorInfo> consumedPages = new TreeMap<Long, PageCursorInfo>();
+   private final SortedMap<Long, PageCursorInfo> consumedPages = new TreeMap<>();
 
    private final PageSubscriptionCounter counter;
 
@@ -244,7 +244,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       boolean persist = false;
 
-      final ArrayList<PageCursorInfo> completedPages = new ArrayList<PageCursorInfo>();
+      final ArrayList<PageCursorInfo> completedPages = new ArrayList<>();
 
       // First get the completed pages using a lock
       synchronized (consumedPages) {
@@ -538,7 +538,7 @@ final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void reloadACK(final PagePosition position) {
       if (recoveredACK == null) {
-         recoveredACK = new LinkedList<PagePosition>();
+         recoveredACK = new LinkedList<>();
       }
 
       recoveredACK.add(position);
@@ -867,7 +867,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       private WeakReference<PageCache> cache;
 
-      private final Set<PagePosition> removedReferences = new ConcurrentHashSet<PagePosition>();
+      private final Set<PagePosition> removedReferences = new ConcurrentHashSet<>();
 
       // The page was live at the time of the creation
       private final boolean wasLive;
@@ -909,7 +909,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          this.numberOfMessages = numberOfMessages;
          if (cache != null) {
             wasLive = cache.isLive();
-            this.cache = new WeakReference<PageCache>(cache);
+            this.cache = new WeakReference<>(cache);
          }
          else {
             wasLive = false;
@@ -1011,7 +1011,7 @@ final class PageSubscriptionImpl implements PageSubscription {
             PageCache localcache = this.cache.get();
             if (localcache == null) {
                localcache = cursorProvider.getPageCache(pageId);
-               this.cache = new WeakReference<PageCache>(localcache);
+               this.cache = new WeakReference<>(localcache);
             }
 
             return localcache.getNumberOfMessages();
@@ -1025,13 +1025,13 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    private static final class PageCursorTX extends TransactionOperationAbstract {
 
-      private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions = new HashMap<PageSubscriptionImpl, List<PagePosition>>();
+      private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions = new HashMap<>();
 
       private void addPositionConfirmation(final PageSubscriptionImpl cursor, final PagePosition position) {
          List<PagePosition> list = pendingPositions.get(cursor);
 
          if (list == null) {
-            list = new LinkedList<PagePosition>();
+            list = new LinkedList<>();
             pendingPositions.put(cursor, list);
          }
 
@@ -1073,7 +1073,7 @@ final class PageSubscriptionImpl implements PageSubscription {
       private volatile PagedReference lastRedelivery = null;
 
       // We only store the position for redeliveries. They will be read from the SoftCache again during delivery.
-      private final java.util.Queue<PagePosition> redeliveries = new LinkedList<PagePosition>();
+      private final java.util.Queue<PagePosition> redeliveries = new LinkedList<>();
 
       /**
        * next element taken on hasNext test.

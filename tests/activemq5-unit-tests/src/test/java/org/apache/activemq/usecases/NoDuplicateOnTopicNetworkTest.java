@@ -238,7 +238,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
       consumerThread.join();
 
       int duplicateCount = 0;
-      Map<String, String> map = new HashMap<String, String>();
+      Map<String, String> map = new HashMap<>();
       for (String msg : consumer.getMessageStrings()) {
          if (map.containsKey(msg)) {
             LOG.info("got duplicate: " + msg);
@@ -280,7 +280,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
 
       public List<String> getMessageStrings() {
          synchronized (receivedStrings) {
-            return new ArrayList<String>(receivedStrings);
+            return new ArrayList<>(receivedStrings);
          }
       }
 

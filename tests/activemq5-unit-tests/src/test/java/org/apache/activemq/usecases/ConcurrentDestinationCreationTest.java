@@ -70,7 +70,7 @@ public class ConcurrentDestinationCreationTest extends org.apache.activemq.TestS
 
    public void testSendRateWithActivatingConsumers() throws Exception {
 
-      final Vector<Throwable> exceptions = new Vector<Throwable>();
+      final Vector<Throwable> exceptions = new Vector<>();
       final int jobs = 50;
       final int destinationCount = 10;
       final CountDownLatch allDone = new CountDownLatch(jobs);

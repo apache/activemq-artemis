@@ -50,7 +50,7 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
          src.writeBytes(data);
       }
 
-      List<ByteBuf> packets = new ArrayList<ByteBuf>();
+      List<ByteBuf> packets = new ArrayList<>();
       while (src.isReadable()) {
          int length = Math.min(ActiveMQFrameDecoder2Test.rand.nextInt(ActiveMQFrameDecoder2Test.FRAGMENT_MAX_LEN), src.readableBytes());
          packets.add(src.readBytes(length));

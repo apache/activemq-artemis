@@ -36,9 +36,9 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    // The soft references that are already good.
    // too bad there's no way to override the queue method on ReferenceQueue, so I wouldn't need this
-   private final ReferenceQueue<V> refQueue = new ReferenceQueue<V>();
+   private final ReferenceQueue<V> refQueue = new ReferenceQueue<>();
 
-   private final Map<K, AggregatedSoftReference> mapDelegate = new HashMap<K, AggregatedSoftReference>();
+   private final Map<K, AggregatedSoftReference> mapDelegate = new HashMap<>();
 
    private final AtomicLong usedCounter = new AtomicLong(0);
 
@@ -156,7 +156,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    private void checkCacheSize() {
       if (maxElements > 0 && mapDelegate.size() > maxElements) {
-         TreeSet<AggregatedSoftReference> usedReferences = new TreeSet<AggregatedSoftReference>(new ComparatorAgregated());
+         TreeSet<AggregatedSoftReference> usedReferences = new TreeSet<>(new ComparatorAgregated());
 
          for (AggregatedSoftReference ref : mapDelegate.values()) {
             V v = ref.get();
@@ -260,7 +260,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    @Override
    public Collection<V> values() {
       processQueue();
-      ArrayList<V> list = new ArrayList<V>();
+      ArrayList<V> list = new ArrayList<>();
 
       for (AggregatedSoftReference refs : mapDelegate.values()) {
          V value = refs.get();
@@ -278,11 +278,11 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    @Override
    public Set<java.util.Map.Entry<K, V>> entrySet() {
       processQueue();
-      HashSet<Map.Entry<K, V>> set = new HashSet<Map.Entry<K, V>>();
+      HashSet<Map.Entry<K, V>> set = new HashSet<>();
       for (Map.Entry<K, AggregatedSoftReference> pair : mapDelegate.entrySet()) {
          V value = pair.getValue().get();
          if (value != null) {
-            set.add(new EntryElement<K, V>(pair.getKey(), value));
+            set.add(new EntryElement<>(pair.getKey(), value));
          }
       }
       return set;

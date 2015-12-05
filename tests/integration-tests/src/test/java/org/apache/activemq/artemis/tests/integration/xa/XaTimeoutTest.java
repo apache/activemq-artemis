@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class XaTimeoutTest extends ActiveMQTestBase {
 
-   private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
+   private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
    private ActiveMQServer server;
 
@@ -462,7 +462,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
 
       clientConsumer = clientSession.createConsumer(outQueue);
 
-      HashSet<Integer> msgsIds = new HashSet<Integer>();
+      HashSet<Integer> msgsIds = new HashSet<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = clientConsumer.receive(1000);

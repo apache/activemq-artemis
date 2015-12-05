@@ -232,8 +232,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -290,7 +290,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
          }
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
@@ -335,8 +335,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 50;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -388,7 +388,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
          }
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
@@ -435,8 +435,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 1;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -504,7 +504,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
          }
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
@@ -576,8 +576,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -639,7 +639,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
          }
       }
 
-      Set<MyHandler> handlers = new HashSet<MyHandler>();
+      Set<MyHandler> handlers = new HashSet<>();
 
       for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
@@ -713,8 +713,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -789,8 +789,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -873,8 +873,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -985,8 +985,8 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       final int numSessions = 10;
 
-      Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
-      Set<ClientSession> sessions = new HashSet<ClientSession>();
+      Set<ClientConsumer> consumers = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
@@ -1304,7 +1304,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
          }
       }
 
-      private final ArrayList<AssertionError> errors = new ArrayList<AssertionError>();
+      private final ArrayList<AssertionError> errors = new ArrayList<>();
 
       /* (non-Javadoc)
        * @see MessageHandler#onMessage(ClientMessage)

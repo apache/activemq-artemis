@@ -85,6 +85,6 @@ public class MultiBrokersMultiClientsUsingTcpTest extends MultiBrokersMultiClien
          i.next().broker.addConnector("tcp://localhost:" + (61616 + j++));
       }
 
-      bridges = new ArrayList<DemandForwardingBridge>();
+      bridges = new ArrayList<>();
    }
 }

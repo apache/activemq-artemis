@@ -460,7 +460,7 @@ public class Create extends InputAbstract {
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
-      HashMap<String, String> filters = new HashMap<String, String>();
+      HashMap<String, String> filters = new HashMap<>();
 
       filters.put("${master-slave}", isSlave() ? "slave" : "master");
 
@@ -681,7 +681,7 @@ public class Create extends InputAbstract {
 
             String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
 
-            HashMap<String, String> syncFilter = new HashMap<String, String>();
+            HashMap<String, String> syncFilter = new HashMap<>();
             syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
             syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
 

@@ -90,9 +90,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private transient String identity;
 
-   private final Set<ClientSessionFactoryInternal> factories = new HashSet<ClientSessionFactoryInternal>();
+   private final Set<ClientSessionFactoryInternal> factories = new HashSet<>();
 
-   private final Set<ClientSessionFactoryInternal> connectingFactories = new HashSet<ClientSessionFactoryInternal>();
+   private final Set<ClientSessionFactoryInternal> connectingFactories = new HashSet<>();
 
    private volatile TransportConfiguration[] initialConnectors;
 
@@ -183,9 +183,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private transient STATE state;
    private transient CountDownLatch latch;
 
-   private final List<Interceptor> incomingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+   private final List<Interceptor> incomingInterceptors = new CopyOnWriteArrayList<>();
 
-   private final List<Interceptor> outgoingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+   private final List<Interceptor> outgoingInterceptors = new CopyOnWriteArrayList<>();
 
    private static ExecutorService globalThreadPool;
 
@@ -1427,7 +1427,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       Set<ClientSessionFactoryInternal> clonedFactory;
       synchronized (factories) {
-         clonedFactory = new HashSet<ClientSessionFactoryInternal>(factories);
+         clonedFactory = new HashSet<>(factories);
 
          factories.clear();
       }
@@ -1536,7 +1536,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       TopologyMember actMember = topology.getMember(nodeID);
 
       if (actMember != null && actMember.getLive() != null && actMember.getBackup() != null) {
-         HashSet<ClientSessionFactory> clonedFactories = new HashSet<ClientSessionFactory>();
+         HashSet<ClientSessionFactory> clonedFactories = new HashSet<>();
          synchronized (factories) {
             clonedFactories.addAll(factories);
          }
@@ -1802,7 +1802,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
             }
          }
-         connectors = new ArrayList<Connector>();
+         connectors = new ArrayList<>();
          if (initialConnectors != null) {
             for (TransportConfiguration initialConnector : initialConnectors) {
                ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, callTimeout, callFailoverTimeout, clientFailureCheckPeriod, connectionTTL, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);

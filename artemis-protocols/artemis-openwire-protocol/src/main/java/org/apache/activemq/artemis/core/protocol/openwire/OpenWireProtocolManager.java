@@ -119,19 +119,19 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    // from broker
    protected final Map<ConnectionId, OpenWireConnection> brokerConnectionStates = Collections.synchronizedMap(new HashMap<ConnectionId, OpenWireConnection>());
 
-   private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<OpenWireConnection>();
+   private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   protected final ConcurrentMap<ConnectionId, ConnectionInfo> connectionInfos = new ConcurrentHashMap<ConnectionId, ConnectionInfo>();
+   protected final ConcurrentMap<ConnectionId, ConnectionInfo> connectionInfos = new ConcurrentHashMap<>();
 
-   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<String, AMQConnectionContext>();
+   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<>();
 
    private String brokerName;
 
-   private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<SessionId, AMQSession>();
+   private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
 
-   private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<TransactionId, AMQSession>();
+   private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<>();
 
-   private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<String, SessionId>();
+   private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
 
    private final ScheduledExecutorService scheduledPool;
 
@@ -649,7 +649,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    }
 
    public TransactionId[] recoverTransactions(Set<SessionId> sIds) {
-      List<TransactionId> recovered = new ArrayList<TransactionId>();
+      List<TransactionId> recovered = new ArrayList<>();
       if (sIds != null) {
          for (SessionId sid : sIds) {
             AMQSession s = this.sessions.get(sid);

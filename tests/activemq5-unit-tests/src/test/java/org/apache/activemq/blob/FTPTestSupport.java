@@ -68,7 +68,7 @@ public abstract class FTPTestSupport extends EmbeddedBrokerTestSupport {
       user.setHomeDirectory(ftpHomeDirFile.getParent());
 
       // authorize user
-      List<Authority> auths = new ArrayList<Authority>();
+      List<Authority> auths = new ArrayList<>();
       Authority auth = new WritePermission();
       auths.add(auth);
       user.setAuthorities(auths);

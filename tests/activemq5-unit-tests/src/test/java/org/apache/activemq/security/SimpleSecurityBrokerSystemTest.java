@@ -151,15 +151,15 @@ public class SimpleSecurityBrokerSystemTest extends SecurityTestSupport {
       @Override
       public Broker installPlugin(Broker broker) {
 
-         HashMap<String, String> u = new HashMap<String, String>();
+         HashMap<String, String> u = new HashMap<>();
          u.put("system", "manager");
          u.put("user", "password");
          u.put("guest", "password");
 
-         Map<String, Set<Principal>> groups = new HashMap<String, Set<Principal>>();
-         groups.put("system", new HashSet<Principal>(Arrays.asList(new Principal[]{ADMINS, USERS})));
-         groups.put("user", new HashSet<Principal>(Arrays.asList(new Principal[]{USERS})));
-         groups.put("guest", new HashSet<Principal>(Arrays.asList(new Principal[]{GUESTS})));
+         Map<String, Set<Principal>> groups = new HashMap<>();
+         groups.put("system", new HashSet<>(Arrays.asList(new Principal[]{ADMINS, USERS})));
+         groups.put("user", new HashSet<>(Arrays.asList(new Principal[]{USERS})));
+         groups.put("guest", new HashSet<>(Arrays.asList(new Principal[]{GUESTS})));
 
          return new SimpleAuthenticationBroker(broker, u, groups);
       }

@@ -96,7 +96,7 @@ public class AMQ1853Test {
    public void testConsumerMessagesAreNotOrdered() throws Exception {
 
       TestConsumer consumerAllFail = null;
-      messageList = new Hashtable<String, AtomicInteger>();
+      messageList = new Hashtable<>();
 
       try {
 

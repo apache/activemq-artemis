@@ -122,7 +122,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
       final CountDownLatch receivedLatch = new CountDownLatch(count);
       final AtomicLong ackedCount = new AtomicLong(0);
       final AtomicLong enqueueCounter = new AtomicLong(0);
-      final Vector<String> errors = new Vector<String>();
+      final Vector<String> errors = new Vector<>();
 
       // populate the queue store, exceed memory limit so that cache is disabled
       for (int i = 0; i < count; i++) {

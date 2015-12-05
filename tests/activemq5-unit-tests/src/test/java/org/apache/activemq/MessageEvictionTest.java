@@ -250,7 +250,7 @@ public class MessageEvictionTest {
       // spooling to disk early so topic memory limit is not reached
       brokerService.getSystemUsage().getMemoryUsage().setLimit(500 * 1024);
 
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setTopic(">");
 

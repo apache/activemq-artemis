@@ -1128,7 +1128,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       final CountDownLatch latchReady = new CountDownLatch(2);
       final CountDownLatch latchStart = new CountDownLatch(1);
       final AtomicInteger finishedOK = new AtomicInteger(0);
-      final BlockingQueue<Integer> queueDelete = new LinkedBlockingQueue<Integer>();
+      final BlockingQueue<Integer> queueDelete = new LinkedBlockingQueue<>();
 
       final int NUMBER_OF_ELEMENTS = 500;
 
@@ -1234,8 +1234,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       addActiveMQComponent(journalImpl);
       journalImpl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<RecordInfo>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<PreparedTransactionInfo>();
+      ArrayList<RecordInfo> info = new ArrayList<>();
+      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
 
       journalImpl.load(info, trans, null);
 
@@ -1253,11 +1253,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      records = new ArrayList<RecordInfo>();
+      records = new ArrayList<>();
 
-      transactions = new ArrayList<PreparedTransactionInfo>();
+      transactions = new ArrayList<>();
 
-      incompleteTransactions = new ArrayList<Long>();
+      incompleteTransactions = new ArrayList<>();
 
       factory = null;
 

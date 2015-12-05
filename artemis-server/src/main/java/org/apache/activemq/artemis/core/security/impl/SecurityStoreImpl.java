@@ -55,7 +55,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private final ActiveMQSecurityManager securityManager;
 
-   private final ConcurrentMap<String, ConcurrentHashSet<SimpleString>> cache = new ConcurrentHashMap<String, ConcurrentHashSet<SimpleString>>();
+   private final ConcurrentMap<String, ConcurrentHashSet<SimpleString>> cache = new ConcurrentHashMap<>();
 
    private final long invalidationInterval;
 
@@ -196,7 +196,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             throw ActiveMQMessageBundle.BUNDLE.userNoPermissions(session.getUsername(), checkType, saddress);
          }
          // if we get here we're granted, add to the cache
-         ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<SimpleString>();
+         ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<>();
          ConcurrentHashSet<SimpleString> act = cache.putIfAbsent(user + "." + checkType.name(), set);
          if (act != null) {
             set = act;

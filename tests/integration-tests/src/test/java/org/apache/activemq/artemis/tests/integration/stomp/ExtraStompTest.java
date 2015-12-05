@@ -612,7 +612,7 @@ public class ExtraStompTest extends StompTestBase {
    }
 
    protected JMSServerManager createPersistentServerWithStompMinLargeSize(int sz) throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
@@ -693,7 +693,7 @@ public class ExtraStompTest extends StompTestBase {
 
    protected JMSServerManager createServerWithExtraStompOptions(String ttl, Boolean enableMessageID) throws Exception {
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       if (ttl != null) {
@@ -719,7 +719,7 @@ public class ExtraStompTest extends StompTestBase {
 
    public static class MyCoreInterceptor implements Interceptor {
 
-      static List<Packet> incomingInterceptedFrames = new ArrayList<Packet>();
+      static List<Packet> incomingInterceptedFrames = new ArrayList<>();
 
       @Override
       public boolean intercept(Packet packet, RemotingConnection connection) {
@@ -731,7 +731,7 @@ public class ExtraStompTest extends StompTestBase {
 
    public static class MyIncomingStompFrameInterceptor implements StompFrameInterceptor {
 
-      static List<StompFrame> incomingInterceptedFrames = new ArrayList<StompFrame>();
+      static List<StompFrame> incomingInterceptedFrames = new ArrayList<>();
 
       @Override
       public boolean intercept(StompFrame stompFrame, RemotingConnection connection) {
@@ -743,7 +743,7 @@ public class ExtraStompTest extends StompTestBase {
 
    public static class MyOutgoingStompFrameInterceptor implements StompFrameInterceptor {
 
-      static List<StompFrame> outgoingInterceptedFrames = new ArrayList<StompFrame>();
+      static List<StompFrame> outgoingInterceptedFrames = new ArrayList<>();
 
       @Override
       public boolean intercept(StompFrame stompFrame, RemotingConnection connection) {
@@ -758,10 +758,10 @@ public class ExtraStompTest extends StompTestBase {
       MyIncomingStompFrameInterceptor.incomingInterceptedFrames.clear();
       MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.clear();
       try {
-         List<String> incomingInterceptorList = new ArrayList<String>();
+         List<String> incomingInterceptorList = new ArrayList<>();
          incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyIncomingStompFrameInterceptor");
          incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyCoreInterceptor");
-         List<String> outgoingInterceptorList = new ArrayList<String>();
+         List<String> outgoingInterceptorList = new ArrayList<>();
          outgoingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyOutgoingStompFrameInterceptor");
 
          server = createServerWithStompInterceptor(incomingInterceptorList, outgoingInterceptorList);
@@ -808,13 +808,13 @@ public class ExtraStompTest extends StompTestBase {
          server.stop();
       }
 
-      List<String> incomingCommands = new ArrayList<String>(4);
+      List<String> incomingCommands = new ArrayList<>(4);
       incomingCommands.add("CONNECT");
       incomingCommands.add("SUBSCRIBE");
       incomingCommands.add("SEND");
       incomingCommands.add("DISCONNECT");
 
-      List<String> outgoingCommands = new ArrayList<String>(3);
+      List<String> outgoingCommands = new ArrayList<>(3);
       outgoingCommands.add("CONNECTED");
       outgoingCommands.add("MESSAGE");
       outgoingCommands.add("MESSAGE");
@@ -847,7 +847,7 @@ public class ExtraStompTest extends StompTestBase {
    protected JMSServerManager createServerWithStompInterceptor(List<String> stompIncomingInterceptor,
                                                                List<String> stompOutgoingInterceptor) throws Exception {
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");

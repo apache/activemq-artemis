@@ -108,7 +108,7 @@ public abstract class URISchema<T, P> {
    public static Map<String, String> parseQuery(String uri,
                                                 Map<String, String> propertyOverrides) throws URISyntaxException {
       try {
-         Map<String, String> rc = new HashMap<String, String>();
+         Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
             String[] parameters = uri.split("&");
             for (int i = 0; i < parameters.length; i++) {

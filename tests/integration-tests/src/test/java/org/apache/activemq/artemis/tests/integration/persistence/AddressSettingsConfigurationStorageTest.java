@@ -37,7 +37,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
    public void setUp() throws Exception {
       super.setUp();
 
-      mapExpectedAddresses = new HashMap<SimpleString, PersistedAddressSetting>();
+      mapExpectedAddresses = new HashMap<>();
    }
 
    protected void addAddress(JournalStorageManager journal1, String address, AddressSettings setting) throws Exception {

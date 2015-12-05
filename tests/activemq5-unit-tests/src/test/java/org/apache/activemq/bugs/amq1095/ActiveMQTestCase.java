@@ -55,7 +55,7 @@ public class ActiveMQTestCase extends TestCase {
    private BrokerService broker;
    protected Connection connection;
    protected Destination destination;
-   private final List<MessageConsumer> consumersToEmpty = new LinkedList<MessageConsumer>();
+   private final List<MessageConsumer> consumersToEmpty = new LinkedList<>();
    protected final long RECEIVE_TIMEOUT = 500;
 
    /**

@@ -47,7 +47,7 @@ public class DurableSubsOfflineSelectorConcurrentConsumeIndexUseTest extends org
    public int messageCount = 10000;
    private BrokerService broker;
    private ActiveMQTopic topic;
-   private final List<Throwable> exceptions = new ArrayList<Throwable>();
+   private final List<Throwable> exceptions = new ArrayList<>();
 
    @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {

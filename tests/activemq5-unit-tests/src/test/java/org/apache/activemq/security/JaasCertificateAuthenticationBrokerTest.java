@@ -62,7 +62,7 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
    }
 
    private void setConfiguration(Set<String> userNames, Set<String> groupNames, boolean loginShouldSucceed) {
-      HashMap<String, String> configOptions = new HashMap<String, String>();
+      HashMap<String, String> configOptions = new HashMap<>();
 
       String userNamesString;
       {
@@ -95,10 +95,10 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
    public void testAddConnectionSuccess() {
       String dnUserName = "dnUserName";
 
-      HashSet<String> userNames = new HashSet<String>();
+      HashSet<String> userNames = new HashSet<>();
       userNames.add(dnUserName);
 
-      HashSet<String> groupNames = new HashSet<String>();
+      HashSet<String> groupNames = new HashSet<>();
       groupNames.add("testGroup1");
       groupNames.add("testGroup2");
       groupNames.add("tesetGroup3");
@@ -155,9 +155,9 @@ public class JaasCertificateAuthenticationBrokerTest extends TestCase {
    }
 
    public void testAddConnectionFailure() {
-      HashSet<String> userNames = new HashSet<String>();
+      HashSet<String> userNames = new HashSet<>();
 
-      HashSet<String> groupNames = new HashSet<String>();
+      HashSet<String> groupNames = new HashSet<>();
       groupNames.add("testGroup1");
       groupNames.add("testGroup2");
       groupNames.add("tesetGroup3");

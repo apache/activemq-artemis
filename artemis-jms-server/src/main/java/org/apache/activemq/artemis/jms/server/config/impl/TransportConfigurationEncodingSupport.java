@@ -32,7 +32,7 @@ public class TransportConfigurationEncodingSupport {
 
    public static List<Pair<TransportConfiguration, TransportConfiguration>> decodeConfigs(ActiveMQBuffer buffer) {
       int size = buffer.readInt();
-      List<Pair<TransportConfiguration, TransportConfiguration>> configs = new ArrayList<Pair<TransportConfiguration, TransportConfiguration>>(size);
+      List<Pair<TransportConfiguration, TransportConfiguration>> configs = new ArrayList<>(size);
 
       for (int i = 0; i < size; i++) {
          TransportConfiguration live = decode(buffer);
@@ -41,7 +41,7 @@ public class TransportConfigurationEncodingSupport {
          if (hasBackup) {
             backup = decode(buffer);
          }
-         configs.add(new Pair<TransportConfiguration, TransportConfiguration>(live, backup));
+         configs.add(new Pair<>(live, backup));
       }
 
       return configs;
@@ -51,7 +51,7 @@ public class TransportConfigurationEncodingSupport {
       String name = BufferHelper.readNullableSimpleStringAsString(buffer);
       String factoryClassName = buffer.readSimpleString().toString();
       int paramSize = buffer.readInt();
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       for (int i = 0; i < paramSize; i++) {
          String key = buffer.readSimpleString().toString();
          String value = buffer.readSimpleString().toString();

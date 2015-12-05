@@ -42,7 +42,7 @@ import org.junit.Before;
 @Deprecated
 public class JMSTestCase extends ActiveMQServerTestCase {
 
-   protected static final ArrayList<String> NETTY_CONNECTOR = new ArrayList<String>();
+   protected static final ArrayList<String> NETTY_CONNECTOR = new ArrayList<>();
 
    static {
       NETTY_CONNECTOR.add("netty");

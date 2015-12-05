@@ -43,7 +43,7 @@ public class NettyConnectorFactoryTest {
       assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
 
       // Test defaults are not set when TransportConfig params are not empty
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put("Foo", "Bar");
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
       assertTrue(tc.getParams().size() == 1);

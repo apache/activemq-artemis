@@ -63,7 +63,7 @@ public class PasswordMaskingUtil {
       });
 
       if (parts.length > 1) {
-         Map<String, String> props = new HashMap<String, String>();
+         Map<String, String> props = new HashMap<>();
 
          for (int i = 1; i < parts.length; i++) {
             String[] keyVal = parts[i].split("=");

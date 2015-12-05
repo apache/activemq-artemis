@@ -53,7 +53,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
    private final ScheduledExecutorService scheduledThreadPool;
 
    public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool) {
-      messageCounters = new HashMap<String, MessageCounter>();
+      messageCounters = new HashMap<>();
 
       this.scheduledThreadPool = scheduledThreadPool;
    }
@@ -134,7 +134,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
 
    public Set<MessageCounter> getMessageCounters() {
       synchronized (messageCounters) {
-         return new HashSet<MessageCounter>(messageCounters.values());
+         return new HashSet<>(messageCounters.values());
       }
    }
 

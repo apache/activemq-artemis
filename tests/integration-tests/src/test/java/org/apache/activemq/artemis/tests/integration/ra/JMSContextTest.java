@@ -58,7 +58,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
       securityManager.getConfiguration().addRole("testuser", "arole");
       securityManager.getConfiguration().addRole("guest", "arole");
       Role role = new Role("arole", true, true, true, true, true, true, true);
-      Set<Role> roles = new HashSet<Role>();
+      Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
       resourceAdapter = new ActiveMQResourceAdapter();

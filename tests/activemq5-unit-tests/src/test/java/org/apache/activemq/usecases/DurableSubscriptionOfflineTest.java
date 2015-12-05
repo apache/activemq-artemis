@@ -310,7 +310,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
 
       class CheckForDupsClient implements Runnable {
 
-         HashSet<Long> ids = new HashSet<Long>();
+         HashSet<Long> ids = new HashSet<>();
          final int id;
 
          public CheckForDupsClient(int id) {

@@ -37,7 +37,7 @@ import org.junit.Test;
 public class CertificateLoginModuleTest extends Assert {
 
    private static final String USER_NAME = "testUser";
-   private static final List<String> ROLE_NAMES = new Vector<String>();
+   private static final List<String> ROLE_NAMES = new Vector<>();
 
    private StubCertificateLoginModule loginModule;
 
@@ -56,7 +56,7 @@ public class CertificateLoginModuleTest extends Assert {
    }
 
    private void loginWithCredentials(String userName, Set<String> rolesNames) throws LoginException {
-      loginModule = new StubCertificateLoginModule(userName, new HashSet<String>(rolesNames));
+      loginModule = new StubCertificateLoginModule(userName, new HashSet<>(rolesNames));
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
       loginModule.initialize(subject, callbackHandler, null, new HashMap());
@@ -113,7 +113,7 @@ public class CertificateLoginModuleTest extends Assert {
    @Test
    public void testLoginSuccess() throws IOException {
       try {
-         loginWithCredentials(USER_NAME, new HashSet<String>(ROLE_NAMES));
+         loginWithCredentials(USER_NAME, new HashSet<>(ROLE_NAMES));
       }
       catch (Exception e) {
          fail("Unable to login: " + e.getMessage());
@@ -141,7 +141,7 @@ public class CertificateLoginModuleTest extends Assert {
    @Test
    public void testLogOut() throws IOException {
       try {
-         loginWithCredentials(USER_NAME, new HashSet<String>(ROLE_NAMES));
+         loginWithCredentials(USER_NAME, new HashSet<>(ROLE_NAMES));
       }
       catch (Exception e) {
          fail("Unable to login: " + e.getMessage());

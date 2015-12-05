@@ -64,10 +64,10 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
     * It the overrides the return value to be the value of the connection ttl. Note that the unused String parameter is required to
     * ensure that byteman populates the $1 variable, otherwise it will not bind correctly.
     */ public void testConnectionTTLOnBridge() throws Exception {
-      Map<String, Object> server0Params = new HashMap<String, Object>();
+      Map<String, Object> server0Params = new HashMap<>();
       ActiveMQServer serverWithBridge = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 
-      Map<String, Object> server1Params = new HashMap<String, Object>();
+      Map<String, Object> server1Params = new HashMap<>();
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
@@ -82,28 +82,28 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
          final String forwardAddress = "forwardAddress";
          final String queueName1 = "queue1";
 
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         Map<String, TransportConfiguration> connectors = new HashMap<>();
          TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
          connectors.put(server1tc.getName(), server1tc);
 
          serverWithBridge.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<String>();
+         ArrayList<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(BRIDGE_NAME).setQueueName(queueName0).setForwardingAddress(forwardAddress).setConnectionTTL(BRIDGE_TTL).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
          bridgeConfigs.add(bridgeConfiguration);
          serverWithBridge.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
          CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
          queueConfigs0.add(queueConfig0);
          serverWithBridge.getConfiguration().setQueueConfigurations(queueConfigs0);
 
          CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
          queueConfigs1.add(queueConfig1);
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 

@@ -174,10 +174,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private final JournalFilesRepository filesRepository;
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<Long, JournalRecord>();
+   private final ConcurrentMap<Long, JournalRecord> records = new ConcurrentHashMap<>();
 
    // Compacting may replace this structure
-   private final ConcurrentMap<Long, JournalTransaction> transactions = new ConcurrentHashMap<Long, JournalTransaction>();
+   private final ConcurrentMap<Long, JournalTransaction> transactions = new ConcurrentHashMap<>();
 
    // This will be set only while the JournalCompactor is being executed
    private volatile JournalCompactor compactor;
@@ -188,7 +188,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private ExecutorService compactorExecutor = null;
 
-   private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<CountDownLatch>();
+   private ConcurrentHashSet<CountDownLatch> latches = new ConcurrentHashSet<>();
 
    // Lock used during the append of records
    // This lock doesn't represent a global lock.
@@ -348,7 +348,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public List<JournalFile> orderFiles() throws Exception {
       List<String> fileNames = fileFactory.listFiles(filesRepository.getFileExtension());
 
-      List<JournalFile> orderedFiles = new ArrayList<JournalFile>(fileNames.size());
+      List<JournalFile> orderedFiles = new ArrayList<>(fileNames.size());
 
       for (String fileName : fileNames) {
          SequentialFile file = fileFactory.createSequentialFile(fileName);
@@ -1168,9 +1168,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                                    final List<PreparedTransactionInfo> preparedTransactions,
                                                    final TransactionFailureCallback failureCallback,
                                                    final boolean fixBadTX) throws Exception {
-      final Set<Long> recordsToDelete = new HashSet<Long>();
+      final Set<Long> recordsToDelete = new HashSet<>();
       // ArrayList was taking too long to delete elements on checkDeleteSize
-      final List<RecordInfo> records = new LinkedList<RecordInfo>();
+      final List<RecordInfo> records = new LinkedList<>();
 
       final int DELETE_FLUSH = 20000;
 
@@ -1296,7 +1296,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       compactorLock.writeLock().lock();
       try {
-         ArrayList<JournalFile> dataFilesToProcess = new ArrayList<JournalFile>(filesRepository.getDataFilesCount());
+         ArrayList<JournalFile> dataFilesToProcess = new ArrayList<>(filesRepository.getDataFilesCount());
 
          boolean previousReclaimValue = isAutoReclaim();
 
@@ -1527,7 +1527,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       transactions.clear();
       currentFile = null;
 
-      final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<Long, TransactionHolder>();
+      final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<>();
 
       final List<JournalFile> orderedFiles = orderFiles();
 
@@ -2194,7 +2194,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          cleanupList = null;
       }
       else {
-         cleanupList = new ArrayList<Pair<String, String>>();
+         cleanupList = new ArrayList<>();
          cleanupList.add(cleanupRename);
       }
       return AbstractJournalUpdateTask.writeControlFile(fileFactory, files, newFiles, cleanupList);
@@ -2545,9 +2545,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * @throws Exception
     */
    private void checkControlFile() throws Exception {
-      ArrayList<String> dataFiles = new ArrayList<String>();
-      ArrayList<String> newFiles = new ArrayList<String>();
-      ArrayList<Pair<String, String>> renames = new ArrayList<Pair<String, String>>();
+      ArrayList<String> dataFiles = new ArrayList<>();
+      ArrayList<String> newFiles = new ArrayList<>();
+      ArrayList<Pair<String, String>> renames = new ArrayList<>();
 
       SequentialFile controlFile = JournalCompactor.readControlFile(fileFactory, dataFiles, newFiles, renames);
       if (controlFile != null) {
@@ -2629,9 +2629,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       public final long transactionID;
 
-      public final List<RecordInfo> recordInfos = new ArrayList<RecordInfo>();
+      public final List<RecordInfo> recordInfos = new ArrayList<>();
 
-      public final List<RecordInfo> recordsToDelete = new ArrayList<RecordInfo>();
+      public final List<RecordInfo> recordsToDelete = new ArrayList<>();
 
       public boolean prepared;
 
@@ -2726,7 +2726,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public synchronized Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception {
       synchronizationLock();
       try {
-         Map<Long, JournalFile> map = new HashMap<Long, JournalFile>();
+         Map<Long, JournalFile> map = new HashMap<>();
          long maxID = -1;
          for (long id : fileIds) {
             maxID = Math.max(maxID, id);

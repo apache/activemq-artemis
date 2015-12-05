@@ -109,7 +109,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
       Thread.sleep(2000);
       // Send messages
       // Send messages for broker A
-      HashMap<String, Object> props = new HashMap<String, Object>();
+      HashMap<String, Object> props = new HashMap<>();
       props.put("dummy", 33);
       sendMessages("BrokerA", dest, MESSAGE_COUNT, props);
       props.put("dummy", 34);

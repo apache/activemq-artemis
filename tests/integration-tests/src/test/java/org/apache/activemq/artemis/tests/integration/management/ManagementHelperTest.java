@@ -74,7 +74,7 @@ public class ManagementHelperTest extends Assert {
       double d = RandomUtil.randomDouble();
       boolean b = RandomUtil.randomBoolean();
       long l = RandomUtil.randomLong();
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
       String key1 = RandomUtil.randomString();
       int value1 = RandomUtil.randomInt();
       String key2 = RandomUtil.randomString();
@@ -91,7 +91,7 @@ public class ManagementHelperTest extends Assert {
       map.put(key4, value4);
       map.put(key5, value5);
 
-      Map<String, Object> map2 = new HashMap<String, Object>();
+      Map<String, Object> map2 = new HashMap<>();
       String key2_1 = RandomUtil.randomString();
       int value2_1 = RandomUtil.randomInt();
       String key2_2 = RandomUtil.randomString();
@@ -108,7 +108,7 @@ public class ManagementHelperTest extends Assert {
       map2.put(key2_4, value2_4);
       map2.put(key2_5, value2_5);
 
-      Map<String, Object> map3 = new HashMap<String, Object>();
+      Map<String, Object> map3 = new HashMap<>();
       String key3_1 = RandomUtil.randomString();
       int value3_1 = RandomUtil.randomInt();
       String key3_2 = RandomUtil.randomString();
@@ -185,7 +185,7 @@ public class ManagementHelperTest extends Assert {
       String resource = RandomUtil.randomString();
       String operationName = RandomUtil.randomString();
 
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
       String key1 = RandomUtil.randomString();
       String[] val1 = new String[]{"a", "b", "c"};
 

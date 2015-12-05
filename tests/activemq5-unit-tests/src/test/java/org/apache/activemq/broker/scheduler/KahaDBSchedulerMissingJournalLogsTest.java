@@ -105,7 +105,7 @@ public class KahaDBSchedulerMissingJournalLogsTest {
       int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
       LOG.info("There are {} jobs in the store.", jobCount);
 
-      List<File> toDelete = new ArrayList<File>();
+      List<File> toDelete = new ArrayList<>();
       Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
       for (int i = files.size(); i > files.size() / 2; i--) {
          toDelete.add(files.get(i).getFile());
@@ -134,7 +134,7 @@ public class KahaDBSchedulerMissingJournalLogsTest {
       int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
       LOG.info("There are {} jobs in the store.", jobCount);
 
-      List<File> toDelete = new ArrayList<File>();
+      List<File> toDelete = new ArrayList<>();
       Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
       for (int i = files.size() - 1; i > files.size() / 2; i--) {
          toDelete.add(files.get(i).getFile());

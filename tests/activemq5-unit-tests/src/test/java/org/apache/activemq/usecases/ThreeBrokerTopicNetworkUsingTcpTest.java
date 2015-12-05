@@ -68,6 +68,6 @@ public class ThreeBrokerTopicNetworkUsingTcpTest extends ThreeBrokerTopicNetwork
    public void setUp() throws Exception {
       super.setUp();
 
-      bridges = new ArrayList<DemandForwardingBridge>();
+      bridges = new ArrayList<>();
    }
 }

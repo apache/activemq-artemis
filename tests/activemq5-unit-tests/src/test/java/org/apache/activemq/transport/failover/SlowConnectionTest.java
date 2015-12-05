@@ -85,7 +85,7 @@ public class SlowConnectionTest extends TestCase {
       @Override
       public void run() {
 
-         List<Socket> inProgress = new ArrayList<Socket>();
+         List<Socket> inProgress = new ArrayList<>();
          ServerSocketFactory factory = ServerSocketFactory.getDefault();
 
          try {

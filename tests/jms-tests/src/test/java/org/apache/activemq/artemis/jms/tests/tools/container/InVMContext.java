@@ -178,7 +178,7 @@ public class InVMContext implements Context, Serializable {
          }
       }
 
-      List<Binding> l = new ArrayList<Binding>();
+      List<Binding> l = new ArrayList<>();
       for (String name : map.keySet()) {
          Object object = map.get(name);
          l.add(new Binding(name, object));
@@ -254,7 +254,7 @@ public class InVMContext implements Context, Serializable {
 
    @Override
    public Hashtable<String, String> getEnvironment() throws NamingException {
-      Hashtable<String, String> env = new Hashtable<String, String>();
+      Hashtable<String, String> env = new Hashtable<>();
       env.put("java.naming.factory.initial", InVMInitialContextFactory.class.getCanonicalName());
       return env;
    }

@@ -611,7 +611,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducerCredits credits = null;
 
-      List<ClientProducerCredits> creditsList = new ArrayList<ClientProducerCredits>();
+      List<ClientProducerCredits> creditsList = new ArrayList<>();
 
       for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer("address" + i);

@@ -250,7 +250,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             Map<String, String> params = URISupport.parseParameters(uri);
             //EMPTY_MAP is immutable, so use a normal map instead.
             if (params == Collections.EMPTY_MAP) {
-               params = new HashMap<String, String>();
+               params = new HashMap<>();
             }
             params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
             defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);

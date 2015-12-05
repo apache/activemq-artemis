@@ -69,7 +69,7 @@ public class ManagementActivationTest extends FailoverTestBase {
 
    @Test
    public void testCreateConnectionFactory() throws Exception {
-      List<String> connectorNames = new ArrayList<String>();
+      List<String> connectorNames = new ArrayList<>();
       connectorNames.add(connectorName);
 
       ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("test").setConnectorNames(connectorNames).setBindings("/myConnectionFactory");

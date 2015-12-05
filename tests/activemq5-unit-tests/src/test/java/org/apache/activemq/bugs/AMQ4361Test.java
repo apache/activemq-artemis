@@ -95,8 +95,8 @@ public class AMQ4361Test {
       producer.setTimeToLive(0);
       producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-      final AtomicReference<Exception> publishException = new AtomicReference<Exception>(null);
-      final AtomicReference<Exception> closeException = new AtomicReference<Exception>(null);
+      final AtomicReference<Exception> publishException = new AtomicReference<>(null);
+      final AtomicReference<Exception> closeException = new AtomicReference<>(null);
       final AtomicLong lastLoop = new AtomicLong(System.currentTimeMillis() + 100);
 
       Thread pubThread = new Thread(new Runnable() {

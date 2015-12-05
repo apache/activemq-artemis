@@ -93,7 +93,7 @@ public class ResourceLoadingSslContext extends SslContext {
    private Collection<TrustManager> createTrustManagers() throws Exception {
       KeyStore ks = createTrustManagerKeyStore();
       if (ks == null) {
-         return new ArrayList<TrustManager>(0);
+         return new ArrayList<>(0);
       }
 
       TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustStoreAlgorithm);
@@ -104,7 +104,7 @@ public class ResourceLoadingSslContext extends SslContext {
    private Collection<KeyManager> createKeyManagers() throws Exception {
       KeyStore ks = createKeyManagerKeyStore();
       if (ks == null) {
-         return new ArrayList<KeyManager>(0);
+         return new ArrayList<>(0);
       }
 
       KeyManagerFactory tmf = KeyManagerFactory.getInstance(keyStoreAlgorithm);

@@ -48,7 +48,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.BATCH_DELAY, DELAY);
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -59,7 +59,7 @@ public class BatchDelayTest extends ActiveMQTestBase {
    }
 
    protected ClientSessionFactory createSessionFactory() throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.BATCH_DELAY, DELAY);
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(true, false, params));
       addServerLocator(locator);

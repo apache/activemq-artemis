@@ -345,7 +345,7 @@ public final class Topology {
             final Map<String, TopologyMemberImpl> copy;
 
             synchronized (Topology.this) {
-               copy = new HashMap<String, TopologyMemberImpl>(topology);
+               copy = new HashMap<>(topology);
             }
 
             for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {

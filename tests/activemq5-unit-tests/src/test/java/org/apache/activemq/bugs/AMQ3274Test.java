@@ -518,7 +518,7 @@ public class AMQ3274Test {
             excl_dest = ActiveMQDestination.createDestination(">", ActiveMQDestination.TOPIC_TYPE);
          }
 
-         excludes = new ArrayList<ActiveMQDestination>();
+         excludes = new ArrayList<>();
          excludes.add(excl_dest);
          nw_conn.setExcludedDestinations(excludes);
 

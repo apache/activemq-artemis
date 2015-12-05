@@ -114,8 +114,8 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
    }
 
    protected void loadIDs(final Journal journal, final BatchingIDGenerator batch) throws Exception {
-      ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();
-      ArrayList<PreparedTransactionInfo> tx = new ArrayList<PreparedTransactionInfo>();
+      ArrayList<RecordInfo> records = new ArrayList<>();
+      ArrayList<PreparedTransactionInfo> tx = new ArrayList<>();
 
       journal.start();
       journal.load(records, tx, null);

@@ -46,9 +46,9 @@ import org.apache.activemq.artemis.utils.TypedProperties;
  */
 public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
-   private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<SimpleString, GroupBinding>();
+   private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<>();
 
-   private final ConcurrentMap<SimpleString, List<GroupBinding>> groupMap = new ConcurrentHashMap<SimpleString, List<GroupBinding>>();
+   private final ConcurrentMap<SimpleString, List<GroupBinding>> groupMap = new ConcurrentHashMap<>();
 
    private final SimpleString name;
 
@@ -65,7 +65,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
     * when the group is waiting for them.
     * During a small window between the server is started and the wait wasn't called yet, this will contain bindings that were already added
     */
-   private List<SimpleString> expectedBindings = new LinkedList<SimpleString>();
+   private List<SimpleString> expectedBindings = new LinkedList<>();
 
    private final long groupTimeout;
 
@@ -136,7 +136,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                addRecord = true;
                groupBinding = new GroupBinding(proposal.getGroupId(), proposal.getClusterName());
                groupBinding.setId(storageManager.generateID());
-               List<GroupBinding> newList = new ArrayList<GroupBinding>();
+               List<GroupBinding> newList = new ArrayList<>();
                List<GroupBinding> oldList = groupMap.putIfAbsent(groupBinding.getClusterName(), newList);
                if (oldList != null) {
                   newList = oldList;
@@ -196,7 +196,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    @Override
    public void addGroupBinding(final GroupBinding groupBinding) {
       map.put(groupBinding.getGroupId(), groupBinding);
-      List<GroupBinding> newList = new ArrayList<GroupBinding>();
+      List<GroupBinding> newList = new ArrayList<>();
       List<GroupBinding> oldList = groupMap.putIfAbsent(groupBinding.getClusterName(), newList);
       if (oldList != null) {
          newList = oldList;
@@ -248,10 +248,10 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             List<SimpleString> bindingsAlreadyAdded;
             if (expectedBindings == null) {
                bindingsAlreadyAdded = Collections.emptyList();
-               expectedBindings = new LinkedList<SimpleString>();
+               expectedBindings = new LinkedList<>();
             }
             else {
-               bindingsAlreadyAdded = new ArrayList<SimpleString>(expectedBindings);
+               bindingsAlreadyAdded = new ArrayList<>(expectedBindings);
                //clear the bindings
                expectedBindings.clear();
             }
@@ -331,7 +331,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
       if (expectedBindings == null) {
          // just in case the component is restarted
-         expectedBindings = new LinkedList<SimpleString>();
+         expectedBindings = new LinkedList<>();
       }
 
       if (reaperPeriod > 0 && groupTimeout > 0) {

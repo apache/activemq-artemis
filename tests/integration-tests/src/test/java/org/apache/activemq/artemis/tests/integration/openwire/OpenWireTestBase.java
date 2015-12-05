@@ -100,12 +100,12 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
          Map<String, Set<Role>> settings = server.getConfiguration().getSecurityRoles();
          if (settings == null) {
-            settings = new HashMap<String, Set<Role>>();
+            settings = new HashMap<>();
             server.getConfiguration().setSecurityRoles(settings);
          }
          Set<Role> anySet = settings.get("#");
          if (anySet == null) {
-            anySet = new HashSet<Role>();
+            anySet = new HashSet<>();
             settings.put("#", anySet);
          }
          anySet.add(senderRole);
@@ -129,7 +129,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    }
 
    protected void registerConnectionFactory() throws Exception {
-      List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
+      List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       createCF(connectorConfigs, "/cf");

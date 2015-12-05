@@ -780,7 +780,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       OperationContextImpl.clearContext();
-      queueList = new ArrayList<Queue>();
+      queueList = new ArrayList<>();
 
       createServer();
       lock = new ReentrantReadWriteLock().readLock();

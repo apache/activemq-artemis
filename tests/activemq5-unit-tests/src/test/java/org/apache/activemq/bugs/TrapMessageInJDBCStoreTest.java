@@ -149,7 +149,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(queue);
 
-         ArrayList<TextMessage> consumedMessages = new ArrayList<TextMessage>();
+         ArrayList<TextMessage> consumedMessages = new ArrayList<>();
 
          MessageConsumer messageConsumer = session.createConsumer(destination);
 
@@ -226,7 +226,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
       try {
 
          ResultSet result = statement.executeQuery();
-         ArrayList<Long> dbSeq = new ArrayList<Long>();
+         ArrayList<Long> dbSeq = new ArrayList<>();
 
          while (result.next()) {
             dbSeq.add(result.getLong(1));

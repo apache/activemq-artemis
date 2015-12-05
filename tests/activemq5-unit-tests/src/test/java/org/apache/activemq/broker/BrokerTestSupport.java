@@ -250,7 +250,7 @@ public class BrokerTestSupport extends CombinationTestSupport {
       consumerInfo.setBrowser(true);
       connection.send(consumerInfo);
 
-      ArrayList<Object> skipped = new ArrayList<Object>();
+      ArrayList<Object> skipped = new ArrayList<>();
 
       // Now get the messages.
       Object m = connection.getDispatchQueue().poll(maxWait, TimeUnit.MILLISECONDS);
