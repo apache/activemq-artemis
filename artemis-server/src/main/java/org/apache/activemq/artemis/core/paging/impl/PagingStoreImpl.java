@@ -179,6 +179,7 @@ public class PagingStoreImpl implements PagingStore {
    /**
     * @param addressSettings
     */
+   @Override
    public void applySetting(final AddressSettings addressSettings) {
       maxSize = addressSettings.getMaxSizeBytes();
 
@@ -210,38 +211,47 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public void unlock() {
       lock.writeLock().unlock();
    }
 
+   @Override
    public PageCursorProvider getCursorProvider() {
       return cursorProvider;
    }
 
+   @Override
    public long getFirstPage() {
       return firstPageId;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public long getAddressSize() {
       return sizeInBytes.get();
    }
 
+   @Override
    public long getMaxSize() {
       return maxSize;
    }
 
+   @Override
    public AddressFullMessagePolicy getAddressFullMessagePolicy() {
       return addressFullMessagePolicy;
    }
 
+   @Override
    public long getPageSizeBytes() {
       return pageSize;
    }
 
+   @Override
    public File getFolder() {
       SequentialFileFactory factoryUsed = this.fileFactory;
       if (factoryUsed != null) {
@@ -252,6 +262,7 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public boolean isPaging() {
       lock.readLock().lock();
 
@@ -272,18 +283,22 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public int getNumberOfPages() {
       return numberOfPages;
    }
 
+   @Override
    public int getCurrentWritingPage() {
       return currentPageId;
    }
 
+   @Override
    public SimpleString getStoreName() {
       return storeName;
    }
 
+   @Override
    public void sync() throws Exception {
       if (syncTimer != null) {
          syncTimer.addSync(storageManager.getContext());
@@ -294,6 +309,7 @@ public class PagingStoreImpl implements PagingStore {
 
    }
 
+   @Override
    public void ioSync() throws Exception {
       lock.readLock().lock();
 
@@ -307,10 +323,12 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public void processReload() throws Exception {
       cursorProvider.processReload();
    }
 
+   @Override
    public PagingManager getPagingManager() {
       return pagingManager;
    }
@@ -336,6 +354,7 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public void flushExecutors() {
       cursorProvider.flushExecutors();
 
@@ -427,6 +446,7 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public void stopPaging() {
       lock.writeLock().lock();
       try {
@@ -438,6 +458,7 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public boolean startPaging() {
       if (!running) {
          return false;
@@ -490,16 +511,19 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public Page getCurrentPage() {
       return currentPage;
    }
 
+   @Override
    public boolean checkPageFileExists(final int pageNumber) {
       String fileName = createFileName(pageNumber);
       SequentialFile file = fileFactory.createSequentialFile(fileName);
       return file.exists();
    }
 
+   @Override
    public Page createPage(final int pageNumber) throws Exception {
       String fileName = createFileName(pageNumber);
 
@@ -521,6 +545,7 @@ public class PagingStoreImpl implements PagingStore {
       return page;
    }
 
+   @Override
    public void forceAnotherPage() throws Exception {
       openNewPage();
    }
@@ -537,6 +562,7 @@ public class PagingStoreImpl implements PagingStore {
     * externally is used only on tests, and that's why this method is part of the Testable Interface
     * </p>
     */
+   @Override
    public Page depage() throws Exception {
       lock.writeLock().lock(); // Make sure no checks are done on currentPage while we are depaging
       try {
@@ -600,6 +626,7 @@ public class PagingStoreImpl implements PagingStore {
 
    private class MemoryFreedRunnablesExecutor implements Runnable {
 
+      @Override
       public void run() {
          Runnable runnable;
 
@@ -621,6 +648,7 @@ public class PagingStoreImpl implements PagingStore {
          this.runnable = runnable;
       }
 
+      @Override
       public synchronized void run() {
          if (!ran) {
             runnable.run();
@@ -630,6 +658,7 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
+   @Override
    public boolean checkMemory(final Runnable runWhenAvailable) {
       if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && maxSize != -1) {
          if (sizeInBytes.get() > maxSize) {
@@ -664,6 +693,7 @@ public class PagingStoreImpl implements PagingStore {
       return true;
    }
 
+   @Override
    public void addSize(final int size) {
       if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
          if (maxSize != -1) {
@@ -817,6 +847,7 @@ public class PagingStoreImpl implements PagingStore {
    /**
     * This method will disable cleanup of pages. No page will be deleted after this call.
     */
+   @Override
    public void disableCleanup() {
       getCursorProvider().disableCleanup();
    }
@@ -824,6 +855,7 @@ public class PagingStoreImpl implements PagingStore {
    /**
     * This method will re-enable cleanup of pages. Notice that it will also start cleanup threads.
     */
+   @Override
    public void enableCleanup() {
       getCursorProvider().resumeCleanup();
    }
@@ -913,6 +945,7 @@ public class PagingStoreImpl implements PagingStore {
          this.pagingManager = pagingManager;
       }
 
+      @Override
       public void afterCommit(final Transaction tx) {
          // If part of the transaction goes to the queue, and part goes to paging, we can't let depage start for the
          // transaction until all the messages were added to the queue
@@ -923,15 +956,18 @@ public class PagingStoreImpl implements PagingStore {
          }
       }
 
+      @Override
       public void afterPrepare(final Transaction tx) {
       }
 
+      @Override
       public void afterRollback(final Transaction tx) {
          if (pageTransaction != null) {
             pageTransaction.rollback();
          }
       }
 
+      @Override
       public void beforeCommit(final Transaction tx) throws Exception {
          syncStore();
          storePageTX(tx);
@@ -946,6 +982,7 @@ public class PagingStoreImpl implements PagingStore {
          }
       }
 
+      @Override
       public void beforePrepare(final Transaction tx) throws Exception {
          syncStore();
          storePageTX(tx);
@@ -959,6 +996,7 @@ public class PagingStoreImpl implements PagingStore {
          }
       }
 
+      @Override
       public void beforeRollback(final Transaction tx) throws Exception {
       }
 

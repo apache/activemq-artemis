@@ -25,6 +25,7 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public class QueueBridgeXBeanTest extends QueueBridgeTest {
 
+   @Override
    protected AbstractApplicationContext createApplicationContext() {
       return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/queue-xbean.xml");
    }

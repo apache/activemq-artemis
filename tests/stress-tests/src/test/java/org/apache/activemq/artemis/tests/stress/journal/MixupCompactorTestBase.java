@@ -83,6 +83,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
       File[] files = testDir.listFiles(new FilenameFilter() {
 
+         @Override
          public boolean accept(final File dir, final String name) {
             return name.startsWith(filePrefix) && name.endsWith(fileExtension);
          }

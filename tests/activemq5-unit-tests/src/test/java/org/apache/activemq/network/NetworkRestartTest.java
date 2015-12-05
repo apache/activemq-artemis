@@ -106,12 +106,14 @@ public class NetworkRestartTest extends TestSupport {
       assertEquals("after", ((TextMessage) after).getText());
    }
 
+   @Override
    protected void setUp() throws Exception {
       setAutoFail(true);
       super.setUp();
       doSetUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       localBroker.deleteAllMessages();
       remoteBroker.deleteAllMessages();

@@ -1753,37 +1753,47 @@ public abstract class ActiveMQTestBase extends Assert {
          return value;
       }
 
+      @Override
       public void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
+      @Override
       public void onReadUpdateRecord(RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
+      @Override
       public void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
+      @Override
       public void onReadAddRecord(RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
+      @Override
       public void onReadRollbackRecord(long transactionID) throws Exception {
       }
 
+      @Override
       public void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception {
       }
 
+      @Override
       public void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
       }
 
+      @Override
       public void onReadDeleteRecord(long recordID) throws Exception {
       }
 
+      @Override
       public void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception {
       }
 
+      @Override
       public void markAsDataFile(JournalFile file0) {
       }
    }
@@ -2486,6 +2496,7 @@ public abstract class ActiveMQTestBase extends Assert {
             this.run = run;
          }
 
+         @Override
          public void run() {
             try {
                runner.run();
@@ -2553,6 +2564,7 @@ public abstract class ActiveMQTestBase extends Assert {
          this.finalized = finalized;
       }
 
+      @Override
       public void finalize() throws Throwable {
          finalized.countDown();
          super.finalize();

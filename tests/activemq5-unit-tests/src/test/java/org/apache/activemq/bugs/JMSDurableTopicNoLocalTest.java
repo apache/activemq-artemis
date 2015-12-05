@@ -48,6 +48,7 @@ public class JMSDurableTopicNoLocalTest extends EmbeddedBrokerTestSupport {
 
       final CountDownLatch latch = new CountDownLatch(1);
       subscriber.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             System.out.println("Receive a message " + message);
             latch.countDown();

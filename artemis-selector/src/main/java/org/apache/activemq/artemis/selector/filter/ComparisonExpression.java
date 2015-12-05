@@ -119,6 +119,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       /**
        * @see org.apache.activemq.filter.UnaryExpression#getExpressionSymbol()
        */
+      @Override
       public String getExpressionSymbol() {
          return "LIKE";
       }
@@ -126,6 +127,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       /**
        * @see org.apache.activemq.filter.Expression#evaluate(Filterable)
        */
+      @Override
       public Object evaluate(Filterable message) throws FilterException {
 
          Object rv = this.getRight().evaluate(message);
@@ -143,6 +145,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
          return likePattern.matcher((String) rv).matches() ? Boolean.TRUE : Boolean.FALSE;
       }
 
+      @Override
       public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
@@ -205,6 +208,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    private static BooleanExpression doCreateEqual(Expression left, Expression right) {
       return new ComparisonExpression(left, right) {
 
+         @Override
          public Object evaluate(Filterable message) throws FilterException {
             Object lv = left.evaluate(message);
             Object rv = right.evaluate(message);
@@ -222,10 +226,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             return Boolean.FALSE;
          }
 
+         @Override
          protected boolean asBoolean(int answer) {
             return answer == 0;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "=";
          }
@@ -236,10 +242,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       checkLessThanOperand(left);
       checkLessThanOperand(right);
       return new ComparisonExpression(left, right) {
+         @Override
          protected boolean asBoolean(int answer) {
             return answer > 0;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return ">";
          }
@@ -250,10 +258,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       checkLessThanOperand(left);
       checkLessThanOperand(right);
       return new ComparisonExpression(left, right) {
+         @Override
          protected boolean asBoolean(int answer) {
             return answer >= 0;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return ">=";
          }
@@ -265,10 +275,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       checkLessThanOperand(right);
       return new ComparisonExpression(left, right) {
 
+         @Override
          protected boolean asBoolean(int answer) {
             return answer < 0;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "<";
          }
@@ -281,10 +293,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       checkLessThanOperand(right);
       return new ComparisonExpression(left, right) {
 
+         @Override
          protected boolean asBoolean(int answer) {
             return answer <= 0;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "<=";
          }
@@ -338,6 +352,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       }
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       Comparable<Comparable> lv = (Comparable) left.evaluate(message);
       if (lv == null) {
@@ -517,6 +532,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    protected abstract boolean asBoolean(int answer);
 
+   @Override
    public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;

@@ -71,6 +71,7 @@ public class PingStressTest extends ActiveMQTestBase {
     */
    private void internalTest() throws Exception {
       Interceptor noPongInterceptor = new Interceptor() {
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
             PingStressTest.log.info("In interceptor, packet is " + packet.getType());
             if (packet.getType() == PacketImpl.PING) {

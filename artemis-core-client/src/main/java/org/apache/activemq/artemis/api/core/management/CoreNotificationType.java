@@ -47,6 +47,7 @@ public enum CoreNotificationType implements NotificationType {
       this.value = value;
    }
 
+   @Override
    public int getType() {
       return value;
    }

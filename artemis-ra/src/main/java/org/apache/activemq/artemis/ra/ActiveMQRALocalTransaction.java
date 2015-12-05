@@ -53,6 +53,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     *
     * @throws ResourceException Thrown if the operation fails
     */
+   @Override
    public void begin() throws ResourceException {
       if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("begin()");
@@ -66,6 +67,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     *
     * @throws ResourceException Thrown if the operation fails
     */
+   @Override
    public void commit() throws ResourceException {
       if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("commit()");
@@ -91,6 +93,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     *
     * @throws ResourceException Thrown if the operation fails
     */
+   @Override
    public void rollback() throws ResourceException {
       if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("rollback()");

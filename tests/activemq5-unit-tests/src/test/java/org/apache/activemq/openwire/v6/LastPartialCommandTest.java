@@ -37,12 +37,14 @@ public class LastPartialCommandTest extends PartialCommandTest {
 
    public static LastPartialCommandTest SINGLETON = new LastPartialCommandTest();
 
+   @Override
    public Object createObject() throws Exception {
       LastPartialCommand info = new LastPartialCommand();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       LastPartialCommand info = (LastPartialCommand) object;

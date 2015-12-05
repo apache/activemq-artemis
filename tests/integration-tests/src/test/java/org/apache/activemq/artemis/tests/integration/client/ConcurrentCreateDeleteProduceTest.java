@@ -54,6 +54,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
    private static final int PAGE_SIZE = 10 * 1024;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -104,6 +105,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
       volatile Throwable ex;
 
+      @Override
       public void run() {
          ClientSessionFactory factory;
          ClientSession session;

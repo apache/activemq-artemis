@@ -365,6 +365,7 @@ public class TimedBuffer {
       final int sleepMillis = timeout / 1000000; // truncates
       final int sleepNanos = timeout % 1000000;
 
+      @Override
       public void run() {
          long lastFlushTime = 0;
 

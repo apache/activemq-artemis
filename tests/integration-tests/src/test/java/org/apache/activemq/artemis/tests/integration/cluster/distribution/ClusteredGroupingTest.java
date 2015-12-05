@@ -948,6 +948,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
          }
 
+         @Override
          public SimpleString getName() {
             return null;
          }
@@ -972,31 +973,38 @@ public class ClusteredGroupingTest extends ClusterTestBase {
             return false;
          }
 
+         @Override
          public Response propose(final Proposal proposal) throws Exception {
             return null;
          }
 
+         @Override
          public void proposed(final Response response) throws Exception {
             System.out.println("ClusteredGroupingTest.proposed");
          }
 
+         @Override
          public void sendProposalResponse(final Response response, final int distance) throws Exception {
             System.out.println("ClusteredGroupingTest.send");
          }
 
+         @Override
          public Response receive(final Proposal proposal, final int distance) throws Exception {
             latch.countDown();
             return null;
          }
 
+         @Override
          public void onNotification(final Notification notification) {
             System.out.println("ClusteredGroupingTest.onNotification " + notification);
          }
 
+         @Override
          public void addGroupBinding(final GroupBinding groupBinding) {
             System.out.println("ClusteredGroupingTest.addGroupBinding");
          }
 
+         @Override
          public Response getProposal(final SimpleString fullID, boolean touchTime) {
             return null;
          }
@@ -1655,6 +1663,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
          this.wait = wait;
       }
 
+      @Override
       public void run() {
          if (wait) {
             try {

@@ -30,10 +30,12 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
       this.message = message;
    }
 
+   @Override
    public Message getMessage() {
       return message;
    }
 
+   @Override
    public String toString() {
       return this.getParentString() + ",message=" + message + "]";
 

@@ -60,6 +60,7 @@ public class ManagementNotificationExample {
          // It will display all the properties of the JMS Message
          MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
          notificationConsumer.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(final Message notif) {
                System.out.println("------------------------");
                System.out.println("Received notification:");

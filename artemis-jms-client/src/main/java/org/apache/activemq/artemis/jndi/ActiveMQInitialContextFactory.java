@@ -47,6 +47,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
    private String queuePrefix = "queue.";
    private String topicPrefix = "topic.";
 
+   @Override
    public Context getInitialContext(Hashtable environment) throws NamingException {
       // lets create a factory
       Map<String, Object> data = new ConcurrentHashMap<>();
@@ -72,6 +73,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
       data.put(DYNAMIC_QUEUE_CONTEXT, new LazyCreateContext() {
          private static final long serialVersionUID = 6503881346214855588L;
 
+         @Override
          protected Object createEntry(String name) {
             return ActiveMQJMSClient.createQueue(name);
          }
@@ -79,6 +81,7 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
       data.put(DYNAMIC_TOPIC_CONTEXT, new LazyCreateContext() {
          private static final long serialVersionUID = 2019166796234979615L;
 
+         @Override
          protected Object createEntry(String name) {
             return ActiveMQJMSClient.createTopic(name);
          }

@@ -48,6 +48,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
       Interceptor interceptorClient = new Interceptor() {
          AtomicInteger count = new AtomicInteger(0);
 
+         @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             log.debug("Intercept..." + packet.getClass().getName());
 

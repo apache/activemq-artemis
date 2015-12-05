@@ -122,6 +122,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return name;
    }
 
+   @Override
    public void resetName(String name) {
       this.name = name;
    }
@@ -153,6 +154,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    private final CommandConfirmationHandler confirmationHandler = new CommandConfirmationHandler() {
+      @Override
       public void commandConfirmed(final Packet packet) {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage ssm = (SessionSendMessage) packet;
@@ -195,6 +197,7 @@ public class ActiveMQSessionContext extends SessionContext {
       sessionChannel.unlock();
    }
 
+   @Override
    public void cleanup() {
       sessionChannel.close();
 
@@ -208,11 +211,13 @@ public class ActiveMQSessionContext extends SessionContext {
       // nothing to be done here... Flow control here is done on the core side
    }
 
+   @Override
    public void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
       sessionChannel.setCommandConfirmationHandler(confirmationHandler);
       this.sendAckHandler = handler;
    }
 
+   @Override
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
                                  SimpleString filterString,
@@ -220,10 +225,12 @@ public class ActiveMQSessionContext extends SessionContext {
       sessionChannel.sendBlocking(new CreateSharedQueueMessage(address, queueName, filterString, durable, true), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       sessionChannel.sendBlocking(new SessionDeleteQueueMessage(queueName), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
       SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
       SessionQueueQueryResponseMessage_V2 response = (SessionQueueQueryResponseMessage_V2) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
@@ -231,6 +238,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return response.toQueueQuery();
    }
 
+   @Override
    public ClientConsumerInternal createConsumer(SimpleString queueName,
                                                 SimpleString filterString,
                                                 int windowSize,
@@ -254,10 +262,12 @@ public class ActiveMQSessionContext extends SessionContext {
       return new ClientConsumerImpl(session, consumerContext, queueName, filterString, browseOnly, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
    }
 
+   @Override
    public int getServerVersion() {
       return serverVersion;
    }
 
+   @Override
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       SessionBindingQueryResponseMessage_V2 response = (SessionBindingQueryResponseMessage_V2) sessionChannel.sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP_V2);
 
@@ -269,39 +279,48 @@ public class ActiveMQSessionContext extends SessionContext {
       sessionChannel.sendBlocking(new SessionConsumerCloseMessage(getConsumerID(consumer)), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void sendConsumerCredits(final ClientConsumer consumer, final int credits) {
       sessionChannel.send(new SessionConsumerFlowCreditMessage(getConsumerID(consumer), credits));
    }
 
+   @Override
    public void forceDelivery(final ClientConsumer consumer, final long sequence) throws ActiveMQException {
       SessionForceConsumerDelivery request = new SessionForceConsumerDelivery(getConsumerID(consumer), sequence);
       sessionChannel.send(request);
    }
 
+   @Override
    public void simpleCommit() throws ActiveMQException {
       sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_COMMIT), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException {
       sessionChannel.sendBlocking(new RollbackMessage(lastMessageAsDelivered), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void sessionStart() throws ActiveMQException {
       sessionChannel.send(new PacketImpl(PacketImpl.SESS_START));
    }
 
+   @Override
    public void sessionStop() throws ActiveMQException {
       sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_STOP), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void addSessionMetadata(String key, String data) throws ActiveMQException {
       sessionChannel.sendBlocking(new SessionAddMetaDataMessageV2(key, data), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void addUniqueMetaData(String key, String data) throws ActiveMQException {
       sessionChannel.sendBlocking(new SessionUniqueAddMetaDataMessage(key, data), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void xaCommit(Xid xid, boolean onePhase) throws XAException, ActiveMQException {
       SessionXACommitMessage packet = new SessionXACommitMessage(xid, onePhase);
       SessionXAResponseMessage response = (SessionXAResponseMessage) sessionChannel.sendBlocking(packet, PacketImpl.SESS_XA_RESP);
@@ -315,6 +334,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public void xaEnd(Xid xid, int flags) throws XAException, ActiveMQException {
       Packet packet;
       if (flags == XAResource.TMSUSPEND) {
@@ -337,6 +357,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public void sendProducerCreditsMessage(final int credits, final SimpleString address) {
       sessionChannel.send(new SessionRequestProducerCreditsMessage(credits, address));
    }
@@ -346,6 +367,7 @@ public class ActiveMQSessionContext extends SessionContext {
     *
     * @return
     */
+   @Override
    public boolean supportsLargeMessage() {
       return true;
    }
@@ -355,6 +377,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return msgI.getEncodeSize();
    }
 
+   @Override
    public void sendFullMessage(MessageInternal msgI,
                                boolean sendBlocking,
                                SendAcknowledgementHandler handler,
@@ -399,6 +422,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return chunkPacket.getPacketSize();
    }
 
+   @Override
    public void sendACK(boolean individual,
                        boolean block,
                        final ClientConsumer consumer,
@@ -419,16 +443,19 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public void expireMessage(final ClientConsumer consumer, Message message) throws ActiveMQException {
       SessionExpireMessage messagePacket = new SessionExpireMessage(getConsumerID(consumer), message.getMessageID());
 
       sessionChannel.send(messagePacket);
    }
 
+   @Override
    public void sessionClose() throws ActiveMQException {
       sessionChannel.sendBlocking(new SessionCloseMessage(), PacketImpl.NULL_RESPONSE);
    }
 
+   @Override
    public void xaForget(Xid xid) throws XAException, ActiveMQException {
       SessionXAResponseMessage response = (SessionXAResponseMessage) sessionChannel.sendBlocking(new SessionXAForgetMessage(xid), PacketImpl.SESS_XA_RESP);
 
@@ -437,6 +464,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public int xaPrepare(Xid xid) throws XAException, ActiveMQException {
       SessionXAPrepareMessage packet = new SessionXAPrepareMessage(xid);
 
@@ -450,6 +478,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public Xid[] xaScan() throws ActiveMQException {
       SessionXAGetInDoubtXidsResponseMessage response = (SessionXAGetInDoubtXidsResponseMessage) sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_XA_INDOUBT_XIDS), PacketImpl.SESS_XA_INDOUBT_XIDS_RESP);
 
@@ -460,6 +489,7 @@ public class ActiveMQSessionContext extends SessionContext {
       return xidArray;
    }
 
+   @Override
    public void xaRollback(Xid xid, boolean wasStarted) throws ActiveMQException, XAException {
       SessionXARollbackMessage packet = new SessionXARollbackMessage(xid);
 
@@ -470,6 +500,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public void xaStart(Xid xid, int flags) throws XAException, ActiveMQException {
       Packet packet;
       if (flags == XAResource.TMJOIN) {
@@ -494,18 +525,21 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public boolean configureTransactionTimeout(int seconds) throws ActiveMQException {
       SessionXASetTimeoutResponseMessage response = (SessionXASetTimeoutResponseMessage) sessionChannel.sendBlocking(new SessionXASetTimeoutMessage(seconds), PacketImpl.SESS_XA_SET_TIMEOUT_RESP);
 
       return response.isOK();
    }
 
+   @Override
    public int recoverSessionTimeout() throws ActiveMQException {
       SessionXAGetTimeoutResponseMessage response = (SessionXAGetTimeoutResponseMessage) sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_XA_GET_TIMEOUT), PacketImpl.SESS_XA_GET_TIMEOUT_RESP);
 
       return response.getTimeoutSeconds();
    }
 
+   @Override
    public void createQueue(SimpleString address,
                            SimpleString queueName,
                            SimpleString filterString,
@@ -546,6 +580,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
    }
 
+   @Override
    public void recreateSession(final String username,
                                final String password,
                                final int minLargeMessageSize,
@@ -624,10 +659,12 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public void xaFailed(Xid xid) throws ActiveMQException {
       sendPacketWithoutLock(sessionChannel, new SessionXAAfterFailedMessage(xid));
    }
 
+   @Override
    public void restartSession() throws ActiveMQException {
       sendPacketWithoutLock(sessionChannel, new PacketImpl(PacketImpl.SESS_START));
    }
@@ -693,6 +730,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
    class ClientSessionPacketHandler implements ChannelHandler {
 
+      @Override
       public void handlePacket(final Packet packet) {
          byte type = packet.getType();
 
@@ -755,6 +793,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
    protected ClassLoader lookupTCCL() {
       return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         @Override
          public ClassLoader run() {
             return Thread.currentThread().getContextClassLoader();
          }

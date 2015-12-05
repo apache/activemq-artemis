@@ -152,6 +152,7 @@ public class ClusterControl implements AutoCloseable {
    /**
     * close this cluster control and its resources
     */
+   @Override
    public void close() {
       sessionFactory.close();
    }

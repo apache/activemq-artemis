@@ -28,6 +28,7 @@ public class ConnectionCleanupTest extends TestCase {
 
    private ActiveMQConnection connection;
 
+   @Override
    protected void setUp() throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
       connection = (ActiveMQConnection) factory.createConnection();
@@ -36,6 +37,7 @@ public class ConnectionCleanupTest extends TestCase {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       connection.close();
    }

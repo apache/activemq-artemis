@@ -37,6 +37,7 @@ import java.util.StringTokenizer;
  */
 public class StompFrameFactoryV10 implements StompFrameFactory {
 
+   @Override
    public ClientStompFrame createFrame(String data) {
       //split the string at "\n\n"
       String[] dataFields = data.split("\n\n");

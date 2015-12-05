@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 
 public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage {
 
+   @Override
    void addBytes(byte[] bytes) throws Exception;
 
    void setPendingRecordID(long pendingRecordID);
@@ -37,8 +38,10 @@ public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessag
    /**
     * Close the files if opened
     */
+   @Override
    void releaseResources();
 
+   @Override
    void deleteFile() throws Exception;
 
    void incrementDelayDeletionCount();

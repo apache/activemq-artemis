@@ -210,6 +210,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       File dir = new File(getTestDir());
 
       FilenameFilter fnf = new FilenameFilter() {
+         @Override
          public boolean accept(final File file, final String name) {
             return name.endsWith("." + fileExtension);
          }

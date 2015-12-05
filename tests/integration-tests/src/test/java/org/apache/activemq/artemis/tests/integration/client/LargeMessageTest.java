@@ -141,6 +141,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       consumer.setMessageHandler(new MessageHandler() {
          int counter = 0;
 
+         @Override
          public void onMessage(ClientMessage message) {
             message.getBodyBuffer().readByte();
             // System.out.println("message:" + message);

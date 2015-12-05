@@ -138,6 +138,7 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Closes this factory and any session created by it.
     */
+   @Override
    void close();
 
    /**

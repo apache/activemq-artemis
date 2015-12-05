@@ -226,6 +226,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
          volatile Exception exception;
 
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                byte[] bytesRead = new byte[messageSize];
@@ -341,6 +342,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
       final AtomicBoolean closed = new AtomicBoolean(false);
 
       Thread t = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                Thread.sleep(500);

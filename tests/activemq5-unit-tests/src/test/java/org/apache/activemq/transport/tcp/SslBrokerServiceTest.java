@@ -53,6 +53,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
    TransportConnector needClientAuthConnector;
    TransportConnector limitedCipherSuites;
 
+   @Override
    protected String getBindLocation() {
       return "ssl://localhost:0";
    }
@@ -181,6 +182,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
       return out.toByteArray();
    }
 
+   @Override
    protected void setUp() throws Exception {
       maxWait = 10000;
       super.setUp();

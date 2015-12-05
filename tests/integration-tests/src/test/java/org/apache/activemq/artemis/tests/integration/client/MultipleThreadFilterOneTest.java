@@ -79,6 +79,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          sendMessages(numberOfMessages / 2);
       }
 
+      @Override
       public void run() {
          try {
             sendMessages(numberOfMessages / 2);
@@ -144,6 +145,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          this.nr = nr;
       }
 
+      @Override
       public void run() {
          try {
             consumerSession.start();

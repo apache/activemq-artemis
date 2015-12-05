@@ -58,6 +58,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
 
    // Public --------------------------------------------------------
 
+   @Override
    public Context getInitialContext(final Hashtable environment) throws NamingException {
       // try first in the environment passed as argument ...
       String s = (String) environment.get(Constants.SERVER_INDEX_PROPERTY_NAME);

@@ -73,6 +73,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    private LinkedList<Pair<Long, Integer>> loadList;
 
    private final Runnable cleanupCheck = new Runnable() {
+      @Override
       public void run() {
          cleanup();
       }
@@ -131,6 +132,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
     *
     * @param pageID
     */
+   @Override
    public void cleanupNonTXCounters(final long pageID) throws Exception {
       Pair<Long, AtomicInteger> pendingInfo;
       synchronized (this) {
@@ -186,6 +188,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
     * @param recordID1
     * @param add
     */
+   @Override
    public void applyIncrementOnTX(Transaction tx, long recordID1, int add) {
       CounterOperations oper = (CounterOperations) tx.getProperty(TransactionPropertyIndexes.PAGE_COUNT_INC);
 
@@ -198,6 +201,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       oper.operations.add(new ItemOper(this, recordID1, add));
    }
 
+   @Override
    public synchronized void loadValue(final long recordID1, final long value1) {
       if (this.subscription != null) {
          // it could be null on testcases... which is ok
@@ -215,6 +219,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    }
 
+   @Override
    public void delete() throws Exception {
       Transaction tx = new TransactionImpl(storage);
 
@@ -223,6 +228,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       tx.commit();
    }
 
+   @Override
    public void delete(Transaction tx) throws Exception {
       // always lock the StorageManager first.
       storage.readLock();
@@ -248,6 +254,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       }
    }
 
+   @Override
    public void loadInc(long id, int add) {
       if (loadList == null) {
          loadList = new LinkedList<Pair<Long, Integer>>();
@@ -256,6 +263,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       loadList.add(new Pair<Long, Integer>(id, add));
    }
 
+   @Override
    public void processReload() {
       if (loadList != null) {
          if (subscription != null) {
@@ -272,6 +280,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       }
    }
 
+   @Override
    public synchronized void addInc(long id, int variance) {
       value.addAndGet(variance);
 

@@ -127,24 +127,29 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    // ConnectionFactoryConfiguration implementation -----------------
 
+   @Override
    public String[] getBindings() {
       return bindings;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setBindings(final String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
+   @Override
    public String getName() {
       return name;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setName(String name) {
       this.name = name;
       return this;
    }
 
+   @Override
    public boolean isPersisted() {
       return persisted;
    }
@@ -152,6 +157,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    /**
     * @return the discoveryGroupName
     */
+   @Override
    public String getDiscoveryGroupName() {
       return discoveryGroupName;
    }
@@ -159,209 +165,255 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    /**
     * @param discoveryGroupName the discoveryGroupName to set
     */
+   @Override
    public ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
       return this;
    }
 
+   @Override
    public List<String> getConnectorNames() {
       return connectorNames;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setConnectorNames(final List<String> connectorNames) {
       this.connectorNames = connectorNames;
       return this;
    }
 
 
+   @Override
    public ConnectionFactoryConfiguration setConnectorNames(final String...names) {
       return this.setConnectorNames(Arrays.asList(names));
    }
 
+   @Override
    public boolean isHA() {
       return ha;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setHA(final boolean ha) {
       this.ha = ha;
       return this;
    }
 
+   @Override
    public String getClientID() {
       return clientID;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setClientID(final String clientID) {
       this.clientID = clientID;
       return this;
    }
 
+   @Override
    public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setClientFailureCheckPeriod(final long clientFailureCheckPeriod) {
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
       return this;
    }
 
+   @Override
    public long getConnectionTTL() {
       return connectionTTL;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setConnectionTTL(final long connectionTTL) {
       this.connectionTTL = connectionTTL;
       return this;
    }
 
+   @Override
    public long getCallTimeout() {
       return callTimeout;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setCallTimeout(final long callTimeout) {
       this.callTimeout = callTimeout;
       return this;
    }
 
+   @Override
    public long getCallFailoverTimeout() {
       return callFailoverTimeout;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setCallFailoverTimeout(long callFailoverTimeout) {
       this.callFailoverTimeout = callFailoverTimeout;
       return this;
    }
 
+   @Override
    public boolean isCacheLargeMessagesClient() {
       return cacheLargeMessagesClient;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setCacheLargeMessagesClient(final boolean cacheLargeMessagesClient) {
       this.cacheLargeMessagesClient = cacheLargeMessagesClient;
       return this;
    }
 
+   @Override
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setMinLargeMessageSize(final int minLargeMessageSize) {
       this.minLargeMessageSize = minLargeMessageSize;
       return this;
    }
 
+   @Override
    public int getConsumerWindowSize() {
       return consumerWindowSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setConsumerWindowSize(final int consumerWindowSize) {
       this.consumerWindowSize = consumerWindowSize;
       return this;
    }
 
+   @Override
    public int getConsumerMaxRate() {
       return consumerMaxRate;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setConsumerMaxRate(final int consumerMaxRate) {
       this.consumerMaxRate = consumerMaxRate;
       return this;
    }
 
+   @Override
    public int getConfirmationWindowSize() {
       return confirmationWindowSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setConfirmationWindowSize(final int confirmationWindowSize) {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
    }
 
+   @Override
    public int getProducerMaxRate() {
       return producerMaxRate;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setProducerMaxRate(final int producerMaxRate) {
       this.producerMaxRate = producerMaxRate;
       return this;
    }
 
+   @Override
    public int getProducerWindowSize() {
       return producerWindowSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setProducerWindowSize(final int producerWindowSize) {
       this.producerWindowSize = producerWindowSize;
       return this;
    }
 
+   @Override
    public boolean isBlockOnAcknowledge() {
       return blockOnAcknowledge;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setBlockOnAcknowledge(final boolean blockOnAcknowledge) {
       this.blockOnAcknowledge = blockOnAcknowledge;
       return this;
    }
 
+   @Override
    public boolean isBlockOnDurableSend() {
       return blockOnDurableSend;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setBlockOnDurableSend(final boolean blockOnDurableSend) {
       this.blockOnDurableSend = blockOnDurableSend;
       return this;
    }
 
+   @Override
    public boolean isBlockOnNonDurableSend() {
       return blockOnNonDurableSend;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setBlockOnNonDurableSend(final boolean blockOnNonDurableSend) {
       this.blockOnNonDurableSend = blockOnNonDurableSend;
       return this;
    }
 
+   @Override
    public boolean isAutoGroup() {
       return autoGroup;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setAutoGroup(final boolean autoGroup) {
       this.autoGroup = autoGroup;
       return this;
    }
 
+   @Override
    public boolean isPreAcknowledge() {
       return preAcknowledge;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setPreAcknowledge(final boolean preAcknowledge) {
       this.preAcknowledge = preAcknowledge;
       return this;
    }
 
+   @Override
    public String getLoadBalancingPolicyClassName() {
       return loadBalancingPolicyClassName;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName) {
       this.loadBalancingPolicyClassName = loadBalancingPolicyClassName;
       return this;
    }
 
+   @Override
    public int getTransactionBatchSize() {
       return transactionBatchSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setTransactionBatchSize(final int transactionBatchSize) {
       this.transactionBatchSize = transactionBatchSize;
       return this;
    }
 
+   @Override
    public int getDupsOKBatchSize() {
       return dupsOKBatchSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setDupsOKBatchSize(final int dupsOKBatchSize) {
       this.dupsOKBatchSize = dupsOKBatchSize;
       return this;
@@ -376,82 +428,100 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return this;
    }
 
+   @Override
    public boolean isUseGlobalPools() {
       return useGlobalPools;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setUseGlobalPools(final boolean useGlobalPools) {
       this.useGlobalPools = useGlobalPools;
       return this;
    }
 
+   @Override
    public int getScheduledThreadPoolMaxSize() {
       return scheduledThreadPoolMaxSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize) {
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
       return this;
    }
 
+   @Override
    public int getThreadPoolMaxSize() {
       return threadPoolMaxSize;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setThreadPoolMaxSize(final int threadPoolMaxSize) {
       this.threadPoolMaxSize = threadPoolMaxSize;
       return this;
    }
 
+   @Override
    public long getRetryInterval() {
       return retryInterval;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setRetryInterval(final long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
    }
 
+   @Override
    public double getRetryIntervalMultiplier() {
       return retryIntervalMultiplier;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setRetryIntervalMultiplier(final double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
    }
 
+   @Override
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setMaxRetryInterval(final long maxRetryInterval) {
       this.maxRetryInterval = maxRetryInterval;
       return this;
    }
 
+   @Override
    public int getReconnectAttempts() {
       return reconnectAttempts;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setReconnectAttempts(final int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
    }
 
+   @Override
    public boolean isFailoverOnInitialConnection() {
       return failoverOnInitialConnection;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setFailoverOnInitialConnection(final boolean failover) {
       failoverOnInitialConnection = failover;
       return this;
    }
 
+   @Override
    public String getGroupID() {
       return groupID;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setGroupID(final String groupID) {
       this.groupID = groupID;
       return this;
@@ -744,11 +814,13 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return size;
    }
 
+   @Override
    public ConnectionFactoryConfiguration setFactoryType(final JMSFactoryType factoryType) {
       this.factoryType = factoryType;
       return this;
    }
 
+   @Override
    public JMSFactoryType getFactoryType() {
       return factoryType;
    }

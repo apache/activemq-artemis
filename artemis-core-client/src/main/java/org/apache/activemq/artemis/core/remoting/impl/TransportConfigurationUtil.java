@@ -63,6 +63,7 @@ public class TransportConfigurationUtil {
 
    private static Object instantiateObject(final String className) {
       return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         @Override
          public Object run() {
             try {
                return ClassloadingUtil.newInstanceFromClassLoader(className);

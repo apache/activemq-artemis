@@ -30,6 +30,7 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
    private final ActiveMQServer server;
 
    private final Runnable runnable = new Runnable() {
+      @Override
       public void run() {
          try {
             Queue queue = server.locateQueue(queueName);

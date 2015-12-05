@@ -1309,6 +1309,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see MessageHandler#onMessage(ClientMessage)
        */
+      @Override
       public void onMessage(ClientMessage message) {
          try {
             onMessageAssert(message);

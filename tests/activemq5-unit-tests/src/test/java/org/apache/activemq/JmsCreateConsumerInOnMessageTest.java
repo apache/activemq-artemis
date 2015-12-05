@@ -41,6 +41,7 @@ public class JmsCreateConsumerInOnMessageTest extends TestSupport implements Mes
    /*
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       super.topic = true;
@@ -58,6 +59,7 @@ public class JmsCreateConsumerInOnMessageTest extends TestSupport implements Mes
    /*
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       connection.close();
@@ -84,6 +86,7 @@ public class JmsCreateConsumerInOnMessageTest extends TestSupport implements Mes
     *
     * @param message
     */
+   @Override
    public void onMessage(Message message) {
       try {
          testConsumer = consumerSession.createConsumer(topic);

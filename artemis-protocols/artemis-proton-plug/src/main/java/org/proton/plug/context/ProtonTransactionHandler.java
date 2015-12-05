@@ -110,6 +110,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       }
    }
 
+   @Override
    public void onFlow(int credits) {
 
    }

@@ -156,6 +156,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param spec            The activation spec
     * @throws ResourceException Thrown if an error occurs
     */
+   @Override
    public void endpointActivation(final MessageEndpointFactory endpointFactory,
                                   final ActivationSpec spec) throws ResourceException {
       if (spec == null) {
@@ -184,6 +185,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param endpointFactory The endpoint factory
     * @param spec            The activation spec
     */
+   @Override
    public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) {
       if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("endpointDeactivation(" + endpointFactory + ", " + spec + ")");
@@ -202,6 +204,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The XA resources
     * @throws ResourceException Thrown if an error occurs or unsupported
     */
+   @Override
    public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException {
       if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getXAResources(" + Arrays.toString(specs) + ")");
@@ -229,6 +232,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param ctx The bootstrap context
     * @throws ResourceAdapterInternalException Thrown if an error occurs
     */
+   @Override
    public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException {
       if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("start(" + ctx + ")");
@@ -255,6 +259,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    /**
     * Stop
     */
+   @Override
    public void stop() {
       if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("stop()");

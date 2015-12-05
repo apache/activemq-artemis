@@ -123,6 +123,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
          @Override
          protected void onCompactStart() throws Exception {
             testExecutor.execute(new Runnable() {
+               @Override
                public void run() {
                   try {
                      // System.out.println("OnCompactStart enter");
@@ -226,6 +227,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
       final CountDownLatch latchExecutorDone = new CountDownLatch(1);
       testExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             latchExecutorDone.countDown();
          }
@@ -266,6 +268,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
       ArrayList<RecordInfo> committedRecords = new ArrayList<RecordInfo>();
       ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
       journal.load(committedRecords, preparedTransactions, new TransactionFailureCallback() {
+         @Override
          public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
          }
       });
@@ -332,9 +335,11 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
                ctx.executeOnCompletion(new IOCallback() {
 
+                  @Override
                   public void onError(final int errorCode, final String errorMessage) {
                   }
 
+                  @Override
                   public void done() {
                      numberOfRecords.addAndGet(txSize);
                      for (Long id : ids) {
@@ -434,6 +439,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
          this.ids = ids;
       }
 
+      @Override
       public void done() {
          rwLock.readLock().lock();
          numberOfUpdates.addAndGet(ids.length);
@@ -457,6 +463,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
          }
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
       }
 

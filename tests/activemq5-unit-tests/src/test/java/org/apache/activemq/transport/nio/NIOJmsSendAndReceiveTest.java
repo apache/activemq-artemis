@@ -27,6 +27,7 @@ public class NIOJmsSendAndReceiveTest extends JmsTopicSendReceiveWithTwoConnecti
 
    protected BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       if (broker == null) {
          broker = createBroker();
@@ -35,6 +36,7 @@ public class NIOJmsSendAndReceiveTest extends JmsTopicSendReceiveWithTwoConnecti
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {
@@ -42,6 +44,7 @@ public class NIOJmsSendAndReceiveTest extends JmsTopicSendReceiveWithTwoConnecti
       }
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(getBrokerURL());
       return connectionFactory;

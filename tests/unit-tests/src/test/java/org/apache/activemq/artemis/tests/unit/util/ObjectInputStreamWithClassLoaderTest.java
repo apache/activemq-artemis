@@ -158,6 +158,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          }
       }
 
+      @Override
       public void run() {
 
          try {

@@ -57,6 +57,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private File targetFolder;
 
+   @Override
    protected boolean isIgnore() {
       return false;
    }

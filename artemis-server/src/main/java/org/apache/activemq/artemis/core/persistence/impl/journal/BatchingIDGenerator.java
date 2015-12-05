@@ -100,6 +100,7 @@ public final class BatchingIDGenerator implements IDGenerator {
 
    }
 
+   @Override
    public long generateID() {
       long id = counter.getAndIncrement();
 
@@ -109,6 +110,7 @@ public final class BatchingIDGenerator implements IDGenerator {
       return id;
    }
 
+   @Override
    public long getCurrentID() {
       return counter.get();
    }
@@ -178,14 +180,17 @@ public final class BatchingIDGenerator implements IDGenerator {
       IDCounterEncoding() {
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          id = buffer.readLong();
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeLong(id);
       }
 
+      @Override
       public int getEncodeSize() {
          return DataConstants.SIZE_LONG;
       }

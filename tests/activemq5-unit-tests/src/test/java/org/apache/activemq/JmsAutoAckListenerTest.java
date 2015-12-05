@@ -31,6 +31,7 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
 
    private Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -39,6 +40,7 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -73,6 +75,7 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
       session.close();
    }
 
+   @Override
    public void onMessage(Message message) {
       assertNotNull(message);
 

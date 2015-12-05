@@ -176,6 +176,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
          int count = 0;
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {
@@ -256,6 +257,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
          boolean started = true;
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {
@@ -359,6 +361,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
             this.stop = stop;
          }
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {
@@ -453,6 +456,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
             this.stop = stop;
          }
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {

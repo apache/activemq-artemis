@@ -53,6 +53,7 @@ public class PagePositionImpl implements PagePosition {
    /**
     * @return the recordID
     */
+   @Override
    public long getRecordID() {
       return recordID;
    }
@@ -60,6 +61,7 @@ public class PagePositionImpl implements PagePosition {
    /**
     * @param recordID the recordID to set
     */
+   @Override
    public void setRecordID(long recordID) {
       this.recordID = recordID;
    }
@@ -67,6 +69,7 @@ public class PagePositionImpl implements PagePosition {
    /**
     * @return the pageNr
     */
+   @Override
    public long getPageNr() {
       return pageNr;
    }
@@ -74,6 +77,7 @@ public class PagePositionImpl implements PagePosition {
    /**
     * @return the messageNr
     */
+   @Override
    public int getMessageNr() {
       return messageNr;
    }
@@ -97,10 +101,12 @@ public class PagePositionImpl implements PagePosition {
       }
    }
 
+   @Override
    public PagePosition nextMessage() {
       return new PagePositionImpl(this.pageNr, this.messageNr + 1);
    }
 
+   @Override
    public PagePosition nextPage() {
       return new PagePositionImpl(this.pageNr + 1, 0);
    }
@@ -140,6 +146,7 @@ public class PagePositionImpl implements PagePosition {
     * There is a rule for finalizing it where I'm establishing a counter, and that rule won't work without this method defined.
     * So, please don't remove it unless you had to remove that test for any weird reason.. it's here for a purpose!
     */
+   @Override
    protected void finalize() {
    }
 }

@@ -36,6 +36,7 @@ public class FakeQueueFactory implements QueueFactory {
 
    private PostOffice postOffice;
 
+   @Override
    public Queue createQueue(final long persistenceID,
                             final SimpleString address,
                             final SimpleString name,
@@ -48,6 +49,7 @@ public class FakeQueueFactory implements QueueFactory {
       return new QueueImpl(persistenceID, address, name, filter, subscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, null, null, executor);
    }
 
+   @Override
    public void setPostOffice(final PostOffice postOffice) {
       this.postOffice = postOffice;
 

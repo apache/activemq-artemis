@@ -56,10 +56,12 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       this.releasable = releasable;
    }
 
+   @Override
    public boolean readBoolean() {
       return readByte() != 0;
    }
 
+   @Override
    public SimpleString readNullableSimpleString() {
       int b = buffer.readByte();
       if (b == DataConstants.NULL) {
@@ -68,6 +70,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       return readSimpleStringInternal();
    }
 
+   @Override
    public String readNullableString() {
       int b = buffer.readByte();
       if (b == DataConstants.NULL) {
@@ -76,6 +79,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       return readStringInternal();
    }
 
+   @Override
    public SimpleString readSimpleString() {
       return readSimpleStringInternal();
    }
@@ -87,6 +91,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       return new SimpleString(data);
    }
 
+   @Override
    public String readString() {
       return readStringInternal();
    }
@@ -109,14 +114,17 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       }
    }
 
+   @Override
    public String readUTF() {
       return UTF8Util.readUTF(this);
    }
 
+   @Override
    public void writeBoolean(final boolean val) {
       buffer.writeByte((byte) (val ? -1 : 0));
    }
 
+   @Override
    public void writeNullableSimpleString(final SimpleString val) {
       if (val == null) {
          buffer.writeByte(DataConstants.NULL);
@@ -127,6 +135,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       }
    }
 
+   @Override
    public void writeNullableString(final String val) {
       if (val == null) {
          buffer.writeByte(DataConstants.NULL);
@@ -137,6 +146,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       }
    }
 
+   @Override
    public void writeSimpleString(final SimpleString val) {
       writeSimpleStringInternal(val);
    }
@@ -147,6 +157,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       buffer.writeBytes(data);
    }
 
+   @Override
    public void writeString(final String val) {
       writeStringInternal(val);
    }
@@ -172,343 +183,428 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       }
    }
 
+   @Override
    public void writeUTF(final String utf) {
       UTF8Util.saveUTF(this, utf);
    }
 
+   @Override
    public int capacity() {
       return buffer.capacity();
    }
 
+   @Override
    public ByteBuf byteBuf() {
       return buffer;
    }
 
+   @Override
    public void clear() {
       buffer.clear();
    }
 
+   @Override
    public ActiveMQBuffer copy() {
       return new ChannelBufferWrapper(buffer.copy(), releasable);
    }
 
+   @Override
    public ActiveMQBuffer copy(final int index, final int length) {
       return new ChannelBufferWrapper(buffer.copy(index, length), releasable);
    }
 
+   @Override
    public void discardReadBytes() {
       buffer.discardReadBytes();
    }
 
+   @Override
    public ActiveMQBuffer duplicate() {
       return new ChannelBufferWrapper(buffer.duplicate(), releasable);
    }
 
+   @Override
    public byte getByte(final int index) {
       return buffer.getByte(index);
    }
 
+   @Override
    public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
       buffer.getBytes(index, dst, dstIndex, length);
    }
 
+   @Override
    public void getBytes(final int index, final byte[] dst) {
       buffer.getBytes(index, dst);
    }
 
+   @Override
    public void getBytes(final int index, final ByteBuffer dst) {
       buffer.getBytes(index, dst);
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst, final int dstIndex, final int length) {
       buffer.getBytes(index, dst.byteBuf(), dstIndex, length);
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst, final int length) {
       buffer.getBytes(index, dst.byteBuf(), length);
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst) {
       buffer.getBytes(index, dst.byteBuf());
    }
 
+   @Override
    public char getChar(final int index) {
       return (char) buffer.getShort(index);
    }
 
+   @Override
    public double getDouble(final int index) {
       return Double.longBitsToDouble(buffer.getLong(index));
    }
 
+   @Override
    public float getFloat(final int index) {
       return Float.intBitsToFloat(buffer.getInt(index));
    }
 
+   @Override
    public int getInt(final int index) {
       return buffer.getInt(index);
    }
 
+   @Override
    public long getLong(final int index) {
       return buffer.getLong(index);
    }
 
+   @Override
    public short getShort(final int index) {
       return buffer.getShort(index);
    }
 
+   @Override
    public short getUnsignedByte(final int index) {
       return buffer.getUnsignedByte(index);
    }
 
+   @Override
    public long getUnsignedInt(final int index) {
       return buffer.getUnsignedInt(index);
    }
 
+   @Override
    public int getUnsignedShort(final int index) {
       return buffer.getUnsignedShort(index);
    }
 
+   @Override
    public void markReaderIndex() {
       buffer.markReaderIndex();
    }
 
+   @Override
    public void markWriterIndex() {
       buffer.markWriterIndex();
    }
 
+   @Override
    public boolean readable() {
       return buffer.isReadable();
    }
 
+   @Override
    public int readableBytes() {
       return buffer.readableBytes();
    }
 
+   @Override
    public byte readByte() {
       return buffer.readByte();
    }
 
+   @Override
    public void readBytes(final byte[] dst, final int dstIndex, final int length) {
       buffer.readBytes(dst, dstIndex, length);
    }
 
+   @Override
    public void readBytes(final byte[] dst) {
       buffer.readBytes(dst);
    }
 
+   @Override
    public void readBytes(final ByteBuffer dst) {
       buffer.readBytes(dst);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length) {
       buffer.readBytes(dst.byteBuf(), dstIndex, length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int length) {
       buffer.readBytes(dst.byteBuf(), length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst) {
       buffer.readBytes(dst.byteBuf());
    }
 
+   @Override
    public ActiveMQBuffer readBytes(final int length) {
       return new ChannelBufferWrapper(buffer.readBytes(length), releasable);
    }
 
+   @Override
    public char readChar() {
       return (char) buffer.readShort();
    }
 
+   @Override
    public double readDouble() {
       return Double.longBitsToDouble(buffer.readLong());
    }
 
+   @Override
    public int readerIndex() {
       return buffer.readerIndex();
    }
 
+   @Override
    public void readerIndex(final int readerIndex) {
       buffer.readerIndex(readerIndex);
    }
 
+   @Override
    public float readFloat() {
       return Float.intBitsToFloat(buffer.readInt());
    }
 
+   @Override
    public int readInt() {
       return buffer.readInt();
    }
 
+   @Override
    public long readLong() {
       return buffer.readLong();
    }
 
+   @Override
    public short readShort() {
       return buffer.readShort();
    }
 
+   @Override
    public ActiveMQBuffer readSlice(final int length) {
       return new ChannelBufferWrapper(buffer.readSlice(length), releasable);
    }
 
+   @Override
    public int readUnsignedByte() {
       return buffer.readUnsignedByte();
    }
 
+   @Override
    public long readUnsignedInt() {
       return buffer.readUnsignedInt();
    }
 
+   @Override
    public int readUnsignedShort() {
       return buffer.readUnsignedShort();
    }
 
+   @Override
    public void resetReaderIndex() {
       buffer.resetReaderIndex();
    }
 
+   @Override
    public void resetWriterIndex() {
       buffer.resetWriterIndex();
    }
 
+   @Override
    public void setByte(final int index, final byte value) {
       buffer.setByte(index, value);
    }
 
+   @Override
    public void setBytes(final int index, final byte[] src, final int srcIndex, final int length) {
       buffer.setBytes(index, src, srcIndex, length);
    }
 
+   @Override
    public void setBytes(final int index, final byte[] src) {
       buffer.setBytes(index, src);
    }
 
+   @Override
    public void setBytes(final int index, final ByteBuffer src) {
       buffer.setBytes(index, src);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length) {
       buffer.setBytes(index, src.byteBuf(), srcIndex, length);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src, final int length) {
       buffer.setBytes(index, src.byteBuf(), length);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src) {
       buffer.setBytes(index, src.byteBuf());
    }
 
+   @Override
    public void setChar(final int index, final char value) {
       buffer.setShort(index, (short) value);
    }
 
+   @Override
    public void setDouble(final int index, final double value) {
       buffer.setLong(index, Double.doubleToLongBits(value));
    }
 
+   @Override
    public void setFloat(final int index, final float value) {
       buffer.setInt(index, Float.floatToIntBits(value));
    }
 
+   @Override
    public void setIndex(final int readerIndex, final int writerIndex) {
       buffer.setIndex(readerIndex, writerIndex);
    }
 
+   @Override
    public void setInt(final int index, final int value) {
       buffer.setInt(index, value);
    }
 
+   @Override
    public void setLong(final int index, final long value) {
       buffer.setLong(index, value);
    }
 
+   @Override
    public void setShort(final int index, final short value) {
       buffer.setShort(index, value);
    }
 
+   @Override
    public int skipBytes(final int length) {
       buffer.skipBytes(length);
       return length;
    }
 
+   @Override
    public ActiveMQBuffer slice() {
       return new ChannelBufferWrapper(buffer.slice(), releasable);
    }
 
+   @Override
    public ActiveMQBuffer slice(final int index, final int length) {
       return new ChannelBufferWrapper(buffer.slice(index, length), releasable);
    }
 
+   @Override
    public ByteBuffer toByteBuffer() {
       return buffer.nioBuffer();
    }
 
+   @Override
    public ByteBuffer toByteBuffer(final int index, final int length) {
       return buffer.nioBuffer(index, length);
    }
 
+   @Override
    public boolean writable() {
       return buffer.isWritable();
    }
 
+   @Override
    public int writableBytes() {
       return buffer.writableBytes();
    }
 
+   @Override
    public void writeByte(final byte value) {
       buffer.writeByte(value);
    }
 
+   @Override
    public void writeBytes(final byte[] src, final int srcIndex, final int length) {
       buffer.writeBytes(src, srcIndex, length);
    }
 
+   @Override
    public void writeBytes(final byte[] src) {
       buffer.writeBytes(src);
    }
 
+   @Override
    public void writeBytes(final ByteBuffer src) {
       buffer.writeBytes(src);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       buffer.writeBytes(src.byteBuf(), srcIndex, length);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int length) {
       buffer.writeBytes(src.byteBuf(), length);
    }
 
+   @Override
    public void writeChar(final char chr) {
       buffer.writeShort((short) chr);
    }
 
+   @Override
    public void writeDouble(final double value) {
       buffer.writeLong(Double.doubleToLongBits(value));
    }
 
+   @Override
    public void writeFloat(final float value) {
       buffer.writeInt(Float.floatToIntBits(value));
    }
 
+   @Override
    public void writeInt(final int value) {
       buffer.writeInt(value);
    }
 
+   @Override
    public void writeLong(final long value) {
       buffer.writeLong(value);
    }
 
+   @Override
    public int writerIndex() {
       return buffer.writerIndex();
    }
 
+   @Override
    public void writerIndex(final int writerIndex) {
       buffer.writerIndex(writerIndex);
    }
 
+   @Override
    public void writeShort(final short value) {
       buffer.writeShort(value);
    }

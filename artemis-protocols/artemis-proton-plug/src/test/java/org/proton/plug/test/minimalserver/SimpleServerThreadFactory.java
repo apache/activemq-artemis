@@ -43,6 +43,7 @@ public final class SimpleServerThreadFactory implements ThreadFactory {
       this.daemon = daemon;
    }
 
+   @Override
    public Thread newThread(final Runnable command) {
       final Thread t;
       // attach the thread to a group only if there is no security manager:
@@ -55,6 +56,7 @@ public final class SimpleServerThreadFactory implements ThreadFactory {
       }
 
       AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         @Override
          public Object run() {
             t.setDaemon(daemon);
             t.setPriority(threadPriority);
@@ -64,6 +66,7 @@ public final class SimpleServerThreadFactory implements ThreadFactory {
 
       try {
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
             public Object run() {
                t.setContextClassLoader(tccl);
                return null;

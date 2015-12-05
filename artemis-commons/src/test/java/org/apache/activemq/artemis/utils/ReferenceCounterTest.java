@@ -34,6 +34,7 @@ public class ReferenceCounterTest extends Assert {
       final AtomicInteger counts = new AtomicInteger(0);
       volatile Thread lastThreadUsed;
 
+      @Override
       public void run() {
          counts.incrementAndGet();
          latch.countDown();
@@ -83,6 +84,7 @@ public class ReferenceCounterTest extends Assert {
 
       for (int i = 0; i < t.length; i++) {
          t[i] = new Thread() {
+            @Override
             public void run() {
                ref.increment();
             }
@@ -96,6 +98,7 @@ public class ReferenceCounterTest extends Assert {
 
       for (int i = 0; i < t.length; i++) {
          t[i] = new Thread() {
+            @Override
             public void run() {
                ref.decrement();
             }

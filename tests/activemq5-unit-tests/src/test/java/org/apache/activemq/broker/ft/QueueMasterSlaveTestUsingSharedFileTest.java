@@ -18,17 +18,21 @@ package org.apache.activemq.broker.ft;
 
 public class QueueMasterSlaveTestUsingSharedFileTest extends QueueMasterSlaveTestSupport {
 
+   @Override
    protected String getSlaveXml() {
       return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
    }
 
+   @Override
    protected String getMasterXml() {
       return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
    }
 
+   @Override
    protected void createSlave() throws Exception {
       // Start the Brokers async since starting them up could be a blocking operation..
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                QueueMasterSlaveTestUsingSharedFileTest.super.createSlave();

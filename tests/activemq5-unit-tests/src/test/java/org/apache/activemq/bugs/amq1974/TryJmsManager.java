@@ -65,6 +65,7 @@ public class TryJmsManager {
 
    private void startUsageMonitor(final BrokerService brokerService) {
       new Thread(new Runnable() {
+         @Override
          public void run() {
             while (true) {
                try {
@@ -108,6 +109,7 @@ public class TryJmsManager {
       MessageConsumer consumer = session.createConsumer(dest);
       consumer.setMessageListener(new MessageListener() {
 
+                                     @Override
                                      public void onMessage(Message message) {
                                         try {
                                            System.out.println("got message " + message.getJMSMessageID());

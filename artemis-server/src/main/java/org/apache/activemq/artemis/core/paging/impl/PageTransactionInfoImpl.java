@@ -70,18 +70,22 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    // Public --------------------------------------------------------
 
+   @Override
    public long getRecordID() {
       return recordID;
    }
 
+   @Override
    public void setRecordID(final long recordID) {
       this.recordID = recordID;
    }
 
+   @Override
    public long getTransactionID() {
       return transactionID;
    }
 
+   @Override
    public void onUpdate(final int update, final StorageManager storageManager, PagingManager pagingManager) {
       int sizeAfterUpdate = numberOfMessages.addAndGet(-update);
       if (sizeAfterUpdate == 0 && storageManager != null) {
@@ -96,17 +100,20 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       }
    }
 
+   @Override
    public void increment(final int durableSize, final int nonDurableSize) {
       numberOfPersistentMessages.addAndGet(durableSize);
       numberOfMessages.addAndGet(durableSize + nonDurableSize);
    }
 
+   @Override
    public int getNumberOfMessages() {
       return numberOfMessages.get();
    }
 
    // EncodingSupport implementation
 
+   @Override
    public synchronized void decode(final ActiveMQBuffer buffer) {
       transactionID = buffer.readLong();
       numberOfMessages.set(buffer.readInt());
@@ -114,15 +121,18 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       committed = true;
    }
 
+   @Override
    public synchronized void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(transactionID);
       buffer.writeInt(numberOfPersistentMessages.get());
    }
 
+   @Override
    public synchronized int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
    }
 
+   @Override
    public synchronized void commit() {
       if (lateDeliveries != null) {
          // This is to make sure deliveries that were touched before the commit arrived will be delivered
@@ -135,6 +145,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       lateDeliveries = null;
    }
 
+   @Override
    public void store(final StorageManager storageManager,
                      PagingManager pagingManager,
                      final Transaction tx) throws Exception {
@@ -146,12 +157,14 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.artemis.core.persistence.StorageManager, org.apache.activemq.artemis.core.transaction.Transaction, int)
     */
+   @Override
    public void storeUpdate(final StorageManager storageManager,
                            final PagingManager pagingManager,
                            final Transaction tx) throws Exception {
       internalUpdatePageManager(storageManager, pagingManager, tx, 1);
    }
 
+   @Override
    public void reloadUpdate(final StorageManager storageManager,
                             final PagingManager pagingManager,
                             final Transaction tx,
@@ -184,18 +197,22 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       return pgtxUpdate;
    }
 
+   @Override
    public boolean isCommit() {
       return committed;
    }
 
+   @Override
    public void setCommitted(final boolean committed) {
       this.committed = committed;
    }
 
+   @Override
    public boolean isRollback() {
       return rolledback;
    }
 
+   @Override
    public synchronized void rollback() {
       rolledback = true;
       committed = false;

@@ -483,6 +483,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
          targetCallback.sendProducerCreditsMessage(credits, address);
       }
 
+      @Override
       public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
          targetCallback.sendProducerCreditsFailMessage(credits, address);
       }

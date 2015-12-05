@@ -57,6 +57,7 @@ public class AcknowledgedQueueConsumer extends QueueConsumer {
       return ack;
    }
 
+   @Override
    @Path("acknowledge-next{index}")
    @POST
    public synchronized Response poll(@HeaderParam(Constants.WAIT_HEADER) @DefaultValue("0") long wait,

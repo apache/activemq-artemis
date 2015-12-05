@@ -28,6 +28,7 @@ public class AMQ4485LowLimitLevelDBTest extends AMQ4485LowLimitTest {
       numBrokers = 2;
    }
 
+   @Override
    protected BrokerService createBroker(int brokerid, boolean addToNetwork) throws Exception {
       BrokerService broker = super.createBroker(brokerid, addToNetwork);
 

@@ -30,12 +30,14 @@ public class ConnectionControlTest extends BaseCommandTestSupport {
 
    public static final ConnectionControlTest SINGLETON = new ConnectionControlTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConnectionControl info = new ConnectionControl();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConnectionControl info = (ConnectionControl) object;

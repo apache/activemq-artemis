@@ -41,6 +41,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       this.windowSize = windowSize;
    }
 
+   @Override
    public synchronized ClientProducerCredits getCredits(final SimpleString address,
                                                         final boolean anon,
                                                         SessionContext context) {
@@ -84,6 +85,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
+   @Override
    public synchronized void returnCredits(final SimpleString address) {
       ClientProducerCredits credits = producerCredits.get(address);
 
@@ -92,6 +94,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
+   @Override
    public synchronized void receiveCredits(final SimpleString address, final int credits) {
       ClientProducerCredits cr = producerCredits.get(address);
 
@@ -100,6 +103,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
+   @Override
    public synchronized void receiveFailCredits(final SimpleString address, int credits) {
       ClientProducerCredits cr = producerCredits.get(address);
 
@@ -108,12 +112,14 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
+   @Override
    public synchronized void reset() {
       for (ClientProducerCredits credits : producerCredits.values()) {
          credits.reset();
       }
    }
 
+   @Override
    public synchronized void close() {
       windowSize = -1;
 
@@ -126,10 +132,12 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       unReferencedCredits.clear();
    }
 
+   @Override
    public synchronized int creditsMapSize() {
       return producerCredits.size();
    }
 
+   @Override
    public synchronized int unReferencedCreditsSize() {
       return unReferencedCredits.size();
    }
@@ -162,35 +170,45 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
       static ClientProducerCreditsNoFlowControl instance = new ClientProducerCreditsNoFlowControl();
 
+      @Override
       public void acquireCredits(int credits) throws InterruptedException {
       }
 
+      @Override
       public void receiveCredits(int credits) {
       }
 
+      @Override
       public void receiveFailCredits(int credits) {
       }
 
+      @Override
       public boolean isBlocked() {
          return false;
       }
 
+      @Override
       public void init(SessionContext ctx) {
       }
 
+      @Override
       public void reset() {
       }
 
+      @Override
       public void close() {
       }
 
+      @Override
       public void incrementRefCount() {
       }
 
+      @Override
       public int decrementRefCount() {
          return 1;
       }
 
+      @Override
       public void releaseOutstanding() {
       }
 

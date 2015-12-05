@@ -75,6 +75,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       stopped = true;
    }
 
+   @Override
    public void channelRead(ChannelHandlerContext ctx, Object msg) {
       try {
          if (stopped) {

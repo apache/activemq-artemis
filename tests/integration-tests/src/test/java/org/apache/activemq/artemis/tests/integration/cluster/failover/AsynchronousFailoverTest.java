@@ -60,6 +60,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
    @Test
    public void testNonTransactional() throws Throwable {
       runTest(new TestRunner() {
+         @Override
          public void run() {
             try {
                doTestNonTransactional(this);
@@ -77,6 +78,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
       runTest(new TestRunner() {
          volatile boolean running = false;
 
+         @Override
          public void run() {
             try {
                assertFalse(running);

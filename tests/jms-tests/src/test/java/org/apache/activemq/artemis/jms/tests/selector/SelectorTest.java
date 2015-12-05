@@ -536,6 +536,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          final CountDownLatch latch2 = new CountDownLatch(1);
 
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   while (true) {
@@ -556,6 +557,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          }, "consumer thread 1").start();
 
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   while (true) {

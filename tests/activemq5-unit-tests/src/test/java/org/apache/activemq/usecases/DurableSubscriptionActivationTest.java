@@ -35,22 +35,26 @@ public class DurableSubscriptionActivationTest extends org.apache.activemq.TestS
    private Connection connection;
    private ActiveMQTopic topic;
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://" + getName());
    }
 
+   @Override
    protected Connection createConnection() throws Exception {
       Connection rc = super.createConnection();
       rc.setClientID(getName());
       return rc;
    }
 
+   @Override
    protected void setUp() throws Exception {
       topic = (ActiveMQTopic) createDestination();
       createBroker(true);
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       destroyBroker();

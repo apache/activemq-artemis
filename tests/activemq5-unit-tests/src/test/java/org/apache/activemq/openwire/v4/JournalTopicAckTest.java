@@ -37,12 +37,14 @@ public class JournalTopicAckTest extends DataFileGeneratorTestSupport {
 
    public static JournalTopicAckTest SINGLETON = new JournalTopicAckTest();
 
+   @Override
    public Object createObject() throws Exception {
       JournalTopicAck info = new JournalTopicAck();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       JournalTopicAck info = (JournalTopicAck) object;

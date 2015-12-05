@@ -56,6 +56,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       this.acc = AccessController.getContext();
    }
 
+   @Override
    public Thread newThread(final Runnable command) {
       // create a thread in a privileged block if running with Security Manager
       if (acc != null) {
@@ -74,6 +75,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
          this.target = target;
       }
 
+      @Override
       public Thread run() {
          return createThread(target);
       }

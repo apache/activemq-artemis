@@ -20,6 +20,7 @@ import junit.framework.Test;
 
 public class DedicatedTaskRunnerBrokerTest extends BrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       broker.setDedicatedTaskRunner(true);

@@ -88,6 +88,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    // Public --------------------------------------------------------
 
+   @Override
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent) {
       if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
@@ -102,10 +103,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       return activeCursor;
    }
 
+   @Override
    public synchronized PageSubscription getSubscription(long cursorID) {
       return activeCursors.get(cursorID);
    }
 
+   @Override
    public PagedMessage getMessage(final PagePosition pos) {
       PageCache cache = getPageCache(pos.getPageNr());
 
@@ -117,12 +120,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       return cache.getMessage(pos.getMessageNr());
    }
 
+   @Override
    public PagedReference newReference(final PagePosition pos,
                                       final PagedMessage msg,
                                       final PageSubscription subscription) {
       return new PagedReferenceImpl(pos, msg, subscription);
    }
 
+   @Override
    public PageCache getPageCache(final long pageId) {
       try {
          boolean needToRead = false;
@@ -183,16 +188,19 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void addPageCache(PageCache cache) {
       synchronized (softCache) {
          softCache.put(cache.getPageId(), cache);
       }
    }
 
+   @Override
    public void setCacheMaxSize(final int size) {
       softCache.setMaxElements(size);
    }
 
+   @Override
    public int getCacheSize() {
       synchronized (softCache) {
          return softCache.size();
@@ -205,6 +213,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void processReload() throws Exception {
       Collection<PageSubscription> cursorList = this.activeCursors.values();
       for (PageSubscription cursor : cursorList) {
@@ -231,6 +240,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    }
 
+   @Override
    public void stop() {
       for (PageSubscription cursor : activeCursors.values()) {
          cursor.stop();
@@ -249,6 +259,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void flushExecutors() {
       for (PageSubscription cursor : activeCursors.values()) {
          cursor.flushExecutors();
@@ -256,6 +267,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       waitForFuture();
    }
 
+   @Override
    public void close(PageSubscription cursor) {
       activeCursors.remove(cursor.getId());
 
@@ -274,6 +286,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       scheduledCleanup.incrementAndGet();
 
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             storageManager.setContext(storageManager.newSingleThreadContext());
             try {
@@ -293,6 +306,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * Hence the PagingStore will be holding a write lock, meaning no messages are going to be paged at this time.
     * So, we shouldn't lock anything after this method, to avoid dead locks between the writeLock and any synchronization with the CursorProvider.
     */
+   @Override
    public void onPageModeCleared() {
       ArrayList<PageSubscription> subscriptions = cloneSubscriptions();
 
@@ -314,14 +328,17 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void disableCleanup() {
       this.cleanupEnabled = false;
    }
 
+   @Override
    public void resumeCleanup() {
       this.cleanupEnabled = true;
    }
 
+   @Override
    public void cleanup() {
       ArrayList<Page> depagedPages = new ArrayList<Page>();
 
@@ -524,6 +541,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void printDebug() {
       System.out.println("Debug information for PageCursorProviderImpl:");
       for (PageCache cache : softCache.values()) {

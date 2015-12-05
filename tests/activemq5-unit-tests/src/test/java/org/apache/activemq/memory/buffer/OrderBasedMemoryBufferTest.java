@@ -66,6 +66,7 @@ public class OrderBasedMemoryBufferTest extends MemoryBufferTestSupport {
       assertEquals("qC", 20, qC.getSize());
    }
 
+   @Override
    protected MessageBuffer createMessageBuffer() {
       return new OrderBasedMessageBuffer(40);
    }

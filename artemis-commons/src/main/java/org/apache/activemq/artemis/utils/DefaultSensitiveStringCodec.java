@@ -42,6 +42,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
    private byte[] internalKey = "clusterpassword".getBytes();
 
+   @Override
    public String decode(Object secret) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
       SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
 
@@ -77,6 +78,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       return n.toString(16);
    }
 
+   @Override
    public void init(Map<String, String> params) {
       String key = params.get("key");
       if (key != null) {

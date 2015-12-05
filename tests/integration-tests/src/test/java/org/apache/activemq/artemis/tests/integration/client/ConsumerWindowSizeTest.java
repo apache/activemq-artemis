@@ -318,6 +318,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       for (int i = 0; i < threads.length; i++) {
          threads[i] = new Thread() {
+            @Override
             public void run() {
                try {
                   ClientSession session = sf.createSession(false, false);
@@ -1050,6 +1051,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             /* (non-Javadoc)
              * @see MessageHandler#onMessage(ClientMessage)
              */
+            @Override
             public synchronized void onMessage(final ClientMessage message) {
                try {
                   String str = getTextMessage(message);
@@ -1192,6 +1194,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
             /* (non-Javadoc)
              * @see MessageHandler#onMessage(ClientMessage)
              */
+            @Override
             public synchronized void onMessage(final ClientMessage message) {
                try {
                   log.info("received msg " + message);

@@ -72,16 +72,19 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       this.aioFactory = factory;
    }
 
+   @Override
    public boolean isOpen() {
       return opened;
    }
 
+   @Override
    public int getAlignment() {
       checkOpened();
 
       return aioFile.getBlockSize();
    }
 
+   @Override
    public int calculateBlockStart(final int position) {
       int alignment = getAlignment();
 
@@ -90,6 +93,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       return pos;
    }
 
+   @Override
    public SequentialFile cloneFile() {
       return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), writerExecutor);
    }
@@ -114,6 +118,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       aioFile = null;
    }
 
+   @Override
    public synchronized void fill(final int size) throws Exception {
       checkOpened();
       aioFile.fill(size);
@@ -121,10 +126,12 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       fileSize = aioFile.getSize();
    }
 
+   @Override
    public void open() throws Exception {
       open(aioFactory.getMaxIO(), true);
    }
 
+   @Override
    public synchronized void open(final int maxIO, final boolean useExecutor) throws ActiveMQException {
       opened = true;
 
@@ -141,6 +148,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       fileSize = aioFile.getSize();
    }
 
+   @Override
    public int read(final ByteBuffer bytes, final IOCallback callback) throws ActiveMQException {
       checkOpened();
       int bytesToRead = bytes.limit();
@@ -163,6 +171,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       return bytesToRead;
    }
 
+   @Override
    public int read(final ByteBuffer bytes) throws Exception {
       SimpleWaitIOCallback waitCompletion = new SimpleWaitIOCallback();
 
@@ -173,6 +182,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       return bytesRead;
    }
 
+   @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
       if (sync) {
          SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
@@ -189,6 +199,7 @@ public class AIOSequentialFile extends AbstractSequentialFile {
    /**
     * Note: Parameter sync is not used on AIO
     */
+   @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
       checkOpened();
 
@@ -240,10 +251,12 @@ public class AIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
+   @Override
    public void sync() {
       throw new UnsupportedOperationException("This method is not supported on AIO");
    }
 
+   @Override
    public long size() throws Exception {
       if (aioFile == null) {
          return getFile().length();

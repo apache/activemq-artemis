@@ -90,11 +90,13 @@ public class AMQ1687Test extends EmbeddedBrokerTestSupport {
       return "Consumer.B.VirtualTopic.TEST";
    }
 
+   @Override
    protected void setUp() throws Exception {
       this.bindAddress = "tcp://localhost:0";
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

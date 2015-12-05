@@ -102,6 +102,7 @@ public class DurableSubDelayedUnsubscribeTest {
 
       // Wait for all clients to stop
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return clientManager.getClientCount() == 0;
          }

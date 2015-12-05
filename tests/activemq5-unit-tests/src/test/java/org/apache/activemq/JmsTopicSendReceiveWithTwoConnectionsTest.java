@@ -34,6 +34,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
    protected Connection receiveConnection;
    protected Session receiveSession;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -97,10 +98,12 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       return session.createConsumer(dest);
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       session.close();
       receiveSession.close();

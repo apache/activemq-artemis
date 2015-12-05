@@ -98,6 +98,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     *
     * @param reference The reference
     */
+   @Override
    public void setReference(final Reference reference) {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("setReference(" + reference + ")");
@@ -111,6 +112,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     *
     * @return The reference
     */
+   @Override
    public Reference getReference() {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("getReference()");
@@ -134,6 +136,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public QueueConnection createQueueConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createQueueConnection()");
@@ -156,6 +159,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public QueueConnection createQueueConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createQueueConnection(" + userName + ", ****)");
@@ -180,6 +184,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public TopicConnection createTopicConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createTopicConnection()");
@@ -202,6 +207,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public TopicConnection createTopicConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createTopicConnection(" + userName + ", ****)");
@@ -225,6 +231,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public Connection createConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createConnection()");
@@ -247,6 +254,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public Connection createConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createConnection(" + userName + ", ****)");
@@ -271,6 +279,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XAQueueConnection createXAQueueConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXAQueueConnection()");
@@ -293,6 +302,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XAQueueConnection createXAQueueConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXAQueueConnection(" + userName + ", ****)");
@@ -316,6 +326,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XATopicConnection createXATopicConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXATopicConnection()");
@@ -338,6 +349,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XATopicConnection createXATopicConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXATopicConnection(" + userName + ", ****)");
@@ -361,6 +373,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XAConnection createXAConnection() throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXAConnection()");
@@ -383,6 +396,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @return The connection
     * @throws JMSException Thrown if the operation fails
     */
+   @Override
    public XAConnection createXAConnection(final String userName, final String password) throws JMSException {
       if (ActiveMQRAConnectionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXAConnection(" + userName + ", ****)");

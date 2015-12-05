@@ -24,6 +24,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class JDBCStoreBrokerTest extends BrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();

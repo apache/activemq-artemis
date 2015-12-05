@@ -239,10 +239,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       activation.remoteFailOver(packet.isFinalMessage());
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
 
+   @Override
    public synchronized void start() throws Exception {
       Configuration config = server.getConfiguration();
       try {
@@ -272,6 +274,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
+   @Override
    public synchronized void stop() throws Exception {
       if (!started) {
          return;

@@ -59,6 +59,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
       this.session = session;
    }
 
+   @Override
    public void initialise() throws Exception {
       if (!isInitialized()) {
          super.initialise();

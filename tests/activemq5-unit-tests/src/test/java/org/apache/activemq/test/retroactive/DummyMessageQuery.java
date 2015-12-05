@@ -34,6 +34,7 @@ public class DummyMessageQuery implements MessageQuery {
    public static final int MESSAGE_COUNT = 10;
    private static final Logger LOG = LoggerFactory.getLogger(DummyMessageQuery.class);
 
+   @Override
    public void execute(ActiveMQDestination destination, MessageListener listener) throws Exception {
       LOG.info("Initial query is creating: " + MESSAGE_COUNT + " messages");
       for (int i = 0; i < MESSAGE_COUNT; i++) {
@@ -43,6 +44,7 @@ public class DummyMessageQuery implements MessageQuery {
       }
    }
 
+   @Override
    public boolean validateUpdate(Message message) {
       return true;
    }

@@ -112,6 +112,7 @@ public class DoubleSubscriptionTest extends NetworkTestSupport {
       assertNoMessagesLeft(connection3);
    }
 
+   @Override
    protected String getRemoteURI() {
       return remoteURI;
    }

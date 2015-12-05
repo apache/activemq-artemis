@@ -71,6 +71,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadBooleanFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readBoolean();
          }
@@ -80,6 +81,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadBooleanFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readBoolean();
          }
@@ -89,6 +91,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadCharFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readChar();
          }
@@ -98,6 +101,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadCharFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readChar();
          }
@@ -129,6 +133,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadByteFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readByte();
          }
@@ -138,6 +143,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadByteFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readByte();
          }
@@ -175,6 +181,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadBytesFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readByte();
          }
@@ -184,6 +191,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadBytesFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             byte[] bytes = new byte[1];
             return message.readBytes(bytes);
@@ -227,6 +235,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadShortFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readShort();
          }
@@ -236,6 +245,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadShortFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readShort();
          }
@@ -289,6 +299,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadIntFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readInt();
          }
@@ -298,6 +309,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadIntFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readInt();
          }
@@ -388,6 +400,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadLongFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readLong();
          }
@@ -397,6 +410,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadLongFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readLong();
          }
@@ -428,6 +442,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadFloatFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readFloat();
          }
@@ -437,6 +452,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadFloatFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readFloat();
          }
@@ -479,6 +495,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadDoubleFromInvalidType() throws Exception {
       doReadTypeFromInvalidType(RandomUtil.randomBoolean(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readDouble();
          }
@@ -488,6 +505,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadDoubleFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readDouble();
          }
@@ -625,6 +643,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testReadStringFromEmptyMessage() throws Exception {
       doReadTypeFromEmptyMessage(new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readString();
          }
@@ -634,6 +653,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithBoolean() throws Exception {
       doWriteObjectWithType(RandomUtil.randomBoolean(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readBoolean();
          }
@@ -643,6 +663,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithChar() throws Exception {
       doWriteObjectWithType(RandomUtil.randomChar(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readChar();
          }
@@ -652,6 +673,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithByte() throws Exception {
       doWriteObjectWithType(RandomUtil.randomByte(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readByte();
          }
@@ -662,6 +684,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    public void testWriteObjectWithBytes() throws Exception {
       final byte[] value = RandomUtil.randomBytes();
       doWriteObjectWithType(value, new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             byte[] bytes = new byte[value.length];
             message.readBytes(bytes);
@@ -673,6 +696,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithShort() throws Exception {
       doWriteObjectWithType(RandomUtil.randomShort(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readShort();
          }
@@ -682,6 +706,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithInt() throws Exception {
       doWriteObjectWithType(RandomUtil.randomInt(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readInt();
          }
@@ -691,6 +716,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithLong() throws Exception {
       doWriteObjectWithType(RandomUtil.randomLong(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readLong();
          }
@@ -700,6 +726,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithFloat() throws Exception {
       doWriteObjectWithType(RandomUtil.randomFloat(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readFloat();
          }
@@ -709,6 +736,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithDouble() throws Exception {
       doWriteObjectWithType(RandomUtil.randomDouble(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readDouble();
          }
@@ -718,6 +746,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    @Test
    public void testWriteObjectWithString() throws Exception {
       doWriteObjectWithType(RandomUtil.randomString(), new TypeReader() {
+         @Override
          public Object readType(final ActiveMQStreamMessage message) throws Exception {
             return message.readString();
          }

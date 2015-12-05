@@ -72,18 +72,22 @@ public class ReconnectTest extends TestCase {
          ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
          connection = (ActiveMQConnection) factory.createConnection();
          connection.addTransportListener(new TransportListener() {
+            @Override
             public void onCommand(Object command) {
             }
 
+            @Override
             public void onException(IOException error) {
                setError(error);
             }
 
+            @Override
             public void transportInterupted() {
                LOG.info("Worker " + name + " was interrupted...");
                interruptedCount.incrementAndGet();
             }
 
+            @Override
             public void transportResumed() {
                LOG.info("Worker " + name + " was resummed...");
                resumedCount.incrementAndGet();
@@ -117,6 +121,7 @@ public class ReconnectTest extends TestCase {
          }
       }
 
+      @Override
       public void run() {
          try {
             ActiveMQQueue queue = new ActiveMQQueue("FOO_" + name);
@@ -188,6 +193,7 @@ public class ReconnectTest extends TestCase {
          }
 
          assertTrue("Timed out waiting for all connections to be interrupted.", Wait.waitFor(new Wait.Condition() {
+            @Override
             public boolean isSatisified() throws Exception {
                LOG.debug("Test run waiting for connections to get interrupted.. at: " + interruptedCount.get());
                return interruptedCount.get() == WORKER_COUNT;
@@ -196,6 +202,7 @@ public class ReconnectTest extends TestCase {
 
          // Wait for the connections to re-establish...
          assertTrue("Timed out waiting for all connections to be resumed.", Wait.waitFor(new Wait.Condition() {
+            @Override
             public boolean isSatisified() throws Exception {
                LOG.debug("Test run waiting for connections to get resumed.. at: " + resumedCount.get());
                return resumedCount.get() >= WORKER_COUNT;

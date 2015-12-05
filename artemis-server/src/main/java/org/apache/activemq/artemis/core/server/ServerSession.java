@@ -36,6 +36,7 @@ public interface ServerSession extends SecurityAuth {
 
    Object getConnectionID();
 
+   @Override
    RemotingConnection getRemotingConnection();
 
    boolean removeConsumer(long consumerID) throws Exception;

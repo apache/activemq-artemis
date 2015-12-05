@@ -25,6 +25,7 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public class TopicBridgeXBeanTest extends TopicBridgeSpringTest {
 
+   @Override
    protected AbstractApplicationContext createApplicationContext() {
       return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-config.xml");
    }

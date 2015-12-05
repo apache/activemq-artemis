@@ -114,6 +114,7 @@ public class MiscellaneousTest extends JMSTestCase {
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer cons = s.createConsumer(queue1);
       cons.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(final Message m) {
             // close the connection on the same thread that processed the message
             try {
@@ -167,6 +168,7 @@ public class MiscellaneousTest extends JMSTestCase {
       Session s = conn.createSession(true, Session.SESSION_TRANSACTED);
       final MessageConsumer cons = s.createConsumer(queue1);
       cons.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(final Message m) {
             // close the connection on the same thread that processed the message
             try {

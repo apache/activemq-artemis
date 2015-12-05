@@ -196,6 +196,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
       boolean result = false;
       if (!broker.getNetworkConnectors().isEmpty()) {
          result = Wait.waitFor(new Wait.Condition() {
+            @Override
             public boolean isSatisified() throws Exception {
                int activeCount = 0;
                for (NetworkBridge bridge : broker.getNetworkConnectors().get(bridgeIndex).activeBridges()) {
@@ -240,6 +241,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
                                 long time,
                                 TimeUnit units) throws InterruptedException, TimeoutException, Exception {
       if (!Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() {
             return hasBridge(localBrokerName, remoteBrokerName);
          }
@@ -416,6 +418,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
          final AtomicInteger actualConnected = new AtomicInteger();
          final CountDownLatch latch = new CountDownLatch(1);
          ces.setConsumerListener(new ConsumerListener() {
+            @Override
             public void onConsumerEvent(ConsumerEvent event) {
                if (actualConnected.get() < count) {
                   actualConnected.set(event.getConsumerCount());
@@ -508,12 +511,14 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       brokers = new HashMap<String, BrokerItem>();
       destinations = new HashMap<String, Destination>();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       destroyAllBrokers();
       super.tearDown();

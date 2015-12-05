@@ -47,6 +47,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       this.configuration = configuration;
    }
 
+   @Override
    public String getAddress() {
       clearIO();
       try {
@@ -57,6 +58,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public String getFilter() {
       clearIO();
       try {
@@ -67,6 +69,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public String getForwardingAddress() {
       clearIO();
       try {
@@ -77,6 +80,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public String getRoutingName() {
       clearIO();
       try {
@@ -87,6 +91,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public String getTransformerClassName() {
       clearIO();
       try {
@@ -97,6 +102,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public String getUniqueName() {
       clearIO();
       try {
@@ -107,6 +113,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       }
    }
 
+   @Override
    public boolean isExclusive() {
       clearIO();
       try {

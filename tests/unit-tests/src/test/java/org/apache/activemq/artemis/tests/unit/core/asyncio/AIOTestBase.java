@@ -100,6 +100,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
 
       final AtomicInteger timesDoneCalled = new AtomicInteger(0);
 
+      @Override
       public void done() {
          if (outputList != null) {
             outputList.add(order);
@@ -111,6 +112,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase {
          }
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
          errorCalled++;
          if (outputList != null) {

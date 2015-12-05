@@ -29,6 +29,7 @@ public class ExampleListener implements MessageListener {
 
    public static ReusableLatch latch = new ReusableLatch();
 
+   @Override
    public void onMessage(Message message) {
       try {
          lastMessage = ((TextMessage) message).getText();

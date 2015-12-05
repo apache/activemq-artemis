@@ -122,6 +122,7 @@ public class FailoverTest extends FailoverTestBase {
       final CountDownLatch latchFailed = new CountDownLatch(1);
 
       Runnable r = new Runnable() {
+         @Override
          public void run() {
             for (int i = 0; i < 500; i++) {
                ClientMessage message = session.createMessage(true);
@@ -200,6 +201,7 @@ public class FailoverTest extends FailoverTestBase {
 
       consumer.setMessageHandler(new MessageHandler() {
 
+         @Override
          public void onMessage(ClientMessage message) {
             Integer counter = message.getIntProperty("counter");
             received.put(counter, message);
@@ -453,6 +455,7 @@ public class FailoverTest extends FailoverTestBase {
 
       consumer.setMessageHandler(new MessageHandler() {
 
+         @Override
          public void onMessage(ClientMessage message) {
             latch.countDown();
          }

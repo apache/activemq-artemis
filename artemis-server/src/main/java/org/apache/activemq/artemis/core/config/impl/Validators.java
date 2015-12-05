@@ -33,12 +33,14 @@ public final class Validators {
    }
 
    public static final Validator NO_CHECK = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          return;
       }
    };
 
    public static final Validator NOT_NULL_OR_EMPTY = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          String str = (String) value;
          if (str == null || str.length() == 0) {
@@ -48,6 +50,7 @@ public final class Validators {
    };
 
    public static final Validator GT_ZERO = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val.doubleValue() > 0) {
@@ -60,6 +63,7 @@ public final class Validators {
    };
 
    public static final Validator PERCENTAGE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val == null || (val.intValue() < 0 || val.intValue() > 100)) {
@@ -69,6 +73,7 @@ public final class Validators {
    };
 
    public static final Validator GE_ZERO = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val.doubleValue() >= 0) {
@@ -81,6 +86,7 @@ public final class Validators {
    };
 
    public static final Validator MINUS_ONE_OR_GT_ZERO = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val.doubleValue() == -1 || val.doubleValue() > 0) {
@@ -93,6 +99,7 @@ public final class Validators {
    };
 
    public static final Validator MINUS_ONE_OR_GE_ZERO = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val.doubleValue() == -1 || val.doubleValue() >= 0) {
@@ -105,6 +112,7 @@ public final class Validators {
    };
 
    public static final Validator THREAD_PRIORITY_RANGE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          Number val = (Number) value;
          if (val.intValue() >= Thread.MIN_PRIORITY && val.intValue() <= Thread.MAX_PRIORITY) {
@@ -117,6 +125,7 @@ public final class Validators {
    };
 
    public static final Validator JOURNAL_TYPE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(JournalType.NIO.toString()) && !val.equals(JournalType.ASYNCIO.toString())) {
@@ -126,6 +135,7 @@ public final class Validators {
    };
 
    public static final Validator ADDRESS_FULL_MESSAGE_POLICY_TYPE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(AddressFullMessagePolicy.PAGE.toString()) &&
@@ -138,6 +148,7 @@ public final class Validators {
    };
 
    public static final Validator SLOW_CONSUMER_POLICY_TYPE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) && !val.equals(SlowConsumerPolicy.NOTIFY.toString())) {
@@ -147,6 +158,7 @@ public final class Validators {
    };
 
    public static final Validator MESSAGE_LOAD_BALANCING_TYPE = new Validator() {
+      @Override
       public void validate(final String name, final Object value) {
          String val = (String) value;
          if (val == null || !val.equals(MessageLoadBalancingType.OFF.toString()) &&

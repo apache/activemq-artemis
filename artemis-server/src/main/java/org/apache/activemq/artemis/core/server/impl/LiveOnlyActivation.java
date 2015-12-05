@@ -53,6 +53,7 @@ public class LiveOnlyActivation extends Activation {
       this.liveOnlyPolicy = liveOnlyPolicy;
    }
 
+   @Override
    public void run() {
       try {
          activeMQServer.initialisePart1(false);
@@ -81,6 +82,7 @@ public class LiveOnlyActivation extends Activation {
       }
    }
 
+   @Override
    public void freezeConnections(RemotingService remotingService) {
       // connect to the scale-down target first so that when we freeze/disconnect the clients we can tell them where
       // we're sending the messages

@@ -378,6 +378,7 @@ public class BridgeTest extends ActiveMQTestBase {
             latch = new CountDownLatch(numberOfIgnores);
          }
 
+         @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             if (ignoreSends && packet instanceof SessionSendMessage ||
                ignoreSends && packet instanceof SessionSendLargeMessage ||
@@ -1460,6 +1461,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
                thread = new Thread("***Server Restarter***") {
 
+                  @Override
                   public void run() {
                      try {
                         System.out.println("Stopping server");

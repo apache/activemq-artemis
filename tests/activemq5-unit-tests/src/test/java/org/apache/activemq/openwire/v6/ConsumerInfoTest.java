@@ -37,12 +37,14 @@ public class ConsumerInfoTest extends BaseCommandTestSupport {
 
    public static ConsumerInfoTest SINGLETON = new ConsumerInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConsumerInfo info = new ConsumerInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConsumerInfo info = (ConsumerInfo) object;

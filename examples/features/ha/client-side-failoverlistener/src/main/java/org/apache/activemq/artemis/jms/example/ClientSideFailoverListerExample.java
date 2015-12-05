@@ -122,6 +122,7 @@ public class ClientSideFailoverListerExample {
 
    private static class FailoverListenerImpl implements FailoverEventListener {
 
+      @Override
       public void failoverEvent(FailoverEventType eventType) {
          System.out.println("Failover event triggered :" + eventType.toString());
       }

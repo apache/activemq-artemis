@@ -29,6 +29,7 @@ public class TwoBrokerQueueSendReceiveTest extends TwoBrokerTopicSendReceiveTest
 
    private static final Logger LOG = LoggerFactory.getLogger(TwoBrokerQueueSendReceiveTest.class);
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();

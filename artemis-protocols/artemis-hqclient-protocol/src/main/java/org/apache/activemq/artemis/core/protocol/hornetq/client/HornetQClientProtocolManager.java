@@ -30,10 +30,12 @@ import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager {
 
    private static final int VERSION_PLAYED = 123;
+   @Override
    protected void sendHandshake(Connection transportConnection) {
    }
 
 
+   @Override
    protected SessionContext newSessionContext(String name,
                                               int confirmationWindowSize,
                                               Channel sessionChannel,

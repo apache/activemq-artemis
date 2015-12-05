@@ -56,6 +56,7 @@ public class mKahaDBXARecoveryBrokerTest extends XARecoveryBrokerTest {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    protected ActiveMQDestination createDestination() {
       return new ActiveMQQueue("test,special");
    }

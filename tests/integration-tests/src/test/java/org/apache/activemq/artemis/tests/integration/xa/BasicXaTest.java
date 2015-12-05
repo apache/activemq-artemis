@@ -852,6 +852,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          this.session = session;
       }
 
+      @Override
       public void onMessage(final ClientMessage message) {
          Xid xid = new XidImpl(UUIDGenerator.getInstance().generateStringUUID().getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
          try {

@@ -89,6 +89,7 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
       }
    }
 
+   @Override
    public Object getLock() {
       return lock;
    }
@@ -229,6 +230,7 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
       }
    }
 
+   @Override
    public void createClientSasl(ClientSASL clientSASL) {
       if (clientSASL != null) {
          clientSasl = transport.sasl();

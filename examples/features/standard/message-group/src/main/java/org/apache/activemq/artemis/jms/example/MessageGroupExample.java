@@ -109,6 +109,7 @@ class SimpleMessageListener implements MessageListener {
       this.messageReceiverMap = messageReceiverMap;
    }
 
+   @Override
    public void onMessage(final Message message) {
       try {
          TextMessage msg = (TextMessage) message;

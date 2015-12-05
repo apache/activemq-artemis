@@ -36,6 +36,7 @@ public class ReflectionSupportTest extends TestCase {
    List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
    String nonFavoritesString = "[topic://test1]";
 
+   @Override
    public void setUp() {
       favorites.add(new ActiveMQQueue("test"));
       favorites.add(new ActiveMQTopic("test"));

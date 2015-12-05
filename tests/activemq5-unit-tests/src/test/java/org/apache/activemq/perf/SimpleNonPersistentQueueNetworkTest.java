@@ -32,11 +32,13 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 
 public class SimpleNonPersistentQueueNetworkTest extends SimpleNetworkTest {
 
+   @Override
    protected void setUp() throws Exception {
       numberOfDestinations = 20;
       super.setUp();
    }
 
+   @Override
    protected PerfProducer createProducer(ConnectionFactory fac,
                                          Destination dest,
                                          int number,
@@ -48,6 +50,7 @@ public class SimpleNonPersistentQueueNetworkTest extends SimpleNetworkTest {
       return pp;
    }
 
+   @Override
    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
       PerfConsumer consumer = new PerfConsumer(fac, dest);
       boolean enableAudit = numberOfConsumers <= 1;
@@ -56,15 +59,18 @@ public class SimpleNonPersistentQueueNetworkTest extends SimpleNetworkTest {
       return consumer;
    }
 
+   @Override
    public void testPerformance() throws JMSException, InterruptedException {
       //Thread.sleep(5000);
       super.testPerformance();
    }
 
+   @Override
    protected Destination createDestination(Session s, String destinationName) throws JMSException {
       return s.createQueue(destinationName);
    }
 
+   @Override
    protected void configureBroker(BrokerService answer) throws Exception {
       answer.setPersistent(false);
       answer.setMonitorConnectionSplits(true);

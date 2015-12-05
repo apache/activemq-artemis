@@ -26,6 +26,7 @@ import javax.jms.JMSException;
  */
 public class SimpleNonPersistentTopicTest extends SimpleTopicTest {
 
+   @Override
    protected PerfProducer createProducer(ConnectionFactory fac,
                                          Destination dest,
                                          int number,

@@ -56,6 +56,7 @@ public class JmsTimeoutTest extends EmbeddedBrokerTestSupport {
       cx.setSendTimeout(10000);
 
       Runnable r = new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("Sender thread starting");
@@ -102,6 +103,7 @@ public class JmsTimeoutTest extends EmbeddedBrokerTestSupport {
 
       broker.getSystemUsage().setSendFailIfNoSpaceAfterTimeout(5000);
       Runnable r = new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("Sender thread starting");
@@ -135,6 +137,7 @@ public class JmsTimeoutTest extends EmbeddedBrokerTestSupport {
       assertTrue("No exception from the broker", exceptionCount.get() > 0);
    }
 
+   @Override
    protected void setUp() throws Exception {
       exceptionCount.set(0);
       bindAddress = "tcp://localhost:0";

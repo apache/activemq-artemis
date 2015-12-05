@@ -41,6 +41,7 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       super(connectionSP, idleTimeout, maxFrameSize, channelMax);
    }
 
+   @Override
    protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
       AbstractProtonSessionContext protonSession = new ProtonServerSessionContext(sessionSPI, this, realSession);
@@ -48,6 +49,7 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       return protonSession;
    }
 
+   @Override
    protected void remoteLinkOpened(Link link) throws Exception {
 
       ProtonServerSessionContext protonSession = (ProtonServerSessionContext) getSessionExtension(link.getSession());

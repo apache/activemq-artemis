@@ -88,6 +88,7 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
       this.protonConnectionDelegate = protonConnectionDelegate;
    }
 
+   @Override
    public void onTransport(ByteBuf byteBuf, AMQPConnectionContext amqpConnection) {
       final int size = byteBuf.writerIndex();
 

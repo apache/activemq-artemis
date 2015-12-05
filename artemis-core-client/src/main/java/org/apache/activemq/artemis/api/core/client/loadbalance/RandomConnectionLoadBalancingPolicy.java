@@ -32,6 +32,7 @@ public final class RandomConnectionLoadBalancingPolicy implements ConnectionLoad
     * @param max the upper limit of the random number selection
     * @see java.util.Random#nextInt(int)
     */
+   @Override
    public int select(final int max) {
       return random.getRandom().nextInt(max);
    }

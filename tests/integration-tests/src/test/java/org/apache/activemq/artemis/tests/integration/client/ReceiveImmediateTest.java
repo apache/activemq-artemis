@@ -170,6 +170,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       final AtomicBoolean receivedAsync = new AtomicBoolean(false);
 
       consumer.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(ClientMessage message) {
             receivedAsync.set(true);
          }

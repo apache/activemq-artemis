@@ -77,6 +77,7 @@ public class ProtonTest extends AbstractJMSTest {
       connection = createConnection();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       if (connection != null) {

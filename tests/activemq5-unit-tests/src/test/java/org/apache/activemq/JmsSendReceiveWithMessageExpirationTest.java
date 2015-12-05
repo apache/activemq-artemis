@@ -56,6 +56,7 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
 
    protected Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
 
       super.setUp();
@@ -299,6 +300,7 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
       return session.createConsumer(consumerDestination);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       LOG.info("Dumping stats...");
       LOG.info("Closing down connection");

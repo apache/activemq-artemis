@@ -274,6 +274,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void clearContext() {
       OperationContextImpl.clearContext();
    }
@@ -632,10 +633,12 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public OperationContext getContext() {
       return OperationContextImpl.getContext(executorFactory);
    }
 
+   @Override
    public void setContext(final OperationContext context) {
       OperationContextImpl.setContext(context);
    }
@@ -644,30 +647,37 @@ public class JournalStorageManager implements StorageManager {
       return singleThreadExecutor;
    }
 
+   @Override
    public OperationContext newSingleThreadContext() {
       return newContext(singleThreadExecutor);
    }
 
+   @Override
    public OperationContext newContext(final Executor executor1) {
       return new OperationContextImpl(executor1);
    }
 
+   @Override
    public void afterCompleteOperations(final IOCallback run) {
       getContext().executeOnCompletion(run);
    }
 
+   @Override
    public long generateID() {
       return idGenerator.generateID();
    }
 
+   @Override
    public long getCurrentID() {
       return idGenerator.getCurrentID();
    }
 
+   @Override
    public LargeServerMessage createLargeMessage() {
       return new LargeServerMessageImpl(this);
    }
 
+   @Override
    public final void addBytesToLargeMessage(final SequentialFile file,
                                             final long messageId,
                                             final byte[] bytes) throws Exception {
@@ -686,6 +696,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public LargeServerMessage createLargeMessage(final long id, final MessageInternal message) throws Exception {
       readLock();
       try {
@@ -729,6 +740,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void confirmPendingLargeMessageTX(final Transaction tx, long messageID, long recordID) throws Exception {
       readLock();
       try {
@@ -743,6 +755,7 @@ public class JournalStorageManager implements StorageManager {
    /**
     * We don't need messageID now but we are likely to need it we ever decide to support a database
     */
+   @Override
    public void confirmPendingLargeMessage(long recordID) throws Exception {
       readLock();
       try {
@@ -753,6 +766,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeMessage(final ServerMessage message) throws Exception {
       if (message.getMessageID() <= 0) {
          // Sanity check only... this shouldn't happen unless there is a bug
@@ -776,6 +790,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeReference(final long queueID, final long messageID, final boolean last) throws Exception {
       readLock();
       try {
@@ -796,6 +811,7 @@ public class JournalStorageManager implements StorageManager {
       storageManagerLock.readLock().unlock();
    }
 
+   @Override
    public void storeAcknowledge(final long queueID, final long messageID) throws Exception {
       readLock();
       try {
@@ -806,6 +822,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeCursorAcknowledge(long queueID, PagePosition position) throws Exception {
       readLock();
       try {
@@ -818,6 +835,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteMessage(final long messageID) throws Exception {
       readLock();
       try {
@@ -832,6 +850,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       readLock();
@@ -843,6 +862,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeDuplicateID(final SimpleString address, final byte[] duplID, final long recordID) throws Exception {
       readLock();
       try {
@@ -855,6 +875,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteDuplicateID(final long recordID) throws Exception {
       readLock();
       try {
@@ -867,6 +888,7 @@ public class JournalStorageManager implements StorageManager {
 
    // Transactional operations
 
+   @Override
    public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
       if (message.getMessageID() <= 0) {
          throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
@@ -887,6 +909,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storePageTransaction(final long txID, final PageTransactionInfo pageTransaction) throws Exception {
       readLock();
       try {
@@ -898,6 +921,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updatePageTransaction(final long txID,
                                      final PageTransactionInfo pageTransaction,
                                      final int depages) throws Exception {
@@ -910,6 +934,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depages) throws Exception {
       readLock();
       try {
@@ -920,6 +945,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeReferenceTransactional(final long txID, final long queueID, final long messageID) throws Exception {
       readLock();
       try {
@@ -930,6 +956,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeAcknowledgeTransactional(final long txID,
                                              final long queueID,
                                              final long messageID) throws Exception {
@@ -942,6 +969,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeCursorAcknowledgeTransactional(long txID, long queueID, PagePosition position) throws Exception {
       readLock();
       try {
@@ -954,16 +982,19 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storePageCompleteTransactional(long txID, long queueID, PagePosition position) throws Exception {
       long recordID = idGenerator.generateID();
       position.setRecordID(recordID);
       messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COMPLETE, new CursorAckRecordEncoding(queueID, position));
    }
 
+   @Override
    public void deletePageComplete(long ackID) throws Exception {
       messageJournal.appendDeleteRecord(ackID, false);
    }
 
+   @Override
    public void deleteCursorAcknowledgeTransactional(long txID, long ackID) throws Exception {
       readLock();
       try {
@@ -974,10 +1005,12 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteCursorAcknowledge(long ackID) throws Exception {
       messageJournal.appendDeleteRecord(ackID, false);
    }
 
+   @Override
    public long storeHeuristicCompletion(final Xid xid, final boolean isCommit) throws Exception {
       readLock();
       try {
@@ -991,6 +1024,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteHeuristicCompletion(final long id) throws Exception {
       readLock();
       try {
@@ -1002,6 +1036,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePageTransactional(final long recordID) throws Exception {
       readLock();
       try {
@@ -1012,6 +1047,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateScheduledDeliveryTimeTransactional(final long txID, final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       readLock();
@@ -1024,6 +1060,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void prepare(final long txID, final Xid xid) throws Exception {
       readLock();
       try {
@@ -1034,19 +1071,23 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void commit(final long txID) throws Exception {
       commit(txID, true);
    }
 
+   @Override
    public void commitBindings(final long txID) throws Exception {
       bindingsJournal.appendCommitRecord(txID, true);
    }
 
+   @Override
    public void rollbackBindings(final long txID) throws Exception {
       // no need to sync, it's going away anyways
       bindingsJournal.appendRollbackRecord(txID, false);
    }
 
+   @Override
    public void commit(final long txID, final boolean lineUpContext) throws Exception {
       readLock();
       try {
@@ -1067,6 +1108,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void rollback(final long txID) throws Exception {
       readLock();
       try {
@@ -1077,6 +1119,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeDuplicateIDTransactional(final long txID,
                                              final SimpleString address,
                                              final byte[] duplID,
@@ -1092,6 +1135,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateDuplicateIDTransactional(final long txID,
                                               final SimpleString address,
                                               final byte[] duplID,
@@ -1107,6 +1151,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteDuplicateIDTransactional(final long txID, final long recordID) throws Exception {
       readLock();
       try {
@@ -1119,6 +1164,7 @@ public class JournalStorageManager implements StorageManager {
 
    // Other operations
 
+   @Override
    public void updateDeliveryCount(final MessageReference ref) throws Exception {
       // no need to store if it's the same value
       // otherwise the journal will get OME in case of lots of redeliveries
@@ -1138,6 +1184,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
       deleteAddressSetting(addressSetting.getAddressMatch());
       readLock();
@@ -1152,16 +1199,19 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public List<PersistedAddressSetting> recoverAddressSettings() throws Exception {
       ArrayList<PersistedAddressSetting> list = new ArrayList<PersistedAddressSetting>(mapPersistedAddressSettings.values());
       return list;
    }
 
+   @Override
    public List<PersistedRoles> recoverPersistedRoles() throws Exception {
       ArrayList<PersistedRoles> list = new ArrayList<PersistedRoles>(mapPersistedRoles.values());
       return list;
    }
 
+   @Override
    public void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception {
 
       deleteSecurityRoles(persistedRoles.getAddressMatch());
@@ -1199,6 +1249,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteAddressSetting(SimpleString addressMatch) throws Exception {
       PersistedAddressSetting oldSetting = mapPersistedAddressSettings.remove(addressMatch);
       if (oldSetting != null) {
@@ -1212,6 +1263,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteSecurityRoles(SimpleString addressMatch) throws Exception {
       PersistedRoles oldRoles = mapPersistedRoles.remove(addressMatch);
       if (oldRoles != null) {
@@ -1607,6 +1659,7 @@ public class JournalStorageManager implements StorageManager {
    }
 
    // grouping handler operations
+   @Override
    public void addGrouping(final GroupBinding groupBinding) throws Exception {
       GroupingEncoding groupingEncoding = new GroupingEncoding(groupBinding.getId(), groupBinding.getGroupId(), groupBinding.getClusterName());
       readLock();
@@ -1618,6 +1671,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteGrouping(long tx, final GroupBinding groupBinding) throws Exception {
       readLock();
       try {
@@ -1630,6 +1684,7 @@ public class JournalStorageManager implements StorageManager {
 
    // BindingsImpl operations
 
+   @Override
    public void addQueueBinding(final long tx, final Binding binding) throws Exception {
       Queue queue = (Queue) binding.getBindable();
 
@@ -1648,6 +1703,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteQueueBinding(long tx, final long queueBindingID) throws Exception {
       readLock();
       try {
@@ -1658,6 +1714,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public long storePageCounterInc(long txID, long queueID, int value) throws Exception {
       readLock();
       try {
@@ -1670,6 +1727,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public long storePageCounterInc(long queueID, int value) throws Exception {
       readLock();
       try {
@@ -1711,6 +1769,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteIncrementRecord(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1721,6 +1780,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePageCounter(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1731,6 +1791,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePendingPageCounter(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1741,6 +1802,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos) throws Exception {
       List<RecordInfo> records = new ArrayList<RecordInfo>();
@@ -1787,6 +1849,7 @@ public class JournalStorageManager implements StorageManager {
       return bindingsInfo;
    }
 
+   @Override
    public void lineUpContext() {
       readLock();
       try {
@@ -1800,6 +1863,7 @@ public class JournalStorageManager implements StorageManager {
    // ActiveMQComponent implementation
    // ------------------------------------------------------
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -1827,6 +1891,7 @@ public class JournalStorageManager implements StorageManager {
       started = true;
    }
 
+   @Override
    public void stop() throws Exception {
       stop(false);
    }
@@ -1839,6 +1904,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public synchronized void stop(boolean ioCriticalError) throws Exception {
       if (!started) {
          return;
@@ -1888,6 +1954,7 @@ public class JournalStorageManager implements StorageManager {
       started = false;
    }
 
+   @Override
    public synchronized boolean isStarted() {
       return started;
    }
@@ -1909,12 +1976,14 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void beforePageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.acquire();
       }
    }
 
+   @Override
    public void afterPageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.release();
@@ -1933,10 +2002,12 @@ public class JournalStorageManager implements StorageManager {
 
    // Public -----------------------------------------------------------------------------------
 
+   @Override
    public Journal getMessageJournal() {
       return messageJournal;
    }
 
+   @Override
    public Journal getBindingsJournal() {
       return bindingsJournal;
    }
@@ -1990,6 +2061,7 @@ public class JournalStorageManager implements StorageManager {
          }
       }
       Runnable deleteAction = new Runnable() {
+         @Override
          public void run() {
             try {
                readLock();
@@ -2030,6 +2102,7 @@ public class JournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public SequentialFile createFileForLargeMessage(final long messageID, LargeMessageExtension extension) {
       return largeMessagesFactory.createSequentialFile(messageID + extension.getExtension());
    }
@@ -2303,37 +2376,47 @@ public class JournalStorageManager implements StorageManager {
          return DummyOperationContext.instance;
       }
 
+      @Override
       public void executeOnCompletion(final IOCallback runnable) {
          // There are no executeOnCompletion calls while using the DummyOperationContext
          // However we keep the code here for correctness
          runnable.done();
       }
 
+      @Override
       public void replicationDone() {
       }
 
+      @Override
       public void replicationLineUp() {
       }
 
+      @Override
       public void storeLineUp() {
       }
 
+      @Override
       public void done() {
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
       }
 
+      @Override
       public void waitCompletion() {
       }
 
+      @Override
       public boolean waitCompletion(final long timeout) {
          return true;
       }
 
+      @Override
       public void pageSyncLineUp() {
       }
 
+      @Override
       public void pageSyncDone() {
       }
    }
@@ -2353,14 +2436,17 @@ public class JournalStorageManager implements StorageManager {
          xid = XidCodecSupport.decodeXid(ActiveMQBuffers.wrappedBuffer(data));
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          throw new IllegalStateException("Non Supported Operation");
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          XidCodecSupport.encodeXid(xid, buffer);
       }
 
+      @Override
       public int getEncodeSize() {
          return XidCodecSupport.getXidEncodeLength(xid);
       }
@@ -2385,16 +2471,19 @@ public class JournalStorageManager implements StorageManager {
       HeuristicCompletionEncoding() {
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          xid = XidCodecSupport.decodeXid(buffer);
          isCommit = buffer.readBoolean();
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          XidCodecSupport.encodeXid(xid, buffer);
          buffer.writeBoolean(isCommit);
       }
 
+      @Override
       public int getEncodeSize() {
          return XidCodecSupport.getXidEncodeLength(xid) + DataConstants.SIZE_BOOLEAN;
       }
@@ -2417,20 +2506,24 @@ public class JournalStorageManager implements StorageManager {
       public GroupingEncoding() {
       }
 
+      @Override
       public int getEncodeSize() {
          return SimpleString.sizeofString(groupId) + SimpleString.sizeofString(clusterName);
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeSimpleString(groupId);
          buffer.writeSimpleString(clusterName);
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          groupId = buffer.readSimpleString();
          clusterName = buffer.readSimpleString();
       }
 
+      @Override
       public long getId() {
          return id;
       }
@@ -2439,10 +2532,12 @@ public class JournalStorageManager implements StorageManager {
          this.id = id;
       }
 
+      @Override
       public SimpleString getGroupId() {
          return groupId;
       }
 
+      @Override
       public SimpleString getClusterName() {
          return clusterName;
       }
@@ -2498,6 +2593,7 @@ public class JournalStorageManager implements StorageManager {
          this.autoCreated = autoCreated;
       }
 
+      @Override
       public long getId() {
          return id;
       }
@@ -2506,30 +2602,37 @@ public class JournalStorageManager implements StorageManager {
          this.id = id;
       }
 
+      @Override
       public SimpleString getAddress() {
          return address;
       }
 
+      @Override
       public void replaceQueueName(SimpleString newName) {
          this.name = newName;
       }
 
+      @Override
       public SimpleString getFilterString() {
          return filterString;
       }
 
+      @Override
       public SimpleString getQueueName() {
          return name;
       }
 
+      @Override
       public SimpleString getUser() {
          return user;
       }
 
+      @Override
       public boolean isAutoCreated() {
          return autoCreated;
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          name = buffer.readSimpleString();
          address = buffer.readSimpleString();
@@ -2551,6 +2654,7 @@ public class JournalStorageManager implements StorageManager {
          autoCreated = buffer.readBoolean();
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeSimpleString(name);
          buffer.writeSimpleString(address);
@@ -2559,6 +2663,7 @@ public class JournalStorageManager implements StorageManager {
          buffer.writeBoolean(autoCreated);
       }
 
+      @Override
       public int getEncodeSize() {
          return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
             SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +
@@ -2583,6 +2688,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          message.decodeHeadersAndProperties(buffer);
       }
@@ -2590,6 +2696,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          message.encode(buffer);
       }
@@ -2597,6 +2704,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
        */
+      @Override
       public int getEncodeSize() {
          return message.getEncodeSize();
       }
@@ -2617,6 +2725,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          largeMessageID = buffer.readLong();
       }
@@ -2624,6 +2733,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeLong(largeMessageID);
       }
@@ -2631,6 +2741,7 @@ public class JournalStorageManager implements StorageManager {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
        */
+      @Override
       public int getEncodeSize() {
          return DataConstants.SIZE_LONG;
       }
@@ -2658,16 +2769,19 @@ public class JournalStorageManager implements StorageManager {
          this.count = count;
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          queueID = buffer.readLong();
          count = buffer.readInt();
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeLong(queueID);
          buffer.writeInt(count);
       }
 
+      @Override
       public int getEncodeSize() {
          return 8 + 4;
       }
@@ -2692,14 +2806,17 @@ public class JournalStorageManager implements StorageManager {
          super();
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          queueID = buffer.readLong();
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeLong(queueID);
       }
 
+      @Override
       public int getEncodeSize() {
          return 8;
       }
@@ -2779,6 +2896,7 @@ public class JournalStorageManager implements StorageManager {
          this.recods = records;
       }
 
+      @Override
       public void decode(ActiveMQBuffer buffer) {
          this.pageTX = buffer.readLong();
          this.recods = buffer.readInt();
@@ -2850,6 +2968,7 @@ public class JournalStorageManager implements StorageManager {
       public DuplicateIDEncoding() {
       }
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          address = buffer.readSimpleString();
 
@@ -2860,6 +2979,7 @@ public class JournalStorageManager implements StorageManager {
          buffer.readBytes(duplID);
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeSimpleString(address);
 
@@ -2868,6 +2988,7 @@ public class JournalStorageManager implements StorageManager {
          buffer.writeBytes(duplID);
       }
 
+      @Override
       public int getEncodeSize() {
          return SimpleString.sizeofString(address) + DataConstants.SIZE_INT + duplID.length;
       }
@@ -3011,14 +3132,17 @@ public class JournalStorageManager implements StorageManager {
          this.id = id;
       }
 
+      @Override
       public long getID() {
          return id;
       }
 
+      @Override
       public long getQueueID() {
          return queueID;
       }
 
+      @Override
       public long getPageID() {
          return pageID;
       }
@@ -3062,15 +3186,18 @@ public class JournalStorageManager implements StorageManager {
 
       int value;
 
+      @Override
       public int getEncodeSize() {
          return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
       }
 
+      @Override
       public void encode(ActiveMQBuffer buffer) {
          buffer.writeLong(queueID);
          buffer.writeInt(value);
       }
 
+      @Override
       public void decode(ActiveMQBuffer buffer) {
          queueID = buffer.readLong();
          value = buffer.readInt();
@@ -3098,16 +3225,19 @@ public class JournalStorageManager implements StorageManager {
 
       public PagePosition position;
 
+      @Override
       public int getEncodeSize() {
          return DataConstants.SIZE_LONG + DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
       }
 
+      @Override
       public void encode(ActiveMQBuffer buffer) {
          buffer.writeLong(queueID);
          buffer.writeLong(position.getPageNr());
          buffer.writeInt(position.getMessageNr());
       }
 
+      @Override
       public void decode(ActiveMQBuffer buffer) {
          queueID = buffer.readLong();
          long pageNR = buffer.readLong();
@@ -3125,6 +3255,7 @@ public class JournalStorageManager implements StorageManager {
          this.messages = messages;
       }
 
+      @Override
       public void failedTransaction(final long transactionID,
                                     final List<RecordInfo> records,
                                     final List<RecordInfo> recordsToDelete) {

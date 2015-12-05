@@ -43,6 +43,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
     *
     * @return an ordered executor
     */
+   @Override
    public Executor getExecutor() {
       return new OrderedExecutor(parent);
    }
@@ -72,6 +73,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
       public OrderedExecutor(final Executor parent) {
          this.parent = parent;
          runner = new Runnable() {
+            @Override
             public void run() {
                for (;;) {
                   // Optimization, first try without any locks
@@ -110,6 +112,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
        *
        * @param command the task to run.
        */
+      @Override
       public void execute(final Runnable command) {
          synchronized (tasks) {
             tasks.add(command);
@@ -120,6 +123,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
          }
       }
 
+      @Override
       public String toString() {
          return "OrderedExecutor(running=" + running + ", tasks=" + tasks + ")";
       }

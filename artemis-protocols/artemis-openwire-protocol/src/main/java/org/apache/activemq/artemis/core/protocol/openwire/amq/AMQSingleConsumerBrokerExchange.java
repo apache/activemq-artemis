@@ -28,14 +28,17 @@ public class AMQSingleConsumerBrokerExchange extends AMQConsumerBrokerExchange {
       this.consumer = consumer;
    }
 
+   @Override
    public void processMessagePull(MessagePull messagePull) throws Exception {
       consumer.processMessagePull(messagePull);
    }
 
+   @Override
    public void removeConsumer() throws Exception {
       consumer.removeConsumer();
    }
 
+   @Override
    public void acknowledge(MessageAck ack) throws Exception {
       amqSession.acknowledge(ack, consumer);
    }

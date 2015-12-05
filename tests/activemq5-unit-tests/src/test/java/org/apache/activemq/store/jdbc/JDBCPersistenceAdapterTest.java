@@ -26,6 +26,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class JDBCPersistenceAdapterTest extends PersistenceAdapterTestSupport {
 
+   @Override
    protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
       JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
 

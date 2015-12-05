@@ -20,35 +20,45 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 
 public class JournalReaderCallbackAbstract implements JournalReaderCallback {
 
+   @Override
    public void markAsDataFile(final JournalFile file) {
    }
 
+   @Override
    public void onReadAddRecord(final RecordInfo info) throws Exception {
    }
 
+   @Override
    public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 
+   @Override
    public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
    }
 
+   @Override
    public void onReadDeleteRecord(final long recordID) throws Exception {
    }
 
+   @Override
    public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 
+   @Override
    public void onReadPrepareRecord(final long transactionID,
                                    final byte[] extraData,
                                    final int numberOfRecords) throws Exception {
    }
 
+   @Override
    public void onReadRollbackRecord(final long transactionID) throws Exception {
    }
 
+   @Override
    public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
    }
 
+   @Override
    public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 

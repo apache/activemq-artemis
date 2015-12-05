@@ -28,10 +28,12 @@ public final class XQueryExpression implements BooleanExpression {
       this.xpath = xpath;
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       return Boolean.FALSE;
    }
 
+   @Override
    public String toString() {
       return "XQUERY " + ConstantExpression.encodeString(xpath);
    }
@@ -41,6 +43,7 @@ public final class XQueryExpression implements BooleanExpression {
     * @return true if the expression evaluates to Boolean.TRUE.
     * @throws FilterException
     */
+   @Override
    public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;

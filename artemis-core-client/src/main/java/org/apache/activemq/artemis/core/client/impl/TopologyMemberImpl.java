@@ -99,6 +99,7 @@ public final class TopologyMemberImpl implements TopologyMember {
       return connector;
    }
 
+   @Override
    public boolean isMember(RemotingConnection connection) {
       TransportConfiguration connectorConfig = connection.getTransportConnection() != null ? connection.getTransportConnection().getConnectorConfig() : null;
 
@@ -106,6 +107,7 @@ public final class TopologyMemberImpl implements TopologyMember {
 
    }
 
+   @Override
    public boolean isMember(TransportConfiguration configuration) {
       if (getConnector().getA() != null && getConnector().getA().isSameParams(configuration) || getConnector().getB() != null && getConnector().getB().isSameParams(configuration)) {
          return true;

@@ -21,6 +21,7 @@ package org.apache.activemq.usecases;
  */
 public class QueueRedeliverTest extends TopicRedeliverTest {
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       topic = false;

@@ -40,6 +40,7 @@ public class FanoutTest extends TestCase {
    Session producerSession;
    int messageCount = 100;
 
+   @Override
    public void setUp() throws Exception {
       broker1 = BrokerFactory.createBroker("broker:(tcp://localhost:61616)/brokerA?persistent=false&useJmx=false");
       broker2 = BrokerFactory.createBroker("broker:(tcp://localhost:61617)/brokerB?persistent=false&useJmx=false");
@@ -55,6 +56,7 @@ public class FanoutTest extends TestCase {
       producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
    }
 
+   @Override
    public void tearDown() throws Exception {
       producerSession.close();
       producerConnection.close();

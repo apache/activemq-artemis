@@ -135,6 +135,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    // ActiveMQServerControlMBean implementation --------------------
 
+   @Override
    public boolean isStarted() {
       clearIO();
       try {
@@ -145,6 +146,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getVersion() {
       checkStarted();
 
@@ -157,6 +159,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isBackup() {
       checkStarted();
 
@@ -169,6 +172,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isSharedStore() {
       checkStarted();
 
@@ -181,6 +185,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getBindingsDirectory() {
       checkStarted();
 
@@ -205,6 +210,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getIncomingInterceptorClassNames() {
       checkStarted();
 
@@ -217,6 +223,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getOutgoingInterceptorClassNames() {
       checkStarted();
 
@@ -229,6 +236,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalBufferSize() {
       checkStarted();
 
@@ -241,6 +249,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalBufferTimeout() {
       checkStarted();
 
@@ -253,6 +262,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       checkStarted();
 
@@ -268,6 +278,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isFailoverOnServerShutdown() {
       checkStarted();
 
@@ -286,6 +297,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalMaxIO() {
       checkStarted();
 
@@ -298,6 +310,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getJournalDirectory() {
       checkStarted();
 
@@ -310,6 +323,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalFileSize() {
       checkStarted();
 
@@ -322,6 +336,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalMinFiles() {
       checkStarted();
 
@@ -334,6 +349,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalCompactMinFiles() {
       checkStarted();
 
@@ -346,6 +362,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getJournalCompactPercentage() {
       checkStarted();
 
@@ -358,6 +375,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isPersistenceEnabled() {
       checkStarted();
 
@@ -370,6 +388,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getJournalType() {
       checkStarted();
 
@@ -382,6 +401,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getPagingDirectory() {
       checkStarted();
 
@@ -394,6 +414,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getScheduledThreadPoolMaxSize() {
       checkStarted();
 
@@ -406,6 +427,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getThreadPoolMaxSize() {
       checkStarted();
 
@@ -418,6 +440,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public long getSecurityInvalidationInterval() {
       checkStarted();
 
@@ -430,6 +453,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isClustered() {
       checkStarted();
 
@@ -442,6 +466,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isCreateBindingsDir() {
       checkStarted();
 
@@ -454,6 +479,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isCreateJournalDir() {
       checkStarted();
 
@@ -466,6 +492,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isJournalSyncNonTransactional() {
       checkStarted();
 
@@ -478,6 +505,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isJournalSyncTransactional() {
       checkStarted();
 
@@ -490,6 +518,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isSecurityEnabled() {
       checkStarted();
 
@@ -502,6 +531,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isAsyncConnectionExecutionEnabled() {
       checkStarted();
 
@@ -514,6 +544,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void deployQueue(final String address, final String name, final String filterString) throws Exception {
       checkStarted();
 
@@ -526,6 +557,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void deployQueue(final String address,
                            final String name,
                            final String filterStr,
@@ -543,6 +575,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void createQueue(final String address, final String name) throws Exception {
       checkStarted();
 
@@ -555,6 +588,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void createQueue(final String address, final String name, final boolean durable) throws Exception {
       checkStarted();
 
@@ -567,6 +601,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void createQueue(final String address,
                            final String name,
                            final String filterStr,
@@ -587,6 +622,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getQueueNames() {
       checkStarted();
 
@@ -606,6 +642,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getAddressNames() {
       checkStarted();
 
@@ -625,6 +662,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void destroyQueue(final String name) throws Exception {
       checkStarted();
 
@@ -639,6 +677,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getConnectionCount() {
       checkStarted();
 
@@ -651,6 +690,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void enableMessageCounters() {
       checkStarted();
 
@@ -663,6 +703,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void disableMessageCounters() {
       checkStarted();
 
@@ -675,6 +716,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void resetAllMessageCounters() {
       checkStarted();
 
@@ -687,6 +729,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void resetAllMessageCounterHistories() {
       checkStarted();
 
@@ -699,6 +742,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public boolean isMessageCounterEnabled() {
       checkStarted();
 
@@ -711,6 +755,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public synchronized long getMessageCounterSamplePeriod() {
       checkStarted();
 
@@ -723,6 +768,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public synchronized void setMessageCounterSamplePeriod(final long newPeriod) {
       checkStarted();
 
@@ -743,6 +789,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public int getMessageCounterMaxDayCount() {
       checkStarted();
 
@@ -755,6 +802,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void setMessageCounterMaxDayCount(final int count) {
       checkStarted();
 
@@ -770,6 +818,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] listPreparedTransactions() {
       checkStarted();
 
@@ -780,6 +829,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
@@ -799,6 +849,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String listPreparedTransactionDetailsAsJSON() throws Exception {
       checkStarted();
 
@@ -811,6 +862,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
@@ -831,6 +883,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String listPreparedTransactionDetailsAsHTML() throws Exception {
       checkStarted();
 
@@ -843,6 +896,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
@@ -907,6 +961,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] listHeuristicCommittedTransactions() {
       checkStarted();
 
@@ -925,6 +980,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] listHeuristicRolledBackTransactions() {
       checkStarted();
 
@@ -943,6 +999,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public synchronized boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
       checkStarted();
 
@@ -967,6 +1024,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public synchronized boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
       checkStarted();
 
@@ -992,6 +1050,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] listRemoteAddresses() {
       checkStarted();
 
@@ -1012,6 +1071,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    }
 
+   @Override
    public String[] listRemoteAddresses(final String ipAddress) {
       checkStarted();
 
@@ -1033,6 +1093,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    }
 
+   @Override
    public synchronized boolean closeConnectionsForAddress(final String ipAddress) {
       checkStarted();
 
@@ -1057,6 +1118,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    }
 
+   @Override
    public synchronized boolean closeConsumerConnectionsForAddress(final String address) {
       boolean closed = false;
       checkStarted();
@@ -1096,6 +1158,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return closed;
    }
 
+   @Override
    public synchronized boolean closeConnectionsForUser(final String userName) {
       boolean closed = false;
       checkStarted();
@@ -1126,6 +1189,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return closed;
    }
 
+   @Override
    public String[] listConnectionIDs() {
       checkStarted();
 
@@ -1144,6 +1208,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] listSessions(final String connectionID) {
       checkStarted();
 
@@ -1165,6 +1230,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    /* (non-Javadoc)
    * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
    */
+   @Override
    public String listProducersInfoAsJSON() throws Exception {
       JSONArray producers = new JSONArray();
 
@@ -1175,6 +1241,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return producers.toString();
    }
 
+   @Override
    public Object[] getConnectors() throws Exception {
       checkStarted();
 
@@ -1202,6 +1269,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getConnectorsAsJSON() throws Exception {
       checkStarted();
 
@@ -1220,6 +1288,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void addSecuritySettings(final String addressMatch,
                                    final String sendRoles,
                                    final String consumeRoles,
@@ -1245,6 +1314,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void removeSecuritySettings(final String addressMatch) throws Exception {
       checkStarted();
 
@@ -1258,6 +1328,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public Object[] getRoles(final String addressMatch) throws Exception {
       checkStarted();
 
@@ -1280,6 +1351,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getRolesAsJSON(final String addressMatch) throws Exception {
       checkStarted();
 
@@ -1298,6 +1370,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String getAddressSettingsAsJSON(final String address) throws Exception {
       checkStarted();
 
@@ -1333,6 +1406,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return jsonObject.toString();
    }
 
+   @Override
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -1411,6 +1485,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
    }
 
+   @Override
    public void removeAddressSettings(final String addressMatch) throws Exception {
       checkStarted();
 
@@ -1418,6 +1493,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       storageManager.deleteAddressSetting(new SimpleString(addressMatch));
    }
 
+   @Override
    public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
       checkStarted();
 
@@ -1437,6 +1513,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getDivertNames() {
       checkStarted();
 
@@ -1456,6 +1533,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void createDivert(final String name,
                             final String routingName,
                             final String address,
@@ -1475,6 +1553,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void destroyDivert(final String name) throws Exception {
       checkStarted();
 
@@ -1487,6 +1566,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public String[] getBridgeNames() {
       checkStarted();
 
@@ -1506,6 +1586,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void createBridge(final String name,
                             final String queueName,
                             final String forwardingAddress,
@@ -1544,6 +1625,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void destroyBridge(final String name) throws Exception {
       checkStarted();
 
@@ -1556,6 +1638,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void forceFailover() throws Exception {
       checkStarted();
 
@@ -1604,6 +1687,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    // NotificationEmitter implementation ----------------------------
 
+   @Override
    public void removeNotificationListener(final NotificationListener listener,
                                           final NotificationFilter filter,
                                           final Object handback) throws ListenerNotFoundException {
@@ -1616,6 +1700,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException {
       clearIO();
       try {
@@ -1626,6 +1711,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public void addNotificationListener(final NotificationListener listener,
                                        final NotificationFilter filter,
                                        final Object handback) throws IllegalArgumentException {
@@ -1638,6 +1724,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
+   @Override
    public MBeanNotificationInfo[] getNotificationInfo() {
       CoreNotificationType[] values = CoreNotificationType.values();
       String[] names = new String[values.length];
@@ -1677,50 +1764,62 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       messageCounterManager.resetAllCounterHistories();
    }
 
+   @Override
    public long getConnectionTTLOverride() {
       return configuration.getConnectionTTLOverride();
    }
 
+   @Override
    public int getIDCacheSize() {
       return configuration.getIDCacheSize();
    }
 
+   @Override
    public String getLargeMessagesDirectory() {
       return configuration.getLargeMessagesDirectory();
    }
 
+   @Override
    public String getManagementAddress() {
       return configuration.getManagementAddress().toString();
    }
 
+   @Override
    public String getManagementNotificationAddress() {
       return configuration.getManagementNotificationAddress().toString();
    }
 
+   @Override
    public long getMessageExpiryScanPeriod() {
       return configuration.getMessageExpiryScanPeriod();
    }
 
+   @Override
    public long getMessageExpiryThreadPriority() {
       return configuration.getMessageExpiryThreadPriority();
    }
 
+   @Override
    public long getTransactionTimeout() {
       return configuration.getTransactionTimeout();
    }
 
+   @Override
    public long getTransactionTimeoutScanPeriod() {
       return configuration.getTransactionTimeoutScanPeriod();
    }
 
+   @Override
    public boolean isPersistDeliveryCountBeforeDelivery() {
       return configuration.isPersistDeliveryCountBeforeDelivery();
    }
 
+   @Override
    public boolean isPersistIDCache() {
       return configuration.isPersistIDCache();
    }
 
+   @Override
    public boolean isWildcardRoutingEnabled() {
       return configuration.isWildcardRoutingEnabled();
    }

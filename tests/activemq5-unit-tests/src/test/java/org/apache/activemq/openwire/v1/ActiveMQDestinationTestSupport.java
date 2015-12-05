@@ -29,6 +29,7 @@ import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
  */
 public abstract class ActiveMQDestinationTestSupport extends DataFileGeneratorTestSupport {
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQDestination info = (ActiveMQDestination) object;

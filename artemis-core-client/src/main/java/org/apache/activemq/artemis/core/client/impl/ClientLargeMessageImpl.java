@@ -41,6 +41,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
    /**
     * @param largeMessageSize the largeMessageSize to set
     */
+   @Override
    public void setLargeMessageSize(long largeMessageSize) {
       this.largeMessageSize = largeMessageSize;
    }
@@ -74,10 +75,12 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       return true;
    }
 
+   @Override
    public void setLargeMessageController(final LargeMessageController controller) {
       largeMessageController = controller;
    }
 
+   @Override
    public void checkCompletion() throws ActiveMQException {
       checkBuffer();
    }
@@ -100,6 +103,7 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
       return getLongProperty(Message.HDR_LARGE_BODY_SIZE).intValue();
    }
 
+   @Override
    public LargeMessageController getLargeMessageController() {
       return largeMessageController;
    }

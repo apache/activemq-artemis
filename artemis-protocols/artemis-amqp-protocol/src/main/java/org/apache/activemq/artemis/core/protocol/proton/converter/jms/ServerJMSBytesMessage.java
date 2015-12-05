@@ -186,12 +186,14 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void encode() throws Exception {
       super.encode();
       // this is to make sure we encode the body-length before it's persisted
       getBodyLength();
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
 

@@ -77,22 +77,26 @@ public class DurableUnsubscribeTest extends org.apache.activemq.TestSupport {
       assertEquals("Subscription exists.", 0, d.getConsumers().size());
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://" + getName());
    }
 
+   @Override
    protected Connection createConnection() throws Exception {
       Connection rc = super.createConnection();
       rc.setClientID(getName());
       return rc;
    }
 
+   @Override
    protected void setUp() throws Exception {
       topic = (ActiveMQTopic) createDestination();
       createBroker();
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       destroyBroker();

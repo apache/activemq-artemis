@@ -50,6 +50,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean getNoLocal() throws JMSException {
       if (ActiveMQRATopicSubscriber.trace) {
          ActiveMQRALogger.LOGGER.trace("getNoLocal()");
@@ -65,6 +66,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     * @return The topic
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Topic getTopic() throws JMSException {
       if (ActiveMQRATopicSubscriber.trace) {
          ActiveMQRALogger.LOGGER.trace("getTopic()");

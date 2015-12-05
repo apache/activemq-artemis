@@ -160,6 +160,7 @@ public class Run extends Configurable {
       }, 500, 500);
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
+         @Override
          public void run() {
             try {
                server.stop();

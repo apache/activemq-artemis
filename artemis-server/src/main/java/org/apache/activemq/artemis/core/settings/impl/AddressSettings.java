@@ -324,6 +324,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
     *
     * @param merged
     */
+   @Override
    public void merge(final AddressSettings merged) {
       if (maxDeliveryAttempts == null) {
          maxDeliveryAttempts = merged.maxDeliveryAttempts;

@@ -41,17 +41,20 @@ public class SimpleEncoding implements EncodingSupport {
    }
 
    // Public --------------------------------------------------------
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       throw new UnsupportedOperationException();
 
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       for (int i = 0; i < size; i++) {
          buffer.writeByte(bytetosend);
       }
    }
 
+   @Override
    public int getEncodeSize() {
       return size;
    }

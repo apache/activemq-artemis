@@ -675,6 +675,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged(new PrivilegedAction<SecuritySettingPlugin>() {
+         @Override
          public SecuritySettingPlugin run() {
             return (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(clazz);
          }

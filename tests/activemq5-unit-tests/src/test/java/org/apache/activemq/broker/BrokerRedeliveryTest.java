@@ -173,6 +173,7 @@ public class BrokerRedeliveryTest extends org.apache.activemq.TestSupport {
       broker = null;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://localhost");
    }

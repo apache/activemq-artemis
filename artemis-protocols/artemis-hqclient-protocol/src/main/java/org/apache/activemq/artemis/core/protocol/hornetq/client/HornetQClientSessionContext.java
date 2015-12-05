@@ -49,6 +49,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
    }
 
 
+   @Override
    public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
       SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
       SessionQueueQueryResponseMessage response = (SessionQueueQueryResponseMessage) getSessionChannel().sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP);
@@ -56,6 +57,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
       return response.toQueueQuery();
    }
 
+   @Override
    protected CreateSessionMessage newCreateSession(String username,
                                                    String password,
                                                    int minLargeMessageSize,
@@ -68,12 +70,14 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
    }
 
 
+   @Override
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       SessionBindingQueryResponseMessage response = (SessionBindingQueryResponseMessage) getSessionChannel().sendBlocking(new SessionBindingQueryMessage(address), PacketImpl.SESS_BINDINGQUERY_RESP);
 
       return new AddressQueryImpl(response.isExists(), response.getQueueNames(), false);
    }
 
+   @Override
    public ClientConsumerInternal createConsumer(SimpleString queueName,
                                                 SimpleString filterString,
                                                 int windowSize,

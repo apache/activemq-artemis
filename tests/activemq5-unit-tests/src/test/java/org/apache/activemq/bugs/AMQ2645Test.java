@@ -58,6 +58,7 @@ public class AMQ2645Test extends EmbeddedBrokerTestSupport {
 
          final MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
          consumer.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(Message message) {
                try {
                   afterRestart.await();

@@ -33,6 +33,7 @@ import javax.management.remote.JMXServiceURL;
 
 public class AdvisoryJmxTest extends EmbeddedBrokerTestSupport {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService answer = new BrokerService();
       answer.setPersistent(isPersistent());

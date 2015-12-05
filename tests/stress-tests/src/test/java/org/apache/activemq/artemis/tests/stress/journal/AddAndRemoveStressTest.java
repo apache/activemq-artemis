@@ -36,18 +36,23 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
    private static final LoaderCallback dummyLoader = new LoaderCallback() {
 
+      @Override
       public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction) {
       }
 
+      @Override
       public void addRecord(final RecordInfo info) {
       }
 
+      @Override
       public void deleteRecord(final long id) {
       }
 
+      @Override
       public void updateRecord(final RecordInfo info) {
       }
 
+      @Override
       public void failedTransaction(final long transactionID,
                                     final List<RecordInfo> records,
                                     final List<RecordInfo> recordsToDelete) {

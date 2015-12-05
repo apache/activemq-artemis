@@ -68,6 +68,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       handler.addEventHandler(listener);
    }
 
+   @Override
    public SASLResult getSASLResult() {
       return handler.getSASLResult();
    }
@@ -88,10 +89,12 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
    /**
     * See comment at {@link org.proton.plug.AMQPConnectionContext#isSyncOnFlush()}
     */
+   @Override
    public boolean isSyncOnFlush() {
       return false;
    }
 
+   @Override
    public Object getLock() {
       return handler.getLock();
    }
@@ -106,10 +109,12 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       handler.outputDone(bytes);
    }
 
+   @Override
    public void flush() {
       handler.flush();
    }
 
+   @Override
    public void close() {
       handler.close();
    }
@@ -233,10 +238,12 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
          }
       }
 
+      @Override
       public void onRemoteDetach(Link link) throws Exception {
          link.detach();
       }
 
+      @Override
       public void onDelivery(Delivery delivery) throws Exception {
          ProtonDeliveryHandler handler = (ProtonDeliveryHandler) delivery.getLink().getContext();
          if (handler != null) {

@@ -695,6 +695,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          return true;
       }
 
+      @Override
       protected StompFrame parseBody() throws ActiveMQStompException {
          byte[] content = null;
 

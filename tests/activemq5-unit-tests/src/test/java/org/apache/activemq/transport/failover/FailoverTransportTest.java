@@ -62,15 +62,19 @@ public class FailoverTransportTest {
 
       transport.setTransportListener(new TransportListener() {
 
+         @Override
          public void onCommand(Object command) {
          }
 
+         @Override
          public void onException(IOException error) {
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -134,15 +138,19 @@ public class FailoverTransportTest {
 
       transport.setTransportListener(new TransportListener() {
 
+         @Override
          public void onCommand(Object command) {
          }
 
+         @Override
          public void onException(IOException error) {
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -157,15 +165,19 @@ public class FailoverTransportTest {
       Transport transport = TransportFactory.connect(new URI("failover://(tcp://localhost:1234?transport.connectTimeout=10000)"));
       transport.setTransportListener(new TransportListener() {
 
+         @Override
          public void onCommand(Object command) {
          }
 
+         @Override
          public void onException(IOException error) {
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });

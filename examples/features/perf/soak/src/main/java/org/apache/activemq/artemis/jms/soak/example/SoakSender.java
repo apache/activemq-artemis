@@ -67,6 +67,7 @@ public class SoakSender {
    private MessageProducer producer;
 
    private final ExceptionListener exceptionListener = new ExceptionListener() {
+      @Override
       public void onException(final JMSException e) {
          System.out.println("SoakReconnectableSender.exceptionListener.new ExceptionListener() {...}.onException()");
          disconnect();

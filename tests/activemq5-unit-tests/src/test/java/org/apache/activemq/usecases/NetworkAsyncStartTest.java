@@ -83,6 +83,7 @@ public class NetworkAsyncStartTest extends JmsMultipleBrokersTestSupport {
 
       Executor e = Executors.newCachedThreadPool();
       e.execute(new Runnable() {
+         @Override
          public void run() {
             LOG.info("starting A");
             try {

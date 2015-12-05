@@ -53,6 +53,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @return The name
     * @throws ResourceException Thrown if operation fails
     */
+   @Override
    public String getEISProductName() throws ResourceException {
       if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getEISProductName()");
@@ -67,6 +68,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @return The version
     * @throws ResourceException Thrown if operation fails
     */
+   @Override
    public String getEISProductVersion() throws ResourceException {
       if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getEISProductVersion()");
@@ -81,6 +83,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @return The user name
     * @throws ResourceException Thrown if operation fails
     */
+   @Override
    public String getUserName() throws ResourceException {
       if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
@@ -95,6 +98,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @return The number
     * @throws ResourceException Thrown if operation fails
     */
+   @Override
    public int getMaxConnections() throws ResourceException {
       if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getMaxConnections()");

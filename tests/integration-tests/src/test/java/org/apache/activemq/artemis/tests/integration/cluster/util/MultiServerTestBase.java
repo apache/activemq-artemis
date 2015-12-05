@@ -78,6 +78,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
       }
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();

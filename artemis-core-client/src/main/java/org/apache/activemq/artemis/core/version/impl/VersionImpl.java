@@ -60,30 +60,37 @@ public class VersionImpl implements Version, Serializable {
 
    // Version implementation ------------------------------------------
 
+   @Override
    public String getFullVersion() {
       return versionName;
    }
 
+   @Override
    public String getVersionName() {
       return versionName;
    }
 
+   @Override
    public int getMajorVersion() {
       return majorVersion;
    }
 
+   @Override
    public int getMinorVersion() {
       return minorVersion;
    }
 
+   @Override
    public int getMicroVersion() {
       return microVersion;
    }
 
+   @Override
    public int getIncrementingVersion() {
       return incrementingVersion;
    }
 
+   @Override
    public boolean isCompatible(int version) {
       for (int element : compatibleVersionList) {
          if (element == version) {

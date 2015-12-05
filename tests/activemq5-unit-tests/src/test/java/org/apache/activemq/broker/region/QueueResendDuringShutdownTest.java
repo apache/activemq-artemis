@@ -190,6 +190,7 @@ public class QueueResendDuringShutdownTest {
       final MessageConsumer fConsumer = consumer;
 
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message msg) {
             LOG.debug("got a message on consumer {}", fConsumer);
             messageReceived();

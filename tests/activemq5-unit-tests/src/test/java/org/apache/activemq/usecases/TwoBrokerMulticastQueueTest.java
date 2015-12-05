@@ -56,6 +56,7 @@ public class TwoBrokerMulticastQueueTest extends CombinationTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    public void setUp() throws Exception {
       groupId = getClass().getName() + "-" + System.currentTimeMillis();
       System.setProperty("groupId", groupId);
@@ -63,6 +64,7 @@ public class TwoBrokerMulticastQueueTest extends CombinationTestSupport {
       super.setUp();
    }
 
+   @Override
    public void tearDown() throws Exception {
       if (brokers != null) {
          for (int i = 0; i < BROKER_COUNT; i++) {

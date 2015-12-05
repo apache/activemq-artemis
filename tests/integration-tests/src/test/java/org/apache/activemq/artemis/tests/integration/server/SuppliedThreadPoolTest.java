@@ -49,6 +49,7 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase {
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       if (server.isActive()) {

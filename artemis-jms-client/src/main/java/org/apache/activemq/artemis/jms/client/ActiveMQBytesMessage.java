@@ -99,6 +99,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    // BytesMessage implementation -----------------------------------
 
+   @Override
    public boolean readBoolean() throws JMSException {
       checkRead();
       try {
@@ -109,6 +110,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public byte readByte() throws JMSException {
       checkRead();
       try {
@@ -119,6 +121,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public int readUnsignedByte() throws JMSException {
       checkRead();
       try {
@@ -129,6 +132,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public short readShort() throws JMSException {
       checkRead();
       try {
@@ -139,6 +143,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public int readUnsignedShort() throws JMSException {
       checkRead();
       try {
@@ -149,6 +154,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public char readChar() throws JMSException {
       checkRead();
       try {
@@ -159,6 +165,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public int readInt() throws JMSException {
       checkRead();
       try {
@@ -169,6 +176,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public long readLong() throws JMSException {
       checkRead();
       try {
@@ -179,6 +187,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public float readFloat() throws JMSException {
       checkRead();
       try {
@@ -189,6 +198,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public double readDouble() throws JMSException {
       checkRead();
       try {
@@ -199,6 +209,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public String readUTF() throws JMSException {
       checkRead();
       try {
@@ -215,57 +226,68 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public int readBytes(final byte[] value) throws JMSException {
       checkRead();
       return bytesReadBytes(message.getBodyBuffer(), value);
    }
 
+   @Override
    public int readBytes(final byte[] value, final int length) throws JMSException {
       checkRead();
       return bytesReadBytes(message.getBodyBuffer(), value, length);
 
    }
 
+   @Override
    public void writeBoolean(final boolean value) throws JMSException {
       checkWrite();
       bytesWriteBoolean(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeByte(final byte value) throws JMSException {
       checkWrite();
       bytesWriteByte(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeShort(final short value) throws JMSException {
       checkWrite();
       bytesWriteShort(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeChar(final char value) throws JMSException {
       checkWrite();
       bytesWriteChar(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeInt(final int value) throws JMSException {
       checkWrite();
       bytesWriteInt(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeLong(final long value) throws JMSException {
       checkWrite();
       bytesWriteLong(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeFloat(final float value) throws JMSException {
       checkWrite();
       bytesWriteFloat(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeDouble(final double value) throws JMSException {
       checkWrite();
       bytesWriteDouble(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeUTF(final String value) throws JMSException {
       checkWrite();
       try {
@@ -280,16 +302,19 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    }
 
+   @Override
    public void writeBytes(final byte[] value) throws JMSException {
       checkWrite();
       bytesWriteBytes(message.getBodyBuffer(), value);
    }
 
+   @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       checkWrite();
       bytesWriteBytes(message.getBodyBuffer(), value, offset, length);
    }
 
+   @Override
    public void writeObject(final Object value) throws JMSException {
       checkWrite();
       if (!bytesWriteObject(message.getBodyBuffer(), value)) {
@@ -297,6 +322,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public void reset() throws JMSException {
       if (!readOnly) {
          readOnly = true;
@@ -328,6 +354,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
+   @Override
    public long getBodyLength() throws JMSException {
       checkRead();
 

@@ -47,6 +47,7 @@ public abstract class ActionAbstract implements Action {
       }
    }
 
+   @Override
    public String getBrokerInstance() {
       if (brokerInstance == null) {
          /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
@@ -61,6 +62,7 @@ public abstract class ActionAbstract implements Action {
       return brokerInstance;
    }
 
+   @Override
    public String getBrokerHome() {
       if (brokerHome == null) {
          /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
@@ -80,6 +82,7 @@ public abstract class ActionAbstract implements Action {
       return brokerHome;
    }
 
+   @Override
    public Object execute(ActionContext context) throws Exception {
       this.context = context;
 

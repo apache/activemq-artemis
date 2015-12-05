@@ -84,6 +84,7 @@ public class NonSerializableFactory implements ObjectFactory {
       return NonSerializableFactory.getWrapperMap().get(name);
    }
 
+   @Override
    public Object getObjectInstance(final Object obj,
                                    final Name name,
                                    final Context nameCtx,

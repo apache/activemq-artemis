@@ -28,12 +28,14 @@ public class ActiveMQTopicTest extends ActiveMQDestinationTestSupport {
 
    public static final ActiveMQTopicTest SINGLETON = new ActiveMQTopicTest();
 
+   @Override
    public Object createObject() throws Exception {
       ActiveMQTopic info = new ActiveMQTopic();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQTopic info = (ActiveMQTopic) object;

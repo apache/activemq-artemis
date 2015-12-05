@@ -94,10 +94,12 @@ public class TempDestDeleteTest extends EmbeddedBrokerTestSupport implements Con
       return rb.getTopicRegion().getDestinationMap().containsKey(dest) || rb.getQueueRegion().getDestinationMap().containsKey(dest) || rb.getTempTopicRegion().getDestinationMap().containsKey(dest) || rb.getTempQueueRegion().getDestinationMap().containsKey(dest);
    }
 
+   @Override
    public void onConsumerEvent(ConsumerEvent event) {
       eventQueue.add(event);
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -114,6 +116,7 @@ public class TempDestDeleteTest extends EmbeddedBrokerTestSupport implements Con
       queueConsumerEventSource.setConsumerListener(this);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -133,6 +136,7 @@ public class TempDestDeleteTest extends EmbeddedBrokerTestSupport implements Con
 
       MessageConsumer consumer = session.createConsumer(dest);
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             LOG.info("Received message by: " + consumerText + " message: " + message);
          }

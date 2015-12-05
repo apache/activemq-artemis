@@ -49,6 +49,7 @@ public class SizeBasedMessageBufferTest extends MemoryBufferTestSupport {
       assertEquals("qC", 20, qC.getSize());
    }
 
+   @Override
    protected MessageBuffer createMessageBuffer() {
       return new SizeBasedMessageBuffer(40);
    }

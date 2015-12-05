@@ -27,6 +27,7 @@ import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
  */
 public abstract class BaseCommandTestSupport extends DataFileGeneratorTestSupport {
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       BaseCommand info = (BaseCommand) object;

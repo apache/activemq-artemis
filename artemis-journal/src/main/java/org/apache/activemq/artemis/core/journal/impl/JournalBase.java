@@ -36,54 +36,65 @@ abstract class JournalBase implements Journal {
       this.fileSize = fileSize;
    }
 
+   @Override
    public abstract void appendAddRecord(final long id,
                                         final byte recordType,
                                         final EncodingSupport record,
                                         final boolean sync,
                                         final IOCompletion callback) throws Exception;
 
+   @Override
    public abstract void appendAddRecordTransactional(final long txID,
                                                      final long id,
                                                      final byte recordType,
                                                      final EncodingSupport record) throws Exception;
 
+   @Override
    public abstract void appendCommitRecord(final long txID,
                                            final boolean sync,
                                            final IOCompletion callback,
                                            boolean lineUpContext) throws Exception;
 
+   @Override
    public abstract void appendDeleteRecord(final long id,
                                            final boolean sync,
                                            final IOCompletion callback) throws Exception;
 
+   @Override
    public abstract void appendDeleteRecordTransactional(final long txID,
                                                         final long id,
                                                         final EncodingSupport record) throws Exception;
 
+   @Override
    public abstract void appendPrepareRecord(final long txID,
                                             final EncodingSupport transactionData,
                                             final boolean sync,
                                             final IOCompletion callback) throws Exception;
 
+   @Override
    public abstract void appendUpdateRecord(final long id,
                                            final byte recordType,
                                            final EncodingSupport record,
                                            final boolean sync,
                                            final IOCompletion callback) throws Exception;
 
+   @Override
    public abstract void appendUpdateRecordTransactional(final long txID,
                                                         final long id,
                                                         final byte recordType,
                                                         final EncodingSupport record) throws Exception;
 
+   @Override
    public abstract void appendRollbackRecord(final long txID,
                                              final boolean sync,
                                              final IOCompletion callback) throws Exception;
 
+   @Override
    public void appendAddRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception {
       appendAddRecord(id, recordType, new ByteArrayEncoding(record), sync);
    }
 
+   @Override
    public void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
@@ -94,6 +105,7 @@ abstract class JournalBase implements Journal {
       }
    }
 
+   @Override
    public void appendCommitRecord(final long txID, final boolean sync) throws Exception {
       SyncIOCompletion syncCompletion = getSyncCallback(sync);
 
@@ -104,10 +116,12 @@ abstract class JournalBase implements Journal {
       }
    }
 
+   @Override
    public void appendCommitRecord(final long txID, final boolean sync, final IOCompletion callback) throws Exception {
       appendCommitRecord(txID, sync, callback, true);
    }
 
+   @Override
    public void appendUpdateRecord(final long id,
                                   final byte recordType,
                                   final byte[] record,
@@ -115,6 +129,7 @@ abstract class JournalBase implements Journal {
       appendUpdateRecord(id, recordType, new ByteArrayEncoding(record), sync);
    }
 
+   @Override
    public void appendUpdateRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
@@ -122,6 +137,7 @@ abstract class JournalBase implements Journal {
       appendUpdateRecordTransactional(txID, id, recordType, new ByteArrayEncoding(record));
    }
 
+   @Override
    public void appendAddRecordTransactional(final long txID,
                                             final long id,
                                             final byte recordType,
@@ -129,14 +145,17 @@ abstract class JournalBase implements Journal {
       appendAddRecordTransactional(txID, id, recordType, new ByteArrayEncoding(record));
    }
 
+   @Override
    public void appendDeleteRecordTransactional(final long txID, final long id) throws Exception {
       appendDeleteRecordTransactional(txID, id, NullEncoding.instance);
    }
 
+   @Override
    public void appendPrepareRecord(final long txID, final byte[] transactionData, final boolean sync) throws Exception {
       appendPrepareRecord(txID, new ByteArrayEncoding(transactionData), sync);
    }
 
+   @Override
    public void appendPrepareRecord(final long txID,
                                    final EncodingSupport transactionData,
                                    final boolean sync) throws Exception {
@@ -149,10 +168,12 @@ abstract class JournalBase implements Journal {
       }
    }
 
+   @Override
    public void appendDeleteRecordTransactional(final long txID, final long id, final byte[] record) throws Exception {
       appendDeleteRecordTransactional(txID, id, new ByteArrayEncoding(record));
    }
 
+   @Override
    public void appendUpdateRecord(final long id,
                                   final byte recordType,
                                   final EncodingSupport record,
@@ -166,6 +187,7 @@ abstract class JournalBase implements Journal {
       }
    }
 
+   @Override
    public void appendRollbackRecord(final long txID, final boolean sync) throws Exception {
       SyncIOCompletion syncCompletion = getSyncCallback(sync);
 
@@ -177,6 +199,7 @@ abstract class JournalBase implements Journal {
 
    }
 
+   @Override
    public void appendDeleteRecord(final long id, final boolean sync) throws Exception {
       SyncIOCompletion callback = getSyncCallback(sync);
 
@@ -203,19 +226,23 @@ abstract class JournalBase implements Journal {
 
       private static NullEncoding instance = new NullEncoding();
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
          // no-op
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          // no-op
       }
 
+      @Override
       public int getEncodeSize() {
          return 0;
       }
    }
 
+   @Override
    public int getFileSize() {
       return fileSize;
    }

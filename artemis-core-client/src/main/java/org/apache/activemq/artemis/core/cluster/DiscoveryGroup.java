@@ -95,6 +95,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       this.notificationService = service;
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -132,6 +133,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       runnable.run();
    }
 
+   @Override
    public void stop() {
       synchronized (this) {
          if (!started) {
@@ -180,6 +182,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       }
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
@@ -245,6 +248,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    class DiscoveryRunnable implements Runnable {
 
+      @Override
       public void run() {
          byte[] data = null;
 

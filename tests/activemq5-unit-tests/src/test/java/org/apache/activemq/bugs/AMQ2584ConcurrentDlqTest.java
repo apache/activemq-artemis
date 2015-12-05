@@ -99,6 +99,7 @@ public class AMQ2584ConcurrentDlqTest extends org.apache.activemq.TestSupport {
       Thread.sleep(5000);
 
       FilenameFilter justLogFiles = new FilenameFilter() {
+         @Override
          public boolean accept(File file, String s) {
             return s.endsWith(".log");
          }
@@ -118,6 +119,7 @@ public class AMQ2584ConcurrentDlqTest extends org.apache.activemq.TestSupport {
       consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageListener listener = new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             latch.countDown();
             try {
@@ -142,6 +144,7 @@ public class AMQ2584ConcurrentDlqTest extends org.apache.activemq.TestSupport {
       Session dlqSession = dlqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer dlqConsumer = dlqSession.createConsumer(new ActiveMQQueue("ActiveMQ.DLQ"));
       dlqConsumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             if (received.getCount() > 0 && received.getCount() % 200 == 0) {
                LOG.info("remaining on DLQ: " + received.getCount());
@@ -238,6 +241,7 @@ public class AMQ2584ConcurrentDlqTest extends org.apache.activemq.TestSupport {
       broker = null;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://testStoreSize?jms.watchTopicAdvisories=false&jms.redeliveryPolicy.maximumRedeliveries=1&jms.redeliveryPolicy.initialRedeliveryDelay=0&waitForStart=5000&create=false");
    }

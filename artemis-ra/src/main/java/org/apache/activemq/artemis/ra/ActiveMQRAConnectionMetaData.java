@@ -45,6 +45,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The version
     */
+   @Override
    public String getJMSVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSVersion()");
@@ -58,6 +59,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The major version
     */
+   @Override
    public int getJMSMajorVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSMajorVersion()");
@@ -71,6 +73,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The minor version
     */
+   @Override
    public int getJMSMinorVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSMinorVersion()");
@@ -84,6 +87,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The name
     */
+   @Override
    public String getJMSProviderName() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
@@ -97,6 +101,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The version
     */
+   @Override
    public String getProviderVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
@@ -110,6 +115,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The version
     */
+   @Override
    public int getProviderMajorVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getProviderMajorVersion()");
@@ -123,6 +129,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The version
     */
+   @Override
    public int getProviderMinorVersion() {
       if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getProviderMinorVersion()");
@@ -136,6 +143,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
     *
     * @return The names
     */
+   @Override
    public Enumeration<Object> getJMSXPropertyNames() {
       Vector<Object> v = new Vector<Object>();
       v.add("JMSXGroupID");

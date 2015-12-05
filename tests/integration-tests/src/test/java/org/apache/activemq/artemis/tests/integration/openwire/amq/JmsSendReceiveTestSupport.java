@@ -181,6 +181,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     *
     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
     */
+   @Override
    public synchronized void onMessage(Message message) {
       consumeMessage(message, messages);
    }

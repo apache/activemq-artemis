@@ -227,10 +227,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       connectionReadyForWrites = true;
    }
 
+   @Override
    public void disableFinalizeCheck() {
       finalizeCheck = false;
    }
 
+   @Override
    public Lock lockFailover() {
       newFailoverLock.lock();
       return newFailoverLock;
@@ -244,6 +246,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   @Override
    public void connect(final int initialConnectAttempts,
                        final boolean failoverOnInitialConnection) throws ActiveMQException {
       // Get the connection
@@ -259,10 +262,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    }
 
+   @Override
    public TransportConfiguration getConnectorConfiguration() {
       return connectorConfig;
    }
 
+   @Override
    public void setBackupConnector(final TransportConfiguration live, final TransportConfiguration backUp) {
       Connector localConnector = connector;
 
@@ -290,10 +295,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   @Override
    public Object getBackupConnector() {
       return backupConfig;
    }
 
+   @Override
    public ClientSession createSession(final String username,
                                       final String password,
                                       final boolean xa,
@@ -304,35 +311,42 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return createSessionInternal(username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, ackBatchSize);
    }
 
+   @Override
    public ClientSession createSession(final boolean autoCommitSends,
                                       final boolean autoCommitAcks,
                                       final int ackBatchSize) throws ActiveMQException {
       return createSessionInternal(null, null, false, autoCommitSends, autoCommitAcks, serverLocator.isPreAcknowledge(), ackBatchSize);
    }
 
+   @Override
    public ClientSession createXASession() throws ActiveMQException {
       return createSessionInternal(null, null, true, false, false, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
    }
 
+   @Override
    public ClientSession createTransactedSession() throws ActiveMQException {
       return createSessionInternal(null, null, false, false, false, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
    }
 
+   @Override
    public ClientSession createSession() throws ActiveMQException {
       return createSessionInternal(null, null, false, true, true, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
    }
 
+   @Override
    public ClientSession createSession(final boolean autoCommitSends,
                                       final boolean autoCommitAcks) throws ActiveMQException {
       return createSessionInternal(null, null, false, autoCommitSends, autoCommitAcks, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
    }
 
+   @Override
    public ClientSession createSession(final boolean xa,
                                       final boolean autoCommitSends,
                                       final boolean autoCommitAcks) throws ActiveMQException {
       return createSessionInternal(null, null, xa, autoCommitSends, autoCommitAcks, serverLocator.isPreAcknowledge(), serverLocator.getAckBatchSize());
    }
 
+   @Override
    public ClientSession createSession(final boolean xa,
                                       final boolean autoCommitSends,
                                       final boolean autoCommitAcks,
@@ -342,11 +356,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    // ConnectionLifeCycleListener implementation --------------------------------------------------
 
+   @Override
    public void connectionCreated(final ActiveMQComponent component,
                                  final Connection connection,
                                  final String protocol) {
    }
 
+   @Override
    public void connectionDestroyed(final Object connectionID) {
       // The exception has to be created in the same thread where it's being called
       // as to avoid a different stack trace cause
@@ -355,6 +371,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // It has to use the same executor as the disconnect message is being sent through
 
       closeExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             handleConnectionFailure(connectionID, ex);
          }
@@ -362,18 +379,21 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    }
 
+   @Override
    public void connectionException(final Object connectionID, final ActiveMQException me) {
       handleConnectionFailure(connectionID, me);
    }
 
    // Must be synchronized to prevent it happening concurrently with failover which can lead to
    // inconsistencies
+   @Override
    public void removeSession(final ClientSessionInternal session, final boolean failingOver) {
       synchronized (sessions) {
          sessions.remove(session);
       }
    }
 
+   @Override
    public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
       synchronized (connectionReadyLock) {
          if (connectionReadyForWrites != ready) {
@@ -385,31 +405,38 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   @Override
    public synchronized int numConnections() {
       return connection != null ? 1 : 0;
    }
 
+   @Override
    public int numSessions() {
       return sessions.size();
    }
 
+   @Override
    public void addFailureListener(final SessionFailureListener listener) {
       listeners.add(listener);
    }
 
+   @Override
    public boolean removeFailureListener(final SessionFailureListener listener) {
       return listeners.remove(listener);
    }
 
+   @Override
    public ClientSessionFactoryImpl addFailoverListener(FailoverEventListener listener) {
       failoverListeners.add(listener);
       return this;
    }
 
+   @Override
    public boolean removeFailoverListener(FailoverEventListener listener) {
       return failoverListeners.remove(listener);
    }
 
+   @Override
    public void causeExit() {
       clientProtocolManager.stop();
    }
@@ -447,6 +474,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       checkCloseConnection();
    }
 
+   @Override
    public void close() {
       if (closed) {
          return;
@@ -456,6 +484,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       serverLocator.factoryClosed(this);
    }
 
+   @Override
    public void cleanup() {
       if (closed) {
          return;
@@ -464,6 +493,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       interruptConnectAndCloseAllSessions(false);
    }
 
+   @Override
    public boolean isClosed() {
       return closed || serverLocator.isClosed();
    }
@@ -856,6 +886,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
+   @Override
    public RemotingConnection getConnection() {
       if (closed)
          throw new IllegalStateException("ClientSessionFactory is closed!");
@@ -948,6 +979,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       // else... we will try to instantiate a new one
 
       return AccessController.doPrivileged(new PrivilegedAction<ConnectorFactory>() {
+         @Override
          public ConnectorFactory run() {
             return (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(connectorFactoryClassName);
          }
@@ -966,6 +998,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       // Must be executed on new thread since cannot block the Netty thread for a long time and fail
       // can cause reconnect loop
+      @Override
       public void run() {
          try {
             CLOSE_RUNNABLES.add(this);
@@ -990,10 +1023,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    }
 
+   @Override
    public void setReconnectAttempts(final int attempts) {
       reconnectAttempts = attempts;
    }
 
+   @Override
    public Object getConnector() {
       return connector;
    }
@@ -1117,6 +1152,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private class DelegatingBufferHandler implements BufferHandler {
 
+      @Override
       public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          RemotingConnection theConn = connection;
 
@@ -1162,6 +1198,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          pingRunnable = new WeakReference<PingRunnable>(runnable);
       }
 
+      @Override
       public void run() {
          PingRunnable runnable = pingRunnable.get();
 
@@ -1180,6 +1217,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       private long lastCheck = System.currentTimeMillis();
 
+      @Override
       public synchronized void run() {
          if (cancelled || stopPingingAfterOne && !first) {
             return;
@@ -1200,6 +1238,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                threadPool.execute(new Runnable() {
                   // Must be executed on different thread
+                  @Override
                   public void run() {
                      connection.fail(me);
                   }

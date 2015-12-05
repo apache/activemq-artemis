@@ -37,12 +37,14 @@ public class DataArrayResponseTest extends ResponseTest {
 
    public static DataArrayResponseTest SINGLETON = new DataArrayResponseTest();
 
+   @Override
    public Object createObject() throws Exception {
       DataArrayResponse info = new DataArrayResponse();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       DataArrayResponse info = (DataArrayResponse) object;

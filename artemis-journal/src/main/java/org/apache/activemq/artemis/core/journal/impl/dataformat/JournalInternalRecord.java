@@ -33,6 +33,7 @@ public abstract class JournalInternalRecord implements EncodingSupport {
       this.fileID = fileID;
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
    }
 
@@ -56,5 +57,6 @@ public abstract class JournalInternalRecord implements EncodingSupport {
       }
    }
 
+   @Override
    public abstract int getEncodeSize();
 }

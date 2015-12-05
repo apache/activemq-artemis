@@ -60,6 +60,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       session.start();
    }
 
+   @Override
    protected void restartServer() throws Exception {
       session.close();
 
@@ -96,30 +97,37 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_SERVER);
 
+         @Override
          public boolean isSharedStore() {
             return (Boolean) proxy.retrieveAttributeValue("sharedStore");
          }
 
+         @Override
          public boolean closeConnectionsForAddress(final String ipAddress) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConnectionsForAddress", ipAddress);
          }
 
+         @Override
          public boolean closeConsumerConnectionsForAddress(final String address) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConsumerConnectionsForAddress", address);
          }
 
+         @Override
          public boolean closeConnectionsForUser(final String userName) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConnectionsForUser", userName);
          }
 
+         @Override
          public boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
             return (Boolean) proxy.invokeOperation("commitPreparedTransaction", transactionAsBase64);
          }
 
+         @Override
          public void createQueue(final String address, final String name) throws Exception {
             proxy.invokeOperation("createQueue", address, name);
          }
 
+         @Override
          public void createQueue(final String address,
                                  final String name,
                                  final String filter,
@@ -127,10 +135,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("createQueue", address, name, filter, durable);
          }
 
+         @Override
          public void createQueue(final String address, final String name, final boolean durable) throws Exception {
             proxy.invokeOperation("createQueue", address, name, durable);
          }
 
+         @Override
          public void deployQueue(final String address,
                                  final String name,
                                  final String filter,
@@ -138,50 +148,62 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("deployQueue", address, name, filter, durable);
          }
 
+         @Override
          public void deployQueue(final String address, final String name, final String filterString) throws Exception {
             proxy.invokeOperation("deployQueue", address, name);
          }
 
+         @Override
          public void destroyQueue(final String name) throws Exception {
             proxy.invokeOperation("destroyQueue", name);
          }
 
+         @Override
          public void disableMessageCounters() throws Exception {
             proxy.invokeOperation("disableMessageCounters");
          }
 
+         @Override
          public void enableMessageCounters() throws Exception {
             proxy.invokeOperation("enableMessageCounters");
          }
 
+         @Override
          public String getBindingsDirectory() {
             return (String) proxy.retrieveAttributeValue("bindingsDirectory");
          }
 
+         @Override
          public int getConnectionCount() {
             return (Integer) proxy.retrieveAttributeValue("connectionCount");
          }
 
+         @Override
          public long getConnectionTTLOverride() {
             return (Long) proxy.retrieveAttributeValue("connectionTTLOverride", Long.class);
          }
 
+         @Override
          public Object[] getConnectors() throws Exception {
             return (Object[]) proxy.retrieveAttributeValue("connectors");
          }
 
+         @Override
          public String getConnectorsAsJSON() throws Exception {
             return (String) proxy.retrieveAttributeValue("connectorsAsJSON");
          }
 
+         @Override
          public String[] getAddressNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("addressNames"));
          }
 
+         @Override
          public String[] getQueueNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames"));
          }
 
+         @Override
          public int getIDCacheSize() {
             return (Integer) proxy.retrieveAttributeValue("IDCacheSize");
          }
@@ -190,118 +212,147 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
          }
 
+         @Override
          public String[] getIncomingInterceptorClassNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
          }
 
+         @Override
          public String[] getOutgoingInterceptorClassNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("outgoingInterceptorClassNames"));
          }
 
+         @Override
          public String getJournalDirectory() {
             return (String) proxy.retrieveAttributeValue("journalDirectory");
          }
 
+         @Override
          public int getJournalFileSize() {
             return (Integer) proxy.retrieveAttributeValue("journalFileSize");
          }
 
+         @Override
          public int getJournalMaxIO() {
             return (Integer) proxy.retrieveAttributeValue("journalMaxIO");
          }
 
+         @Override
          public int getJournalMinFiles() {
             return (Integer) proxy.retrieveAttributeValue("journalMinFiles");
          }
 
+         @Override
          public String getJournalType() {
             return (String) proxy.retrieveAttributeValue("journalType");
          }
 
+         @Override
          public String getLargeMessagesDirectory() {
             return (String) proxy.retrieveAttributeValue("largeMessagesDirectory");
          }
 
+         @Override
          public String getManagementAddress() {
             return (String) proxy.retrieveAttributeValue("managementAddress");
          }
 
+         @Override
          public String getManagementNotificationAddress() {
             return (String) proxy.retrieveAttributeValue("managementNotificationAddress");
          }
 
+         @Override
          public int getMessageCounterMaxDayCount() {
             return (Integer) proxy.retrieveAttributeValue("messageCounterMaxDayCount");
          }
 
+         @Override
          public long getMessageCounterSamplePeriod() {
             return (Long) proxy.retrieveAttributeValue("messageCounterSamplePeriod", Long.class);
          }
 
+         @Override
          public long getMessageExpiryScanPeriod() {
             return (Long) proxy.retrieveAttributeValue("messageExpiryScanPeriod", Long.class);
          }
 
+         @Override
          public long getMessageExpiryThreadPriority() {
             return (Long) proxy.retrieveAttributeValue("messageExpiryThreadPriority", Long.class);
          }
 
+         @Override
          public String getPagingDirectory() {
             return (String) proxy.retrieveAttributeValue("pagingDirectory");
          }
 
+         @Override
          public int getScheduledThreadPoolMaxSize() {
             return (Integer) proxy.retrieveAttributeValue("scheduledThreadPoolMaxSize");
          }
 
+         @Override
          public int getThreadPoolMaxSize() {
             return (Integer) proxy.retrieveAttributeValue("threadPoolMaxSize");
          }
 
+         @Override
          public long getSecurityInvalidationInterval() {
             return (Long) proxy.retrieveAttributeValue("securityInvalidationInterval", Long.class);
          }
 
+         @Override
          public long getTransactionTimeout() {
             return (Long) proxy.retrieveAttributeValue("transactionTimeout", Long.class);
          }
 
+         @Override
          public long getTransactionTimeoutScanPeriod() {
             return (Long) proxy.retrieveAttributeValue("transactionTimeoutScanPeriod", Long.class);
          }
 
+         @Override
          public String getVersion() {
             return (String) proxy.retrieveAttributeValue("version");
          }
 
+         @Override
          public boolean isBackup() {
             return (Boolean) proxy.retrieveAttributeValue("backup");
          }
 
+         @Override
          public boolean isClustered() {
             return (Boolean) proxy.retrieveAttributeValue("clustered");
          }
 
+         @Override
          public boolean isCreateBindingsDir() {
             return (Boolean) proxy.retrieveAttributeValue("createBindingsDir");
          }
 
+         @Override
          public boolean isCreateJournalDir() {
             return (Boolean) proxy.retrieveAttributeValue("createJournalDir");
          }
 
+         @Override
          public boolean isJournalSyncNonTransactional() {
             return (Boolean) proxy.retrieveAttributeValue("journalSyncNonTransactional");
          }
 
+         @Override
          public boolean isJournalSyncTransactional() {
             return (Boolean) proxy.retrieveAttributeValue("journalSyncTransactional");
          }
 
+         @Override
          public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception {
             proxy.invokeOperation("setFailoverOnServerShutdown", failoverOnServerShutdown);
          }
 
+         @Override
          public boolean isFailoverOnServerShutdown() {
             return (Boolean) proxy.retrieveAttributeValue("failoverOnServerShutdown");
          }
@@ -314,114 +365,142 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (Boolean) proxy.retrieveAttributeValue("scaleDown");
          }
 
+         @Override
          public boolean isMessageCounterEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("messageCounterEnabled");
          }
 
+         @Override
          public boolean isPersistDeliveryCountBeforeDelivery() {
             return (Boolean) proxy.retrieveAttributeValue("persistDeliveryCountBeforeDelivery");
          }
 
+         @Override
          public boolean isAsyncConnectionExecutionEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("asyncConnectionExecutionEnabled");
          }
 
+         @Override
          public boolean isPersistIDCache() {
             return (Boolean) proxy.retrieveAttributeValue("persistIDCache");
          }
 
+         @Override
          public boolean isSecurityEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("securityEnabled");
          }
 
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
+         @Override
          public boolean isWildcardRoutingEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("wildcardRoutingEnabled");
          }
 
+         @Override
          public String[] listConnectionIDs() throws Exception {
             return (String[]) proxy.invokeOperation("listConnectionIDs");
          }
 
+         @Override
          public String[] listPreparedTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listPreparedTransactions");
          }
 
+         @Override
          public String listPreparedTransactionDetailsAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsJSON");
          }
 
+         @Override
          public String listPreparedTransactionDetailsAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");
          }
 
+         @Override
          public String[] listHeuristicCommittedTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listHeuristicCommittedTransactions");
          }
 
+         @Override
          public String[] listHeuristicRolledBackTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listHeuristicRolledBackTransactions");
          }
 
+         @Override
          public String[] listRemoteAddresses() throws Exception {
             return (String[]) proxy.invokeOperation("listRemoteAddresses");
          }
 
+         @Override
          public String[] listRemoteAddresses(final String ipAddress) throws Exception {
             return (String[]) proxy.invokeOperation("listRemoteAddresses", ipAddress);
          }
 
+         @Override
          public String[] listSessions(final String connectionID) throws Exception {
             return (String[]) proxy.invokeOperation("listSessions", connectionID);
          }
 
+         @Override
          public void resetAllMessageCounterHistories() throws Exception {
             proxy.invokeOperation("resetAllMessageCounterHistories");
          }
 
+         @Override
          public void resetAllMessageCounters() throws Exception {
             proxy.invokeOperation("resetAllMessageCounters");
          }
 
+         @Override
          public boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
             return (Boolean) proxy.invokeOperation("rollbackPreparedTransaction", transactionAsBase64);
          }
 
+         @Override
          public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
             proxy.invokeOperation("sendQueueInfoToQueue", queueName, address);
          }
 
+         @Override
          public void setMessageCounterMaxDayCount(final int count) throws Exception {
             proxy.invokeOperation("setMessageCounterMaxDayCount", count);
          }
 
+         @Override
          public void setMessageCounterSamplePeriod(final long newPeriod) throws Exception {
             proxy.invokeOperation("setMessageCounterSamplePeriod", newPeriod);
          }
 
+         @Override
          public int getJournalBufferSize() {
             return (Integer) proxy.retrieveAttributeValue("JournalBufferSize");
          }
 
+         @Override
          public int getJournalBufferTimeout() {
             return (Integer) proxy.retrieveAttributeValue("JournalBufferTimeout");
          }
 
+         @Override
          public int getJournalCompactMinFiles() {
             return (Integer) proxy.retrieveAttributeValue("JournalCompactMinFiles");
          }
 
+         @Override
          public int getJournalCompactPercentage() {
             return (Integer) proxy.retrieveAttributeValue("JournalCompactPercentage");
          }
 
+         @Override
          public boolean isPersistenceEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("PersistenceEnabled");
          }
 
+         @Override
          public void addSecuritySettings(String addressMatch,
                                          String sendRoles,
                                          String consumeRoles,
@@ -433,18 +512,22 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
          }
 
+         @Override
          public void removeSecuritySettings(String addressMatch) throws Exception {
             proxy.invokeOperation("removeSecuritySettings", addressMatch);
          }
 
+         @Override
          public Object[] getRoles(String addressMatch) throws Exception {
             return (Object[]) proxy.invokeOperation("getRoles", addressMatch);
          }
 
+         @Override
          public String getRolesAsJSON(String addressMatch) throws Exception {
             return (String) proxy.invokeOperation("getRolesAsJSON", addressMatch);
          }
 
+         @Override
          public void addAddressSettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
                                         @Parameter(desc = "the dead letter address setting", name = "DLA") String DLA,
                                         @Parameter(desc = "the expiry address setting", name = "expiryAddress") String expiryAddress,
@@ -468,10 +551,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("addAddressSettings", addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
          }
 
+         @Override
          public void removeAddressSettings(String addressMatch) throws Exception {
             proxy.invokeOperation("removeAddressSettings", addressMatch);
          }
 
+         @Override
          public void createDivert(String name,
                                   String routingName,
                                   String address,
@@ -482,19 +567,23 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName);
          }
 
+         @Override
          public void destroyDivert(String name) throws Exception {
             proxy.invokeOperation("destroyDivert", name);
          }
 
+         @Override
          public String[] getBridgeNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("bridgeNames"));
          }
 
+         @Override
          public void destroyBridge(String name) throws Exception {
             proxy.invokeOperation("destroyBridge", name);
 
          }
 
+         @Override
          public void forceFailover() throws Exception {
             proxy.invokeOperation("forceFailover");
          }
@@ -503,14 +592,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (String) proxy.retrieveAttributeValue("liveConnectorName");
          }
 
+         @Override
          public String getAddressSettingsAsJSON(String addressMatch) throws Exception {
             return (String) proxy.invokeOperation("getAddressSettingsAsJSON", addressMatch);
          }
 
+         @Override
          public String[] getDivertNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("divertNames"));
          }
 
+         @Override
          public void createBridge(String name,
                                   String queueName,
                                   String forwardingAddress,
@@ -531,6 +623,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
          }
 
+         @Override
          public String listProducersInfoAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listProducersInfoAsJSON");
          }

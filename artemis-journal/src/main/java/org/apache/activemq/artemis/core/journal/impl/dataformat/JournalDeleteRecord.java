@@ -30,6 +30,7 @@ public class JournalDeleteRecord extends JournalInternalRecord {
       this.id = id;
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(JournalImpl.DELETE_RECORD);
 

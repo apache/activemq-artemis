@@ -33,6 +33,7 @@ public class SpringIntegrationTest extends ActiveMQTestBase {
 
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();

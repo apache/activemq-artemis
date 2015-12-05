@@ -660,14 +660,17 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
 
    class DummyEndpoint implements MessageEndpoint {
 
+      @Override
       public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
          // To change body of implemented methods use File | Settings | File Templates.
       }
 
+      @Override
       public void afterDelivery() throws ResourceException {
          // To change body of implemented methods use File | Settings | File Templates.
       }
 
+      @Override
       public void release() {
          // To change body of implemented methods use File | Settings | File Templates.
       }

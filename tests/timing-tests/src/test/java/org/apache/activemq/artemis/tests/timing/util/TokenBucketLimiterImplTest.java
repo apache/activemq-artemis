@@ -172,6 +172,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
       TokenBucketLimiterImpl tbl = new TokenBucketLimiterImpl(rate, false, TimeUnit.SECONDS, window);
 
       Thread t = new Thread() {
+         @Override
          public void run() {
             int lastRun = 0;
             long lastTime = System.currentTimeMillis();

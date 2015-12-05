@@ -32,12 +32,15 @@ public class StubTransport extends TransportSupport {
    private Queue<Object> queue = new ConcurrentLinkedQueue<Object>();
    private AtomicInteger receiveCounter;
 
+   @Override
    protected void doStop(ServiceStopper stopper) throws Exception {
    }
 
+   @Override
    protected void doStart() throws Exception {
    }
 
+   @Override
    public void oneway(Object command) throws IOException {
       receiveCounter.incrementAndGet();
       queue.add(command);
@@ -47,10 +50,12 @@ public class StubTransport extends TransportSupport {
       return queue;
    }
 
+   @Override
    public String getRemoteAddress() {
       return null;
    }
 
+   @Override
    public int getReceiveCounter() {
       return receiveCounter.get();
    }

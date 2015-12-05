@@ -80,6 +80,7 @@ public class BrokerBenchmark extends BrokerTestSupport {
       final AtomicInteger receiveCounter = new AtomicInteger(0);
       for (int i = 0; i < consumerCount; i++) {
          new Thread() {
+            @Override
             public void run() {
                try {
 
@@ -147,6 +148,7 @@ public class BrokerBenchmark extends BrokerTestSupport {
       // Send the messages in an async thread.
       for (int i = 0; i < prodcuerCount; i++) {
          new Thread() {
+            @Override
             public void run() {
                try {
                   StubConnection connection = new StubConnection(broker);

@@ -177,6 +177,7 @@ public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestS
 
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

@@ -251,6 +251,7 @@ public class RepositoryTest extends ActiveMQTestBase {
          this.id = id;
       }
 
+      @Override
       public void merge(final Object merged) {
          DummyMergeable.timesMerged++;
          DummyMergeable.merged.add(id);

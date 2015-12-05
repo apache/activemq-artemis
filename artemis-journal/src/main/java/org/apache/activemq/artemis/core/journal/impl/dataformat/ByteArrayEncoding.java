@@ -29,14 +29,17 @@ public class ByteArrayEncoding implements EncodingSupport {
 
    // Public --------------------------------------------------------
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       throw new IllegalStateException("operation not supported");
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeBytes(data);
    }
 
+   @Override
    public int getEncodeSize() {
       return data.length;
    }

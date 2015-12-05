@@ -60,6 +60,7 @@ public class JmsSendReceiveTestSupport extends TestSupport implements MessageLis
    /*
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       String temp = System.getProperty("messageCount");
@@ -195,6 +196,7 @@ public class JmsSendReceiveTestSupport extends TestSupport implements MessageLis
     *
     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
     */
+   @Override
    public synchronized void onMessage(Message message) {
       consumeMessage(message, messages);
    }

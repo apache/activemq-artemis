@@ -137,6 +137,7 @@ public class JMSTest extends MessageTestBase {
       public static String messageID = null;
       public static CountDownLatch latch = new CountDownLatch(1);
 
+      @Override
       public void onMessage(Message message) {
          try {
             order = Jms.getEntity(message, Order.class);

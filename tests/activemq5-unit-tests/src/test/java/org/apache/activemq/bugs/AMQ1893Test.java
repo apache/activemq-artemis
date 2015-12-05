@@ -129,6 +129,7 @@ public class AMQ1893Test extends TestCase {
          final int totalMessageCount = MESSAGE_COUNT_OF_ONE_GROUP * PRIORITIES.length;
          final AtomicInteger counter = new AtomicInteger();
          final MessageListener listener = new MessageListener() {
+            @Override
             public void onMessage(Message message) {
 
                if (debug) {

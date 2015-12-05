@@ -28,10 +28,12 @@ public class StubJaasConfiguration extends Configuration {
       this.configEntry = configEntry;
    }
 
+   @Override
    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
       return new AppConfigurationEntry[]{configEntry};
    }
 
+   @Override
    public void refresh() {
    }
 

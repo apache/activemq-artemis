@@ -51,6 +51,7 @@ public class UnreliableCommandDatagramChannel extends CommandDatagramChannel {
       this.dropCommandStrategy = strategy;
    }
 
+   @Override
    protected void sendWriteBuffer(int commandId,
                                   SocketAddress address,
                                   ByteBuffer writeBuffer,

@@ -815,17 +815,20 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
    class FakeSession implements ClientSession {
 
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final boolean browseOnly) throws ActiveMQException {
          // TODO Auto-generated method stub
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
          // TODO Auto-generated method stub
          return null;
       }
 
+      @Override
       public void createQueue(final String address, final String queueName) throws ActiveMQException {
          // TODO Auto-generated method stub
 
@@ -837,12 +840,14 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          this.message = message;
       }
 
+      @Override
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final SimpleString filterString,
                               final boolean durable) throws ActiveMQException {
       }
 
+      @Override
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final boolean durable) throws ActiveMQException {
@@ -861,6 +866,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                                     boolean durable) throws ActiveMQException {
       }
 
+      @Override
       public void createQueue(final String address,
                               final String queueName,
                               final boolean durable) throws ActiveMQException {
@@ -878,50 +884,61 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
                               final boolean temporary) throws ActiveMQException {
       }
 
+      @Override
       public void createQueue(final String address,
                               final String queueName,
                               final String filterString,
                               final boolean durable) throws ActiveMQException {
       }
 
+      @Override
       public void createTemporaryQueue(final SimpleString address,
                                        final SimpleString queueName) throws ActiveMQException {
       }
 
+      @Override
       public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
       }
 
+      @Override
       public void createTemporaryQueue(final SimpleString address,
                                        final SimpleString queueName,
                                        final SimpleString filter) throws ActiveMQException {
       }
 
+      @Override
       public void createTemporaryQueue(final String address,
                                        final String queueName,
                                        final String filter) throws ActiveMQException {
       }
 
+      @Override
       public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       }
 
+      @Override
       public void deleteQueue(final String queueName) throws ActiveMQException {
       }
 
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
                                            final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
                                            final int windowSize,
@@ -930,20 +947,24 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final String queueName,
                                            final String filterString,
                                            final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientConsumer createConsumer(final String queueName,
                                            final String filterString,
                                            final int windowSize,
@@ -1005,14 +1026,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return null;
       }
 
+      @Override
       public ClientProducer createProducer() throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientProducer createProducer(final SimpleString address) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException {
          return null;
       }
@@ -1024,6 +1048,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return null;
       }
 
+      @Override
       public ClientProducer createProducer(final String address) throws ActiveMQException {
          return null;
       }
@@ -1039,55 +1064,69 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return null;
       }
 
+      @Override
       public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public XAResource getXAResource() {
          return null;
       }
 
+      @Override
       public void commit() throws ActiveMQException {
       }
 
+      @Override
       public boolean isRollbackOnly() {
 
          return false;
       }
 
+      @Override
       public void rollback() throws ActiveMQException {
       }
 
+      @Override
       public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException {
       }
 
+      @Override
       public void close() throws ActiveMQException {
       }
 
+      @Override
       public boolean isClosed() {
          return false;
       }
 
+      @Override
       public boolean isAutoCommitSends() {
          return false;
       }
 
+      @Override
       public boolean isAutoCommitAcks() {
          return false;
       }
 
+      @Override
       public boolean isBlockOnAcknowledge() {
          return false;
       }
 
+      @Override
       public boolean isXA() {
          return false;
       }
 
+      @Override
       public ClientMessage createMessage(final byte type,
                                          final boolean durable,
                                          final long expiration,
@@ -1096,24 +1135,29 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return message;
       }
 
+      @Override
       public ClientMessage createMessage(final byte type, final boolean durable) {
          return message;
       }
 
+      @Override
       public ClientMessage createMessage(final boolean durable) {
          return message;
       }
 
+      @Override
       public FakeSession start() throws ActiveMQException {
          return this;
       }
 
+      @Override
       public void stop() throws ActiveMQException {
       }
 
       public void addFailureListener(final FailureListener listener) {
       }
 
+      @Override
       public void addFailoverListener(FailoverEventListener listener) {
       }
 
@@ -1121,50 +1165,63 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return false;
       }
 
+      @Override
       public boolean removeFailoverListener(FailoverEventListener listener) {
          return false;
       }
 
+      @Override
       public int getVersion() {
          return 0;
       }
 
+      @Override
       public FakeSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
          return this;
       }
 
+      @Override
       public void commit(final Xid xid, final boolean b) throws XAException {
       }
 
+      @Override
       public void end(final Xid xid, final int i) throws XAException {
       }
 
+      @Override
       public void forget(final Xid xid) throws XAException {
       }
 
+      @Override
       public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
+      @Override
       public boolean isSameRM(final XAResource xaResource) throws XAException {
          return false;
       }
 
+      @Override
       public int prepare(final Xid xid) throws XAException {
          return 0;
       }
 
+      @Override
       public Xid[] recover(final int i) throws XAException {
          return new Xid[0];
       }
 
+      @Override
       public void rollback(final Xid xid) throws XAException {
       }
 
+      @Override
       public boolean setTransactionTimeout(final int i) throws XAException {
          return false;
       }
 
+      @Override
       public void start(final Xid xid, final int i) throws XAException {
       }
 
@@ -1184,11 +1241,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
          return null;
       }
 
+      @Override
       public void addFailureListener(final SessionFailureListener listener) {
          // TODO Auto-generated method stub
 
       }
 
+      @Override
       public boolean removeFailureListener(final SessionFailureListener listener) {
          // TODO Auto-generated method stub
          return false;
@@ -1197,6 +1256,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       /* (non-Javadoc)
        * @see ClientSession#createQueue(org.apache.activemq.artemis.utils.SimpleString, org.apache.activemq.artemis.utils.SimpleString)
        */
+      @Override
       public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException {
          // TODO Auto-generated method stub
 
@@ -1213,6 +1273,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       /* (non-Javadoc)
        * @see ClientSession#addMetaData(java.lang.String, java.lang.String)
        */
+      @Override
       public void addMetaData(String key, String data) throws ActiveMQException {
          // TODO Auto-generated method stub
 
@@ -1221,6 +1282,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       /* (non-Javadoc)
        * @see ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
        */
+      @Override
       public void addUniqueMetaData(String key, String data) throws ActiveMQException {
          // TODO Auto-generated method stub
 

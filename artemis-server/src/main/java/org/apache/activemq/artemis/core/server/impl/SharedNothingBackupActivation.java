@@ -91,6 +91,7 @@ public final class SharedNothingBackupActivation extends Activation {
       replicationEndpoint = new ReplicationEndpoint(activeMQServer, shutdownOnCriticalIO, attemptFailBack, this);
    }
 
+   @Override
    public void run() {
       try {
          synchronized (activeMQServer) {
@@ -269,6 +270,7 @@ public final class SharedNothingBackupActivation extends Activation {
       }
    }
 
+   @Override
    public void close(final boolean permanently, boolean restarting) throws Exception {
       synchronized (this) {
          if (backupQuorum != null)

@@ -81,6 +81,7 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    ServerLocatorInternal setClusterTransportConfiguration(TransportConfiguration tc);
 
+   @Override
    Topology getTopology();
 
    ClientProtocolManager newProtocolManager();

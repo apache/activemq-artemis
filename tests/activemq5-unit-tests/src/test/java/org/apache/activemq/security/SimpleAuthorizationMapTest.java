@@ -22,6 +22,7 @@ package org.apache.activemq.security;
  */
 public class SimpleAuthorizationMapTest extends AuthorizationMapTest {
 
+   @Override
    protected AuthorizationMap createAuthorizationMap() {
       return SimpleSecurityBrokerSystemTest.createAuthorizationMap();
    }

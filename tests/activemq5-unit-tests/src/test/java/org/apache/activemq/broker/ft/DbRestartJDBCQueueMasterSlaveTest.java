@@ -41,6 +41,7 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
 
    private static final transient Logger LOG = LoggerFactory.getLogger(DbRestartJDBCQueueMasterSlaveTest.class);
 
+   @Override
    protected void messageSent() throws Exception {
       verifyExpectedBroker(inflightMessageCount);
       if (++inflightMessageCount == failureCount) {
@@ -50,6 +51,7 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
          LOG.info("DB STOPPED!@!!!!");
 
          Thread dbRestartThread = new Thread("db-re-start-thread") {
+            @Override
             public void run() {
                delayTillRestartRequired();
                ds.setShutdownDatabase("false");
@@ -75,6 +77,7 @@ public class DbRestartJDBCQueueMasterSlaveTest extends JDBCQueueMasterSlaveTest 
       master.waitUntilStopped();
    }
 
+   @Override
    protected void sendToProducer(MessageProducer producer,
                                  Destination producerDestination,
                                  Message message) throws JMSException {

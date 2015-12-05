@@ -31,6 +31,7 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
    protected String MASTER_URL = "tcp://localhost:62001";
    protected String SLAVE_URL = "tcp://localhost:62002";
 
+   @Override
    protected void createMaster() throws Exception {
       master = new BrokerService();
       master.setBrokerName("master");
@@ -52,10 +53,12 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
       master.start();
    }
 
+   @Override
    protected void createSlave() throws Exception {
       // use a separate thread as the slave will block waiting for
       // the exclusive db lock
       Thread t = new Thread() {
+         @Override
          public void run() {
             try {
                BrokerService broker = new BrokerService();

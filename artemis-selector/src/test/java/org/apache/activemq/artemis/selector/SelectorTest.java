@@ -91,6 +91,7 @@ public class SelectorTest {
          properties.put(key, value);
       }
 
+      @Override
       public <T> T getBodyAs(Class<T> type) throws FilterException {
          if (type == String.class) {
             return type.cast(text);
@@ -98,6 +99,7 @@ public class SelectorTest {
          return null;
       }
 
+      @Override
       public Object getProperty(String name) {
          if ("JMSType".equals(name)) {
             return type;
@@ -112,6 +114,7 @@ public class SelectorTest {
          return destination;
       }
 
+      @Override
       public Object getLocalConnectionId() {
          return localConnectionId;
       }

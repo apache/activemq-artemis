@@ -47,6 +47,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
          int errors = 0;
 
+         @Override
          public void run() {
 
             try {

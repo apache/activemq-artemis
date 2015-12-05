@@ -91,6 +91,7 @@ public class ManagedDurableSubscriptionTest extends org.apache.activemq.TestSupp
       broker = null;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://" + getName() + "?waitForStart=5000&create=false");
    }

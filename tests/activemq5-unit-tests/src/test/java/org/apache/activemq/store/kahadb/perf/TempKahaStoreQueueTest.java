@@ -27,6 +27,7 @@ import org.apache.activemq.store.kahadb.TempKahaDBStore;
  */
 public class TempKahaStoreQueueTest extends SimpleQueueTest {
 
+   @Override
    protected void configureBroker(BrokerService answer, String uri) throws Exception {
       File dataFileDir = new File("target/test-amq-data/perfTest/temp-amqdb");
       dataFileDir.mkdirs();

@@ -64,6 +64,7 @@ public class ProducerThread extends Thread {
       this.session = session;
    }
 
+   @Override
    public void run() {
       MessageProducer producer = null;
       String threadName = Thread.currentThread().getName();

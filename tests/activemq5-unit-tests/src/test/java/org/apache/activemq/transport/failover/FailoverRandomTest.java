@@ -27,11 +27,13 @@ public class FailoverRandomTest extends TestCase {
 
    BrokerService brokerA, brokerB;
 
+   @Override
    public void setUp() throws Exception {
       brokerA = createBroker("A");
       brokerB = createBroker("B");
    }
 
+   @Override
    public void tearDown() throws Exception {
       brokerA.stop();
       brokerB.stop();

@@ -608,6 +608,7 @@ public class LibaioTest {
    public void testBlockedCallback() throws Exception {
       final LibaioContext blockedContext = new LibaioContext(500, true);
       Thread t = new Thread() {
+         @Override
          public void run() {
             blockedContext.poll();
          }

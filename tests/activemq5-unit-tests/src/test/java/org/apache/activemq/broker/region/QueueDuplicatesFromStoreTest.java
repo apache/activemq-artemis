@@ -338,10 +338,12 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
             return 0;
          }
 
+         @Override
          public void incrementConsumedCount() {
 
          }
 
+         @Override
          public void resetConsumedCount() {
 
          }

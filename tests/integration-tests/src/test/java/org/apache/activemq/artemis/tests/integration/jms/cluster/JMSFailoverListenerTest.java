@@ -337,6 +337,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
          Assert.assertTrue(eventTypeList.size() >= elements);
       }
 
+      @Override
       public void failoverEvent(FailoverEventType eventType) {
          eventTypeList.add(eventType);
       }

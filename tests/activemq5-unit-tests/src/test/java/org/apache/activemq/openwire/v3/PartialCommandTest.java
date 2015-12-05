@@ -32,12 +32,14 @@ public class PartialCommandTest extends DataFileGeneratorTestSupport {
 
    public static final PartialCommandTest SINGLETON = new PartialCommandTest();
 
+   @Override
    public Object createObject() throws Exception {
       PartialCommand info = new PartialCommand();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       PartialCommand info = (PartialCommand) object;

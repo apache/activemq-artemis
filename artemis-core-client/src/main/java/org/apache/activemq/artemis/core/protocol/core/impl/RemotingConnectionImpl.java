@@ -151,6 +151,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    /**
     * @return the clientVersion
     */
+   @Override
    public int getClientVersion() {
       return clientVersion;
    }
@@ -158,10 +159,12 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    /**
     * @param clientVersion the clientVersion to set
     */
+   @Override
    public void setClientVersion(int clientVersion) {
       this.clientVersion = clientVersion;
    }
 
+   @Override
    public synchronized Channel getChannel(final long channelID, final int confWindowSize) {
       Channel channel = channels.get(channelID);
 
@@ -174,14 +177,17 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return channel;
    }
 
+   @Override
    public synchronized boolean removeChannel(final long channelID) {
       return channels.remove(channelID) != null;
    }
 
+   @Override
    public synchronized void putChannel(final long channelID, final Channel channel) {
       channels.put(channelID, channel);
    }
 
+   @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       synchronized (failLock) {
          if (destroyed) {
@@ -212,6 +218,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
    }
 
+   @Override
    public void destroy() {
       synchronized (failLock) {
          if (destroyed) {
@@ -226,10 +233,12 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       callClosingListeners();
    }
 
+   @Override
    public void disconnect(final boolean criticalError) {
       disconnect(null, criticalError);
    }
 
+   @Override
    public void disconnect(String scaleDownNodeID, final boolean criticalError) {
       Channel channel0 = getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
@@ -266,10 +275,12 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       channel0.sendAndFlush(disconnect);
    }
 
+   @Override
    public long generateChannelID() {
       return idGenerator.generateID();
    }
 
+   @Override
    public synchronized void syncIDGeneratorSequence(final long id) {
       if (!idGeneratorSynced) {
          idGenerator = new SimpleIDGenerator(id);
@@ -278,22 +289,27 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
    }
 
+   @Override
    public long getIDGeneratorSequence() {
       return idGenerator.getCurrentID();
    }
 
+   @Override
    public Object getTransferLock() {
       return transferLock;
    }
 
+   @Override
    public boolean isClient() {
       return client;
    }
 
+   @Override
    public boolean isDestroyed() {
       return destroyed;
    }
 
+   @Override
    public long getBlockingCallTimeout() {
       return blockingCallTimeout;
    }
@@ -305,6 +321,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    //We flush any confirmations on the connection - this prevents idle bridges for example
    //sitting there with many unacked messages
+   @Override
    public void flush() {
       synchronized (transferLock) {
          for (Channel channel : channels.values()) {
@@ -313,12 +330,14 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       }
    }
 
+   @Override
    public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return getTransportConnection().getDefaultActiveMQPrincipal();
    }
 
    // Buffer Handler implementation
    // ----------------------------------------------------
+   @Override
    public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
       try {
          final Packet packet = packetDecoder.decode(buffer);

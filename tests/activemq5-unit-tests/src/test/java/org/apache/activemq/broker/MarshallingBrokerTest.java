@@ -42,8 +42,10 @@ public class MarshallingBrokerTest extends BrokerTest {
       addCombinationValues("wireFormat", new Object[]{wf1, wf2,});
    }
 
+   @Override
    protected StubConnection createConnection() throws Exception {
       return new StubConnection(broker) {
+         @Override
          public Response request(Command command) throws Exception {
             Response r = super.request((Command) wireFormat.unmarshal(wireFormat.marshal(command)));
             if (r != null) {
@@ -52,6 +54,7 @@ public class MarshallingBrokerTest extends BrokerTest {
             return r;
          }
 
+         @Override
          public void send(Command command) throws Exception {
             super.send((Command) wireFormat.unmarshal(wireFormat.marshal(command)));
          }

@@ -25,6 +25,7 @@ public class JmsTopicSendSameMessageTest extends JmsTopicSendReceiveWithTwoConne
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsTopicSendSameMessageTest.class);
 
+   @Override
    public void testSendReceive() throws Exception {
       messages.clear();
 

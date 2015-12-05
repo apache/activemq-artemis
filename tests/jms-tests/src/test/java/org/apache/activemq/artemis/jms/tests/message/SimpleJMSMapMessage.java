@@ -45,6 +45,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    // MapMessage implementation -------------------------------------
 
+   @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -55,6 +56,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setByte(final String name, final byte value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -65,6 +67,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setShort(final String name, final short value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -75,6 +78,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setChar(final String name, final char value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -85,6 +89,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setInt(final String name, final int value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -95,6 +100,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setLong(final String name, final long value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -105,6 +111,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setFloat(final String name, final float value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -115,6 +122,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setDouble(final String name, final double value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -125,6 +133,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setString(final String name, final String value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -135,6 +144,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -145,6 +155,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -163,6 +174,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public void setObject(final String name, final Object value) throws JMSException {
       checkName(name);
       if (bodyReadOnly) {
@@ -205,6 +217,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
+   @Override
    public boolean getBoolean(final String name) throws JMSException {
       Object value;
 
@@ -225,6 +238,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public byte getByte(final String name) throws JMSException {
       Object value;
 
@@ -245,6 +259,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public short getShort(final String name) throws JMSException {
       Object value;
 
@@ -268,6 +283,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public char getChar(final String name) throws JMSException {
       Object value;
 
@@ -285,6 +301,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public int getInt(final String name) throws JMSException {
       Object value;
 
@@ -311,6 +328,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public long getLong(final String name) throws JMSException {
       Object value;
 
@@ -340,6 +358,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public float getFloat(final String name) throws JMSException {
       Object value;
 
@@ -360,6 +379,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public double getDouble(final String name) throws JMSException {
       Object value;
 
@@ -383,6 +403,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public String getString(final String name) throws JMSException {
       Object value;
 
@@ -424,6 +445,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public byte[] getBytes(final String name) throws JMSException {
       Object value;
 
@@ -440,18 +462,21 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
+   @Override
    public Object getObject(final String name) throws JMSException {
 
       return content.get(name);
 
    }
 
+   @Override
    public Enumeration getMapNames() throws JMSException {
 
       return Collections.enumeration(new HashMap(content).keySet());
 
    }
 
+   @Override
    public boolean itemExists(final String name) throws JMSException {
 
       return content.containsKey(name);

@@ -142,6 +142,7 @@ public class DemandForwardingBridgeFilterTest extends NetworkTestSupport {
       return m;
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -160,6 +161,7 @@ public class DemandForwardingBridgeFilterTest extends NetworkTestSupport {
       consumerConnection.send(consumerSessionInfo);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       bridge.stop();
       super.tearDown();

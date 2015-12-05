@@ -24,6 +24,7 @@ import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
  */
 public class BrokerXmlConfigTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       // START SNIPPET: bean
 

@@ -57,10 +57,12 @@ public class PagedMessageImpl implements PagedMessage {
    public PagedMessageImpl() {
    }
 
+   @Override
    public ServerMessage getMessage() {
       return message;
    }
 
+   @Override
    public void initMessage(StorageManager storage) {
       if (largeMessageLazyData != null) {
          LargeServerMessage lgMessage = storage.createLargeMessage();
@@ -73,16 +75,19 @@ public class PagedMessageImpl implements PagedMessage {
       }
    }
 
+   @Override
    public long getTransactionID() {
       return transactionID;
    }
 
+   @Override
    public long[] getQueueIDs() {
       return queueIDs;
    }
 
    // EncodingSupport implementation --------------------------------
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       transactionID = buffer.readLong();
 
@@ -112,6 +117,7 @@ public class PagedMessageImpl implements PagedMessage {
       }
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(transactionID);
 
@@ -128,6 +134,7 @@ public class PagedMessageImpl implements PagedMessage {
       }
    }
 
+   @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + message.getEncodeSize() +
          DataConstants.SIZE_INT + queueIDs.length * DataConstants.SIZE_LONG;

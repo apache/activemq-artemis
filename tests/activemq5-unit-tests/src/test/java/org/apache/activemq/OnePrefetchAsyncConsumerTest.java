@@ -93,6 +93,7 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
       return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       setAutoFail(true);
@@ -106,6 +107,7 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
       connection.start();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       connectionConsumer.close();

@@ -32,12 +32,14 @@ public class MessageIdTest extends DataFileGeneratorTestSupport {
 
    public static final MessageIdTest SINGLETON = new MessageIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       MessageId info = new MessageId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       MessageId info = (MessageId) object;

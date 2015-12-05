@@ -86,6 +86,7 @@ public class VirtualTopicsAndDurableSubsTest extends MBeanTest {
       return "simple.topic";
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -94,18 +95,23 @@ public class VirtualTopicsAndDurableSubsTest extends MBeanTest {
    }
 
    //Overrides test cases from MBeanTest to avoid having them run.
+   @Override
    public void testMBeans() throws Exception {
    }
 
+   @Override
    public void testMoveMessages() throws Exception {
    }
 
+   @Override
    public void testRetryMessages() throws Exception {
    }
 
+   @Override
    public void testMoveMessagesBySelector() throws Exception {
    }
 
+   @Override
    public void testCopyMessagesBySelector() throws Exception {
    }
 }

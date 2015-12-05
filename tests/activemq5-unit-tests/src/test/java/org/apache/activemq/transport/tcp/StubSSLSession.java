@@ -45,6 +45,7 @@ class StubSSLSession implements SSLSession {
       this.isVerified = verified;
    }
 
+   @Override
    public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
       if (this.isVerified) {
          return new X509Certificate[]{this.cert};
@@ -56,79 +57,99 @@ class StubSSLSession implements SSLSession {
 
    // --- Stubbed methods ---
 
+   @Override
    public byte[] getId() {
       return null;
    }
 
+   @Override
    public SSLSessionContext getSessionContext() {
       return null;
    }
 
+   @Override
    public long getCreationTime() {
       return 0;
    }
 
+   @Override
    public long getLastAccessedTime() {
       return 0;
    }
 
+   @Override
    public void invalidate() {
    }
 
+   @Override
    public boolean isValid() {
       return false;
    }
 
+   @Override
    public void putValue(String arg0, Object arg1) {
    }
 
+   @Override
    public Object getValue(String arg0) {
       return null;
    }
 
+   @Override
    public void removeValue(String arg0) {
    }
 
+   @Override
    public String[] getValueNames() {
       return null;
    }
 
+   @Override
    public Certificate[] getLocalCertificates() {
       return null;
    }
 
+   @Override
    public javax.security.cert.X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
       return null;
    }
 
+   @Override
    public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
       return null;
    }
 
+   @Override
    public Principal getLocalPrincipal() {
       return null;
    }
 
+   @Override
    public String getCipherSuite() {
       return null;
    }
 
+   @Override
    public String getProtocol() {
       return null;
    }
 
+   @Override
    public String getPeerHost() {
       return null;
    }
 
+   @Override
    public int getPeerPort() {
       return 0;
    }
 
+   @Override
    public int getPacketBufferSize() {
       return 0;
    }
 
+   @Override
    public int getApplicationBufferSize() {
       return 0;
    }

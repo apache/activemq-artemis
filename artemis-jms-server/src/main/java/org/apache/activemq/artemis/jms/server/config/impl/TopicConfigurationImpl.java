@@ -37,19 +37,23 @@ public class TopicConfigurationImpl implements TopicConfiguration {
 
    // TopicConfiguration implementation -----------------------------
 
+   @Override
    public String[] getBindings() {
       return bindings;
    }
 
+   @Override
    public TopicConfigurationImpl setBindings(String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
+   @Override
    public String getName() {
       return name;
    }
 
+   @Override
    public TopicConfigurationImpl setName(String name) {
       this.name = name;
       return this;

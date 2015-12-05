@@ -64,6 +64,7 @@ public class JMSManagementServiceImpl implements JMSManagementService {
 
    // JMSManagementRegistration implementation ----------------------
 
+   @Override
    public synchronized JMSServerControl registerJMSServer(final JMSServerManager server) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSServerObjectName();
       JMSServerControlImpl control = new JMSServerControlImpl(server);
@@ -72,12 +73,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       return control;
    }
 
+   @Override
    public synchronized void unregisterJMSServer() throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSServerObjectName();
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_SERVER);
    }
 
+   @Override
    public synchronized void registerQueue(final ActiveMQQueue queue, final Queue serverQueue) throws Exception {
       QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue.getAddress());
       MessageCounterManager messageCounterManager = managementService.getMessageCounterManager();
@@ -89,12 +92,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       managementService.registerInRegistry(ResourceNames.JMS_QUEUE + queue.getQueueName(), control);
    }
 
+   @Override
    public synchronized void unregisterQueue(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSQueueObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_QUEUE + name);
    }
 
+   @Override
    public synchronized void registerTopic(final ActiveMQTopic topic) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(topic.getTopicName());
       AddressControl addressControl = (AddressControl) managementService.getResource(ResourceNames.CORE_ADDRESS + topic.getAddress());
@@ -103,12 +108,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       managementService.registerInRegistry(ResourceNames.JMS_TOPIC + topic.getTopicName(), control);
    }
 
+   @Override
    public synchronized void unregisterTopic(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_TOPIC + name);
    }
 
+   @Override
    public synchronized void registerConnectionFactory(final String name,
                                                       final ConnectionFactoryConfiguration cfConfig,
                                                       final ActiveMQConnectionFactory connectionFactory) throws Exception {
@@ -118,12 +125,14 @@ public class JMSManagementServiceImpl implements JMSManagementService {
       managementService.registerInRegistry(ResourceNames.JMS_CONNECTION_FACTORY + name, control);
    }
 
+   @Override
    public synchronized void unregisterConnectionFactory(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getConnectionFactoryObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_CONNECTION_FACTORY + name);
    }
 
+   @Override
    public void stop() throws Exception {
       for (Object resource : managementService.getResources(ConnectionFactoryControl.class)) {
          unregisterConnectionFactory(((ConnectionFactoryControl) resource).getName());

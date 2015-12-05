@@ -59,6 +59,7 @@ public class ProducerTest extends ActiveMQTestBase {
    public void testProducerWithSmallWindowSizeAndLargeMessage() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new Interceptor() {
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.SESS_SEND) {
                latch.countDown();
@@ -97,6 +98,7 @@ public class ProducerTest extends ActiveMQTestBase {
          final ClientSession session = cf.createSession(false, true, true);
 
          Thread t = new Thread() {
+            @Override
             public void run() {
                try {
                   ClientProducer producer = session.createProducer();

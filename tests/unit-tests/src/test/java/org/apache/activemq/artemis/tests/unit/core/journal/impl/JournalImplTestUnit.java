@@ -35,6 +35,7 @@ import org.junit.Test;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
+   @Override
    @After
    public void tearDown() throws Exception {
       List<String> files = fileFactory.listFiles(fileExtension);

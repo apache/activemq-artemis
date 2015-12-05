@@ -161,6 +161,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public void run() {
          try {
             csf = locator.connect();

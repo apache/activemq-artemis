@@ -49,6 +49,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
       this.sessionSPI = server;
    }
 
+   @Override
    public void onFlow(int credits) {
       this.creditsSemaphore.setCredits(credits);
    }
@@ -64,6 +65,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    /*
    * close the session
    * */
+   @Override
    public void close() throws ActiveMQAMQPException {
       closed = true;
       protonSession.removeSender(sender);

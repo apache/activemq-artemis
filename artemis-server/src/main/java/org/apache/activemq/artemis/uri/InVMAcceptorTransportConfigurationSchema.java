@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 
 public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema {
 
+   @Override
    protected String getFactoryName() {
       return InVMAcceptorFactory.class.getName();
    }

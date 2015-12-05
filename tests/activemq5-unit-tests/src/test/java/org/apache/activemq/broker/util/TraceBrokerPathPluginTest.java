@@ -54,6 +54,7 @@ public class TraceBrokerPathPluginTest extends TestCase {
    String queue = "TEST.FOO";
    String traceProperty = "BROKER_PATH";
 
+   @Override
    @Before
    public void setUp() throws Exception {
       TraceBrokerPathPlugin tbppA = new TraceBrokerPathPlugin();
@@ -98,6 +99,7 @@ public class TraceBrokerPathPluginTest extends TestCase {
 
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       // Clean up

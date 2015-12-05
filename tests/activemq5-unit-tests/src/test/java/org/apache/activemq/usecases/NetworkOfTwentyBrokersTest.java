@@ -37,14 +37,17 @@ public class NetworkOfTwentyBrokersTest extends JmsMultipleBrokersTestSupport {
    private static final Logger LOG = LoggerFactory.getLogger(NetworkOfTwentyBrokersTest.class);
 
    // This will interconnect all brokers using multicast
+   @Override
    protected void bridgeAllBrokers() throws Exception {
       bridgeAllBrokers("TwentyBrokersTest", 1, false, false);
    }
 
+   @Override
    protected void bridgeAllBrokers(String groupName, int ttl, boolean suppressduplicateQueueSubs) throws Exception {
       bridgeAllBrokers(groupName, ttl, suppressduplicateQueueSubs, false);
    }
 
+   @Override
    protected void bridgeAllBrokers(String groupName,
                                    int ttl,
                                    boolean suppressduplicateQueueSubs,
@@ -80,6 +83,7 @@ public class NetworkOfTwentyBrokersTest extends JmsMultipleBrokersTestSupport {
       maxSetupTime = 8000;
    }
 
+   @Override
    protected BrokerService createBroker(String brokerName) throws Exception {
       BrokerService broker = new BrokerService();
       broker.setPersistent(false);

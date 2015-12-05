@@ -67,6 +67,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
       Iterator<RemotingConnection> connectionIterator = server.getRemotingService().getConnections().iterator();
       connectionIterator.next().addCloseListener(new CloseListener() {
+         @Override
          public void connectionClosed() {
             latch.countDown();
          }
@@ -97,6 +98,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
       while (connectionIterator.hasNext()) {
          RemotingConnection remotingConnection = connectionIterator.next();
          remotingConnection.addCloseListener(new CloseListener() {
+            @Override
             public void connectionClosed() {
                latch.countDown();
             }
@@ -136,6 +138,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
       while (connectionIterator.hasNext()) {
          RemotingConnection remotingConnection = connectionIterator.next();
          remotingConnection.addCloseListener(new CloseListener() {
+            @Override
             public void connectionClosed() {
                latch.countDown();
             }

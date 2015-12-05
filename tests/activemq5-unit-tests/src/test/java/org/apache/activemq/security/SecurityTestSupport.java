@@ -41,6 +41,7 @@ public class SecurityTestSupport extends JmsTestSupport {
    /**
     * Overrides to set the JMSXUserID flag to true.
     */
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       broker.setPopulateJMSXUserID(true);

@@ -96,6 +96,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
    private class MyInterceptor implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {

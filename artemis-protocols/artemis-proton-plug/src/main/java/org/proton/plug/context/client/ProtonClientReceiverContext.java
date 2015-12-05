@@ -45,6 +45,7 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
       super(sessionSPI, connection, protonSession, receiver);
    }
 
+   @Override
    public void onFlow(int credits) {
    }
 
@@ -56,6 +57,7 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
+   @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
       try {

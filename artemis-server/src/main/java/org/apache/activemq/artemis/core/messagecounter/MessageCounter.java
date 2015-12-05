@@ -104,6 +104,7 @@ public class MessageCounter {
    }
 
    private final Runnable onTimeExecutor = new Runnable() {
+      @Override
       public void run() {
          long latestMessagesAdded = serverQueue.getMessagesAdded();
 

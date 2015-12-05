@@ -47,6 +47,7 @@ public class JmsSessionRecoverTest extends TestCase {
    /**
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
       connection = factory.createConnection();
@@ -55,6 +56,7 @@ public class JmsSessionRecoverTest extends TestCase {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -171,6 +173,7 @@ public class JmsSessionRecoverTest extends TestCase {
       consumer.setMessageListener(new MessageListener() {
          int counter;
 
+         @Override
          public void onMessage(Message msg) {
             counter++;
             try {
@@ -242,6 +245,7 @@ public class JmsSessionRecoverTest extends TestCase {
       consumer.setMessageListener(new MessageListener() {
          int counter;
 
+         @Override
          public void onMessage(Message msg) {
             counter++;
             try {

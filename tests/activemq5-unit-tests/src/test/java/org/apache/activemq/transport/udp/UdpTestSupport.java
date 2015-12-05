@@ -136,11 +136,13 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       return buffer.toString();
    }
 
+   @Override
    protected void setUp() throws Exception {
       server = createServer();
       if (server != null) {
          server.setAcceptListener(new TransportAcceptListener() {
 
+            @Override
             public void onAccept(Transport transport) {
                consumer = transport;
                consumer.setTransportListener(UdpTestSupport.this);
@@ -152,6 +154,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
                }
             }
 
+            @Override
             public void onAcceptError(Exception error) {
             }
          });
@@ -166,18 +169,22 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
 
       producer = createProducer();
       producer.setTransportListener(new TransportListener() {
+         @Override
          public void onCommand(Object command) {
             LOG.info("Producer received: " + command);
          }
 
+         @Override
          public void onException(IOException error) {
             LOG.info("Producer exception: " + error);
             error.printStackTrace();
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -185,6 +192,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       producer.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (producer != null) {
          try {
@@ -201,6 +209,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       }
    }
 
+   @Override
    public void onCommand(Object o) {
       final Command command = (Command) o;
       if (command instanceof WireFormatInfo) {
@@ -244,15 +253,18 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       }
    }
 
+   @Override
    public void onException(IOException error) {
       LOG.info("### Received error: " + error);
       error.printStackTrace();
    }
 
+   @Override
    public void transportInterupted() {
       LOG.info("### Transport interrupted");
    }
 
+   @Override
    public void transportResumed() {
       LOG.info("### Transport resumed");
    }

@@ -26,6 +26,7 @@ public class StubSecurityContext extends SecurityContext {
       super("");
    }
 
+   @Override
    public Set<Principal> getPrincipals() {
       return null;
    }

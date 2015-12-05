@@ -35,46 +35,57 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
 
    // Public --------------------------------------------------------
 
+   @Override
    public void pause() throws Exception {
       bridge.pause();
    }
 
+   @Override
    public void resume() throws Exception {
       bridge.resume();
    }
 
+   @Override
    public boolean isStarted() {
       return bridge.isStarted();
    }
 
+   @Override
    public void start() throws Exception {
       bridge.start();
    }
 
+   @Override
    public void stop() throws Exception {
       bridge.stop();
    }
 
+   @Override
    public String getClientID() {
       return bridge.getClientID();
    }
 
+   @Override
    public long getFailureRetryInterval() {
       return bridge.getFailureRetryInterval();
    }
 
+   @Override
    public int getMaxBatchSize() {
       return bridge.getMaxBatchSize();
    }
 
+   @Override
    public long getMaxBatchTime() {
       return bridge.getMaxBatchTime();
    }
 
+   @Override
    public int getMaxRetries() {
       return bridge.getMaxRetries();
    }
 
+   @Override
    public String getQualityOfServiceMode() {
       QualityOfServiceMode mode = bridge.getQualityOfServiceMode();
       if (mode != null) {
@@ -85,66 +96,82 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       }
    }
 
+   @Override
    public String getSelector() {
       return bridge.getSelector();
    }
 
+   @Override
    public String getSourcePassword() {
       return bridge.getSourcePassword();
    }
 
+   @Override
    public String getSourceUsername() {
       return bridge.getSourceUsername();
    }
 
+   @Override
    public String getSubscriptionName() {
       return bridge.getSubscriptionName();
    }
 
+   @Override
    public String getTargetPassword() {
       return bridge.getTargetPassword();
    }
 
+   @Override
    public String getTargetUsername() {
       return bridge.getTargetUsername();
    }
 
+   @Override
    public boolean isAddMessageIDInHeader() {
       return bridge.isAddMessageIDInHeader();
    }
 
+   @Override
    public boolean isFailed() {
       return bridge.isFailed();
    }
 
+   @Override
    public boolean isPaused() {
       return bridge.isPaused();
    }
 
+   @Override
    public void setAddMessageIDInHeader(final boolean value) {
       bridge.setAddMessageIDInHeader(value);
    }
 
+   @Override
    public void setClientID(final String clientID) {
       bridge.setClientID(clientID);
    }
 
+   @Override
    public void setFailureRetryInterval(final long interval) {
       bridge.setFailureRetryInterval(interval);
    }
 
+   @Override
    public void setMaxBatchSize(final int size) {
       bridge.setMaxBatchSize(size);
    }
 
+   @Override
    public void setMaxBatchTime(final long time) {
       bridge.setMaxBatchTime(time);
    }
 
+   @Override
    public void setMaxRetries(final int retries) {
       bridge.setMaxRetries(retries);
    }
 
+   @Override
    public void setQualityOfServiceMode(String mode) {
       if (mode != null) {
          bridge.setQualityOfServiceMode(QualityOfServiceMode.valueOf(mode));
@@ -154,26 +181,32 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       }
    }
 
+   @Override
    public void setSelector(final String selector) {
       bridge.setSelector(selector);
    }
 
+   @Override
    public void setSourcePassword(final String pwd) {
       bridge.setSourcePassword(pwd);
    }
 
+   @Override
    public void setSourceUsername(final String name) {
       bridge.setSourceUsername(name);
    }
 
+   @Override
    public void setSubscriptionName(final String subname) {
       bridge.setSubscriptionName(subname);
    }
 
+   @Override
    public void setTargetPassword(final String pwd) {
       bridge.setTargetPassword(pwd);
    }
 
+   @Override
    public void setTargetUsername(final String name) {
       bridge.setTargetUsername(name);
    }

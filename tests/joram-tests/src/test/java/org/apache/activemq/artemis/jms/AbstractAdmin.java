@@ -26,64 +26,80 @@ import org.objectweb.jtests.jms.admin.Admin;
  */
 public class AbstractAdmin implements Admin {
 
+   @Override
    public String getName() {
       return getClass().getName();
    }
 
+   @Override
    public void start() {
    }
 
+   @Override
    public void stop() throws Exception {
 
    }
 
+   @Override
    public InitialContext createContext() throws NamingException {
       return new InitialContext();
    }
 
+   @Override
    public void createConnectionFactory(final String name) {
       throw new RuntimeException("FIXME NYI createConnectionFactory");
    }
 
+   @Override
    public void deleteConnectionFactory(final String name) {
       throw new RuntimeException("FIXME NYI deleteConnectionFactory");
    }
 
+   @Override
    public void createQueue(final String name) {
       throw new RuntimeException("FIXME NYI createQueue");
    }
 
+   @Override
    public void deleteQueue(final String name) {
       throw new RuntimeException("FIXME NYI deleteQueue");
    }
 
+   @Override
    public void createQueueConnectionFactory(final String name) {
       createConnectionFactory(name);
    }
 
+   @Override
    public void deleteQueueConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
+   @Override
    public void createTopic(final String name) {
       throw new RuntimeException("FIXME NYI createTopic");
    }
 
+   @Override
    public void deleteTopic(final String name) {
       throw new RuntimeException("FIXME NYI deleteTopic");
    }
 
+   @Override
    public void createTopicConnectionFactory(final String name) {
       createConnectionFactory(name);
    }
 
+   @Override
    public void deleteTopicConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
+   @Override
    public void startServer() {
    }
 
+   @Override
    public void stopServer() {
    }
 }

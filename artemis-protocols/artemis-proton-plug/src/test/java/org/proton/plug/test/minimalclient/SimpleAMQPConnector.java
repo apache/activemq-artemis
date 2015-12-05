@@ -35,6 +35,7 @@ public class SimpleAMQPConnector implements Connector {
 
    private Bootstrap bootstrap;
 
+   @Override
    public void start() {
 
       bootstrap = new Bootstrap();
@@ -42,11 +43,13 @@ public class SimpleAMQPConnector implements Connector {
       bootstrap.group(new NioEventLoopGroup(10));
 
       bootstrap.handler(new ChannelInitializer<Channel>() {
+            @Override
             public void initChannel(Channel channel) throws Exception {
             }
          });
    }
 
+   @Override
    public AMQPClientConnectionContext connect(String host, int port) throws Exception {
       SocketAddress remoteDestination = new InetSocketAddress(host, port);
 

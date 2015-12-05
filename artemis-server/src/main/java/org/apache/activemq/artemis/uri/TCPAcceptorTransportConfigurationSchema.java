@@ -27,6 +27,7 @@ public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigu
       super(allowableProperties);
    }
 
+   @Override
    public String getFactoryName(URI uri) {
       return NettyAcceptorFactory.class.getName();
    }

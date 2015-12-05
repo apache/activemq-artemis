@@ -31,6 +31,7 @@ public class BacklogNetworkCrossTalkTest extends JmsMultipleBrokersTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(BacklogNetworkCrossTalkTest.class);
 
+   @Override
    protected BrokerService createBroker(String brokerName) throws Exception {
       BrokerService broker = new BrokerService();
       broker.setDeleteAllMessagesOnStartup(true);

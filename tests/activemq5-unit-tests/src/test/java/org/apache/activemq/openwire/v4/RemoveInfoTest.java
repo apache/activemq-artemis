@@ -37,12 +37,14 @@ public class RemoveInfoTest extends BaseCommandTestSupport {
 
    public static RemoveInfoTest SINGLETON = new RemoveInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       RemoveInfo info = new RemoveInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       RemoveInfo info = (RemoveInfo) object;

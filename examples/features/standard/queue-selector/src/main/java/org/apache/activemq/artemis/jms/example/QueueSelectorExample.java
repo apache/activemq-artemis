@@ -122,6 +122,7 @@ class SimpleMessageListener implements MessageListener {
       this.result = result;
    }
 
+   @Override
    public void onMessage(final Message msg) {
       TextMessage textMessage = (TextMessage) msg;
       try {

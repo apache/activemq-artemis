@@ -37,17 +37,21 @@ public class SimpleNotificationService implements NotificationService {
 
    // NotificationService implementation ----------------------------
 
+   @Override
    public void addNotificationListener(final NotificationListener listener) {
       listeners.add(listener);
    }
 
+   @Override
    public void enableNotifications(final boolean enable) {
    }
 
+   @Override
    public void removeNotificationListener(final NotificationListener listener) {
       listeners.remove(listener);
    }
 
+   @Override
    public void sendNotification(final Notification notification) throws Exception {
       for (NotificationListener listener : listeners) {
          listener.onNotification(notification);
@@ -68,6 +72,7 @@ public class SimpleNotificationService implements NotificationService {
 
       private final List<Notification> notifications = new ArrayList<Notification>();
 
+      @Override
       public void onNotification(final Notification notification) {
          System.out.println(">>>>>>>>" + notification);
          notifications.add(notification);

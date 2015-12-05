@@ -37,12 +37,14 @@ public class SessionInfoTest extends BaseCommandTestSupport {
 
    public static SessionInfoTest SINGLETON = new SessionInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       SessionInfo info = new SessionInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       SessionInfo info = (SessionInfo) object;

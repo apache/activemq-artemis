@@ -231,23 +231,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    // Public -------------------------------------------------------------------------
 
+   @Override
    public boolean isClustered() {
       return !getClusterConfigurations().isEmpty();
    }
 
+   @Override
    public boolean isPersistenceEnabled() {
       return persistenceEnabled;
    }
 
+   @Override
    public ConfigurationImpl setPersistenceEnabled(final boolean enable) {
       persistenceEnabled = enable;
       return this;
    }
 
+   @Override
    public long getFileDeployerScanPeriod() {
       return fileDeploymentScanPeriod;
    }
 
+   @Override
    public ConfigurationImpl setFileDeployerScanPeriod(final long period) {
       fileDeploymentScanPeriod = period;
       return this;
@@ -256,92 +261,112 @@ public class ConfigurationImpl implements Configuration, Serializable {
    /**
     * @return the persistDeliveryCountBeforeDelivery
     */
+   @Override
    public boolean isPersistDeliveryCountBeforeDelivery() {
       return persistDeliveryCountBeforeDelivery;
    }
 
+   @Override
    public ConfigurationImpl setPersistDeliveryCountBeforeDelivery(final boolean persistDeliveryCountBeforeDelivery) {
       this.persistDeliveryCountBeforeDelivery = persistDeliveryCountBeforeDelivery;
       return this;
    }
 
+   @Override
    public int getScheduledThreadPoolMaxSize() {
       return scheduledThreadPoolMaxSize;
    }
 
+   @Override
    public ConfigurationImpl setScheduledThreadPoolMaxSize(final int maxSize) {
       scheduledThreadPoolMaxSize = maxSize;
       return this;
    }
 
+   @Override
    public int getThreadPoolMaxSize() {
       return threadPoolMaxSize;
    }
 
+   @Override
    public ConfigurationImpl setThreadPoolMaxSize(final int maxSize) {
       threadPoolMaxSize = maxSize;
       return this;
    }
 
+   @Override
    public long getSecurityInvalidationInterval() {
       return securityInvalidationInterval;
    }
 
+   @Override
    public ConfigurationImpl setSecurityInvalidationInterval(final long interval) {
       securityInvalidationInterval = interval;
       return this;
    }
 
+   @Override
    public long getConnectionTTLOverride() {
       return connectionTTLOverride;
    }
 
+   @Override
    public ConfigurationImpl setConnectionTTLOverride(final long ttl) {
       connectionTTLOverride = ttl;
       return this;
    }
 
+   @Override
    public boolean isAsyncConnectionExecutionEnabled() {
       return asyncConnectionExecutionEnabled;
    }
 
+   @Override
    public ConfigurationImpl setEnabledAsyncConnectionExecution(final boolean enabled) {
       asyncConnectionExecutionEnabled = enabled;
       return this;
    }
 
+   @Override
    public List<String> getIncomingInterceptorClassNames() {
       return incomingInterceptorClassNames;
    }
 
+   @Override
    public ConfigurationImpl setIncomingInterceptorClassNames(final List<String> interceptors) {
       incomingInterceptorClassNames = interceptors;
       return this;
    }
 
+   @Override
    public List<String> getOutgoingInterceptorClassNames() {
       return outgoingInterceptorClassNames;
    }
 
+   @Override
    public ConfigurationImpl setOutgoingInterceptorClassNames(final List<String> interceptors) {
       outgoingInterceptorClassNames = interceptors;
       return this;
    }
 
+   @Override
    public Set<TransportConfiguration> getAcceptorConfigurations() {
       return acceptorConfigs;
    }
 
+   @Override
    public ConfigurationImpl setAcceptorConfigurations(final Set<TransportConfiguration> infos) {
       acceptorConfigs = infos;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addAcceptorConfiguration(final TransportConfiguration infos) {
       acceptorConfigs.add(infos);
       return this;
    }
 
+   @Override
    public ConfigurationImpl addAcceptorConfiguration(final String name, final String uri) throws Exception {
 
       AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
@@ -355,26 +380,31 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public ConfigurationImpl clearAcceptorConfigurations() {
       acceptorConfigs.clear();
       return this;
    }
 
+   @Override
    public Map<String, TransportConfiguration> getConnectorConfigurations() {
       return connectorConfigs;
    }
 
+   @Override
    public ConfigurationImpl setConnectorConfigurations(final Map<String, TransportConfiguration> infos) {
       connectorConfigs = infos;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addConnectorConfiguration(final String key, final TransportConfiguration info) {
       connectorConfigs.put(key, info);
       return this;
    }
 
 
+   @Override
    public ConfigurationImpl addConnectorConfiguration(final String name, final String uri) throws Exception {
 
       ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser();
@@ -389,24 +419,29 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
 
+   @Override
    public ConfigurationImpl clearConnectorConfigurations() {
       connectorConfigs.clear();
       return this;
    }
 
+   @Override
    public GroupingHandlerConfiguration getGroupingHandlerConfiguration() {
       return groupingHandlerConfiguration;
    }
 
+   @Override
    public ConfigurationImpl setGroupingHandlerConfiguration(final GroupingHandlerConfiguration groupingHandlerConfiguration) {
       this.groupingHandlerConfiguration = groupingHandlerConfiguration;
       return this;
    }
 
+   @Override
    public List<BridgeConfiguration> getBridgeConfigurations() {
       return bridgeConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setBridgeConfigurations(final List<BridgeConfiguration> configs) {
       bridgeConfigurations = configs;
       return this;
@@ -417,108 +452,131 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public List<BroadcastGroupConfiguration> getBroadcastGroupConfigurations() {
       return broadcastGroupConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setBroadcastGroupConfigurations(final List<BroadcastGroupConfiguration> configs) {
       broadcastGroupConfigurations = configs;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addBroadcastGroupConfiguration(final BroadcastGroupConfiguration config) {
       broadcastGroupConfigurations.add(config);
       return this;
    }
 
+   @Override
    public List<ClusterConnectionConfiguration> getClusterConfigurations() {
       return clusterConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setClusterConfigurations(final List<ClusterConnectionConfiguration> configs) {
       clusterConfigurations = configs;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addClusterConfiguration(final ClusterConnectionConfiguration config) {
       clusterConfigurations.add(config);
       return this;
    }
 
+   @Override
    public ConfigurationImpl clearClusterConfigurations() {
       clusterConfigurations.clear();
       return this;
    }
 
+   @Override
    public List<DivertConfiguration> getDivertConfigurations() {
       return divertConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setDivertConfigurations(final List<DivertConfiguration> configs) {
       divertConfigurations = configs;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addDivertConfiguration(final DivertConfiguration config) {
       divertConfigurations.add(config);
       return this;
    }
 
+   @Override
    public List<CoreQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setQueueConfigurations(final List<CoreQueueConfiguration> configs) {
       queueConfigurations = configs;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
       queueConfigurations.add(config);
       return this;
    }
 
+   @Override
    public Map<String, DiscoveryGroupConfiguration> getDiscoveryGroupConfigurations() {
       return discoveryGroupConfigurations;
    }
 
+   @Override
    public ConfigurationImpl setDiscoveryGroupConfigurations(final Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations) {
       this.discoveryGroupConfigurations = discoveryGroupConfigurations;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addDiscoveryGroupConfiguration(final String key,
                                                            DiscoveryGroupConfiguration discoveryGroupConfiguration) {
       this.discoveryGroupConfigurations.put(key, discoveryGroupConfiguration);
       return this;
    }
 
+   @Override
    public int getIDCacheSize() {
       return idCacheSize;
    }
 
+   @Override
    public ConfigurationImpl setIDCacheSize(final int idCacheSize) {
       this.idCacheSize = idCacheSize;
       return this;
    }
 
+   @Override
    public boolean isPersistIDCache() {
       return persistIDCache;
    }
 
+   @Override
    public ConfigurationImpl setPersistIDCache(final boolean persist) {
       persistIDCache = persist;
       return this;
    }
 
+   @Override
    public File getBindingsLocation() {
       return subFolder(getBindingsDirectory());
    }
 
+   @Override
    public String getBindingsDirectory() {
       return bindingsDirectory;
    }
 
+   @Override
    public ConfigurationImpl setBindingsDirectory(final String dir) {
       bindingsDirectory = dir;
       return this;
@@ -535,279 +593,341 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public File getJournalLocation() {
       return subFolder(getJournalDirectory());
    }
 
+   @Override
    public String getJournalDirectory() {
       return journalDirectory;
    }
 
+   @Override
    public ConfigurationImpl setJournalDirectory(final String dir) {
       journalDirectory = dir;
       return this;
    }
 
+   @Override
    public JournalType getJournalType() {
       return journalType;
    }
 
+   @Override
    public ConfigurationImpl setPagingDirectory(final String dir) {
       pagingDirectory = dir;
       return this;
    }
 
+   @Override
    public File getPagingLocation() {
       return subFolder(getPagingDirectory());
    }
 
+   @Override
    public String getPagingDirectory() {
       return pagingDirectory;
    }
 
+   @Override
    public ConfigurationImpl setJournalType(final JournalType type) {
       journalType = type;
       return this;
    }
 
+   @Override
    public boolean isJournalSyncTransactional() {
       return journalSyncTransactional;
    }
 
+   @Override
    public ConfigurationImpl setJournalSyncTransactional(final boolean sync) {
       journalSyncTransactional = sync;
       return this;
    }
 
+   @Override
    public boolean isJournalSyncNonTransactional() {
       return journalSyncNonTransactional;
    }
 
+   @Override
    public ConfigurationImpl setJournalSyncNonTransactional(final boolean sync) {
       journalSyncNonTransactional = sync;
       return this;
    }
 
+   @Override
    public int getJournalFileSize() {
       return journalFileSize;
    }
 
+   @Override
    public ConfigurationImpl setJournalFileSize(final int size) {
       journalFileSize = size;
       return this;
    }
 
+   @Override
    public int getJournalMinFiles() {
       return journalMinFiles;
    }
 
+   @Override
    public ConfigurationImpl setJournalMinFiles(final int files) {
       journalMinFiles = files;
       return this;
    }
 
+   @Override
    public boolean isLogJournalWriteRate() {
       return logJournalWriteRate;
    }
 
+   @Override
    public ConfigurationImpl setLogJournalWriteRate(final boolean logJournalWriteRate) {
       this.logJournalWriteRate = logJournalWriteRate;
       return this;
    }
 
+   @Override
    public int getJournalPerfBlastPages() {
       return journalPerfBlastPages;
    }
 
+   @Override
    public ConfigurationImpl setJournalPerfBlastPages(final int journalPerfBlastPages) {
       this.journalPerfBlastPages = journalPerfBlastPages;
       return this;
    }
 
+   @Override
    public boolean isRunSyncSpeedTest() {
       return runSyncSpeedTest;
    }
 
+   @Override
    public ConfigurationImpl setRunSyncSpeedTest(final boolean run) {
       runSyncSpeedTest = run;
       return this;
    }
 
+   @Override
    public boolean isCreateBindingsDir() {
       return createBindingsDir;
    }
 
+   @Override
    public ConfigurationImpl setCreateBindingsDir(final boolean create) {
       createBindingsDir = create;
       return this;
    }
 
+   @Override
    public boolean isCreateJournalDir() {
       return createJournalDir;
    }
 
+   @Override
    public ConfigurationImpl setCreateJournalDir(final boolean create) {
       createJournalDir = create;
       return this;
    }
 
+   @Override
    public boolean isWildcardRoutingEnabled() {
       return wildcardRoutingEnabled;
    }
 
+   @Override
    public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled) {
       wildcardRoutingEnabled = enabled;
       return this;
    }
 
+   @Override
    public long getTransactionTimeout() {
       return transactionTimeout;
    }
 
+   @Override
    public ConfigurationImpl setTransactionTimeout(final long timeout) {
       transactionTimeout = timeout;
       return this;
    }
 
+   @Override
    public long getTransactionTimeoutScanPeriod() {
       return transactionTimeoutScanPeriod;
    }
 
+   @Override
    public ConfigurationImpl setTransactionTimeoutScanPeriod(final long period) {
       transactionTimeoutScanPeriod = period;
       return this;
    }
 
+   @Override
    public long getMessageExpiryScanPeriod() {
       return messageExpiryScanPeriod;
    }
 
+   @Override
    public ConfigurationImpl setMessageExpiryScanPeriod(final long messageExpiryScanPeriod) {
       this.messageExpiryScanPeriod = messageExpiryScanPeriod;
       return this;
    }
 
+   @Override
    public int getMessageExpiryThreadPriority() {
       return messageExpiryThreadPriority;
    }
 
+   @Override
    public ConfigurationImpl setMessageExpiryThreadPriority(final int messageExpiryThreadPriority) {
       this.messageExpiryThreadPriority = messageExpiryThreadPriority;
       return this;
    }
 
+   @Override
    public boolean isSecurityEnabled() {
       return securityEnabled;
    }
 
+   @Override
    public ConfigurationImpl setSecurityEnabled(final boolean enabled) {
       securityEnabled = enabled;
       return this;
    }
 
+   @Override
    public boolean isGracefulShutdownEnabled() {
       return gracefulShutdownEnabled;
    }
 
+   @Override
    public ConfigurationImpl setGracefulShutdownEnabled(final boolean enabled) {
       gracefulShutdownEnabled = enabled;
       return this;
    }
 
+   @Override
    public long getGracefulShutdownTimeout() {
       return gracefulShutdownTimeout;
    }
 
+   @Override
    public ConfigurationImpl setGracefulShutdownTimeout(final long timeout) {
       gracefulShutdownTimeout = timeout;
       return this;
    }
 
+   @Override
    public boolean isJMXManagementEnabled() {
       return jmxManagementEnabled;
    }
 
+   @Override
    public ConfigurationImpl setJMXManagementEnabled(final boolean enabled) {
       jmxManagementEnabled = enabled;
       return this;
    }
 
+   @Override
    public String getJMXDomain() {
       return jmxDomain;
    }
 
+   @Override
    public ConfigurationImpl setJMXDomain(final String domain) {
       jmxDomain = domain;
       return this;
    }
 
+   @Override
    public String getLargeMessagesDirectory() {
       return largeMessagesDirectory;
    }
 
+   @Override
    public File getLargeMessagesLocation() {
       return subFolder(getLargeMessagesDirectory());
    }
 
+   @Override
    public ConfigurationImpl setLargeMessagesDirectory(final String directory) {
       largeMessagesDirectory = directory;
       return this;
    }
 
+   @Override
    public boolean isMessageCounterEnabled() {
       return messageCounterEnabled;
    }
 
+   @Override
    public ConfigurationImpl setMessageCounterEnabled(final boolean enabled) {
       messageCounterEnabled = enabled;
       return this;
    }
 
+   @Override
    public long getMessageCounterSamplePeriod() {
       return messageCounterSamplePeriod;
    }
 
+   @Override
    public ConfigurationImpl setMessageCounterSamplePeriod(final long period) {
       messageCounterSamplePeriod = period;
       return this;
    }
 
+   @Override
    public int getMessageCounterMaxDayHistory() {
       return messageCounterMaxDayHistory;
    }
 
+   @Override
    public ConfigurationImpl setMessageCounterMaxDayHistory(final int maxDayHistory) {
       messageCounterMaxDayHistory = maxDayHistory;
       return this;
    }
 
+   @Override
    public SimpleString getManagementAddress() {
       return managementAddress;
    }
 
+   @Override
    public ConfigurationImpl setManagementAddress(final SimpleString address) {
       managementAddress = address;
       return this;
    }
 
+   @Override
    public SimpleString getManagementNotificationAddress() {
       return managementNotificationAddress;
    }
 
+   @Override
    public ConfigurationImpl setManagementNotificationAddress(final SimpleString address) {
       managementNotificationAddress = address;
       return this;
    }
 
+   @Override
    public String getClusterUser() {
       return clusterUser;
    }
 
+   @Override
    public ConfigurationImpl setClusterUser(final String user) {
       clusterUser = user;
       return this;
    }
 
+   @Override
    public String getClusterPassword() {
       return clusterPassword;
    }
@@ -821,105 +941,128 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public ConfigurationImpl setClusterPassword(final String theclusterPassword) {
       clusterPassword = theclusterPassword;
       return this;
    }
 
+   @Override
    public int getJournalCompactMinFiles() {
       return journalCompactMinFiles;
    }
 
+   @Override
    public int getJournalCompactPercentage() {
       return journalCompactPercentage;
    }
 
+   @Override
    public ConfigurationImpl setJournalCompactMinFiles(final int minFiles) {
       journalCompactMinFiles = minFiles;
       return this;
    }
 
+   @Override
    public ConfigurationImpl setJournalCompactPercentage(final int percentage) {
       journalCompactPercentage = percentage;
       return this;
    }
 
+   @Override
    public long getServerDumpInterval() {
       return serverDumpInterval;
    }
 
+   @Override
    public ConfigurationImpl setServerDumpInterval(final long intervalInMilliseconds) {
       serverDumpInterval = intervalInMilliseconds;
       return this;
    }
 
+   @Override
    public int getMemoryWarningThreshold() {
       return memoryWarningThreshold;
    }
 
+   @Override
    public ConfigurationImpl setMemoryWarningThreshold(final int memoryWarningThreshold) {
       this.memoryWarningThreshold = memoryWarningThreshold;
       return this;
    }
 
+   @Override
    public long getMemoryMeasureInterval() {
       return memoryMeasureInterval;
    }
 
+   @Override
    public ConfigurationImpl setMemoryMeasureInterval(final long memoryMeasureInterval) {
       this.memoryMeasureInterval = memoryMeasureInterval;
       return this;
    }
 
+   @Override
    public int getJournalMaxIO_AIO() {
       return journalMaxIO_AIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalMaxIO_AIO(final int journalMaxIO) {
       journalMaxIO_AIO = journalMaxIO;
       return this;
    }
 
+   @Override
    public int getJournalBufferTimeout_AIO() {
       return journalBufferTimeout_AIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalBufferTimeout_AIO(final int journalBufferTimeout) {
       journalBufferTimeout_AIO = journalBufferTimeout;
       return this;
    }
 
+   @Override
    public int getJournalBufferSize_AIO() {
       return journalBufferSize_AIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalBufferSize_AIO(final int journalBufferSize) {
       journalBufferSize_AIO = journalBufferSize;
       return this;
    }
 
+   @Override
    public int getJournalMaxIO_NIO() {
       return journalMaxIO_NIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalMaxIO_NIO(final int journalMaxIO) {
       journalMaxIO_NIO = journalMaxIO;
       return this;
    }
 
+   @Override
    public int getJournalBufferTimeout_NIO() {
       return journalBufferTimeout_NIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalBufferTimeout_NIO(final int journalBufferTimeout) {
       journalBufferTimeout_NIO = journalBufferTimeout;
       return this;
    }
 
+   @Override
    public int getJournalBufferSize_NIO() {
       return journalBufferSize_NIO;
    }
 
+   @Override
    public ConfigurationImpl setJournalBufferSize_NIO(final int journalBufferSize) {
       journalBufferSize_NIO = journalBufferSize;
       return this;
@@ -979,14 +1122,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public List<ConnectorServiceConfiguration> getConnectorServiceConfigurations() {
       return this.connectorServiceConfigurations;
    }
 
+   @Override
    public List<SecuritySettingPlugin> getSecuritySettingPlugins() {
       return this.securitySettingPlugins;
    }
 
+   @Override
    public File getBrokerInstance() {
       if (artemisInstance != null) {
          return artemisInstance;
@@ -1003,6 +1149,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return artemisInstance;
    }
 
+   @Override
    public void setBrokerInstance(File directory) {
       this.artemisInstance = directory;
    }
@@ -1036,40 +1183,48 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return sb.toString();
    }
 
+   @Override
    public ConfigurationImpl setConnectorServiceConfigurations(final List<ConnectorServiceConfiguration> configs) {
       this.connectorServiceConfigurations = configs;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addConnectorServiceConfiguration(final ConnectorServiceConfiguration config) {
       this.connectorServiceConfigurations.add(config);
       return this;
    }
 
+   @Override
    public ConfigurationImpl setSecuritySettingPlugins(final List<SecuritySettingPlugin> plugins) {
       this.securitySettingPlugins = plugins;
       return this;
    }
 
+   @Override
    public ConfigurationImpl addSecuritySettingPlugin(final SecuritySettingPlugin plugin) {
       this.securitySettingPlugins.add(plugin);
       return this;
    }
 
+   @Override
    public boolean isMaskPassword() {
       return maskPassword;
    }
 
+   @Override
    public ConfigurationImpl setMaskPassword(boolean maskPassword) {
       this.maskPassword = maskPassword;
       return this;
    }
 
+   @Override
    public ConfigurationImpl setPasswordCodec(String codec) {
       passwordCodec = codec;
       return this;
    }
 
+   @Override
    public String getPasswordCodec() {
       return passwordCodec;
    }

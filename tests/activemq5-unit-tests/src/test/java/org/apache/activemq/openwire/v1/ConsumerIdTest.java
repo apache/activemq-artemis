@@ -31,12 +31,14 @@ public class ConsumerIdTest extends DataFileGeneratorTestSupport {
 
    public static final ConsumerIdTest SINGLETON = new ConsumerIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConsumerId info = new ConsumerId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConsumerId info = (ConsumerId) object;

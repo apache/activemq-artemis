@@ -39,6 +39,7 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
     * @param outgoingInterceptors
     * @return
     */
+   @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 final List<Interceptor> incomingInterceptors,
                                                 List<Interceptor> outgoingInterceptors) {

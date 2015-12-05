@@ -184,6 +184,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
 
       final int toReceive = toSend * numIterations * consumerCount * 2;
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             LOG.info("count: " + allMessagesList.getMessageCount());
             return toReceive == allMessagesList.getMessageCount();
@@ -325,6 +326,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
       return brokerService;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
       ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();

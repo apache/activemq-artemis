@@ -56,6 +56,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
 
    // BytesMessage implementation -----------------------------------
 
+   @Override
    public boolean readBoolean() throws JMSException {
       checkRead();
       try {
@@ -69,6 +70,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public byte readByte() throws JMSException {
       checkRead();
       try {
@@ -82,6 +84,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public int readUnsignedByte() throws JMSException {
       checkRead();
       try {
@@ -95,6 +98,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public short readShort() throws JMSException {
       checkRead();
       try {
@@ -108,6 +112,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public int readUnsignedShort() throws JMSException {
       checkRead();
       try {
@@ -121,6 +126,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public char readChar() throws JMSException {
       checkRead();
       try {
@@ -134,6 +140,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public int readInt() throws JMSException {
       checkRead();
       try {
@@ -147,6 +154,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public long readLong() throws JMSException {
       checkRead();
       try {
@@ -160,6 +168,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public float readFloat() throws JMSException {
       checkRead();
       try {
@@ -173,6 +182,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public double readDouble() throws JMSException {
       checkRead();
       try {
@@ -186,6 +196,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public String readUTF() throws JMSException {
       checkRead();
       try {
@@ -199,6 +210,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public int readBytes(final byte[] value) throws JMSException {
       checkRead();
       try {
@@ -209,6 +221,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public int readBytes(final byte[] value, final int length) throws JMSException {
       checkRead();
       try {
@@ -219,6 +232,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeBoolean(final boolean value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -231,6 +245,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeByte(final byte value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -243,6 +258,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeShort(final short value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -255,6 +271,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeChar(final char value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -267,6 +284,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeInt(final int value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -279,6 +297,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeLong(final long value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -291,6 +310,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeFloat(final float value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -303,6 +323,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeDouble(final double value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -315,6 +336,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeUTF(final String value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -327,6 +349,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeBytes(final byte[] value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -339,6 +362,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -351,6 +375,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public void writeObject(final Object value) throws JMSException {
       if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
@@ -396,6 +421,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
 
    }
 
+   @Override
    public void reset() throws JMSException {
       try {
          if (bodyWriteOnly) {
@@ -414,6 +440,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
+   @Override
    public long getBodyLength() throws JMSException {
       checkRead();
       return internalArray.length;

@@ -431,6 +431,7 @@ public final class XMLUtil {
 
    private static URL findResource(final String resourceName) {
       return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+         @Override
          public URL run() {
             return ClassloadingUtil.findResource(resourceName);
          }

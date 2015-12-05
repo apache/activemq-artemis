@@ -70,6 +70,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     *
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void close() throws JMSException {
       if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("close " + this);
@@ -100,6 +101,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @return The listener
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageListener getMessageListener() throws JMSException {
       if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageListener()");
@@ -116,6 +118,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @param listener The listener
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
       session.lock();
       try {
@@ -139,6 +142,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @return The selector
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public String getMessageSelector() throws JMSException {
       if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageSelector()");
@@ -154,6 +158,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Message receive() throws JMSException {
       session.lock();
       try {
@@ -187,6 +192,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Message receive(final long timeout) throws JMSException {
       session.lock();
       try {
@@ -219,6 +225,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Message receiveNoWait() throws JMSException {
       session.lock();
       try {

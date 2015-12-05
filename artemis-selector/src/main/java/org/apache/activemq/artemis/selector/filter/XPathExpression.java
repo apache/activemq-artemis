@@ -28,6 +28,7 @@ public final class XPathExpression implements BooleanExpression {
       new XalanXPathEvaluator("//root").evaluate("<root></root>");
       try {
          XPATH_EVALUATOR_FACTORY = new XPathExpression.XPathEvaluatorFactory() {
+            @Override
             public XPathExpression.XPathEvaluator create(String xpath) {
                return new XalanXPathEvaluator(xpath);
             }
@@ -58,10 +59,12 @@ public final class XPathExpression implements BooleanExpression {
       this.evaluator = XPATH_EVALUATOR_FACTORY.create(xpath);
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       return evaluator.evaluate(message) ? Boolean.TRUE : Boolean.FALSE;
    }
 
+   @Override
    public String toString() {
       return "XPATH " + ConstantExpression.encodeString(xpath);
    }
@@ -71,6 +74,7 @@ public final class XPathExpression implements BooleanExpression {
     * @return true if the expression evaluates to Boolean.TRUE.
     * @throws FilterException
     */
+   @Override
    public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;

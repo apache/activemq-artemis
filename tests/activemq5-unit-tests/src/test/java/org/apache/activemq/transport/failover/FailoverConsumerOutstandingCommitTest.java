@@ -113,6 +113,7 @@ public class FailoverConsumerOutstandingCommitTest {
             // so commit will hang as if reply is lost
             context.setDontSendReponse(true);
             Executors.newSingleThreadExecutor().execute(new Runnable() {
+               @Override
                public void run() {
                   LOG.info("Stopping broker before commit...");
                   try {
@@ -145,6 +146,7 @@ public class FailoverConsumerOutstandingCommitTest {
       final MessageConsumer testConsumer = consumerSession.createConsumer(destination);
       testConsumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message message) {
             LOG.info("consume one and commit");
 
@@ -164,6 +166,7 @@ public class FailoverConsumerOutstandingCommitTest {
 
       // may block if broker shutodwn happens quickly
       Executors.newSingleThreadExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             LOG.info("producer started");
             try {
@@ -219,6 +222,7 @@ public class FailoverConsumerOutstandingCommitTest {
             // so commit will hang as if reply is lost
             context.setDontSendReponse(true);
             Executors.newSingleThreadExecutor().execute(new Runnable() {
+               @Override
                public void run() {
                   LOG.info("Stopping broker before commit...");
                   try {
@@ -254,6 +258,7 @@ public class FailoverConsumerOutstandingCommitTest {
       final MessageConsumer testConsumer = consumerSession.createConsumer(destination);
       testConsumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message message) {
             LOG.info("consume one and commit: " + message);
             assertNotNull("got message", message);
@@ -274,6 +279,7 @@ public class FailoverConsumerOutstandingCommitTest {
 
       // may block if broker shutdown happens quickly
       Executors.newSingleThreadExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             LOG.info("producer started");
             try {

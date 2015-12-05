@@ -359,6 +359,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
    }
 
+   @Override
    protected boolean isPlainCoreBridge() {
       return false;
    }

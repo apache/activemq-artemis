@@ -48,6 +48,7 @@ public class ProducerCloseTest extends ActiveMQTestBase {
       Assert.assertTrue(producer.isClosed());
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         @Override
          public void run() throws ActiveMQException {
             producer.send(session.createMessage(false));
          }

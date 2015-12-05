@@ -851,6 +851,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
          connection.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
@@ -899,6 +900,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
          connection.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
@@ -966,6 +968,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
          connection.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
@@ -1046,12 +1049,14 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          final CountDownLatch exceptionLatch = new CountDownLatch(2);
          connection.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
 
          connection2.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
@@ -1125,6 +1130,7 @@ public class JMSServerControl2Test extends ManagementTestBase {
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
          connection.setExceptionListener(new ExceptionListener() {
+            @Override
             public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }

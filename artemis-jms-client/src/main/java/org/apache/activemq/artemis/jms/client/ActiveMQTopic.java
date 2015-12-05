@@ -59,6 +59,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
 
    // Topic implementation ------------------------------------------
 
+   @Override
    public String getTopicName() {
       return name;
    }

@@ -74,6 +74,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
 
    // TextMessage implementation ------------------------------------
 
+   @Override
    public void setText(final String text) throws JMSException {
       checkWrite();
 
@@ -87,6 +88,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
       writeBodyText(message.getBodyBuffer(), this.text);
    }
 
+   @Override
    public String getText() {
       if (text != null) {
          return text.toString();

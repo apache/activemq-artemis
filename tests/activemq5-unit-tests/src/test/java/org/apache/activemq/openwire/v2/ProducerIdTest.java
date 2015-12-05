@@ -32,12 +32,14 @@ public class ProducerIdTest extends DataFileGeneratorTestSupport {
 
    public static final ProducerIdTest SINGLETON = new ProducerIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       ProducerId info = new ProducerId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ProducerId info = (ProducerId) object;

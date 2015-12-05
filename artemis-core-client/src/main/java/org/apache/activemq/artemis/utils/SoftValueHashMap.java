@@ -75,6 +75,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#size()
     */
+   @Override
    public int size() {
       processQueue();
       return mapDelegate.size();
@@ -83,6 +84,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#isEmpty()
     */
+   @Override
    public boolean isEmpty() {
       processQueue();
       return mapDelegate.isEmpty();
@@ -92,6 +94,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param key
     * @see java.util.Map#containsKey(java.lang.Object)
     */
+   @Override
    public boolean containsKey(final Object key) {
       processQueue();
       return mapDelegate.containsKey(key);
@@ -101,6 +104,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param value
     * @see java.util.Map#containsValue(java.lang.Object)
     */
+   @Override
    public boolean containsValue(final Object value) {
       processQueue();
       for (AggregatedSoftReference valueIter : mapDelegate.values()) {
@@ -117,6 +121,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param key
     * @see java.util.Map#get(java.lang.Object)
     */
+   @Override
    public V get(final Object key) {
       processQueue();
       AggregatedSoftReference value = mapDelegate.get(key);
@@ -134,6 +139,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param value
     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
     */
+   @Override
    public V put(final K key, final V value) {
       processQueue();
       AggregatedSoftReference newRef = createReference(key, value);
@@ -178,6 +184,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    class ComparatorAgregated implements Comparator<AggregatedSoftReference> {
 
+      @Override
       public int compare(AggregatedSoftReference o1, AggregatedSoftReference o2) {
          long k = o1.used - o2.used;
 
@@ -206,6 +213,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param key
     * @see java.util.Map#remove(java.lang.Object)
     */
+   @Override
    public V remove(final Object key) {
       processQueue();
       AggregatedSoftReference ref = mapDelegate.remove(key);
@@ -221,6 +229,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
     * @param m
     * @see java.util.Map#putAll(java.util.Map)
     */
+   @Override
    public void putAll(final Map<? extends K, ? extends V> m) {
       processQueue();
       for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
@@ -231,6 +240,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#clear()
     */
+   @Override
    public void clear() {
       mapDelegate.clear();
    }
@@ -238,6 +248,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#keySet()
     */
+   @Override
    public Set<K> keySet() {
       processQueue();
       return mapDelegate.keySet();
@@ -246,6 +257,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#values()
     */
+   @Override
    public Collection<V> values() {
       processQueue();
       ArrayList<V> list = new ArrayList<V>();
@@ -263,6 +275,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    /**
     * @see java.util.Map#entrySet()
     */
+   @Override
    public Set<java.util.Map.Entry<K, V>> entrySet() {
       processQueue();
       HashSet<Map.Entry<K, V>> set = new HashSet<Map.Entry<K, V>>();
@@ -353,6 +366,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       /* (non-Javadoc)
        * @see java.util.Map.Entry#getKey()
        */
+      @Override
       public K getKey() {
          return key;
       }
@@ -360,6 +374,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       /* (non-Javadoc)
        * @see java.util.Map.Entry#getValue()
        */
+      @Override
       public V getValue() {
          return value;
       }
@@ -367,6 +382,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
       /* (non-Javadoc)
        * @see java.util.Map.Entry#setValue(java.lang.Object)
        */
+      @Override
       public V setValue(final V value) {
          this.value = value;
          return value;

@@ -31,12 +31,14 @@ public class ControlCommandTest extends BaseCommandTestSupport {
 
    public static final ControlCommandTest SINGLETON = new ControlCommandTest();
 
+   @Override
    public Object createObject() throws Exception {
       ControlCommand info = new ControlCommand();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ControlCommand info = (ControlCommand) object;

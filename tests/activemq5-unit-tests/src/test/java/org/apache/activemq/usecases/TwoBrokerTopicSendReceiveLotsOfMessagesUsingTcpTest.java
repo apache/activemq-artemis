@@ -21,6 +21,7 @@ package org.apache.activemq.usecases;
  */
 public class TwoBrokerTopicSendReceiveLotsOfMessagesUsingTcpTest extends TwoBrokerTopicSendReceiveUsingTcpTest {
 
+   @Override
    protected void setUp() throws Exception {
       this.messageCount = 5000;
       super.setUp();

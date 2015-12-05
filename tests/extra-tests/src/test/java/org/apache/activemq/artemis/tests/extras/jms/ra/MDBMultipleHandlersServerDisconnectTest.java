@@ -74,6 +74,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
    private volatile boolean playServerClosingSession = true;
    private volatile boolean playServerClosingConsumer = true;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       nettyLocator = createNettyNonHALocator();
@@ -86,12 +87,14 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       DummyTMLocator.startTM();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       DummyTMLocator.stopTM();
       super.tearDown();
    }
 
+   @Override
    protected boolean usePersistence() {
       return true;
    }
@@ -143,6 +146,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final int NUMBER_OF_MESSAGES = 1000;
 
       Thread producer = new Thread() {
+         @Override
          public void run() {
             try {
                ServerLocator locator = createInVMLocator(0);
@@ -182,6 +186,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final AtomicBoolean running = new AtomicBoolean(true);
 
       Thread buggerThread = new Thread() {
+         @Override
          public void run() {
             while (running.get()) {
                try {
@@ -342,6 +347,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          isDeliveryTransacted = deliveryTransacted;
       }
 
+      @Override
       public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException {
          TestEndpoint retEnd = new TestEndpoint();
          if (xaResource != null) {
@@ -350,6 +356,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          return retEnd;
       }
 
+      @Override
       public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
          return isDeliveryTransacted;
       }
@@ -390,6 +397,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
       }
 
+      @Override
       public void onMessage(Message message) {
          Integer value = 0;
 

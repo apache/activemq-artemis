@@ -66,6 +66,7 @@ public class SlowConsumerTest extends TestCase {
       connection.start();
 
       Thread producingThread = new Thread("Producing thread") {
+         @Override
          public void run() {
             try {
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -89,6 +90,7 @@ public class SlowConsumerTest extends TestCase {
 
       Thread consumingThread = new Thread("Consuming thread") {
 
+         @Override
          public void run() {
             try {
                Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);

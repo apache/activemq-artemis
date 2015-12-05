@@ -181,6 +181,7 @@ public class FailBackManualTest extends FailoverTestBase {
          this.server = server;
       }
 
+      @Override
       public void run() {
          try {
             server.start();

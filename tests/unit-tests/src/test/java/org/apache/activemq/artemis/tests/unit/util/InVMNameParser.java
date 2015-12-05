@@ -50,6 +50,7 @@ public class InVMNameParser implements NameParser, Serializable {
       return InVMNameParser.syntax;
    }
 
+   @Override
    public Name parse(final String name) throws NamingException {
       return new CompoundName(name, InVMNameParser.syntax);
    }

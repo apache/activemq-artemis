@@ -48,6 +48,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
 
    }
 
+   @Override
    public void tearDown() throws Exception {
       scheduledExecutorService.shutdown();
       super.tearDown();
@@ -63,6 +64,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
 
       final AtomicInteger errors = new AtomicInteger(0);
       Thread t = new Thread() {
+         @Override
          public void run() {
             try {
                dg.internalRunning();

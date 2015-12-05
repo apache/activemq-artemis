@@ -68,6 +68,7 @@ public class QueueMemoryFullMultiBrokersTest extends JmsMultipleBrokersTestSuppo
       assertEquals("inflight source:" + internalQueue, 0, internalQueue.getDestinationStatistics().getInflight().getCount());
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

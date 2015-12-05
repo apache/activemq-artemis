@@ -55,6 +55,7 @@ public class JournalFileImpl implements JournalFile {
       recordID = (int) (fileID & Integer.MAX_VALUE);
    }
 
+   @Override
    public int getPosCount() {
       return posCount.intValue();
    }
@@ -69,6 +70,7 @@ public class JournalFileImpl implements JournalFile {
       this.canReclaim = canReclaim;
    }
 
+   @Override
    public void incNegCount(final JournalFile file) {
       if (file != this) {
          totalNegativeToOthers.incrementAndGet();
@@ -76,6 +78,7 @@ public class JournalFileImpl implements JournalFile {
       getOrCreateNegCount(file).incrementAndGet();
    }
 
+   @Override
    public int getNegCount(final JournalFile file) {
       AtomicInteger count = negCounts.get(file);
 
@@ -87,14 +90,17 @@ public class JournalFileImpl implements JournalFile {
       }
    }
 
+   @Override
    public int getJournalVersion() {
       return version;
    }
 
+   @Override
    public void incPosCount() {
       posCount.incrementAndGet();
    }
 
+   @Override
    public void decPosCount() {
       posCount.decrementAndGet();
    }
@@ -103,10 +109,12 @@ public class JournalFileImpl implements JournalFile {
       return offset;
    }
 
+   @Override
    public long getFileID() {
       return fileID;
    }
 
+   @Override
    public int getRecordID() {
       return recordID;
    }
@@ -115,6 +123,7 @@ public class JournalFileImpl implements JournalFile {
       this.offset = offset;
    }
 
+   @Override
    public SequentialFile getFile() {
       return file;
    }
@@ -169,6 +178,7 @@ public class JournalFileImpl implements JournalFile {
       return liveBytes.get();
    }
 
+   @Override
    public int getTotalNegativeToOthers() {
       return totalNegativeToOthers.get();
    }

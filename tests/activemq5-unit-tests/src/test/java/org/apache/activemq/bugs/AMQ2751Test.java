@@ -57,6 +57,7 @@ public class AMQ2751Test extends EmbeddedBrokerTestSupport {
          MessageConsumer consumer = session.createConsumer(queue);
 
          consumer.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(Message message) {
                try {
                   LOG.info("Got message: " + message.getJMSMessageID());

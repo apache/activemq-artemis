@@ -86,18 +86,21 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // MessageConsumer implementation --------------------------------
 
+   @Override
    public String getMessageSelector() throws JMSException {
       checkClosed();
 
       return selector;
    }
 
+   @Override
    public MessageListener getMessageListener() throws JMSException {
       checkClosed();
 
       return listener;
    }
 
+   @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
       this.listener = listener;
 
@@ -111,18 +114,22 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       }
    }
 
+   @Override
    public Message receive() throws JMSException {
       return getMessage(0, false);
    }
 
+   @Override
    public Message receive(final long timeout) throws JMSException {
       return getMessage(timeout, false);
    }
 
+   @Override
    public Message receiveNoWait() throws JMSException {
       return getMessage(0, true);
    }
 
+   @Override
    public void close() throws JMSException {
       try {
          consumer.close();
@@ -141,6 +148,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // QueueReceiver implementation ----------------------------------
 
+   @Override
    public Queue getQueue() throws JMSException {
       checkClosed();
 
@@ -149,12 +157,14 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // TopicSubscriber implementation --------------------------------
 
+   @Override
    public Topic getTopic() throws JMSException {
       checkClosed();
 
       return (Topic) destination;
    }
 
+   @Override
    public boolean getNoLocal() throws JMSException {
       checkClosed();
 

@@ -92,14 +92,17 @@ public final class InVMAcceptor implements Acceptor {
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
    }
 
+   @Override
    public String getName() {
       return name;
    }
 
+   @Override
    public Map<String, Object> getConfiguration() {
       return configuration;
    }
 
+   @Override
    public ClusterConnection getClusterConnection() {
       return clusterConnection;
    }
@@ -112,6 +115,7 @@ public final class InVMAcceptor implements Acceptor {
       return connections.size();
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -132,6 +136,7 @@ public final class InVMAcceptor implements Acceptor {
       paused = false;
    }
 
+   @Override
    public synchronized void stop() {
       if (!started) {
          return;
@@ -166,6 +171,7 @@ public final class InVMAcceptor implements Acceptor {
       paused = false;
    }
 
+   @Override
    public synchronized boolean isStarted() {
       return started;
    }
@@ -173,6 +179,7 @@ public final class InVMAcceptor implements Acceptor {
    /*
     * Stop accepting new connections
     */
+   @Override
    public synchronized void pause() {
       if (!started || paused) {
          return;
@@ -183,6 +190,7 @@ public final class InVMAcceptor implements Acceptor {
       paused = true;
    }
 
+   @Override
    public synchronized void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
@@ -231,10 +239,12 @@ public final class InVMAcceptor implements Acceptor {
     *
     * @return true
     */
+   @Override
    public boolean isUnsecurable() {
       return true;
    }
 
+   @Override
    public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
@@ -248,6 +258,7 @@ public final class InVMAcceptor implements Acceptor {
          this.connector = connector;
       }
 
+      @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
                                     final String protocol) {
@@ -258,6 +269,7 @@ public final class InVMAcceptor implements Acceptor {
          listener.connectionCreated(component, connection, protocol);
       }
 
+      @Override
       public void connectionDestroyed(final Object connectionID) {
          InVMConnection connection = (InVMConnection) connections.remove(connectionID);
 
@@ -267,6 +279,7 @@ public final class InVMAcceptor implements Acceptor {
 
             // Execute on different thread after all the packets are sent, to avoid deadlocks
             connection.getExecutor().execute(new Runnable() {
+               @Override
                public void run() {
                   // Remove on the other side too
                   connector.disconnect((String) connectionID);
@@ -275,10 +288,12 @@ public final class InVMAcceptor implements Acceptor {
          }
       }
 
+      @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          listener.connectionException(connectionID, me);
       }
 
+      @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
    }

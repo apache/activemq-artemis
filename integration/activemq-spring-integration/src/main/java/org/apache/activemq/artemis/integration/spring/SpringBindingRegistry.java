@@ -28,6 +28,7 @@ public class SpringBindingRegistry implements BindingRegistry {
       this.factory = factory;
    }
 
+   @Override
    public Object lookup(String name) {
       Object obj = null;
       try {
@@ -39,14 +40,17 @@ public class SpringBindingRegistry implements BindingRegistry {
       return obj;
    }
 
+   @Override
    public boolean bind(String name, Object obj) {
       factory.registerSingleton(name, obj);
       return true;
    }
 
+   @Override
    public void unbind(String name) {
    }
 
+   @Override
    public void close() {
    }
 }

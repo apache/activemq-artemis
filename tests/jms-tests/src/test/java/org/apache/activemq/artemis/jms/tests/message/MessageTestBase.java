@@ -65,6 +65,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
       conn.start();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       if (conn != null)

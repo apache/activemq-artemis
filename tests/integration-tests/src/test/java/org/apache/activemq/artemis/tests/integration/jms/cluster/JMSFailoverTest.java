@@ -360,6 +360,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       // The thread that will fail the server
       Thread spoilerThread = new Thread() {
+         @Override
          public void run() {
             flagAlign.countDown();
             // a large timeout just to help in case of debugging
@@ -505,6 +506,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       volatile JMSException e;
 
+      @Override
       public void onException(final JMSException e) {
          this.e = e;
       }

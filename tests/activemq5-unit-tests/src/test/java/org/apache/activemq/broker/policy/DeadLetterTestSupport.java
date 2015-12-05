@@ -62,6 +62,7 @@ public abstract class DeadLetterTestSupport extends TestSupport {
    protected int acknowledgeMode = Session.CLIENT_ACKNOWLEDGE;
    private Destination destination;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       broker = createBroker();
@@ -77,6 +78,7 @@ public abstract class DeadLetterTestSupport extends TestSupport {
       return toString();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

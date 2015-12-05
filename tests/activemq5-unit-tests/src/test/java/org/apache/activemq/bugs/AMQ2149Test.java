@@ -191,6 +191,7 @@ public class AMQ2149Test {
       final int TRANSACITON_BATCH = 500;
       boolean resumeOnNextOrPreviousIsOk = false;
 
+      @Override
       public void onMessage(Message message) {
          try {
             final long seqNum = message.getLongProperty(SEQ_NUM_PROPERTY);
@@ -267,6 +268,7 @@ public class AMQ2149Test {
          connections.add(connection);
       }
 
+      @Override
       public void run() {
          final String longString = buildLongString();
          long nextSequenceNumber = this.nextSequenceNumber;
@@ -318,6 +320,7 @@ public class AMQ2149Test {
    // attempt to simply replicate leveldb failure. no joy yet
    public void x_testRestartReReceive() throws Exception {
       createBroker(new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
             broker.deleteAllMessages();
          }
@@ -338,6 +341,7 @@ public class AMQ2149Test {
       long expectedSeq;
 
       final TimerTask restartTask = scheduleRestartTask(null, new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
          }
       });
@@ -364,6 +368,7 @@ public class AMQ2149Test {
    public void vanilaVerify_testOrder() throws Exception {
 
       createBroker(new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
             broker.deleteAllMessages();
          }
@@ -376,6 +381,7 @@ public class AMQ2149Test {
    @Test(timeout = 5 * 60 * 1000)
    public void testOrderWithRestart() throws Exception {
       createBroker(new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
             broker.deleteAllMessages();
          }
@@ -383,6 +389,7 @@ public class AMQ2149Test {
 
       final Timer timer = new Timer();
       scheduleRestartTask(timer, new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
          }
       });
@@ -400,6 +407,7 @@ public class AMQ2149Test {
    @Test(timeout = 5 * 60 * 1000)
    public void testTopicOrderWithRestart() throws Exception {
       createBroker(new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
             broker.deleteAllMessages();
          }
@@ -434,6 +442,7 @@ public class AMQ2149Test {
       brokerStopPeriod = 10 * 1000;
 
       createBroker(new Configurer() {
+         @Override
          public void configure(BrokerService broker) throws Exception {
             broker.deleteAllMessages();
          }
@@ -472,6 +481,7 @@ public class AMQ2149Test {
    private TimerTask scheduleRestartTask(final Timer timer, final Configurer configurer) {
       class RestartTask extends TimerTask {
 
+         @Override
          public void run() {
             synchronized (brokerLock) {
                LOG.info("stopping broker..");

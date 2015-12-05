@@ -99,6 +99,7 @@ public class ReplicaPolicy extends BackupPolicy {
    /*
    * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
    * */
+   @Override
    public String getBackupGroupName() {
       return groupName;
    }
@@ -111,10 +112,12 @@ public class ReplicaPolicy extends BackupPolicy {
       this.groupName = groupName;
    }
 
+   @Override
    public boolean isRestartBackup() {
       return restartBackup;
    }
 
+   @Override
    public void setRestartBackup(boolean restartBackup) {
       this.restartBackup = restartBackup;
    }

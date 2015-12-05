@@ -27,9 +27,11 @@ public class SslTransportServerTest extends TestCase {
    private SslTransportServer sslTransportServer;
    private StubSSLServerSocket sslServerSocket;
 
+   @Override
    protected void setUp() throws Exception {
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

@@ -47,6 +47,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
    private ActiveMQTopic topic;
    private List<Throwable> exceptions = new ArrayList<Throwable>();
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + getName(true));
       connectionFactory.setWatchTopicAdvisories(false);
@@ -69,6 +70,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
       return suite(DurableSubsOfflineSelectorIndexUseTest.class);
    }
 
+   @Override
    protected void setUp() throws Exception {
       exceptions.clear();
       topic = (ActiveMQTopic) createDestination();
@@ -76,6 +78,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       destroyBroker();
@@ -124,6 +127,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
       final MessageProducer producer = sendSession.createProducer(null);
 
       Thread sendThread = new Thread() {
+         @Override
          public void run() {
             try {
 
@@ -215,6 +219,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
       Listener() {
       }
 
+      @Override
       public void onMessage(Message message) {
          count++;
          if (id != null) {

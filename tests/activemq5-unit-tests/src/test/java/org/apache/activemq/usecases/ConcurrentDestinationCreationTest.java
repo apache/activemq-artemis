@@ -52,6 +52,7 @@ public class ConcurrentDestinationCreationTest extends org.apache.activemq.TestS
       broker.stop();
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString() + "?jms.watchTopicAdvisories=false&jms.closeTimeout=35000");
    }

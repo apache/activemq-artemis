@@ -144,6 +144,7 @@ public class AMQ2171Test implements Thread.UncaughtExceptionHandler {
       }
    }
 
+   @Override
    public void uncaughtException(Thread t, Throwable e) {
       exceptions.add(e);
    }

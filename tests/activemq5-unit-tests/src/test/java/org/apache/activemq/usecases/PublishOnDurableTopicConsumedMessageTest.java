@@ -21,6 +21,7 @@ package org.apache.activemq.usecases;
  */
 public class PublishOnDurableTopicConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
+   @Override
    protected void setUp() throws Exception {
       this.durable = true;
       super.setUp();

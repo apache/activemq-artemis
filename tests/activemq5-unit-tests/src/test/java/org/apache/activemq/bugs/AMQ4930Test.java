@@ -123,6 +123,7 @@ public class AMQ4930Test extends TestCase {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       broker = new BrokerService();
@@ -134,6 +135,7 @@ public class AMQ4930Test extends TestCase {
 
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {

@@ -89,14 +89,17 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    /**
     * @param pendingRecordID
     */
+   @Override
    public void setPendingRecordID(long pendingRecordID) {
       this.pendingRecordID = pendingRecordID;
    }
 
+   @Override
    public long getPendingRecordID() {
       return this.pendingRecordID;
    }
 
+   @Override
    public void setPaged() {
       paged = true;
    }
@@ -150,6 +153,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       super.decodeHeadersAndProperties(buffer1);
    }
 
+   @Override
    public synchronized void incrementDelayDeletionCount() {
       delayDeletionCount.incrementAndGet();
       try {
@@ -160,6 +164,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
    }
 
+   @Override
    public synchronized void decrementDelayDeletionCount() throws Exception {
       int count = delayDeletionCount.decrementAndGet();
 
@@ -233,6 +238,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       return memoryEstimate;
    }
 
+   @Override
    public synchronized void releaseResources() {
       if (file != null && file.isOpen()) {
          try {
@@ -310,6 +316,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       }
    }
 
+   @Override
    public SequentialFile getFile() throws ActiveMQException {
       validateFile();
       return file;
@@ -382,6 +389,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
       private SequentialFile cFile;
 
+      @Override
       public void open() throws ActiveMQException {
          try {
             if (cFile != null && cFile.isOpen()) {
@@ -395,6 +403,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
       }
 
+      @Override
       public void close() throws ActiveMQException {
          try {
             if (cFile != null) {
@@ -406,6 +415,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
       }
 
+      @Override
       public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
          try {
             return cFile.read(bufferRead);
@@ -415,6 +425,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
          }
       }
 
+      @Override
       public int encode(final ActiveMQBuffer bufferOut, final int size) throws ActiveMQException {
          // This could maybe be optimized (maybe reading directly into bufferOut)
          ByteBuffer bufferRead = ByteBuffer.allocate(size);
@@ -433,6 +444,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.message.BodyEncoder#getLargeBodySize()
        */
+      @Override
       public long getLargeBodySize() {
          if (bodySize < 0) {
             try {

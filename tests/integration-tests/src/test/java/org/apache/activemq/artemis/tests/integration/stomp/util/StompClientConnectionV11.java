@@ -24,6 +24,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection {
       super("1.1", host, port);
    }
 
+   @Override
    public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.1");
@@ -49,6 +50,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection {
       return response;
    }
 
+   @Override
    public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.1");

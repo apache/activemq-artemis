@@ -36,6 +36,7 @@ public class DeadLetterTest extends DeadLetterTestSupport {
 
    protected int rollbackCount;
 
+   @Override
    protected void doTest() throws Exception {
       connection.start();
 
@@ -72,11 +73,13 @@ public class DeadLetterTest extends DeadLetterTestSupport {
       LOG.info("Rolled back: " + rollbackCount + " times");
    }
 
+   @Override
    protected void setUp() throws Exception {
       transactedMode = true;
       super.setUp();
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory answer = super.createConnectionFactory();
       RedeliveryPolicy policy = new RedeliveryPolicy();
@@ -88,6 +91,7 @@ public class DeadLetterTest extends DeadLetterTestSupport {
       return answer;
    }
 
+   @Override
    protected Destination createDlqDestination() {
       return new ActiveMQQueue("ActiveMQ.DLQ");
    }

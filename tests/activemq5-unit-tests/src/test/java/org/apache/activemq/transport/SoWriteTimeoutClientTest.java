@@ -41,6 +41,7 @@ public class SoWriteTimeoutClientTest extends JmsTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(SoWriteTimeoutClientTest.class);
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       broker.setDeleteAllMessagesOnStartup(true);

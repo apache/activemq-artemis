@@ -86,12 +86,15 @@ public class StompSession implements SessionCallback {
       return true;
    }
 
+   @Override
    public void sendProducerCreditsMessage(int credits, SimpleString address) {
    }
 
+   @Override
    public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
    }
 
+   @Override
    public int sendMessage(ServerMessage serverMessage, ServerConsumer consumer, int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;
@@ -161,6 +164,7 @@ public class StompSession implements SessionCallback {
 
    }
 
+   @Override
    public int sendLargeMessageContinuation(ServerConsumer consumer,
                                            byte[] body,
                                            boolean continues,
@@ -168,17 +172,21 @@ public class StompSession implements SessionCallback {
       return 0;
    }
 
+   @Override
    public int sendLargeMessage(ServerMessage msg, ServerConsumer consumer, long bodySize, int deliveryCount) {
       return 0;
    }
 
+   @Override
    public void closed() {
    }
 
+   @Override
    public void addReadyListener(final ReadyListener listener) {
       connection.getTransportConnection().addReadyListener(listener);
    }
 
+   @Override
    public void removeReadyListener(final ReadyListener listener) {
       connection.getTransportConnection().removeReadyListener(listener);
    }

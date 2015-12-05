@@ -183,6 +183,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors(configuration.getOutgoingInterceptorClassNames()));
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -278,6 +279,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       started = true;
    }
 
+   @Override
    public synchronized void startAcceptors() throws Exception {
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
@@ -286,6 +288,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public synchronized void allowInvmSecurityOverride(ActiveMQPrincipal principal) {
       defaultInvmSecurityPrincipal = principal;
       for (Acceptor acceptor : acceptors.values()) {
@@ -295,6 +298,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public synchronized void pauseAcceptors() {
       if (!started)
          return;
@@ -309,6 +313,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public synchronized void freeze(final String scaleDownNodeID, final CoreRemotingConnection connectionToKeepOpen) {
       if (!started)
          return;
@@ -334,6 +339,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public void stop(final boolean criticalError) throws Exception {
       if (!started) {
          return;
@@ -410,6 +416,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       return acceptors.get(name);
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
@@ -427,6 +434,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public RemotingConnection removeConnection(final Object remotingConnectionID) {
       ConnectionEntry entry = connections.remove(remotingConnectionID);
 
@@ -442,6 +450,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public synchronized Set<RemotingConnection> getConnections() {
       Set<RemotingConnection> conns = new HashSet<RemotingConnection>(connections.size());
 
@@ -452,6 +461,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       return conns;
    }
 
+   @Override
    public synchronized ReusableLatch getConnectionCountLatch() {
       return connectionCountLatch;
    }
@@ -462,6 +472,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       return protocolMap.get(protocol);
    }
 
+   @Override
    public void connectionCreated(final ActiveMQComponent component,
                                  final Connection connection,
                                  final String protocol) {
@@ -485,6 +496,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       connectionCountLatch.countUp();
    }
 
+   @Override
    public void connectionDestroyed(final Object connectionID) {
 
       if (isTrace) {
@@ -519,6 +531,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
+   @Override
    public void connectionException(final Object connectionID, final ActiveMQException me) {
       // We DO NOT call fail on connection exception, otherwise in event of real connection failure, the
       // connection will be failed, the session will be closed and won't be able to reconnect
@@ -530,6 +543,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       // Connections should only fail when TTL is exceeded
    }
 
+   @Override
    public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
    }
 
@@ -598,6 +612,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final class DelegatingBufferHandler implements BufferHandler {
 
+      @Override
       public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          ConnectionEntry conn = connections.get(connectionID);
 
@@ -668,6 +683,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
                   if (flush) {
                      flushExecutor.execute(new Runnable() {
+                        @Override
                         public void run() {
                            try {
                               // this is using a different thread

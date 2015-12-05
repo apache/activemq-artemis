@@ -69,6 +69,7 @@ public final class QueueRepeaterTest extends TestCase {
       consumer = consumerSession.createConsumer(queue);
       consumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message m) {
             try {
                TextMessage tm = (TextMessage) m;
@@ -113,6 +114,7 @@ public final class QueueRepeaterTest extends TestCase {
       LOG.info("test completed, destination=" + receivedText);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

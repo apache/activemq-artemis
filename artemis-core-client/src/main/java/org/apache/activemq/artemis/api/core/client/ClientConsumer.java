@@ -111,6 +111,7 @@ public interface ClientConsumer extends AutoCloseable {
     *
     * @throws ActiveMQException
     */
+   @Override
    void close() throws ActiveMQException;
 
    /**

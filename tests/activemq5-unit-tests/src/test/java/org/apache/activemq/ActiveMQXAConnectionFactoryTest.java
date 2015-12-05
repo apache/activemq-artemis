@@ -582,14 +582,17 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       final byte[] bs = baos.toByteArray();
 
       return new Xid() {
+         @Override
          public int getFormatId() {
             return 86;
          }
 
+         @Override
          public byte[] getGlobalTransactionId() {
             return bs;
          }
 
+         @Override
          public byte[] getBranchQualifier() {
             return bs;
          }

@@ -84,6 +84,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       }
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       ClientTestSupport.removeMessageStore();
@@ -135,6 +136,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       activeMQConnection.getPrefetchPolicy().setOptimizeDurableTopicPrefetch(prefetchValue);
    }
 
+   @Override
    public void tearDown() throws Exception {
       Thread.sleep(1000);
       producerConnection.close();
@@ -159,6 +161,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
       return result;
    }
 
+   @Override
    public void onMessage(Message msg) {
       try {
          BytesMessage ba = (BytesMessage) msg;

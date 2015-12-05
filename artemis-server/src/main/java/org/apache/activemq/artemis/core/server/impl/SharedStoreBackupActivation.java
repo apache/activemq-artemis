@@ -52,6 +52,7 @@ public final class SharedStoreBackupActivation extends Activation {
       }
    }
 
+   @Override
    public void run() {
       try {
          activeMQServer.getNodeManager().startBackup();
@@ -131,6 +132,7 @@ public final class SharedStoreBackupActivation extends Activation {
       }
    }
 
+   @Override
    public void close(boolean permanently, boolean restarting) throws Exception {
       if (!restarting) {
          synchronized (failbackCheckerGuard) {
@@ -200,6 +202,7 @@ public final class SharedStoreBackupActivation extends Activation {
 
       private boolean restarting = false;
 
+      @Override
       public void run() {
          try {
             if (!restarting && activeMQServer.getNodeManager().isAwaitingFailback()) {
@@ -207,6 +210,7 @@ public final class SharedStoreBackupActivation extends Activation {
                   ActiveMQServerLogger.LOGGER.awaitFailBack();
                   restarting = true;
                   Thread t = new Thread(new Runnable() {
+                     @Override
                      public void run() {
                         try {
                            ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");

@@ -49,6 +49,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
    BrokerService broker;
    final CountDownLatch restartDBLatch = new CountDownLatch(1);
 
+   @Override
    protected void setUp() throws Exception {
       setAutoFail(true);
       topic = false;
@@ -76,11 +77,13 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       broker.stop();
    }
 
+   @Override
    protected Session createSendSession(Connection sendConnection) throws Exception {
       if (transactedSends) {
          return sendConnection.createSession(true, Session.SESSION_TRANSACTED);
@@ -90,6 +93,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
       }
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory f = new ActiveMQConnectionFactory("failover://" + broker.getTransportConnectors().get(0).getPublishableConnectString());
       f.setExceptionListener(this);
@@ -110,6 +114,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
          LOG.info("DB STOPPED!@!!!!");
 
          Thread dbRestartThread = new Thread("db-re-start-thread") {
+            @Override
             public void run() {
                LOG.info("Sleeping for 10 seconds before allowing db restart");
                try {
@@ -126,6 +131,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
       }
    }
 
+   @Override
    protected void sendToProducer(MessageProducer producer,
                                  Destination producerDestination,
                                  Message message) throws JMSException {

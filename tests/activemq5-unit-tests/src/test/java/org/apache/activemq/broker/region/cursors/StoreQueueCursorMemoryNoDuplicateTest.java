@@ -25,6 +25,7 @@ import org.apache.activemq.broker.BrokerService;
  */
 public class StoreQueueCursorMemoryNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       broker.setPersistent(false);

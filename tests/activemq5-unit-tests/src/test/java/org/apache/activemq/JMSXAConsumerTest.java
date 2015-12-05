@@ -37,15 +37,19 @@ public class JMSXAConsumerTest extends JMSConsumerTest {
 
    // some tests use transactions, these will not work unless an XA transaction is in place
    // slip these
+   @Override
    public void testPrefetch1MessageNotDispatched() throws Exception {
    }
 
+   @Override
    public void testRedispatchOfUncommittedTx() throws Exception {
    }
 
+   @Override
    public void testRedispatchOfRolledbackTx() throws Exception {
    }
 
+   @Override
    public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception {
    }
 }

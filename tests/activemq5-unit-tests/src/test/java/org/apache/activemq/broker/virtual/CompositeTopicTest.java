@@ -27,18 +27,22 @@ import org.apache.activemq.command.ActiveMQTopic;
  */
 public class CompositeTopicTest extends CompositeQueueTest {
 
+   @Override
    protected Destination getConsumer1Dsetination() {
       return new ActiveMQQueue("FOO");
    }
 
+   @Override
    protected Destination getConsumer2Dsetination() {
       return new ActiveMQTopic("BAR");
    }
 
+   @Override
    protected Destination getProducerDestination() {
       return new ActiveMQTopic("MY.TOPIC");
    }
 
+   @Override
    protected String getBrokerConfigUri() {
       return "org/apache/activemq/broker/virtual/composite-topic.xml";
    }

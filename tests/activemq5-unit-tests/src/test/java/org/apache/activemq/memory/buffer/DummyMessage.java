@@ -29,10 +29,12 @@ public class DummyMessage extends ActiveMQMessage {
       this.size = size;
    }
 
+   @Override
    public int getSize() {
       return size;
    }
 
+   @Override
    public String toString() {
       return "DummyMessage[id=" + getMessageId() + " size=" + size + "]";
    }

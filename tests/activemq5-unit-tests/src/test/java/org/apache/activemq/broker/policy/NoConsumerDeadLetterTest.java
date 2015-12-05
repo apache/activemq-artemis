@@ -39,12 +39,15 @@ import org.apache.activemq.command.ActiveMQDestination;
 public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
 
    // lets disable the inapplicable tests
+   @Override
    public void testDurableQueueMessage() throws Exception {
    }
 
+   @Override
    public void testDurableTopicMessage() throws Exception {
    }
 
+   @Override
    protected void doTest() throws Exception {
       makeDlqConsumer();
       sendMessages();
@@ -87,6 +90,7 @@ public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
       assertNotNull("Message not received", received);
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
 
@@ -101,6 +105,7 @@ public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
       return broker;
    }
 
+   @Override
    protected Destination createDlqDestination() {
       if (this.topic) {
          return AdvisorySupport.getNoTopicConsumersAdvisoryTopic((ActiveMQDestination) getDestination());

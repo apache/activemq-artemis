@@ -88,6 +88,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
       class MyHandler implements MessageHandler {
 
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                Thread.sleep(10);
@@ -156,6 +157,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
             this.latch = latch;
          }
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {
@@ -248,6 +250,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
             this.latch = latch;
          }
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {
@@ -327,6 +330,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
             this.latch = latch;
          }
 
+         @Override
          public void onMessage(final ClientMessage message) {
 
             try {

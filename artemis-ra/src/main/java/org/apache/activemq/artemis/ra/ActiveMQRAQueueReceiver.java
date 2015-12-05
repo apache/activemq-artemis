@@ -50,6 +50,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
     * @return The queue
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Queue getQueue() throws JMSException {
       if (ActiveMQRAQueueReceiver.trace) {
          ActiveMQRALogger.LOGGER.trace("getQueue()");

@@ -78,6 +78,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
       Thread tReceive = new Thread() {
+         @Override
          public void run() {
             boolean first = true;
             try {
@@ -162,6 +163,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       final NettyConnection nettyConnection = (NettyConnection) remotingConnection.getTransportConnection();
 
       Thread tReceive = new Thread() {
+         @Override
          public void run() {
             boolean first = true;
             try {
@@ -187,6 +189,7 @@ public class ConsumerStuckTest extends ActiveMQTestBase {
       tReceive.start();
 
       Thread sender = new Thread() {
+         @Override
          public void run() {
             try (
                ServerLocator locator = createNettyNonHALocator();

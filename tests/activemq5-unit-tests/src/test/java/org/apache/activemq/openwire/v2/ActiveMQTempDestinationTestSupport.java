@@ -28,6 +28,7 @@ import org.apache.activemq.command.ActiveMQTempDestination;
  */
 public abstract class ActiveMQTempDestinationTestSupport extends ActiveMQDestinationTestSupport {
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQTempDestination info = (ActiveMQTempDestination) object;

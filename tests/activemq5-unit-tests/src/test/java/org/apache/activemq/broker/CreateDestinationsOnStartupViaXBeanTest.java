@@ -53,6 +53,7 @@ public class CreateDestinationsOnStartupViaXBeanTest extends EmbeddedBrokerTestS
       assertEquals("Could not find destination: " + destination + ". Size of found destinations: " + answer, size, answer.size());
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       XBeanBrokerFactory factory = new XBeanBrokerFactory();
       BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));

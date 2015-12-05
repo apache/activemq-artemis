@@ -84,6 +84,7 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext {
       }
    }
 
+   @Override
    public void removeSender(Sender sender) throws ActiveMQAMQPException {
       ProtonServerSenderContext senderRemoved = (ProtonServerSenderContext) senders.remove(sender);
       if (senderRemoved != null) {

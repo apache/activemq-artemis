@@ -65,6 +65,7 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
       return validCommands.contains(command);
    }
 
+   @Override
    public String toString() {
       StringBuffer sb = new StringBuffer("Frame: <" + command + ">" + "\n");
       Iterator<Header> iter = headers.iterator();

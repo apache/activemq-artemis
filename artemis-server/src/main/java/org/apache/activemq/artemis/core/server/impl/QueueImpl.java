@@ -240,6 +240,7 @@ public class QueueImpl implements Queue {
    public List<SimpleString> getGroupsUsed() {
       final CountDownLatch flush = new CountDownLatch(1);
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             flush.countDown();
          }
@@ -381,6 +382,7 @@ public class QueueImpl implements Queue {
       return name;
    }
 
+   @Override
    public SimpleString getUser() {
       return user;
    }
@@ -389,6 +391,7 @@ public class QueueImpl implements Queue {
       return false;
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       context.addQueue(address, this);
    }
@@ -399,48 +402,59 @@ public class QueueImpl implements Queue {
    }
 
    // Queue implementation ----------------------------------------------------------------------------------------
+   @Override
    public synchronized void setConsumersRefCount(final ReferenceCounter referenceCounter) {
       if (refCountForConsumers == null) {
          this.refCountForConsumers = referenceCounter;
       }
    }
 
+   @Override
    public ReferenceCounter getConsumersRefCount() {
       return refCountForConsumers;
    }
 
+   @Override
    public boolean isDurable() {
       return durable;
    }
 
+   @Override
    public boolean isTemporary() {
       return temporary;
    }
 
+   @Override
    public boolean isAutoCreated() {
       return autoCreated;
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public PageSubscription getPageSubscription() {
       return pageSubscription;
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
+   @Override
    public void unproposed(final SimpleString groupID) {
       if (groupID.toString().endsWith("." + this.getName())) {
          // this means this unproposed belongs to this routing, so we will
@@ -451,6 +465,7 @@ public class QueueImpl implements Queue {
          final SimpleString groupIDToRemove = (SimpleString) groupID.subSequence(0, groupID.length() - getName().length() - 1);
          // using an executor so we don't want to hold anyone just because of this
          getExecutor().execute(new Runnable() {
+            @Override
             public void run() {
                synchronized (QueueImpl.this) {
                   if (groups.remove(groupIDToRemove) != null) {
@@ -466,6 +481,7 @@ public class QueueImpl implements Queue {
    }
 
    /* Called when a message is cancelled back into the queue */
+   @Override
    public synchronized void addHead(final MessageReference ref) {
       flushDeliveriesInTransit();
       if (scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
@@ -478,6 +494,7 @@ public class QueueImpl implements Queue {
    }
 
    /* Called when a message is cancelled back into the queue */
+   @Override
    public synchronized void addHead(final List<MessageReference> refs) {
       flushDeliveriesInTransit();
       for (MessageReference ref : refs) {
@@ -489,6 +506,7 @@ public class QueueImpl implements Queue {
       deliverAsync();
    }
 
+   @Override
    public synchronized void reload(final MessageReference ref) {
       queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
       if (!scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
@@ -500,10 +518,12 @@ public class QueueImpl implements Queue {
       messagesAdded++;
    }
 
+   @Override
    public void addTail(final MessageReference ref) {
       addTail(ref, false);
    }
 
+   @Override
    public void addTail(final MessageReference ref, final boolean direct) {
       if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          synchronized (this) {
@@ -571,6 +591,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void forceDelivery() {
       if (pageSubscription != null && pageSubscription.isPaging()) {
          if (isTrace) {
@@ -586,6 +607,7 @@ public class QueueImpl implements Queue {
       deliverAsync();
    }
 
+   @Override
    public void deliverAsync() {
       if (scheduledRunners.get() < MAX_SCHEDULED_RUNNERS) {
          scheduledRunners.incrementAndGet();
@@ -602,12 +624,14 @@ public class QueueImpl implements Queue {
 
    }
 
+   @Override
    public void close() throws Exception {
       if (checkQueueSizeFuture != null) {
          checkQueueSizeFuture.cancel(false);
       }
 
       getExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             try {
                cancelRedistributor();
@@ -624,6 +648,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public Executor getExecutor() {
       if (pageSubscription != null && pageSubscription.isPaging()) {
          // When in page mode, we don't want to have concurrent IO on the same PageStore
@@ -641,6 +666,7 @@ public class QueueImpl implements Queue {
       flushExecutor();
    }
 
+   @Override
    public boolean flushExecutor() {
       boolean ok = internalFlushExecutor(10000);
 
@@ -664,6 +690,7 @@ public class QueueImpl implements Queue {
       return result;
    }
 
+   @Override
    public void addConsumer(final Consumer consumer) throws Exception {
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug(this + " adding consumer " + consumer);
@@ -687,6 +714,7 @@ public class QueueImpl implements Queue {
 
    }
 
+   @Override
    public void removeConsumer(final Consumer consumer) {
       synchronized (this) {
          consumersChanged = true;
@@ -733,6 +761,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized void addRedistributor(final long delay) {
       if (redistributorFuture != null) {
          redistributorFuture.cancel(false);
@@ -759,6 +788,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized void cancelRedistributor() throws Exception {
       if (redistributor != null) {
          redistributor.stop();
@@ -786,14 +816,17 @@ public class QueueImpl implements Queue {
       super.finalize();
    }
 
+   @Override
    public synchronized int getConsumerCount() {
       return consumerSet.size();
    }
 
+   @Override
    public synchronized Set<Consumer> getConsumers() {
       return new HashSet<Consumer>(consumerSet);
    }
 
+   @Override
    public boolean hasMatchingConsumer(final ServerMessage message) {
       for (ConsumerHolder holder : consumerList) {
          Consumer consumer = holder.consumer;
@@ -816,14 +849,17 @@ public class QueueImpl implements Queue {
       return false;
    }
 
+   @Override
    public LinkedListIterator<MessageReference> iterator() {
       return new SynchronizedIterator(messageReferences.iterator());
    }
 
+   @Override
    public TotalQueueIterator totalIterator() {
       return new TotalQueueIterator();
    }
 
+   @Override
    public synchronized MessageReference removeReferenceWithID(final long id1) throws Exception {
       LinkedListIterator<MessageReference> iterator = iterator();
 
@@ -856,6 +892,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized MessageReference getReference(final long id1) {
       LinkedListIterator<MessageReference> iterator = iterator();
 
@@ -876,6 +913,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public long getMessageCount() {
       synchronized (this) {
          if (pageSubscription != null) {
@@ -891,14 +929,17 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized int getScheduledCount() {
       return scheduledDeliveryHandler.getScheduledCount();
    }
 
+   @Override
    public synchronized List<MessageReference> getScheduledMessages() {
       return scheduledDeliveryHandler.getScheduledReferences();
    }
 
+   @Override
    public Map<String, List<MessageReference>> getDeliveringMessages() {
 
       List<ConsumerHolder> consumerListClone = cloneConsumersList();
@@ -915,10 +956,12 @@ public class QueueImpl implements Queue {
       return mapReturn;
    }
 
+   @Override
    public int getDeliveringCount() {
       return deliveringCount.get();
    }
 
+   @Override
    public void acknowledge(final MessageReference ref) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ack((PagedReference) ref);
@@ -939,6 +982,7 @@ public class QueueImpl implements Queue {
 
    }
 
+   @Override
    public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ackTx(tx, (PagedReference) ref);
@@ -962,6 +1006,7 @@ public class QueueImpl implements Queue {
       messagesAcknowledged++;
    }
 
+   @Override
    public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       ServerMessage message = ref.getMessage();
 
@@ -1001,14 +1046,17 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void cancel(final Transaction tx, final MessageReference reference) {
       cancel(tx, reference, false);
    }
 
+   @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
       getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
    }
 
+   @Override
    public synchronized void cancel(final MessageReference reference, final long timeBase) throws Exception {
       if (checkRedelivery(reference, timeBase, false)) {
          if (!scheduledDeliveryHandler.checkAndSchedule(reference, false)) {
@@ -1022,6 +1070,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void expire(final MessageReference ref) throws Exception {
       if (expiryAddress != null) {
          if (isTrace) {
@@ -1037,14 +1086,17 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public SimpleString getExpiryAddress() {
       return this.expiryAddress;
    }
 
+   @Override
    public void referenceHandled() {
       incDelivering();
    }
 
+   @Override
    public void incrementMesssagesAdded() {
       messagesAdded++;
    }
@@ -1061,6 +1113,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public long getMessagesAdded() {
       if (pageSubscription != null) {
          return messagesAdded + pageSubscription.getCounter().getValue() - pagedReferences.get();
@@ -1070,22 +1123,27 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public long getMessagesAcknowledged() {
       return messagesAcknowledged;
    }
 
+   @Override
    public int deleteAllReferences() throws Exception {
       return deleteAllReferences(DEFAULT_FLUSH_LIMIT);
    }
 
+   @Override
    public int deleteAllReferences(final int flushLimit) throws Exception {
       return deleteMatchingReferences(flushLimit, null);
    }
 
+   @Override
    public int deleteMatchingReferences(Filter filter) throws Exception {
       return deleteMatchingReferences(DEFAULT_FLUSH_LIMIT, filter);
    }
 
+   @Override
    public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter1) throws Exception {
       return iterQueue(flushLimit, filter1, new QueueIterateAction() {
          @Override
@@ -1195,6 +1253,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void destroyPaging() throws Exception {
       // it could be null on embedded or certain unit tests
       if (pageSubscription != null) {
@@ -1203,6 +1262,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized boolean deleteReference(final long messageID) throws Exception {
       boolean deleted = false;
 
@@ -1237,10 +1297,12 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void deleteQueue() throws Exception {
       deleteQueue(false);
    }
 
+   @Override
    public void deleteQueue(boolean removeConsumers) throws Exception {
       synchronized (this) {
          this.queueDestroyed = true;
@@ -1279,6 +1341,7 @@ public class QueueImpl implements Queue {
 
    }
 
+   @Override
    public synchronized boolean expireReference(final long messageID) throws Exception {
       if (expiryAddress != null && expiryAddress.equals(this.address)) {
          // check expire with itself would be silly (waste of time)
@@ -1307,6 +1370,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized int expireReferences(final Filter filter) throws Exception {
       if (expiryAddress != null && expiryAddress.equals(this.address)) {
          // check expire with itself would be silly (waste of time)
@@ -1342,6 +1406,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void expireReferences() {
       if (expiryAddress != null && expiryAddress.equals(this.address)) {
          // check expire with itself would be silly (waste of time)
@@ -1360,6 +1425,7 @@ public class QueueImpl implements Queue {
 
       public AtomicInteger scannerRunning = new AtomicInteger(0);
 
+      @Override
       public void run() {
          synchronized (QueueImpl.this) {
             if (queueDestroyed) {
@@ -1406,6 +1472,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
       LinkedListIterator<MessageReference> iter = iterator();
 
@@ -1427,6 +1494,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized int sendMessagesToDeadLetterAddress(Filter filter) throws Exception {
       int count = 0;
       LinkedListIterator<MessageReference> iter = iterator();
@@ -1449,10 +1517,12 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception {
       return moveReference(messageID, toAddress, false);
    }
 
+   @Override
    public synchronized boolean moveReference(final long messageID,
                                              final SimpleString toAddress,
                                              final boolean rejectDuplicate) throws Exception {
@@ -1482,10 +1552,12 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception {
       return moveReferences(DEFAULT_FLUSH_LIMIT, filter, toAddress, false);
    }
 
+   @Override
    public synchronized int moveReferences(final int flushLimit,
                                           final Filter filter,
                                           final SimpleString toAddress,
@@ -1526,6 +1598,7 @@ public class QueueImpl implements Queue {
       });
    }
 
+   @Override
    public int retryMessages(Filter filter) throws Exception {
 
       final HashMap<SimpleString, Long> queues = new HashMap<>();
@@ -1568,6 +1641,7 @@ public class QueueImpl implements Queue {
 
    }
 
+   @Override
    public synchronized boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception {
       LinkedListIterator<MessageReference> iter = iterator();
 
@@ -1591,6 +1665,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized int changeReferencesPriority(final Filter filter, final byte newPriority) throws Exception {
       LinkedListIterator<MessageReference> iter = iterator();
 
@@ -1613,6 +1688,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized void resetAllIterators() {
       for (ConsumerHolder holder : this.consumerList) {
          if (holder.iter != null) {
@@ -1622,6 +1698,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public synchronized void pause() {
       try {
          this.flushDeliveriesInTransit();
@@ -1632,16 +1709,19 @@ public class QueueImpl implements Queue {
       paused = true;
    }
 
+   @Override
    public synchronized void resume() {
       paused = false;
 
       deliverAsync();
    }
 
+   @Override
    public synchronized boolean isPaused() {
       return paused;
    }
 
+   @Override
    public boolean isDirectDeliver() {
       return directDeliver;
    }
@@ -1649,6 +1729,7 @@ public class QueueImpl implements Queue {
    /**
     * @return the internalQueue
     */
+   @Override
    public boolean isInternalQueue() {
       return internalQueue;
    }
@@ -1656,6 +1737,7 @@ public class QueueImpl implements Queue {
    /**
     * @param internalQueue the internalQueue to set
     */
+   @Override
    public void setInternalQueue(boolean internalQueue) {
       this.internalQueue = internalQueue;
    }
@@ -2038,6 +2120,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public boolean checkRedelivery(final MessageReference reference,
                                   final long timeBase,
                                   final boolean ignoreRedeliveryDelay) throws Exception {
@@ -2177,10 +2260,12 @@ public class QueueImpl implements Queue {
 
       storageManager.afterCompleteOperations(new IOCallback() {
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
          }
 
+         @Override
          public void done() {
             deliverAsync();
          }
@@ -2471,6 +2556,7 @@ public class QueueImpl implements Queue {
       return consumerListClone;
    }
 
+   @Override
    public void postAcknowledge(final MessageReference ref) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
@@ -2539,14 +2625,17 @@ public class QueueImpl implements Queue {
       return delay;
    }
 
+   @Override
    public synchronized void resetMessagesAdded() {
       messagesAdded = 0;
    }
 
+   @Override
    public synchronized void resetMessagesAcknowledged() {
       messagesAcknowledged = 0;
    }
 
+   @Override
    public float getRate() {
       float timeSlice = ((System.currentTimeMillis() - queueRateCheckTime.getAndSet(System.currentTimeMillis())) / 1000.0f);
       if (timeSlice == 0) {
@@ -2579,6 +2668,7 @@ public class QueueImpl implements Queue {
          this.executor1 = executor;
       }
 
+      @Override
       public void run() {
          synchronized (QueueImpl.this) {
             internalAddRedistributor(executor1);
@@ -2595,6 +2685,7 @@ public class QueueImpl implements Queue {
     */
    private final class DeliverRunner implements Runnable {
 
+      @Override
       public void run() {
          try {
             // during the transition between paging and nonpaging, we could have this using a different executor
@@ -2623,6 +2714,7 @@ public class QueueImpl implements Queue {
          this.scheduleExpiry = scheduleExpiry;
       }
 
+      @Override
       public void run() {
          try {
             depage(scheduleExpiry);
@@ -2650,30 +2742,35 @@ public class QueueImpl implements Queue {
          this.iter = iter;
       }
 
+      @Override
       public void close() {
          synchronized (QueueImpl.this) {
             iter.close();
          }
       }
 
+      @Override
       public void repeat() {
          synchronized (QueueImpl.this) {
             iter.repeat();
          }
       }
 
+      @Override
       public boolean hasNext() {
          synchronized (QueueImpl.this) {
             return iter.hasNext();
          }
       }
 
+      @Override
       public MessageReference next() {
          synchronized (QueueImpl.this) {
             return iter.next();
          }
       }
 
+      @Override
       public void remove() {
          synchronized (QueueImpl.this) {
             iter.remove();

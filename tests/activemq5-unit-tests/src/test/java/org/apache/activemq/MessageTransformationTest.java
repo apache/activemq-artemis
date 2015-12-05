@@ -48,12 +48,14 @@ public class MessageTransformationTest extends TestCase {
     *
     * @throws Exception
     */
+   @Override
    protected void setUp() throws Exception {
    }
 
    /**
     * Clears up the resources used in the unit test.
     */
+   @Override
    protected void tearDown() throws Exception {
    }
 

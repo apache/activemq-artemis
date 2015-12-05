@@ -158,6 +158,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public void onMessage(final ClientMessage message) {
          int i = message.getBodyBuffer().readInt();
          try {

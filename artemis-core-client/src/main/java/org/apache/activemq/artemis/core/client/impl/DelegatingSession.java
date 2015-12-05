@@ -90,10 +90,12 @@ public class DelegatingSession implements ClientSessionInternal {
       }
    }
 
+   @Override
    public boolean isClosing() {
       return session.isClosing();
    }
 
+   @Override
    public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       session.acknowledge(consumer, message);
    }
@@ -103,34 +105,42 @@ public class DelegatingSession implements ClientSessionInternal {
       session.addLifeCycleListener(lifeCycleListener);
    }
 
+   @Override
    public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       session.individualAcknowledge(consumer, message);
    }
 
+   @Override
    public void addConsumer(final ClientConsumerInternal consumer) {
       session.addConsumer(consumer);
    }
 
+   @Override
    public void addFailureListener(final SessionFailureListener listener) {
       session.addFailureListener(listener);
    }
 
+   @Override
    public void addFailoverListener(FailoverEventListener listener) {
       session.addFailoverListener(listener);
    }
 
+   @Override
    public void addProducer(final ClientProducerInternal producer) {
       session.addProducer(producer);
    }
 
+   @Override
    public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       return session.addressQuery(address);
    }
 
+   @Override
    public void cleanUp(boolean failingOver) throws ActiveMQException {
       session.cleanUp(failingOver);
    }
 
+   @Override
    public void close() throws ActiveMQException {
       closed = true;
 
@@ -141,22 +151,27 @@ public class DelegatingSession implements ClientSessionInternal {
       session.close();
    }
 
+   @Override
    public void markRollbackOnly() {
       session.markRollbackOnly();
    }
 
+   @Override
    public void commit() throws ActiveMQException {
       session.commit();
    }
 
+   @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
       session.commit(xid, onePhase);
    }
 
+   @Override
    public ClientMessage createMessage(final boolean durable) {
       return session.createMessage(durable);
    }
 
+   @Override
    public ClientMessage createMessage(final byte type,
                                       final boolean durable,
                                       final long expiration,
@@ -165,16 +180,19 @@ public class DelegatingSession implements ClientSessionInternal {
       return session.createMessage(type, durable, expiration, timestamp, priority);
    }
 
+   @Override
    public ClientMessage createMessage(final byte type, final boolean durable) {
       return session.createMessage(type, durable);
    }
 
+   @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
                                         final boolean browseOnly) throws ActiveMQException {
       return session.createConsumer(queueName, filterString, browseOnly);
    }
 
+   @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
                                         final int windowSize,
@@ -183,21 +201,25 @@ public class DelegatingSession implements ClientSessionInternal {
       return session.createConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
 
+   @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString) throws ActiveMQException {
       return session.createConsumer(queueName, filterString);
    }
 
+   @Override
    public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException {
       return session.createConsumer(queueName);
    }
 
+   @Override
    public ClientConsumer createConsumer(final String queueName,
                                         final String filterString,
                                         final boolean browseOnly) throws ActiveMQException {
       return session.createConsumer(queueName, filterString, browseOnly);
    }
 
+   @Override
    public ClientConsumer createConsumer(final String queueName,
                                         final String filterString,
                                         final int windowSize,
@@ -206,47 +228,58 @@ public class DelegatingSession implements ClientSessionInternal {
       return session.createConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
 
+   @Override
    public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
       return session.createConsumer(queueName, filterString);
    }
 
+   @Override
    public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
       return session.createConsumer(queueName);
    }
 
+   @Override
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final boolean browseOnly) throws ActiveMQException {
       return session.createConsumer(queueName, browseOnly);
    }
 
+   @Override
    public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
       return session.createConsumer(queueName, browseOnly);
    }
 
+   @Override
    public ClientProducer createProducer() throws ActiveMQException {
       return session.createProducer();
    }
 
+   @Override
    public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException {
       return session.createProducer(address, rate);
    }
 
+   @Override
    public ClientProducer createProducer(final SimpleString address) throws ActiveMQException {
       return session.createProducer(address);
    }
 
+   @Override
    public ClientProducer createProducer(final String address) throws ActiveMQException {
       return session.createProducer(address);
    }
 
+   @Override
    public void createQueue(final String address, final String queueName) throws ActiveMQException {
       session.createQueue(address, queueName);
    }
 
+   @Override
    public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
       session.createQueue(address, queueName);
    }
 
+   @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final boolean durable) throws ActiveMQException {
@@ -268,6 +301,7 @@ public class DelegatingSession implements ClientSessionInternal {
       session.createSharedQueue(address, queueName, filter, durable);
    }
 
+   @Override
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,
@@ -275,12 +309,14 @@ public class DelegatingSession implements ClientSessionInternal {
       session.createQueue(address, queueName, filterString, durable);
    }
 
+   @Override
    public void createQueue(final String address,
                            final String queueName,
                            final boolean durable) throws ActiveMQException {
       session.createQueue(address, queueName, durable);
    }
 
+   @Override
    public void createQueue(final String address,
                            final String queueName,
                            final String filterString,
@@ -288,74 +324,91 @@ public class DelegatingSession implements ClientSessionInternal {
       session.createQueue(address, queueName, filterString, durable);
    }
 
+   @Override
    public void createTemporaryQueue(final SimpleString address,
                                     final SimpleString queueName,
                                     final SimpleString filter) throws ActiveMQException {
       session.createTemporaryQueue(address, queueName, filter);
    }
 
+   @Override
    public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
       session.createTemporaryQueue(address, queueName);
    }
 
+   @Override
    public void createTemporaryQueue(final String address,
                                     final String queueName,
                                     final String filter) throws ActiveMQException {
       session.createTemporaryQueue(address, queueName, filter);
    }
 
+   @Override
    public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
       session.createTemporaryQueue(address, queueName);
    }
 
+   @Override
    public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       session.deleteQueue(queueName);
    }
 
+   @Override
    public void deleteQueue(final String queueName) throws ActiveMQException {
       session.deleteQueue(queueName);
    }
 
+   @Override
    public void end(final Xid xid, final int flags) throws XAException {
       session.end(xid, flags);
    }
 
+   @Override
    public void expire(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       session.expire(consumer, message);
    }
 
+   @Override
    public void forget(final Xid xid) throws XAException {
       session.forget(xid);
    }
 
+   @Override
    public RemotingConnection getConnection() {
       return session.getConnection();
    }
 
+   @Override
    public int getMinLargeMessageSize() {
       return session.getMinLargeMessageSize();
    }
 
+   @Override
    public String getName() {
       return session.getName();
    }
 
+   @Override
    public int getTransactionTimeout() throws XAException {
       return session.getTransactionTimeout();
    }
 
+   @Override
    public int getVersion() {
       return session.getVersion();
    }
 
+   @Override
    public XAResource getXAResource() {
       return session.getXAResource();
    }
 
+   @Override
    public void preHandleFailover(RemotingConnection connection) {
       session.preHandleFailover(connection);
    }
 
+   @Override
    public void handleFailover(final RemotingConnection backupConnection, ActiveMQException cause) {
       session.handleFailover(backupConnection, cause);
    }
@@ -385,152 +438,189 @@ public class DelegatingSession implements ClientSessionInternal {
       session.handleConsumerDisconnect(consumerContext);
    }
 
+   @Override
    public boolean isAutoCommitAcks() {
       return session.isAutoCommitAcks();
    }
 
+   @Override
    public boolean isAutoCommitSends() {
       return session.isAutoCommitSends();
    }
 
+   @Override
    public boolean isBlockOnAcknowledge() {
       return session.isBlockOnAcknowledge();
    }
 
+   @Override
    public boolean isCacheLargeMessageClient() {
       return session.isCacheLargeMessageClient();
    }
 
+   @Override
    public boolean isClosed() {
       return session.isClosed();
    }
 
+   @Override
    public boolean isSameRM(final XAResource xares) throws XAException {
       return session.isSameRM(xares);
    }
 
+   @Override
    public boolean isXA() {
       return session.isXA();
    }
 
+   @Override
    public int prepare(final Xid xid) throws XAException {
       return session.prepare(xid);
    }
 
+   @Override
    public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
       return session.queueQuery(queueName);
    }
 
+   @Override
    public Xid[] recover(final int flag) throws XAException {
       return session.recover(flag);
    }
 
+   @Override
    public void removeConsumer(final ClientConsumerInternal consumer) throws ActiveMQException {
       session.removeConsumer(consumer);
    }
 
+   @Override
    public boolean removeFailureListener(final SessionFailureListener listener) {
       return session.removeFailureListener(listener);
    }
 
+   @Override
    public boolean removeFailoverListener(FailoverEventListener listener) {
       return session.removeFailoverListener(listener);
    }
 
+   @Override
    public void removeProducer(final ClientProducerInternal producer) {
       session.removeProducer(producer);
    }
 
+   @Override
    public void rollback() throws ActiveMQException {
       session.rollback();
    }
 
+   @Override
    public boolean isRollbackOnly() {
       return session.isRollbackOnly();
    }
 
+   @Override
    public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException {
       session.rollback(considerLastMessageAsDelivered);
    }
 
+   @Override
    public void rollback(final Xid xid) throws XAException {
       session.rollback(xid);
    }
 
+   @Override
    public DelegatingSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
       session.setSendAcknowledgementHandler(handler);
       return this;
    }
 
+   @Override
    public boolean setTransactionTimeout(final int seconds) throws XAException {
       return session.setTransactionTimeout(seconds);
    }
 
+   @Override
    public void resetIfNeeded() throws ActiveMQException {
       session.resetIfNeeded();
    }
 
+   @Override
    public DelegatingSession start() throws ActiveMQException {
       session.start();
       return this;
    }
 
+   @Override
    public void start(final Xid xid, final int flags) throws XAException {
       session.start(xid, flags);
    }
 
+   @Override
    public void stop() throws ActiveMQException {
       session.stop();
    }
 
+   @Override
    public ClientSessionFactory getSessionFactory() {
       return session.getSessionFactory();
    }
 
+   @Override
    public void setForceNotSameRM(final boolean force) {
       session.setForceNotSameRM(force);
    }
 
+   @Override
    public void workDone() {
       session.workDone();
    }
 
+   @Override
    public void sendProducerCreditsMessage(final int credits, final SimpleString address) {
       session.sendProducerCreditsMessage(credits, address);
    }
 
+   @Override
    public ClientProducerCredits getCredits(final SimpleString address, final boolean anon) {
       return session.getCredits(address, anon);
    }
 
+   @Override
    public void returnCredits(final SimpleString address) {
       session.returnCredits(address);
    }
 
+   @Override
    public void handleReceiveProducerCredits(final SimpleString address, final int credits) {
       session.handleReceiveProducerCredits(address, credits);
    }
 
+   @Override
    public void handleReceiveProducerFailCredits(final SimpleString address, final int credits) {
       session.handleReceiveProducerFailCredits(address, credits);
    }
 
+   @Override
    public ClientProducerCreditManager getProducerCreditManager() {
       return session.getProducerCreditManager();
    }
 
+   @Override
    public void setAddress(Message message, SimpleString address) {
       session.setAddress(message, address);
    }
 
+   @Override
    public void setPacketSize(int packetSize) {
       session.setPacketSize(packetSize);
    }
 
+   @Override
    public void addMetaData(String key, String data) throws ActiveMQException {
       session.addMetaData(key, data);
    }
 
+   @Override
    public boolean isCompressLargeMessages() {
       return session.isCompressLargeMessages();
    }
@@ -546,10 +636,12 @@ public class DelegatingSession implements ClientSessionInternal {
 
    }
 
+   @Override
    public void startCall() {
       session.startCall();
    }
 
+   @Override
    public void endCall() {
       session.endCall();
    }

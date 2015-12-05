@@ -143,6 +143,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
       assertNoUnhandeledExceptions();
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();
@@ -158,6 +159,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
       consumerMap = new HashMap<String, MessageConsumer>();
    }
 
+   @Override
    public void uncaughtException(Thread t, Throwable e) {
       synchronized (unhandeledExceptions) {
          unhandeledExceptions.put(t, e);

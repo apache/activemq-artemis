@@ -32,12 +32,14 @@ public class JournalQueueAckTest extends DataFileGeneratorTestSupport {
 
    public static final JournalQueueAckTest SINGLETON = new JournalQueueAckTest();
 
+   @Override
    public Object createObject() throws Exception {
       JournalQueueAck info = new JournalQueueAck();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       JournalQueueAck info = (JournalQueueAck) object;

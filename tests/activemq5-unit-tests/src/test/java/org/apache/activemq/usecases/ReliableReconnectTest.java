@@ -56,6 +56,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
    public ReliableReconnectTest() {
    }
 
+   @Override
    protected void setUp() throws Exception {
       this.setAutoFail(true);
       consumerClientId = idGen.generateId();
@@ -64,12 +65,14 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
       destination = createDestination(getClass().getName());
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (broker != null) {
          broker.stop();
       }
    }
 
+   @Override
    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory();
    }
@@ -103,6 +106,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
 
    protected void spawnConsumer() {
       Thread thread = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                Connection consumerConnection = createConsumerConnection();

@@ -90,6 +90,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
          sender = sess.createSender(null);
       }
 
+      @Override
       public void onMessage(final Message m) {
          try {
             Destination queue = m.getJMSReplyTo();

@@ -50,6 +50,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    public UDPBroadcastEndpointFactory() {
    }
 
+   @Override
    public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
       return new UDPBroadcastEndpoint().setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null).setLocalBindPort(localBindPort);
    }
@@ -135,11 +136,13 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          return this;
       }
 
+      @Override
       public void broadcast(byte[] data) throws Exception {
          DatagramPacket packet = new DatagramPacket(data, data.length, groupAddress, groupPort);
          broadcastingSocket.send(packet);
       }
 
+      @Override
       public byte[] receiveBroadcast() throws Exception {
          final byte[] data = new byte[65535];
          final DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -162,12 +165,14 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          return data;
       }
 
+      @Override
       public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
          // We just use the regular method on UDP, there's no timeout support
          // and this is basically for tests only
          return receiveBroadcast();
       }
 
+      @Override
       public void openBroadcaster() throws Exception {
          if (localBindPort != -1) {
             broadcastingSocket = new DatagramSocket(localBindPort, localAddress);
@@ -196,6 +201,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          open = true;
       }
 
+      @Override
       public void openClient() throws Exception {
          // HORNETQ-874
          if (checkForLinux() || checkForSolaris() || checkForHp()) {
@@ -224,6 +230,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       }
 
       //@Todo: using isBroadcast to share endpoint between broadcast and receiving
+      @Override
       public void close(boolean isBroadcast) throws Exception {
          open = false;
 

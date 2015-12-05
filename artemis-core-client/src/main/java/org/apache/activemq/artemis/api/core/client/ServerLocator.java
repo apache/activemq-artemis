@@ -722,6 +722,7 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Closes this factory and release all its resources
     */
+   @Override
    void close();
 
    /**

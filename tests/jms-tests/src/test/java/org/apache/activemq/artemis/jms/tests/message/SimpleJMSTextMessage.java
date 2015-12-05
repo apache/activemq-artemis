@@ -40,10 +40,12 @@ public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessag
 
    // TextMessage implementation ------------------------------------
 
+   @Override
    public void setText(final String text) throws JMSException {
       this.text = text;
    }
 
+   @Override
    public String getText() throws JMSException {
       return text;
    }

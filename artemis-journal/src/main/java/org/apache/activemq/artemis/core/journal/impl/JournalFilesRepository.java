@@ -86,6 +86,7 @@ public class JournalFilesRepository {
    private Executor openFilesExecutor;
 
    private final Runnable pushOpenRunnable = new Runnable() {
+      @Override
       public void run() {
          try {
             pushOpenedFile();

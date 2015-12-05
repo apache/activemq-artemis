@@ -31,6 +31,7 @@ import org.junit.Test;
 
 public class BasicSecurityTest extends BasicOpenWireTest {
 
+   @Override
    @Before
    public void setUp() throws Exception {
       this.enableSecurity = true;

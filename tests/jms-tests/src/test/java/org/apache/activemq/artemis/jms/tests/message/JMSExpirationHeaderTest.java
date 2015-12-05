@@ -115,6 +115,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       // start the receiver thread
       final CountDownLatch latch = new CountDownLatch(1);
       Thread receiverThread = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                expectedMessage = queueConsumer.receive(100);
@@ -141,6 +142,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
       // start the receiver thread
       Thread receiverThread = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                long t1 = System.currentTimeMillis();
@@ -161,6 +163,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
       // start the sender thread
       Thread senderThread = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                // wait for 3 secs
@@ -231,6 +234,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
       // blocking read for a while to make sure I don't get anything, not even a null
       Thread receiverThread = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                log.trace("Attempting to receive");

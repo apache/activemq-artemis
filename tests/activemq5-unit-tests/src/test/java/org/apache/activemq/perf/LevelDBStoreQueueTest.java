@@ -26,6 +26,7 @@ import org.apache.activemq.leveldb.LevelDBStore;
  */
 public class LevelDBStoreQueueTest extends SimpleQueueTest {
 
+   @Override
    protected void configureBroker(BrokerService answer, String uri) throws Exception {
 
       File dataFileDir = new File("target/test-amq-data/perfTest/amq");

@@ -30,6 +30,7 @@ public class ActiveMQPushStrategy extends UriTemplateStrategy {
 
    protected boolean initialized = false;
 
+   @Override
    public void start() throws Exception {
       // initialize();
    }

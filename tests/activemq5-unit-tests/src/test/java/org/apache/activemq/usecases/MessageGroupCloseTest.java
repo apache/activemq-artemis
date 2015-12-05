@@ -57,6 +57,7 @@ public class MessageGroupCloseTest extends TestCase {
       connection.start();
       final String queueName = this.getClass().getSimpleName();
       final Thread producerThread = new Thread() {
+         @Override
          public void run() {
             try {
                Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -91,6 +92,7 @@ public class MessageGroupCloseTest extends TestCase {
          }
       };
       final Thread consumerThread1 = new Thread() {
+         @Override
          public void run() {
             try {
                latchMessagesCreated.await();
@@ -122,6 +124,7 @@ public class MessageGroupCloseTest extends TestCase {
          }
       };
       final Thread consumerThread2 = new Thread() {
+         @Override
          public void run() {
             try {
                latchMessagesCreated.await();

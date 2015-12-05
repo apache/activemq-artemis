@@ -103,6 +103,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
 
    // ObjectMessage implementation ----------------------------------
 
+   @Override
    public void setObject(final Serializable object) throws JMSException {
       checkWrite();
 
@@ -128,6 +129,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    }
 
    // lazy deserialize the Object the first time the client requests it
+   @Override
    public Serializable getObject() throws JMSException {
       if (data == null || data.length == 0) {
          return null;

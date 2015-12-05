@@ -35,11 +35,13 @@ public class StubCertificateLoginModule extends CertificateLoginModule {
       this.groupNames = groupNames;
    }
 
+   @Override
    protected String getUserNameForCertificates(X509Certificate[] certs) throws LoginException {
       lastCertChain = certs;
       return userName;
    }
 
+   @Override
    protected Set getUserRoles(String username) throws LoginException {
       lastUserName = username;
       return this.groupNames;

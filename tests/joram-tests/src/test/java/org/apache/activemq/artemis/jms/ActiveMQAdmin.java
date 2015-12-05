@@ -75,6 +75,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void start() throws Exception {
       serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
       sf = serverLocator.createSessionFactory();
@@ -84,6 +85,7 @@ public class ActiveMQAdmin implements Admin {
 
    }
 
+   @Override
    public void stop() throws Exception {
       requestor.close();
 
@@ -99,6 +101,7 @@ public class ActiveMQAdmin implements Admin {
       serverLocator = null;
    }
 
+   @Override
    public void createConnectionFactory(final String name) {
       createConnection(name, 0);
    }
@@ -113,10 +116,12 @@ public class ActiveMQAdmin implements Admin {
 
    }
 
+   @Override
    public Context createContext() throws NamingException {
       return context;
    }
 
+   @Override
    public void createQueue(final String name) {
       Boolean result;
       try {
@@ -128,10 +133,12 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void createQueueConnectionFactory(final String name) {
       createConnection(name, 1);
    }
 
+   @Override
    public void createTopic(final String name) {
       Boolean result;
       try {
@@ -143,10 +150,12 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void createTopicConnectionFactory(final String name) {
       createConnection(name, 2);
    }
 
+   @Override
    public void deleteConnectionFactory(final String name) {
       try {
          invokeSyncOperation(ResourceNames.JMS_SERVER, "destroyConnectionFactory", name);
@@ -156,6 +165,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteQueue(final String name) {
       Boolean result;
       try {
@@ -167,10 +177,12 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteQueueConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
+   @Override
    public void deleteTopic(final String name) {
       Boolean result;
       try {
@@ -182,14 +194,17 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteTopicConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
+   @Override
    public String getName() {
       return this.getClass().getName();
    }
 
+   @Override
    public void startServer() throws Exception {
       if (!serverLifeCycleActive) {
          return;
@@ -228,6 +243,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void stopServer() throws Exception {
       if (!serverLifeCycleActive) {
          return;

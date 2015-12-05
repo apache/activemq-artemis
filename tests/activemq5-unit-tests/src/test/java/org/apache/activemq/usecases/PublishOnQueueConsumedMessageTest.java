@@ -21,6 +21,7 @@ package org.apache.activemq.usecases;
  */
 public class PublishOnQueueConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();

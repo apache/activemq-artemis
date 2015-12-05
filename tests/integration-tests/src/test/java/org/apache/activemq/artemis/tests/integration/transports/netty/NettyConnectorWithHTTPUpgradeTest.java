@@ -137,6 +137,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       startWebServer(HTTP_PORT);
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       stopWebServer();

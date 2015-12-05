@@ -31,6 +31,7 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
       this.consumerMap = consumerMap;
    }
 
+   @Override
    public void processMessagePull(MessagePull messagePull) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(messagePull.getDestination());
       if (amqConsumer != null) {
@@ -38,6 +39,7 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
       }
    }
 
+   @Override
    public void acknowledge(MessageAck ack) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(ack.getDestination());
       if (amqConsumer != null) {
@@ -45,6 +47,7 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
       }
    }
 
+   @Override
    public void removeConsumer() throws Exception {
       for (AMQConsumer amqConsumer : consumerMap.values()) {
          amqConsumer.removeConsumer();

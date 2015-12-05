@@ -40,6 +40,7 @@ public class TransactionCallback implements IOCallback {
       countLatch.countUp();
    }
 
+   @Override
    public void done() {
       countLatch.countDown();
       if (++done == up.get() && delegateCompletion != null) {
@@ -59,6 +60,7 @@ public class TransactionCallback implements IOCallback {
       }
    }
 
+   @Override
    public void onError(final int errorCode, final String errorMessage) {
       this.errorMessage = errorMessage;
 

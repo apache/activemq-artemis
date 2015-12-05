@@ -35,6 +35,7 @@ public class RemoveFolder extends ExternalResource {
    /**
     * Override to tear down your specific external resource.
     */
+   @Override
    protected void after() {
       ActiveMQTestBase.deleteDirectory(new File(folderName));
    }

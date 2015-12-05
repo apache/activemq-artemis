@@ -178,6 +178,7 @@ public class TwoBrokerVirtualDestDinamicallyIncludedDestTest extends JmsMultiple
       return bi.broker.getDestination(destination).getDestinationStatistics().getMessages().getCount();
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

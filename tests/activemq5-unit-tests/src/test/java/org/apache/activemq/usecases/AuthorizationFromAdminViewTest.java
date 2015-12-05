@@ -27,15 +27,18 @@ public class AuthorizationFromAdminViewTest extends org.apache.activemq.TestSupp
 
    private BrokerService broker;
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://" + getName());
    }
 
+   @Override
    protected void setUp() throws Exception {
       createBroker();
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       destroyBroker();

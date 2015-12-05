@@ -149,6 +149,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       }
    }
 
+   @Override
    public JMSContext createContext(int sessionMode) {
       boolean inJtaTx = inJtaTransaction();
       int sessionModeToUse;
@@ -180,6 +181,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
       return new ActiveMQRAJMSContext(this, sessionModeToUse, threadAwareContext);
    }
 
+   @Override
    public XAJMSContext createXAContext() {
       incrementRefCounter();
 
@@ -191,6 +193,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     *
     * @param reference The reference
     */
+   @Override
    public void setReference(final Reference reference) {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("setReference(" + reference + ")");
@@ -204,6 +207,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     *
     * @return The reference
     */
+   @Override
    public Reference getReference() {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("getReference()");
@@ -282,6 +286,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The queue session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueSession createQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createQueueSession(" + transacted + ", " + acknowledgeMode + ")");
@@ -302,6 +307,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The XA queue session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public XAQueueSession createXAQueueSession() throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXAQueueSession()");
@@ -327,6 +333,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The connection consumer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public ConnectionConsumer createConnectionConsumer(final Queue queue,
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
@@ -353,6 +360,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The topic session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createTopicSession(" + transacted + ", " + acknowledgeMode + ")");
@@ -373,6 +381,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The XA topic session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public XATopicSession createXATopicSession() throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXATopicSession()");
@@ -398,6 +407,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The connection consumer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public ConnectionConsumer createConnectionConsumer(final Topic topic,
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
@@ -526,6 +536,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @return The XA session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public XASession createXASession() throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("createXASession()");
@@ -689,6 +700,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @param session The session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void closeSession(final ActiveMQRASession session) throws JMSException {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("closeSession(" + session + ")");
@@ -704,6 +716,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     *
     * @param temp The temporary queue
     */
+   @Override
    public void addTemporaryQueue(final TemporaryQueue temp) {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("addTemporaryQueue(" + temp + ")");
@@ -719,6 +732,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     *
     * @param temp The temporary topic
     */
+   @Override
    public void addTemporaryTopic(final TemporaryTopic temp) {
       if (ActiveMQRASessionFactoryImpl.trace) {
          ActiveMQRALogger.LOGGER.trace("addTemporaryTopic(" + temp + ")");

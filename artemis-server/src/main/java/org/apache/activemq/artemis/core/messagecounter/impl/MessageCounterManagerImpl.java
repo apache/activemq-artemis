@@ -58,6 +58,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       this.scheduledThreadPool = scheduledThreadPool;
    }
 
+   @Override
    public synchronized void start() {
       if (started) {
          return;
@@ -71,6 +72,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       started = true;
    }
 
+   @Override
    public synchronized void stop() {
       if (!started) {
          return;
@@ -81,10 +83,12 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       started = false;
    }
 
+   @Override
    public synchronized void clear() {
       messageCounters.clear();
    }
 
+   @Override
    public synchronized void reschedule(final long newPeriod) {
       boolean wasStarted = started;
 
@@ -99,24 +103,29 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       }
    }
 
+   @Override
    public long getSamplePeriod() {
       return period;
    }
 
+   @Override
    public int getMaxDayCount() {
       return maxDayCount;
    }
 
+   @Override
    public void setMaxDayCount(final int count) {
       maxDayCount = count;
    }
 
+   @Override
    public void registerMessageCounter(final String name, final MessageCounter counter) {
       synchronized (messageCounters) {
          messageCounters.put(name, counter);
       }
    }
 
+   @Override
    public MessageCounter unregisterMessageCounter(final String name) {
       synchronized (messageCounters) {
          return messageCounters.remove(name);
@@ -129,6 +138,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       }
    }
 
+   @Override
    public void resetAllCounters() {
       synchronized (messageCounters) {
          Iterator<MessageCounter> iter = messageCounters.values().iterator();
@@ -141,6 +151,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       }
    }
 
+   @Override
    public void resetAllCounterHistories() {
       synchronized (messageCounters) {
          Iterator<MessageCounter> iter = messageCounters.values().iterator();
@@ -159,6 +170,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
 
       private Future<?> future;
 
+      @Override
       public synchronized void run() {
          if (closed) {
             return;

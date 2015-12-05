@@ -123,6 +123,7 @@ public class SoftValueMapTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.utils.SoftValueHashMap.ValueCache#isLive()
        */
+      @Override
       public boolean isLive() {
          return live;
       }

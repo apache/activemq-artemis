@@ -163,6 +163,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     *
     * @return The resource adapter
     */
+   @Override
    public ResourceAdapter getResourceAdapter() {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("getResourceAdapter()");
@@ -216,6 +217,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     * @param ra The resource adapter
     * @throws ResourceException Thrown if incorrect resource adapter
     */
+   @Override
    public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("setResourceAdapter(" + ra + ")");
@@ -683,6 +685,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     *
     * @throws InvalidPropertyException Thrown if a validation exception occurs
     */
+   @Override
    public void validate() throws InvalidPropertyException {
       if (ActiveMQActivationSpec.trace) {
          ActiveMQRALogger.LOGGER.trace("validate()");

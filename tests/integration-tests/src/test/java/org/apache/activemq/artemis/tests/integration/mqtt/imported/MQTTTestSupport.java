@@ -84,10 +84,12 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       this.useSSL = useSSL;
    }
 
+   @Override
    public String getName() {
       return name.getMethodName();
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       String basedir = basedir().getPath();
@@ -102,6 +104,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       startBroker();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       System.clearProperty("javax.net.ssl.trustStore");

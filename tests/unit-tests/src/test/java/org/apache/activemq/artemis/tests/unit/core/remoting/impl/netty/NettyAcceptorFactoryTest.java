@@ -43,23 +43,28 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<String, Object>();
       BufferHandler handler = new BufferHandler() {
 
+         @Override
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
 
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
 
+         @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
+         @Override
          public void connectionDestroyed(final Object connectionID) {
          }
 
+         @Override
          public void connectionCreated(ActiveMQComponent component,
                                        final Connection connection,
                                        final String protocol) {
          }
 
+         @Override
          public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
 

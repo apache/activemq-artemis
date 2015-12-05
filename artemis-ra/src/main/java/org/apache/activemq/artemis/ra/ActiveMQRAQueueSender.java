@@ -51,6 +51,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
     * @return The queue
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Queue getQueue() throws JMSException {
       if (ActiveMQRAQueueSender.trace) {
          ActiveMQRALogger.LOGGER.trace("getQueue()");
@@ -69,6 +70,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
     * @param timeToLive   The time to live
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Queue destination,
                     final Message message,
                     final int deliveryMode,
@@ -109,6 +111,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
     * @param message     The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Queue destination, final Message message) throws JMSException {
       session.lock();
       try {

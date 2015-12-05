@@ -69,6 +69,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
       this.persist = persist;
    }
 
+   @Override
    public void load(final List<Pair<byte[], Long>> theIds) throws Exception {
       int count = 0;
 
@@ -108,6 +109,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    }
 
+   @Override
    public void deleteFromCache(byte[] duplicateID) throws Exception {
       ByteArrayHolder bah = new ByteArrayHolder(duplicateID);
 
@@ -129,10 +131,12 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    }
 
+   @Override
    public boolean contains(final byte[] duplID) {
       return cache.get(new ByteArrayHolder(duplID)) != null;
    }
 
+   @Override
    public synchronized void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
       long recordID = -1;
 
@@ -158,6 +162,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
       }
    }
 
+   @Override
    public void load(final Transaction tx, final byte[] duplID) {
       tx.addOperation(new AddDuplicateIDOperation(duplID, tx.getID()));
    }
@@ -212,6 +217,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
       }
    }
 
+   @Override
    public void clear() throws Exception {
       synchronized (this) {
          if (ids.size() > 0) {

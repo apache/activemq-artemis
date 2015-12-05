@@ -97,6 +97,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       waitForRemoteBackupSynchronization(backupServers1.values().iterator().next());
    }
 
+   @Override
    protected final ClientSessionFactoryInternal createSessionFactoryAndWaitForTopology(ServerLocator locator,
                                                                                        int topologyMembers) throws Exception {
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers * 2);
@@ -151,6 +152,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       return sf;
    }
 
+   @Override
    protected void createClientSessionFactory() throws Exception {
       if (liveServer.getServer().isStarted()) {
          sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -161,6 +163,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       }
    }
 
+   @Override
    protected void createSessionFactory() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
 
@@ -213,6 +216,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-285
+   @Override
    @Test
    public void testFailoverOnInitialConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(-1);
@@ -239,6 +243,7 @@ public class LiveToLiveFailoverTest extends FailoverTest {
       session.close();
    }
 
+   @Override
    @Test
    public void testCreateNewFactoryAfterFailover() throws Exception {
       this.disableCheckThread();
@@ -270,9 +275,11 @@ public class LiveToLiveFailoverTest extends FailoverTest {
    //invalid tests for Live to Live failover
    //all the timeout ones aren't as we don't migrate timeouts, any failback or server restart
    //or replicating tests aren't either
+   @Override
    public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
    }
 
+   @Override
    public void testLiveAndBackupLiveComesBackNewFactory() {
    }
 

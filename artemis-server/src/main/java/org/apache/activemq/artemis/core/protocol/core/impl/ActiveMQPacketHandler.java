@@ -66,6 +66,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
       this.connection = connection;
    }
 
+   @Override
    public void handlePacket(final Packet packet) {
       byte type = packet.getType();
 

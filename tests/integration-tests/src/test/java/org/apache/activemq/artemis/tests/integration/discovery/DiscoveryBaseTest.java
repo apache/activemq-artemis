@@ -89,6 +89,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
 
       volatile boolean called;
 
+      @Override
       public void connectorsChanged(List<DiscoveryEntry> newConnectors) {
          called = true;
       }
@@ -101,12 +102,14 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       List<TransportConfiguration> sortedExpected = new ArrayList<TransportConfiguration>(expected);
       Collections.sort(sortedExpected, new Comparator<TransportConfiguration>() {
 
+         @Override
          public int compare(TransportConfiguration o1, TransportConfiguration o2) {
             return o2.toString().compareTo(o1.toString());
          }
       });
       List<DiscoveryEntry> sortedActual = new ArrayList<DiscoveryEntry>(actual);
       Collections.sort(sortedActual, new Comparator<DiscoveryEntry>() {
+         @Override
          public int compare(DiscoveryEntry o1, DiscoveryEntry o2) {
             return o2.getConnector().toString().compareTo(o1.getConnector().toString());
          }

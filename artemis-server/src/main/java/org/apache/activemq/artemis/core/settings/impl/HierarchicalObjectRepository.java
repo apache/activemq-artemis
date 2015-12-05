@@ -114,10 +114,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       onChange();
    }
 
+   @Override
    public void addMatch(final String match, final T value) {
       addMatch(match, value, false);
    }
 
+   @Override
    public List<T> values() {
       lock.readLock().lock();
       try {
@@ -140,6 +142,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * @param match The regex to use to match against
     * @param value the value to hold against the match
     */
+   @Override
    public void addMatch(final String match, final T value, final boolean immutableMatch) {
       lock.writeLock().lock();
       try {
@@ -161,6 +164,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       onChange();
    }
 
+   @Override
    public int getCacheSize() {
       return cache.size();
    }
@@ -171,6 +175,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * @param match the match to look for
     * @return the value
     */
+   @Override
    public T getMatch(final String match) {
       T cacheResult = cache.get(match);
       if (cacheResult != null) {
@@ -237,6 +242,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     *
     * @param match the match to remove
     */
+   @Override
    public void removeMatch(final String match) {
       lock.writeLock().lock();
       try {
@@ -259,6 +265,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
    }
 
+   @Override
    public void registerListener(final HierarchicalRepositoryChangeListener listener) {
       lock.writeLock().lock();
       try {
@@ -272,6 +279,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
    }
 
+   @Override
    public void unRegisterListener(final HierarchicalRepositoryChangeListener listener) {
       lock.writeLock().lock();
       try {
@@ -287,11 +295,13 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     *
     * @param defaultValue the value
     */
+   @Override
    public void setDefault(final T defaultValue) {
       clearCache();
       defaultmatch = defaultValue;
    }
 
+   @Override
    public void clear() {
       lock.writeLock().lock();
       try {
@@ -304,10 +314,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
    }
 
+   @Override
    public void clearListeners() {
       listeners.clear();
    }
 
+   @Override
    public void clearCache() {
       cache.clear();
    }
@@ -356,6 +368,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
       private static final long serialVersionUID = -6182535107518999740L;
 
+      @Override
       public int compare(final String o1, final String o2) {
          if (o1.contains(Match.WILDCARD) && !o2.contains(Match.WILDCARD)) {
             return +1;

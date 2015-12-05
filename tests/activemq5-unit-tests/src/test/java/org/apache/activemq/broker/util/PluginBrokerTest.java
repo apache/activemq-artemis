@@ -37,11 +37,13 @@ public class PluginBrokerTest extends JmsTopicSendReceiveTest {
    private static final Logger LOG = LoggerFactory.getLogger(PluginBrokerTest.class);
    private BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       broker = createBroker();
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {
@@ -58,6 +60,7 @@ public class PluginBrokerTest extends JmsTopicSendReceiveTest {
       return BrokerFactory.createBroker(new URI("xbean:" + uri));
    }
 
+   @Override
    protected void assertMessageValid(int index, Message message) throws JMSException {
       // check if broker path has been set
       assertEquals("localhost", message.getStringProperty("BrokerPath"));
@@ -77,6 +80,7 @@ public class PluginBrokerTest extends JmsTopicSendReceiveTest {
       super.assertMessageValid(index, message);
    }
 
+   @Override
    protected void sendMessage(int index, Message message) throws Exception {
       if (index == 7) {
          producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 2000);

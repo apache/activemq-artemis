@@ -21,10 +21,12 @@ package org.apache.activemq.network;
  */
 public class MulticastNetworkTest extends SimpleNetworkTest {
 
+   @Override
    protected String getRemoteBrokerURI() {
       return "org/apache/activemq/network/multicast/remoteBroker.xml";
    }
 
+   @Override
    protected String getLocalBrokerURI() {
       return "org/apache/activemq/network/multicast/localBroker.xml";
    }

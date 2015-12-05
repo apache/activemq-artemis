@@ -96,6 +96,7 @@ public class NIOSSLLoadTest extends TestCase {
       }
 
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return getReceived() == PRODUCER_COUNT * MESSAGE_COUNT;
          }

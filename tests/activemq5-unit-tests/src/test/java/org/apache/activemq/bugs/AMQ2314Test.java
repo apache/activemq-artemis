@@ -82,6 +82,7 @@ public class AMQ2314Test extends CombinationTestSupport {
       connection.start();
 
       Thread producingThread = new Thread("Producing thread") {
+         @Override
          public void run() {
             try {
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -101,6 +102,7 @@ public class AMQ2314Test extends CombinationTestSupport {
       };
 
       Thread consumingThread = new Thread("Consuming thread") {
+         @Override
          public void run() {
             try {
                int count = 0;
@@ -143,12 +145,14 @@ public class AMQ2314Test extends CombinationTestSupport {
       LOG.info("Subscription Usage: " + tempUsageBySubscription + ", endUsage: " + broker.getSystemUsage().getTempUsage().getUsage());
 
       assertTrue("temp usage decreased with removed sub", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return broker.getSystemUsage().getTempUsage().getUsage() < tempUsageBySubscription;
          }
       }));
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();
@@ -166,6 +170,7 @@ public class AMQ2314Test extends CombinationTestSupport {
       connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
    }
 
+   @Override
    public void tearDown() throws Exception {
       broker.stop();
    }

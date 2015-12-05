@@ -106,6 +106,7 @@ public class AMQ3678Test implements MessageListener {
 
          private boolean done = false;
 
+         @Override
          public void run() {
             while (!done) {
                if (messagesSent.get() == 50) {

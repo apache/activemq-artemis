@@ -30,6 +30,7 @@ public abstract class AbstractCachedLDAPAuthorizationModuleTest extends Abstract
 
    static final UserPrincipal JDOE = new UserPrincipal("jdoe");
 
+   @Override
    @Test
    public void testQuery() throws Exception {
       map.query();

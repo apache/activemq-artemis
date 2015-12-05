@@ -42,6 +42,7 @@ public class ProxyConnectorTest extends ProxyTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

@@ -187,6 +187,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    /**
     * @return
     */
+   @Override
    protected ActiveMQResourceAdapter newResourceAdapter() {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);

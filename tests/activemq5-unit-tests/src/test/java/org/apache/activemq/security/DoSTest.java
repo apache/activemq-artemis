@@ -55,6 +55,7 @@ public class DoSTest extends JmsTestSupport {
       Thread thread = new Thread() {
          Connection connection = null;
 
+         @Override
          public void run() {
             for (int i = 0; i < 1000 && !done.get(); i++) {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
@@ -90,6 +91,7 @@ public class DoSTest extends JmsTestSupport {
       done.set(true);
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return createBroker("org/apache/activemq/security/dos-broker.xml");
    }

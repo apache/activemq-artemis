@@ -60,11 +60,13 @@ public class AMQ2489Test extends TestSupport {
 
    private Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -162,6 +164,7 @@ public class AMQ2489Test extends TestSupport {
          }
       }
 
+      @Override
       public void onMessage(Message message) {
          try {
             // retrieve sequence number assigned by producer...
@@ -208,6 +211,7 @@ public class AMQ2489Test extends TestSupport {
 
       private final java.util.Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
 
+      @Override
       public void onException(JMSException e) {
          exceptions.add(e);
       }

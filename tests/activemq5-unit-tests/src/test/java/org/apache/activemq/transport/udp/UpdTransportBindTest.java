@@ -26,6 +26,7 @@ public class UpdTransportBindTest extends EmbeddedBrokerTestSupport {
 
    final String addr = "udp://localhost:61625";
 
+   @Override
    protected void setUp() throws Exception {
       bindAddress = addr + "?soTimeout=1000";
       super.setUp();

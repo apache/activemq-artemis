@@ -275,6 +275,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
    private void performCrashAndReconnect(boolean restart) throws Exception {
       cff1xa = new ConnectionFactoryFactory() {
+         @Override
          public Object createConnectionFactory() throws Exception {
             ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 

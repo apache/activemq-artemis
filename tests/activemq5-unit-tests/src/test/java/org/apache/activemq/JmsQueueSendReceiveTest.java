@@ -28,6 +28,7 @@ public class JmsQueueSendReceiveTest extends JmsTopicSendReceiveTest {
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();

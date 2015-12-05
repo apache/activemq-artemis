@@ -23,6 +23,7 @@ import javax.jms.DeliveryMode;
  */
 public class PublishOnTemporaryQueueConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       deliveryMode = DeliveryMode.NON_PERSISTENT;

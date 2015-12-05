@@ -70,6 +70,7 @@ public class KahaDBStoreTest {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          final int id = ++i;
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   Message msg = message.copy();
@@ -87,6 +88,7 @@ public class KahaDBStoreTest {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          final int id = ++i;
          executor2.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   MessageAck ack = new MessageAck();

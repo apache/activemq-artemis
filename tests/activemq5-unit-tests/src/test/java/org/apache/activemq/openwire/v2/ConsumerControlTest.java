@@ -31,12 +31,14 @@ public class ConsumerControlTest extends BaseCommandTestSupport {
 
    public static final ConsumerControlTest SINGLETON = new ConsumerControlTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConsumerControl info = new ConsumerControl();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConsumerControl info = (ConsumerControl) object;

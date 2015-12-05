@@ -71,6 +71,7 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements ConcurrentSe
       return theMap.remove(o) == ConcurrentHashSet.dummy;
    }
 
+   @Override
    public boolean addIfAbsent(final E o) {
       Object obj = theMap.putIfAbsent(o, ConcurrentHashSet.dummy);
 

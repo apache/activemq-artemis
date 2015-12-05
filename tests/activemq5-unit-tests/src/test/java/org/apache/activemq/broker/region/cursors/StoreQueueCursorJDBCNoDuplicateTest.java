@@ -27,6 +27,7 @@ import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
  */
 public class StoreQueueCursorJDBCNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       PersistenceAdapter persistenceAdapter = new JDBCPersistenceAdapter();

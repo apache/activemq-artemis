@@ -87,14 +87,17 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    // Public --------------------------------------------------------
 
+   @Override
    public void stop() {
    }
 
+   @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
       return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
    }
 
+   @Override
    public synchronized SequentialFileFactory newFileFactory(final SimpleString address) throws Exception {
 
       String guid = UUIDGenerator.getInstance().generateStringUUID();
@@ -120,10 +123,12 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       return factory;
    }
 
+   @Override
    public void setPagingManager(final PagingManager pagingManager) {
       this.pagingManager = pagingManager;
    }
 
+   @Override
    public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       File[] files = directory.listFiles();
 

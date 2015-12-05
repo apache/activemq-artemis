@@ -94,6 +94,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
    }
 
+   @Override
    protected boolean isIgnore() {
       return ignore;
    }
@@ -124,6 +125,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
          if (spawn) {
             final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
             Runtime.getRuntime().addShutdownHook(new Thread() {
+               @Override
                public void run() {
                   process.destroy();
                }

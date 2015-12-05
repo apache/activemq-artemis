@@ -176,6 +176,7 @@ public class ApplicationLayerFailoverExample {
 
    private static class ExampleListener implements ExceptionListener {
 
+      @Override
       public void onException(final JMSException exception) {
          try {
             connection.close();

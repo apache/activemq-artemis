@@ -82,6 +82,7 @@ public class ReconnectTest extends ActiveMQTestBase {
                connectionFailed(me, failedOver);
             }
 
+            @Override
             public void beforeReconnect(final ActiveMQException exception) {
             }
 
@@ -269,6 +270,7 @@ public class ReconnectTest extends ActiveMQTestBase {
 
          session.addFailureListener(new SessionFailureListener() {
 
+            @Override
             public void connectionFailed(final ActiveMQException me, boolean failedOver) {
                count.incrementAndGet();
                latch.countDown();
@@ -279,6 +281,7 @@ public class ReconnectTest extends ActiveMQTestBase {
                connectionFailed(me, failedOver);
             }
 
+            @Override
             public void beforeReconnect(final ActiveMQException exception) {
             }
 
@@ -287,6 +290,7 @@ public class ReconnectTest extends ActiveMQTestBase {
          server.stop();
 
          Thread tcommitt = new Thread() {
+            @Override
             public void run() {
                latchCommit.countDown();
                try {

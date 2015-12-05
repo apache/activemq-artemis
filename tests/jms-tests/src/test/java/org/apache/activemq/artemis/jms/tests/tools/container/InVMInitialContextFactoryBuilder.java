@@ -40,6 +40,7 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
 
    // InitialContextFactoryBuilder implementation --------------------------------------------------
 
+   @Override
    public InitialContextFactory createInitialContextFactory(final Hashtable environment) throws NamingException {
 
       InitialContextFactory icf = null;

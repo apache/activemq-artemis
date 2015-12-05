@@ -38,6 +38,7 @@ public class VMTransportClosureTest extends EmbeddedBrokerTestSupport {
    private static final long MAX_TEST_TIME_MILLIS = 300000; // 5min
    private static final int NUM_ATTEMPTS = 100000;
 
+   @Override
    public void setUp() throws Exception {
       setAutoFail(true);
       setMaxTestTime(MAX_TEST_TIME_MILLIS);
@@ -93,6 +94,7 @@ public class VMTransportClosureTest extends EmbeddedBrokerTestSupport {
          // transport should not affect the persistent connection.
          final Transport localTransport = TransportFactory.connect(broker.getVmConnectorURI());
          localTransport.setTransportListener(new TransportListener() {
+            @Override
             public void onCommand(Object command) {
                if (command instanceof ShutdownInfo) {
                   try {
@@ -104,14 +106,17 @@ public class VMTransportClosureTest extends EmbeddedBrokerTestSupport {
                }
             }
 
+            @Override
             public void onException(IOException error) {
                // ignore
             }
 
+            @Override
             public void transportInterupted() {
                // ignore
             }
 
+            @Override
             public void transportResumed() {
                // ignore
             }

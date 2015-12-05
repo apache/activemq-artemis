@@ -43,6 +43,7 @@ public class JmsQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       deliveryMode = DeliveryMode.NON_PERSISTENT;
@@ -55,6 +56,7 @@ public class JmsQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
     * @return String - consumer subject
     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
     */
+   @Override
    protected String getConsumerSubject() {
       return "FOO.>";
    }
@@ -65,6 +67,7 @@ public class JmsQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
     * @return String - producer subject
     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
     */
+   @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";
    }

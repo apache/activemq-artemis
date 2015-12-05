@@ -22,6 +22,7 @@ package org.apache.activemq.test.retroactive;
  */
 public class RetroactiveConsumerTestWithTimePolicyTest extends RetroactiveConsumerTestWithSimpleMessageListTest {
 
+   @Override
    protected String getBrokerXml() {
       return "org/apache/activemq/test/retroactive/activemq-timed-policy.xml";
    }

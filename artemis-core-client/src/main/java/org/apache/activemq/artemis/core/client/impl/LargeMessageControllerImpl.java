@@ -134,6 +134,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.local = local;
    }
 
+   @Override
    public void discardUnusedPackets() {
       if (outStream == null) {
          if (local)
@@ -150,6 +151,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
     * TODO: move this to ConsumerContext as large message is a protocol specific thing
     * Add a buff to the List, or save it to the OutputStream if set
     */
+   @Override
    public void addPacket(byte[] chunk, int flowControlSize, boolean isContinues) {
       int flowControlCredit = 0;
 
@@ -206,6 +208,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public void cancel() {
       this.handledException = ActiveMQClientMessageBundle.BUNDLE.largeMessageInterrupted();
 
@@ -232,12 +235,14 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public synchronized void close() {
       if (fileCache != null) {
          fileCache.close();
       }
    }
 
+   @Override
    public void setOutputStream(final OutputStream output) throws ActiveMQException {
 
       int totalFlowControl = 0;
@@ -268,6 +273,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public synchronized void saveBuffer(final OutputStream output) throws ActiveMQException {
       if (streamClosed) {
          throw ActiveMQClientMessageBundle.BUNDLE.largeMessageLostSession();
@@ -280,6 +286,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
     * @param timeWait Milliseconds to Wait. 0 means forever
     * @throws ActiveMQException
     */
+   @Override
    public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException {
       if (outStream == null) {
          // There is no stream.. it will never achieve the end of streaming
@@ -344,6 +351,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return -1;
    }
 
+   @Override
    public byte readByte() {
       return getByte(readerIndex++);
    }
@@ -425,6 +433,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return out.write(ByteBuffer.wrap(bytesToGet));
    }
 
+   @Override
    public int getInt(final int index) {
       return (getByte(index) & 0xff) << 24 | (getByte(index + 1) & 0xff) << 16 |
          (getByte(index + 2) & 0xff) << 8 |
@@ -515,10 +524,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public int readerIndex() {
       return (int) readerIndex;
    }
 
+   @Override
    public void readerIndex(final int readerIndex) {
       try {
          checkForPacket(readerIndex);
@@ -530,18 +541,22 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.readerIndex = readerIndex;
    }
 
+   @Override
    public int writerIndex() {
       return (int) totalSize;
    }
 
+   @Override
    public long getSize() {
       return totalSize;
    }
 
+   @Override
    public void writerIndex(final int writerIndex) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setIndex(final int readerIndex, final int writerIndex) {
       try {
          checkForPacket(readerIndex);
@@ -553,17 +568,21 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.readerIndex = readerIndex;
    }
 
+   @Override
    public void clear() {
    }
 
+   @Override
    public boolean readable() {
       return true;
    }
 
+   @Override
    public boolean writable() {
       return false;
    }
 
+   @Override
    public int readableBytes() {
       long readableBytes = totalSize - readerIndex;
 
@@ -575,14 +594,17 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public int writableBytes() {
       return 0;
    }
 
+   @Override
    public void markReaderIndex() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void resetReaderIndex() {
       try {
          checkForPacket(0);
@@ -593,22 +615,27 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public void markWriterIndex() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void resetWriterIndex() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void discardReadBytes() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public short getUnsignedByte(final int index) {
       return (short) (getByte(index) & 0xFF);
    }
 
+   @Override
    public int getUnsignedShort(final int index) {
       return getShort(index) & 0xFFFF;
    }
@@ -621,10 +648,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return value;
    }
 
+   @Override
    public long getUnsignedInt(final int index) {
       return getInt(index) & 0xFFFFFFFFL;
    }
 
+   @Override
    public void getBytes(int index, final byte[] dst) {
       // TODO: optimize this by using System.arraycopy
       for (int i = 0; i < dst.length; i++) {
@@ -639,10 +668,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       }
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst) {
       getBytes(index, dst, dst.writableBytes());
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst, final int length) {
       if (length > dst.writableBytes()) {
          throw new IndexOutOfBoundsException();
@@ -651,14 +682,17 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       dst.writerIndex(dst.writerIndex() + length);
    }
 
+   @Override
    public void setBytes(final int index, final byte[] src) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src, final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -667,16 +701,19 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public int readUnsignedByte() {
       return (short) (readByte() & 0xFF);
    }
 
+   @Override
    public short readShort() {
       short v = getShort(readerIndex);
       readerIndex += 2;
       return v;
    }
 
+   @Override
    public int readUnsignedShort() {
       return readShort() & 0xFFFF;
    }
@@ -695,6 +732,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return v;
    }
 
+   @Override
    public int readInt() {
       int v = getInt(readerIndex);
       readerIndex += 4;
@@ -706,29 +744,35 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return v;
    }
 
+   @Override
    public long readUnsignedInt() {
       return readInt() & 0xFFFFFFFFL;
    }
 
+   @Override
    public long readLong() {
       long v = getLong(readerIndex);
       readerIndex += 8;
       return v;
    }
 
+   @Override
    public void readBytes(final byte[] dst, final int dstIndex, final int length) {
       getBytes(readerIndex, dst, dstIndex, length);
       readerIndex += length;
    }
 
+   @Override
    public void readBytes(final byte[] dst) {
       readBytes(dst, 0, dst.length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst) {
       readBytes(dst, dst.writableBytes());
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int length) {
       if (length > dst.writableBytes()) {
          throw new IndexOutOfBoundsException();
@@ -737,11 +781,13 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       dst.writerIndex(dst.writerIndex() + length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length) {
       getBytes(readerIndex, dst, dstIndex, length);
       readerIndex += length;
    }
 
+   @Override
    public void readBytes(final ByteBuffer dst) {
       int length = dst.remaining();
       getBytes(readerIndex, dst);
@@ -759,6 +805,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       readerIndex += length;
    }
 
+   @Override
    public int skipBytes(final int length) {
 
       long newReaderIndex = readerIndex + length;
@@ -767,10 +814,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return length;
    }
 
+   @Override
    public void writeByte(final byte value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeShort(final short value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -779,18 +828,22 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeInt(final int value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeLong(final long value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeBytes(final byte[] src, final int srcIndex, final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeBytes(final byte[] src) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -799,10 +852,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeBytes(final ByteBuffer src) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -819,6 +874,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public ByteBuffer toByteBuffer() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
@@ -849,18 +905,22 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return (char) readShort();
    }
 
+   @Override
    public char getChar(final int index) {
       return (char) getShort(index);
    }
 
+   @Override
    public double getDouble(final int index) {
       return Double.longBitsToDouble(getLong(index));
    }
 
+   @Override
    public float getFloat(final int index) {
       return Float.intBitsToFloat(getInt(index));
    }
 
+   @Override
    public ActiveMQBuffer readBytes(final int length) {
       byte[] bytesToGet = new byte[length];
       getBytes(readerIndex, bytesToGet);
@@ -979,10 +1039,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public ActiveMQBuffer copy() {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public ActiveMQBuffer slice(final int index, final int length) {
       throw new UnsupportedOperationException();
    }
@@ -1198,38 +1260,47 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return ByteUtil.readLine(this);
    }
 
+   @Override
    public ByteBuf byteBuf() {
       return null;
    }
 
+   @Override
    public ActiveMQBuffer copy(final int index, final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public ActiveMQBuffer duplicate() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public ActiveMQBuffer readSlice(final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setChar(final int index, final char value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setDouble(final int index, final double value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void setFloat(final int index, final float value) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public ActiveMQBuffer slice() {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }

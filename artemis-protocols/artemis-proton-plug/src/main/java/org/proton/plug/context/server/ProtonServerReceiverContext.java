@@ -45,6 +45,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
       super(sessionSPI, connection, protonSession, receiver);
    }
 
+   @Override
    public void onFlow(int credits) {
    }
 
@@ -94,6 +95,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
+   @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Receiver receiver;
       try {

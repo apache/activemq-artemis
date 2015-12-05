@@ -51,12 +51,14 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
       this.address = address;
    }
 
+   @Override
    public void addListener(final UnproposalListener listener) {
       if (executor == null) {
          listeners.add(listener);
       }
       else {
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                listeners.add(listener);
             }
@@ -67,6 +69,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
    protected void fireUnproposed(final SimpleString groupID) {
 
       Runnable runnable = new Runnable() {
+         @Override
          public void run() {
             for (UnproposalListener listener : listeners) {
                listener.unproposed(groupID);
@@ -82,6 +85,7 @@ public abstract class GroupHandlingAbstract implements GroupingHandler {
       }
    }
 
+   @Override
    public void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception {
       remove(groupid, clusterName);
       sendUnproposal(groupid, clusterName, 0);

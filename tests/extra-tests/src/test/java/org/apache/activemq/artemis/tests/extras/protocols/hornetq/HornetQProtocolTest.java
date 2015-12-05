@@ -46,6 +46,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
 
    private static final Logger LOG = LoggerFactory.getLogger(HornetQProtocolTest.class);
 
+   @Override
    @Before
    public void setUp() throws Exception {
       HashMap<String, Object> params = new HashMap<String, Object>();
@@ -62,6 +63,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase {
    }
 
 
+   @Override
    @After
    public void tearDown() throws Exception {
       org.hornetq.core.client.impl.ServerLocatorImpl.clearThreadPools();

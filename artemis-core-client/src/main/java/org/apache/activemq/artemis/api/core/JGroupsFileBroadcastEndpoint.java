@@ -32,6 +32,7 @@ public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
       this.file = file;
    }
 
+   @Override
    public JChannel createChannel() throws Exception {
       URL configURL = Thread.currentThread().getContextClassLoader().getResource(file);
 

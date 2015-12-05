@@ -112,6 +112,7 @@ public class AMQ2512Test extends EmbeddedBrokerTestSupport {
          }
       }
 
+      @Override
       public void onMessage(Message message) {
          final TextMessage msg = (TextMessage) message;
          try {

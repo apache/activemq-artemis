@@ -86,6 +86,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
       this.destination = destination;
    }
 
+   @Override
    public boolean testTimeout(String target, boolean autoShutdown) {
       QueueConsumer consumer = queueConsumers.get(target);
       Subscription subscription = (Subscription) consumer;
@@ -103,6 +104,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
       }
    }
 
+   @Override
    public void shutdown(String target) {
       QueueConsumer consumer = queueConsumers.get(target);
       if (consumer == null)

@@ -192,6 +192,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
       server.getSecurityRepository().addMatch("#", roles);
    }
 
+   @Override
    protected boolean useSecurity() {
       return true;
    }

@@ -43,11 +43,13 @@ public class JDBCPersistenceXBeanConfigTest extends TestCase {
 
    }
 
+   @Override
    protected void setUp() throws Exception {
       brokerService = createBroker();
       brokerService.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (brokerService != null) {
          brokerService.stop();

@@ -36,6 +36,7 @@ public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFacto
 
    private static String[] SUPPORTED_PROTOCOLS = {OPENWIRE_PROTOCOL_NAME};
 
+   @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 final List<Interceptor> incomingInterceptors,
                                                 List<Interceptor> outgoingInterceptors) {

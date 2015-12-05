@@ -35,6 +35,7 @@ public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator {
       this.xpath = xpath;
    }
 
+   @Override
    public boolean evaluate(Filterable m) throws FilterException {
       String stringBody = m.getBodyAs(String.class);
       if (stringBody != null) {

@@ -25,6 +25,7 @@ public final class FirstElementConnectionLoadBalancingPolicy implements Connecti
     * @param max param is ignored
     * @return 0
     */
+   @Override
    public int select(final int max) {
       return 0;
    }

@@ -27,6 +27,7 @@ public interface TestableServer extends ActiveMQComponent {
 
    ActiveMQServer getServer();
 
+   @Override
    void stop() throws Exception;
 
    void setIdentity(String identity);

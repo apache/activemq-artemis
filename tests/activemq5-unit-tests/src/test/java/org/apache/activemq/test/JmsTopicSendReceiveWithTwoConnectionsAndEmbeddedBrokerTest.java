@@ -32,6 +32,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest extends 
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       if (broker == null) {
          broker = createBroker();
@@ -39,6 +40,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest extends 
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
 
@@ -63,6 +65,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest extends 
       answer.addConnector(bindAddress);
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(bindAddress);
    }

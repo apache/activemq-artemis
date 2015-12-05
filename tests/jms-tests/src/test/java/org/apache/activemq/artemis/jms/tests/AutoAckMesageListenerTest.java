@@ -110,6 +110,7 @@ public class AutoAckMesageListenerTest extends JMSTestCase {
       }
 
       // will receive two messages
+      @Override
       public void onMessage(Message message) {
          try {
             if (message.getBooleanProperty("last") == false) {

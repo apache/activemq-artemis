@@ -53,6 +53,7 @@ public class Sender extends ClientAbstract {
       producer = session.createProducer(queue);
    }
 
+   @Override
    public void run() {
       super.run();
       while (running) {
@@ -94,6 +95,7 @@ public class Sender extends ClientAbstract {
       pendingMsgs = 0;
    }
 
+   @Override
    public String toString() {
       return "Sender, msgs=" + msgs + ", pending=" + pendingMsgs;
 

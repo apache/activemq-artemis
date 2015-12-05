@@ -46,6 +46,7 @@ public class DurableSubInBrokerNetworkTest extends NetworkTestSupport {
    private final String subName2 = "Subscriber2";
    private final String topicName = "TEST.FOO";
 
+   @Override
    protected void setUp() throws Exception {
       useJmx = true;
       super.setUp();
@@ -57,6 +58,7 @@ public class DurableSubInBrokerNetworkTest extends NetworkTestSupport {
       nc.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (remoteBroker.isStarted()) {
          remoteBroker.stop();

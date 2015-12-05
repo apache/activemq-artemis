@@ -48,6 +48,7 @@ public class JmsTopicSelectorTest extends TestSupport {
    protected boolean durable;
    protected int deliveryMode = DeliveryMode.PERSISTENT;
 
+   @Override
    public void setUp() throws Exception {
       super.setUp();
 
@@ -81,6 +82,7 @@ public class JmsTopicSelectorTest extends TestSupport {
       connection.start();
    }
 
+   @Override
    public void tearDown() throws Exception {
       session.close();
       connection.close();

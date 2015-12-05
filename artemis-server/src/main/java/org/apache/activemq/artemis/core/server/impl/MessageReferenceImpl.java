@@ -89,6 +89,7 @@ public class MessageReferenceImpl implements MessageReference {
    /**
     * @return the persistedCount
     */
+   @Override
    public int getPersistedCount() {
       return persistedCount;
    }
@@ -96,10 +97,12 @@ public class MessageReferenceImpl implements MessageReference {
    /**
     * @param persistedCount the persistedCount to set
     */
+   @Override
    public void setPersistedCount(int persistedCount) {
       this.persistedCount = persistedCount;
    }
 
+   @Override
    public MessageReference copy(final Queue queue) {
       return new MessageReferenceImpl(this, queue);
    }
@@ -108,39 +111,48 @@ public class MessageReferenceImpl implements MessageReference {
       return MessageReferenceImpl.memoryOffset;
    }
 
+   @Override
    public int getDeliveryCount() {
       return deliveryCount.get();
    }
 
+   @Override
    public void setDeliveryCount(final int deliveryCount) {
       this.deliveryCount.set(deliveryCount);
       this.persistedCount = this.deliveryCount.get();
    }
 
+   @Override
    public void incrementDeliveryCount() {
       deliveryCount.incrementAndGet();
    }
 
+   @Override
    public void decrementDeliveryCount() {
       deliveryCount.decrementAndGet();
    }
 
+   @Override
    public long getScheduledDeliveryTime() {
       return scheduledDeliveryTime;
    }
 
+   @Override
    public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
       this.scheduledDeliveryTime = scheduledDeliveryTime;
    }
 
+   @Override
    public ServerMessage getMessage() {
       return message;
    }
 
+   @Override
    public Queue getQueue() {
       return queue;
    }
 
+   @Override
    public void handled() {
       queue.referenceHandled();
    }
@@ -155,10 +167,12 @@ public class MessageReferenceImpl implements MessageReference {
       return alreadyAcked;
    }
 
+   @Override
    public boolean isPaged() {
       return false;
    }
 
+   @Override
    public void acknowledge() throws Exception {
       queue.acknowledge(this);
    }
@@ -173,6 +187,7 @@ public class MessageReferenceImpl implements MessageReference {
       return this.consumerID;
    }
 
+   @Override
    public int getMessageMemoryEstimate() {
       return message.getMemoryEstimate();
    }

@@ -279,35 +279,43 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    /**
     * @return the sessionContext
     */
+   @Override
    public OperationContext getSessionContext() {
       return context;
    }
 
+   @Override
    public String getUsername() {
       return username;
    }
 
+   @Override
    public String getPassword() {
       return password;
    }
 
+   @Override
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
+   @Override
    public String getName() {
       return name;
    }
 
+   @Override
    public Object getConnectionID() {
       return remotingConnection.getID();
    }
 
+   @Override
    public Set<ServerConsumer> getServerConsumers() {
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
       return Collections.unmodifiableSet(consumersClone);
    }
 
+   @Override
    public boolean removeConsumer(final long consumerID) throws Exception {
       return consumers.remove(consumerID) != null;
    }
@@ -370,10 +378,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public QueueCreator getQueueCreator() {
       return queueCreator;
    }
 
+   @Override
    public ServerConsumer createConsumer(final long consumerID,
                                         final SimpleString queueName,
                                         final SimpleString filterString,
@@ -457,6 +467,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
    }
 
+   @Override
    public Queue createQueue(final SimpleString address,
                             final SimpleString name,
                             final SimpleString filterString,
@@ -519,6 +530,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       server.createSharedQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable);
    }
 
+   @Override
    public RemotingConnection getRemotingConnection() {
       return remotingConnection;
    }
@@ -553,6 +565,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
       }
 
+      @Override
       public void connectionFailed(ActiveMQException exception, boolean failedOver) {
          run();
       }
@@ -562,6 +575,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          connectionFailed(me, failedOver);
       }
 
+      @Override
       public void connectionClosed() {
          run();
       }
@@ -573,6 +587,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    }
 
+   @Override
    public void deleteQueue(final SimpleString queueToDelete) throws Exception {
       Binding binding = postOffice.getBinding(queueToDelete);
 
@@ -591,6 +606,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception {
       boolean autoCreateJmsQueues = name.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
 
@@ -625,6 +641,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return response;
    }
 
+   @Override
    public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception {
       boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
 
@@ -650,6 +667,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
    }
 
+   @Override
    public void forceConsumerDelivery(final long consumerID, final long sequence) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
@@ -668,6 +686,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void acknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = findConsumer(consumerID);
 
@@ -708,6 +727,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return consumer;
    }
 
+   @Override
    public void individualAcknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = findConsumer(consumerID);
 
@@ -725,6 +745,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    }
 
+   @Override
    public void individualCancel(final long consumerID, final long messageID, boolean failed) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
@@ -734,6 +755,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    }
 
+   @Override
    public void expire(final long consumerID, final long messageID) throws Exception {
       MessageReference ref = consumers.get(consumerID).removeReferenceByID(messageID);
 
@@ -742,6 +764,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void commit() throws Exception {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Calling commit");
@@ -761,6 +784,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void rollback(final boolean considerLastMessageAsDelivered) throws Exception {
       rollback(false, considerLastMessageAsDelivered);
    }
@@ -803,6 +827,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return transactionFactory.newTransaction(xid, storageManager, timeoutSeconds);
    }
 
+   @Override
    public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception {
 
       if (tx != null && tx.getXid().equals(xid)) {
@@ -848,6 +873,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaEnd(final Xid xid) throws Exception {
       if (tx != null && tx.getXid().equals(xid)) {
          if (tx.getState() == Transaction.State.SUSPENDED) {
@@ -891,6 +917,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaForget(final Xid xid) throws Exception {
       long id = resourceManager.removeHeuristicCompletion(xid);
 
@@ -909,6 +936,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaJoin(final Xid xid) throws Exception {
       Transaction theTx = resourceManager.getTransaction(xid);
 
@@ -927,6 +955,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaResume(final Xid xid) throws Exception {
       if (tx != null) {
          final String msg = "Cannot resume, session is currently doing work in a transaction " + tx.getXid();
@@ -954,6 +983,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaRollback(final Xid xid) throws Exception {
       if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot roll back, session is currently doing work in a transaction " + tx.getXid();
@@ -1011,6 +1041,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaStart(final Xid xid) throws Exception {
       if (tx != null) {
          ActiveMQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
@@ -1044,6 +1075,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaFailed(final Xid xid) throws Exception {
       Transaction theTX = resourceManager.getTransaction(xid);
 
@@ -1066,6 +1098,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaSuspend() throws Exception {
 
       if (isTrace) {
@@ -1091,6 +1124,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public synchronized void xaPrepare(final Xid xid) throws Exception {
       if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot commit, session is currently doing work in a transaction " + tx.getXid();
@@ -1123,6 +1157,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public List<Xid> xaGetInDoubtXids() {
       List<Xid> xids = new ArrayList<Xid>();
 
@@ -1133,10 +1168,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return xids;
    }
 
+   @Override
    public int xaGetTimeout() {
       return resourceManager.getTimeoutSeconds();
    }
 
+   @Override
    public void xaSetTimeout(final int timeout) {
       timeoutSeconds = timeout;
       if (tx != null) {
@@ -1144,14 +1181,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void start() {
       setStarted(true);
    }
 
+   @Override
    public void stop() {
       setStarted(false);
    }
 
+   @Override
    public void waitContextCompletion() {
       try {
          if (!context.waitCompletion(10000)) {
@@ -1163,13 +1203,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void close(final boolean failed) {
       if (closed)
          return;
       context.executeOnCompletion(new IOCallback() {
+         @Override
          public void onError(int errorCode, String errorMessage) {
          }
 
+         @Override
          public void done() {
             try {
                doClose(failed);
@@ -1181,6 +1224,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       });
    }
 
+   @Override
    public void closeConsumer(final long consumerID) throws Exception {
       final ServerConsumer consumer = consumers.get(consumerID);
 
@@ -1192,6 +1236,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void receiveConsumerCredits(final long consumerID, final int credits) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
@@ -1212,6 +1257,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return tx;
    }
 
+   @Override
    public void sendLarge(final MessageInternal message) throws Exception {
       // need to create the LargeMessage before continue
       long id = storageManager.generateID();
@@ -1229,6 +1275,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       currentLargeMessage = largeMsg;
    }
 
+   @Override
    public void send(final ServerMessage message, final boolean direct) throws Exception {
       //large message may come from StompSession directly, in which
       //case the id header already generated.
@@ -1276,6 +1323,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void sendContinuations(final int packetSize,
                                  final long messageBodySize,
                                  final byte[] body,
@@ -1302,10 +1350,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void requestProducerCredits(final SimpleString address, final int credits) throws Exception {
       PagingStore store = server.getPagingManager().getPageStore(address);
 
       if (!store.checkMemory(new Runnable() {
+         @Override
          public void run() {
             callback.sendProducerCreditsMessage(credits, address);
          }
@@ -1314,6 +1364,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void setTransferring(final boolean transferring) {
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
 
@@ -1322,6 +1373,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public void addMetaData(String key, String data) {
       if (metaData == null) {
          metaData = new HashMap<String, String>();
@@ -1329,6 +1381,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       metaData.put(key, data);
    }
 
+   @Override
    public boolean addUniqueMetaData(String key, String data) {
       ServerSession sessionWithMetaData = server.lookupSession(key, data);
       if (sessionWithMetaData != null && sessionWithMetaData != this) {
@@ -1341,6 +1394,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public String getMetaData(String key) {
       String data = null;
       if (metaData != null) {
@@ -1354,6 +1408,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return data;
    }
 
+   @Override
    public String[] getTargetAddresses() {
       Map<SimpleString, Pair<UUID, AtomicLong>> copy = cloneTargetAddresses();
       Iterator<SimpleString> iter = copy.keySet().iterator();
@@ -1367,6 +1422,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return addresses;
    }
 
+   @Override
    public String getLastSentMessageID(String address) {
       Pair<UUID, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
       if (value != null) {
@@ -1377,6 +1433,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public long getCreationTime() {
       return this.creationTime;
    }

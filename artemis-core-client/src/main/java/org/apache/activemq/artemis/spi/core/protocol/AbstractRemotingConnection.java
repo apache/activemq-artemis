@@ -45,6 +45,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       this.creationTime = System.currentTimeMillis();
    }
 
+   @Override
    public List<FailureListener> getFailureListeners() {
       return new ArrayList<FailureListener>(failureListeners);
    }
@@ -85,20 +86,24 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       }
    }
 
+   @Override
    public void setFailureListeners(final List<FailureListener> listeners) {
       failureListeners.clear();
 
       failureListeners.addAll(listeners);
    }
 
+   @Override
    public Object getID() {
       return transportConnection.getID();
    }
 
+   @Override
    public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
+   @Override
    public void addFailureListener(final FailureListener listener) {
       if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
@@ -106,6 +111,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       failureListeners.add(listener);
    }
 
+   @Override
    public boolean removeFailureListener(final FailureListener listener) {
       if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
@@ -114,6 +120,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return failureListeners.remove(listener);
    }
 
+   @Override
    public void addCloseListener(final CloseListener listener) {
       if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
@@ -122,6 +129,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       closeListeners.add(listener);
    }
 
+   @Override
    public boolean removeCloseListener(final CloseListener listener) {
       if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
@@ -130,6 +138,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return closeListeners.remove(listener);
    }
 
+   @Override
    public List<CloseListener> removeCloseListeners() {
       List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
 
@@ -138,6 +147,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return ret;
    }
 
+   @Override
    public List<FailureListener> removeFailureListeners() {
       List<FailureListener> ret = getFailureListeners();
 
@@ -146,24 +156,29 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return ret;
    }
 
+   @Override
    public void setCloseListeners(List<CloseListener> listeners) {
       closeListeners.clear();
 
       closeListeners.addAll(listeners);
    }
 
+   @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
       return transportConnection.createTransportBuffer(size);
    }
 
+   @Override
    public Connection getTransportConnection() {
       return transportConnection;
    }
 
+   @Override
    public long getCreationTime() {
       return creationTime;
    }
 
+   @Override
    public boolean checkDataReceived() {
       boolean res = dataReceived;
 
@@ -175,10 +190,12 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
+   @Override
    public void fail(final ActiveMQException me) {
       fail(me, null);
    }
 
+   @Override
    public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
       dataReceived = true;
    }

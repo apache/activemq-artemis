@@ -22,6 +22,7 @@ import org.apache.activemq.store.PersistenceAdapter;
 
 public class KahaDBDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
+   @Override
    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
       return null; // use default
    }

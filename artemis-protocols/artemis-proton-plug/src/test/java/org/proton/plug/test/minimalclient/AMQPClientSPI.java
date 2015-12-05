@@ -41,10 +41,12 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
       this.channel = channel;
    }
 
+   @Override
    public void setConnection(AMQPConnectionContext connection) {
       this.connection = connection;
    }
 
+   @Override
    public AMQPConnectionContext getConnection() {
       return connection;
    }

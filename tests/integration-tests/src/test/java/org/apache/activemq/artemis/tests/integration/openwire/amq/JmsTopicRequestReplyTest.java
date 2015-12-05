@@ -111,6 +111,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    /**
     * Use the asynchronous subscription mechanism
     */
+   @Override
    public void onMessage(Message message) {
       try {
          TextMessage requestMessage = (TextMessage) message;
@@ -185,6 +186,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       }
       else {
          Thread thread = new Thread(new Runnable() {
+            @Override
             public void run() {
                syncConsumeLoop(requestConsumer);
             }

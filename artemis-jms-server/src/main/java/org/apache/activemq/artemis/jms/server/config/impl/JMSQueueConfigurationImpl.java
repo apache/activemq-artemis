@@ -41,37 +41,45 @@ public class JMSQueueConfigurationImpl implements JMSQueueConfiguration {
 
    // QueueConfiguration implementation -----------------------------
 
+   @Override
    public String[] getBindings() {
       return bindings;
    }
 
+   @Override
    public JMSQueueConfigurationImpl setBindings(String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
+   @Override
    public String getName() {
       return name;
    }
 
+   @Override
    public JMSQueueConfigurationImpl setName(String name) {
       this.name = name;
       return this;
    }
 
+   @Override
    public String getSelector() {
       return selector;
    }
 
+   @Override
    public JMSQueueConfigurationImpl setSelector(String selector) {
       this.selector = selector;
       return this;
    }
 
+   @Override
    public boolean isDurable() {
       return durable;
    }
 
+   @Override
    public JMSQueueConfigurationImpl setDurable(boolean durable) {
       this.durable = durable;
       return this;

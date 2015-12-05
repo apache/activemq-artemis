@@ -103,19 +103,23 @@ public class TransactionImpl implements Transaction {
    // Transaction implementation
    // -----------------------------------------------------------
 
+   @Override
    public boolean isEffective() {
       return state == State.PREPARED || state == State.COMMITTED;
 
    }
 
+   @Override
    public void setContainsPersistent() {
       containsPersistent = true;
    }
 
+   @Override
    public boolean isContainsPersistent() {
       return containsPersistent;
    }
 
+   @Override
    public void setTimeout(final int timeout) {
       this.timeoutSeconds = timeout;
    }
@@ -125,14 +129,17 @@ public class TransactionImpl implements Transaction {
       return new RefsOperation(queue, storageManager);
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public long getCreateTime() {
       return createTime;
    }
 
+   @Override
    public boolean hasTimedOut(final long currentTime, final int defaultTimeout) {
       if (timeoutSeconds == -1) {
          return getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
@@ -142,6 +149,7 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public void prepare() throws Exception {
       storageManager.readLock();
       try {
@@ -184,10 +192,12 @@ public class TransactionImpl implements Transaction {
             // to execute this runnable in the correct order
             storageManager.afterCompleteOperations(new IOCallback() {
 
+               @Override
                public void onError(final int errorCode, final String errorMessage) {
                   ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
                }
 
+               @Override
                public void done() {
                   afterPrepare();
                }
@@ -199,10 +209,12 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public void commit() throws Exception {
       commit(true);
    }
 
+   @Override
    public void commit(final boolean onePhase) throws Exception {
       synchronized (timeoutLock) {
          if (state == State.COMMITTED) {
@@ -244,10 +256,12 @@ public class TransactionImpl implements Transaction {
          // If the IO finished early by the time we got here, we won't need an executor
          storageManager.afterCompleteOperations(new IOCallback() {
 
+            @Override
             public void onError(final int errorCode, final String errorMessage) {
                ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
+            @Override
             public void done() {
                afterCommit();
             }
@@ -269,6 +283,7 @@ public class TransactionImpl implements Transaction {
       state = State.COMMITTED;
    }
 
+   @Override
    public void rollback() throws Exception {
       synchronized (timeoutLock) {
          if (state == State.ROLLEDBACK) {
@@ -297,10 +312,12 @@ public class TransactionImpl implements Transaction {
          // to execute this runnable in the correct order
          storageManager.afterCompleteOperations(new IOCallback() {
 
+            @Override
             public void onError(final int errorCode, final String errorMessage) {
                ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
+            @Override
             public void done() {
                afterRollback();
             }
@@ -308,6 +325,7 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public void suspend() {
       synchronized (timeoutLock) {
          if (state != State.ACTIVE) {
@@ -317,6 +335,7 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public void resume() {
       synchronized (timeoutLock) {
          if (state != State.SUSPENDED) {
@@ -326,18 +345,22 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public Transaction.State getState() {
       return state;
    }
 
+   @Override
    public void setState(final State state) {
       this.state = state;
    }
 
+   @Override
    public Xid getXid() {
       return xid;
    }
 
+   @Override
    public void markAsRollbackOnly(final ActiveMQException exception1) {
       synchronized (timeoutLock) {
          if (isEffective()) {
@@ -354,6 +377,7 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   @Override
    public synchronized void addOperation(final TransactionOperation operation) {
       checkCreateOperations();
 
@@ -366,10 +390,12 @@ public class TransactionImpl implements Transaction {
       return operations.size();
    }
 
+   @Override
    public synchronized List<TransactionOperation> getAllOperations() {
       return new ArrayList<TransactionOperation>(operations);
    }
 
+   @Override
    public void putProperty(final int index, final Object property) {
       if (index >= properties.length) {
          Object[] newProperties = new Object[index];
@@ -382,6 +408,7 @@ public class TransactionImpl implements Transaction {
       properties[index] = property;
    }
 
+   @Override
    public Object getProperty(final int index) {
       return properties[index];
    }

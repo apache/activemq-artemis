@@ -366,6 +366,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.manager = manager;
    }
 
+   @Override
    public void start() throws Exception {
       synchronized (this) {
          if (started) {
@@ -379,6 +380,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    }
 
+   @Override
    public void flushExecutor() {
       FutureLatch future = new FutureLatch();
       executor.execute(future);
@@ -388,6 +390,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
+   @Override
    public void stop() throws Exception {
       if (!started) {
          return;
@@ -424,6 +427,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          managementService.sendNotification(notification);
       }
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             synchronized (ClusterConnectionImpl.this) {
                closeLocator(serverLocator);
@@ -448,18 +452,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       return topology.getMember(manager.getNodeId());
    }
 
+   @Override
    public void addClusterTopologyListener(final ClusterTopologyListener listener) {
       topology.addClusterTopologyListener(listener);
    }
 
+   @Override
    public void removeClusterTopologyListener(final ClusterTopologyListener listener) {
       topology.removeClusterTopologyListener(listener);
    }
 
+   @Override
    public Topology getTopology() {
       return topology;
    }
 
+   @Override
    public void nodeAnnounced(final long uniqueEventID,
                              final String nodeID,
                              final String backupGroupName,
@@ -507,22 +515,27 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       // localMember.getConnector().b);
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }
 
+   @Override
    public String getNodeID() {
       return nodeManager.getNodeId().toString();
    }
 
+   @Override
    public ActiveMQServer getServer() {
       return server;
    }
 
+   @Override
    public boolean isNodeActive(String nodeId) {
       MessageFlowRecord rec = records.get(nodeId);
       if (rec == null) {
@@ -531,6 +544,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       return rec.getBridge().isConnected();
    }
 
+   @Override
    public Map<String, String> getNodes() {
       synchronized (recordsGuard) {
          Map<String, String> nodes = new HashMap<String, String>();
@@ -611,12 +625,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       addClusterTopologyListener(this);
    }
 
+   @Override
    public TransportConfiguration getConnector() {
       return connector;
    }
 
    // ClusterTopologyListener implementation ------------------------------------------------------------------
 
+   @Override
    public void nodeDown(final long eventUID, final String nodeID) {
       /*
       * we dont do anything when a node down is received. The bridges will take care themselves when they should disconnect
@@ -709,6 +725,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
+   @Override
    public synchronized void informClusterOfBackup() {
       String nodeID = server.getNodeID().toString();
 
@@ -850,10 +867,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             "]";
       }
 
+      @Override
       public void serverDisconnected() {
          this.disconnected = true;
       }
 
+      @Override
       public String getAddress() {
          return address.toString();
       }
@@ -893,6 +912,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return queue;
       }
 
+      @Override
       public int getMaxHops() {
          return maxHops;
       }
@@ -901,6 +921,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       * we should only ever close a record when the node itself has gone down or in the case of scale down where we know
       * the node is being completely destroyed and in this case we will migrate to another server/Bridge.
       * */
+      @Override
       public void close() throws Exception {
          if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("Stopping bridge " + bridge);
@@ -917,6 +938,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          bridge.stop();
 
          bridge.getExecutor().execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   if (disconnected) {
@@ -933,10 +955,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          });
       }
 
+      @Override
       public boolean isClosed() {
          return isClosed;
       }
 
+      @Override
       public void reset() throws Exception {
          resetBindings();
       }
@@ -945,10 +969,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          this.bridge = bridge;
       }
 
+      @Override
       public Bridge getBridge() {
          return bridge;
       }
 
+      @Override
       public synchronized void onMessage(final ClientMessage message) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("ClusterCommunication::Flow record on " + clusterConnector + " Receiving message " + message);
@@ -1117,6 +1143,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
+      @Override
       public synchronized void disconnectBindings() throws Exception {
          ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " disconnect bindings");
          reset = false;
@@ -1364,6 +1391,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          "]";
    }
 
+   @Override
    public String describe() {
       StringWriter str = new StringWriter();
       PrintWriter out = new PrintWriter(str);
@@ -1393,6 +1421,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          this.tcConfigs = tcConfigs;
       }
 
+      @Override
       public ServerLocatorInternal createServerLocator() {
          if (tcConfigs != null && tcConfigs.length > 0) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
@@ -1420,6 +1449,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          this.dg = dg;
       }
 
+      @Override
       public ServerLocatorInternal createServerLocator() {
          return new ServerLocatorImpl(topology, true, dg);
       }

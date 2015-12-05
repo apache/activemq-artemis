@@ -31,12 +31,14 @@ public class JournalTraceTest extends DataFileGeneratorTestSupport {
 
    public static final JournalTraceTest SINGLETON = new JournalTraceTest();
 
+   @Override
    public Object createObject() throws Exception {
       JournalTrace info = new JournalTrace();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       JournalTrace info = (JournalTrace) object;

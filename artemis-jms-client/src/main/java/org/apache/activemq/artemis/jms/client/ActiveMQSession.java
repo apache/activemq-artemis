@@ -115,30 +115,35 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // Session implementation ----------------------------------------
 
+   @Override
    public BytesMessage createBytesMessage() throws JMSException {
       checkClosed();
 
       return new ActiveMQBytesMessage(session);
    }
 
+   @Override
    public MapMessage createMapMessage() throws JMSException {
       checkClosed();
 
       return new ActiveMQMapMessage(session);
    }
 
+   @Override
    public Message createMessage() throws JMSException {
       checkClosed();
 
       return new ActiveMQMessage(session);
    }
 
+   @Override
    public ObjectMessage createObjectMessage() throws JMSException {
       checkClosed();
 
       return new ActiveMQObjectMessage(session);
    }
 
+   @Override
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
       checkClosed();
 
@@ -149,12 +154,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+   @Override
    public StreamMessage createStreamMessage() throws JMSException {
       checkClosed();
 
       return new ActiveMQStreamMessage(session);
    }
 
+   @Override
    public TextMessage createTextMessage() throws JMSException {
       checkClosed();
 
@@ -165,6 +172,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+   @Override
    public TextMessage createTextMessage(final String text) throws JMSException {
       checkClosed();
 
@@ -175,12 +183,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return msg;
    }
 
+   @Override
    public boolean getTransacted() throws JMSException {
       checkClosed();
 
       return transacted;
    }
 
+   @Override
    public int getAcknowledgeMode() throws JMSException {
       checkClosed();
 
@@ -191,6 +201,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return xa;
    }
 
+   @Override
    public void commit() throws JMSException {
       if (!transacted) {
          throw new IllegalStateException("Cannot commit a non-transacted session");
@@ -206,6 +217,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public void rollback() throws JMSException {
       if (!transacted) {
          throw new IllegalStateException("Cannot rollback a non-transacted session");
@@ -222,6 +234,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public void close() throws JMSException {
       connection.getThreadAwareContext().assertNotCompletionListenerThread();
       connection.getThreadAwareContext().assertNotMessageListenerThread();
@@ -241,6 +254,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public void recover() throws JMSException {
       if (transacted) {
          throw new IllegalStateException("Cannot recover a transacted session");
@@ -256,19 +270,23 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       recoverCalled = true;
    }
 
+   @Override
    public MessageListener getMessageListener() throws JMSException {
       checkClosed();
 
       return null;
    }
 
+   @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
       checkClosed();
    }
 
+   @Override
    public void run() {
    }
 
+   @Override
    public MessageProducer createProducer(final Destination destination) throws JMSException {
       if (destination != null && !(destination instanceof ActiveMQDestination)) {
          throw new InvalidDestinationException("Not an ActiveMQ Artemis Destination:" + destination);
@@ -301,15 +319,18 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public MessageConsumer createConsumer(final Destination destination) throws JMSException {
       return createConsumer(destination, null, false);
    }
 
+   @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector) throws JMSException {
       return createConsumer(destination, messageSelector, false);
    }
 
+   @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector,
                                          final boolean noLocal) throws JMSException {
@@ -331,6 +352,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return createConsumer(jbdest, null, messageSelector, noLocal, ConsumerDurability.NON_DURABLE);
    }
 
+   @Override
    public Queue createQueue(final String queueName) throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_TOPIC_SESSION) {
@@ -356,6 +378,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public Topic createTopic(final String topicName) throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_QUEUE_SESSION) {
@@ -381,10 +404,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic, final String name) throws JMSException {
       return createDurableSubscriber(topic, name, null, false);
    }
 
+   @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic,
                                                   final String name,
                                                   String messageSelector,
@@ -730,10 +755,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       checkClosed();
    }
 
+   @Override
    public QueueBrowser createBrowser(final Queue queue) throws JMSException {
       return createBrowser(queue, null);
    }
 
+   @Override
    public QueueBrowser createBrowser(final Queue queue, String filterString) throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_TOPIC_SESSION) {
@@ -784,6 +811,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    }
 
+   @Override
    public TemporaryQueue createTemporaryQueue() throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_TOPIC_SESSION) {
@@ -806,6 +834,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public TemporaryTopic createTemporaryTopic() throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_QUEUE_SESSION) {
@@ -833,6 +862,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
    }
 
+   @Override
    public void unsubscribe(final String name) throws JMSException {
       // As per spec. section 4.11
       if (sessionType == ActiveMQSession.TYPE_QUEUE_SESSION) {
@@ -877,14 +907,17 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // QueueSession implementation
 
+   @Override
    public QueueReceiver createReceiver(final Queue queue, final String messageSelector) throws JMSException {
       return (QueueReceiver) createConsumer(queue, messageSelector);
    }
 
+   @Override
    public QueueReceiver createReceiver(final Queue queue) throws JMSException {
       return (QueueReceiver) createConsumer(queue);
    }
 
+   @Override
    public QueueSender createSender(final Queue queue) throws JMSException {
       return (QueueSender) createProducer(queue);
    }
@@ -897,16 +930,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    // TopicSession implementation
 
+   @Override
    public TopicPublisher createPublisher(final Topic topic) throws JMSException {
       return (TopicPublisher) createProducer(topic);
    }
 
+   @Override
    public TopicSubscriber createSubscriber(final Topic topic,
                                            final String messageSelector,
                                            final boolean noLocal) throws JMSException {
       return (TopicSubscriber) createConsumer(topic, messageSelector, noLocal);
    }
 
+   @Override
    public TopicSubscriber createSubscriber(final Topic topic) throws JMSException {
       return (TopicSubscriber) createConsumer(topic);
    }

@@ -41,6 +41,7 @@ public class AMQ3411Test extends TestCase {
    protected AbstractApplicationContext context;
    protected static final String origPassword = "ABCDEFG";
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -52,6 +53,7 @@ public class AMQ3411Test extends TestCase {
       return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       BrokerService broker = (BrokerService) context.getBean("localbroker");
       broker.stop();

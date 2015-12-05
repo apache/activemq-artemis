@@ -163,6 +163,7 @@ public final class SpawnedVMSupport {
       ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
       Future<Integer> future = executor.submit(new Callable<Integer>() {
 
+         @Override
          public Integer call() throws Exception {
             p.waitFor();
             return p.exitValue();

@@ -51,10 +51,12 @@ public class MinimalConnectionSPI implements AMQPConnectionCallback {
       executorService.shutdown();
    }
 
+   @Override
    public void setConnection(AMQPConnectionContext connection) {
       this.connection = connection;
    }
 
+   @Override
    public AMQPConnectionContext getConnection() {
       return connection;
    }

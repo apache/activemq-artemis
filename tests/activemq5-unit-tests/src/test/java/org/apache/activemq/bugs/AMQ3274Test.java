@@ -294,6 +294,7 @@ public class AMQ3274Test {
       // the remote must already be running.
 
       start1 = new Thread() {
+         @Override
          public void run() {
             try {
                broker1.start();
@@ -305,6 +306,7 @@ public class AMQ3274Test {
       };
 
       start2 = new Thread() {
+         @Override
          public void run() {
             try {
                broker2.start();
@@ -545,6 +547,7 @@ public class AMQ3274Test {
          shutdownLatch = new CountDownLatch(1);
       }
 
+      @Override
       public void run() {
          CountDownLatch latch;
 
@@ -681,6 +684,7 @@ public class AMQ3274Test {
          this(dest, ActiveMQConnection.makeConnection(broker_url));
       }
 
+      @Override
       public void run() {
          Message req;
 

@@ -21,6 +21,7 @@ package org.apache.activemq;
  */
 public class JMSQueueRedeliverTest extends JmsTopicRedeliverTest {
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();

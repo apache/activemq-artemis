@@ -259,6 +259,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
       // Once the send starts to block it will not reset the done flag
       // anymore.
       new Thread("Fill thread.") {
+         @Override
          public void run() {
             Session session = null;
             try {
@@ -296,6 +297,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
    private CountDownLatch asyncSendTo(final ActiveMQQueue queue, final String message) throws JMSException {
       final CountDownLatch done = new CountDownLatch(1);
       new Thread("Send thread.") {
+         @Override
          public void run() {
             Session session = null;
             try {
@@ -315,6 +317,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
       return done;
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService service = new BrokerService();
       service.setPersistent(false);
@@ -334,11 +337,13 @@ public class ProducerFlowControlTest extends JmsTestSupport {
       return service;
    }
 
+   @Override
    public void setUp() throws Exception {
       setAutoFail(true);
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          TcpTransport t = (TcpTransport) connection.getTransport().narrow(TcpTransport.class);
@@ -348,6 +353,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
       super.tearDown();
    }
 
+   @Override
    protected ConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(connector.getConnectUri());
    }

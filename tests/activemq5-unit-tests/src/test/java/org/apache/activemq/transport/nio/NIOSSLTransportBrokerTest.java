@@ -31,6 +31,7 @@ public class NIOSSLTransportBrokerTest extends TransportBrokerTestSupport {
    public static final String SERVER_KEYSTORE = "src/test/resources/server.keystore";
    public static final String TRUST_KEYSTORE = "src/test/resources/client.keystore";
 
+   @Override
    protected String getBindLocation() {
       return "nio+ssl://localhost:0?transport.soWriteTimeout=20000";
    }
@@ -40,6 +41,7 @@ public class NIOSSLTransportBrokerTest extends TransportBrokerTestSupport {
       return new URI("nio+ssl://localhost:0?soWriteTimeout=20000");
    }
 
+   @Override
    protected void setUp() throws Exception {
       System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
       System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);

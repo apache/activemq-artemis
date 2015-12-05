@@ -32,6 +32,7 @@ public class DummyPolicyEntry extends DestinationMapEntry<String> {
       this.description = description;
    }
 
+   @Override
    public Comparable<String> getValue() {
       return description;
    }

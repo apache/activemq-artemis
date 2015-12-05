@@ -37,12 +37,14 @@ public class ConnectionInfoTest extends BaseCommandTestSupport {
 
    public static ConnectionInfoTest SINGLETON = new ConnectionInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConnectionInfo info = new ConnectionInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConnectionInfo info = (ConnectionInfo) object;

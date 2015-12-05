@@ -37,6 +37,7 @@ public class ClientStompFrameV11 extends AbstractClientStompFrame {
       super(command, validate);
    }
 
+   @Override
    public void setForceOneway() {
       forceOneway = true;
    }
@@ -52,10 +53,12 @@ public class ClientStompFrameV11 extends AbstractClientStompFrame {
       return false;
    }
 
+   @Override
    public void setPing(boolean b) {
       isPing = b;
    }
 
+   @Override
    public boolean isPing() {
       return isPing;
    }

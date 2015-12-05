@@ -37,12 +37,14 @@ public class ShutdownInfoTest extends BaseCommandTestSupport {
 
    public static ShutdownInfoTest SINGLETON = new ShutdownInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       ShutdownInfo info = new ShutdownInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ShutdownInfo info = (ShutdownInfo) object;

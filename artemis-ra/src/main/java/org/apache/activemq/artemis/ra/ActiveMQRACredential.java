@@ -197,6 +197,7 @@ public class ActiveMQRACredential implements Serializable {
        *
        * @return The credential
        */
+      @Override
       public PasswordCredential run() {
          if (ActiveMQRACredential.trace) {
             ActiveMQRALogger.LOGGER.trace("run()");

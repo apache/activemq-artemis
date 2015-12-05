@@ -57,6 +57,7 @@ public class SimpleAddressManager implements AddressManager {
       this.bindingsFactory = bindingsFactory;
    }
 
+   @Override
    public boolean addBinding(final Binding binding) throws Exception {
       if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null || pendingDeletes.contains(binding.getUniqueName())) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
@@ -69,6 +70,7 @@ public class SimpleAddressManager implements AddressManager {
       return addMappingInternal(binding.getAddress(), binding);
    }
 
+   @Override
    public Binding removeBinding(final SimpleString uniqueName, Transaction tx) throws Exception {
       final Binding binding = nameMap.remove(uniqueName);
 
@@ -99,18 +101,22 @@ public class SimpleAddressManager implements AddressManager {
       return binding;
    }
 
+   @Override
    public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
       return mappings.get(address);
    }
 
+   @Override
    public Binding getBinding(final SimpleString bindableName) {
       return nameMap.get(bindableName);
    }
 
+   @Override
    public Map<SimpleString, Binding> getBindings() {
       return nameMap;
    }
 
+   @Override
    public Bindings getMatchingBindings(final SimpleString address) throws Exception {
       Address add = new AddressImpl(address);
 
@@ -127,6 +133,7 @@ public class SimpleAddressManager implements AddressManager {
       return bindings;
    }
 
+   @Override
    public void clear() {
       nameMap.clear();
       mappings.clear();

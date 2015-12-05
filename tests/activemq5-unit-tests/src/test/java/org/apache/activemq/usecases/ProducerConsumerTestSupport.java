@@ -34,6 +34,7 @@ public class ProducerConsumerTestSupport extends TestSupport {
    protected MessageConsumer consumer;
    protected Destination destination;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -44,6 +45,7 @@ public class ProducerConsumerTestSupport extends TestSupport {
       connection.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       consumer.close();
       producer.close();

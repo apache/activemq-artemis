@@ -79,6 +79,7 @@ public class MulticastDiscoveryOnFaultyNetworkTest extends JmsMultipleBrokersTes
       brokerItem.broker.start();
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

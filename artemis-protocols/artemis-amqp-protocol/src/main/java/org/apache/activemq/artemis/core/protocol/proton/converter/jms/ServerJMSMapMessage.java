@@ -59,46 +59,57 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
 
    // MapMessage implementation -------------------------------------
 
+   @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
       map.putBooleanProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setByte(final String name, final byte value) throws JMSException {
       map.putByteProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setShort(final String name, final short value) throws JMSException {
       map.putShortProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setChar(final String name, final char value) throws JMSException {
       map.putCharProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setInt(final String name, final int value) throws JMSException {
       map.putIntProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setLong(final String name, final long value) throws JMSException {
       map.putLongProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setFloat(final String name, final float value) throws JMSException {
       map.putFloatProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setDouble(final String name, final double value) throws JMSException {
       map.putDoubleProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setString(final String name, final String value) throws JMSException {
       map.putSimpleStringProperty(new SimpleString(name), value == null ? null : new SimpleString(value));
    }
 
+   @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
       map.putBytesProperty(new SimpleString(name), value);
    }
 
+   @Override
    public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
       if (offset + length > value.length) {
          throw new JMSException("Invalid offset/length");
@@ -108,6 +119,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       map.putBytesProperty(new SimpleString(name), newBytes);
    }
 
+   @Override
    public void setObject(final String name, final Object value) throws JMSException {
       try {
          TypedProperties.setObjectProperty(new SimpleString(name), value, map);
@@ -117,6 +129,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public boolean getBoolean(final String name) throws JMSException {
       try {
          return map.getBooleanProperty(new SimpleString(name));
@@ -126,6 +139,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public byte getByte(final String name) throws JMSException {
       try {
          return map.getByteProperty(new SimpleString(name));
@@ -135,6 +149,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public short getShort(final String name) throws JMSException {
       try {
          return map.getShortProperty(new SimpleString(name));
@@ -144,6 +159,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public char getChar(final String name) throws JMSException {
       try {
          return map.getCharProperty(new SimpleString(name));
@@ -153,6 +169,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public int getInt(final String name) throws JMSException {
       try {
          return map.getIntProperty(new SimpleString(name));
@@ -162,6 +179,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public long getLong(final String name) throws JMSException {
       try {
          return map.getLongProperty(new SimpleString(name));
@@ -171,6 +189,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public float getFloat(final String name) throws JMSException {
       try {
          return map.getFloatProperty(new SimpleString(name));
@@ -180,6 +199,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public double getDouble(final String name) throws JMSException {
       try {
          return map.getDoubleProperty(new SimpleString(name));
@@ -189,6 +209,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public String getString(final String name) throws JMSException {
       try {
          SimpleString str = map.getSimpleStringProperty(new SimpleString(name));
@@ -204,6 +225,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public byte[] getBytes(final String name) throws JMSException {
       try {
          return map.getBytesProperty(new SimpleString(name));
@@ -213,6 +235,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       }
    }
 
+   @Override
    public Object getObject(final String name) throws JMSException {
       Object val = map.getProperty(new SimpleString(name));
 
@@ -223,6 +246,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       return val;
    }
 
+   @Override
    public Enumeration getMapNames() throws JMSException {
       Set<SimpleString> simplePropNames = map.getPropertyNames();
       Set<String> propNames = new HashSet<String>(simplePropNames.size());
@@ -234,6 +258,7 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       return Collections.enumeration(propNames);
    }
 
+   @Override
    public boolean itemExists(final String name) throws JMSException {
       return map.containsProperty(new SimpleString(name));
    }
@@ -245,11 +270,13 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
       map.clear();
    }
 
+   @Override
    public void encode() throws Exception {
       super.encode();
       writeBodyMap(getWriteBodyBuffer(), map);
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
       readBodyMap(getReadBodyBuffer(), map);

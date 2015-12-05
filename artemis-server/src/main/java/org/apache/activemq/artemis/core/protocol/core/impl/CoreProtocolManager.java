@@ -113,6 +113,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       return null;
    }
 
+   @Override
    public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {
       final Configuration config = server.getConfiguration();
 
@@ -153,10 +154,12 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       sessionHandlers.put(name, handler);
    }
 
+   @Override
    public void removeHandler(final String name) {
       sessionHandlers.remove(name);
    }
 
+   @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
    }
 
@@ -213,6 +216,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
          this.rc = rc;
       }
 
+      @Override
       public void handlePacket(final Packet packet) {
          if (packet.getType() == PacketImpl.PING) {
             Ping ping = (Ping) packet;
@@ -243,6 +247,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                      // may come from a channel itself
                      // What could cause deadlocks
                      entry.connectionExecutor.execute(new Runnable() {
+                        @Override
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V3)) {
                               channel0.send(new ClusterTopologyChangeMessage_V3(topologyMember.getUniqueEventID(), nodeID, topologyMember.getBackupGroupName(), topologyMember.getScaleDownGroupName(), connectorPair, last));
@@ -270,6 +275,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                   // What could cause deadlocks
                   try {
                      entry.connectionExecutor.execute(new Runnable() {
+                        @Override
                         public void run() {
                            if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                               channel0.send(new ClusterTopologyChangeMessage_V2(uniqueEventID, nodeID));
@@ -296,6 +302,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                acceptorUsed.getClusterConnection().addClusterTopologyListener(listener);
 
                rc.addCloseListener(new CloseListener() {
+                  @Override
                   public void connectionClosed() {
                      acceptorUsed.getClusterConnection().removeClusterTopologyListener(listener);
                   }
@@ -305,6 +312,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                // if not clustered, we send a single notification to the client containing the node-id where the server is connected to
                // This is done this way so Recovery discovery could also use the node-id for non-clustered setups
                entry.connectionExecutor.execute(new Runnable() {
+                  @Override
                   public void run() {
                      String nodeId = server.getNodeID().toString();
                      Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<TransportConfiguration, TransportConfiguration>(null, null);

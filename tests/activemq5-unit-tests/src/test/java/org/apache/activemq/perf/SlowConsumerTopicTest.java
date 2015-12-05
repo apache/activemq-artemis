@@ -35,17 +35,20 @@ public class SlowConsumerTopicTest extends SimpleTopicTest {
 
    protected PerfConsumer[] slowConsumers;
 
+   @Override
    protected void setUp() throws Exception {
 
       playloadSize = 10 * 1024;
       super.setUp();
    }
 
+   @Override
    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
       PerfConsumer result = new SlowConsumer(fac, dest);
       return result;
    }
 
+   @Override
    protected PerfProducer createProducer(ConnectionFactory fac,
                                          Destination dest,
                                          int number,
@@ -56,6 +59,7 @@ public class SlowConsumerTopicTest extends SimpleTopicTest {
       return result;
    }
 
+   @Override
    protected BrokerService createBroker(String url) throws Exception {
       Resource resource = new ClassPathResource("org/apache/activemq/perf/slowConsumerBroker.xml");
       System.err.println("CREATE BROKER FROM " + resource);
@@ -67,6 +71,7 @@ public class SlowConsumerTopicTest extends SimpleTopicTest {
       return broker;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception {
       ActiveMQConnectionFactory result = super.createConnectionFactory(uri);
       ActiveMQPrefetchPolicy policy = new ActiveMQPrefetchPolicy();

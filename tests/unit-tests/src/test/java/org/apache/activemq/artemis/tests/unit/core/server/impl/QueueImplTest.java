@@ -155,10 +155,12 @@ public class QueueImplTest extends ActiveMQTestBase {
       Assert.assertNull(queue.getFilter());
 
       Filter filter = new Filter() {
+         @Override
          public boolean match(final ServerMessage message) {
             return false;
          }
 
+         @Override
          public SimpleString getFilterString() {
             return null;
          }
@@ -1226,6 +1228,7 @@ public class QueueImplTest extends ActiveMQTestBase {
          this.first = first;
       }
 
+      @Override
       public void run() {
          if (first) {
             queue.addHead(messageReference);

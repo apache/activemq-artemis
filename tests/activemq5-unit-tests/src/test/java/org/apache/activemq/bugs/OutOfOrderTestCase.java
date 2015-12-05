@@ -51,6 +51,7 @@ public class OutOfOrderTestCase extends TestCase {
 
    private int seq = 0;
 
+   @Override
    public void setUp() throws Exception {
       brokerService = new BrokerService();
       brokerService.setUseJmx(true);
@@ -67,6 +68,7 @@ public class OutOfOrderTestCase extends TestCase {
       session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       session.close();
       connection.close();

@@ -124,6 +124,7 @@ public interface JMSQueueControl extends DestinationControl {
     *
     * @return the number of removed messages
     */
+   @Override
    @Operation(desc = "Remove the messages corresponding to the given filter (and returns the number of removed messages)", impact = MBeanOperationInfo.ACTION)
    int removeMessages(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
 

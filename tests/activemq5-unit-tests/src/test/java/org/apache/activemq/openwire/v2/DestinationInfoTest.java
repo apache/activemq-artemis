@@ -29,12 +29,14 @@ public class DestinationInfoTest extends BaseCommandTestSupport {
 
    public static final DestinationInfoTest SINGLETON = new DestinationInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       DestinationInfo info = new DestinationInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       DestinationInfo info = (DestinationInfo) object;

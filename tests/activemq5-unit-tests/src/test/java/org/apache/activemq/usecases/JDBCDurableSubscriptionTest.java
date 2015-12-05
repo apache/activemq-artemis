@@ -27,6 +27,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
  */
 public class JDBCDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
+   @Override
    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
       JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
       EmbeddedDataSource dataSource = new EmbeddedDataSource();

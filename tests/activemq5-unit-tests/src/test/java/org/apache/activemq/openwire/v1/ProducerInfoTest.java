@@ -29,12 +29,14 @@ public class ProducerInfoTest extends BaseCommandTestSupport {
 
    public static final ProducerInfoTest SINGLETON = new ProducerInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       ProducerInfo info = new ProducerInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ProducerInfo info = (ProducerInfo) object;

@@ -113,6 +113,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       cc.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage message) {
          }
       });

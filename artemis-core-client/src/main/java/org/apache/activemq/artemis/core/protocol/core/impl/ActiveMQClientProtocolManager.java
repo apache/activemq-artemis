@@ -109,14 +109,17 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    public ActiveMQClientProtocolManager() {
    }
 
+   @Override
    public String getName() {
       return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
    }
 
+   @Override
    public void setSessionFactory(ClientSessionFactory factory) {
       this.factoryInternal = (ClientSessionFactoryInternal) factory;
    }
 
+   @Override
    public ClientSessionFactory getSessionFactory() {
       return this.factoryInternal;
    }
@@ -126,6 +129,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       pipeline.addLast("activemq-decoder", new ActiveMQFrameDecoder2());
    }
 
+   @Override
    public boolean waitOnLatch(long milliseconds) throws InterruptedException {
       return waitLatch.await(milliseconds, TimeUnit.MILLISECONDS);
    }
@@ -139,6 +143,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
+   @Override
    public RemotingConnection getCurrentConnection() {
       return connection;
    }
@@ -152,6 +157,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
+   @Override
    public Lock lockSessionCreation() {
       try {
          Lock localFailoverLock = factoryInternal.lockFailover();
@@ -179,6 +185,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       }
    }
 
+   @Override
    public void stop() {
       alive = false;
 
@@ -196,6 +203,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
    }
 
+   @Override
    public boolean isAlive() {
       return alive;
    }
@@ -351,6 +359,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       return new ActiveMQSessionContext(name, connection, sessionChannel, response.getServerVersion(), confirmationWindowSize);
    }
 
+   @Override
    public boolean cleanupBeforeFailover(ActiveMQException cause) {
 
       boolean needToInterrupt;
@@ -401,6 +410,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       return message.isOkToFailover();
    }
 
+   @Override
    public RemotingConnection connect(Connection transportConnection,
                                      long callTimeout,
                                      long callFailoverTimeout,
@@ -435,6 +445,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          this.conn = conn;
       }
 
+      @Override
       public void handlePacket(final Packet packet) {
          final byte type = packet.getType();
 

@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 
 public class NettyAcceptorFactory implements AcceptorFactory {
 
+   @Override
    public Acceptor createAcceptor(final String name,
                                   final ClusterConnection connection,
                                   final Map<String, Object> configuration,

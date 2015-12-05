@@ -79,6 +79,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
    private String protocolManagerFactoryStr;
 
+   @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       URI uri = toURI();
 
@@ -135,6 +136,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
       if (protocolManagerFactoryStr != null && !protocolManagerFactoryStr.trim().isEmpty()) {
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
             public Object run() {
 
                ClientProtocolManagerFactory protocolManagerFactory =
@@ -148,6 +150,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       }
    }
 
+   @Override
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
       String url = in.readUTF();
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
@@ -225,10 +228,12 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       serverLocator.disableFinalizeCheck();
    }
 
+   @Override
    public Connection createConnection() throws JMSException {
       return createConnection(user, password);
    }
 
+   @Override
    public Connection createConnection(final String username, final String password) throws JMSException {
       return createConnectionInternal(username, password, false, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
    }
@@ -296,10 +301,12 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
    // XAConnectionFactory implementation -----------------------------------------------------------
 
+   @Override
    public XAConnection createXAConnection() throws JMSException {
       return createXAConnection(null, null);
    }
 
+   @Override
    public XAConnection createXAConnection(final String username, final String password) throws JMSException {
       return (XAConnection) createConnectionInternal(username, password, true, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
    }
@@ -694,6 +701,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       serverLocator.setCompressLargeMessage(avoidLargeMessages);
    }
 
+   @Override
    public void close() {
       ServerLocator locator0 = serverLocator;
       if (locator0 != null)

@@ -62,11 +62,13 @@ public class LoadTestBurnIn extends JmsTestSupport {
       return suite(LoadTestBurnIn.class);
    }
 
+   @Override
    protected void setUp() throws Exception {
       LOG.info("Start: " + getName());
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       try {
          super.tearDown();
@@ -83,12 +85,14 @@ public class LoadTestBurnIn extends JmsTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return BrokerFactory.createBroker(new URI("broker://(tcp://localhost:0)?useJmx=true"));
       // return BrokerFactory.createBroker(new
       // URI("xbean:org/apache/activemq/broker/store/loadtester.xml"));
    }
 
+   @Override
    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
       return new ActiveMQConnectionFactory(((TransportConnector) broker.getTransportConnectors().get(0)).getServer().getConnectURI());
    }
@@ -126,6 +130,7 @@ public class LoadTestBurnIn extends JmsTestSupport {
 
       // Send the messages, async
       new Thread() {
+         @Override
          public void run() {
             Connection connection2 = null;
             try {

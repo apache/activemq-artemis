@@ -377,6 +377,7 @@ public abstract class PerfBase {
          modulo = 2000;
       }
 
+      @Override
       public void onMessage(final Message message) {
          try {
             if (warmingUp) {

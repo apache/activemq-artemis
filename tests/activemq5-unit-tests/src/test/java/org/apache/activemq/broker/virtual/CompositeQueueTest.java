@@ -113,6 +113,7 @@ public class CompositeQueueTest extends EmbeddedBrokerTestSupport {
       return new ActiveMQQueue("MY.QUEUE");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -120,6 +121,7 @@ public class CompositeQueueTest extends EmbeddedBrokerTestSupport {
       super.tearDown();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       XBeanBrokerFactory factory = new XBeanBrokerFactory();
       BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));

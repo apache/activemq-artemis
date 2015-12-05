@@ -86,6 +86,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
 
    // StreamMessage implementation ----------------------------------
 
+   @Override
    public boolean readBoolean() throws JMSException {
       checkRead();
       try {
@@ -99,6 +100,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public byte readByte() throws JMSException {
       checkRead();
 
@@ -113,6 +115,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public short readShort() throws JMSException {
       checkRead();
       try {
@@ -126,6 +129,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public char readChar() throws JMSException {
       checkRead();
       try {
@@ -139,6 +143,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public int readInt() throws JMSException {
       checkRead();
       try {
@@ -152,6 +157,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public long readLong() throws JMSException {
       checkRead();
       try {
@@ -165,6 +171,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public float readFloat() throws JMSException {
       checkRead();
       try {
@@ -178,6 +185,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public double readDouble() throws JMSException {
       checkRead();
       try {
@@ -191,6 +199,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public String readString() throws JMSException {
       checkRead();
       try {
@@ -209,6 +218,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
     */
    private int len = 0;
 
+   @Override
    public int readBytes(final byte[] value) throws JMSException {
       checkRead();
       try {
@@ -225,6 +235,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public Object readObject() throws JMSException {
       checkRead();
       try {
@@ -238,60 +249,70 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public void writeBoolean(final boolean value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.BOOLEAN);
       getBuffer().writeBoolean(value);
    }
 
+   @Override
    public void writeByte(final byte value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.BYTE);
       getBuffer().writeByte(value);
    }
 
+   @Override
    public void writeShort(final short value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.SHORT);
       getBuffer().writeShort(value);
    }
 
+   @Override
    public void writeChar(final char value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.CHAR);
       getBuffer().writeShort((short) value);
    }
 
+   @Override
    public void writeInt(final int value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.INT);
       getBuffer().writeInt(value);
    }
 
+   @Override
    public void writeLong(final long value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.LONG);
       getBuffer().writeLong(value);
    }
 
+   @Override
    public void writeFloat(final float value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.FLOAT);
       getBuffer().writeInt(Float.floatToIntBits(value));
    }
 
+   @Override
    public void writeDouble(final double value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.DOUBLE);
       getBuffer().writeLong(Double.doubleToLongBits(value));
    }
 
+   @Override
    public void writeString(final String value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.STRING);
       getBuffer().writeNullableString(value);
    }
 
+   @Override
    public void writeBytes(final byte[] value) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.BYTES);
@@ -299,6 +320,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       getBuffer().writeBytes(value);
    }
 
+   @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       checkWrite();
       getBuffer().writeByte(DataConstants.BYTES);
@@ -306,6 +328,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       getBuffer().writeBytes(value, offset, length);
    }
 
+   @Override
    public void writeObject(final Object value) throws JMSException {
       if (value instanceof String) {
          writeString((String) value);
@@ -345,6 +368,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       }
    }
 
+   @Override
    public void reset() throws JMSException {
       if (!readOnly) {
          readOnly = true;

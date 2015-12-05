@@ -35,6 +35,7 @@ public class FakeFilter implements Filter {
    public FakeFilter() {
    }
 
+   @Override
    public boolean match(final ServerMessage message) {
       if (headerName != null) {
          Object value = message.getObjectProperty(new SimpleString(headerName));
@@ -53,6 +54,7 @@ public class FakeFilter implements Filter {
       return true;
    }
 
+   @Override
    public SimpleString getFilterString() {
       return null;
    }

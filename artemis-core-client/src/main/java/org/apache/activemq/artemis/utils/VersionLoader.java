@@ -51,6 +51,7 @@ public final class VersionLoader {
 
          try {
             PROP_FILE_NAME = AccessController.doPrivileged(new PrivilegedAction<String>() {
+               @Override
                public String run() {
                   return System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY);
                }

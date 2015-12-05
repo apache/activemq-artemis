@@ -207,6 +207,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
             int processed;
 
+            @Override
             public void onMessage(final Message msg) {
                processed++;
 
@@ -224,6 +225,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
             int processed;
 
+            @Override
             public void onMessage(final Message msg) {
                processed++;
 

@@ -50,6 +50,7 @@ public class TimeStampingBrokerPluginTest extends TestCase {
    String queue = "TEST.FOO";
    long expiry = 500;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       TimeStampingBrokerPlugin tsbp = new TimeStampingBrokerPlugin();
@@ -95,6 +96,7 @@ public class TimeStampingBrokerPluginTest extends TestCase {
       producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       // Clean up

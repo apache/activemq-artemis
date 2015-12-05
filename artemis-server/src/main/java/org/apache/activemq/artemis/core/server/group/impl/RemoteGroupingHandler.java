@@ -84,6 +84,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       this(null, managementService, name, address, timeout, groupTimeout);
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }
@@ -105,6 +106,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       return started;
    }
 
+   @Override
    public void resendPending() throws Exception {
       // In case the RESET wasn't sent yet to the remote node, we may eventually miss a node send,
       // on that case the cluster-reset information will ask the group to resend any pending information
@@ -121,6 +123,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       }
    }
 
+   @Override
    public Response propose(final Proposal proposal) throws Exception {
       // return it from the cache first
       Response response = responses.get(proposal.getGroupId());
@@ -205,6 +208,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       return new Notification(null, CoreNotificationType.PROPOSAL, props);
    }
 
+   @Override
    public Response getProposal(final SimpleString fullID, boolean touchTime) {
       Response response = responses.get(fullID);
 
@@ -231,6 +235,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       sendUnproposal(groupid, clusterName, distance);
    }
 
+   @Override
    public void proposed(final Response response) throws Exception {
       try {
          lock.lock();
@@ -250,6 +255,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       }
    }
 
+   @Override
    public Response receive(final Proposal proposal, final int distance) throws Exception {
       TypedProperties props = new TypedProperties();
       props.putSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID, proposal.getGroupId());
@@ -262,14 +268,17 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       return null;
    }
 
+   @Override
    public void sendProposalResponse(final Response response, final int distance) throws Exception {
       // NO-OP
    }
 
+   @Override
    public void addGroupBinding(final GroupBinding groupBinding) {
       // NO-OP
    }
 
+   @Override
    public void onNotification(final Notification notification) {
       if (!(notification.getType() instanceof CoreNotificationType))
          return;

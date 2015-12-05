@@ -40,12 +40,14 @@ public class StartAndStopClientAndBrokerDoesNotLeaveThreadsRunningTest extends T
       void execute() throws Exception;
    }
 
+   @Override
    public void setUp() throws Exception {
    }
 
    public void testStartAndStopClientAndBrokerAndCheckNoThreadsAreLeft() throws Exception {
       runTest(new Task() {
 
+         @Override
          public void execute() throws Exception {
             BrokerService broker = new BrokerService();
             broker.setPersistent(false);

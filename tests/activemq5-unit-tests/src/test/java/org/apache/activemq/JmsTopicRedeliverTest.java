@@ -48,6 +48,7 @@ public class JmsTopicRedeliverTest extends TestSupport {
    protected boolean verbose;
    protected long initRedeliveryDelay;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -88,6 +89,7 @@ public class JmsTopicRedeliverTest extends TestSupport {
       LOG.info("Created connection: " + connection);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -101,6 +103,7 @@ public class JmsTopicRedeliverTest extends TestSupport {
     * @return String - consumer subject
     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
     */
+   @Override
    protected String getConsumerSubject() {
       return "TEST";
    }
@@ -111,6 +114,7 @@ public class JmsTopicRedeliverTest extends TestSupport {
     * @return String - producer subject
     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
     */
+   @Override
    protected String getProducerSubject() {
       return "TEST";
    }

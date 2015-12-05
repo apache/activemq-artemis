@@ -34,6 +34,7 @@ public class PublishOnTopicConsumedMessageTest extends JmsTopicSendReceiveWithTw
 
    private MessageProducer replyProducer;
 
+   @Override
    public synchronized void onMessage(Message message) {
 
       // lets resend the message somewhere else
@@ -50,6 +51,7 @@ public class PublishOnTopicConsumedMessageTest extends JmsTopicSendReceiveWithTw
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 

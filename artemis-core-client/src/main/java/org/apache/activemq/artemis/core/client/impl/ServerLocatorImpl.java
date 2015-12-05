@@ -314,6 +314,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          throw new IllegalStateException("Please specify a load balancing policy class name on the session factory");
       }
       AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         @Override
          public Object run() {
             loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(connectionLoadBalancingPolicyClassName);
             return null;
@@ -500,6 +501,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       this(topology, useHA, null, transportConfigs);
    }
 
+   @Override
    public void resetToInitialConnectors() {
       synchronized (topologyArrayGuard) {
          receivedTopology = false;
@@ -511,6 +513,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    /*
     * I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
     */
+   @Override
    public boolean allInVM() {
       for (TransportConfiguration config : getStaticTransportConfigurations()) {
          if (!config.getFactoryClassName().contains("InVMConnectorFactory")) {
@@ -597,6 +600,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public void start(Executor executor) throws Exception {
       initialise();
 
@@ -604,6 +608,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       if (executor != null) {
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   connect();
@@ -618,10 +623,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public ClientProtocolManager newProtocolManager() {
       return getProtocolManagerFactory().newProtocolManager();
    }
 
+   @Override
    public ClientProtocolManagerFactory getProtocolManagerFactory() {
       if (protocolManagerFactory == null) {
          // Default one in case it's null
@@ -630,12 +637,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return protocolManagerFactory;
    }
 
+   @Override
    public ServerLocator setProtocolManagerFactory(ClientProtocolManagerFactory protocolManagerFactory) {
       this.protocolManagerFactory = protocolManagerFactory;
       protocolManagerFactory.setLocator(this);
       return this;
    }
 
+   @Override
    public void disableFinalizeCheck() {
       finalizeCheck = false;
    }
@@ -670,15 +679,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return connect(true);
    }
 
+   @Override
    public ServerLocatorImpl setAfterConnectionInternalListener(AfterConnectInternalListener listener) {
       this.afterConnectListener = listener;
       return this;
    }
 
+   @Override
    public AfterConnectInternalListener getAfterConnectInternalListener() {
       return afterConnectListener;
    }
 
+   @Override
    public ClientSessionFactory createSessionFactory(String nodeID) throws Exception {
       TopologyMember topologyMember = topology.getMember(nodeID);
 
@@ -705,6 +717,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return null;
    }
 
+   @Override
    public ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration) throws Exception {
       assertOpen();
 
@@ -730,6 +743,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
                                                     int reconnectAttempts,
                                                     boolean failoverOnInitialConnection) throws Exception {
@@ -770,6 +784,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public ClientSessionFactory createSessionFactory() throws ActiveMQException {
       assertOpen();
 
@@ -902,327 +917,393 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return fromInterceptors(outgoingInterceptors);
    }
 
+   @Override
    public boolean isCacheLargeMessagesClient() {
       return cacheLargeMessagesClient;
    }
 
+   @Override
    public ServerLocatorImpl setCacheLargeMessagesClient(final boolean cached) {
       cacheLargeMessagesClient = cached;
       return this;
    }
 
+   @Override
    public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
 
+   @Override
    public ServerLocatorImpl setClientFailureCheckPeriod(final long clientFailureCheckPeriod) {
       checkWrite();
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
       return this;
    }
 
+   @Override
    public long getConnectionTTL() {
       return connectionTTL;
    }
 
+   @Override
    public ServerLocatorImpl setConnectionTTL(final long connectionTTL) {
       checkWrite();
       this.connectionTTL = connectionTTL;
       return this;
    }
 
+   @Override
    public long getCallTimeout() {
       return callTimeout;
    }
 
+   @Override
    public ServerLocatorImpl setCallTimeout(final long callTimeout) {
       checkWrite();
       this.callTimeout = callTimeout;
       return this;
    }
 
+   @Override
    public long getCallFailoverTimeout() {
       return callFailoverTimeout;
    }
 
+   @Override
    public ServerLocatorImpl setCallFailoverTimeout(long callFailoverTimeout) {
       checkWrite();
       this.callFailoverTimeout = callFailoverTimeout;
       return this;
    }
 
+   @Override
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
+   @Override
    public ServerLocatorImpl setMinLargeMessageSize(final int minLargeMessageSize) {
       checkWrite();
       this.minLargeMessageSize = minLargeMessageSize;
       return this;
    }
 
+   @Override
    public int getConsumerWindowSize() {
       return consumerWindowSize;
    }
 
+   @Override
    public ServerLocatorImpl setConsumerWindowSize(final int consumerWindowSize) {
       checkWrite();
       this.consumerWindowSize = consumerWindowSize;
       return this;
    }
 
+   @Override
    public int getConsumerMaxRate() {
       return consumerMaxRate;
    }
 
+   @Override
    public ServerLocatorImpl setConsumerMaxRate(final int consumerMaxRate) {
       checkWrite();
       this.consumerMaxRate = consumerMaxRate;
       return this;
    }
 
+   @Override
    public int getConfirmationWindowSize() {
       return confirmationWindowSize;
    }
 
+   @Override
    public ServerLocatorImpl setConfirmationWindowSize(final int confirmationWindowSize) {
       checkWrite();
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
    }
 
+   @Override
    public int getProducerWindowSize() {
       return producerWindowSize;
    }
 
+   @Override
    public ServerLocatorImpl setProducerWindowSize(final int producerWindowSize) {
       checkWrite();
       this.producerWindowSize = producerWindowSize;
       return this;
    }
 
+   @Override
    public int getProducerMaxRate() {
       return producerMaxRate;
    }
 
+   @Override
    public ServerLocatorImpl setProducerMaxRate(final int producerMaxRate) {
       checkWrite();
       this.producerMaxRate = producerMaxRate;
       return this;
    }
 
+   @Override
    public boolean isBlockOnAcknowledge() {
       return blockOnAcknowledge;
    }
 
+   @Override
    public ServerLocatorImpl setBlockOnAcknowledge(final boolean blockOnAcknowledge) {
       checkWrite();
       this.blockOnAcknowledge = blockOnAcknowledge;
       return this;
    }
 
+   @Override
    public boolean isBlockOnDurableSend() {
       return blockOnDurableSend;
    }
 
+   @Override
    public ServerLocatorImpl setBlockOnDurableSend(final boolean blockOnDurableSend) {
       checkWrite();
       this.blockOnDurableSend = blockOnDurableSend;
       return this;
    }
 
+   @Override
    public boolean isBlockOnNonDurableSend() {
       return blockOnNonDurableSend;
    }
 
+   @Override
    public ServerLocatorImpl setBlockOnNonDurableSend(final boolean blockOnNonDurableSend) {
       checkWrite();
       this.blockOnNonDurableSend = blockOnNonDurableSend;
       return this;
    }
 
+   @Override
    public boolean isAutoGroup() {
       return autoGroup;
    }
 
+   @Override
    public ServerLocatorImpl setAutoGroup(final boolean autoGroup) {
       checkWrite();
       this.autoGroup = autoGroup;
       return this;
    }
 
+   @Override
    public boolean isPreAcknowledge() {
       return preAcknowledge;
    }
 
+   @Override
    public ServerLocatorImpl setPreAcknowledge(final boolean preAcknowledge) {
       checkWrite();
       this.preAcknowledge = preAcknowledge;
       return this;
    }
 
+   @Override
    public int getAckBatchSize() {
       return ackBatchSize;
    }
 
+   @Override
    public ServerLocatorImpl setAckBatchSize(final int ackBatchSize) {
       checkWrite();
       this.ackBatchSize = ackBatchSize;
       return this;
    }
 
+   @Override
    public boolean isUseGlobalPools() {
       return useGlobalPools;
    }
 
+   @Override
    public ServerLocatorImpl setUseGlobalPools(final boolean useGlobalPools) {
       checkWrite();
       this.useGlobalPools = useGlobalPools;
       return this;
    }
 
+   @Override
    public int getScheduledThreadPoolMaxSize() {
       return scheduledThreadPoolMaxSize;
    }
 
+   @Override
    public ServerLocatorImpl setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize) {
       checkWrite();
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
       return this;
    }
 
+   @Override
    public int getThreadPoolMaxSize() {
       return threadPoolMaxSize;
    }
 
+   @Override
    public ServerLocatorImpl setThreadPoolMaxSize(final int threadPoolMaxSize) {
       checkWrite();
       this.threadPoolMaxSize = threadPoolMaxSize;
       return this;
    }
 
+   @Override
    public long getRetryInterval() {
       return retryInterval;
    }
 
+   @Override
    public ServerLocatorImpl setRetryInterval(final long retryInterval) {
       checkWrite();
       this.retryInterval = retryInterval;
       return this;
    }
 
+   @Override
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
 
+   @Override
    public ServerLocatorImpl setMaxRetryInterval(final long retryInterval) {
       checkWrite();
       maxRetryInterval = retryInterval;
       return this;
    }
 
+   @Override
    public double getRetryIntervalMultiplier() {
       return retryIntervalMultiplier;
    }
 
+   @Override
    public ServerLocatorImpl setRetryIntervalMultiplier(final double retryIntervalMultiplier) {
       checkWrite();
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
    }
 
+   @Override
    public int getReconnectAttempts() {
       return reconnectAttempts;
    }
 
+   @Override
    public ServerLocatorImpl setReconnectAttempts(final int reconnectAttempts) {
       checkWrite();
       this.reconnectAttempts = reconnectAttempts;
       return this;
    }
 
+   @Override
    public ServerLocatorImpl setInitialConnectAttempts(int initialConnectAttempts) {
       checkWrite();
       this.initialConnectAttempts = initialConnectAttempts;
       return this;
    }
 
+   @Override
    public int getInitialConnectAttempts() {
       return initialConnectAttempts;
    }
 
+   @Override
    public boolean isFailoverOnInitialConnection() {
       return this.failoverOnInitialConnection;
    }
 
+   @Override
    public ServerLocatorImpl setFailoverOnInitialConnection(final boolean failover) {
       checkWrite();
       this.failoverOnInitialConnection = failover;
       return this;
    }
 
+   @Override
    public String getConnectionLoadBalancingPolicyClassName() {
       return connectionLoadBalancingPolicyClassName;
    }
 
+   @Override
    public ServerLocatorImpl setConnectionLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName) {
       checkWrite();
       connectionLoadBalancingPolicyClassName = loadBalancingPolicyClassName;
       return this;
    }
 
+   @Override
    public TransportConfiguration[] getStaticTransportConfigurations() {
       if (initialConnectors == null)
          return new TransportConfiguration[]{};
       return Arrays.copyOf(initialConnectors, initialConnectors.length);
    }
 
+   @Override
    public DiscoveryGroupConfiguration getDiscoveryGroupConfiguration() {
       return discoveryGroupConfiguration;
    }
 
+   @Override
    public ServerLocatorImpl addIncomingInterceptor(final Interceptor interceptor) {
       incomingInterceptors.add(interceptor);
       return this;
    }
 
+   @Override
    public ServerLocatorImpl addOutgoingInterceptor(final Interceptor interceptor) {
       outgoingInterceptors.add(interceptor);
       return this;
    }
 
+   @Override
    public boolean removeIncomingInterceptor(final Interceptor interceptor) {
       return incomingInterceptors.remove(interceptor);
    }
 
+   @Override
    public boolean removeOutgoingInterceptor(final Interceptor interceptor) {
       return outgoingInterceptors.remove(interceptor);
    }
 
+   @Override
    public int getInitialMessagePacketSize() {
       return initialMessagePacketSize;
    }
 
+   @Override
    public ServerLocatorImpl setInitialMessagePacketSize(final int size) {
       checkWrite();
       initialMessagePacketSize = size;
       return this;
    }
 
+   @Override
    public ServerLocatorImpl setGroupID(final String groupID) {
       checkWrite();
       this.groupID = groupID;
       return this;
    }
 
+   @Override
    public String getGroupID() {
       return groupID;
    }
 
+   @Override
    public boolean isCompressLargeMessage() {
       return compressLargeMessage;
    }
 
+   @Override
    public ServerLocatorImpl setCompressLargeMessage(boolean avoid) {
       this.compressLargeMessage = avoid;
       return this;
@@ -1242,33 +1323,40 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return initialConnectors.length;
    }
 
+   @Override
    public ServerLocatorImpl setIdentity(String identity) {
       this.identity = identity;
       return this;
    }
 
+   @Override
    public ServerLocatorImpl setNodeID(String nodeID) {
       this.nodeID = nodeID;
       return this;
    }
 
+   @Override
    public String getNodeID() {
       return nodeID;
    }
 
+   @Override
    public ServerLocatorImpl setClusterConnection(boolean clusterConnection) {
       this.clusterConnection = clusterConnection;
       return this;
    }
 
+   @Override
    public boolean isClusterConnection() {
       return clusterConnection;
    }
 
+   @Override
    public TransportConfiguration getClusterTransportConfiguration() {
       return clusterTransportConfiguration;
    }
 
+   @Override
    public ServerLocatorImpl setClusterTransportConfiguration(TransportConfiguration tc) {
       this.clusterTransportConfiguration = tc;
       return this;
@@ -1283,10 +1371,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       super.finalize();
    }
 
+   @Override
    public void cleanup() {
       doClose(false);
    }
 
+   @Override
    public void close() {
       doClose(true);
    }
@@ -1428,6 +1518,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    }
 
+   @Override
    public void notifyNodeUp(long uniqueEventID,
                             final String nodeID,
                             final String backupGroupName,
@@ -1498,6 +1589,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public synchronized void connectorsChanged(List<DiscoveryEntry> newConnectors) {
       if (receivedTopology) {
          return;
@@ -1522,6 +1614,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          // to trigger the node notification to form the cluster.
 
          Runnable connectRunnable = new Runnable() {
+            @Override
             public void run() {
                try {
                   connect();
@@ -1540,6 +1633,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public void factoryClosed(final ClientSessionFactory factory) {
       boolean isEmpty;
       synchronized (factories) {
@@ -1557,6 +1651,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public Topology getTopology() {
       return topology;
    }
@@ -1566,11 +1661,13 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return getNumInitialConnectors() > 0 || getDiscoveryGroupConfiguration() != null;
    }
 
+   @Override
    public ServerLocatorImpl addClusterTopologyListener(final ClusterTopologyListener listener) {
       topology.addClusterTopologyListener(listener);
       return this;
    }
 
+   @Override
    public void removeClusterTopologyListener(final ClusterTopologyListener listener) {
       topology.removeClusterTopologyListener(listener);
    }
@@ -1799,6 +1896,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   @Override
    public boolean isClosed() {
       synchronized (stateGuard) {
          return state != STATE.INITIALIZED;
@@ -1835,6 +1933,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          return;
       }
       AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         @Override
          public Object run() {
 
             String[] arrayInterceptor = interceptorList.split(",");

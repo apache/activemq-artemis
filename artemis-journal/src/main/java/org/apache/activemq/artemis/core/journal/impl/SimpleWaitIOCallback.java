@@ -36,10 +36,12 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion {
       return SimpleWaitIOCallback.class.getName();
    }
 
+   @Override
    public void done() {
       latch.countDown();
    }
 
+   @Override
    public void onError(final int errorCode1, final String errorMessage1) {
       this.errorCode = errorCode1;
 

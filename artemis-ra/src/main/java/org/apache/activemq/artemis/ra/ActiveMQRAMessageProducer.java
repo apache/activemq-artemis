@@ -66,6 +66,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     *
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void close() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("close " + this);
@@ -88,6 +89,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param timeToLive   The time to live
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Destination destination,
                     final Message message,
                     final int deliveryMode,
@@ -129,6 +131,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param message     The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Destination destination, final Message message) throws JMSException {
       session.lock();
       try {
@@ -158,6 +161,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param timeToLive   The time to live
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Message message,
                     final int deliveryMode,
                     final int priority,
@@ -195,6 +199,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param message The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void send(final Message message) throws JMSException {
       session.lock();
       try {
@@ -221,6 +226,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return The mode
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int getDeliveryMode() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDeliveryMode()");
@@ -235,6 +241,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return The destination
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Destination getDestination() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDestination()");
@@ -249,6 +256,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return True if disable
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean getDisableMessageID() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDisableMessageID()");
@@ -263,6 +271,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return True if disable
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean getDisableMessageTimestamp() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDisableMessageTimestamp()");
@@ -277,6 +286,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return The priority
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int getPriority() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getPriority()");
@@ -291,6 +301,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @return The ttl
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public long getTimeToLive() throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getTimeToLive()");
@@ -305,6 +316,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param deliveryMode The mode
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setDeliveryMode(final int deliveryMode) throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDeliveryMode(" + deliveryMode + ")");
@@ -319,6 +331,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setDisableMessageID(final boolean value) throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDisableMessageID(" + value + ")");
@@ -333,6 +346,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setDisableMessageTimestamp(final boolean value) throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDisableMessageTimestamp(" + value + ")");
@@ -347,6 +361,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param defaultPriority The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setPriority(final int defaultPriority) throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setPriority(" + defaultPriority + ")");
@@ -361,6 +376,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
     * @param timeToLive The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setTimeToLive(final long timeToLive) throws JMSException {
       if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setTimeToLive(" + timeToLive + ")");

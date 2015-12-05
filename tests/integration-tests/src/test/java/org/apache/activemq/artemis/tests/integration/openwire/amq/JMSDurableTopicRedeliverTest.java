@@ -80,6 +80,7 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
       assertNull(consumer.receive(1000));
    }
 
+   @Override
    protected String getName() {
       return "JMSDurableTopicRedeliverTest";
    }

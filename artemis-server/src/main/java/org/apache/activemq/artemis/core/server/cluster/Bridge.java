@@ -48,6 +48,7 @@ public interface Bridge extends Consumer, ActiveMQComponent {
     * To be called when the server sent a disconnect to the client.
     * Basically this is for cluster bridges being disconnected
     */
+   @Override
    void disconnect();
 
    boolean isConnected();

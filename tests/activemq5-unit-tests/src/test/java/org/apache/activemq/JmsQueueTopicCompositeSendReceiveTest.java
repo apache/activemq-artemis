@@ -37,6 +37,7 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       deliveryMode = DeliveryMode.NON_PERSISTENT;
       topic = false;
@@ -59,6 +60,7 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
     * @return String - consumer subject
     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
     */
+   @Override
    protected String getConsumerSubject() {
       return "FOO.BAR.HUMBUG";
    }
@@ -69,6 +71,7 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
     * @return String - producer subject
     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
     */
+   @Override
    protected String getProducerSubject() {
       return "queue://FOO.BAR.HUMBUG,topic://FOO.BAR.HUMBUG2";
    }
@@ -78,6 +81,7 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
     *
     * @throws Exception
     */
+   @Override
    public void testSendReceive() throws Exception {
       super.testSendReceive();
       messages.clear();

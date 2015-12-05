@@ -26,6 +26,7 @@ public class BoundedRangeStatisticTest extends RangeStatisticTest {
     *
     * @throws Exception
     */
+   @Override
    public void testStatistic() throws Exception {
       BoundedRangeStatisticImpl stat = new BoundedRangeStatisticImpl("myRange", "millis", "myDescription", 10, 3000);
       assertStatistic(stat, "myRange", "millis", "myDescription");

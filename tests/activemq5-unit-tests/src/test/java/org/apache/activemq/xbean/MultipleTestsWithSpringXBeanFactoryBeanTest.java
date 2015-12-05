@@ -26,11 +26,13 @@ public class MultipleTestsWithSpringXBeanFactoryBeanTest extends MultipleTestsWi
 
    private ClassPathXmlApplicationContext context;
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       context = new ClassPathXmlApplicationContext("org/apache/activemq/xbean/spring2.xml");
       return (BrokerService) context.getBean("broker");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (context != null) {

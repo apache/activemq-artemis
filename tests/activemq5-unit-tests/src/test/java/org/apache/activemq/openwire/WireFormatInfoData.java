@@ -22,6 +22,7 @@ import org.apache.activemq.command.WireFormatInfo;
 
 public class WireFormatInfoData extends DataFileGenerator {
 
+   @Override
    protected Object createObject() throws IOException {
       WireFormatInfo rc = new WireFormatInfo();
       rc.setResponseRequired(false);

@@ -199,18 +199,21 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    // Connection implementation --------------------------------------------------------------------
 
+   @Override
    public synchronized Session createSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQConnection.TYPE_GENERIC_CONNECTION);
    }
 
+   @Override
    public String getClientID() throws JMSException {
       checkClosed();
 
       return clientID;
    }
 
+   @Override
    public void setClientID(final String clientID) throws JMSException {
       checkClosed();
 
@@ -245,6 +248,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       justCreated = false;
    }
 
+   @Override
    public ConnectionMetaData getMetaData() throws JMSException {
       checkClosed();
 
@@ -257,6 +261,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return metaData;
    }
 
+   @Override
    public ExceptionListener getExceptionListener() throws JMSException {
       checkClosed();
 
@@ -265,6 +270,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return exceptionListener;
    }
 
+   @Override
    public void setExceptionListener(final ExceptionListener listener) throws JMSException {
       checkClosed();
 
@@ -272,6 +278,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       justCreated = false;
    }
 
+   @Override
    public synchronized void start() throws JMSException {
       checkClosed();
 
@@ -294,6 +301,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    }
 
+   @Override
    public synchronized void stop() throws JMSException {
       threadAwareContext.assertNotMessageListenerThread();
 
@@ -307,6 +315,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       started = false;
    }
 
+   @Override
    public final synchronized void close() throws JMSException {
       threadAwareContext.assertNotCompletionListenerThread();
       threadAwareContext.assertNotMessageListenerThread();
@@ -351,6 +360,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
    }
 
+   @Override
    public ConnectionConsumer createConnectionConsumer(final Destination destination,
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
@@ -372,6 +382,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
    }
 
+   @Override
    public ConnectionConsumer createDurableConnectionConsumer(final Topic topic,
                                                              final String subscriptionName,
                                                              final String messageSelector,
@@ -403,6 +414,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    // QueueConnection implementation ---------------------------------------------------------------
 
+   @Override
    public QueueSession createQueueSession(final boolean transacted, int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_QUEUE_SESSION);
@@ -420,6 +432,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return acknowledgeMode;
    }
 
+   @Override
    public ConnectionConsumer createConnectionConsumer(final Queue queue,
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
@@ -431,11 +444,13 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    // TopicConnection implementation ---------------------------------------------------------------
 
+   @Override
    public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_TOPIC_SESSION);
    }
 
+   @Override
    public ConnectionConsumer createConnectionConsumer(final Topic topic,
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
@@ -695,6 +710,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                   je.initCause(me);
 
                   new Thread(new Runnable() {
+                     @Override
                      public void run() {
                         exceptionListener.onException(je);
                      }
@@ -714,6 +730,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          connectionFailed(me, failedOver);
       }
 
+      @Override
       public void beforeReconnect(final ActiveMQException me) {
 
       }
@@ -739,6 +756,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                if (failoverListener != null) {
 
                   new Thread(new Runnable() {
+                     @Override
                      public void run() {
                         failoverListener.failoverEvent(eventType);
                      }

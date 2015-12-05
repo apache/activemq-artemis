@@ -47,6 +47,7 @@ import org.junit.Test;
  */
 public class TopicCleanupTest extends JMSTestBase {
 
+   @Override
    protected boolean usePersistence() {
       return true;
    }

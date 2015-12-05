@@ -39,26 +39,32 @@ public class AcknowledgedSubscriptionResource extends AcknowledgedQueueConsumer 
       this.durable = durable;
    }
 
+   @Override
    public boolean isDurable() {
       return durable;
    }
 
+   @Override
    public void setDurable(boolean durable) {
       this.durable = durable;
    }
 
+   @Override
    public long getTimeout() {
       return timeout;
    }
 
+   @Override
    public void setTimeout(long timeout) {
       this.timeout = timeout;
    }
 
+   @Override
    public boolean isDeleteWhenIdle() {
       return deleteWhenIdle;
    }
 
+   @Override
    public void setDeleteWhenIdle(boolean deleteWhenIdle) {
       this.deleteWhenIdle = deleteWhenIdle;
    }

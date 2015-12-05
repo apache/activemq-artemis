@@ -138,6 +138,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
             this.maxConsumed = maxConsumed;
          }
 
+         @Override
          public void run() {
             try {
                session.start();

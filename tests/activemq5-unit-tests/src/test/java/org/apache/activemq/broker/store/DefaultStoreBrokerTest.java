@@ -29,6 +29,7 @@ import org.apache.activemq.broker.BrokerTest;
  */
 public class DefaultStoreBrokerTest extends BrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
    }

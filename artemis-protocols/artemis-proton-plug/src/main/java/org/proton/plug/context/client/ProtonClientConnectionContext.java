@@ -43,6 +43,7 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
    }
 
    // Maybe a client interface?
+   @Override
    public void clientOpen(ClientSASL sasl) throws Exception {
       FutureRunnable future = new FutureRunnable(1);
       synchronized (handler.getLock()) {
@@ -58,6 +59,7 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
       waitWithTimeout(future);
    }
 
+   @Override
    public AMQPClientSessionContext createClientSession() throws ActiveMQAMQPException {
 
       FutureRunnable futureRunnable = new FutureRunnable(1);

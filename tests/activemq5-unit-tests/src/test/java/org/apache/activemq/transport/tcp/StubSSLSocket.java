@@ -38,10 +38,12 @@ public class StubSSLSocket extends SSLSocket {
       this.session = ses;
    }
 
+   @Override
    public void setWantClientAuth(boolean arg0) {
       this.wantClientAuthStatus = arg0 ? TRUE : FALSE;
    }
 
+   @Override
    public void setNeedClientAuth(boolean arg0) {
       this.needClientAuthStatus = arg0 ? TRUE : FALSE;
       if (session != null) {
@@ -49,18 +51,22 @@ public class StubSSLSocket extends SSLSocket {
       }
    }
 
+   @Override
    public void setUseClientMode(boolean arg0) {
       useClientModeStatus = arg0 ? TRUE : FALSE;
    }
 
+   @Override
    public boolean getWantClientAuth() {
       return wantClientAuthStatus == TRUE;
    }
 
+   @Override
    public boolean getNeedClientAuth() {
       return needClientAuthStatus == TRUE;
    }
 
+   @Override
    public boolean getUseClientMode() {
       return useClientModeStatus == TRUE;
    }
@@ -77,46 +83,58 @@ public class StubSSLSocket extends SSLSocket {
       return useClientModeStatus;
    }
 
+   @Override
    public SSLSession getSession() {
       return this.session;
    }
 
    // --- Stubbed methods ---
 
+   @Override
    public String[] getSupportedCipherSuites() {
       return null;
    }
 
+   @Override
    public String[] getEnabledCipherSuites() {
       return null;
    }
 
+   @Override
    public void setEnabledCipherSuites(String[] arg0) {
    }
 
+   @Override
    public String[] getSupportedProtocols() {
       return null;
    }
 
+   @Override
    public String[] getEnabledProtocols() {
       return null;
    }
 
+   @Override
    public void setEnabledProtocols(String[] arg0) {
    }
 
+   @Override
    public void addHandshakeCompletedListener(HandshakeCompletedListener arg0) {
    }
 
+   @Override
    public void removeHandshakeCompletedListener(HandshakeCompletedListener arg0) {
    }
 
+   @Override
    public void startHandshake() throws IOException {
    }
 
+   @Override
    public void setEnableSessionCreation(boolean arg0) {
    }
 
+   @Override
    public boolean getEnableSessionCreation() {
       return false;
    }

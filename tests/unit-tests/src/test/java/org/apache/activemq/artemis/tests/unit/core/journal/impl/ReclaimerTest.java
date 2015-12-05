@@ -741,6 +741,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       public void extendOffset(final int delta) {
       }
 
+      @Override
       public SequentialFile getFile() {
          return null;
       }
@@ -749,6 +750,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
          return 0;
       }
 
+      @Override
       public long getFileID() {
          return 0;
       }
@@ -756,6 +758,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       public void setOffset(final long offset) {
       }
 
+      @Override
       public int getNegCount(final JournalFile file) {
          Integer count = negCounts.get(file);
 
@@ -767,6 +770,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
          }
       }
 
+      @Override
       public void incNegCount(final JournalFile file) {
          Integer count = negCounts.get(file);
 
@@ -777,22 +781,27 @@ public class ReclaimerTest extends ActiveMQTestBase {
          totalDep++;
       }
 
+      @Override
       public int getPosCount() {
          return posCount;
       }
 
+      @Override
       public void incPosCount() {
          posCount++;
       }
 
+      @Override
       public void decPosCount() {
          posCount--;
       }
 
+      @Override
       public boolean isCanReclaim() {
          return canDelete;
       }
 
+      @Override
       public void setCanReclaim(final boolean canDelete) {
          this.canDelete = canDelete;
       }
@@ -859,6 +868,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
          return 0;
       }
 
+      @Override
       public void addSize(final int bytes) {
       }
 
@@ -869,6 +879,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getSize()
        */
+      @Override
       public int getLiveSize() {
          return 0;
       }
@@ -898,6 +909,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getRecordID()
        */
+      @Override
       public int getRecordID() {
          return 0;
       }
@@ -905,6 +917,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getTotalNegativeToOthers()
        */
+      @Override
       public int getTotalNegativeToOthers() {
          return totalDep;
       }
@@ -912,6 +925,7 @@ public class ReclaimerTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getJournalVersion()
        */
+      @Override
       public int getJournalVersion() {
          return JournalImpl.FORMAT_VERSION;
       }

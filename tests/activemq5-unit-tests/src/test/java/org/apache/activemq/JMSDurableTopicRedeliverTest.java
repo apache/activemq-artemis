@@ -30,6 +30,7 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(JMSDurableTopicRedeliverTest.class);
 
+   @Override
    protected void setUp() throws Exception {
       durable = true;
       super.setUp();

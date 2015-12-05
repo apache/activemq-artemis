@@ -73,6 +73,7 @@ public class VirtualTopicDisconnectSelectorTest extends EmbeddedBrokerTestSuppor
       MessageConsumer consumer = createConsumer(session, destination, messageSelector);
 
       MessageListener listener = new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             messageList.onMessage(message);
             try {
@@ -116,6 +117,7 @@ public class VirtualTopicDisconnectSelectorTest extends EmbeddedBrokerTestSuppor
       return new ActiveMQTopic("VirtualTopic.TEST");
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
@@ -176,6 +178,7 @@ public class VirtualTopicDisconnectSelectorTest extends EmbeddedBrokerTestSuppor
       return "org/apache/activemq/broker/virtual/disconnected-selector.xml";
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       XBeanBrokerFactory factory = new XBeanBrokerFactory();
       BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));

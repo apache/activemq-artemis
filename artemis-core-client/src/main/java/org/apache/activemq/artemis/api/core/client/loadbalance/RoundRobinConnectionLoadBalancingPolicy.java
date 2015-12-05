@@ -37,6 +37,7 @@ public final class RoundRobinConnectionLoadBalancingPolicy implements Connection
 
    private int pos;
 
+   @Override
    public int select(final int max) {
       if (first) {
          // We start on a random one

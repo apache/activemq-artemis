@@ -87,6 +87,7 @@ public class ConsumeTopicPrefetchTest extends ProducerConsumerTestSupport {
       validateConsumerPrefetch(this.getSubject(), 0);
    }
 
+   @Override
    protected Connection createConnection() throws Exception {
       ActiveMQConnection connection = (ActiveMQConnection) super.createConnection();
       connection.getPrefetchPolicy().setQueuePrefetch(prefetchSize);
@@ -127,6 +128,7 @@ public class ConsumeTopicPrefetchTest extends ProducerConsumerTestSupport {
          if (dest.getName().equals(destination)) {
             try {
                Wait.waitFor(new Condition() {
+                  @Override
                   public boolean isSatisified() throws Exception {
                      DestinationStatistics stats = target.getDestinationStatistics();
                      LOG.info("inflight for : " + target.getName() + ": " + stats.getInflight().getCount());

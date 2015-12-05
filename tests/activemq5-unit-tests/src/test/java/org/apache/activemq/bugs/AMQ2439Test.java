@@ -47,6 +47,7 @@ public class AMQ2439Test extends JmsMultipleBrokersTestSupport {
       assertEquals("enequeue is correct", 1000, brokerView.getTotalEnqueueCount());
 
       assertTrue("dequeue is correct", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             LOG.info("dequeue count (want 1000), is : " + brokerView.getTotalDequeueCount());
             return 1000 == brokerView.getTotalDequeueCount();
@@ -77,6 +78,7 @@ public class AMQ2439Test extends JmsMultipleBrokersTestSupport {
       return i;
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&deleteAllMessagesOnStartup=true&advisorySupport=false"));

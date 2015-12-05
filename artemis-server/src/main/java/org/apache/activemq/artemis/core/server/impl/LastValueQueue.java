@@ -162,6 +162,7 @@ public class LastValueQueue extends QueueImpl {
          return ref;
       }
 
+      @Override
       public void handled() {
          ref.handled();
          // We need to remove the entry from the map just before it gets delivered
@@ -182,50 +183,62 @@ public class LastValueQueue extends QueueImpl {
          this.ref = ref;
       }
 
+      @Override
       public MessageReference copy(final Queue queue) {
          return ref.copy(queue);
       }
 
+      @Override
       public void decrementDeliveryCount() {
          ref.decrementDeliveryCount();
       }
 
+      @Override
       public int getDeliveryCount() {
          return ref.getDeliveryCount();
       }
 
+      @Override
       public ServerMessage getMessage() {
          return ref.getMessage();
       }
 
+      @Override
       public Queue getQueue() {
          return ref.getQueue();
       }
 
+      @Override
       public long getScheduledDeliveryTime() {
          return ref.getScheduledDeliveryTime();
       }
 
+      @Override
       public void incrementDeliveryCount() {
          ref.incrementDeliveryCount();
       }
 
+      @Override
       public void setDeliveryCount(final int deliveryCount) {
          ref.setDeliveryCount(deliveryCount);
       }
 
+      @Override
       public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
          ref.setScheduledDeliveryTime(scheduledDeliveryTime);
       }
 
+      @Override
       public void setPersistedCount(int count) {
          ref.setPersistedCount(count);
       }
 
+      @Override
       public int getPersistedCount() {
          return ref.getPersistedCount();
       }
 
+      @Override
       public boolean isPaged() {
          return false;
       }
@@ -241,6 +254,7 @@ public class LastValueQueue extends QueueImpl {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.server.MessageReference#getMessageMemoryEstimate()
        */
+      @Override
       public int getMessageMemoryEstimate() {
          return ref.getMessage().getMemoryEstimate();
       }

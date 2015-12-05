@@ -91,6 +91,7 @@ public class FailoverPrefetchZeroTest {
             context.setDontSendReponse(true);
             pullDone.countDown();
             Executors.newSingleThreadExecutor().execute(new Runnable() {
+               @Override
                public void run() {
                   LOG.info("Stopping broker on pull: " + pull);
                   try {
@@ -121,6 +122,7 @@ public class FailoverPrefetchZeroTest {
       final CountDownLatch receiveDone = new CountDownLatch(1);
       final Vector<Message> received = new Vector<Message>();
       Executors.newSingleThreadExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("receive one...");

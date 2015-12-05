@@ -31,12 +31,14 @@ public class SubscriptionInfoTest extends DataFileGeneratorTestSupport {
 
    public static final SubscriptionInfoTest SINGLETON = new SubscriptionInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       SubscriptionInfo info = new SubscriptionInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       SubscriptionInfo info = (SubscriptionInfo) object;

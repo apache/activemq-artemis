@@ -53,6 +53,7 @@ public class QueueDuplicatesTest extends TestCase {
       super(name);
    }
 
+   @Override
    protected void setUp() throws Exception {
       String peerUrl = "peer://localhost:6099";
 
@@ -63,6 +64,7 @@ public class QueueDuplicatesTest extends TestCase {
       brokerConnection.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (brokerConnection != null) {
          brokerConnection.close();
@@ -123,6 +125,7 @@ public class QueueDuplicatesTest extends TestCase {
          setDaemon(false);
       }
 
+      @Override
       public void run() {
          try {
             Session session = createSession(brokerConnection);
@@ -148,6 +151,7 @@ public class QueueDuplicatesTest extends TestCase {
 
       private Map<String, Message> msgs = new HashMap<String, Message>();
 
+      @Override
       public void onMessage(Message message) {
          LOG.info(formatter.format(new Date()) + " SimpleConsumer Message Received: " + message);
          try {

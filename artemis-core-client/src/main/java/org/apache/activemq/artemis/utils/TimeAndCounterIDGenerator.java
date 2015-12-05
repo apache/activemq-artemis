@@ -60,6 +60,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
 
    // Public --------------------------------------------------------
 
+   @Override
    public long generateID() {
       long idReturn = counter.incrementAndGet();
 
@@ -93,6 +94,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
       return idReturn;
    }
 
+   @Override
    public long getCurrentID() {
       return counter.get();
    }

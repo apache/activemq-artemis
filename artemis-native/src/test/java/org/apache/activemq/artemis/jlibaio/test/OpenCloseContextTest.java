@@ -54,6 +54,7 @@ public class OpenCloseContextTest {
          System.out.println("#test " + i);
          final LibaioContext control = new LibaioContext<>(5, true);
          Thread t = new Thread() {
+            @Override
             public void run() {
                control.poll();
             }
@@ -113,6 +114,7 @@ public class OpenCloseContextTest {
          System.out.println("#test " + i);
          final LibaioContext control = new LibaioContext<>(5, true);
          Thread t = new Thread() {
+            @Override
             public void run() {
                control.poll();
             }

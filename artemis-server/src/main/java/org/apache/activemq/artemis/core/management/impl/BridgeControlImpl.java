@@ -47,6 +47,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    // BridgeControlMBean implementation ---------------------------
 
+   @Override
    public String[] getStaticConnectors() throws Exception {
       clearIO();
       try {
@@ -57,6 +58,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getForwardingAddress() {
       clearIO();
       try {
@@ -67,6 +69,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getQueueName() {
       clearIO();
       try {
@@ -77,6 +80,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getDiscoveryGroupName() {
       clearIO();
       try {
@@ -87,6 +91,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getFilterString() {
       clearIO();
       try {
@@ -97,6 +102,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public int getReconnectAttempts() {
       clearIO();
       try {
@@ -107,6 +113,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getName() {
       clearIO();
       try {
@@ -117,6 +124,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public long getRetryInterval() {
       clearIO();
       try {
@@ -127,6 +135,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public double getRetryIntervalMultiplier() {
       clearIO();
       try {
@@ -137,6 +146,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public String getTransformerClassName() {
       clearIO();
       try {
@@ -147,6 +157,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public boolean isStarted() {
       clearIO();
       try {
@@ -157,6 +168,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public boolean isUseDuplicateDetection() {
       clearIO();
       try {
@@ -167,6 +179,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public boolean isHA() {
       clearIO();
       try {
@@ -177,6 +190,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public void start() throws Exception {
       clearIO();
       try {
@@ -187,6 +201,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
    }
 
+   @Override
    public void stop() throws Exception {
       clearIO();
       try {

@@ -3268,6 +3268,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          int count;
 
+         @Override
          public void onMessage(ClientMessage message1) {
             try {
                Thread.sleep(1);
@@ -4835,6 +4836,7 @@ public class PagingTest extends ActiveMQTestBase {
 
             consumerQ3.setMessageHandler(new MessageHandler() {
 
+               @Override
                public void onMessage(ClientMessage message) {
                   System.out.println("Received an unexpected message");
                   consumerQ3Msgs.incrementAndGet();
@@ -5463,39 +5465,49 @@ public class PagingTest extends ActiveMQTestBase {
          this.pageUp = pageUp;
       }
 
+      @Override
       public void onError(int errorCode, String errorMessage) {
       }
 
+      @Override
       public void done() {
       }
 
+      @Override
       public void storeLineUp() {
       }
 
+      @Override
       public boolean waitCompletion(long timeout) throws Exception {
          return false;
       }
 
+      @Override
       public void waitCompletion() throws Exception {
 
       }
 
+      @Override
       public void replicationLineUp() {
 
       }
 
+      @Override
       public void replicationDone() {
 
       }
 
+      @Override
       public void pageSyncLineUp() {
          pageUp.countDown();
       }
 
+      @Override
       public void pageSyncDone() {
          pageDone.countDown();
       }
 
+      @Override
       public void executeOnCompletion(IOCallback runnable) {
 
       }

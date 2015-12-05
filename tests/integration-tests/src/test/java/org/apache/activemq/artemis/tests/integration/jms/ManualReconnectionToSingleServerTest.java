@@ -73,6 +73,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    private static final int NUM = 20;
 
    private final ExceptionListener exceptionListener = new ExceptionListener() {
+      @Override
       public void onException(final JMSException e) {
          exceptionLatch.countDown();
          disconnect();
@@ -231,6 +232,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       private int count = 0;
 
+      @Override
       public void onMessage(final Message msg) {
          count++;
 

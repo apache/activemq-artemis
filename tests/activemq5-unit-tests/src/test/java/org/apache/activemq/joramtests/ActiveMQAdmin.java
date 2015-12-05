@@ -57,12 +57,14 @@ public class ActiveMQAdmin implements Admin {
       return BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false"));
    }
 
+   @Override
    public String getName() {
       return getClass().getName();
    }
 
    BrokerService broker;
 
+   @Override
    public void startServer() throws Exception {
       if (System.getProperty("basedir") == null) {
          File file = new File(".");
@@ -72,20 +74,25 @@ public class ActiveMQAdmin implements Admin {
       broker.start();
    }
 
+   @Override
    public void stopServer() throws Exception {
       broker.stop();
    }
 
+   @Override
    public void start() throws Exception {
    }
 
+   @Override
    public void stop() throws Exception {
    }
 
+   @Override
    public Context createContext() throws NamingException {
       return context;
    }
 
+   @Override
    public void createQueue(String name) {
       try {
          context.bind(name, new ActiveMQQueue(name));
@@ -95,6 +102,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void createTopic(String name) {
       try {
          context.bind(name, new ActiveMQTopic(name));
@@ -104,6 +112,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteQueue(String name) {
       // BrokerTestSupport.delete_queue((Broker)base.broker, name);
       try {
@@ -114,6 +123,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteTopic(String name) {
       try {
          context.unbind(name);
@@ -123,6 +133,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void createConnectionFactory(String name) {
       try {
          final ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -134,6 +145,7 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void deleteConnectionFactory(String name) {
       try {
          context.unbind(name);
@@ -143,18 +155,22 @@ public class ActiveMQAdmin implements Admin {
       }
    }
 
+   @Override
    public void createQueueConnectionFactory(String name) {
       createConnectionFactory(name);
    }
 
+   @Override
    public void createTopicConnectionFactory(String name) {
       createConnectionFactory(name);
    }
 
+   @Override
    public void deleteQueueConnectionFactory(String name) {
       deleteConnectionFactory(name);
    }
 
+   @Override
    public void deleteTopicConnectionFactory(String name) {
       deleteConnectionFactory(name);
    }

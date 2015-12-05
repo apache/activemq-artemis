@@ -35,6 +35,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
    protected Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -78,6 +79,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
       connection.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       LOG.info("Dumping stats...");
       // TODO

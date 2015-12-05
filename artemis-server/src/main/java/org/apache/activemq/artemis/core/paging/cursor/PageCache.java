@@ -32,6 +32,7 @@ public interface PageCache extends SoftValueHashMap.ValueCache {
    /**
     * @return whether this cache is still being updated
     */
+   @Override
    boolean isLive();
 
    /**

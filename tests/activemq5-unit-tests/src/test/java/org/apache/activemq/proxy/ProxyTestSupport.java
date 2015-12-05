@@ -42,6 +42,7 @@ public class ProxyTestSupport extends BrokerTestSupport {
    private ProxyConnector proxyConnector;
    private ProxyConnector remoteProxyConnector;
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService service = new BrokerService();
       service.setBrokerName("broker1");
@@ -74,12 +75,14 @@ public class ProxyTestSupport extends BrokerTestSupport {
       return service;
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       remoteBroker = createRemoteBroker();
       remoteBroker.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       for (Iterator<StubConnection> iter = connections.iterator(); iter.hasNext(); ) {
          StubConnection connection = iter.next();
@@ -106,6 +109,7 @@ public class ProxyTestSupport extends BrokerTestSupport {
       return "tcp://localhost:6172";
    }
 
+   @Override
    protected StubConnection createConnection() throws Exception {
       Transport transport = TransportFactory.connect(connector.getServer().getConnectURI());
       StubConnection connection = new StubConnection(transport);

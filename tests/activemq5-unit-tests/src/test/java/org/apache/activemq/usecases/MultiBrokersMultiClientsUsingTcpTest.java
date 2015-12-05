@@ -75,6 +75,7 @@ public class MultiBrokersMultiClientsUsingTcpTest extends MultiBrokersMultiClien
       }
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setUp();
 

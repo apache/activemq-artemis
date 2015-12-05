@@ -46,6 +46,7 @@ public final class CoreSessionCallback implements SessionCallback {
       this.channel = channel;
    }
 
+   @Override
    public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
       Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
 
@@ -56,6 +57,7 @@ public final class CoreSessionCallback implements SessionCallback {
       return size;
    }
 
+   @Override
    public int sendLargeMessageContinuation(ServerConsumer consumer,
                                            byte[] body,
                                            boolean continues,
@@ -67,6 +69,7 @@ public final class CoreSessionCallback implements SessionCallback {
       return packet.getPacketSize();
    }
 
+   @Override
    public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) {
       Packet packet = new SessionReceiveMessage(consumer.getID(), message, deliveryCount);
 
@@ -79,6 +82,7 @@ public final class CoreSessionCallback implements SessionCallback {
       return size;
    }
 
+   @Override
    public void sendProducerCreditsMessage(int credits, SimpleString address) {
       Packet packet = new SessionProducerCreditsMessage(credits, address);
 
@@ -92,14 +96,17 @@ public final class CoreSessionCallback implements SessionCallback {
       channel.send(packet);
    }
 
+   @Override
    public void closed() {
       protocolManager.removeHandler(name);
    }
 
+   @Override
    public void addReadyListener(final ReadyListener listener) {
       channel.getConnection().getTransportConnection().addReadyListener(listener);
    }
 
+   @Override
    public void removeReadyListener(final ReadyListener listener) {
       channel.getConnection().getTransportConnection().removeReadyListener(listener);
    }

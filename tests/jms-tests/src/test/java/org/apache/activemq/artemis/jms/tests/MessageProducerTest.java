@@ -174,6 +174,7 @@ public class MessageProducerTest extends JMSTestCase {
          this.m = m;
       }
 
+      @Override
       public synchronized void run() {
          try {
             prod.send(m);
@@ -257,6 +258,7 @@ public class MessageProducerTest extends JMSTestCase {
          final MessageProducer anonProducer = ps.createProducer(null);
 
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   anonProducer.send(ActiveMQServerTestCase.topic2, m1);

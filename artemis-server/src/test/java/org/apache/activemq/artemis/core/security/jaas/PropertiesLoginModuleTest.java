@@ -49,6 +49,7 @@ public class PropertiesLoginModuleTest extends Assert {
    @Test
    public void testLogin() throws LoginException {
       LoginContext context = new LoginContext("PropertiesLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {
@@ -79,6 +80,7 @@ public class PropertiesLoginModuleTest extends Assert {
    @Test
    public void testBadUseridLogin() throws Exception {
       LoginContext context = new LoginContext("PropertiesLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {
@@ -105,6 +107,7 @@ public class PropertiesLoginModuleTest extends Assert {
    @Test
    public void testBadPWLogin() throws Exception {
       LoginContext context = new LoginContext("PropertiesLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {

@@ -22,6 +22,7 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class JDBCNetworkBrokerDetachTest extends NetworkBrokerDetachTest {
 
+   @Override
    protected void configureBroker(BrokerService broker) throws Exception {
       JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
       EmbeddedDataSource dataSource = new EmbeddedDataSource();
