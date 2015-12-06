@@ -17,8 +17,6 @@
 package org.apache.activemq.transport.failover;
 
 import org.apache.activemq.broker.TransportConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Complex cluster test that will exercise the dynamic failover capabilities of

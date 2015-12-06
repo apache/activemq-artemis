@@ -25,7 +25,6 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.BrokerTest;
 import org.apache.activemq.broker.StubConnection;
 import org.apache.activemq.broker.TransportConnector;
-import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 
 public abstract class TransportBrokerTestSupport extends BrokerTest {
 

@@ -17,10 +17,7 @@
 
 package org.apache.activemq.broker;
 
-import org.apache.activemq.transport.TransportFactorySupport;
 import org.apache.activemq.transport.TransportServer;
-import org.apache.activemq.transport.tcp.SslTransportFactory;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;

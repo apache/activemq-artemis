@@ -19,7 +19,6 @@ package org.apache.activemq.bugs;
 
 import java.io.File;
 import java.lang.IllegalStateException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;

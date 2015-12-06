@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.command;
 
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;

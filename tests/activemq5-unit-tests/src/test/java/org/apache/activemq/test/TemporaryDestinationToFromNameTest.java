@@ -21,7 +21,6 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.EmbeddedBrokerAndConnectionTestSupport;
-import org.apache.activemq.broker.jmx.PurgeTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

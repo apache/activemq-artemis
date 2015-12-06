@@ -44,8 +44,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
-
 @RunWith(BlockJUnit4ClassRunner.class)
 public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.UncaughtExceptionHandler {
 

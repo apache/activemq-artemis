@@ -21,7 +21,6 @@ import javax.jms.Message;
 
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
-import org.apache.activemq.transport.udp.UdpTransportUsingServerTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

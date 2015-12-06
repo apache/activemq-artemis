@@ -39,7 +39,6 @@ import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
-import org.apache.activemq.transport.InactivityIOException;
 import org.apache.activemq.util.Wait;
 import org.junit.After;
 import org.junit.Before;

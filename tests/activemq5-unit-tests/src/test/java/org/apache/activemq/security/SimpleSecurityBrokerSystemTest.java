@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 

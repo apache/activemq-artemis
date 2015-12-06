@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.broker.region;
 
-import java.io.File;
-
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.Assert.*;
 
 import javax.jms.Connection;

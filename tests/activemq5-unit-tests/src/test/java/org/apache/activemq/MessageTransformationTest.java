@@ -17,16 +17,6 @@
 
 package org.apache.activemq;
 
-import javax.jms.BytesMessage;
-import javax.jms.MapMessage;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.StreamMessage;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
 import junit.framework.TestCase;
 
 import org.apache.activemq.command.ActiveMQBytesMessage;

@@ -19,8 +19,6 @@ package org.apache.activemq.pool;
 import javax.jms.Connection;
 
 import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

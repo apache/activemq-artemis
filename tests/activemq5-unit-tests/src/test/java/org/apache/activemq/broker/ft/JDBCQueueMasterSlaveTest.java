@@ -17,13 +17,7 @@
 package org.apache.activemq.broker.ft;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
-
 import javax.sql.DataSource;
 
 import org.apache.activemq.broker.BrokerService;

@@ -16,18 +16,12 @@
  */
 package org.apache.activemq.broker;
 
-import java.util.concurrent.TimeUnit;
-
-import org.apache.activemq.TestSupport;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ThreadTracker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
-
-import static org.junit.Assert.*;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class TopicSubscriptionTest extends QueueSubscriptionTest {

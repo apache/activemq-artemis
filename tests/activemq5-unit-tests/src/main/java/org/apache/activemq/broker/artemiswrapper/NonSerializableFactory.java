@@ -21,7 +21,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
-import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 
 //import org.jboss.util.naming.Util;

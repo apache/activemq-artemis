@@ -18,7 +18,6 @@ package org.apache.activemq.broker;
 
 import java.net.URI;
 
-import org.apache.activemq.xbean.XBeanBrokerFactory;
 import org.junit.Test;
 
 // https://issues.apache.org/activemq/browse/AMQ-2939
