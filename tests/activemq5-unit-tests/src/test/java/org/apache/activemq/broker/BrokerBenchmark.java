@@ -175,8 +175,6 @@ public class BrokerBenchmark extends BrokerTestSupport {
                   producersFinished.release();
                }
             }
-
-            ;
          }.start();
       }
 

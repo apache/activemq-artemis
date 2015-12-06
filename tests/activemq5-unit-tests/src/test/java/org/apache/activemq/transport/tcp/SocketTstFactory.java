@@ -139,8 +139,6 @@ public class SocketTstFactory extends SocketFactory {
       }
    }
 
-   ;
-
    private final Random rnd;
 
    public SocketTstFactory() {

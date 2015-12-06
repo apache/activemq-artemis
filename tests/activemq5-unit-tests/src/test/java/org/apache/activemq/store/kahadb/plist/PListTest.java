@@ -232,7 +232,6 @@ public class PListTest {
             }
          }
       }
-      ;
 
       class B implements Runnable {
 
@@ -259,7 +258,6 @@ public class PListTest {
             }
          }
       }
-      ;
 
       executor.execute(new A());
       executor.execute(new A());

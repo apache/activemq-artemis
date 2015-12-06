@@ -154,7 +154,6 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
          }
          received.acknowledge();
       }
-      ;
 
       assertEquals("got all (normal plus one with ttl) messages", messageCount + 1, messages.size());
 
@@ -162,7 +161,6 @@ public class JmsSendReceiveWithMessageExpirationTest extends TestSupport {
       while ((received = dlqConsumer.receive(1000)) != null) {
          dlqMessages.add(received);
       }
-      ;
 
       assertEquals("got dlq messages", data.length - 1, dlqMessages.size());
 

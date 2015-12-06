@@ -46,7 +46,6 @@ public class KahaDBStoreRecoveryBrokerTest extends RecoveryBrokerTest {
 
    enum CorruptionType {None, FailToLoad, LoadInvalid, LoadCorrupt, LoadOrderIndex0}
 
-   ;
    public CorruptionType failTest = CorruptionType.None;
 
    @Override

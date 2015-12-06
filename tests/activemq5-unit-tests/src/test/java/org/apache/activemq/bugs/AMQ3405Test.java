@@ -192,8 +192,6 @@ public class AMQ3405Test extends TestSupport {
       }
    }
 
-   ;
-
    @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory answer = super.createConnectionFactory();

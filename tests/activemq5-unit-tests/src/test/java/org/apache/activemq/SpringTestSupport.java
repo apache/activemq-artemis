@@ -39,8 +39,6 @@ public abstract class SpringTestSupport extends TestCase {
 
    protected abstract AbstractApplicationContext createApplicationContext();
 
-   ;
-
    @Override
    protected void tearDown() throws Exception {
       if (context != null) {

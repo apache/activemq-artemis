@@ -75,7 +75,6 @@ public class AMQ1936Test extends TestCase {
       broker.setDeleteAllMessagesOnStartup(true);
       broker.start();
       connectionFactory = new ActiveMQConnectionFactory("vm://test");
-      ;
    }
 
    @Override

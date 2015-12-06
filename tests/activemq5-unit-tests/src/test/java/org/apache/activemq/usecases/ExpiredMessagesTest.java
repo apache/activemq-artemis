@@ -214,8 +214,6 @@ public class ExpiredMessagesTest extends CombinationTestSupport {
 
    }
 
-   ;
-
    private MessageConsumer createDlqConsumer(Connection connection) throws Exception {
       return connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(dlqDestination);
    }

@@ -121,7 +121,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       for (int i = 0; i < 10; i++) {
          outbound[i] = session.createTextMessage(i + " Message");
       }
-      ;
 
       // lets consume any outstanding messages from previous test runs
       while (consumer.receive(1000) != null) {
@@ -178,7 +177,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       for (int i = 0; i < 10; i++) {
          outbound[i] = session.createTextMessage(i + " Message");
       }
-      ;
 
       // lets consume any outstanding messages from previous test runs
       while (consumer.receive(1000) != null) {

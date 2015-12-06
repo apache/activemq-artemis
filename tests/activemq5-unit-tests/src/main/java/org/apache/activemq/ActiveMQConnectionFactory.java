@@ -209,7 +209,6 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             params.clear();
 
             this.vmBrokerUri = URISupport.createRemainingURI(uri, params);
-            ;
          }
       }
       catch (URISyntaxException e) {

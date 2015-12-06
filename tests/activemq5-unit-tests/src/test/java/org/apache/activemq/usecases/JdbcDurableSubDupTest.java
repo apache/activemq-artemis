@@ -198,7 +198,6 @@ public class JdbcDurableSubDupTest {
          }
          catch (InterruptedException e) {
          }
-         ;
 
          try {
             TextMessage m = (TextMessage) message;

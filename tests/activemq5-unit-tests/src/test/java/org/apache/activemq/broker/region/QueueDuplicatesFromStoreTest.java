@@ -164,8 +164,6 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          public void destroy() {
          }
 
-         ;
-
          @Override
          public void gc() {
          }

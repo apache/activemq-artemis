@@ -62,8 +62,6 @@ public class MarshallingBrokerTest extends BrokerTest {
          protected void dispatch(Command command) throws InterruptedException, IOException {
             super.dispatch(wireFormat.unmarshal(wireFormat.marshal(command)));
          }
-
-         ;
       };
    }
 

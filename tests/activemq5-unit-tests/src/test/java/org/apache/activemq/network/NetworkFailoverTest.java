@@ -92,7 +92,6 @@ public class NetworkFailoverTest extends TestCase {
                catch (JMSException e) {
                   e.printStackTrace();
                }
-               ;
             }
             catch (Exception e) {
                LOG.warn("*** Responder listener caught exception: ", e);

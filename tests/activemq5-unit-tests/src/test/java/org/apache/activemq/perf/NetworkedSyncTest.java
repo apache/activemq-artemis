@@ -253,7 +253,6 @@ class Producer implements Runnable {
 class Consumer implements Runnable {
 
    private static final Logger LOG = LoggerFactory.getLogger(Consumer.class);
-   ;
 
    /**
     * connect to broker and receive messages

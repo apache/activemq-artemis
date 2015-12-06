@@ -249,7 +249,6 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
                   LOG.info("Signalled add consumer");
                }
             }
-            ;
             if (count % 5000 == 0) {
                LOG.info("Sent " + count + ", singleSendMax:" + max);
             }

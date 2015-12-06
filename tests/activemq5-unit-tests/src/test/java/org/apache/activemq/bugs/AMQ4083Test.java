@@ -493,7 +493,6 @@ public class AMQ4083Test {
          }
          received.acknowledge();
       }
-      ;
 
       assertEquals("got messages", messageCount + 1, messages.size());
 
@@ -501,7 +500,6 @@ public class AMQ4083Test {
       while ((received = dlqConsumer.receive(1000)) != null) {
          dlqMessages.add(received);
       }
-      ;
 
       assertEquals("got dlq messages", data.length - 1, dlqMessages.size());
 

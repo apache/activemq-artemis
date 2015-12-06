@@ -246,7 +246,6 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
                   if (tally.expected.size() == 1) {
                      startConsumer(tally.brokerName, tally.destination);
                   }
-                  ;
                   return false;
                }
                LOG.info("got tally on " + tally.brokerName);
