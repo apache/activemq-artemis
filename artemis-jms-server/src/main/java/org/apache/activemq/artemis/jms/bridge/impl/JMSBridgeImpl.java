@@ -1554,7 +1554,6 @@ public final class JMSBridgeImpl implements JMSBridge {
     * don't lose them!!
     */
    private static void copyProperties(final Message msg) throws JMSException {
-      @SuppressWarnings("unchecked")
       Enumeration<String> en = msg.getPropertyNames();
 
       Map<String, Object> oldProps = null;

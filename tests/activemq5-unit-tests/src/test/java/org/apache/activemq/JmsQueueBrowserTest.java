@@ -360,7 +360,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       }
 
       QueueBrowser browser = session2.createBrowser(destinationPrefetch1);
-      @SuppressWarnings("unchecked")
       Enumeration<Message> browserView = browser.getEnumeration();
 
       List<Message> messages = new ArrayList<>();

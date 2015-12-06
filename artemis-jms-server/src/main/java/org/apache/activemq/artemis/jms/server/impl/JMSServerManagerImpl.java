@@ -1374,7 +1374,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             JSONObject msgJson = msgs.getJSONObject(i);
             JSONObject props = msgJson.getJSONObject(TransactionDetail.KEY_MSG_PROPERTIES);
             StringBuilder propstr = new StringBuilder();
-            @SuppressWarnings("unchecked")
             Iterator<String> propkeys = props.keys();
             while (propkeys.hasNext()) {
                String key = propkeys.next();

@@ -42,7 +42,6 @@ import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 
 public class Artemis {
 
-   @SuppressWarnings("unchecked")
    public static void main(String... args) throws Exception {
       execute(null, null, args);
    }

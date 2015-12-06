@@ -136,12 +136,12 @@ public class StubX509Certificate extends X509Certificate {
       return false;
    }
 
-   @SuppressWarnings({"unchecked", "rawtypes"})
+   @SuppressWarnings("rawtypes")
    public Set getCriticalExtensionOIDs() {
       return null;
    }
 
-   @SuppressWarnings({"unchecked", "rawtypes"})
+   @SuppressWarnings("rawtypes")
    public Set getNonCriticalExtensionOIDs() {
       return null;
    }

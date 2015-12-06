@@ -477,7 +477,7 @@ public class BrokerNetworkWithStuckMessagesTest {
       return connection;
    }
 
-   @SuppressWarnings({"unchecked", "unused"})
+   @SuppressWarnings("unused")
    private Object[] browseQueueWithJms(BrokerService broker) throws Exception {
       Object[] messages = null;
       Connection connection = null;
