@@ -172,7 +172,16 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
    }
 
    @Test
-   public void testRebalance() throws Exception {
+   public void testRebalanceWithInfiniteReconnect() throws Exception {
+      testRebalanceInternal(-1);
+   }
+
+   @Test
+   public void testRebalanceWithNoReconnect() throws Exception {
+      testRebalanceInternal(0);
+   }
+
+   public void testRebalanceInternal(int reconnectAttempts) throws Exception {
       final int CONSUMER_COUNT = 10;
       secondaryJmsServer.createQueue(true, MDBQUEUE, null, true, "/jms/" + MDBQUEUE);
 
@@ -188,6 +197,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       spec.setMaxSession(CONSUMER_COUNT);
       spec.setSetupAttempts(5);
       spec.setSetupInterval(200);
+      spec.setReconnectAttempts(reconnectAttempts);
       spec.setHA(true); // if this isn't true then the toplogy listener won't get nodeDown notifications
       spec.setCallTimeout(500L); // if this isn't set then it may take a long time for tearDown to occur on the MDB connection
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
