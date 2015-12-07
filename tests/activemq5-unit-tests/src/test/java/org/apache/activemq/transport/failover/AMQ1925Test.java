@@ -74,6 +74,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                starter.await();
@@ -132,6 +133,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                starter.await();
@@ -347,6 +349,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       assertQueueLength(MESSAGE_COUNT);
    }
 
+   @Override
    protected void setUp() throws Exception {
       exception = null;
       bs = new BrokerService();
@@ -362,10 +365,12 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       sendMessagesToQueue();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       new ServiceStopper().stop(bs);
    }
 
+   @Override
    public void onException(JMSException exception) {
       this.exception = exception;
    }

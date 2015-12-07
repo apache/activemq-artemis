@@ -23,6 +23,7 @@ import javax.jms.DeliveryMode;
  */
 public class TransientQueueRedeliverTest extends TopicRedeliverTest {
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       topic = false;

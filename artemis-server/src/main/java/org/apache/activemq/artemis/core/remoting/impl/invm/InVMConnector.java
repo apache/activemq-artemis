@@ -112,6 +112,7 @@ public class InVMConnector extends AbstractConnector {
       return acceptor;
    }
 
+   @Override
    public synchronized void close() {
       if (!started) {
          return;
@@ -124,10 +125,12 @@ public class InVMConnector extends AbstractConnector {
       started = false;
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
 
+   @Override
    public Connection createConnection() {
       if (InVMConnector.failOnCreateConnection) {
          InVMConnector.incFailures();
@@ -155,6 +158,7 @@ public class InVMConnector extends AbstractConnector {
       }
    }
 
+   @Override
    public synchronized void start() {
       started = true;
    }
@@ -185,6 +189,7 @@ public class InVMConnector extends AbstractConnector {
       return inVMConnection;
    }
 
+   @Override
    public boolean isEquivalent(Map<String, Object> configuration) {
       int serverId = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME, 0, configuration);
       return id == serverId;
@@ -192,6 +197,7 @@ public class InVMConnector extends AbstractConnector {
 
    private class Listener implements ConnectionLifeCycleListener {
 
+      @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
                                     final String protocol) {
@@ -202,6 +208,7 @@ public class InVMConnector extends AbstractConnector {
          listener.connectionCreated(component, connection, protocol);
       }
 
+      @Override
       public void connectionDestroyed(final Object connectionID) {
          if (connections.remove(connectionID) != null) {
             // Close the corresponding connection on the other side
@@ -209,6 +216,7 @@ public class InVMConnector extends AbstractConnector {
 
             // Execute on different thread to avoid deadlocks
             closeExecutor.execute(new Runnable() {
+               @Override
                public void run() {
                   listener.connectionDestroyed(connectionID);
                }
@@ -216,15 +224,18 @@ public class InVMConnector extends AbstractConnector {
          }
       }
 
+      @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
          closeExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                listener.connectionException(connectionID, me);
             }
          });
       }
 
+      @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
    }

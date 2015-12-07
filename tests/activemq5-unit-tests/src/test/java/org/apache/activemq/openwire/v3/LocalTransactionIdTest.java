@@ -31,12 +31,14 @@ public class LocalTransactionIdTest extends TransactionIdTestSupport {
 
    public static final LocalTransactionIdTest SINGLETON = new LocalTransactionIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       LocalTransactionId info = new LocalTransactionId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       LocalTransactionId info = (LocalTransactionId) object;

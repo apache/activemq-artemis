@@ -84,30 +84,35 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
    // MessageProducer implementation --------------------------------
 
+   @Override
    public void setDisableMessageID(final boolean value) throws JMSException {
       checkClosed();
 
       disableMessageID = value;
    }
 
+   @Override
    public boolean getDisableMessageID() throws JMSException {
       checkClosed();
 
       return disableMessageID;
    }
 
+   @Override
    public void setDisableMessageTimestamp(final boolean value) throws JMSException {
       checkClosed();
 
       disableMessageTimestamp = value;
    }
 
+   @Override
    public boolean getDisableMessageTimestamp() throws JMSException {
       checkClosed();
 
       return disableMessageTimestamp;
    }
 
+   @Override
    public void setDeliveryMode(final int deliveryMode) throws JMSException {
       checkClosed();
       if (deliveryMode != DeliveryMode.NON_PERSISTENT && deliveryMode != DeliveryMode.PERSISTENT) {
@@ -117,12 +122,14 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       defaultDeliveryMode = deliveryMode;
    }
 
+   @Override
    public int getDeliveryMode() throws JMSException {
       checkClosed();
 
       return defaultDeliveryMode;
    }
 
+   @Override
    public void setPriority(final int defaultPriority) throws JMSException {
       checkClosed();
 
@@ -133,30 +140,35 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       this.defaultPriority = defaultPriority;
    }
 
+   @Override
    public int getPriority() throws JMSException {
       checkClosed();
 
       return defaultPriority;
    }
 
+   @Override
    public void setTimeToLive(final long timeToLive) throws JMSException {
       checkClosed();
 
       defaultTimeToLive = timeToLive;
    }
 
+   @Override
    public long getTimeToLive() throws JMSException {
       checkClosed();
 
       return defaultTimeToLive;
    }
 
+   @Override
    public Destination getDestination() throws JMSException {
       checkClosed();
 
       return defaultDestination;
    }
 
+   @Override
    public void close() throws JMSException {
       connection.getThreadAwareContext().assertNotCompletionListenerThread();
       try {
@@ -167,11 +179,13 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       }
    }
 
+   @Override
    public void send(final Message message) throws JMSException {
       checkDefaultDestination();
       doSendx(defaultDestination, message, defaultDeliveryMode, defaultPriority, defaultTimeToLive, null);
    }
 
+   @Override
    public void send(final Message message,
                     final int deliveryMode,
                     final int priority,
@@ -180,10 +194,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       doSendx(defaultDestination, message, deliveryMode, priority, timeToLive, null);
    }
 
+   @Override
    public void send(final Destination destination, final Message message) throws JMSException {
       send(destination, message, defaultDeliveryMode, defaultPriority, defaultTimeToLive);
    }
 
+   @Override
    public void send(final Destination destination,
                     final Message message,
                     final int deliveryMode,
@@ -247,18 +263,22 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
    // TopicPublisher Implementation ---------------------------------
 
+   @Override
    public Topic getTopic() throws JMSException {
       return (Topic) getDestination();
    }
 
+   @Override
    public void publish(final Message message) throws JMSException {
       send(message);
    }
 
+   @Override
    public void publish(final Topic topic, final Message message) throws JMSException {
       send(topic, message);
    }
 
+   @Override
    public void publish(final Message message,
                        final int deliveryMode,
                        final int priority,
@@ -266,6 +286,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       send(message, deliveryMode, priority, timeToLive);
    }
 
+   @Override
    public void publish(final Topic topic,
                        final Message message,
                        final int deliveryMode,
@@ -277,10 +298,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
    // QueueSender Implementation ------------------------------------
 
+   @Override
    public void send(final Queue queue, final Message message) throws JMSException {
       send((Destination) queue, message);
    }
 
+   @Override
    public void send(final Queue queue,
                     final Message message,
                     final int deliveryMode,
@@ -290,6 +313,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       doSendx((ActiveMQDestination) queue, message, deliveryMode, priority, timeToLive, null);
    }
 
+   @Override
    public Queue getQueue() throws JMSException {
       return (Queue) getDestination();
    }

@@ -101,6 +101,7 @@ public class PerfProducer implements Runnable {
       return running;
    }
 
+   @Override
    public void run() {
       try {
          while (isRunning()) {

@@ -68,6 +68,7 @@ public class DurableConsumerCloseAndReconnectTest extends TestSupport {
       super.tearDown();
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(vmConnectorURI);
    }

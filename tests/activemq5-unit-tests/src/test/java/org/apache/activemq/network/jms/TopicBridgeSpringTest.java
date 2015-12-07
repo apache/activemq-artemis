@@ -50,6 +50,7 @@ public class TopicBridgeSpringTest extends TestCase implements MessageListener {
    protected MessageConsumer requestServerConsumer;
    protected MessageProducer requestServerProducer;
 
+   @Override
    protected void setUp() throws Exception {
 
       super.setUp();
@@ -74,6 +75,7 @@ public class TopicBridgeSpringTest extends TestCase implements MessageListener {
       return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-spring.xml");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       localConnection.close();
       super.tearDown();
@@ -89,6 +91,7 @@ public class TopicBridgeSpringTest extends TestCase implements MessageListener {
       }
    }
 
+   @Override
    public void onMessage(Message msg) {
       try {
          TextMessage textMsg = (TextMessage) msg;

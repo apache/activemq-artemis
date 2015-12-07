@@ -160,6 +160,7 @@ public class TopicTest extends JMSTestCase {
          this.num = num;
       }
 
+      @Override
       public synchronized void onMessage(final Message m) {
          ObjectMessage om = (ObjectMessage) m;
 

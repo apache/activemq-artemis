@@ -26,6 +26,7 @@ public class ConsumeQueuePrefetchTest extends ConsumeTopicPrefetchTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(ConsumeQueuePrefetchTest.class);
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();

@@ -391,6 +391,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       return DeliveryMode.PERSISTENT;
    }
 
+   @Override
    protected String getName() {
       return "testQueueSessionListenerExceptionDlq";
    }

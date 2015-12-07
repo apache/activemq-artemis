@@ -62,6 +62,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
       boolean failed = false;
       try {
          session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
+            @Override
             public void sendAcknowledged(Message message) {
             }
          });

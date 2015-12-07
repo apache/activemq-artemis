@@ -154,6 +154,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
       }
 
       consumer.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(ClientMessage message) {
             for (Sender sender : senders) {
                sender.queue.add(message);
@@ -206,6 +207,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
       volatile boolean failed;
 
+      @Override
       public void run() {
          try {
             for (int i = 0; i < numMessages; i++) {

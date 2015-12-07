@@ -28,6 +28,7 @@ public class UdpSendReceiveWithTwoConnectionsTest extends JmsTopicSendReceiveWit
    protected String brokerURI = "udp://localhost:8891";
    protected BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       broker = createBroker();
       broker.start();
@@ -35,6 +36,7 @@ public class UdpSendReceiveWithTwoConnectionsTest extends JmsTopicSendReceiveWit
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {
@@ -50,6 +52,7 @@ public class UdpSendReceiveWithTwoConnectionsTest extends JmsTopicSendReceiveWit
       return answer;
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(brokerURI);
    }

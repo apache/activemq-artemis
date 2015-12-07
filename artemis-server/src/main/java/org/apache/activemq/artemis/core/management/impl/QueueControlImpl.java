@@ -120,6 +120,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    // QueueControlMBean implementation ------------------------------
 
+   @Override
    public String getName() {
       clearIO();
       try {
@@ -130,12 +131,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String getAddress() {
       checkStarted();
 
       return address;
    }
 
+   @Override
    public String getFilter() {
       checkStarted();
 
@@ -150,6 +153,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean isDurable() {
       checkStarted();
 
@@ -162,6 +166,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean isTemporary() {
       checkStarted();
 
@@ -174,6 +179,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public long getMessageCount() {
       checkStarted();
 
@@ -186,6 +192,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int getConsumerCount() {
       checkStarted();
 
@@ -198,6 +205,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int getDeliveringCount() {
       checkStarted();
 
@@ -210,6 +218,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public long getMessagesAdded() {
       checkStarted();
 
@@ -222,6 +231,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public long getMessagesAcknowledged() {
       checkStarted();
 
@@ -234,6 +244,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public long getID() {
       checkStarted();
 
@@ -246,6 +257,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public long getScheduledCount() {
       checkStarted();
 
@@ -258,6 +270,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String getDeadLetterAddress() {
       checkStarted();
 
@@ -275,6 +288,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String getExpiryAddress() {
       checkStarted();
 
@@ -294,6 +308,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
       checkStarted();
 
@@ -307,6 +322,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listScheduledMessagesAsJSON() throws Exception {
       checkStarted();
 
@@ -333,6 +349,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return messages;
    }
 
+   @Override
    public Map<String, Map<String, Object>[]> listDeliveringMessages() {
       checkStarted();
 
@@ -353,6 +370,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
    public String listDeliveringMessagesAsJSON() throws Exception {
       checkStarted();
 
@@ -365,6 +383,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
       checkStarted();
 
@@ -396,6 +415,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listMessagesAsJSON(final String filter) throws Exception {
       checkStarted();
 
@@ -435,10 +455,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
    public String getFirstMessageAsJSON() throws Exception {
       return toJSON(getFirstMessage()).toString();
    }
 
+   @Override
    public Long getFirstMessageTimestamp() throws Exception {
       Map<String, Object>[] _message = getFirstMessage();
       if (_message == null || _message.length == 0 || _message[0] == null) {
@@ -451,6 +473,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return (Long) message.get("timestamp");
    }
 
+   @Override
    public Long getFirstMessageAge() throws Exception {
       Long firstMessageTimestamp = getFirstMessageTimestamp();
       if (firstMessageTimestamp == null) {
@@ -460,6 +483,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return now - firstMessageTimestamp.longValue();
    }
 
+   @Override
    public long countMessages(final String filterStr) throws Exception {
       checkStarted();
 
@@ -491,6 +515,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean removeMessage(final long messageID) throws Exception {
       checkStarted();
 
@@ -506,10 +531,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int removeMessages(final String filterStr) throws Exception {
       return removeMessages(FLUSH_LIMIT, filterStr);
    }
 
+   @Override
    public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
       checkStarted();
 
@@ -524,6 +551,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean expireMessage(final long messageID) throws Exception {
       checkStarted();
 
@@ -536,6 +564,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int expireMessages(final String filterStr) throws Exception {
       checkStarted();
 
@@ -552,6 +581,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean retryMessage(final long messageID) throws Exception {
 
       checkStarted();
@@ -577,6 +607,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int retryMessages() throws Exception {
       checkStarted();
       clearIO();
@@ -589,10 +620,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }
 
+   @Override
    public boolean moveMessage(final long messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
@@ -614,10 +647,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
    public int moveMessages(final String filterStr, final String otherQueueName) throws Exception {
       return moveMessages(filterStr, otherQueueName, false);
    }
 
+   @Override
    public int moveMessages(final int flushLimit,
                            final String filterStr,
                            final String otherQueueName,
@@ -644,12 +679,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
    public int moveMessages(final String filterStr,
                            final String otherQueueName,
                            final boolean rejectDuplicates) throws Exception {
       return moveMessages(FLUSH_LIMIT, filterStr, otherQueueName, rejectDuplicates);
    }
 
+   @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
       checkStarted();
 
@@ -664,6 +701,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
       checkStarted();
 
@@ -676,6 +714,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
       checkStarted();
 
@@ -693,6 +732,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
       checkStarted();
 
@@ -708,6 +748,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listMessageCounter() {
       checkStarted();
 
@@ -723,6 +764,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public void resetMessageCounter() {
       checkStarted();
 
@@ -735,6 +777,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listMessageCounterAsHTML() {
       checkStarted();
 
@@ -747,6 +790,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listMessageCounterHistory() throws Exception {
       checkStarted();
 
@@ -759,6 +803,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public String listMessageCounterHistoryAsHTML() {
       checkStarted();
 
@@ -771,6 +816,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public void pause() {
       checkStarted();
 
@@ -783,6 +829,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public void resume() {
       checkStarted();
 
@@ -795,6 +842,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public boolean isPaused() throws Exception {
       checkStarted();
 
@@ -807,6 +855,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
    public void flushExecutor() {
       checkStarted();
 
@@ -858,6 +907,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return MBeanInfoHelper.getMBeanOperationsInfo(QueueControl.class);
    }
 
+   @Override
    public void resetMessagesAdded() throws Exception {
       checkStarted();
 
@@ -871,6 +921,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    }
 
+   @Override
    public void resetMessagesAcknowledged() throws Exception {
       checkStarted();
 

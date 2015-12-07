@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 
 public class InVMAcceptorFactory implements AcceptorFactory {
 
+   @Override
    public Acceptor createAcceptor(final String name,
                                   final ClusterConnection clusterConnection,
                                   final Map<String, Object> configuration,

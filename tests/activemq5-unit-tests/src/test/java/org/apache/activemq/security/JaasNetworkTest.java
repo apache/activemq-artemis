@@ -36,6 +36,7 @@ public class JaasNetworkTest extends TestCase {
    BrokerService broker1;
    BrokerService broker2;
 
+   @Override
    public void setUp() throws Exception {
       System.setProperty("java.security.auth.login.config", "src/test/resources/login.config");
       broker1 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/security/broker1.xml"));
@@ -45,6 +46,7 @@ public class JaasNetworkTest extends TestCase {
       Thread.sleep(2000);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       broker1.stop();

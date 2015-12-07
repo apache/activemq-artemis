@@ -31,6 +31,7 @@ public class ConstantExpression implements Expression {
          super(value);
       }
 
+      @Override
       public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
@@ -93,6 +94,7 @@ public class ConstantExpression implements Expression {
       return new ConstantExpression(value);
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       return value;
    }
@@ -104,6 +106,7 @@ public class ConstantExpression implements Expression {
    /**
     * @see java.lang.Object#toString()
     */
+   @Override
    public String toString() {
       if (value == null) {
          return "NULL";
@@ -120,6 +123,7 @@ public class ConstantExpression implements Expression {
    /**
     * @see java.lang.Object#hashCode()
     */
+   @Override
    public int hashCode() {
       return value != null ? value.hashCode() : 0;
    }
@@ -127,6 +131,7 @@ public class ConstantExpression implements Expression {
    /**
     * @see java.lang.Object#equals(Object)
     */
+   @Override
    public boolean equals(final Object o) {
       if (this == o) {
          return true;

@@ -65,14 +65,17 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener);
    }
 
+   @Override
    public SequentialFile createSequentialFile(final String fileName) {
       return new NIOSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
    }
 
+   @Override
    public boolean isSupportsCallbacks() {
       return timedBuffer != null;
    }
 
+   @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
       // Using direct buffer, as described on https://jira.jboss.org/browse/HORNETQ-467
       ByteBuffer buffer2 = null;
@@ -101,14 +104,17 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       return buffer2;
    }
 
+   @Override
    public void releaseDirectBuffer(ByteBuffer buffer) {
       // nothing we can do on this case. we can just have good faith on GC
    }
 
+   @Override
    public ByteBuffer newBuffer(final int size) {
       return ByteBuffer.allocate(size);
    }
 
+   @Override
    public void clearBuffer(final ByteBuffer buffer) {
       final int limit = buffer.limit();
       buffer.rewind();
@@ -120,14 +126,17 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       buffer.rewind();
    }
 
+   @Override
    public ByteBuffer wrapBuffer(final byte[] bytes) {
       return ByteBuffer.wrap(bytes);
    }
 
+   @Override
    public int getAlignment() {
       return 1;
    }
 
+   @Override
    public int calculateBlockSize(final int bytes) {
       return bytes;
    }

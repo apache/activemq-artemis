@@ -113,6 +113,7 @@ public class AMQ4083Test {
       assertEquals(101, queueView.getInFlightCount());
 
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             try {
                message.acknowledge();
@@ -132,6 +133,7 @@ public class AMQ4083Test {
 
       assertTrue("Inflight count should reach zero, currently: " + queueView.getInFlightCount(), Wait.waitFor(new Wait.Condition() {
 
+         @Override
          public boolean isSatisified() throws Exception {
             return queueView.getInFlightCount() == 0;
          }
@@ -175,6 +177,7 @@ public class AMQ4083Test {
       assertEquals(101, queueView.getInFlightCount());
 
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             try {
                session.commit();

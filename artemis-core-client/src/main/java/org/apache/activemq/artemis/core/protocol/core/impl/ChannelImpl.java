@@ -139,6 +139,7 @@ public final class ChannelImpl implements Channel {
       this.interceptors = interceptors;
    }
 
+   @Override
    public boolean supports(final byte packetType) {
       int version = connection.getClientVersion();
 
@@ -160,26 +161,32 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public int getLastConfirmedCommandID() {
       return lastConfirmedCommandID.get();
    }
 
+   @Override
    public Lock getLock() {
       return lock;
    }
 
+   @Override
    public int getConfirmationWindowSize() {
       return confWindowSize;
    }
 
+   @Override
    public void returnBlocking() {
       returnBlocking(null);
    }
 
+   @Override
    public void returnBlocking(Throwable cause) {
       lock.lock();
 
@@ -193,18 +200,22 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public boolean sendAndFlush(final Packet packet) {
       return send(packet, true, false);
    }
 
+   @Override
    public boolean send(final Packet packet) {
       return send(packet, false, false);
    }
 
+   @Override
    public boolean sendBatched(final Packet packet) {
       return send(packet, false, true);
    }
 
+   @Override
    public void setTransferring(boolean transferring) {
       this.transferring = transferring;
    }
@@ -273,6 +284,7 @@ public final class ChannelImpl implements Channel {
     * and the client could eventually retry another call, but the server could then answer a previous command issuing a class-cast-exception.
     * The expectedPacket will be used to filter out undesirable packets that would belong to previous calls.
     */
+   @Override
    public Packet sendBlocking(final Packet packet, byte expectedPacket) throws ActiveMQException {
       String interceptionResult = invokeInterceptors(packet, interceptors, connection);
 
@@ -408,6 +420,7 @@ public final class ChannelImpl implements Channel {
       return null;
    }
 
+   @Override
    public void setCommandConfirmationHandler(final CommandConfirmationHandler handler) {
       if (confWindowSize < 0) {
          final String msg = "You can't set confirmationHandler on a connection with confirmation-window-size < 0." + " Look at the documentation for more information.";
@@ -416,14 +429,17 @@ public final class ChannelImpl implements Channel {
       commandConfirmationHandler = handler;
    }
 
+   @Override
    public void setHandler(final ChannelHandler handler) {
       this.handler = handler;
    }
 
+   @Override
    public ChannelHandler getHandler() {
       return handler;
    }
 
+   @Override
    public void close() {
       if (closed) {
          return;
@@ -439,6 +455,7 @@ public final class ChannelImpl implements Channel {
       closed = true;
    }
 
+   @Override
    public void transferConnection(final CoreRemotingConnection newConnection) {
       // Needs to synchronize on the connection to make sure no packets from
       // the old connection get processed after transfer has occurred
@@ -457,6 +474,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public void replayCommands(final int otherLastConfirmedCommandID) {
       if (resendCache != null) {
          if (isTrace) {
@@ -470,6 +488,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public void lock() {
       lock.lock();
 
@@ -478,6 +497,7 @@ public final class ChannelImpl implements Channel {
       lock.unlock();
    }
 
+   @Override
    public void unlock() {
       lock.lock();
 
@@ -488,11 +508,13 @@ public final class ChannelImpl implements Channel {
       lock.unlock();
    }
 
+   @Override
    public CoreRemotingConnection getConnection() {
       return connection;
    }
 
    // Needs to be synchronized since can be called by remoting service timer thread too for timeout flush
+   @Override
    public synchronized void flushConfirmations() {
       if (resendCache != null && receivedBytes != 0) {
          receivedBytes = 0;
@@ -505,6 +527,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public void confirm(final Packet packet) {
       if (resendCache != null && packet.isRequiresConfirmations()) {
          lastConfirmedCommandID.incrementAndGet();
@@ -523,6 +546,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public void clearCommands() {
       if (resendCache != null) {
          lastConfirmedCommandID.set(-1);
@@ -533,6 +557,7 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   @Override
    public void handlePacket(final Packet packet) {
       if (packet.getType() == PacketImpl.PACKETS_CONFIRMED) {
          if (resendCache != null) {

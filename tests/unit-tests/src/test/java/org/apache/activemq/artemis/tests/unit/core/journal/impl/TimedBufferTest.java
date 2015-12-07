@@ -48,9 +48,11 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
    IOCallback dummyCallback = new IOCallback() {
 
+      @Override
       public void done() {
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
       }
    };
@@ -61,6 +63,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver {
 
+         @Override
          public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
             buffers.add(buffer);
             flushTimes.incrementAndGet();
@@ -69,10 +72,12 @@ public class TimedBufferTest extends ActiveMQTestBase {
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
+         @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
             return ByteBuffer.allocate(maxSize);
          }
 
+         @Override
          public int getRemainingBytes() {
             return 1024 * 1024;
          }
@@ -127,6 +132,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver {
 
+         @Override
          public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
             buffers.add(buffer);
             flushTimes.incrementAndGet();
@@ -135,10 +141,12 @@ public class TimedBufferTest extends ActiveMQTestBase {
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
+         @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
             return ByteBuffer.allocate(maxSize);
          }
 
+         @Override
          public int getRemainingBytes() {
             return 1024 * 1024;
          }
@@ -210,16 +218,19 @@ public class TimedBufferTest extends ActiveMQTestBase {
    public void testVerifySwitchToSpin() throws Exception {
       class TestObserver implements TimedBufferObserver {
 
+         @Override
          public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
          }
 
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
+         @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
             return ByteBuffer.allocate(maxSize);
          }
 
+         @Override
          public int getRemainingBytes() {
             return 1024 * 1024;
          }
@@ -285,16 +296,19 @@ public class TimedBufferTest extends ActiveMQTestBase {
    public void testStillSleeps() throws Exception {
       class TestObserver implements TimedBufferObserver {
 
+         @Override
          public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks) {
          }
 
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
+         @Override
          public ByteBuffer newBuffer(final int minSize, final int maxSize) {
             return ByteBuffer.allocate(maxSize);
          }
 
+         @Override
          public int getRemainingBytes() {
             return 1024 * 1024;
          }

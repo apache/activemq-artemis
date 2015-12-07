@@ -28,6 +28,7 @@ import org.apache.activemq.broker.BrokerTest;
  */
 public class TempKahaDBStoreBrokerTest extends BrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       KahaDBStore kaha = new KahaDBStore();

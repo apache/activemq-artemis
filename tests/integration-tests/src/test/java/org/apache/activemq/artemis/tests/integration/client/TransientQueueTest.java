@@ -200,6 +200,7 @@ public class TransientQueueTest extends SingleServerTestBase {
       assertTrue(exHappened);
    }
 
+   @Override
    protected ServerLocator createLocator() {
       return super.createLocator().setConsumerWindowSize(0).setBlockOnAcknowledge(true).setBlockOnDurableSend(false).setBlockOnNonDurableSend(false);
    }

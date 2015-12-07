@@ -36,6 +36,7 @@ public final class BooleanVote extends Vote<Boolean> {
       return false;
    }
 
+   @Override
    public Boolean getVote() {
       return vote;
    }

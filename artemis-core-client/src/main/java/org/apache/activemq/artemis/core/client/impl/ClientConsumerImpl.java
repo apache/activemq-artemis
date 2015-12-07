@@ -175,6 +175,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    // ClientConsumer implementation
    // -----------------------------------------------------------------
 
+   @Override
    public ConsumerContext getConsumerContext() {
       return consumerContext;
    }
@@ -348,6 +349,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public ClientMessage receive(final long timeout) throws ActiveMQException {
       ClientMessage msg = receive(timeout, false);
 
@@ -358,14 +360,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       return msg;
    }
 
+   @Override
    public ClientMessage receive() throws ActiveMQException {
       return receive(0, false);
    }
 
+   @Override
    public ClientMessage receiveImmediate() throws ActiveMQException {
       return receive(0, true);
    }
 
+   @Override
    public MessageHandler getMessageHandler() throws ActiveMQException {
       checkClosed();
 
@@ -374,6 +379,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
+   @Override
    public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws ActiveMQException {
       checkClosed();
 
@@ -401,6 +407,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       return this;
    }
 
+   @Override
    public void close() throws ActiveMQException {
       doCleanUp(true);
    }
@@ -411,6 +418,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * @param future the future to run once the onMessage Thread has completed
     * @throws ActiveMQException
     */
+   @Override
    public Thread prepareForClose(final FutureLatch future) throws ActiveMQException {
       closing = true;
 
@@ -427,6 +435,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       return onMessageThread;
    }
 
+   @Override
    public void cleanUp() {
       try {
          doCleanUp(false);
@@ -436,10 +445,12 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public boolean isClosed() {
       return closed;
    }
 
+   @Override
    public void stop(final boolean waitForOnMessage) throws ActiveMQException {
       waitForOnMessageToComplete(waitForOnMessage);
 
@@ -457,6 +468,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public void clearAtFailover() {
       clearBuffer();
 
@@ -474,12 +486,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       ackIndividually = false;
    }
 
+   @Override
    public synchronized void start() {
       stopped = false;
 
       requeueExecutors();
    }
 
+   @Override
    public Exception getLastException() {
       return lastException;
    }
@@ -487,22 +501,27 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    // ClientConsumerInternal implementation
    // --------------------------------------------------------------
 
+   @Override
    public ClientSession.QueueQuery getQueueInfo() {
       return queueInfo;
    }
 
+   @Override
    public SimpleString getFilterString() {
       return filterString;
    }
 
+   @Override
    public SimpleString getQueueName() {
       return queueName;
    }
 
+   @Override
    public boolean isBrowseOnly() {
       return browseOnly;
    }
 
+   @Override
    public synchronized void handleMessage(final ClientMessageInternal message) throws Exception {
       if (closing) {
          // This is ok - we just ignore the message
@@ -586,6 +605,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       handleRegularMessage(largeMessage);
    }
 
+   @Override
    public synchronized void handleLargeMessage(final ClientLargeMessageInternal clientLargeMessage,
                                                long largeMessageSize) throws Exception {
       if (closing) {
@@ -617,6 +637,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       handleRegularMessage(clientLargeMessage);
    }
 
+   @Override
    public synchronized void handleLargeMessageContinuation(final byte[] chunk,
                                                            final int flowControlSize,
                                                            final boolean isContinues) throws Exception {
@@ -634,6 +655,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public void clear(boolean waitForOnMessage) throws ActiveMQException {
       synchronized (this) {
          // Need to send credits for the messages in the buffer
@@ -681,14 +703,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public int getClientWindowSize() {
       return clientWindowSize;
    }
 
+   @Override
    public int getBufferSize() {
       return buffer.size();
    }
 
+   @Override
    public void acknowledge(final ClientMessage message) throws ActiveMQException {
       ClientMessageInternal cmi = (ClientMessageInternal) message;
 
@@ -707,6 +732,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
+   @Override
    public void individualAcknowledge(ClientMessage message) throws ActiveMQException {
       if (lastAckedMessage != null) {
          flushAcks();
@@ -715,6 +741,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       session.individualAcknowledge(this, message);
    }
 
+   @Override
    public void flushAcks() throws ActiveMQException {
       if (lastAckedMessage != null) {
          doAck(lastAckedMessage);
@@ -727,6 +754,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     *
     * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when the first receive was called. For largeMessage that is only done at the latest packet
     */
+   @Override
    public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
       if (clientWindowSize >= 0) {
          creditsToSend += messageBytes;
@@ -803,6 +831,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          // If resetting a slow consumer, we need to wait the execution
          final CountDownLatch latch = new CountDownLatch(1);
          flowControlExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                latch.countDown();
             }
@@ -837,6 +866,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    private void sendCredits(final int credits) {
       pendingFlowControl.countUp();
       flowControlExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
@@ -918,6 +948,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   ActiveMQClientLogger.LOGGER.trace("Calling handler.onMessage");
                }
                final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                  @Override
                   public ClassLoader run() {
                      ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
 
@@ -934,6 +965,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                finally {
                   try {
                      AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
                         public Object run() {
                            Thread.currentThread().setContextClassLoader(originalLoader);
                            return null;
@@ -1040,6 +1072,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private class Runner implements Runnable {
 
+      @Override
       public void run() {
          try {
             callOnMessage();

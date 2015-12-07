@@ -30,12 +30,14 @@ public class ActiveMQMapMessageTest extends ActiveMQMessageTest {
 
    public static final ActiveMQMapMessageTest SINGLETON = new ActiveMQMapMessageTest();
 
+   @Override
    public Object createObject() throws Exception {
       ActiveMQMapMessage info = new ActiveMQMapMessage();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQMapMessage info = (ActiveMQMapMessage) object;

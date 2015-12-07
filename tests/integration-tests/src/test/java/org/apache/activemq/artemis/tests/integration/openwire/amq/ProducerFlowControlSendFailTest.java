@@ -174,6 +174,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
 
    protected ConnectionFactory getConnectionFactory() throws Exception {
       factory.setExceptionListener(new ExceptionListener() {
+         @Override
          public void onException(JMSException arg0) {
             if (arg0 instanceof ResourceAllocationException) {
                gotResourceException.set(true);

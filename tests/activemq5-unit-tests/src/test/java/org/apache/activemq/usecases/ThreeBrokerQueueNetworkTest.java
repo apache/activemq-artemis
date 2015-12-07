@@ -294,6 +294,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
       MessageIdList msgsC = getConsumerMessages("BrokerC", clientC);
 
       waitFor(new Condition() {
+         @Override
          public boolean isSatisified() {
             return msgsA.getMessageCount() == MESSAGE_COUNT;
          }
@@ -522,6 +523,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
       BrokerItem brokerB = brokers.get("BrokerA");
       brokerB.broker.setPlugins(new BrokerPlugin[]{new BrokerPlugin() {
 
+         @Override
          public Broker installPlugin(Broker broker) throws Exception {
             return new BrokerFilter(broker) {
 
@@ -621,6 +623,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
    private void verifyConsumerCount(BrokerService broker, int count, final Destination dest) throws Exception {
       final RegionBroker regionBroker = (RegionBroker) broker.getRegionBroker();
       waitFor(new Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return !regionBroker.getDestinations(ActiveMQDestination.transform(dest)).isEmpty();
          }
@@ -633,6 +636,7 @@ public class ThreeBrokerQueueNetworkTest extends JmsMultipleBrokersTestSupport {
    private void logConsumerCount(BrokerService broker, int count, final Destination dest) throws Exception {
       final RegionBroker regionBroker = (RegionBroker) broker.getRegionBroker();
       waitFor(new Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return !regionBroker.getDestinations(ActiveMQDestination.transform(dest)).isEmpty();
          }

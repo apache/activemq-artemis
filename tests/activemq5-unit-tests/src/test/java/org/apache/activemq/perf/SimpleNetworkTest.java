@@ -39,6 +39,7 @@ public class SimpleNetworkTest extends SimpleTopicTest {
    protected ActiveMQConnectionFactory consumerFactory;
    protected ActiveMQConnectionFactory producerFactory;
 
+   @Override
    protected void setUp() throws Exception {
       if (consumerBroker == null) {
          consumerBroker = createConsumerBroker(consumerBindAddress);
@@ -78,6 +79,7 @@ public class SimpleNetworkTest extends SimpleTopicTest {
       con.close();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       for (int i = 0; i < numberOfConsumers; i++) {
          consumers[i].shutDown();

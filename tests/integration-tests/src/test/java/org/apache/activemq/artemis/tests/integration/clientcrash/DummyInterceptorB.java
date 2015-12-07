@@ -38,6 +38,7 @@ public class DummyInterceptorB implements Interceptor {
       DummyInterceptorB.syncCounter.set(0);
    }
 
+   @Override
    public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
       DummyInterceptorB.syncCounter.addAndGet(1);
       log.debug("DummyFilter packet = " + packet);

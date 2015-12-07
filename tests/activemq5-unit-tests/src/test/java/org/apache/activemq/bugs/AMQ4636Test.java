@@ -237,6 +237,7 @@ public class AMQ4636Test {
 
    public class TestJDBCPersistenceAdapter extends JDBCPersistenceAdapter {
 
+      @Override
       public TransactionContext getTransactionContext() throws IOException {
          return new TestTransactionContext(this);
       }

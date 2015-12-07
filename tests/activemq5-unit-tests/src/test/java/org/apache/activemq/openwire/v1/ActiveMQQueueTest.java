@@ -28,12 +28,14 @@ public class ActiveMQQueueTest extends ActiveMQDestinationTestSupport {
 
    public static final ActiveMQQueueTest SINGLETON = new ActiveMQQueueTest();
 
+   @Override
    public Object createObject() throws Exception {
       ActiveMQQueue info = new ActiveMQQueue();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQQueue info = (ActiveMQQueue) object;

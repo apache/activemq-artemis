@@ -253,18 +253,22 @@ public class PacketImpl implements Packet {
 
    // Public --------------------------------------------------------
 
+   @Override
    public byte getType() {
       return type;
    }
 
+   @Override
    public long getChannelID() {
       return channelID;
    }
 
+   @Override
    public void setChannelID(final long channelID) {
       this.channelID = channelID;
    }
 
+   @Override
    public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
 
@@ -286,6 +290,7 @@ public class PacketImpl implements Packet {
       return buffer;
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       channelID = buffer.readLong();
 
@@ -294,6 +299,7 @@ public class PacketImpl implements Packet {
       size = buffer.readerIndex();
    }
 
+   @Override
    public int getPacketSize() {
       if (size == -1) {
          throw new IllegalStateException("Packet hasn't been encoded/decoded yet");
@@ -302,6 +308,7 @@ public class PacketImpl implements Packet {
       return size;
    }
 
+   @Override
    public boolean isResponse() {
       return false;
    }
@@ -312,6 +319,7 @@ public class PacketImpl implements Packet {
    public void decodeRest(final ActiveMQBuffer buffer) {
    }
 
+   @Override
    public boolean isRequiresConfirmations() {
       return true;
    }

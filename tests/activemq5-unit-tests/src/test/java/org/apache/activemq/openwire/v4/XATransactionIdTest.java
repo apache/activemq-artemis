@@ -37,12 +37,14 @@ public class XATransactionIdTest extends TransactionIdTestSupport {
 
    public static XATransactionIdTest SINGLETON = new XATransactionIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       XATransactionId info = new XATransactionId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       XATransactionId info = (XATransactionId) object;

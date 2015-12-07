@@ -33,79 +33,95 @@ public class GenericAdmin implements Admin {
 
    public static Admin delegate = new AbstractAdmin();
 
+   @Override
    public String getName() {
       String name = GenericAdmin.delegate.getName();
       GenericAdmin.log.debug("Using admin '" + name + "' delegate=" + GenericAdmin.delegate);
       return name;
    }
 
+   @Override
    public void start() throws Exception {
    }
 
+   @Override
    public void stop() throws Exception {
    }
 
+   @Override
    public Context createContext() throws NamingException {
       Context ctx = GenericAdmin.delegate.createContext();
       GenericAdmin.log.debug("Using initial context: " + ctx.getEnvironment());
       return ctx;
    }
 
+   @Override
    public void createConnectionFactory(final String name) {
       GenericAdmin.log.debug("createConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createConnectionFactory(name);
    }
 
+   @Override
    public void deleteConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteConnectionFactory(name);
    }
 
+   @Override
    public void createQueue(final String name) {
       GenericAdmin.log.debug("createQueue '" + name + "'");
       GenericAdmin.delegate.createQueue(name);
    }
 
+   @Override
    public void deleteQueue(final String name) {
       GenericAdmin.log.debug("deleteQueue '" + name + "'");
       GenericAdmin.delegate.deleteQueue(name);
    }
 
+   @Override
    public void createQueueConnectionFactory(final String name) {
       GenericAdmin.log.debug("createQueueConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createQueueConnectionFactory(name);
    }
 
+   @Override
    public void deleteQueueConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteQueueConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteQueueConnectionFactory(name);
    }
 
+   @Override
    public void createTopic(final String name) {
       GenericAdmin.log.debug("createTopic '" + name + "'");
       GenericAdmin.delegate.createTopic(name);
    }
 
+   @Override
    public void deleteTopic(final String name) {
       GenericAdmin.log.debug("deleteTopic '" + name + "'");
       GenericAdmin.delegate.deleteTopic(name);
    }
 
+   @Override
    public void createTopicConnectionFactory(final String name) {
       GenericAdmin.log.debug("createTopicConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createTopicConnectionFactory(name);
    }
 
+   @Override
    public void deleteTopicConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteTopicConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteTopicConnectionFactory(name);
    }
 
+   @Override
    public void startServer() throws Exception {
       GenericAdmin.log.debug("startEmbeddedServer");
       GenericAdmin.delegate.startServer();
    }
 
+   @Override
    public void stopServer() throws Exception {
       GenericAdmin.log.debug("stopEmbeddedServer");
       GenericAdmin.delegate.stopServer();

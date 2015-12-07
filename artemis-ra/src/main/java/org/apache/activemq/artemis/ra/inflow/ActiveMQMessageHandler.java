@@ -280,6 +280,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       }
    }
 
+   @Override
    public void onMessage(final ClientMessage message) {
       if (ActiveMQMessageHandler.trace) {
          ActiveMQRALogger.LOGGER.trace("onMessage(" + message + ")");

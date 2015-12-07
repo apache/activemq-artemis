@@ -55,6 +55,7 @@ public class AMQ2580Test extends TestSupport {
       return suite(AMQ2580Test.class);
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       initDurableBroker();
@@ -62,6 +63,7 @@ public class AMQ2580Test extends TestSupport {
       initTopic();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       shutdownClient();
       service.stop();

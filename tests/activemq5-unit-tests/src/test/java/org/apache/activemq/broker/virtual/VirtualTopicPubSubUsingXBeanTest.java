@@ -27,14 +27,17 @@ import org.apache.activemq.xbean.XBeanBrokerFactory;
  */
 public class VirtualTopicPubSubUsingXBeanTest extends VirtualTopicPubSubTest {
 
+   @Override
    protected String getVirtualTopicConsumerName() {
       return "VirtualTopicConsumers.ConsumerNumberOne.FOO";
    }
 
+   @Override
    protected String getVirtualTopicName() {
       return "FOO";
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       XBeanBrokerFactory factory = new XBeanBrokerFactory();
       BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));

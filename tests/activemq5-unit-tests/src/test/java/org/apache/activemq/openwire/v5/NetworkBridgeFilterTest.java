@@ -37,12 +37,14 @@ public class NetworkBridgeFilterTest extends DataFileGeneratorTestSupport {
 
    public static NetworkBridgeFilterTest SINGLETON = new NetworkBridgeFilterTest();
 
+   @Override
    public Object createObject() throws Exception {
       NetworkBridgeFilter info = new NetworkBridgeFilter();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       NetworkBridgeFilter info = (NetworkBridgeFilter) object;

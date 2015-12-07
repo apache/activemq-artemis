@@ -206,6 +206,7 @@ class SimpleMessageListener implements MessageListener {
       this.result = result;
    }
 
+   @Override
    public void onMessage(final Message message) {
       try {
          System.out.println("Message received: " + ((TextMessage) message).getText());

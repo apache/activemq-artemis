@@ -31,6 +31,7 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
 
    private Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -39,6 +40,7 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -61,6 +63,7 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
       final Queue queue = session.createQueue("test");
 
       Thread t = new Thread() {
+         @Override
          public void run() {
             try {
                // wait for 10 seconds to allow consumer.receive to be run

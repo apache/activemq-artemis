@@ -27,25 +27,31 @@ import java.util.Timer;
 
 public class BootstrapContext implements javax.resource.spi.BootstrapContext {
 
+   @Override
    public Timer createTimer() throws UnavailableException {
       return null;
    }
 
+   @Override
    public WorkManager getWorkManager() {
       return new WorkManager() {
+         @Override
          public void doWork(final Work work) throws WorkException {
          }
 
+         @Override
          public void doWork(final Work work,
                             final long l,
                             final ExecutionContext executionContext,
                             final WorkListener workListener) throws WorkException {
          }
 
+         @Override
          public long startWork(final Work work) throws WorkException {
             return 0;
          }
 
+         @Override
          public long startWork(final Work work,
                                final long l,
                                final ExecutionContext executionContext,
@@ -53,10 +59,12 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
             return 0;
          }
 
+         @Override
          public void scheduleWork(final Work work) throws WorkException {
             work.run();
          }
 
+         @Override
          public void scheduleWork(final Work work,
                                   final long l,
                                   final ExecutionContext executionContext,
@@ -65,6 +73,7 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
       };
    }
 
+   @Override
    public XATerminator getXATerminator() {
       return null;
    }

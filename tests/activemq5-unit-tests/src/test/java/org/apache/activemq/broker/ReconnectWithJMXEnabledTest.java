@@ -51,6 +51,7 @@ public class ReconnectWithJMXEnabledTest extends EmbeddedBrokerTestSupport {
       useConnection(connection);
    }
 
+   @Override
    protected void setUp() throws Exception {
       bindAddress = "tcp://localhost:0";
       super.setUp();
@@ -61,6 +62,7 @@ public class ReconnectWithJMXEnabledTest extends EmbeddedBrokerTestSupport {
       return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -69,6 +71,7 @@ public class ReconnectWithJMXEnabledTest extends EmbeddedBrokerTestSupport {
       super.tearDown();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService answer = new BrokerService();
       answer.setUseJmx(true);

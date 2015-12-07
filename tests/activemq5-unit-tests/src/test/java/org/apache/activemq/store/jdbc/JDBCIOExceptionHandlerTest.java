@@ -124,6 +124,7 @@ public class JDBCIOExceptionHandlerTest extends TestCase {
       final AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
 
       Thread slaveThread = new Thread() {
+         @Override
          public void run() {
             try {
                BrokerService broker = new BrokerService();
@@ -321,6 +322,7 @@ public class JDBCIOExceptionHandlerTest extends TestCase {
          }
       }
 
+      @Override
       public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
          return null;
       }

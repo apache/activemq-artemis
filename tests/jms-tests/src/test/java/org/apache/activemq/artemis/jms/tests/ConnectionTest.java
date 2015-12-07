@@ -297,6 +297,7 @@ public class ConnectionTest extends JMSTestCase {
 
       JMSException exceptionReceived;
 
+      @Override
       public void onException(final JMSException exception) {
          exceptionReceived = exception;
          ConnectionTest.log.trace("Received exception");

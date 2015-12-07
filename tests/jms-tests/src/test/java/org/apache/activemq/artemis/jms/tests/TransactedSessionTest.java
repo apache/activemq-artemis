@@ -702,6 +702,7 @@ public class TransactedSessionTest extends JMSTestCase {
          this.conn = conn;
       }
 
+      @Override
       public void onMessage(Message message) {
          if (!started) {
             startLatch.countDown();

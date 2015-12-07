@@ -78,20 +78,24 @@ public class NettyConnectionTest extends ActiveMQTestBase {
 
    class MyListener implements ConnectionLifeCycleListener {
 
+      @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
                                     final String protocol) {
 
       }
 
+      @Override
       public void connectionDestroyed(final Object connectionID) {
 
       }
 
+      @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
 
       }
 
+      @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
 

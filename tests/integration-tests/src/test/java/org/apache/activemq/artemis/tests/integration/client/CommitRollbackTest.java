@@ -172,6 +172,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
       cc.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                message.acknowledge();
@@ -246,6 +247,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public void onMessage(final ClientMessage message) {
          try {
             message.acknowledge();

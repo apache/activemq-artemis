@@ -345,12 +345,14 @@ public final class ReplicationTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
 
       ctx.executeOnCompletion(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             lastError.set(errorCode);
             msgsResult.add(errorMessage);
             latch.countDown();
          }
 
+         @Override
          public void done() {
          }
       });
@@ -367,12 +369,14 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       // Adding the Task after the exception should still throw an exception
       ctx.executeOnCompletion(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             lastError.set(errorCode);
             msgsResult.add(errorMessage);
             latch2.countDown();
          }
 
+         @Override
          public void done() {
          }
       });
@@ -388,9 +392,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       final CountDownLatch latch3 = new CountDownLatch(1);
 
       ctx.executeOnCompletion(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
          }
 
+         @Override
          public void done() {
             latch3.countDown();
          }
@@ -444,9 +450,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
       storage.afterCompleteOperations(new IOCallback() {
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
          }
 
+         @Override
          public void done() {
             latch.countDown();
          }
@@ -470,9 +478,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(1);
       storage.afterCompleteOperations(new IOCallback() {
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
          }
 
+         @Override
          public void done() {
             latch.countDown();
          }
@@ -509,9 +519,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
          ctx.executeOnCompletion(new IOCallback() {
 
+            @Override
             public void onError(final int errorCode, final String errorMessage) {
             }
 
+            @Override
             public void done() {
                executions.add(nAdd);
                latch.countDown();
@@ -530,13 +542,16 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
    class FakeData implements EncodingSupport {
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
          buffer.writeBytes(new byte[5]);
       }
 
+      @Override
       public int getEncodeSize() {
          return 5;
       }
@@ -599,6 +614,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       static AtomicBoolean value = new AtomicBoolean(true);
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          return TestInterceptor.value.get();
       }
@@ -607,6 +623,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
    static final class FakeJournal implements Journal {
 
+      @Override
       public void appendAddRecord(final long id,
                                   final byte recordType,
                                   final byte[] record,
@@ -614,6 +631,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendAddRecord(final long id,
                                   final byte recordType,
                                   final EncodingSupport record,
@@ -621,6 +639,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendAddRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
@@ -628,6 +647,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendAddRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
@@ -635,46 +655,55 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendCommitRecord(final long txID, final boolean sync) throws Exception {
 
       }
 
+      @Override
       public void appendDeleteRecord(final long id, final boolean sync) throws Exception {
 
       }
 
+      @Override
       public void appendDeleteRecordTransactional(final long txID,
                                                   final long id,
                                                   final byte[] record) throws Exception {
 
       }
 
+      @Override
       public void appendDeleteRecordTransactional(final long txID,
                                                   final long id,
                                                   final EncodingSupport record) throws Exception {
 
       }
 
+      @Override
       public void appendDeleteRecordTransactional(final long txID, final long id) throws Exception {
 
       }
 
+      @Override
       public void appendPrepareRecord(final long txID,
                                       final EncodingSupport transactionData,
                                       final boolean sync) throws Exception {
 
       }
 
+      @Override
       public void appendPrepareRecord(final long txID,
                                       final byte[] transactionData,
                                       final boolean sync) throws Exception {
 
       }
 
+      @Override
       public void appendRollbackRecord(final long txID, final boolean sync) throws Exception {
 
       }
 
+      @Override
       public void appendUpdateRecord(final long id,
                                      final byte recordType,
                                      final byte[] record,
@@ -682,6 +711,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendUpdateRecord(final long id,
                                      final byte recordType,
                                      final EncodingSupport record,
@@ -689,6 +719,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendUpdateRecordTransactional(final long txID,
                                                   final long id,
                                                   final byte recordType,
@@ -696,6 +727,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void appendUpdateRecordTransactional(final long txID,
                                                   final long id,
                                                   final byte recordType,
@@ -703,16 +735,19 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public int getAlignment() throws Exception {
 
          return 0;
       }
 
+      @Override
       public JournalLoadInformation load(final LoaderCallback reloadManager) throws Exception {
 
          return new JournalLoadInformation();
       }
 
+      @Override
       public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                          final List<PreparedTransactionInfo> preparedTransactions,
                                          final TransactionFailureCallback transactionFailure) throws Exception {
@@ -720,31 +755,38 @@ public final class ReplicationTest extends ActiveMQTestBase {
          return new JournalLoadInformation();
       }
 
+      @Override
       public void perfBlast(final int pages) {
 
       }
 
+      @Override
       public boolean isStarted() {
 
          return false;
       }
 
+      @Override
       public void start() throws Exception {
 
       }
 
+      @Override
       public void stop() throws Exception {
 
       }
 
+      @Override
       public JournalLoadInformation loadInternalOnly() throws Exception {
          return new JournalLoadInformation();
       }
 
+      @Override
       public int getNumberOfRecords() {
          return 0;
       }
 
+      @Override
       public void appendAddRecord(final long id,
                                   final byte recordType,
                                   final EncodingSupport record,
@@ -752,27 +794,32 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                   final IOCompletion completionCallback) throws Exception {
       }
 
+      @Override
       public void appendCommitRecord(final long txID,
                                      final boolean sync,
                                      final IOCompletion callback) throws Exception {
       }
 
+      @Override
       public void appendDeleteRecord(final long id,
                                      final boolean sync,
                                      final IOCompletion completionCallback) throws Exception {
       }
 
+      @Override
       public void appendPrepareRecord(final long txID,
                                       final EncodingSupport transactionData,
                                       final boolean sync,
                                       final IOCompletion callback) throws Exception {
       }
 
+      @Override
       public void appendRollbackRecord(final long txID,
                                        final boolean sync,
                                        final IOCompletion callback) throws Exception {
       }
 
+      @Override
       public void appendUpdateRecord(final long id,
                                      final byte recordType,
                                      final EncodingSupport record,
@@ -783,9 +830,11 @@ public final class ReplicationTest extends ActiveMQTestBase {
       public void sync(final IOCompletion callback) {
       }
 
+      @Override
       public void runDirectJournalBlast() throws Exception {
       }
 
+      @Override
       public int getUserVersion() {
          return 0;
       }

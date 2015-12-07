@@ -66,6 +66,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
    // Public --------------------------------------------------------
 
+   @Override
    public SequentialFile createSequentialFile(final String fileName) {
       FakeSequentialFile sf = fileMap.get(fileName);
 
@@ -83,6 +84,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       return sf;
    }
 
+   @Override
    public void clearBuffer(final ByteBuffer buffer) {
       final int limit = buffer.limit();
       buffer.rewind();
@@ -94,6 +96,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       buffer.rewind();
    }
 
+   @Override
    public List<String> listFiles(final String extension) {
       List<String> files = new ArrayList<String>();
 
@@ -114,10 +117,12 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       fileMap.clear();
    }
 
+   @Override
    public boolean isSupportsCallbacks() {
       return supportsCallback;
    }
 
+   @Override
    public ByteBuffer newBuffer(int size) {
       if (size % alignment != 0) {
          size = (size / alignment + 1) * alignment;
@@ -125,6 +130,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       return ByteBuffer.allocate(size);
    }
 
+   @Override
    public int calculateBlockSize(final int position) {
       int alignment = getAlignment();
 
@@ -133,6 +139,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       return pos;
    }
 
+   @Override
    public ByteBuffer wrapBuffer(final byte[] bytes) {
       return ByteBuffer.wrap(bytes);
    }
@@ -177,6 +184,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       return callbacksInHold.size();
    }
 
+   @Override
    public int getAlignment() {
       return alignment;
    }
@@ -217,6 +225,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          this.callback = callback;
       }
 
+      @Override
       public void run() {
 
          if (sendError) {
@@ -253,6 +262,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          return data;
       }
 
+      @Override
       public boolean isOpen() {
          return open;
       }
@@ -264,6 +274,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          this.fileName = fileName;
       }
 
+      @Override
       public synchronized void close() {
          open = false;
 
@@ -274,6 +285,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          notifyAll();
       }
 
+      @Override
       public void delete() {
          if (open) {
             close();
@@ -282,19 +294,23 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          fileMap.remove(fileName);
       }
 
+      @Override
       public String getFileName() {
          return fileName;
       }
 
+      @Override
       public void open() throws Exception {
          open(1, true);
       }
 
+      @Override
       public synchronized void open(final int currentMaxIO, final boolean useExecutor) throws Exception {
          open = true;
          checkAndResize(0);
       }
 
+      @Override
       public void fill(final int size) throws Exception {
          if (!open) {
             throw new IllegalStateException("Is closed");
@@ -312,10 +328,12 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          }
       }
 
+      @Override
       public int read(final ByteBuffer bytes) throws Exception {
          return read(bytes, null);
       }
 
+      @Override
       public int read(final ByteBuffer bytes, final IOCallback callback) throws Exception {
          if (!open) {
             throw new IllegalStateException("Is closed");
@@ -347,10 +365,12 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          data.position((int) pos);
       }
 
+      @Override
       public long position() {
          return data.position();
       }
 
+      @Override
       public synchronized void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
          if (!open) {
             throw new IllegalStateException("Is closed");
@@ -379,12 +399,14 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
       }
 
+      @Override
       public void sync() throws IOException {
          if (supportsCallback) {
             throw new IllegalStateException("sync is not supported when supportsCallback=true");
          }
       }
 
+      @Override
       public long size() throws Exception {
          if (data == null) {
             return 0;
@@ -394,6 +416,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          }
       }
 
+      @Override
       public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
          writeDirect(bytes, sync, null);
       }
@@ -434,10 +457,12 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          }
       }
 
+      @Override
       public int getAlignment() throws Exception {
          return alignment;
       }
 
+      @Override
       public int calculateBlockStart(final int position) throws Exception {
          int pos = (position / alignment + (position % alignment != 0 ? 1 : 0)) * alignment;
 
@@ -458,6 +483,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#renameTo(org.apache.activemq.artemis.core.io.SequentialFile)
        */
+      @Override
       public void renameTo(final String newFileName) throws Exception {
          fileMap.remove(fileName);
          fileName = newFileName;
@@ -467,6 +493,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#fits(int)
        */
+      @Override
       public boolean fits(final int size) {
          return data.position() + size <= data.limit();
       }
@@ -489,6 +516,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       public void enableAutoFlush() {
       }
 
+      @Override
       public SequentialFile cloneFile() {
          return null; // To change body of implemented methods use File | Settings | File Templates.
       }
@@ -496,6 +524,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean, org.apache.activemq.artemis.core.journal.IOCallback)
        */
+      @Override
       public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws Exception {
          bytes.writerIndex(bytes.capacity());
          bytes.readerIndex(0);
@@ -506,6 +535,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean)
        */
+      @Override
       public void write(final ActiveMQBuffer bytes, final boolean sync) throws Exception {
          bytes.writerIndex(bytes.capacity());
          bytes.readerIndex(0);
@@ -515,6 +545,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean, org.apache.activemq.artemis.core.journal.IOCompletion)
        */
+      @Override
       public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) throws Exception {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
          ActiveMQBuffer outbuffer = ActiveMQBuffers.wrappedBuffer(buffer);
@@ -525,6 +556,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
        */
+      @Override
       public void write(final EncodingSupport bytes, final boolean sync) throws Exception {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
          ActiveMQBuffer outbuffer = ActiveMQBuffers.wrappedBuffer(buffer);
@@ -535,6 +567,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#exists()
        */
+      @Override
       public boolean exists() {
          FakeSequentialFile file = fileMap.get(fileName);
 
@@ -544,12 +577,14 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#setTimedBuffer(org.apache.activemq.artemis.core.io.buffer.TimedBuffer)
        */
+      @Override
       public void setTimedBuffer(final TimedBuffer buffer) {
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.io.SequentialFile#copyTo(org.apache.activemq.artemis.core.io.SequentialFile)
        */
+      @Override
       public void copyTo(SequentialFile newFileName) {
          // TODO Auto-generated method stub
 

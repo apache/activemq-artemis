@@ -90,6 +90,7 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
       connection2.close();
    }
 
+   @Override
    protected String getName() {
       return "testSendWhileClosed";
    }

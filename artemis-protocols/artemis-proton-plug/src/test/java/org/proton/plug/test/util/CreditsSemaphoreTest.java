@@ -35,6 +35,7 @@ public class CreditsSemaphoreTest {
    final CountDownLatch waiting = new CountDownLatch(1);
 
    Thread thread = new Thread() {
+      @Override
       public void run() {
          try {
             for (int i = 0; i < 12; i++) {

@@ -228,6 +228,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                MessageHandler handler = new MessageHandler() {
                   int msgCounter;
 
+                  @Override
                   public void onMessage(final ClientMessage message) {
                      try {
                         if (delayDelivery > 0) {
@@ -673,6 +674,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          pos = 0;
       }
 
+      @Override
       public TestLargeMessageInputStream clone() {
          return new TestLargeMessageInputStream(this);
       }

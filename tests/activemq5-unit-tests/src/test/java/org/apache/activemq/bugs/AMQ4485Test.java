@@ -80,6 +80,7 @@ public class AMQ4485Test extends TestCase {
                if (true) {
                   TransactionBroker transactionBroker = (TransactionBroker) broker.getBroker().getAdaptor(TransactionBroker.class);
                   transactionBroker.getTransaction(producerExchange.getConnectionContext(), messageSend.getTransactionId(), false).addSynchronization(new Synchronization() {
+                                                                                                                                                         @Override
                                                                                                                                                          public void afterCommit() throws Exception {
                                                                                                                                                             LOG.error("AfterCommit, NUM:" + num + ", " + messageSend.getMessageId() + ", tx: " + messageSend.getTransactionId());
                                                                                                                                                             if (num == 5) {
@@ -174,6 +175,7 @@ public class AMQ4485Test extends TestCase {
       return session;
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       broker = new BrokerService();
@@ -185,6 +187,7 @@ public class AMQ4485Test extends TestCase {
 
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {

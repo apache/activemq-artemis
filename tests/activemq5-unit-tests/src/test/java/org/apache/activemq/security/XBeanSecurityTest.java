@@ -41,6 +41,7 @@ public class XBeanSecurityTest extends SecurityTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return createBroker("org/apache/activemq/security/jaas-broker.xml");
    }

@@ -458,6 +458,7 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
       }
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

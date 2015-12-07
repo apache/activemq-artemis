@@ -323,6 +323,7 @@ public class AMQ5266StarvedConsumerTest {
             mp = session.createProducer(null);
          }
 
+         @Override
          public void run() {
 
             try {
@@ -538,6 +539,7 @@ public class AMQ5266StarvedConsumerTest {
             idList = idsByQueue.get(queueName);
          }
 
+         @Override
          public void run() {
 
             try {

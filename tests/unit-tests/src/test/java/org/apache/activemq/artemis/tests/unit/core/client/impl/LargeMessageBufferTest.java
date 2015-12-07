@@ -662,41 +662,51 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
    static class FakeConsumerInternal implements ClientConsumerInternal {
 
+      @Override
       public ConsumerContext getConsumerContext() {
          return new ActiveMQConsumerContext(0);
       }
 
+      @Override
       public void close() throws ActiveMQException {
       }
 
+      @Override
       public Exception getLastException() {
          return null;
       }
 
+      @Override
       public MessageHandler getMessageHandler() throws ActiveMQException {
          return null;
       }
 
+      @Override
       public boolean isClosed() {
          return false;
       }
 
+      @Override
       public ClientMessage receive() throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientMessage receive(final long timeout) throws ActiveMQException {
          return null;
       }
 
+      @Override
       public ClientMessage receiveImmediate() throws ActiveMQException {
          return null;
       }
 
+      @Override
       public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws ActiveMQException {
          return this;
       }
 
+      @Override
       public void acknowledge(final ClientMessage message) throws ActiveMQException {
       }
 
@@ -704,31 +714,39 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       public void individualAcknowledge(ClientMessage message) throws ActiveMQException {
       }
 
+      @Override
       public void cleanUp() throws ActiveMQException {
       }
 
+      @Override
       public void clear(boolean waitForOnMessage) throws ActiveMQException {
       }
 
+      @Override
       public void clearAtFailover() {
       }
 
+      @Override
       public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
       }
 
+      @Override
       public void flushAcks() throws ActiveMQException {
       }
 
+      @Override
       public int getBufferSize() {
 
          return 0;
       }
 
+      @Override
       public int getClientWindowSize() {
 
          return 0;
       }
 
+      @Override
       public SimpleString getFilterString() {
 
          return null;
@@ -739,11 +757,13 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          return 0;
       }
 
+      @Override
       public SimpleString getQueueName() {
 
          return null;
       }
 
+      @Override
       public boolean isBrowseOnly() {
 
          return false;
@@ -764,6 +784,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
                                                  boolean isContinues) throws Exception {
       }
 
+      @Override
       public void start() {
 
       }
@@ -772,9 +793,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void stop(boolean waitForOnMessage) throws ActiveMQException {
       }
 
+      @Override
       public ClientSession.QueueQuery getQueueInfo() {
          return null;
       }
@@ -790,6 +813,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#prepareForClose()
        */
+      @Override
       public Thread prepareForClose(FutureLatch future) throws ActiveMQException {
          return null;
       }

@@ -47,6 +47,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
    private static final String outQueue = "outQueue";
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -199,6 +200,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
          session.start();
       }
 
+      @Override
       public void onMessage(ClientMessage message) {
 
          try {

@@ -35,6 +35,7 @@ public class DoubleExpireTest extends EmbeddedBrokerTestSupport {
    private static final long MESSAGE_TTL_MILLIS = 1000;
    private static final long MAX_TEST_TIME_MILLIS = 60000;
 
+   @Override
    public void setUp() throws Exception {
       setAutoFail(true);
       setMaxTestTime(MAX_TEST_TIME_MILLIS);

@@ -39,6 +39,7 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
       super(sessionSPI, connection, session);
    }
 
+   @Override
    public AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 
@@ -61,6 +62,7 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
       return amqpSender;
    }
 
+   @Override
    public AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 

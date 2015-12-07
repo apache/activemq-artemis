@@ -38,6 +38,7 @@ public abstract class UnaryExpression implements Expression {
 
    public static Expression createNegate(Expression left) {
       return new UnaryExpression(left) {
+         @Override
          public Object evaluate(Filterable message) throws FilterException {
             Object rvalue = right.evaluate(message);
             if (rvalue == null) {
@@ -49,6 +50,7 @@ public abstract class UnaryExpression implements Expression {
             return null;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "-";
          }
@@ -73,6 +75,7 @@ public abstract class UnaryExpression implements Expression {
       final Collection<Object> inList = t;
 
       return new BooleanUnaryExpression(right) {
+         @Override
          public Object evaluate(Filterable message) throws FilterException {
 
             Object rvalue = right.evaluate(message);
@@ -92,6 +95,7 @@ public abstract class UnaryExpression implements Expression {
 
          }
 
+         @Override
          public String toString() {
             StringBuffer answer = new StringBuffer();
             answer.append(right);
@@ -113,6 +117,7 @@ public abstract class UnaryExpression implements Expression {
             return answer.toString();
          }
 
+         @Override
          public String getExpressionSymbol() {
             if (not) {
                return "NOT IN";
@@ -130,6 +135,7 @@ public abstract class UnaryExpression implements Expression {
          super(left);
       }
 
+      @Override
       public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
@@ -138,6 +144,7 @@ public abstract class UnaryExpression implements Expression {
 
    public static BooleanExpression createNOT(BooleanExpression left) {
       return new BooleanUnaryExpression(left) {
+         @Override
          public Object evaluate(Filterable message) throws FilterException {
             Boolean lvalue = (Boolean) right.evaluate(message);
             if (lvalue == null) {
@@ -146,6 +153,7 @@ public abstract class UnaryExpression implements Expression {
             return lvalue.booleanValue() ? Boolean.FALSE : Boolean.TRUE;
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "NOT";
          }
@@ -162,6 +170,7 @@ public abstract class UnaryExpression implements Expression {
 
    public static BooleanExpression createBooleanCast(Expression left) {
       return new BooleanUnaryExpression(left) {
+         @Override
          public Object evaluate(Filterable message) throws FilterException {
             Object rvalue = right.evaluate(message);
             if (rvalue == null) {
@@ -173,10 +182,12 @@ public abstract class UnaryExpression implements Expression {
             return ((Boolean) rvalue).booleanValue() ? Boolean.TRUE : Boolean.FALSE;
          }
 
+         @Override
          public String toString() {
             return right.toString();
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "";
          }
@@ -229,6 +240,7 @@ public abstract class UnaryExpression implements Expression {
    /**
     * @see java.lang.Object#toString()
     */
+   @Override
    public String toString() {
       return "(" + getExpressionSymbol() + " " + right.toString() + ")";
    }
@@ -236,6 +248,7 @@ public abstract class UnaryExpression implements Expression {
    /**
     * @see java.lang.Object#hashCode()
     */
+   @Override
    public int hashCode() {
       int result = right.hashCode();
       result = 31 * result + getExpressionSymbol().hashCode();
@@ -245,6 +258,7 @@ public abstract class UnaryExpression implements Expression {
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
+   @Override
    public boolean equals(Object o) {
       if (this == o) {
          return true;

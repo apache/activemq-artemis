@@ -32,6 +32,7 @@ public class MemoryUsageBrokerTest extends BrokerTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(MemoryUsageBrokerTest.class);
 
+   @Override
    protected void setUp() throws Exception {
       this.setAutoFail(true);
       super.setUp();
@@ -47,6 +48,7 @@ public class MemoryUsageBrokerTest extends BrokerTestSupport {
       return policy;
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       KahaDBStore kaha = new KahaDBStore();

@@ -85,34 +85,42 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
 
    // ManagedJMSQueueMBean implementation ---------------------------
 
+   @Override
    public String getName() {
       return managedQueue.getName();
    }
 
+   @Override
    public String getAddress() {
       return managedQueue.getAddress();
    }
 
+   @Override
    public boolean isTemporary() {
       return managedQueue.isTemporary();
    }
 
+   @Override
    public long getMessageCount() {
       return coreQueueControl.getMessageCount();
    }
 
+   @Override
    public long getMessagesAdded() {
       return coreQueueControl.getMessagesAdded();
    }
 
+   @Override
    public int getConsumerCount() {
       return coreQueueControl.getConsumerCount();
    }
 
+   @Override
    public int getDeliveringCount() {
       return coreQueueControl.getDeliveringCount();
    }
 
+   @Override
    public long getScheduledCount() {
       return coreQueueControl.getScheduledCount();
    }
@@ -121,22 +129,27 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.isDurable();
    }
 
+   @Override
    public String getDeadLetterAddress() {
       return coreQueueControl.getDeadLetterAddress();
    }
 
+   @Override
    public String getExpiryAddress() {
       return coreQueueControl.getExpiryAddress();
    }
 
+   @Override
    public String getFirstMessageAsJSON() throws Exception {
       return coreQueueControl.getFirstMessageAsJSON();
    }
 
+   @Override
    public Long getFirstMessageTimestamp() throws Exception {
       return coreQueueControl.getFirstMessageTimestamp();
    }
 
+   @Override
    public Long getFirstMessageAge() throws Exception {
       return coreQueueControl.getFirstMessageAge();
    }
@@ -146,10 +159,12 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       jmsServerManager.addQueueToBindingRegistry(managedQueue.getName(), binding);
    }
 
+   @Override
    public String[] getRegistryBindings() {
       return jmsServerManager.getBindingsOnQueue(managedQueue.getName());
    }
 
+   @Override
    public boolean removeMessage(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int removed = coreQueueControl.removeMessages(filter);
@@ -159,11 +174,13 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return true;
    }
 
+   @Override
    public int removeMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.removeMessages(filter);
    }
 
+   @Override
    public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
       try {
          String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
@@ -224,15 +241,18 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.listDeliveringMessagesAsJSON();
    }
 
+   @Override
    public String listMessagesAsJSON(final String filter) throws Exception {
       return JMSQueueControlImpl.toJSON(listMessages(filter));
    }
 
+   @Override
    public long countMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.countMessages(filter);
    }
 
+   @Override
    public boolean expireMessage(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int expired = coreQueueControl.expireMessages(filter);
@@ -242,11 +262,13 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return true;
    }
 
+   @Override
    public int expireMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.expireMessages(filter);
    }
 
+   @Override
    public boolean sendMessageToDeadLetterAddress(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int dead = coreQueueControl.sendMessagesToDeadLetterAddress(filter);
@@ -256,11 +278,13 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return true;
    }
 
+   @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.sendMessagesToDeadLetterAddress(filter);
    }
 
+   @Override
    public boolean changeMessagePriority(final String messageID, final int newPriority) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int changed = coreQueueControl.changeMessagesPriority(filter, newPriority);
@@ -270,11 +294,13 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return true;
    }
 
+   @Override
    public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.changeMessagesPriority(filter, newPriority);
    }
 
+   @Override
    public boolean retryMessage(final String jmsMessageID) throws Exception {
 
       // Figure out messageID from JMSMessageID.
@@ -289,15 +315,18 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return messageID != null && coreQueueControl.retryMessage(messageID);
    }
 
+   @Override
    public int retryMessages() throws Exception {
       return coreQueueControl.retryMessages();
    }
 
 
+   @Override
    public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }
 
+   @Override
    public boolean moveMessage(final String messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
@@ -311,6 +340,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return true;
    }
 
+   @Override
    public int moveMessages(final String filterStr,
                            final String otherQueueName,
                            final boolean rejectDuplicates) throws Exception {
@@ -319,15 +349,18 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.moveMessages(filter, otherQueue.getAddress(), rejectDuplicates);
    }
 
+   @Override
    public int moveMessages(final String filterStr, final String otherQueueName) throws Exception {
       return moveMessages(filterStr, otherQueueName, false);
    }
 
+   @Override
    @Operation(desc = "List all the existent consumers on the Queue")
    public String listConsumersAsJSON() throws Exception {
       return coreQueueControl.listConsumersAsJSON();
    }
 
+   @Override
    public String listMessageCounter() {
       try {
          return MessageCounterInfo.toJSon(counter);
@@ -337,38 +370,47 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       }
    }
 
+   @Override
    public void resetMessageCounter() throws Exception {
       coreQueueControl.resetMessageCounter();
    }
 
+   @Override
    public String listMessageCounterAsHTML() {
       return MessageCounterHelper.listMessageCounterAsHTML(new MessageCounter[]{counter});
    }
 
+   @Override
    public String listMessageCounterHistory() throws Exception {
       return MessageCounterHelper.listMessageCounterHistory(counter);
    }
 
+   @Override
    public String listMessageCounterHistoryAsHTML() {
       return MessageCounterHelper.listMessageCounterHistoryAsHTML(new MessageCounter[]{counter});
    }
 
+   @Override
    public boolean isPaused() throws Exception {
       return coreQueueControl.isPaused();
    }
 
+   @Override
    public void pause() throws Exception {
       coreQueueControl.pause();
    }
 
+   @Override
    public void resume() throws Exception {
       coreQueueControl.resume();
    }
 
+   @Override
    public String getSelector() {
       return coreQueueControl.getFilter();
    }
 
+   @Override
    public void flushExecutor() {
       coreQueueControl.flushExecutor();
    }

@@ -30,6 +30,7 @@ import org.apache.activemq.command.*;
  */
 public abstract class MessageTestSupport extends BaseCommandTestSupport {
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       Message info = (Message) object;

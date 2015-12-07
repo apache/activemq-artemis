@@ -68,6 +68,7 @@ public final class ConnectorsService implements ActiveMQComponent {
       this.serviceRegistry = serviceRegistry;
    }
 
+   @Override
    public void start() throws Exception {
       Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServiceFactories = serviceRegistry.getConnectorServices(configuration.getConnectorServiceConfigurations());
 
@@ -104,6 +105,7 @@ public final class ConnectorsService implements ActiveMQComponent {
       connectors.add(connectorService);
    }
 
+   @Override
    public void stop() throws Exception {
       if (!isStarted) {
          return;
@@ -120,6 +122,7 @@ public final class ConnectorsService implements ActiveMQComponent {
       isStarted = false;
    }
 
+   @Override
    public boolean isStarted() {
       return isStarted;
    }

@@ -1642,6 +1642,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       final LinkedList<Long> survivingMsgs = new LinkedList<Long>();
 
       Runnable producerRunnable = new Runnable() {
+         @Override
          public void run() {
             try {
                while (running.get()) {
@@ -1671,11 +1672,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
                   storage.commit(tx);
 
                   ctx.executeOnCompletion(new IOCallback() {
+                     @Override
                      public void onError(int errorCode, String errorMessage) {
                      }
 
+                     @Override
                      public void done() {
                         deleteExecutor.execute(new Runnable() {
+                           @Override
                            public void run() {
                               try {
                                  for (long messageID : values) {
@@ -1702,6 +1706,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       };
 
       Runnable compressRunnable = new Runnable() {
+         @Override
          public void run() {
             try {
                while (running.get()) {
@@ -1751,6 +1756,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       File[] files = testDir.listFiles(new FilenameFilter() {
 
+         @Override
          public boolean accept(File dir, String name) {
             return name.startsWith(filePrefix) && name.endsWith(fileExtension);
          }

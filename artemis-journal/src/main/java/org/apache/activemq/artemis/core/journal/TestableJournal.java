@@ -32,6 +32,7 @@ public interface TestableJournal extends Journal {
 
    void debugWait() throws Exception;
 
+   @Override
    int getFileSize();
 
    int getMinFiles();
@@ -42,6 +43,7 @@ public interface TestableJournal extends Journal {
 
    int getMaxAIO();
 
+   @Override
    void forceMoveNextFile() throws Exception;
 
    void setAutoReclaim(boolean autoReclaim);
@@ -63,5 +65,6 @@ public interface TestableJournal extends Journal {
     */
    boolean checkReclaimStatus() throws Exception;
 
+   @Override
    JournalFile[] getDataFiles();
 }

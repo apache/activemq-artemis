@@ -38,6 +38,7 @@ public class SpringProducer {
       for (int i = 0; i < messageCount; i++) {
          final String text = "Text for message: " + i;
          template.send(destination, new MessageCreator() {
+            @Override
             public Message createMessage(Session session) throws JMSException {
                LOG.info("Sending message: " + text);
                TextMessage message = session.createTextMessage(text);

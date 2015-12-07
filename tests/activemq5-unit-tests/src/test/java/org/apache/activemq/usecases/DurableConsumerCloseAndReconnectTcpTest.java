@@ -53,6 +53,7 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
 
    private boolean reconnectInTransportListener;
 
+   @Override
    public void setUp() throws Exception {
       broker = new BrokerService();
       // let the client initiate the inactivity timeout
@@ -140,11 +141,13 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
 
    }
 
+   @Override
    public void tearDown() throws Exception {
       broker.stop();
       broker.waitUntilStopped();
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(URISupport.removeQuery(connector.getConnectUri()) + "?useKeepAlive=false&wireFormat.maxInactivityDuration=2000");
    }
@@ -168,6 +171,7 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
       assertNull("No exception: " + reconnectException, reconnectException);
    }
 
+   @Override
    public void onException(JMSException exception) {
       LOG.info("Exception listener exception:" + exception);
       if (reconnectInExceptionListener) {
@@ -182,9 +186,11 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
       }
    }
 
+   @Override
    public void onCommand(Object command) {
    }
 
+   @Override
    public void onException(IOException error) {
       LOG.info("Transport listener exception:" + error);
       if (reconnectInTransportListener) {
@@ -200,9 +206,11 @@ public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerClos
       }
    }
 
+   @Override
    public void transportInterupted() {
    }
 
+   @Override
    public void transportResumed() {
    }
 }

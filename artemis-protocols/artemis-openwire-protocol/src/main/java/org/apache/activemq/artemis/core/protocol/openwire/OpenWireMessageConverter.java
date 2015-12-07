@@ -102,6 +102,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       return null;
    }
 
+   @Override
    public Object outbound(ServerMessage message, int deliveryCount) {
       // TODO: implement this
       return null;

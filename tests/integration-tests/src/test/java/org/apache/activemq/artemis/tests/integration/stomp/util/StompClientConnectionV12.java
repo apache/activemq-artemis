@@ -29,6 +29,7 @@ public class StompClientConnectionV12 extends AbstractStompClientConnection {
       return factory.newFrame(command);
    }
 
+   @Override
    public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.2");

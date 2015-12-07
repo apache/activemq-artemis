@@ -67,11 +67,13 @@ public class DurableSubscriptionReactivationTest extends EmbeddedBrokerTestSuppo
       assertNotNull("Message not received.", message);
    }
 
+   @Override
    protected void setUp() throws Exception {
       useTopic = true;
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }
@@ -85,6 +87,7 @@ public class DurableSubscriptionReactivationTest extends EmbeddedBrokerTestSuppo
       return answer;
    }
 
+   @Override
    protected boolean isPersistent() {
       return true;
    }

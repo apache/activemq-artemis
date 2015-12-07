@@ -69,6 +69,7 @@ public class ReconnectWithSameClientIDTest extends BasicOpenWireTest {
       }
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       if (sameIdConnection != null) {

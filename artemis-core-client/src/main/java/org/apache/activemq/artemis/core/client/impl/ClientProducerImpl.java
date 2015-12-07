@@ -108,22 +108,26 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    // ClientProducer implementation ----------------------------------------------------------------
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public void send(final Message msg) throws ActiveMQException {
       checkClosed();
 
       doSend(null, msg, null, false);
    }
 
+   @Override
    public void send(final SimpleString address1, final Message msg) throws ActiveMQException {
       checkClosed();
 
       doSend(address1, msg, null, false);
    }
 
+   @Override
    public void send(final String address1, final Message message) throws ActiveMQException {
       send(SimpleString.toSimpleString(address1), message);
    }
@@ -150,6 +154,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       send(null, message, handler);
    }
 
+   @Override
    public synchronized void close() throws ActiveMQException {
       if (closed) {
          return;
@@ -158,6 +163,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       doCleanup();
    }
 
+   @Override
    public void cleanUp() {
       if (closed) {
          return;
@@ -166,24 +172,29 @@ public class ClientProducerImpl implements ClientProducerInternal {
       doCleanup();
    }
 
+   @Override
    public boolean isClosed() {
       return closed;
    }
 
+   @Override
    public boolean isBlockOnDurableSend() {
       return blockOnDurableSend;
    }
 
+   @Override
    public boolean isBlockOnNonDurableSend() {
       return blockOnNonDurableSend;
    }
 
+   @Override
    public int getMaxRate() {
       return rateLimiter == null ? -1 : rateLimiter.getRate();
    }
 
    // Public ---------------------------------------------------------------------------------------
 
+   @Override
    public ClientProducerCredits getProducerCredits() {
       return producerCredits;
    }

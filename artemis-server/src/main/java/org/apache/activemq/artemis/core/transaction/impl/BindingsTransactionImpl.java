@@ -29,6 +29,7 @@ public class BindingsTransactionImpl extends TransactionImpl {
    /**
     * @throws Exception
     */
+   @Override
    protected void doCommit() throws Exception {
       if (isContainsPersistent()) {
          storageManager.commitBindings(getID());

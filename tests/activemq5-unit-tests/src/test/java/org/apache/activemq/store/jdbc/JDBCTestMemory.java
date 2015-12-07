@@ -38,12 +38,14 @@ public class JDBCTestMemory extends TestCase {
 
    BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       broker = createBroker();
       broker.start();
       broker.waitUntilStarted();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       broker.stop();
    }
@@ -105,6 +107,7 @@ public class JDBCTestMemory extends TestCase {
       for (int i = 0; i < 10; i++) {
          new Thread("Producer " + i) {
 
+            @Override
             public void run() {
                try {
                   MessageProducer producer = sess.createProducer(dest);
@@ -125,6 +128,7 @@ public class JDBCTestMemory extends TestCase {
 
          new Thread("Consumer " + i) {
 
+            @Override
             public void run() {
                try {
                   MessageConsumer consumer = sess.createConsumer(dest);

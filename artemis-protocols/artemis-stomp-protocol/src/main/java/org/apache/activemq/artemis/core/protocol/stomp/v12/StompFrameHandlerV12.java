@@ -244,6 +244,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
          return true;
       }
 
+      @Override
       protected StompFrame parseBody() throws ActiveMQStompException {
          byte[] content = null;
 

@@ -185,6 +185,7 @@ public class AMQ1866 extends TestCase {
          super(threadId);
       }
 
+      @Override
       public void run() {
          Connection connection = null;
          try {

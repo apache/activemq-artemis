@@ -22,6 +22,7 @@ package org.apache.activemq;
  */
 public class JmsQueueSelectorTest extends JmsTopicSelectorTest {
 
+   @Override
    public void setUp() throws Exception {
       topic = false;
       super.setUp();

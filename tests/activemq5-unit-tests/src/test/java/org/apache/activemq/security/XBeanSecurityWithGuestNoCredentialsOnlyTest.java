@@ -70,6 +70,7 @@ public class XBeanSecurityWithGuestNoCredentialsOnlyTest extends JmsTestSupport 
       assertEquals("guest", m.getStringProperty("JMSXUserID"));
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return createBroker("org/apache/activemq/security/jaas-broker-guest-no-creds-only.xml");
    }

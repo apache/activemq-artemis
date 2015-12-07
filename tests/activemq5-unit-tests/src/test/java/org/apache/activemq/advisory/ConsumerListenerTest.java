@@ -95,10 +95,12 @@ public class ConsumerListenerTest extends EmbeddedBrokerTestSupport implements C
       assertConsumerEvent(0, false);
    }
 
+   @Override
    public void onConsumerEvent(ConsumerEvent event) {
       eventQueue.add(event);
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -108,6 +110,7 @@ public class ConsumerListenerTest extends EmbeddedBrokerTestSupport implements C
       consumerEventSource.setConsumerListener(this);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (consumerEventSource != null) {
          consumerEventSource.stop();
@@ -137,6 +140,7 @@ public class ConsumerListenerTest extends EmbeddedBrokerTestSupport implements C
       Session answer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = answer.createConsumer(destination);
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message message) {
             LOG.info("Received message by: " + consumerText + " message: " + message);
          }

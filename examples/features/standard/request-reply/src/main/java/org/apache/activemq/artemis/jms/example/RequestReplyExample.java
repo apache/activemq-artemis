@@ -171,6 +171,7 @@ class SimpleRequestServer implements MessageListener {
       requestConsumer.setMessageListener(this);
    }
 
+   @Override
    public void onMessage(final Message request) {
       try {
          System.out.println("Received request message: " + ((TextMessage) request).getText());

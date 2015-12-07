@@ -100,6 +100,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private volatile LargeMessageDeliverer largeMessageDeliverer = null;
 
+   @Override
    public String debug() {
       return toString() + "::Delivering " + this.deliveringRefs.size();
    }
@@ -222,34 +223,42 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    // ServerConsumer implementation
    // ----------------------------------------------------------------------
 
+   @Override
    public Object getProtocolContext() {
       return protocolContext;
    }
 
+   @Override
    public void setProtocolContext(Object protocolContext) {
       this.protocolContext = protocolContext;
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public boolean isBrowseOnly() {
       return browseOnly;
    }
 
+   @Override
    public long getCreationTime() {
       return creationTime;
    }
 
+   @Override
    public String getConnectionID() {
       return this.session.getConnectionID().toString();
    }
 
+   @Override
    public String getSessionID() {
       return this.session.getName();
    }
 
+   @Override
    public List<MessageReference> getDeliveringMessages() {
       List<MessageReference> refs = new LinkedList<MessageReference>();
       synchronized (lock) {
@@ -263,6 +272,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return refs;
    }
 
+   @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (callback != null && !callback.hasCredits(this) || availableCredits != null && availableCredits.get() <= 0) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
@@ -349,6 +359,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void proceedDeliver(MessageReference reference) throws Exception {
       try {
          ServerMessage message = reference.getMessage();
@@ -373,6 +384,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
@@ -459,11 +471,13 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * When the consumer receives such a "forced delivery" message, it discards it and knows that
     * there are no other messages to be delivered.
     */
+   @Override
    public synchronized void forceDelivery(final long sequence) {
       promptDelivery();
 
       // JBPAPP-6030 - Using the executor to avoid distributed dead locks
       messageQueue.getExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             try {
                // We execute this on the same executor to make sure the force delivery message is written after
@@ -473,6 +487,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                   if (transferring) {
                      // Case it's transferring (reattach), we will retry later
                      messageQueue.getExecutor().execute(new Runnable() {
+                        @Override
                         public void run() {
                            forceDelivery(sequence);
                         }
@@ -496,6 +511,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    }
 
+   @Override
    public LinkedList<MessageReference> cancelRefs(final boolean failed,
                                                   final boolean lastConsumedAsDelivered,
                                                   final Transaction tx) throws Exception {
@@ -545,6 +561,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return refs;
    }
 
+   @Override
    public void setStarted(final boolean started) {
       synchronized (lock) {
          // This is to make sure that the delivery process has finished any pending delivery
@@ -564,6 +581,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void setTransferring(final boolean transferring) {
       synchronized (lock) {
          // This is to make sure that the delivery process has finished any pending delivery
@@ -599,6 +617,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void receiveCredits(final int credits) {
       if (credits == -1) {
          if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
@@ -636,10 +655,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public Queue getQueue() {
       return messageQueue;
    }
 
+   @Override
    public void acknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return;
@@ -717,6 +738,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void individualAcknowledge(final Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
          return;
@@ -737,6 +759,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       acks++;
    }
 
+   @Override
    public void individualCancel(final long messageID, boolean failed) throws Exception {
       if (browseOnly) {
          return;
@@ -755,6 +778,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       ref.getQueue().cancel(ref, System.currentTimeMillis());
    }
 
+   @Override
    public MessageReference removeReferenceByID(final long messageID) throws Exception {
       if (browseOnly) {
          return null;
@@ -787,6 +811,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void readyForWriting(final boolean ready) {
       if (ready) {
          writeReady.set(true);
@@ -813,6 +838,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return "ServerConsumerImpl [id=" + id + ", filter=" + filter + ", binding=" + binding + "]";
    }
 
+   @Override
    public String toManagementString() {
       return "ServerConsumer [id=" + getConnectionID() + ":" + getSessionID() + ":" + id + ", filter=" + filter + ", binding=" + binding.toManagementString() + "]";
    }
@@ -833,6 +859,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    // Private --------------------------------------------------------------------------------------
 
+   @Override
    public void promptDelivery() {
       // largeMessageDeliverer is always set inside a lock
       // if we don't acquire a lock, we will have NPE eventually
@@ -880,6 +907,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    // ------------------------------------------------------------------------
 
    private final Runnable resumeLargeMessageRunnable = new Runnable() {
+      @Override
       public void run() {
          synchronized (lock) {
             try {
@@ -1068,6 +1096,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          iterator.close();
       }
 
+      @Override
       public synchronized void run() {
          // if the reference was busy during the previous iteration, handle it now
          if (current != null) {

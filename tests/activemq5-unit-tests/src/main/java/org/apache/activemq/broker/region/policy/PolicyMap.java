@@ -53,6 +53,7 @@ public class PolicyMap extends DestinationMap {
       this.defaultEntry = defaultEntry;
    }
 
+   @Override
    protected Class<? extends DestinationMapEntry> getEntryClass() {
       return PolicyEntry.class;
    }

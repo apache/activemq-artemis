@@ -1468,6 +1468,7 @@ public class StompV12Test extends StompV11TestBase {
       final CountDownLatch latch = new CountDownLatch(1);
 
       Thread thr = new Thread() {
+         @Override
          public void run() {
             ClientStompFrame sendFrame = connV12.createFrame("SEND");
             sendFrame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -1659,6 +1660,7 @@ public class StompV12Test extends StompV11TestBase {
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message arg0) {
             TextMessage m = (TextMessage) arg0;
             latch.countDown();

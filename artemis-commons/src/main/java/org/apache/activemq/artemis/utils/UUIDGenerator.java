@@ -279,6 +279,7 @@ public final class UUIDGenerator {
 
       for (final NetworkInterface networkInterface : ifaces) {
          tasks.add(new Callable<byte[]>() {
+            @Override
             public byte[] call() throws Exception {
                boolean up = (Boolean) isUpMethod.invoke(networkInterface);
                boolean loopback = (Boolean) isLoopbackMethod.invoke(networkInterface);

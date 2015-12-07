@@ -60,6 +60,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       }
    }
 
+   @Override
    public void addHead(final T t, final int priority) {
       checkHighest(priority);
 
@@ -68,6 +69,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       size++;
    }
 
+   @Override
    public void addTail(final T t, final int priority) {
       checkHighest(priority);
 
@@ -76,6 +78,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       size++;
    }
 
+   @Override
    public T poll() {
       T t = null;
 
@@ -108,6 +111,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       return t;
    }
 
+   @Override
    public void clear() {
       for (LinkedListImpl<T> list : levels) {
          list.clear();
@@ -116,14 +120,17 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
       size = 0;
    }
 
+   @Override
    public int size() {
       return size;
    }
 
+   @Override
    public boolean isEmpty() {
       return size == 0;
    }
 
+   @Override
    public LinkedListIterator<T> iterator() {
       return new PriorityLinkedListIterator();
    }
@@ -149,6 +156,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          close();
       }
 
+      @Override
       public void repeat() {
          if (lastIter == null) {
             throw new NoSuchElementException();
@@ -157,6 +165,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          lastIter.repeat();
       }
 
+      @Override
       public void close() {
          if (!closed) {
             closed = true;
@@ -178,6 +187,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          }
       }
 
+      @Override
       public boolean hasNext() {
          checkReset();
 
@@ -205,6 +215,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          return false;
       }
 
+      @Override
       public T next() {
          if (lastIter == null) {
             throw new NoSuchElementException();
@@ -213,6 +224,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          return lastIter.next();
       }
 
+      @Override
       public void remove() {
          if (lastIter == null) {
             throw new NoSuchElementException();

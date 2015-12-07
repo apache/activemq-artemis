@@ -182,11 +182,13 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
          this.expectedRecords = expectedRecords;
       }
 
+      @Override
       public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction) {
          numberOfPreparedTransactions++;
 
       }
 
+      @Override
       public void addRecord(final RecordInfo info) {
          if (info.id == lastID) {
             System.out.println("id = " + info.id + " last id = " + lastID);
@@ -205,16 +207,19 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
 
       }
 
+      @Override
       public void deleteRecord(final long id) {
          numberOfDeletes++;
 
       }
 
+      @Override
       public void updateRecord(final RecordInfo info) {
          numberOfUpdates++;
 
       }
 
+      @Override
       public void failedTransaction(final long transactionID,
                                     final List<RecordInfo> records,
                                     final List<RecordInfo> recordsToDelete) {
@@ -265,18 +270,23 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
       journal.start();
       journal.load(new LoaderCallback() {
 
+         @Override
          public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction) {
          }
 
+         @Override
          public void addRecord(final RecordInfo info) {
          }
 
+         @Override
          public void deleteRecord(final long id) {
          }
 
+         @Override
          public void updateRecord(final RecordInfo info) {
          }
 
+         @Override
          public void failedTransaction(final long transactionID,
                                        final List<RecordInfo> records,
                                        final List<RecordInfo> recordsToDelete) {

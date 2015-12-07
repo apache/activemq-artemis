@@ -32,6 +32,7 @@ public class JmsClientAckListenerTest extends TestSupport implements MessageList
    private Connection connection;
    private boolean dontAck;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -40,6 +41,7 @@ public class JmsClientAckListenerTest extends TestSupport implements MessageList
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -114,6 +116,7 @@ public class JmsClientAckListenerTest extends TestSupport implements MessageList
       session.close();
    }
 
+   @Override
    public void onMessage(Message message) {
 
       assertNotNull(message);

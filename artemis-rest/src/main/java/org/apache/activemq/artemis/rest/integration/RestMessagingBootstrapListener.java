@@ -27,6 +27,7 @@ public class RestMessagingBootstrapListener implements ServletContextListener {
 
    MessageServiceManager manager;
 
+   @Override
    public void contextInitialized(ServletContextEvent contextEvent) {
       ServletContext context = contextEvent.getServletContext();
       String configfile = context.getInitParameter("rest.messaging.config.file");
@@ -49,6 +50,7 @@ public class RestMessagingBootstrapListener implements ServletContextListener {
       }
    }
 
+   @Override
    public void contextDestroyed(ServletContextEvent servletContextEvent) {
       if (manager != null) {
          manager.stop();

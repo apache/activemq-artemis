@@ -31,6 +31,7 @@ public class JDBCNegativeQueueTest extends NegativeQueueTest {
 
    EmbeddedDataSource dataSource;
 
+   @Override
    protected void configureBroker(BrokerService answer) throws Exception {
       super.configureBroker(answer);
       JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
@@ -41,6 +42,7 @@ public class JDBCNegativeQueueTest extends NegativeQueueTest {
       answer.setPersistenceAdapter(jdbc);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (DEBUG) {
          printQuery("Select * from ACTIVEMQ_MSGS", System.out);

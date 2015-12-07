@@ -74,16 +74,19 @@ public class WebServerComponent implements ExternalComponent {
       server.setHandler(handlers);
    }
 
+   @Override
    public void start() throws Exception {
       server.start();
 
       System.out.println("HTTP Server started at " + webServerConfig.bind);
    }
 
+   @Override
    public void stop() throws Exception {
       server.stop();
    }
 
+   @Override
    public boolean isStarted() {
       return server != null && server.isStarted();
    }

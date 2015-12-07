@@ -37,6 +37,7 @@ public class CloseConnectionFactoryOnGCest extends JMSTestBase {
       final AtomicInteger valueGC = new AtomicInteger(0);
 
       ServerLocatorImpl.finalizeCallback = new Runnable() {
+         @Override
          public void run() {
             valueGC.incrementAndGet();
          }

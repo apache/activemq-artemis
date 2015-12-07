@@ -128,6 +128,7 @@ public class ForwardingBridgeTest extends NetworkTestSupport {
       assertNotNull(m);
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       bridge = new ForwardingBridge(createTransport(), createRemoteTransport());
@@ -136,6 +137,7 @@ public class ForwardingBridgeTest extends NetworkTestSupport {
       bridge.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       bridge.stop();
       super.tearDown();

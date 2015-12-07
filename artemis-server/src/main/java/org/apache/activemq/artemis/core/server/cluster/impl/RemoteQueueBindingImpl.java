@@ -91,50 +91,62 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       this.distance = distance;
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public Bindable getBindable() {
       return storeAndForwardQueue;
    }
 
+   @Override
    public Queue getQueue() {
       return storeAndForwardQueue;
    }
 
+   @Override
    public SimpleString getRoutingName() {
       return routingName;
    }
 
+   @Override
    public SimpleString getUniqueName() {
       return uniqueName;
    }
 
+   @Override
    public SimpleString getClusterName() {
       return uniqueName;
    }
 
+   @Override
    public boolean isExclusive() {
       return false;
    }
 
+   @Override
    public BindingType getType() {
       return BindingType.REMOTE_QUEUE;
    }
 
+   @Override
    public Filter getFilter() {
       return queueFilter;
    }
 
+   @Override
    public int getDistance() {
       return distance;
    }
 
+   @Override
    public synchronized boolean isHighAcceptPriority(final ServerMessage message) {
       if (consumerCount == 0) {
          return false;
@@ -158,6 +170,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    public void unproposed(SimpleString groupID) {
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) {
       addRouteContextToMessage(message);
 
@@ -183,6 +196,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       }
    }
 
+   @Override
    public synchronized void addConsumer(final SimpleString filterString) throws Exception {
       if (filterString != null) {
          // There can actually be many consumers on the same queue with the same filter, so we need to maintain a ref
@@ -203,6 +217,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       consumerCount++;
    }
 
+   @Override
    public synchronized void removeConsumer(final SimpleString filterString) throws Exception {
       if (filterString != null) {
          Integer i = filterCounts.get(filterString);
@@ -231,6 +246,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       filters.clear();
    }
 
+   @Override
    public synchronized int consumerCount() {
       return consumerCount;
    }
@@ -289,6 +305,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       return filters;
    }
 
+   @Override
    public void close() throws Exception {
       storeAndForwardQueue.close();
    }
@@ -324,6 +341,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       }
    }
 
+   @Override
    public long getRemoteQueueID() {
       return remoteQueueID;
    }

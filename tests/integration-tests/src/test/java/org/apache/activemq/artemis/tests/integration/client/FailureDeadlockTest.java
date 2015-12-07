@@ -81,6 +81,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
          RemotingConnection rc2 = ((ClientSessionInternal) ((ActiveMQSession) sess2).getCoreSession()).getConnection();
 
          ExceptionListener listener1 = new ExceptionListener() {
+            @Override
             public void onException(final JMSException exception) {
                try {
                   conn2.close();

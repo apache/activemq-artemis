@@ -91,6 +91,7 @@ public class PersistedDestination implements EncodingSupport {
       return durable;
    }
 
+   @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_BYTE +
          BufferHelper.sizeOfSimpleString(name) +
@@ -98,6 +99,7 @@ public class PersistedDestination implements EncodingSupport {
          DataConstants.SIZE_BOOLEAN;
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(type.getType());
       buffer.writeSimpleString(SimpleString.toSimpleString(name));
@@ -105,6 +107,7 @@ public class PersistedDestination implements EncodingSupport {
       buffer.writeBoolean(durable);
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();

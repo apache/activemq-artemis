@@ -40,6 +40,7 @@ public final class RoutingContextImpl implements RoutingContext {
       this.transaction = transaction;
    }
 
+   @Override
    public void clear() {
       transaction = null;
 
@@ -48,6 +49,7 @@ public final class RoutingContextImpl implements RoutingContext {
       queueCount = 0;
    }
 
+   @Override
    public void addQueue(final SimpleString address, final Queue queue) {
 
       RouteContextList listing = getContextListing(address);
@@ -75,6 +77,7 @@ public final class RoutingContextImpl implements RoutingContext {
       return listing == null ? false : listing.isAlreadyAcked(queue);
    }
 
+   @Override
    public RouteContextList getContextListing(SimpleString address) {
       RouteContextList listing = map.get(address);
       if (listing == null) {
@@ -84,26 +87,32 @@ public final class RoutingContextImpl implements RoutingContext {
       return listing;
    }
 
+   @Override
    public Transaction getTransaction() {
       return transaction;
    }
 
+   @Override
    public void setTransaction(final Transaction tx) {
       transaction = tx;
    }
 
+   @Override
    public List<Queue> getNonDurableQueues(SimpleString address) {
       return getContextListing(address).getNonDurableQueues();
    }
 
+   @Override
    public List<Queue> getDurableQueues(SimpleString address) {
       return getContextListing(address).getDurableQueues();
    }
 
+   @Override
    public int getQueueCount() {
       return queueCount;
    }
 
+   @Override
    public Map<SimpleString, RouteContextList> getContexListing() {
       return this.map;
    }
@@ -116,10 +125,12 @@ public final class RoutingContextImpl implements RoutingContext {
 
       private final List<Queue> ackedQueues = new ArrayList<>();
 
+      @Override
       public int getNumberOfDurableQueues() {
          return durableQueue.size();
       }
 
+      @Override
       public int getNumberOfNonDurableQueues() {
          return nonDurableQueue.size();
       }

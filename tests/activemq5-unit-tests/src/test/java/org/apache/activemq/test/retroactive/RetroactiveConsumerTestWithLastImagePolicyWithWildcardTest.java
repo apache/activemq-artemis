@@ -30,19 +30,23 @@ public class RetroactiveConsumerTestWithLastImagePolicyWithWildcardTest extends 
 
    private int counter = 1;
 
+   @Override
    protected void sendMessage(MessageProducer producer, TextMessage message) throws JMSException {
       ActiveMQTopic topic = new ActiveMQTopic(destination.getPhysicalName() + "." + (counter++));
       producer.send(topic, message);
    }
 
+   @Override
    protected MessageProducer createProducer() throws JMSException {
       return session.createProducer(null);
    }
 
+   @Override
    protected MessageConsumer createConsumer() throws JMSException {
       return session.createConsumer(new ActiveMQTopic(destination.getPhysicalName() + ".>"));
    }
 
+   @Override
    protected String getBrokerXml() {
       return "org/apache/activemq/test/retroactive/activemq-lastimage-policy.xml";
    }

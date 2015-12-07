@@ -254,6 +254,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    // JournalReaderCallback implementation -------------------------------------------
 
+   @Override
    public void onReadAddRecord(final RecordInfo info) throws Exception {
       if (lookupRecord(info.id)) {
          JournalInternalRecord addRecord = new JournalAddRecord(true, info.id, info.getUserRecordType(), new ByteArrayEncoding(info.data));
@@ -267,6 +268,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadAddRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (pendingTransactions.get(transactionID) != null || lookupRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
@@ -283,6 +285,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
 
       if (pendingTransactions.get(transactionID) != null) {
@@ -303,6 +306,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadDeleteRecord(final long recordID) throws Exception {
       if (newRecords.get(recordID) != null) {
          // Sanity check, it should never happen
@@ -311,6 +315,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    }
 
+   @Override
    public void onReadDeleteRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (pendingTransactions.get(transactionID) != null) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);
@@ -326,10 +331,12 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       // else.. nothing to be done
    }
 
+   @Override
    public void markAsDataFile(final JournalFile file) {
       // nothing to be done here
    }
 
+   @Override
    public void onReadPrepareRecord(final long transactionID,
                                    final byte[] extraData,
                                    final int numberOfRecords) throws Exception {
@@ -348,6 +355,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadRollbackRecord(final long transactionID) throws Exception {
       if (pendingTransactions.get(transactionID) != null) {
          // Sanity check, this should never happen
@@ -370,6 +378,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadUpdateRecord(final RecordInfo info) throws Exception {
       if (lookupRecord(info.id)) {
          JournalInternalRecord updateRecord = new JournalAddRecord(false, info.id, info.userRecordType, new ByteArrayEncoding(info.data));
@@ -391,6 +400,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       }
    }
 
+   @Override
    public void onReadUpdateRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (pendingTransactions.get(transactionID) != null || lookupRecord(info.id)) {
          JournalTransaction newTransaction = getNewJournalTransaction(transactionID);

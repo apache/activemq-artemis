@@ -21,6 +21,7 @@ import org.apache.activemq.command.BrokerInfo;
 
 public class BrokerInfoData extends DataFileGenerator {
 
+   @Override
    protected Object createObject() {
       BrokerInfo rc = new BrokerInfo();
       rc.setResponseRequired(false);

@@ -102,6 +102,7 @@ public class LDAPModuleRoleExpansionTest extends AbstractLdapTestUnit {
    @Test
    public void testRoleExpansion() throws LoginException {
       LoginContext context = new LoginContext("ExpandedLDAPLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {

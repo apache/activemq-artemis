@@ -300,6 +300,7 @@ public class TemporaryDestinationTest extends JMSTestCase {
          final Message m = producerSession.createTextMessage(messageText);
 
          Thread t = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block

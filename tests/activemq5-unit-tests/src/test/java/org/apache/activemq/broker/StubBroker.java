@@ -50,10 +50,12 @@ public class StubBroker extends EmptyBroker {
       }
    }
 
+   @Override
    public void addConnection(ConnectionContext context, ConnectionInfo info) throws Exception {
       addConnectionData.add(new AddConnectionData(context, info));
    }
 
+   @Override
    public void removeConnection(ConnectionContext context, ConnectionInfo info, Throwable error) throws Exception {
       removeConnectionData.add(new RemoveConnectionData(context, info, error));
    }

@@ -65,10 +65,12 @@ public abstract class NodeManager implements ActiveMQComponent {
 
    // --------------------------------------------------------------------
 
+   @Override
    public synchronized void start() throws Exception {
       isStarted = true;
    }
 
+   @Override
    public boolean isStarted() {
       return isStarted;
    }

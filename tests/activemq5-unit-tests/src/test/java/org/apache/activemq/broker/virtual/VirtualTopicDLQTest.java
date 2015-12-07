@@ -74,6 +74,7 @@ public class VirtualTopicDLQTest extends TestCase {
    // Number of messages
    private static final int numberMessages = 6;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       try {
@@ -87,6 +88,7 @@ public class VirtualTopicDLQTest extends TestCase {
       }
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       try {
@@ -235,6 +237,7 @@ public class VirtualTopicDLQTest extends TestCase {
          return latch;
       }
 
+      @Override
       public void run() {
          ActiveMQConnectionFactory connectionFactory = null;
          ActiveMQConnection connection = null;
@@ -326,6 +329,7 @@ public class VirtualTopicDLQTest extends TestCase {
          return latch;
       }
 
+      @Override
       public void run() {
 
          try {
@@ -383,6 +387,7 @@ public class VirtualTopicDLQTest extends TestCase {
          }
       }
 
+      @Override
       public synchronized void onException(JMSException ex) {
          ex.printStackTrace();
          LOG.error("Consumer for destination, (" + destinationName + "), JMS Exception occurred.  Shutting down client.");
@@ -392,6 +397,7 @@ public class VirtualTopicDLQTest extends TestCase {
          this.bStop = bStop;
       }
 
+      @Override
       public synchronized void onMessage(Message message) {
          receivedMessageCounter++;
          latch.countDown();

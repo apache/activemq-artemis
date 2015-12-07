@@ -291,6 +291,7 @@ public final class Page implements Comparable<Page> {
       return "Page::pageID=" + this.pageId + ", file=" + this.file;
    }
 
+   @Override
    public int compareTo(Page otherPage) {
       return otherPage.getPageId() - this.pageId;
    }

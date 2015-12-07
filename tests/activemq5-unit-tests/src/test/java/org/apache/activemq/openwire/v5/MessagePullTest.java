@@ -37,12 +37,14 @@ public class MessagePullTest extends BaseCommandTestSupport {
 
    public static MessagePullTest SINGLETON = new MessagePullTest();
 
+   @Override
    public Object createObject() throws Exception {
       MessagePull info = new MessagePull();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       MessagePull info = (MessagePull) object;

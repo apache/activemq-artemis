@@ -31,12 +31,14 @@ public class TransactionInfoTest extends BaseCommandTestSupport {
 
    public static final TransactionInfoTest SINGLETON = new TransactionInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       TransactionInfo info = new TransactionInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       TransactionInfo info = (TransactionInfo) object;

@@ -155,6 +155,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       return false;
    }
 
+   @Override
    public ProtocolManagerFactory<Interceptor> getFactory() {
       return factory;
    }
@@ -252,10 +253,12 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    public void sendReply(final OpenWireConnection connection, final Command command) {
       server.getStorageManager().afterCompleteOperations(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
          }
 
+         @Override
          public void done() {
             send(connection, command);
          }

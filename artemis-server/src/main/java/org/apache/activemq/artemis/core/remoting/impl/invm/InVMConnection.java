@@ -96,18 +96,22 @@ public class InVMConnection implements Connection {
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
+   @Override
    public void forceClose() {
       // no op
    }
 
+   @Override
    public RemotingConnection getProtocolConnection() {
       return this.protocolConnection;
    }
 
+   @Override
    public void setProtocolConnection(RemotingConnection connection) {
       this.protocolConnection = connection;
    }
 
+   @Override
    public void close() {
       if (closing) {
          return;
@@ -124,25 +128,31 @@ public class InVMConnection implements Connection {
       }
    }
 
+   @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
       return ActiveMQBuffers.dynamicBuffer(size);
    }
 
+   @Override
    public Object getID() {
       return id;
    }
 
+   @Override
    public void checkFlushBatchBuffer() {
    }
 
+   @Override
    public void write(final ActiveMQBuffer buffer) {
       write(buffer, false, false, null);
    }
 
+   @Override
    public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch) {
       write(buffer, flush, batch, null);
    }
 
+   @Override
    public void write(final ActiveMQBuffer buffer,
                      final boolean flush,
                      final boolean batch,
@@ -153,6 +163,7 @@ public class InVMConnection implements Connection {
 
       try {
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   if (!closed) {
@@ -183,6 +194,7 @@ public class InVMConnection implements Connection {
          if (flush && flushEnabled) {
             final CountDownLatch latch = new CountDownLatch(1);
             executor.execute(new Runnable() {
+               @Override
                public void run() {
                   latch.countDown();
                }
@@ -204,10 +216,12 @@ public class InVMConnection implements Connection {
 
    }
 
+   @Override
    public String getRemoteAddress() {
       return "invm:" + serverID;
    }
 
+   @Override
    public String getLocalAddress() {
       return "invm:" + serverID;
    }
@@ -216,9 +230,11 @@ public class InVMConnection implements Connection {
       return -1;
    }
 
+   @Override
    public void addReadyListener(ReadyListener listener) {
    }
 
+   @Override
    public void removeReadyListener(ReadyListener listener) {
    }
 
@@ -227,6 +243,7 @@ public class InVMConnection implements Connection {
       return false;
    }
 
+   @Override
    public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return defaultActiveMQPrincipal;
    }

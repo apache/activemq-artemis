@@ -28,6 +28,7 @@ public class KahaQueueTest extends SimpleQueueTest {
 
    final static String config = "org/apache/activemq/perf/kahadbBroker.xml";
 
+   @Override
    protected BrokerService createBroker(String uri) throws Exception {
       Resource resource = new ClassPathResource(config);
       BrokerFactoryBean brokerFactory = new BrokerFactoryBean(resource);

@@ -58,6 +58,7 @@ public final class Topology {
 
    private static final class DirectExecutor implements Executor {
 
+      @Override
       public void execute(final Runnable runnable) {
          runnable.run();
       }
@@ -246,6 +247,7 @@ public final class Topology {
 
       if (copy.size() > 0) {
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                for (ClusterTopologyListener listener : copy) {
                   if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
@@ -311,6 +313,7 @@ public final class Topology {
          final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                for (ClusterTopologyListener listener : copy) {
                   if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
@@ -335,6 +338,7 @@ public final class Topology {
       }
 
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             int count = 0;
 

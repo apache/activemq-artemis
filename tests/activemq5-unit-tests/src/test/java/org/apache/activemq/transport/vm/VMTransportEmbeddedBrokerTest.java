@@ -79,14 +79,17 @@ public class VMTransportEmbeddedBrokerTest extends BrokerTestSupport {
       assertNull(BrokerRegistry.getInstance().lookup("localhost"));
    }
 
+   @Override
    protected void setUp() throws Exception {
       // Don't call super since it manually starts up a broker.
    }
 
+   @Override
    protected void tearDown() throws Exception {
       // Don't call super since it manually tears down a broker.
    }
 
+   @Override
    protected StubConnection createConnection() throws Exception {
       try {
          Transport transport = TransportFactory.connect(new URI("vm://localhost?broker.persistent=false"));

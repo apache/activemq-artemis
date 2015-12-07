@@ -25,6 +25,7 @@ public class ExampleListener implements MessageListener {
 
    protected static String lastMessage = null;
 
+   @Override
    public void onMessage(Message message) {
       try {
          lastMessage = ((TextMessage) message).getText();

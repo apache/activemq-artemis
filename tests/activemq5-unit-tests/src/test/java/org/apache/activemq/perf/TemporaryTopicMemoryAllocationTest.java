@@ -29,6 +29,7 @@ public class TemporaryTopicMemoryAllocationTest extends MemoryAllocationTest {
       super();
    }
 
+   @Override
    protected Destination getDestination(Session session) throws JMSException {
       return session.createTemporaryTopic();
    }

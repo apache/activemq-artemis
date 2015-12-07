@@ -46,6 +46,7 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
 
    // Public ---------------------------------------------------------------------
 
+   @Override
    public boolean validateUser(final String username, final String password) {
       if (username != null) {
          User user = configuration.getUser(username);
@@ -62,6 +63,7 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
       }
    }
 
+   @Override
    public boolean validateUserAndRole(final String user,
                                       final String password,
                                       final Set<Role> roles,

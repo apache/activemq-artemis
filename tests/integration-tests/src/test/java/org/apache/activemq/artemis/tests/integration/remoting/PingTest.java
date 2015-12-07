@@ -87,6 +87,7 @@ public class PingTest extends ActiveMQTestBase {
          return me;
       }
 
+      @Override
       public void beforeReconnect(final ActiveMQException exception) {
       }
    }
@@ -214,6 +215,7 @@ public class PingTest extends ActiveMQTestBase {
       final CountDownLatch requiredPings = new CountDownLatch(1);
       final CountDownLatch unwantedPings = new CountDownLatch(2);
       server.getRemotingService().addIncomingInterceptor(new Interceptor() {
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.PING) {
                Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ((Ping) packet).getConnectionTTL());
@@ -325,6 +327,7 @@ public class PingTest extends ActiveMQTestBase {
       final CountDownLatch pingOnServerLatch = new CountDownLatch(2);
       server.getRemotingService().addIncomingInterceptor(new Interceptor() {
 
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.PING) {
                pingOnServerLatch.countDown();
@@ -355,12 +358,14 @@ public class PingTest extends ActiveMQTestBase {
             connectionFailed(me, failedOver);
          }
 
+         @Override
          public void beforeReconnect(final ActiveMQException exception) {
          }
       };
 
       final CountDownLatch serverLatch = new CountDownLatch(1);
       CloseListener serverListener = new CloseListener() {
+         @Override
          public void connectionClosed() {
             serverLatch.countDown();
          }

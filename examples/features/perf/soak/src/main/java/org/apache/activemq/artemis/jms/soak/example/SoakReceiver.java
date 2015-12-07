@@ -71,6 +71,7 @@ public class SoakReceiver {
    private final SoakParams perfParams;
 
    private final ExceptionListener exceptionListener = new ExceptionListener() {
+      @Override
       public void onException(final JMSException e) {
          disconnect();
          connect();
@@ -86,6 +87,7 @@ public class SoakReceiver {
 
       long moduloStart = start;
 
+      @Override
       public void onMessage(final Message msg) {
          long totalDuration = System.currentTimeMillis() - start;
 

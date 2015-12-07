@@ -51,6 +51,7 @@ public class DelegatingTransactionalMessageListener implements MessageListener {
       }
    }
 
+   @Override
    public void onMessage(Message message) {
       try {
          underlyingListener.onMessage(message);

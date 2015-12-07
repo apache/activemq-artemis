@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class HatColourChangeTransformer implements Transformer {
 
+   @Override
    public ServerMessage transform(final ServerMessage message) {
       SimpleString propName = new SimpleString("hat");
 

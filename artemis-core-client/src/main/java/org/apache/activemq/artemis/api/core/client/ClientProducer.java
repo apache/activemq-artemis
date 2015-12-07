@@ -124,6 +124,7 @@ public interface ClientProducer extends AutoCloseable {
     *
     * @throws ActiveMQException if an exception occurs while closing the producer
     */
+   @Override
    void close() throws ActiveMQException;
 
    /**

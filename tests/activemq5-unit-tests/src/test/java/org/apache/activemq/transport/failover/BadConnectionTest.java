@@ -51,25 +51,31 @@ public class BadConnectionTest extends TestCase {
       return TransportFactory.connect(new URI("failover://(tcp://doesNotExist:1234)?useExponentialBackOff=false&maxReconnectAttempts=3&initialReconnectDelay=100"));
    }
 
+   @Override
    protected void setUp() throws Exception {
       transport = createTransport();
       transport.setTransportListener(new TransportListener() {
 
+         @Override
          public void onCommand(Object command) {
          }
 
+         @Override
          public void onException(IOException error) {
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
       transport.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (transport != null) {
          transport.stop();

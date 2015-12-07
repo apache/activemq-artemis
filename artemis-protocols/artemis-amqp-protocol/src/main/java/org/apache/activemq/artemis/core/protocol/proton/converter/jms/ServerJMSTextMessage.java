@@ -55,6 +55,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    }
    // TextMessage implementation ------------------------------------
 
+   @Override
    public void setText(final String text) throws JMSException {
       if (text != null) {
          this.text = new SimpleString(text);
@@ -66,6 +67,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
       writeBodyText(getWriteBodyBuffer(), this.text);
    }
 
+   @Override
    public String getText() {
       if (text != null) {
          return text.toString();
@@ -82,11 +84,13 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
       text = null;
    }
 
+   @Override
    public void encode() throws Exception {
       super.encode();
       writeBodyText(getWriteBodyBuffer(), text);
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
       text = readBodyText(getReadBodyBuffer());

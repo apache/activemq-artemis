@@ -207,6 +207,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public void onMessage(final ClientMessage message) {
          messagesReceived++;
          try {

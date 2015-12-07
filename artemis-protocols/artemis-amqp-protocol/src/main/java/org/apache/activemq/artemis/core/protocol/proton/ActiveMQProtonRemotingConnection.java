@@ -56,6 +56,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
+   @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       if (destroyed) {
          return;

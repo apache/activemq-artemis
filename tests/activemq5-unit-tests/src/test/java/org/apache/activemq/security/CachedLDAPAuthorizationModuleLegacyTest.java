@@ -42,18 +42,22 @@ public class CachedLDAPAuthorizationModuleLegacyTest extends AbstractCachedLDAPA
       return map;
    }
 
+   @Override
    protected InputStream getAddLdif() {
       return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-add.ldif");
    }
 
+   @Override
    protected InputStream getRemoveLdif() {
       return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-delete.ldif");
    }
 
+   @Override
    protected String getQueueBaseDn() {
       return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
    }
 
+   @Override
    protected LdapConnection getLdapConnection() throws LdapException, IOException {
       LdapConnection connection = new LdapNetworkConnection("localhost", getLdapServer().getPort());
       connection.bind(new Dn("uid=admin,ou=system"), "secret");

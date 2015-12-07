@@ -94,6 +94,7 @@ public class SessionTest extends ActiveMQTestBase {
                connectionFailed(me, failedOver);
             }
 
+            @Override
             public void beforeReconnect(final ActiveMQException me) {
             }
          }

@@ -72,6 +72,7 @@ public class BackupManager implements ActiveMQComponent {
    * Start the backup manager if not already started. This entails deploying a backup connector based on a cluster
    * configuration, informing the cluster manager so that it can add it to its topology and announce itself to the cluster.
    * */
+   @Override
    public synchronized void start() {
       if (started)
          return;
@@ -94,6 +95,7 @@ public class BackupManager implements ActiveMQComponent {
    /*
    * stop all the connectors
    * */
+   @Override
    public synchronized void stop() {
       if (!started)
          return;
@@ -218,6 +220,7 @@ public class BackupManager implements ActiveMQComponent {
          //this has to be done in a separate thread
          executor.execute(new Runnable() {
 
+            @Override
             public void run() {
                if (stopping)
                   return;
@@ -255,6 +258,7 @@ public class BackupManager implements ActiveMQComponent {
                   ActiveMQServerLogger.LOGGER.errorAnnouncingBackup();
 
                   scheduledExecutor.schedule(new Runnable() {
+                     @Override
                      public void run() {
                         announceBackup();
                      }
@@ -288,6 +292,7 @@ public class BackupManager implements ActiveMQComponent {
             closeLocator(backupServerLocator);
          }
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                synchronized (BackupConnector.this) {
                   closeLocator(backupServerLocator);
@@ -325,6 +330,7 @@ public class BackupManager implements ActiveMQComponent {
          this.tcConfigs = tcConfigs;
       }
 
+      @Override
       public ServerLocatorInternal createServerLocator(Topology topology) {
          if (tcConfigs != null && tcConfigs.length > 0) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
@@ -361,6 +367,7 @@ public class BackupManager implements ActiveMQComponent {
          this.discoveryGroupConfiguration = discoveryGroupConfiguration;
       }
 
+      @Override
       public ServerLocatorInternal createServerLocator(Topology topology) {
          return new ServerLocatorImpl(topology, true, discoveryGroupConfiguration);
       }

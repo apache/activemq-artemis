@@ -57,6 +57,7 @@ public class CachedLDAPAuthorizationModuleOpenLDAPTest extends AbstractCachedLDA
       cleanAndLoad("dc=apache,dc=org", "org/apache/activemq/security/activemq-openldap.ldif", LDAP_HOST, LDAP_PORT, LDAP_USER, LDAP_PASS, map.open());
    }
 
+   @Override
    @Test
    public void testRenameDestination() throws Exception {
       // Subtree rename not implemented by OpenLDAP.

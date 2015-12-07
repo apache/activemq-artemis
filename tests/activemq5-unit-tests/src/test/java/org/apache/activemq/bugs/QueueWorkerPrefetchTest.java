@@ -146,6 +146,7 @@ public class QueueWorkerPrefetchTest extends TestCase implements MessageListener
          workItemConsumer.setMessageListener(this);
       }
 
+      @Override
       public void onMessage(javax.jms.Message message) {
          try {
             WorkMessage work = (WorkMessage) ((ObjectMessage) message).getObject();
@@ -179,6 +180,7 @@ public class QueueWorkerPrefetchTest extends TestCase implements MessageListener
    /**
     * Master message handler. Process ack messages.
     */
+   @Override
    public void onMessage(javax.jms.Message message) {
       long acks = acksReceived.incrementAndGet();
       latch.get().countDown();
@@ -187,6 +189,7 @@ public class QueueWorkerPrefetchTest extends TestCase implements MessageListener
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       // Create the message broker.
       super.setUp();
@@ -200,6 +203,7 @@ public class QueueWorkerPrefetchTest extends TestCase implements MessageListener
       connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       // Shut down the message broker.
       broker.deleteAllMessages();

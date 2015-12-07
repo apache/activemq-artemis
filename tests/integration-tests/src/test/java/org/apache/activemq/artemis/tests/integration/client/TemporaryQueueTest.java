@@ -174,6 +174,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
       final CountDownLatch latch = new CountDownLatch(1);
       conn.addCloseListener(new CloseListener() {
+         @Override
          public void connectionClosed() {
             latch.countDown();
          }
@@ -367,6 +368,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
             return latch.await(10, TimeUnit.SECONDS);
          }
 
+         @Override
          public void onMessage(ClientMessage message) {
             try {
                message.acknowledge();
@@ -458,6 +460,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       final CountDownLatch pingOnServerLatch = new CountDownLatch(1);
       server.getRemotingService().addIncomingInterceptor(new Interceptor() {
 
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.PING) {
                pingOnServerLatch.countDown();
@@ -478,6 +481,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
       final CountDownLatch serverCloseLatch = new CountDownLatch(1);
       remotingConnection.addCloseListener(new CloseListener() {
+         @Override
          public void connectionClosed() {
             serverCloseLatch.countDown();
          }
@@ -505,6 +509,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session.start();
 
       ActiveMQAction activeMQAction = new ActiveMQAction() {
+         @Override
          public void run() throws ActiveMQException {
             session.createConsumer(queue);
          }

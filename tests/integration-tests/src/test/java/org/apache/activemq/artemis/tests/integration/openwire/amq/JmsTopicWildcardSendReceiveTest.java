@@ -48,10 +48,12 @@ public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
       super.setUp();
    }
 
+   @Override
    protected String getConsumerSubject() {
       return "FOO.>";
    }
 
+   @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";
    }

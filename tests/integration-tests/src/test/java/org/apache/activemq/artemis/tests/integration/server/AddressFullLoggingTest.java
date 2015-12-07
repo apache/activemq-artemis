@@ -77,6 +77,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
       ExecutorService executor = Executors.newFixedThreadPool(1);
       Callable<Object> sendMessageTask = new Callable<Object>() {
+         @Override
          public Object call() throws ActiveMQException {
             producer.send(message);
             return null;

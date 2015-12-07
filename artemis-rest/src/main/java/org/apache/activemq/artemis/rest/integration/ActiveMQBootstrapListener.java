@@ -26,6 +26,7 @@ public class ActiveMQBootstrapListener implements ServletContextListener {
 
    private EmbeddedJMS jms;
 
+   @Override
    public void contextInitialized(ServletContextEvent contextEvent) {
       ServletContext context = contextEvent.getServletContext();
       jms = new EmbeddedJMS();
@@ -38,6 +39,7 @@ public class ActiveMQBootstrapListener implements ServletContextListener {
       }
    }
 
+   @Override
    public void contextDestroyed(ServletContextEvent servletContextEvent) {
       try {
          if (jms != null)

@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 
 public class NettyConnectorFactory implements ConnectorFactory {
 
+   @Override
    public Connector createConnector(final Map<String, Object> configuration,
                                     final BufferHandler handler,
                                     final ConnectionLifeCycleListener listener,

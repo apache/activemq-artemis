@@ -39,6 +39,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    protected ActiveMQDestination destination;
    protected JmsTemplate template;
 
+   @Override
    protected void setUp() throws Exception {
       if (broker == null) {
          broker = createBroker();
@@ -55,6 +56,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
       template.afterPropertiesSet();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (broker != null) {
          try {

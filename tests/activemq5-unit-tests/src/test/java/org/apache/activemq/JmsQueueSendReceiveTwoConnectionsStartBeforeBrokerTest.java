@@ -57,14 +57,17 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
       }
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=10&useExponentialBackOff=false&initialReconnectDelay=200");
    }
 
+   @Override
    protected void setUp() throws Exception {
       setAutoFail(true);
       // now lets asynchronously start a broker
       Thread thread = new Thread() {
+         @Override
          public void run() {
             startBroker();
          }
@@ -74,6 +77,7 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
 

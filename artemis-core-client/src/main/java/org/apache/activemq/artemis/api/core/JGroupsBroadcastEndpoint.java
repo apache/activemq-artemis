@@ -46,6 +46,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       this.channelName = channelName;
    }
 
+   @Override
    public void broadcast(final byte[] data) throws Exception {
       if (broadcastOpened) {
          org.jgroups.Message msg = new org.jgroups.Message();
@@ -56,6 +57,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       }
    }
 
+   @Override
    public byte[] receiveBroadcast() throws Exception {
       if (clientOpened) {
          return receiver.receiveBroadcast();
@@ -65,6 +67,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       }
    }
 
+   @Override
    public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
       if (clientOpened) {
          return receiver.receiveBroadcast(time, unit);
@@ -74,6 +77,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       }
    }
 
+   @Override
    public synchronized void openClient() throws Exception {
       if (clientOpened) {
          return;
@@ -84,6 +88,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       clientOpened = true;
    }
 
+   @Override
    public synchronized void openBroadcaster() throws Exception {
       if (broadcastOpened)
          return;
@@ -102,6 +107,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       channel.connect();
    }
 
+   @Override
    public synchronized void close(boolean isBroadcast) throws Exception {
       if (isBroadcast) {
          broadcastOpened = false;

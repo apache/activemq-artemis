@@ -31,12 +31,14 @@ public class ConnectionErrorTest extends BaseCommandTestSupport {
 
    public static final ConnectionErrorTest SINGLETON = new ConnectionErrorTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConnectionError info = new ConnectionError();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConnectionError info = (ConnectionError) object;

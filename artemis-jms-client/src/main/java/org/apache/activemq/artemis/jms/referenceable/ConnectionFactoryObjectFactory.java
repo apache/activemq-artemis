@@ -30,6 +30,7 @@ import javax.naming.spi.ObjectFactory;
  */
 public class ConnectionFactoryObjectFactory implements ObjectFactory {
 
+   @Override
    public Object getObjectInstance(final Object ref,
                                    final Name name,
                                    final Context ctx,

@@ -130,6 +130,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
    // ProtocolManager implementation --------------------------------
 
+   @Override
    public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {
       StompConnection conn = new StompConnection(acceptorUsed, connection, this);
 
@@ -157,9 +158,11 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       }
    }
 
+   @Override
    public void removeHandler(String name) {
    }
 
+   @Override
    public void handleBuffer(final RemotingConnection connection, final ActiveMQBuffer buffer) {
       StompConnection conn = (StompConnection) connection;
 
@@ -267,6 +270,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
       // Close the session outside of the lock on the StompConnection, otherwise it could dead lock
       this.executor.execute(new Runnable() {
+         @Override
          public void run() {
             StompSession session = sessions.remove(connection.getID());
             if (session != null) {
@@ -302,6 +306,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
    public void sendReply(final StompConnection connection, final StompFrame frame) {
       server.getStorageManager().afterCompleteOperations(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
@@ -311,6 +316,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
             send(connection, error);
          }
 
+         @Override
          public void done() {
             send(connection, frame);
          }

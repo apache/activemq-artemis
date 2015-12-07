@@ -40,6 +40,7 @@ public abstract class MemoryBufferTestSupport extends TestCase {
 
    protected abstract MessageBuffer createMessageBuffer();
 
+   @Override
    protected void setUp() throws Exception {
       buffer = createMessageBuffer();
       qA = buffer.createMessageQueue();

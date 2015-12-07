@@ -237,10 +237,12 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          factory.cleanup();
    }
 
+   @Override
    public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -260,6 +262,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public String debug() {
       return toString();
    }
@@ -297,6 +300,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void flushExecutor() {
       // Wait for any create objects runnable to complete
       FutureLatch future = new FutureLatch();
@@ -310,8 +314,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void disconnect() {
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             if (session != null) {
                try {
@@ -326,6 +332,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       });
    }
 
+   @Override
    public boolean isConnected() {
       return session != null;
    }
@@ -338,6 +345,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return executor;
    }
 
+   @Override
    public void stop() throws Exception {
       if (stopping) {
          return;
@@ -368,6 +376,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void pause() throws Exception {
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Bridge " + this.name + " being paused");
@@ -388,11 +397,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void resume() throws Exception {
       queue.addConsumer(BridgeImpl.this);
       queue.deliverAsync();
    }
 
+   @Override
    public boolean isStarted() {
       return started;
    }
@@ -401,25 +412,30 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       executor.execute(new ConnectRunnable(this));
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }
 
+   @Override
    public Queue getQueue() {
       return queue;
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
    // SendAcknowledgementHandler implementation ---------------------
 
+   @Override
    public SimpleString getForwardingAddress() {
       return forwardingAddress;
    }
 
    // For testing only
+   @Override
    public RemotingConnection getForwardingConnection() {
       if (session == null) {
          return null;
@@ -431,6 +447,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    // Consumer implementation ---------------------------------------
 
+   @Override
    public void sendAcknowledged(final Message message) {
       if (active) {
          try {
@@ -480,6 +497,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (filter != null && !filter.match(ref.getMessage())) {
          return HandleStatus.NO_MATCH;
@@ -562,14 +580,17 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    // FailureListener implementation --------------------------------
 
+   @Override
    public void proceedDeliver(MessageReference ref) {
       // no op
    }
 
+   @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
       connectionFailed(me, failedOver, null);
    }
 
+   @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(failedOver);
 
@@ -625,6 +646,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       scheduleRetryConnect();
    }
 
+   @Override
    public void beforeReconnect(final ActiveMQException exception) {
       // log.warn(name + "::Connection failed before reconnect ", exception);
       // fail(false);
@@ -634,6 +656,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                                     final MessageReference ref,
                                     final LargeServerMessage message) {
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                producer.send(dest, message);
@@ -994,6 +1017,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          this.bridge = bridge;
       }
 
+      @Override
       public void run() {
          if (bridge.isStarted())
             executor.execute(new ConnectRunnable(bridge));
@@ -1008,6 +1032,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          bridge = bridge2;
       }
 
+      @Override
       public void run() {
          bridge.connect();
       }
@@ -1015,6 +1040,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private class StopRunnable implements Runnable {
 
+      @Override
       public void run() {
          try {
             ActiveMQServerLogger.LOGGER.debug("stopping bridge " + BridgeImpl.this);
@@ -1070,6 +1096,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private class PauseRunnable implements Runnable {
 
+      @Override
       public void run() {
          try {
             queue.removeConsumer(BridgeImpl.this);

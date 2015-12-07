@@ -48,6 +48,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
    final int receiveBufferSize = 16 * 1024;
    public String brokerTransportScheme = "nio";
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       broker.setPersistent(true);

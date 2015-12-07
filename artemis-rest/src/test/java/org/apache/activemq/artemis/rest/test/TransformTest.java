@@ -188,6 +188,7 @@ public class TransformTest extends MessageTestBase {
       public static Order order;
       public static CountDownLatch latch = new CountDownLatch(1);
 
+      @Override
       public void onMessage(ClientMessage clientMessage) {
          System.out.println("onMessage!");
          try {

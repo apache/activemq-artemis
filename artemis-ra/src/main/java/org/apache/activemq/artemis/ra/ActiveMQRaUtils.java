@@ -231,6 +231,7 @@ public final class ActiveMQRaUtils {
     */
    public static JChannel locateJGroupsChannel(final String locatorClass, final String name) {
       return AccessController.doPrivileged(new PrivilegedAction<JChannel>() {
+         @Override
          public JChannel run() {
             try {
                ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -254,6 +255,7 @@ public final class ActiveMQRaUtils {
     */
    private static Object safeInitNewInstance(final String className) {
       return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         @Override
          public Object run() {
             ClassLoader loader = getClass().getClassLoader();
             try {

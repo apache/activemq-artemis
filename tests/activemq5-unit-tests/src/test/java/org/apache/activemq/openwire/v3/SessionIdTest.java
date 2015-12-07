@@ -32,12 +32,14 @@ public class SessionIdTest extends DataFileGeneratorTestSupport {
 
    public static final SessionIdTest SINGLETON = new SessionIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       SessionId info = new SessionId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       SessionId info = (SessionId) object;

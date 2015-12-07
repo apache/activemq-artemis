@@ -252,6 +252,7 @@ public final class ClusterManager implements ActiveMQComponent {
       }
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (state == State.STARTED) {
          return;
@@ -298,6 +299,7 @@ public final class ClusterManager implements ActiveMQComponent {
       }
    }
 
+   @Override
    public void stop() throws Exception {
       haManager.stop();
       synchronized (this) {
@@ -351,6 +353,7 @@ public final class ClusterManager implements ActiveMQComponent {
       }
    }
 
+   @Override
    public boolean isStarted() {
       return state == State.STARTED;
    }

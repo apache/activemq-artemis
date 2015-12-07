@@ -89,6 +89,7 @@ public class Chat implements javax.jms.MessageListener {
     * Handle the message
     * (as specified in the javax.jms.MessageListener interface).
     */
+   @Override
    public void onMessage(javax.jms.Message aMessage) {
       try {
          // Cast the message as a text message.

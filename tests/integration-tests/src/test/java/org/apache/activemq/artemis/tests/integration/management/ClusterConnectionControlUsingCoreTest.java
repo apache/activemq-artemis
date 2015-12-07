@@ -49,62 +49,77 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
       return new ClusterConnectionControl() {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_CLUSTER_CONNECTION + name);
 
+         @Override
          public Object[] getStaticConnectors() {
             return (Object[]) proxy.retrieveAttributeValue("staticConnectors");
          }
 
+         @Override
          public String getStaticConnectorsAsJSON() throws Exception {
             return (String) proxy.retrieveAttributeValue("staticConnectorsAsJSON");
          }
 
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
+         @Override
          public String getDiscoveryGroupName() {
             return (String) proxy.retrieveAttributeValue("discoveryGroupName");
          }
 
+         @Override
          public int getMaxHops() {
             return (Integer) proxy.retrieveAttributeValue("maxHops");
          }
 
+         @Override
          public long getRetryInterval() {
             return (Long) proxy.retrieveAttributeValue("retryInterval");
          }
 
+         @Override
          public String getTopology() {
             return (String) proxy.retrieveAttributeValue("topology");
          }
 
+         @Override
          public Map<String, String> getNodes() throws Exception {
             return (Map<String, String>) proxy.retrieveAttributeValue("nodes");
          }
 
+         @Override
          public boolean isDuplicateDetection() {
             return (Boolean) proxy.retrieveAttributeValue("duplicateDetection");
          }
 
+         @Override
          public String getMessageLoadBalancingType() {
             return (String) proxy.retrieveAttributeValue("messageLoadBalancingType");
          }
 
+         @Override
          public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
+         @Override
          public String getNodeID() {
             return (String) proxy.retrieveAttributeValue("nodeID");
          }
 
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
+         @Override
          public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
+         @Override
          public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }

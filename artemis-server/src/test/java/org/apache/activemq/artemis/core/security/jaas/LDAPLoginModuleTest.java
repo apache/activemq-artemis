@@ -102,6 +102,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    @Test
    public void testLogin() throws LoginException {
       LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {
@@ -123,6 +124,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    @Test
    public void testUnauthenticated() throws LoginException {
       LoginContext context = new LoginContext("UnAuthenticatedLDAPLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                if (callbacks[i] instanceof NameCallback) {

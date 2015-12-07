@@ -81,6 +81,7 @@ public class PerfConsumer implements MessageListener {
       return rate;
    }
 
+   @Override
    public void onMessage(Message msg) {
       if (firstMessage) {
          firstMessage = false;

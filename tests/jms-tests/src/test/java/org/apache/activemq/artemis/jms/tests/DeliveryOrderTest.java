@@ -96,6 +96,7 @@ public class DeliveryOrderTest extends JMSTestCase {
          this.sess = sess;
       }
 
+      @Override
       public void onMessage(final Message msg) {
          // preserve the first error
          if (failed) {

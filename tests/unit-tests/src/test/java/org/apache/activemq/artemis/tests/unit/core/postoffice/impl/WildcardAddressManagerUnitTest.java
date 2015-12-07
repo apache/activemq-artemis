@@ -73,6 +73,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
    class BindingFactoryFake implements BindingsFactory {
 
+      @Override
       public Bindings createBindings(SimpleString address) throws Exception {
          return new BindignsFake();
       }

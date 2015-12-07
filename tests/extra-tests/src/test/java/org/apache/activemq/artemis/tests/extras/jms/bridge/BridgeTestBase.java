@@ -208,6 +208,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
    protected void setUpAdministeredObjects() throws Exception {
       cff0LowProducerWindow = new ConnectionFactoryFactory() {
+         @Override
          public ConnectionFactory createConnectionFactory() throws Exception {
             ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -224,6 +225,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       };
 
       cff0 = new ConnectionFactoryFactory() {
+         @Override
          public ConnectionFactory createConnectionFactory() throws Exception {
             ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -239,6 +241,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       };
 
       cff0xa = new ConnectionFactoryFactory() {
+         @Override
          public Object createConnectionFactory() throws Exception {
             ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -258,6 +261,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
       cff1 = new ConnectionFactoryFactory() {
 
+         @Override
          public ConnectionFactory createConnectionFactory() throws Exception {
             ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 
@@ -273,6 +277,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
       cff1xa = new ConnectionFactoryFactory() {
 
+         @Override
          public XAConnectionFactory createConnectionFactory() throws Exception {
             ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 
@@ -290,6 +295,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       cf1xa = (XAConnectionFactory) cff1xa.createConnectionFactory();
 
       sourceQueueFactory = new DestinationFactory() {
+         @Override
          public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/queue/sourceQueue");
          }
@@ -298,6 +304,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       sourceQueue = (Queue) sourceQueueFactory.createDestination();
 
       targetQueueFactory = new DestinationFactory() {
+         @Override
          public Destination createDestination() throws Exception {
             return (Destination) context1.lookup("/queue/targetQueue");
          }
@@ -306,6 +313,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       targetQueue = (Queue) targetQueueFactory.createDestination();
 
       sourceTopicFactory = new DestinationFactory() {
+         @Override
          public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/topic/sourceTopic");
          }
@@ -314,6 +322,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       sourceTopic = (Topic) sourceTopicFactory.createDestination();
 
       localTargetQueueFactory = new DestinationFactory() {
+         @Override
          public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/queue/localTargetQueue");
          }

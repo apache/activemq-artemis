@@ -230,6 +230,7 @@ public class AMQ4607Test extends JmsMultipleBrokersTestSupport implements Uncaug
       }, timeout));
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setUp();
 
@@ -253,6 +254,7 @@ public class AMQ4607Test extends JmsMultipleBrokersTestSupport implements Uncaug
       brokerService.setDestinationPolicy(policyMap);
    }
 
+   @Override
    public void uncaughtException(Thread t, Throwable e) {
       synchronized (unhandeledExceptions) {
          unhandeledExceptions.put(t, e);

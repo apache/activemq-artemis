@@ -2037,6 +2037,7 @@ public class QueueControlTest extends ManagementTestBase {
       session.start();
    }
 
+   @Override
    protected QueueControl createManagementControl(final SimpleString address,
                                                   final SimpleString queue) throws Exception {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);

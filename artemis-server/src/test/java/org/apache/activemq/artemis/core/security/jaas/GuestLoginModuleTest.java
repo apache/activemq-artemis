@@ -46,6 +46,7 @@ public class GuestLoginModuleTest extends Assert {
    @Test
    public void testLogin() throws LoginException {
       LoginContext context = new LoginContext("GuestLogin", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             assertEquals("Should have no Callbacks", 0, callbacks.length);
          }
@@ -69,6 +70,7 @@ public class GuestLoginModuleTest extends Assert {
    @Test
    public void testLoginWithDefaults() throws LoginException {
       LoginContext context = new LoginContext("GuestLoginWithDefaults", new CallbackHandler() {
+         @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             assertEquals("Should have no Callbacks", 0, callbacks.length);
          }

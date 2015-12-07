@@ -52,6 +52,7 @@ public class StoreBasedCursorTest extends TestCase {
    // gives the usageChange listener in the cursor an opportunity to kick in.
    int memoryLimit = 12 * messageSize;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       if (broker == null) {
@@ -60,6 +61,7 @@ public class StoreBasedCursorTest extends TestCase {
       }
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (broker != null) {

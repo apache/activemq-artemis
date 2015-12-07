@@ -56,6 +56,7 @@ public class StompTest extends StompTestBase {
       final CountDownLatch latch = new CountDownLatch(count);
       consumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message arg0) {
             latch.countDown();
          }

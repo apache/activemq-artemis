@@ -62,6 +62,7 @@ public class Receiver extends ClientAbstract {
 
    // Public --------------------------------------------------------
 
+   @Override
    public void run() {
       super.run();
 
@@ -129,6 +130,7 @@ public class Receiver extends ClientAbstract {
       pendingMsgs = 0;
    }
 
+   @Override
    public String toString() {
       return "Receiver::" + this.queue + ", msgs=" + msgs + ", pending=" + pendingMsgs;
    }

@@ -92,6 +92,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return javax.resource.cci.ConnectionFactory instance
     * @throws ResourceException Thrown if a connection factory can't be created
     */
+   @Override
    public Object createConnectionFactory() throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.debug("createConnectionFactory()");
@@ -107,6 +108,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return javax.resource.cci.ConnectionFactory instance
     * @throws ResourceException Thrown if a connection factory can't be created
     */
+   @Override
    public Object createConnectionFactory(final ConnectionManager cxManager) throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("createConnectionFactory(" + cxManager + ")");
@@ -132,6 +134,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The managed connection
     * @throws ResourceException Thrown if a managed connection can't be created
     */
+   @Override
    public ManagedConnection createManagedConnection(final Subject subject,
                                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
@@ -180,6 +183,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The managed connection
     * @throws ResourceException Thrown if the managed connection can not be found
     */
+   @Override
    public ManagedConnection matchManagedConnections(@SuppressWarnings("rawtypes") final Set connectionSet,
                                                     final Subject subject,
                                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
@@ -233,6 +237,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param out The writer
     * @throws ResourceException Thrown if the writer can't be set
     */
+   @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setLogWriter(" + out + ")");
@@ -245,6 +250,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The writer
     * @throws ResourceException Thrown if the writer can't be retrieved
     */
+   @Override
    public PrintWriter getLogWriter() throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getLogWriter()");
@@ -258,6 +264,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return The resource adapter
     */
+   @Override
    public ResourceAdapter getResourceAdapter() {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getResourceAdapter()");
@@ -274,6 +281,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param ra The resource adapter
     * @throws ResourceException Thrown if incorrect resource adapter
     */
+   @Override
    public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setResourceAdapter(" + ra + ")");

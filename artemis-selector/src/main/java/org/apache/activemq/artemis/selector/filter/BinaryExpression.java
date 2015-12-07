@@ -42,6 +42,7 @@ public abstract class BinaryExpression implements Expression {
    /**
     * @see java.lang.Object#toString()
     */
+   @Override
    public String toString() {
       return "(" + left.toString() + " " + getExpressionSymbol() + " " + right.toString() + ")";
    }
@@ -49,6 +50,7 @@ public abstract class BinaryExpression implements Expression {
    /**
     * @see java.lang.Object#hashCode()
     */
+   @Override
    public int hashCode() {
       int result = left.hashCode();
       result = 31 * result + right.hashCode();
@@ -59,6 +61,7 @@ public abstract class BinaryExpression implements Expression {
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
+   @Override
    public boolean equals(Object o) {
       if (this == o) {
          return true;

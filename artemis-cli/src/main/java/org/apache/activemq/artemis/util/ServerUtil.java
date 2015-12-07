@@ -54,6 +54,7 @@ public class ServerUtil {
 
       final Process process = builder.start();
       Runtime.getRuntime().addShutdownHook(new Thread() {
+         @Override
          public void run() {
             process.destroy();
          }

@@ -123,6 +123,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    /*
    * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
    * */
+   @Override
    public String getBackupGroupName() {
       return groupName;
    }

@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class SimpleTransformer implements Transformer {
 
+   @Override
    public ServerMessage transform(final ServerMessage message) {
       SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
 

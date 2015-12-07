@@ -26,6 +26,7 @@ public class SimpleIDGenerator implements IDGenerator {
       idSequence = startID;
    }
 
+   @Override
    public synchronized long generateID() {
       long id = idSequence++;
 
@@ -41,6 +42,7 @@ public class SimpleIDGenerator implements IDGenerator {
       return id;
    }
 
+   @Override
    public synchronized long getCurrentID() {
       return idSequence;
    }

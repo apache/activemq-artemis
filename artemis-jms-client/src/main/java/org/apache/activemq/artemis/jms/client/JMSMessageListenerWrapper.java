@@ -61,6 +61,7 @@ public class JMSMessageListenerWrapper implements MessageHandler {
     * In this method we apply the JMS acknowledgement and redelivery semantics
     * as per JMS spec
     */
+   @Override
    public void onMessage(final ClientMessage message) {
       ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession());
 

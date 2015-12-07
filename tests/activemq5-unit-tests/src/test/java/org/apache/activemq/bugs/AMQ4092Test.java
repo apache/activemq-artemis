@@ -155,6 +155,7 @@ public class AMQ4092Test extends TestCase {
          final int totalMessageCount = NUM_TO_SEND_PER_PRODUCER * DESTINATIONS.length * NUM_PRODUCERS;
          final AtomicInteger counter = new AtomicInteger();
          final MessageListener listener = new MessageListener() {
+            @Override
             public void onMessage(Message message) {
 
                if (debug) {

@@ -82,6 +82,7 @@ public class SyncCreateDataSource implements DataSource {
       return delegate;
    }
 
+   @Override
    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
       return null;
    }

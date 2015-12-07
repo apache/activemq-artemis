@@ -207,6 +207,7 @@ public class ConsumerTest extends JMSTestBase {
 
          int count = 0;
 
+         @Override
          public void onMessage(Message msg) {
             try {
                TextMessage txtmsg = (TextMessage) msg;
@@ -466,6 +467,7 @@ public class ConsumerTest extends JMSTestBase {
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(final Message msg) {
          }
       });
@@ -481,6 +483,7 @@ public class ConsumerTest extends JMSTestBase {
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(final Message msg) {
          }
       });

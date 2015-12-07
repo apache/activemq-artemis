@@ -140,6 +140,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       Interceptor intercept = new Interceptor() {
 
+         @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             System.out.println("Intercept..." + packet.getClass().getName());
 
@@ -293,6 +294,7 @@ public class ReattachTest extends ActiveMQTestBase {
             connectionFailed(me, failedOver);
          }
 
+         @Override
          public void beforeReconnect(final ActiveMQException exception) {
          }
       }

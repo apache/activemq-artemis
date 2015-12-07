@@ -58,6 +58,7 @@ public class SendAcknowledgementsExample {
 
             int count = 0;
 
+            @Override
             public void sendAcknowledged(final Message message) {
                System.out.println("Received send acknowledgement for message " + count++);
             }

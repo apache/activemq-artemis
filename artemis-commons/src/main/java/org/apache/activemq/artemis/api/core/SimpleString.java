@@ -101,10 +101,12 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    // CharSequence implementation
    // ---------------------------------------------------------------------------
 
+   @Override
    public int length() {
       return data.length >> 1;
    }
 
+   @Override
    public char charAt(int pos) {
       if (pos < 0 || pos >= data.length >> 1) {
          throw new IndexOutOfBoundsException();
@@ -114,6 +116,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       return (char) ((data[pos] & 0xFF) | (data[pos + 1] << 8) & 0xFF00);
    }
 
+   @Override
    public CharSequence subSequence(final int start, final int end) {
       int len = data.length >> 1;
 
@@ -132,6 +135,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
    // Comparable implementation -------------------------------------
 
+   @Override
    public int compareTo(final SimpleString o) {
       return toString().compareTo(o.toString());
    }

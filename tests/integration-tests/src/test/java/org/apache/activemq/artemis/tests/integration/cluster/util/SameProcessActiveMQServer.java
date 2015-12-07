@@ -39,34 +39,42 @@ public class SameProcessActiveMQServer implements TestableServer {
       return server.isActive();
    }
 
+   @Override
    public void setIdentity(String identity) {
       server.setIdentity(identity);
    }
 
+   @Override
    public boolean isStarted() {
       return server.isStarted();
    }
 
+   @Override
    public void addInterceptor(Interceptor interceptor) {
       server.getRemotingService().addIncomingInterceptor(interceptor);
    }
 
+   @Override
    public void removeInterceptor(Interceptor interceptor) {
       server.getRemotingService().removeIncomingInterceptor(interceptor);
    }
 
+   @Override
    public void start() throws Exception {
       server.start();
    }
 
+   @Override
    public void stop() throws Exception {
       server.stop();
    }
 
+   @Override
    public CountDownLatch crash(ClientSession... sessions) throws Exception {
       return crash(true, sessions);
    }
 
+   @Override
    public CountDownLatch crash(boolean waitFailure, ClientSession... sessions) throws Exception {
       CountDownLatch latch = new CountDownLatch(sessions.length);
       CountDownSessionFailureListener[] listeners = new CountDownSessionFailureListener[sessions.length];
@@ -91,6 +99,7 @@ public class SameProcessActiveMQServer implements TestableServer {
       return latch;
    }
 
+   @Override
    public ActiveMQServer getServer() {
       return server;
    }

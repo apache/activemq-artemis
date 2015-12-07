@@ -43,6 +43,7 @@ final class PageSyncTimer {
    private final long timeSync;
 
    private final Runnable runnable = new Runnable() {
+      @Override
       public void run() {
          tick();
       }

@@ -61,6 +61,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    // QueueBrowser implementation -------------------------------------------------------------------
 
+   @Override
    public void close() throws JMSException {
       if (consumer != null) {
          try {
@@ -72,6 +73,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
       }
    }
 
+   @Override
    public Enumeration getEnumeration() throws JMSException {
       try {
          close();
@@ -86,10 +88,12 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    }
 
+   @Override
    public String getMessageSelector() throws JMSException {
       return filterString == null ? null : filterString.toString();
    }
 
+   @Override
    public Queue getQueue() throws JMSException {
       return queue;
    }
@@ -113,6 +117,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
       ClientMessage current = null;
 
+      @Override
       public boolean hasMoreElements() {
          if (current == null) {
             try {
@@ -125,6 +130,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          return current != null;
       }
 
+      @Override
       public ActiveMQMessage nextElement() {
          ActiveMQMessage msg;
          if (hasMoreElements()) {

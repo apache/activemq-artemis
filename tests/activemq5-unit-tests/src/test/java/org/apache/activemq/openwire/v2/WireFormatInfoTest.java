@@ -29,12 +29,14 @@ public class WireFormatInfoTest extends DataFileGeneratorTestSupport {
 
    public static final WireFormatInfoTest SINGLETON = new WireFormatInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       WireFormatInfo info = new WireFormatInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       WireFormatInfo info = (WireFormatInfo) object;

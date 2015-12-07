@@ -46,6 +46,7 @@ public class InflaterReader extends InputStream {
       this.pointer = -1;
    }
 
+   @Override
    public int read() throws IOException {
       if (pointer == -1) {
          try {

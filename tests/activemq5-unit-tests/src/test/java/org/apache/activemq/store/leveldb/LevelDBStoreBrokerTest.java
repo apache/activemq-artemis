@@ -31,11 +31,13 @@ import org.apache.activemq.leveldb.LevelDBStore;
  */
 public class LevelDBStoreBrokerTest extends BrokerTest {
 
+   @Override
    protected void setUp() throws Exception {
       this.setAutoFail(true);
       super.setUp();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       LevelDBStore levelDBStore = new LevelDBStore();

@@ -40,37 +40,45 @@ public class JMSConfigurationImpl implements JMSConfiguration {
    public JMSConfigurationImpl() {
    }
 
+   @Override
    public List<ConnectionFactoryConfiguration> getConnectionFactoryConfigurations() {
       return connectionFactoryConfigurations;
    }
 
+   @Override
    public JMSConfigurationImpl setConnectionFactoryConfigurations(List<ConnectionFactoryConfiguration> connectionFactoryConfigurations) {
       this.connectionFactoryConfigurations = connectionFactoryConfigurations;
       return this;
    }
 
+   @Override
    public List<JMSQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
 
+   @Override
    public JMSConfigurationImpl setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations) {
       this.queueConfigurations = queueConfigurations;
       return this;
    }
 
+   @Override
    public List<TopicConfiguration> getTopicConfigurations() {
       return topicConfigurations;
    }
 
+   @Override
    public JMSConfigurationImpl setTopicConfigurations(List<TopicConfiguration> topicConfigurations) {
       this.topicConfigurations = topicConfigurations;
       return this;
    }
 
+   @Override
    public String getDomain() {
       return domain;
    }
 
+   @Override
    public JMSConfigurationImpl setDomain(final String domain) {
       this.domain = domain;
       return this;

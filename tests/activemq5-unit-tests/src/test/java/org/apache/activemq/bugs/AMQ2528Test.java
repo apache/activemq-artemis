@@ -35,6 +35,7 @@ public class AMQ2528Test extends EmbeddedBrokerTestSupport {
    /**
     * Setup the test so that the destination is a queue.
     */
+   @Override
    protected void setUp() throws Exception {
       useTopic = false;
       super.setUp();

@@ -164,6 +164,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       }
    }
 
+   @Override
    protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       Configuration config = super.createConfigServer(source, destination);
 

@@ -67,20 +67,24 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       Assert.assertTrue(consumer.isClosed());
 
       expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         @Override
          public void run() throws ActiveMQException {
             consumer.receive();
          }
       });
 
       expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         @Override
          public void run() throws ActiveMQException {
             consumer.receiveImmediate();
          }
       });
 
       expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         @Override
          public void run() throws ActiveMQException {
             consumer.setMessageHandler(new MessageHandler() {
+               @Override
                public void onMessage(final ClientMessage message) {
                }
             });
@@ -107,6 +111,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       final CountDownLatch waitingToProceed = new CountDownLatch(1);
       class MyHandler implements MessageHandler {
 
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                received.countDown();

@@ -28,6 +28,7 @@ public class ProtonClientConnectionContextFactory extends AMQPConnectionContextF
       return theInstance;
    }
 
+   @Override
    public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback) {
       return new ProtonClientConnectionContext(connectionCallback);
    }

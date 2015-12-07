@@ -49,6 +49,7 @@ public class PasswordMaskingUtil {
 
       // load class
       codecInstance = AccessController.doPrivileged(new PrivilegedAction<SensitiveDataCodec<String>>() {
+         @Override
          public SensitiveDataCodec<String> run() {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {

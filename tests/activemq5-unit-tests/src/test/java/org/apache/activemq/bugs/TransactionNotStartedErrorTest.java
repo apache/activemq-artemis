@@ -91,6 +91,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       LOG.info("Starting broker..");
    }
 
+   @Override
    public void tearDown() throws Exception {
       hectorConnection.close();
       xenaConnection.close();
@@ -104,6 +105,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       hectorConnection = createConnection();
       Thread hectorThread = buildProducer(hectorConnection, hectorToHalo);
       Receiver hHectorReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             haloToHectorCtr++;
             if (haloToHectorCtr >= counter) {
@@ -118,6 +120,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       troyConnection = createConnection();
       Thread troyThread = buildProducer(troyConnection, troyToHalo);
       Receiver hTroyReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             haloToTroyCtr++;
             if (haloToTroyCtr >= counter) {
@@ -132,6 +135,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       xenaConnection = createConnection();
       Thread xenaThread = buildProducer(xenaConnection, xenaToHalo);
       Receiver hXenaReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             haloToXenaCtr++;
             if (haloToXenaCtr >= counter) {
@@ -148,6 +152,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       final MessageSender troySender = buildTransactionalProducer(haloToTroy, haloConnection);
       final MessageSender xenaSender = buildTransactionalProducer(haloToXena, haloConnection);
       Receiver hectorReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             hectorToHaloCtr++;
             troySender.send("halo to troy because of hector");
@@ -159,6 +164,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
          }
       };
       Receiver xenaReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             xenaToHaloCtr++;
             hectorSender.send("halo to hector because of xena");
@@ -170,6 +176,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
          }
       };
       Receiver troyReceiver = new Receiver() {
+         @Override
          public void receive(String s) throws Exception {
             troyToHaloCtr++;
             xenaSender.send("halo to xena because of troy");
@@ -242,6 +249,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       final MessageSender producer = new MessageSender(queueName, connection, false, false);
       Thread thread = new Thread() {
 
+         @Override
          public synchronized void run() {
             for (int i = 0; i < counter; i++) {
                try {
@@ -268,6 +276,7 @@ public class TransactionNotStartedErrorTest extends TestCase {
       MessageConsumer inputMessageConsumer = session.createConsumer(session.createQueue(queueName));
       MessageListener messageListener = new MessageListener() {
 
+         @Override
          public void onMessage(Message message) {
             try {
                ObjectMessage objectMessage = (ObjectMessage) message;

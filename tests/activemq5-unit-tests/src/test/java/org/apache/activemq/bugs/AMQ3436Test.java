@@ -144,6 +144,7 @@ public class AMQ3436Test {
 
          boolean firstMessage = true;
 
+         @Override
          public void onMessage(Message msg) {
             try {
 

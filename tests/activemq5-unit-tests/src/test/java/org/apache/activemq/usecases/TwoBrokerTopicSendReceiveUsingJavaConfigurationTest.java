@@ -29,6 +29,7 @@ public class TwoBrokerTopicSendReceiveUsingJavaConfigurationTest extends TwoBrok
    BrokerService receiveBroker;
    BrokerService sendBroker;
 
+   @Override
    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
       try {
          receiveBroker = new BrokerService();
@@ -48,6 +49,7 @@ public class TwoBrokerTopicSendReceiveUsingJavaConfigurationTest extends TwoBrok
       }
    }
 
+   @Override
    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
       try {
          sendBroker = new BrokerService();
@@ -67,6 +69,7 @@ public class TwoBrokerTopicSendReceiveUsingJavaConfigurationTest extends TwoBrok
       }
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (sendBroker != null) {

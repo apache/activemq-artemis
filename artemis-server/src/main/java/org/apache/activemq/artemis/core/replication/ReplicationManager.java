@@ -255,6 +255,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       enabled = true;
    }
 
+   @Override
    public synchronized void stop() throws Exception {
       if (!started) {
          return;
@@ -390,12 +391,14 @@ public final class ReplicationManager implements ActiveMQComponent {
          connectionFailed(me, failedOver);
       }
 
+      @Override
       public void beforeReconnect(final ActiveMQException me) {
       }
    }
 
    private final class ResponseHandler implements ChannelHandler {
 
+      @Override
       public void handlePacket(final Packet packet) {
          if (packet.getType() == PacketImpl.REPLICATION_RESPONSE || packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
             replicated();
@@ -414,12 +417,15 @@ public final class ReplicationManager implements ActiveMQComponent {
 
       static final NullEncoding instance = new NullEncoding();
 
+      @Override
       public void decode(final ActiveMQBuffer buffer) {
       }
 
+      @Override
       public void encode(final ActiveMQBuffer buffer) {
       }
 
+      @Override
       public int getEncodeSize() {
          return 0;
       }

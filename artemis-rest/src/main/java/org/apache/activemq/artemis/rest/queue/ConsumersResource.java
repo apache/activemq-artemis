@@ -83,6 +83,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
       this.consumerTimeoutSeconds = consumerTimeoutSeconds;
    }
 
+   @Override
    public boolean testTimeout(String target, boolean autoShutdown) {
       QueueConsumer consumer = queueConsumers.get(target);
       if (consumer == null)
@@ -99,6 +100,7 @@ public class ConsumersResource implements TimeoutTask.Callback {
       }
    }
 
+   @Override
    public void shutdown(String target) {
       QueueConsumer consumer = queueConsumers.get(target);
       if (consumer == null)

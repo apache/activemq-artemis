@@ -241,6 +241,7 @@ public class VerifyNetworkConsumersDisconnectTest extends JmsMultipleBrokersTest
       }, timeout));
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();
@@ -265,6 +266,7 @@ public class VerifyNetworkConsumersDisconnectTest extends JmsMultipleBrokersTest
       brokerService.setDestinationPolicy(policyMap);
    }
 
+   @Override
    public void uncaughtException(Thread t, Throwable e) {
       synchronized (unhandledExceptions) {
          unhandledExceptions.put(t, e);

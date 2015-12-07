@@ -30,12 +30,14 @@ public class RemoveSubscriptionInfoTest extends BaseCommandTestSupport {
 
    public static final RemoveSubscriptionInfoTest SINGLETON = new RemoveSubscriptionInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       RemoveSubscriptionInfo info = new RemoveSubscriptionInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       RemoveSubscriptionInfo info = (RemoveSubscriptionInfo) object;

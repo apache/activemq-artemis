@@ -40,6 +40,7 @@ public interface JMSServerManager extends ActiveMQComponent {
     *
     * @return true if the server us running
     */
+   @Override
    boolean isStarted();
 
    /**

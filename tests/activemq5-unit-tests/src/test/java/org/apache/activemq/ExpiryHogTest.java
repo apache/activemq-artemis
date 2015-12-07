@@ -49,6 +49,7 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
       allMessagesList.assertMessagesReceived(numMessages);
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService bs = new BrokerService();
       bs.setDeleteAllMessagesOnStartup(true);
@@ -62,6 +63,7 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
       return bs;
    }
 
+   @Override
    protected TextMessage createTextMessage(Session session, String initText) throws Exception {
       if (sleep) {
          TimeUnit.SECONDS.sleep(10);

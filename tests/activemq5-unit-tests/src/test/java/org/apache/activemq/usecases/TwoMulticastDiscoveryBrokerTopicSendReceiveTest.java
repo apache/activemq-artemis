@@ -25,14 +25,17 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public class TwoMulticastDiscoveryBrokerTopicSendReceiveTest extends TwoBrokerTopicSendReceiveTest {
 
+   @Override
    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
       return createConnectionFactory("org/apache/activemq/usecases/receiver-discovery.xml", "receiver", "vm://receiver");
    }
 
+   @Override
    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
       return createConnectionFactory("org/apache/activemq/usecases/sender-discovery.xml", "sender", "vm://sender");
    }
 
+   @Override
    protected void setUp() throws Exception {
       System.setProperty("groupId", getClass().getName() + "-" + System.currentTimeMillis());
       messageCount = 100000;

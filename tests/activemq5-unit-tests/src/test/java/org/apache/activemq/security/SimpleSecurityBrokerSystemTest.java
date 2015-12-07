@@ -148,6 +148,7 @@ public class SimpleSecurityBrokerSystemTest extends SecurityTestSupport {
 
    public static class SimpleAuthenticationFactory implements BrokerPlugin {
 
+      @Override
       public Broker installPlugin(Broker broker) {
 
          HashMap<String, String> u = new HashMap<String, String>();
@@ -163,6 +164,7 @@ public class SimpleSecurityBrokerSystemTest extends SecurityTestSupport {
          return new SimpleAuthenticationBroker(broker, u, groups);
       }
 
+      @Override
       public String toString() {
          return "SimpleAuthenticationBroker";
       }
@@ -176,6 +178,7 @@ public class SimpleSecurityBrokerSystemTest extends SecurityTestSupport {
       addCombinationValues("authenticationPlugin", new Object[]{new SimpleAuthenticationFactory(), new JaasAuthenticationPlugin()});
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
       broker.setPopulateJMSXUserID(true);

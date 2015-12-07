@@ -38,14 +38,17 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
+   @Override
    public List<SimpleString> getQueueNames() {
       return queueNames;
    }
 
+   @Override
    public boolean isExists() {
       return exists;
    }
 
+   @Override
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }

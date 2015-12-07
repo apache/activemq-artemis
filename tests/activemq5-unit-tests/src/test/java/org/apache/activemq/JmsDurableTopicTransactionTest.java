@@ -28,6 +28,7 @@ public class JmsDurableTopicTransactionTest extends JmsTopicTransactionTest {
    /**
     * @see JmsTransactionTestSupport#getJmsResourceProvider()
     */
+   @Override
    protected JmsResourceProvider getJmsResourceProvider() {
       JmsResourceProvider provider = new JmsResourceProvider();
       provider.setTopic(true);

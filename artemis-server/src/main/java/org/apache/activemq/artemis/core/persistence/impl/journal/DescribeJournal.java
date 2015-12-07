@@ -143,20 +143,24 @@ public final class DescribeJournal {
 
          JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
 
+            @Override
             public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
                out.println("operation@UpdateTX;txID=" + transactionID + "," + describeRecord(recordInfo));
                checkRecordCounter(recordInfo);
             }
 
+            @Override
             public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
                out.println("operation@Update;" + describeRecord(recordInfo));
                checkRecordCounter(recordInfo);
             }
 
+            @Override
             public void onReadRollbackRecord(final long transactionID) throws Exception {
                out.println("operation@Rollback;txID=" + transactionID);
             }
 
+            @Override
             public void onReadPrepareRecord(final long transactionID,
                                             final byte[] extraData,
                                             final int numberOfRecords) throws Exception {
@@ -164,26 +168,32 @@ public final class DescribeJournal {
                               ",extraData=" + encode(extraData) + ", xid=" + toXid(extraData));
             }
 
+            @Override
             public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
                out.println("operation@DeleteRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo));
             }
 
+            @Override
             public void onReadDeleteRecord(final long recordID) throws Exception {
                out.println("operation@DeleteRecord;recordID=" + recordID);
             }
 
+            @Override
             public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
                out.println("operation@Commit;txID=" + transactionID + ",numberOfRecords=" + numberOfRecords);
             }
 
+            @Override
             public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
                out.println("operation@AddRecordTX;txID=" + transactionID + "," + describeRecord(recordInfo));
             }
 
+            @Override
             public void onReadAddRecord(final RecordInfo recordInfo) throws Exception {
                out.println("operation@AddRecord;" + describeRecord(recordInfo));
             }
 
+            @Override
             public void markAsDataFile(final JournalFile file1) {
             }
 
@@ -252,6 +262,7 @@ public final class DescribeJournal {
       Map<Long, Integer> preparedMessageRefCount = new HashMap<Long, Integer>();
       journal.load(records, preparedTransactions, new TransactionFailureCallback() {
 
+         @Override
          public void failedTransaction(long transactionID,
                                        List<RecordInfo> records1,
                                        List<RecordInfo> recordsToDelete) {

@@ -249,6 +249,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
 
    public class TestJDBCPersistenceAdapter extends JDBCPersistenceAdapter {
 
+      @Override
       public TransactionContext getTransactionContext() throws IOException {
          return testTransactionContext;
       }
@@ -262,6 +263,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
          super(jdbcPersistenceAdapter);
       }
 
+      @Override
       public void executeBatch() throws SQLException {
          super.executeBatch();
          count++;

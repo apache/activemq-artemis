@@ -24,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class MultipleTestsWithXBeanFactoryBeanTest extends MultipleTestsWithEmbeddedBrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerFactoryBean factory = new BrokerFactoryBean();
       factory.setConfig(new ClassPathResource("org/apache/activemq/xbean/activemq2.xml"));

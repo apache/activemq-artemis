@@ -52,6 +52,7 @@ public class AMQ4351Test extends BrokerTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
 

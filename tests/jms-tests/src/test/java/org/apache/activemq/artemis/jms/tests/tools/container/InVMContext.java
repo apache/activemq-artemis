@@ -68,10 +68,12 @@ public class InVMContext implements Context, Serializable {
 
    // Context implementation ----------------------------------------
 
+   @Override
    public Object lookup(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Object lookup(String name) throws NamingException {
       name = trimSlashes(name);
       int i = name.indexOf("/");
@@ -96,26 +98,32 @@ public class InVMContext implements Context, Serializable {
       }
    }
 
+   @Override
    public void bind(final Name name, final Object obj) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public void bind(final String name, final Object obj) throws NamingException {
       internalBind(name, obj, false);
    }
 
+   @Override
    public void rebind(final Name name, final Object obj) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public void rebind(final String name, final Object obj) throws NamingException {
       internalBind(name, obj, true);
    }
 
+   @Override
    public void unbind(final Name name) throws NamingException {
       unbind(name.toString());
    }
 
+   @Override
    public void unbind(String name) throws NamingException {
       name = trimSlashes(name);
       int i = name.indexOf("/");
@@ -133,26 +141,32 @@ public class InVMContext implements Context, Serializable {
       }
    }
 
+   @Override
    public void rename(final Name oldName, final Name newName) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public void rename(final String oldName, final String newName) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public NamingEnumeration list(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public NamingEnumeration list(final String name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public NamingEnumeration listBindings(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public NamingEnumeration<Binding> listBindings(String contextName) throws NamingException {
       contextName = trimSlashes(contextName);
       if (!"".equals(contextName) && !".".equals(contextName)) {
@@ -172,18 +186,22 @@ public class InVMContext implements Context, Serializable {
       return new NamingEnumerationImpl(l.iterator());
    }
 
+   @Override
    public void destroySubcontext(final Name name) throws NamingException {
       destroySubcontext(name.toString());
    }
 
+   @Override
    public void destroySubcontext(final String name) throws NamingException {
       map.remove(trimSlashes(name));
    }
 
+   @Override
    public Context createSubcontext(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Context createSubcontext(String name) throws NamingException {
       name = trimSlashes(name);
       if (map.get(name) != null) {
@@ -194,47 +212,58 @@ public class InVMContext implements Context, Serializable {
       return c;
    }
 
+   @Override
    public Object lookupLink(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Object lookupLink(final String name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public NameParser getNameParser(final Name name) throws NamingException {
       return getNameParser(name.toString());
    }
 
+   @Override
    public NameParser getNameParser(final String name) throws NamingException {
       return parser;
    }
 
+   @Override
    public Name composeName(final Name name, final Name prefix) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public String composeName(final String name, final String prefix) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Object addToEnvironment(final String propName, final Object propVal) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Object removeFromEnvironment(final String propName) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public Hashtable<String, String> getEnvironment() throws NamingException {
       Hashtable<String, String> env = new Hashtable<String, String>();
       env.put("java.naming.factory.initial", InVMInitialContextFactory.class.getCanonicalName());
       return env;
    }
 
+   @Override
    public void close() throws NamingException {
    }
 
+   @Override
    public String getNameInNamespace() throws NamingException {
       return nameInNamespace;
    }
@@ -292,22 +321,27 @@ public class InVMContext implements Context, Serializable {
          iterator = bindingIterator;
       }
 
+      @Override
       public void close() throws NamingException {
          throw new UnsupportedOperationException();
       }
 
+      @Override
       public boolean hasMore() throws NamingException {
          return iterator.hasNext();
       }
 
+      @Override
       public Binding next() throws NamingException {
          return iterator.next();
       }
 
+      @Override
       public boolean hasMoreElements() {
          return iterator.hasNext();
       }
 
+      @Override
       public Binding nextElement() {
          return iterator.next();
       }

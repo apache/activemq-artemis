@@ -31,12 +31,14 @@ public class FlushCommandTest extends BaseCommandTestSupport {
 
    public static final FlushCommandTest SINGLETON = new FlushCommandTest();
 
+   @Override
    public Object createObject() throws Exception {
       FlushCommand info = new FlushCommand();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       FlushCommand info = (FlushCommand) object;

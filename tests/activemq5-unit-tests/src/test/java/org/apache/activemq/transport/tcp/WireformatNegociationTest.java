@@ -50,6 +50,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
 
    private final CountDownLatch negotiationCounter = new CountDownLatch(2);
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
@@ -61,6 +62,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
    private void startClient(String uri) throws Exception, URISyntaxException {
       clientTransport = TransportFactory.connect(new URI(uri));
       clientTransport.setTransportListener(new TransportListener() {
+         @Override
          public void onCommand(Object command) {
             if (command instanceof WireFormatInfo) {
                clientWF.set((WireFormatInfo) command);
@@ -68,6 +70,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
             }
          }
 
+         @Override
          public void onException(IOException error) {
             if (!ignoreAsycError.get()) {
                LOG.info("Client transport error: ", error);
@@ -76,9 +79,11 @@ public class WireformatNegociationTest extends CombinationTestSupport {
             }
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -93,11 +98,13 @@ public class WireformatNegociationTest extends CombinationTestSupport {
    private void startServer(String uri) throws IOException, URISyntaxException, Exception {
       server = TransportFactory.bind(new URI(uri));
       server.setAcceptListener(new TransportAcceptListener() {
+         @Override
          public void onAccept(Transport transport) {
             try {
                LOG.info("[" + getName() + "] Server Accepted a Connection");
                serverTransport = transport;
                serverTransport.setTransportListener(new TransportListener() {
+                  @Override
                   public void onCommand(Object command) {
                      if (command instanceof WireFormatInfo) {
                         serverWF.set((WireFormatInfo) command);
@@ -105,6 +112,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
                      }
                   }
 
+                  @Override
                   public void onException(IOException error) {
                      if (!ignoreAsycError.get()) {
                         LOG.info("Server transport error: ", error);
@@ -113,9 +121,11 @@ public class WireformatNegociationTest extends CombinationTestSupport {
                      }
                   }
 
+                  @Override
                   public void transportInterupted() {
                   }
 
+                  @Override
                   public void transportResumed() {
                   }
                });
@@ -126,6 +136,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
             }
          }
 
+         @Override
          public void onAcceptError(Exception error) {
             error.printStackTrace();
          }
@@ -133,6 +144,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       server.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       ignoreAsycError.set(true);
       try {

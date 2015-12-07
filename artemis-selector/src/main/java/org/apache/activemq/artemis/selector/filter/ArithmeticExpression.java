@@ -39,6 +39,7 @@ public abstract class ArithmeticExpression extends BinaryExpression {
 
    public static Expression createPlus(Expression left, Expression right) {
       return new ArithmeticExpression(left, right) {
+         @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
             if (lvalue instanceof String) {
                String text = (String) lvalue;
@@ -50,6 +51,7 @@ public abstract class ArithmeticExpression extends BinaryExpression {
             }
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "+";
          }
@@ -58,10 +60,12 @@ public abstract class ArithmeticExpression extends BinaryExpression {
 
    public static Expression createMinus(Expression left, Expression right) {
       return new ArithmeticExpression(left, right) {
+         @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
             return minus(asNumber(lvalue), asNumber(rvalue));
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "-";
          }
@@ -71,10 +75,12 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    public static Expression createMultiply(Expression left, Expression right) {
       return new ArithmeticExpression(left, right) {
 
+         @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
             return multiply(asNumber(lvalue), asNumber(rvalue));
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "*";
          }
@@ -84,10 +90,12 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    public static Expression createDivide(Expression left, Expression right) {
       return new ArithmeticExpression(left, right) {
 
+         @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
             return divide(asNumber(lvalue), asNumber(rvalue));
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "/";
          }
@@ -97,10 +105,12 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    public static Expression createMod(Expression left, Expression right) {
       return new ArithmeticExpression(left, right) {
 
+         @Override
          protected Object evaluate(Object lvalue, Object rvalue) {
             return mod(asNumber(lvalue), asNumber(rvalue));
          }
 
+         @Override
          public String getExpressionSymbol() {
             return "%";
          }
@@ -187,6 +197,7 @@ public abstract class ArithmeticExpression extends BinaryExpression {
       }
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       Object lvalue = left.evaluate(message);
       if (lvalue == null) {

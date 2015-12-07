@@ -81,6 +81,7 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public void disableCleanup() {
       if (!cleanupEnabled) {
          return;
@@ -98,6 +99,7 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public void resumeCleanup() {
       if (cleanupEnabled) {
          return;
@@ -115,11 +117,13 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public SimpleString[] getStoreNames() {
       Set<SimpleString> names = stores.keySet();
       return names.toArray(new SimpleString[names.size()]);
    }
 
+   @Override
    public void reloadStores() throws Exception {
       lock();
       try {
@@ -143,6 +147,7 @@ public final class PagingManagerImpl implements PagingManager {
 
    }
 
+   @Override
    public void deletePageStore(final SimpleString storeName) throws Exception {
       syncLock.readLock().lock();
       try {
@@ -159,6 +164,7 @@ public final class PagingManagerImpl implements PagingManager {
    /**
     * stores is a ConcurrentHashMap, so we don't need to synchronize this method
     */
+   @Override
    public PagingStore getPageStore(final SimpleString storeName) throws Exception {
       PagingStore store = stores.get(storeName);
 
@@ -168,6 +174,7 @@ public final class PagingManagerImpl implements PagingManager {
       return newStore(storeName);
    }
 
+   @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
@@ -175,6 +182,7 @@ public final class PagingManagerImpl implements PagingManager {
       transactions.put(pageTransaction.getTransactionID(), pageTransaction);
    }
 
+   @Override
    public void removeTransaction(final long id) {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Removing pageTransaction " + id);
@@ -182,6 +190,7 @@ public final class PagingManagerImpl implements PagingManager {
       transactions.remove(id);
    }
 
+   @Override
    public PageTransactionInfo getTransaction(final long id) {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("looking up pageTX = " + id);
@@ -218,6 +227,7 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public synchronized void stop() throws Exception {
       if (!started) {
          return;
@@ -238,6 +248,7 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public void processReload() throws Exception {
       for (PagingStore store : stores.values()) {
          store.processReload();
@@ -263,10 +274,12 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   @Override
    public void unlock() {
       syncLock.writeLock().unlock();
    }
 
+   @Override
    public void lock() {
       syncLock.writeLock().lock();
    }

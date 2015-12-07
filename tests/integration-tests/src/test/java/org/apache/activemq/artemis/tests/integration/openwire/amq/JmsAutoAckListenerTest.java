@@ -58,6 +58,7 @@ public class JmsAutoAckListenerTest extends BasicOpenWireTest implements Message
       session.close();
    }
 
+   @Override
    public void onMessage(Message message) {
       System.out.println("Received message: " + message);
       assertNotNull(message);

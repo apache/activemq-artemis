@@ -496,6 +496,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
             this.execFactory = execFactory;
          }
 
+         @Override
          public Queue createQueue(long persistenceID,
                                   SimpleString address,
                                   SimpleString name,
@@ -512,6 +513,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.core.server.QueueFactory#setPostOffice(org.apache.activemq.artemis.core.postoffice.PostOffice)
           */
+         @Override
          public void setPostOffice(PostOffice postOffice) {
          }
 

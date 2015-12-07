@@ -936,6 +936,7 @@ public class AcknowledgementTest extends JMSTestCase {
          ProxyAssertSupport.assertTrue("failed to receive all messages", latch.await(2000, MILLISECONDS));
       }
 
+      @Override
       public abstract void onMessage(Message m);
 
    }

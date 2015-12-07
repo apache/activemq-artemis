@@ -58,6 +58,7 @@ public class TwoBrokerNetworkLoadBalanceTest extends JmsMultipleBrokersTestSuppo
       final MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
 
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return msgsA.getMessageCount() + msgsB.getMessageCount() == 6000;
          }
@@ -69,6 +70,7 @@ public class TwoBrokerNetworkLoadBalanceTest extends JmsMultipleBrokersTestSuppo
       assertTrue("B got is fair share: " + msgsB.getMessageCount(), msgsB.getMessageCount() > 2000);
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

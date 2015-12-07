@@ -49,6 +49,7 @@ public class TcpFaultyTransportFactory extends TcpTransportFactory {
       return new TcpFaultyTransport(wf, socketFactory, location, localLocation);
    }
 
+   @Override
    protected Transport createTransport(URI location, WireFormat wf) throws UnknownHostException, IOException {
       URI localLocation = null;
       String path = location.getPath();
@@ -73,6 +74,7 @@ public class TcpFaultyTransportFactory extends TcpTransportFactory {
       return new TcpFaultyTransportServer(this, location, serverSocketFactory);
    }
 
+   @Override
    public TransportServer doBind(final URI location) throws IOException {
       try {
          Map<String, String> options = new HashMap<String, String>(URISupport.parseParameters(location));
@@ -92,10 +94,12 @@ public class TcpFaultyTransportFactory extends TcpTransportFactory {
       }
    }
 
+   @Override
    protected SocketFactory createSocketFactory() throws IOException {
       return SocketTstFactory.getDefault();
    }
 
+   @Override
    protected ServerSocketFactory createServerSocketFactory() throws IOException {
       return ServerSocketTstFactory.getDefault();
    }

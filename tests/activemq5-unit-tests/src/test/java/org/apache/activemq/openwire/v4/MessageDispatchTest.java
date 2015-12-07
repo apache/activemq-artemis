@@ -37,12 +37,14 @@ public class MessageDispatchTest extends BaseCommandTestSupport {
 
    public static MessageDispatchTest SINGLETON = new MessageDispatchTest();
 
+   @Override
    public Object createObject() throws Exception {
       MessageDispatch info = new MessageDispatch();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       MessageDispatch info = (MessageDispatch) object;

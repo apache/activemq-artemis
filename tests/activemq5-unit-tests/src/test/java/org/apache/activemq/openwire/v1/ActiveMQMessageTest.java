@@ -30,12 +30,14 @@ public class ActiveMQMessageTest extends MessageTestSupport {
 
    public static final ActiveMQMessageTest SINGLETON = new ActiveMQMessageTest();
 
+   @Override
    public Object createObject() throws Exception {
       ActiveMQMessage info = new ActiveMQMessage();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQMessage info = (ActiveMQMessage) object;

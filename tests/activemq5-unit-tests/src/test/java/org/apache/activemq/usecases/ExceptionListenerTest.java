@@ -114,6 +114,7 @@ public class ExceptionListenerTest implements ExceptionListener {
       }
    }
 
+   @Override
    public void onException(JMSException e) {
       LOG.info("onException:" + e, new Throwable("FromHere"));
       exceptionsViaListener.add(e);

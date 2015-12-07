@@ -110,6 +110,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       cc.setMessageHandler(new MessageHandler() {
          int c = 0;
 
+         @Override
          public void onMessage(final ClientMessage message) {
             log.info("Got message " + c++);
             latch.countDown();
@@ -140,6 +141,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
       cc.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                message.acknowledge();
@@ -257,6 +259,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
       cc.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage message) {
             if (latch.getCount() == 1) {
                try {

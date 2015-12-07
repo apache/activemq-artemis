@@ -106,10 +106,12 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       this.reuseBuffers = false;
    }
 
+   @Override
    public SequentialFile createSequentialFile(final String fileName) {
       return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName, writeExecutor);
    }
 
+   @Override
    public boolean isSupportsCallbacks() {
       return true;
    }
@@ -118,6 +120,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       return LibaioContext.isLoaded();
    }
 
+   @Override
    public ByteBuffer allocateDirectBuffer(final int size) {
 
       int blocks = size / 512;
@@ -133,10 +136,12 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       return buffer;
    }
 
+   @Override
    public void releaseDirectBuffer(final ByteBuffer buffer) {
       LibaioContext.freeBuffer(buffer);
    }
 
+   @Override
    public ByteBuffer newBuffer(int size) {
       if (size % 512 != 0) {
          size = (size / 512 + 1) * 512;
@@ -145,22 +150,26 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       return buffersControl.newBuffer(size);
    }
 
+   @Override
    public void clearBuffer(final ByteBuffer directByteBuffer) {
       directByteBuffer.position(0);
       libaioContext.memsetBuffer(directByteBuffer);
    }
 
+   @Override
    public int getAlignment() {
       return 512;
    }
 
    // For tests only
+   @Override
    public ByteBuffer wrapBuffer(final byte[] bytes) {
       ByteBuffer newbuffer = newBuffer(bytes.length);
       newbuffer.put(bytes);
       return newbuffer;
    }
 
+   @Override
    public int calculateBlockSize(final int position) {
       int alignment = getAlignment();
 
@@ -263,6 +272,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          return this;
       }
 
+      @Override
       public void run() {
          try {
             libaioFile.write(position, bytes, buffer, this);
@@ -272,6 +282,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          }
       }
 
+      @Override
       public int compareTo(AIOSequentialCallback other) {
          if (this == other || this.writeSequence == other.writeSequence) {
             return 0;
@@ -309,6 +320,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       /**
        * this is called by libaio.
        */
+      @Override
       public void done() {
          this.sequentialFile.done(this);
       }
@@ -338,6 +350,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private class PollerRunnable implements Runnable {
 
+      @Override
       public void run() {
          libaioContext.poll();
       }

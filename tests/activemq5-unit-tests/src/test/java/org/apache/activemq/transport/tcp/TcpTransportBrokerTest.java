@@ -22,10 +22,12 @@ import org.apache.activemq.transport.TransportBrokerTestSupport;
 
 public class TcpTransportBrokerTest extends TransportBrokerTestSupport {
 
+   @Override
    protected String getBindLocation() {
       return "tcp://localhost:0";
    }
 
+   @Override
    protected void setUp() throws Exception {
       maxWait = 2000;
       super.setUp();

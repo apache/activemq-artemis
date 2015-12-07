@@ -41,6 +41,7 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
 
    private final Error[] error = new Error[1];
 
+   @Override
    protected void doTest() throws Exception {
       messageCount = 200;
       connection.start();
@@ -72,6 +73,7 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
       }
    }
 
+   @Override
    protected void makeDlqConsumer() throws JMSException {
       dlqDestination = createDlqDestination();
 
@@ -96,6 +98,7 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
 
    ;
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory answer = super.createConnectionFactory();
       RedeliveryPolicy policy = new RedeliveryPolicy();
@@ -108,6 +111,7 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
       return answer;
    }
 
+   @Override
    protected Destination createDlqDestination() {
       return new ActiveMQQueue("ActiveMQ.DLQ");
    }
@@ -125,6 +129,7 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
          deliveryCount = delvery;
       }
 
+      @Override
       public void onMessage(Message message) {
          try {
             int expectedMessageId = rollbacks.get() / deliveryCount;

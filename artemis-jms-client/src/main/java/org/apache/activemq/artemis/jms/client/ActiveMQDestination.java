@@ -296,6 +296,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
 
    // Referenceable implementation ---------------------------------------
 
+   @Override
    public Reference getReference() throws NamingException {
       return new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-DEST", this), DestinationObjectFactory.class.getCanonicalName(), null);
    }

@@ -287,6 +287,7 @@ public class OptimizeAcknowledgeWithExpiredMsgsTest {
 
       private AtomicInteger counter = new AtomicInteger(0);
 
+      @Override
       public void onMessage(final Message message) {
          try {
             LOG.trace("Got Message " + message.getJMSMessageID());
@@ -300,6 +301,7 @@ public class OptimizeAcknowledgeWithExpiredMsgsTest {
          return counter.get();
       }
 
+      @Override
       public synchronized void onException(JMSException ex) {
          LOG.error("JMS Exception occurred.  Shutting down client.");
       }

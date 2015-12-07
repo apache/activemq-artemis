@@ -35,10 +35,12 @@ public class SslTransportFactoryTest extends TestCase {
    private SslTransportFactory factory;
    private boolean verbose;
 
+   @Override
    protected void setUp() throws Exception {
       factory = new SslTransportFactory();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

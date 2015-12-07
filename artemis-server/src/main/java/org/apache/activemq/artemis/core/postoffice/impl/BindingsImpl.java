@@ -73,20 +73,24 @@ public final class BindingsImpl implements Bindings {
       this.name = name;
    }
 
+   @Override
    public void setMessageLoadBalancingType(final MessageLoadBalancingType messageLoadBalancingType) {
       this.messageLoadBalancingType = messageLoadBalancingType;
    }
 
+   @Override
    public Collection<Binding> getBindings() {
       return bindingsMap.values();
    }
 
+   @Override
    public void unproposed(SimpleString groupID) {
       for (Binding binding : bindingsMap.values()) {
          binding.unproposed(groupID);
       }
    }
 
+   @Override
    public void addBinding(final Binding binding) {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("addBinding(" + binding + ") being called");
@@ -122,6 +126,7 @@ public final class BindingsImpl implements Bindings {
 
    }
 
+   @Override
    public void removeBinding(final Binding binding) {
       if (binding.isExclusive()) {
          exclusiveBindings.remove(binding);
@@ -147,6 +152,7 @@ public final class BindingsImpl implements Bindings {
       }
    }
 
+   @Override
    public boolean redistribute(final ServerMessage message,
                                final Queue originatingQueue,
                                final RoutingContext context) throws Exception {
@@ -227,6 +233,7 @@ public final class BindingsImpl implements Bindings {
       }
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       route(message, context, true);
    }

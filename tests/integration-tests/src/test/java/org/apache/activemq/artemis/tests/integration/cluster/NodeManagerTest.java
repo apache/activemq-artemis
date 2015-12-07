@@ -167,6 +167,7 @@ public class NodeManagerTest extends ActiveMQTestBase {
          this.action = action;
       }
 
+      @Override
       public void run() {
          try {
             action.performWork(manager);

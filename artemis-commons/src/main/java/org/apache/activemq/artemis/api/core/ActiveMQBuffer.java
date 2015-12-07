@@ -634,6 +634,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a byte at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
     */
+   @Override
    byte readByte();
 
    /**
@@ -643,6 +644,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return an unsigned byte at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
     */
+   @Override
    int readUnsignedByte();
 
    /**
@@ -652,6 +654,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a 16-bit short integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 2}
     */
+   @Override
    short readShort();
 
    /**
@@ -661,6 +664,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return an unsigned 16-bit short integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 2}
     */
+   @Override
    int readUnsignedShort();
 
    /**
@@ -670,6 +674,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a 32-bit integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 4}
     */
+   @Override
    int readInt();
 
    /**
@@ -688,6 +693,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a 64-bit integer at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 8}
     */
+   @Override
    long readLong();
 
    /**
@@ -697,6 +703,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a char at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 2}
     */
+   @Override
    char readChar();
 
    /**
@@ -706,6 +713,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a float at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 4}
     */
+   @Override
    float readFloat();
 
    /**
@@ -715,6 +723,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a double at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 8}
     */
+   @Override
    double readDouble();
 
    /**
@@ -724,6 +733,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @return a boolean at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
     */
+   @Override
    boolean readBoolean();
 
    /**
@@ -759,6 +769,7 @@ public interface ActiveMQBuffer extends DataInput {
     *
     * @return a UTF-8 String at the current {@code readerIndex}
     */
+   @Override
    String readUTF();
 
    /**
@@ -875,6 +886,7 @@ public interface ActiveMQBuffer extends DataInput {
     * @param length The number of bytes to skip
     * @throws IndexOutOfBoundsException if {@code length} is greater than {@code this.readableBytes}
     */
+   @Override
    int skipBytes(int length);
 
    /**

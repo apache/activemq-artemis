@@ -60,10 +60,12 @@ public class QueueFactoryImpl implements QueueFactory {
       this.executorFactory = executorFactory;
    }
 
+   @Override
    public void setPostOffice(final PostOffice postOffice) {
       this.postOffice = postOffice;
    }
 
+   @Override
    public Queue createQueue(final long persistenceID,
                             final SimpleString address,
                             final SimpleString name,

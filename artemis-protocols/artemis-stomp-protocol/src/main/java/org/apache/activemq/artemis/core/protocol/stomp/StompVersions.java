@@ -30,6 +30,7 @@ public enum StompVersions {
       this.version = ver;
    }
 
+   @Override
    public String toString() {
       return this.version;
    }

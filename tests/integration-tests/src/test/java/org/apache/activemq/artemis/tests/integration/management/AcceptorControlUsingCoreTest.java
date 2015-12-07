@@ -52,27 +52,33 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_ACCEPTOR + name);
 
+         @Override
          public String getFactoryClassName() {
             return (String) proxy.retrieveAttributeValue("factoryClassName");
          }
 
+         @Override
          public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
+         @Override
          @SuppressWarnings("unchecked")
          public Map<String, Object> getParameters() {
             return (Map<String, Object>) proxy.retrieveAttributeValue("parameters");
          }
 
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
+         @Override
          public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
+         @Override
          public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }

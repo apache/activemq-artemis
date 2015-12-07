@@ -51,9 +51,11 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
          impl.executeOnCompletion(new IOCallback() {
 
+            @Override
             public void onError(int errorCode, String errorMessage) {
             }
 
+            @Override
             public void done() {
                latch1.countDown();
             }
@@ -68,9 +70,11 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
          impl.executeOnCompletion(new IOCallback() {
 
+            @Override
             public void onError(int errorCode, String errorMessage) {
             }
 
+            @Override
             public void done() {
                latch2.countDown();
             }
@@ -193,10 +197,12 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
       // We should be up to date with lineUps and executions. this should now just finish processing
       context.executeOnCompletion(new IOCallback() {
 
+         @Override
          public void done() {
             operations.incrementAndGet();
          }
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             failures.incrementAndGet();
          }

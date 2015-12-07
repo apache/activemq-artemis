@@ -49,6 +49,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     * @return The text
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public String getText() throws JMSException {
       if (ActiveMQRATextMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getText()");
@@ -63,6 +64,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     * @param string The text
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setText(final String string) throws JMSException {
       if (ActiveMQRATextMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setText(" + string + ")");

@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 
 public abstract class LazyCreateContext extends ReadOnlyContext {
 
+   @Override
    public Object lookup(String name) throws NamingException {
       try {
          return super.lookup(name);

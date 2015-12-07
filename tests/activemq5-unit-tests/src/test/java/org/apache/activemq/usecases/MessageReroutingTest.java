@@ -36,6 +36,7 @@ public class MessageReroutingTest extends JmsMultipleBrokersTestSupport {
    public Destination dest;
    public static final int MESSAGE_COUNT = 50;
 
+   @Override
    protected void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

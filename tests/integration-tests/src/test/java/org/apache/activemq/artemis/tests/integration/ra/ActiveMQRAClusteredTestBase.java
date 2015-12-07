@@ -53,6 +53,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
 
    }
 
+   @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
       return createSecondaryDefaultConfig(false);
    }

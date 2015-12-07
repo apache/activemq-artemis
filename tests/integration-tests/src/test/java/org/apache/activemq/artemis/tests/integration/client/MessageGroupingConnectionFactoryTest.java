@@ -129,6 +129,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
          this.acknowledge = acknowledge;
       }
 
+      @Override
       public void onMessage(final ClientMessage message) {
          list.add(message);
          if (acknowledge) {

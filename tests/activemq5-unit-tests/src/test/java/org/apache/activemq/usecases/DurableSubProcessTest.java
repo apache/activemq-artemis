@@ -625,6 +625,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
       fail(message);
    }
 
+   @Override
    protected void setUp() throws Exception {
       topic = (ActiveMQTopic) createDestination();
       startBroker();
@@ -636,6 +637,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
 

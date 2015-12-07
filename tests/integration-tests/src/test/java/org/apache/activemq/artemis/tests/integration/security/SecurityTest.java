@@ -1648,10 +1648,12 @@ public class SecurityTest extends ActiveMQTestBase {
    public void testCustomSecurityManager() throws Exception {
       final Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager() {
+            @Override
             public boolean validateUser(final String username, final String password) {
                return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
                   password.equals("frobnicate");
             }
+            @Override
             public boolean validateUserAndRole(
                final String username,
                final String password,
@@ -1732,14 +1734,17 @@ public class SecurityTest extends ActiveMQTestBase {
    public void testCustomSecurityManager2() throws Exception {
       final Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       final ActiveMQSecurityManager customSecurityManager = new ActiveMQSecurityManager2() {
+            @Override
             public boolean validateUser(final String username, final String password) {
                fail("Unexpected call to overridden method");
                return false;
             }
+            @Override
             public boolean validateUser(final String username, final String password, final X509Certificate[] certificates) {
                return (username.equals("foo") || username.equals("bar") || username.equals("all")) &&
                   password.equals("frobnicate");
             }
+            @Override
             public boolean validateUserAndRole(
                final String username,
                final String password,
@@ -1750,6 +1755,7 @@ public class SecurityTest extends ActiveMQTestBase {
                return false;
             }
 
+            @Override
             public boolean validateUserAndRole(
                final String username,
                final String password,

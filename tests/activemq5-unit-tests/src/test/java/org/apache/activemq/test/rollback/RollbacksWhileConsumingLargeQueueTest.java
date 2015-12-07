@@ -104,6 +104,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
       fail("Did not receive all the messages.");
    }
 
+   @Override
    protected ConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory answer = (ActiveMQConnectionFactory) super.createConnectionFactory();
       RedeliveryPolicy policy = new RedeliveryPolicy();
@@ -115,6 +116,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
       return answer;
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -128,6 +130,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
 
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -137,6 +140,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
 
    protected MessageCreator createMessageCreator(final int i) {
       return new MessageCreator() {
+         @Override
          public Message createMessage(Session session) throws JMSException {
             TextMessage answer = session.createTextMessage("Message: " + i);
             answer.setIntProperty("Counter", i);
@@ -145,6 +149,7 @@ public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSup
       };
    }
 
+   @Override
    public void onMessage(Message message) {
       String msgId = null;
       String msgText = null;

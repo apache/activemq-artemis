@@ -88,6 +88,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       new ReaderThread().start();
    }
 
+   @Override
    public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException {
       ClientStompFrame response = null;
       ByteBuffer buffer = frame.toByteBuffer();
@@ -113,6 +114,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       return response;
    }
 
+   @Override
    public ClientStompFrame sendWickedFrame(ClientStompFrame frame) throws IOException, InterruptedException {
       ClientStompFrame response = null;
       ByteBuffer buffer = frame.toByteBufferWithExtra("\n");
@@ -138,10 +140,12 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       return response;
    }
 
+   @Override
    public ClientStompFrame receiveFrame() throws InterruptedException {
       return frameQueue.poll(10, TimeUnit.SECONDS);
    }
 
+   @Override
    public ClientStompFrame receiveFrame(long timeout) throws InterruptedException {
       return frameQueue.poll(timeout, TimeUnit.MILLISECONDS);
    }
@@ -236,10 +240,12 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       }
    }
 
+   @Override
    public ClientStompFrame connect() throws Exception {
       return connect(null, null);
    }
 
+   @Override
    public void destroy() {
       try {
          close();
@@ -251,18 +257,22 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       }
    }
 
+   @Override
    public ClientStompFrame connect(String username, String password) throws Exception {
       throw new RuntimeException("connect method not implemented!");
    }
 
+   @Override
    public boolean isConnected() {
       return connected;
    }
 
+   @Override
    public String getVersion() {
       return version;
    }
 
+   @Override
    public int getFrameQueueSize() {
       return this.frameQueue.size();
    }
@@ -310,6 +320,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          this.notify();
       }
 
+      @Override
       public void run() {
          synchronized (this) {
             while (!stop) {

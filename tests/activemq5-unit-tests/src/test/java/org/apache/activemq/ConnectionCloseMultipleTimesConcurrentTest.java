@@ -34,6 +34,7 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
    private ExecutorService executor;
    private int size = 200;
 
+   @Override
    protected void setUp() throws Exception {
       executor = Executors.newFixedThreadPool(20);
 
@@ -45,6 +46,7 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection.isStarted()) {
          connection.stop();

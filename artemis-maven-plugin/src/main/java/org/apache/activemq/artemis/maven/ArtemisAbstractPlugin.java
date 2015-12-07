@@ -64,6 +64,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
 
 
 
+   @Override
    public void execute() throws MojoExecutionException, MojoFailureException {
       if (isIgnore()) {
          getLog().debug("******************************************************************************************************");

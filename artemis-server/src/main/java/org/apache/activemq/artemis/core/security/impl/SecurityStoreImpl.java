@@ -98,10 +98,12 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       return securityEnabled;
    }
 
+   @Override
    public void stop() {
       securityRepository.unRegisterListener(this);
    }
 
+   @Override
    public void authenticate(final String user, final String password, X509Certificate[] certificates) throws Exception {
       if (securityEnabled) {
 
@@ -145,6 +147,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       }
    }
 
+   @Override
    public void check(final SimpleString address,
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
@@ -203,6 +206,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       }
    }
 
+   @Override
    public void onChange() {
       invalidateCache();
    }

@@ -36,6 +36,7 @@ public class UdpTransportTest extends UdpTestSupport {
    protected int consumerPort = 9123;
    protected String producerURI = "udp://localhost:" + consumerPort;
 
+   @Override
    protected Transport createProducer() throws Exception {
       LOG.info("Producer using URI: " + producerURI);
 
@@ -49,6 +50,7 @@ public class UdpTransportTest extends UdpTestSupport {
       return new CommandJoiner(transport, wireFormat);
    }
 
+   @Override
    protected Transport createConsumer() throws Exception {
       LOG.info("Consumer on port: " + consumerPort);
       OpenWireFormat wireFormat = createWireFormat();

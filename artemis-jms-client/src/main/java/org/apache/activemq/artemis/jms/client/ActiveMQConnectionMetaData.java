@@ -49,34 +49,42 @@ public class ActiveMQConnectionMetaData implements ConnectionMetaData {
 
    // ConnectionMetaData implementation -----------------------------
 
+   @Override
    public String getJMSVersion() throws JMSException {
       return "2.0";
    }
 
+   @Override
    public int getJMSMajorVersion() throws JMSException {
       return 2;
    }
 
+   @Override
    public int getJMSMinorVersion() throws JMSException {
       return 0;
    }
 
+   @Override
    public String getJMSProviderName() throws JMSException {
       return ActiveMQConnectionMetaData.ACTIVEMQ;
    }
 
+   @Override
    public String getProviderVersion() throws JMSException {
       return serverVersion.getFullVersion();
    }
 
+   @Override
    public int getProviderMajorVersion() throws JMSException {
       return serverVersion.getMajorVersion();
    }
 
+   @Override
    public int getProviderMinorVersion() throws JMSException {
       return serverVersion.getMinorVersion();
    }
 
+   @Override
    public Enumeration getJMSXPropertyNames() throws JMSException {
       Vector<Object> v = new Vector<Object>();
       v.add("JMSXGroupID");

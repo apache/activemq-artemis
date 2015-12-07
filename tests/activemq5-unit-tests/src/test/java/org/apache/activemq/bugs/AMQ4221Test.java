@@ -93,6 +93,7 @@ public class AMQ4221Test extends TestSupport {
                System.err.println("exit on error: " + event.getMessage());
                done.set(true);
                new Thread() {
+                  @Override
                   public void run() {
                      System.exit(787);
                   }

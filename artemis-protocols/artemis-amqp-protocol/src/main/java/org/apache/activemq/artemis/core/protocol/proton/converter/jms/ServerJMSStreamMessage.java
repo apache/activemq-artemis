@@ -50,6 +50,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    // StreamMessage implementation ----------------------------------
 
+   @Override
    public boolean readBoolean() throws JMSException {
 
       try {
@@ -63,6 +64,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public byte readByte() throws JMSException {
       try {
          return streamReadByte(getReadBodyBuffer());
@@ -75,6 +77,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public short readShort() throws JMSException {
 
       try {
@@ -88,6 +91,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public char readChar() throws JMSException {
 
       try {
@@ -101,6 +105,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public int readInt() throws JMSException {
 
       try {
@@ -114,6 +119,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public long readLong() throws JMSException {
 
       try {
@@ -127,6 +133,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public float readFloat() throws JMSException {
 
       try {
@@ -140,6 +147,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public double readDouble() throws JMSException {
 
       try {
@@ -153,6 +161,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public String readString() throws JMSException {
 
       try {
@@ -171,6 +180,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
     */
    private int len = 0;
 
+   @Override
    public int readBytes(final byte[] value) throws JMSException {
 
       try {
@@ -187,6 +197,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public Object readObject() throws JMSException {
 
       if (getReadBodyBuffer().readerIndex() >= message.getEndOfBodyPosition()) {
@@ -203,60 +214,70 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public void writeBoolean(final boolean value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BOOLEAN);
       getWriteBodyBuffer().writeBoolean(value);
    }
 
+   @Override
    public void writeByte(final byte value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTE);
       getWriteBodyBuffer().writeByte(value);
    }
 
+   @Override
    public void writeShort(final short value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.SHORT);
       getWriteBodyBuffer().writeShort(value);
    }
 
+   @Override
    public void writeChar(final char value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.CHAR);
       getWriteBodyBuffer().writeShort((short) value);
    }
 
+   @Override
    public void writeInt(final int value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.INT);
       getWriteBodyBuffer().writeInt(value);
    }
 
+   @Override
    public void writeLong(final long value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.LONG);
       getWriteBodyBuffer().writeLong(value);
    }
 
+   @Override
    public void writeFloat(final float value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.FLOAT);
       getWriteBodyBuffer().writeInt(Float.floatToIntBits(value));
    }
 
+   @Override
    public void writeDouble(final double value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.DOUBLE);
       getWriteBodyBuffer().writeLong(Double.doubleToLongBits(value));
    }
 
+   @Override
    public void writeString(final String value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.STRING);
       getWriteBodyBuffer().writeNullableString(value);
    }
 
+   @Override
    public void writeBytes(final byte[] value) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTES);
@@ -264,6 +285,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       getWriteBodyBuffer().writeBytes(value);
    }
 
+   @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
 
       getWriteBodyBuffer().writeByte(DataConstants.BYTES);
@@ -271,6 +293,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       getWriteBodyBuffer().writeBytes(value, offset, length);
    }
 
+   @Override
    public void writeObject(final Object value) throws JMSException {
       if (value instanceof String) {
          writeString((String) value);
@@ -310,6 +333,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       }
    }
 
+   @Override
    public void reset() throws JMSException {
       getWriteBodyBuffer().resetReaderIndex();
    }
@@ -323,6 +347,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
       getWriteBodyBuffer().clear();
    }
 
+   @Override
    public void decode() throws Exception {
       super.decode();
    }
@@ -330,6 +355,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    /**
     * Encode the body into the internal message
     */
+   @Override
    public void encode() throws Exception {
       super.encode();
       bodyLength = message.getEndOfBodyPosition();

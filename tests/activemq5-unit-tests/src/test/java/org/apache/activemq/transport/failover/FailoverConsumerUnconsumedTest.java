@@ -113,6 +113,7 @@ public class FailoverConsumerUnconsumedTest {
             if (++consumerCount == maxConsumers) {
                context.setDontSendReponse(true);
                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                  @Override
                   public void run() {
                      LOG.info("Stopping broker on consumer: " + info.getConsumerId());
                      try {
@@ -156,6 +157,7 @@ public class FailoverConsumerUnconsumedTest {
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
       assertTrue("add messages are delivered", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalDelivered = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -170,6 +172,7 @@ public class FailoverConsumerUnconsumedTest {
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
       Executors.newSingleThreadExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("add last consumer...");
@@ -205,6 +208,7 @@ public class FailoverConsumerUnconsumedTest {
 
       // each should again get prefetch messages - all unacked deliveries should be rolledback
       assertTrue("after restart all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalDelivered = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -217,6 +221,7 @@ public class FailoverConsumerUnconsumedTest {
       }));
 
       assertTrue("after restart each got prefetch amount", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             for (TestConsumer testConsumer : testConsumers) {
                long delivered = testConsumer.deliveredSize();
@@ -247,6 +252,7 @@ public class FailoverConsumerUnconsumedTest {
             if (++consumerCount == maxConsumers + (watchTopicAdvisories ? 1 : 0)) {
                context.setDontSendReponse(true);
                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                  @Override
                   public void run() {
                      LOG.info("Stopping broker on consumer: " + info.getConsumerId());
                      try {
@@ -280,6 +286,7 @@ public class FailoverConsumerUnconsumedTest {
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
       assertTrue("add messages are dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -294,6 +301,7 @@ public class FailoverConsumerUnconsumedTest {
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
       Executors.newSingleThreadExecutor().execute(new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("add last consumer...");
@@ -312,6 +320,7 @@ public class FailoverConsumerUnconsumedTest {
 
       // verify interrupt
       assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -330,6 +339,7 @@ public class FailoverConsumerUnconsumedTest {
 
       // each should again get prefetch messages - all unconsumed deliveries should be rolledback
       assertTrue("after start all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {

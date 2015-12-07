@@ -37,12 +37,14 @@ public class ResponseTest extends BaseCommandTestSupport {
 
    public static ResponseTest SINGLETON = new ResponseTest();
 
+   @Override
    public Object createObject() throws Exception {
       Response info = new Response();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       Response info = (Response) object;

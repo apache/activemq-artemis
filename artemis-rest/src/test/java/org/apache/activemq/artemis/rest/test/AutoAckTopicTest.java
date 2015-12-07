@@ -162,6 +162,7 @@ public class AutoAckTopicTest extends MessageTestBase {
          return failed;
       }
 
+      @Override
       public void run() {
          try {
             isFinished = false;
@@ -198,6 +199,7 @@ public class AutoAckTopicTest extends MessageTestBase {
          return this.failed;
       }
 
+      @Override
       public void run() {
          try {
             ClientRequest req = new ClientRequest(url);

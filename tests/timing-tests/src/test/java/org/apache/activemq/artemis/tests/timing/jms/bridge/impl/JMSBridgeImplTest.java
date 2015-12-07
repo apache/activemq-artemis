@@ -93,33 +93,42 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    protected static TransactionManager newTransactionManager() {
       return new TransactionManager() {
+         @Override
          public Transaction suspend() throws SystemException {
             return null;
          }
 
+         @Override
          public void setTransactionTimeout(final int arg0) throws SystemException {
          }
 
+         @Override
          public void setRollbackOnly() throws IllegalStateException, SystemException {
          }
 
+         @Override
          public void rollback() throws IllegalStateException, SecurityException, SystemException {
          }
 
+         @Override
          public void resume(final Transaction arg0) throws InvalidTransactionException, IllegalStateException, SystemException {
          }
 
+         @Override
          public Transaction getTransaction() throws SystemException {
             return null;
          }
 
+         @Override
          public int getStatus() throws SystemException {
             return 0;
          }
 
+         @Override
          public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException, SystemException {
          }
 
+         @Override
          public void begin() throws NotSupportedException, SystemException {
          }
       };
@@ -127,6 +136,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    private static DestinationFactory newDestinationFactory(final Destination dest) {
       return new DestinationFactory() {
+         @Override
          public Destination createDestination() throws Exception {
             return dest;
          }
@@ -135,6 +145,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    private static ConnectionFactoryFactory newConnectionFactoryFactory(final ConnectionFactory cf) {
       return new ConnectionFactoryFactory() {
+         @Override
          public ConnectionFactory createConnectionFactory() throws Exception {
             return cf;
          }
@@ -153,6 +164,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    private static ConnectionFactoryFactory newTCCLAwareConnectionFactoryFactory(final ConnectionFactory cf) {
       return new ConnectionFactoryFactory() {
+         @Override
          public ConnectionFactory createConnectionFactory() throws Exception {
             loadATCCLClass();
             return cf;
@@ -310,6 +322,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       final List<Message> messages = new LinkedList<Message>();
       MessageListener listener = new MessageListener() {
 
+         @Override
          public void onMessage(final Message message) {
             messages.add(message);
          }
@@ -368,6 +381,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       final List<Message> messages = new LinkedList<Message>();
       final CountDownLatch latch = new CountDownLatch(numMessages);
       MessageListener listener = new MessageListener() {
+         @Override
          public void onMessage(final Message message) {
             messages.add(message);
             latch.countDown();

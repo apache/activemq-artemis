@@ -70,38 +70,47 @@ public class QueueQueryImpl implements ClientSession.QueueQuery {
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
+   @Override
    public SimpleString getName() {
       return name;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public int getConsumerCount() {
       return consumerCount;
    }
 
+   @Override
    public SimpleString getFilterString() {
       return filterString;
    }
 
+   @Override
    public long getMessageCount() {
       return messageCount;
    }
 
+   @Override
    public boolean isDurable() {
       return durable;
    }
 
+   @Override
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
+   @Override
    public boolean isTemporary() {
       return temporary;
    }
 
+   @Override
    public boolean isExists() {
       return exists;
    }

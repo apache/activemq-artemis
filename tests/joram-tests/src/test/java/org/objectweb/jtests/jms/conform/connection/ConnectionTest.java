@@ -166,6 +166,7 @@ public class ConnectionTest extends PTPTestCase {
          receiverConnection.stop();
 
          receiver.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(final Message m) {
                try {
                   Assert.fail("The message must not be received, the consumer connection is stopped");

@@ -22,6 +22,7 @@ import org.apache.activemq.transport.TransportBrokerTestSupport;
 
 public class VMTransportBrokerTest extends TransportBrokerTestSupport {
 
+   @Override
    protected String getBindLocation() {
       return "vm://localhost";
    }

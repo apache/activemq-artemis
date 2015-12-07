@@ -248,6 +248,7 @@ public class JMSTest extends JMSTestCase {
       final CountDownLatch latch = new CountDownLatch(1);
 
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                // sleep a little bit to ensure that
@@ -297,6 +298,7 @@ public class JMSTest extends JMSTestCase {
       final CountDownLatch latch = new CountDownLatch(1);
 
       cons.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(final Message m) {
             message.set(m);
             latch.countDown();

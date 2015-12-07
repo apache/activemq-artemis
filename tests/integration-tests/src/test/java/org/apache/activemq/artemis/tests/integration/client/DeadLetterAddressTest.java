@@ -180,6 +180,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          this.clientSession = clientSession;
       }
 
+      @Override
       public void onMessage(ClientMessage message) {
          count++;
          latch.countDown();

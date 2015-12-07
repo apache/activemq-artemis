@@ -61,12 +61,14 @@ public class QueueMbeanRestartTest extends TestSupport {
       this.persistenceAdapterChoice = choice;
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       topic = false;
       super.setUp();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       super.tearDown();

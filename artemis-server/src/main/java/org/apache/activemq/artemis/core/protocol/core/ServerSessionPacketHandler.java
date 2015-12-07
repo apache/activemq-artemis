@@ -185,6 +185,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       return channel;
    }
 
+   @Override
    public void handlePacket(final Packet packet) {
       byte type = packet.getType();
 
@@ -533,6 +534,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       }
 
       storageManager.afterCompleteOperations(new IOCallback() {
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
@@ -546,6 +548,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
          }
 
+         @Override
          public void done() {
             doConfirmAndResponse(confirmPacket, response, flush, closeChannel);
          }

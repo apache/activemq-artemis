@@ -188,6 +188,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
 
       public ConnectionFactoryFactory getConnectionFactoryFactory() {
          ConnectionFactoryFactory cff = new ConnectionFactoryFactory() {
+            @Override
             public ConnectionFactory createConnectionFactory() throws Exception {
                ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, liveConnector);
                cf.getServerLocator().setReconnectAttempts(-1);
@@ -201,6 +202,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
       public DestinationFactory getDestinationFactory(final String queueName) {
 
          DestinationFactory destFactory = new DestinationFactory() {
+            @Override
             public Destination createDestination() throws Exception {
                return (Destination) liveContext.lookup("/queue/" + queueName);
             }

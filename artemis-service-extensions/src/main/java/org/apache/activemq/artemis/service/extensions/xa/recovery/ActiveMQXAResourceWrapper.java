@@ -65,6 +65,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public Xid[] recover(final int flag) throws XAException {
       XAResource xaResource = getDelegate(false);
 
@@ -87,6 +88,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
       XAResource xaResource = getDelegate(true);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -100,6 +102,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void rollback(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(true);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -113,6 +116,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void forget(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(false);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -127,6 +131,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public boolean isSameRM(XAResource xaRes) throws XAException {
       if (xaRes instanceof ActiveMQXAResourceWrapper) {
          xaRes = ((ActiveMQXAResourceWrapper) xaRes).getDelegate(false);
@@ -141,6 +146,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public int prepare(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(true);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -154,6 +160,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void start(final Xid xid, final int flags) throws XAException {
       XAResource xaResource = getDelegate(false);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -167,6 +174,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void end(final Xid xid, final int flags) throws XAException {
       XAResource xaResource = getDelegate(false);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -180,6 +188,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public int getTransactionTimeout() throws XAException {
       XAResource xaResource = getDelegate(false);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -193,6 +202,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public boolean setTransactionTimeout(final int seconds) throws XAException {
       XAResource xaResource = getDelegate(false);
       if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -206,6 +216,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
       if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
          if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
@@ -223,6 +234,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       connectionFailed(me, failedOver);
    }
 
+   @Override
    public void beforeReconnect(final ActiveMQException me) {
    }
 

@@ -83,6 +83,7 @@ public class MessageAuthenticationTest extends EmbeddedBrokerTestSupport {
       BrokerService answer = new BrokerService();
       answer.setPersistent(false);
       answer.setMessageAuthorizationPolicy(new MessageAuthorizationPolicy() {
+         @Override
          public boolean isAllowedToConsume(ConnectionContext context, Message message) {
             try {
                Object value = message.getProperty("myHeader");

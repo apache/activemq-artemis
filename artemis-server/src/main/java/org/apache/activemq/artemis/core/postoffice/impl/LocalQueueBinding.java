@@ -49,46 +49,57 @@ public class LocalQueueBinding implements QueueBinding {
       clusterName = name.concat(nodeID);
    }
 
+   @Override
    public long getID() {
       return queue.getID();
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public Bindable getBindable() {
       return queue;
    }
 
+   @Override
    public Queue getQueue() {
       return queue;
    }
 
+   @Override
    public SimpleString getRoutingName() {
       return name;
    }
 
+   @Override
    public SimpleString getUniqueName() {
       return name;
    }
 
+   @Override
    public SimpleString getClusterName() {
       return clusterName;
    }
 
+   @Override
    public boolean isExclusive() {
       return false;
    }
 
+   @Override
    public int getDistance() {
       return 0;
    }
 
+   @Override
    public boolean isHighAcceptPriority(final ServerMessage message) {
       // It's a high accept priority if the queue has at least one matching consumer
 
@@ -100,10 +111,12 @@ public class LocalQueueBinding implements QueueBinding {
       queue.unproposed(groupID);
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       queue.route(message, context);
    }
 
+   @Override
    public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
       queue.routeWithAck(message, context);
    }
@@ -112,14 +125,17 @@ public class LocalQueueBinding implements QueueBinding {
       return true;
    }
 
+   @Override
    public int consumerCount() {
       return queue.getConsumerCount();
    }
 
+   @Override
    public BindingType getType() {
       return BindingType.LOCAL_QUEUE;
    }
 
+   @Override
    public void close() throws Exception {
       queue.close();
    }

@@ -66,6 +66,7 @@ public class TextReverserService implements MessageListener {
 
    // MessageListener implementation --------------------------------
 
+   @Override
    public void onMessage(final Message request) {
       TextMessage textMessage = (TextMessage) request;
       try {

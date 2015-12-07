@@ -24,6 +24,7 @@ import org.apache.activemq.leveldb.LevelDBStore;
 
 public class ThreeBrokerVirtualTopicNetworkLevelDBTest extends ThreeBrokerVirtualTopicNetworkTest {
 
+   @Override
    protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
       File dataFileDir = new File("target/test-data/leveldb/" + broker.getBrokerName());
       LevelDBStore adapter = new LevelDBStore();

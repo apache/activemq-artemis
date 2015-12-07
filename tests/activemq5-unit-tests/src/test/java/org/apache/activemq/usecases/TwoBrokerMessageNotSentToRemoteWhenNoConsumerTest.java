@@ -121,6 +121,7 @@ public class TwoBrokerMessageNotSentToRemoteWhenNoConsumerTest extends JmsMultip
 
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

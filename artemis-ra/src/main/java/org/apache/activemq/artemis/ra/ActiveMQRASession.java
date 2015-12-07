@@ -165,6 +165,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public BytesMessage createBytesMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -181,6 +182,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MapMessage createMapMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -197,6 +199,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Message createMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -213,6 +216,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public ObjectMessage createObjectMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -230,6 +234,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
       Session session = getSessionInternal();
 
@@ -246,6 +251,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public StreamMessage createStreamMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -262,6 +268,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TextMessage createTextMessage() throws JMSException {
       Session session = getSessionInternal();
 
@@ -279,6 +286,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TextMessage createTextMessage(final String string) throws JMSException {
       Session session = getSessionInternal();
 
@@ -295,6 +303,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return True if transacted; otherwise false
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean getTransacted() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getTransacted()");
@@ -310,6 +319,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message listener
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageListener getMessageListener() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageListener()");
@@ -324,6 +334,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @param listener The message listener
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("setMessageListener(" + listener + ")");
@@ -337,6 +348,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     *
     * @throws Error Method not allowed.
     */
+   @Override
    public void run() {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("run()");
@@ -351,6 +363,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     *
     * @throws JMSException Failed to close session.
     */
+   @Override
    public void close() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("close()");
@@ -365,6 +378,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     *
     * @throws JMSException Failed to close session.
     */
+   @Override
    public void commit() throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.XA_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION ||
          cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
@@ -395,6 +409,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     *
     * @throws JMSException Failed to close session.
     */
+   @Override
    public void rollback() throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.XA_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION ||
          cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
@@ -425,6 +440,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     *
     * @throws JMSException Failed to close session.
     */
+   @Override
    public void recover() throws JMSException {
       lock();
       try {
@@ -452,6 +468,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The topic
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Topic createTopic(final String topicName) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION) {
          throw new IllegalStateException("Cannot create topic for javax.jms.QueueSession");
@@ -479,6 +496,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The subscriber
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSubscriber createSubscriber(final Topic topic) throws JMSException {
       lock();
       try {
@@ -513,6 +531,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The subscriber
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSubscriber createSubscriber(final Topic topic,
                                            final String messageSelector,
                                            final boolean noLocal) throws JMSException {
@@ -554,6 +573,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The subscriber
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic, final String name) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION) {
          throw new IllegalStateException("Cannot create durable subscriber from javax.jms.QueueSession");
@@ -593,6 +613,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The subscriber
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic,
                                                   final String name,
                                                   final String messageSelector,
@@ -636,6 +657,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The publisher
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicPublisher createPublisher(final Topic topic) throws JMSException {
       lock();
       try {
@@ -667,6 +689,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The temporary topic
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TemporaryTopic createTemporaryTopic() throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION) {
          throw new IllegalStateException("Cannot create temporary topic for javax.jms.QueueSession");
@@ -701,6 +724,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @param name The name
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void unsubscribe(final String name) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION) {
          throw new IllegalStateException("Cannot unsubscribe for javax.jms.QueueSession");
@@ -728,6 +752,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The browser
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueBrowser createBrowser(final Queue queue) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.TOPIC_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
          throw new IllegalStateException("Cannot create browser for javax.jms.TopicSession");
@@ -756,6 +781,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The browser
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueBrowser createBrowser(final Queue queue, final String messageSelector) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.TOPIC_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
          throw new IllegalStateException("Cannot create browser for javax.jms.TopicSession");
@@ -783,6 +809,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The queue
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Queue createQueue(final String queueName) throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.TOPIC_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
          throw new IllegalStateException("Cannot create browser or javax.jms.TopicSession");
@@ -810,6 +837,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The queue receiver
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueReceiver createReceiver(final Queue queue) throws JMSException {
       lock();
       try {
@@ -843,6 +871,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The queue receiver
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueReceiver createReceiver(final Queue queue, final String messageSelector) throws JMSException {
       lock();
       try {
@@ -875,6 +904,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The queue sender
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueSender createSender(final Queue queue) throws JMSException {
       lock();
       try {
@@ -906,6 +936,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The temporary queue
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TemporaryQueue createTemporaryQueue() throws JMSException {
       if (cri.getType() == ActiveMQRAConnectionFactory.TOPIC_CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION) {
          throw new IllegalStateException("Cannot create temporary queue for javax.jms.TopicSession");
@@ -941,6 +972,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message consumer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageConsumer createConsumer(final Destination destination) throws JMSException {
       lock();
       try {
@@ -974,6 +1006,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message consumer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector) throws JMSException {
       lock();
@@ -1013,6 +1046,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message consumer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageConsumer createConsumer(final Destination destination,
                                          final String messageSelector,
                                          final boolean noLocal) throws JMSException {
@@ -1053,6 +1087,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The message producer
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public MessageProducer createProducer(final Destination destination) throws JMSException {
       lock();
       try {
@@ -1084,6 +1119,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The mode
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int getAcknowledgeMode() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getAcknowledgeMode()");
@@ -1096,6 +1132,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
    /**
     * Get the XA resource
     */
+   @Override
    public XAResource getXAResource() {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getXAResource()");
@@ -1136,6 +1173,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Session getSession() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getNonXAsession()");
@@ -1161,6 +1199,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The queue session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public QueueSession getQueueSession() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getQueueSession()");
@@ -1186,6 +1225,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
     * @return The topic session
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public TopicSession getTopicSession() throws JMSException {
       if (ActiveMQRASession.trace) {
          ActiveMQRALogger.LOGGER.trace("getTopicSession()");

@@ -27,9 +27,11 @@ public class DummyCallback extends SyncIOCompletion {
       return DummyCallback.instance;
    }
 
+   @Override
    public void done() {
    }
 
+   @Override
    public void onError(final int errorCode, final String errorMessage) {
       ActiveMQJournalLogger.LOGGER.errorWritingData(new Exception(errorMessage), errorMessage, errorCode);
    }

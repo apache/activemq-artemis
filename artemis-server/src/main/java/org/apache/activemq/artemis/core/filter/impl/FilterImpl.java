@@ -93,10 +93,12 @@ public class FilterImpl implements Filter {
 
    // Filter implementation ---------------------------------------------------------------------
 
+   @Override
    public SimpleString getFilterString() {
       return sfilterString;
    }
 
+   @Override
    public synchronized boolean match(final ServerMessage message) {
       try {
          boolean result = booleanExpression.matches(new FilterableServerMessage(message));

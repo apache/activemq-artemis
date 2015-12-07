@@ -48,6 +48,7 @@ public class TopicSubscriptionSlowConsumerTest extends TestCase {
    private MessageConsumer consumer;
    private BrokerService brokerService;
 
+   @Override
    public void setUp() throws Exception {
 
       brokerService = createBroker();
@@ -90,6 +91,7 @@ public class TopicSubscriptionSlowConsumerTest extends TestCase {
 
    }
 
+   @Override
    public void tearDown() throws Exception {
       consumer.close();
       producer.close();

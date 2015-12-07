@@ -53,6 +53,7 @@ import org.junit.runner.RunWith;
 @RunWith(BMUnitRunner.class)
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
+   @Override
    protected boolean usePersistence() {
       return true;
    }
@@ -248,6 +249,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          }
       }
 
+      @Override
       public void onMessage(Message message) {
          super.onMessage(message);
          //         try
@@ -279,6 +281,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       }
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       resourceAdapter = null;
@@ -287,6 +290,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyTMLocator.startTM();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       DummyTMLocator.stopTM();

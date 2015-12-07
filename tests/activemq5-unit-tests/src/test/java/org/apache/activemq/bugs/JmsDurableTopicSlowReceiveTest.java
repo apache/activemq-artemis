@@ -60,17 +60,20 @@ public class JmsDurableTopicSlowReceiveTest extends JmsTopicSendReceiveTest {
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       this.durable = true;
       broker = createBroker();
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       broker.stop();
    }
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory result = new ActiveMQConnectionFactory("vm://localhost?async=false");
       Properties props = new Properties();
@@ -109,6 +112,7 @@ public class JmsDurableTopicSlowReceiveTest extends JmsTopicSendReceiveTest {
       connection2.close();
       new Thread(new Runnable() {
 
+         @Override
          public void run() {
             try {
                int count = 0;

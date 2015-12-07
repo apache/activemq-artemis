@@ -59,6 +59,7 @@ public class AMQ5567Test extends BrokerRestartTestSupport {
       broker.setPersistenceAdapter(persistenceAdapter);
    }
 
+   @Override
    protected PolicyEntry getDefaultPolicy() {
       PolicyEntry policy = new PolicyEntry();
       policy.setMemoryLimit(60 * 1024);

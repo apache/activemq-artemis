@@ -158,6 +158,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
       }
    }
 
+   @Override
    public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception {
       for (Map.Entry<Long, Map<Long, AddMessageRecord>> entry : queueMap.entrySet()) {
          long queueID = entry.getKey();
@@ -206,6 +207,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
       }
    }
 
+   @Override
    public void handleNoMessageReferences(Map<Long, ServerMessage> messages) {
       for (ServerMessage msg : messages.values()) {
          if (msg.getRefCount() == 0) {
@@ -306,6 +308,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
     * @param pendingNonTXPageCounter
     * @throws Exception
     */
+   @Override
    public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception {
       // We need a structure of the following
       // Address -> PageID -> QueueID -> List<PageCountPending>

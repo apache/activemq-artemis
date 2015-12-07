@@ -681,6 +681,7 @@ public class JMSServerControlTest extends ManagementTestBase {
       server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       doCreateConnectionFactory(new ConnectionFactoryCreator() {
+         @Override
          public void createConnectionFactory(final JMSServerControl control,
                                              final String cfName,
                                              final Object[] bindings) throws Exception {
@@ -1038,34 +1039,41 @@ public class JMSServerControlTest extends ManagementTestBase {
          this.delegate = delegate;
       }
 
+      @Override
       public void storeDestination(PersistedDestination destination) throws Exception {
          destinationMap.put(destination.getName(), destination);
          delegate.storeDestination(destination);
       }
 
+      @Override
       public void deleteDestination(PersistedType type, String name) throws Exception {
          destinationMap.remove(name);
          delegate.deleteDestination(type, name);
       }
 
+      @Override
       public List<PersistedDestination> recoverDestinations() {
          return delegate.recoverDestinations();
       }
 
+      @Override
       public void deleteConnectionFactory(String connectionFactory) throws Exception {
          connectionFactoryMap.remove(connectionFactory);
          delegate.deleteConnectionFactory(connectionFactory);
       }
 
+      @Override
       public void storeConnectionFactory(PersistedConnectionFactory connectionFactory) throws Exception {
          connectionFactoryMap.put(connectionFactory.getName(), connectionFactory);
          delegate.storeConnectionFactory(connectionFactory);
       }
 
+      @Override
       public List<PersistedConnectionFactory> recoverConnectionFactories() {
          return delegate.recoverConnectionFactories();
       }
 
+      @Override
       public void addBindings(PersistedType type, String name, String... address) throws Exception {
          persistedJNDIMap.putIfAbsent(name, new ArrayList<String>());
          for (String ad : address) {
@@ -1074,32 +1082,39 @@ public class JMSServerControlTest extends ManagementTestBase {
          delegate.addBindings(type, name, address);
       }
 
+      @Override
       public List<PersistedBindings> recoverPersistedBindings() throws Exception {
          return delegate.recoverPersistedBindings();
       }
 
+      @Override
       public void deleteBindings(PersistedType type, String name, String address) throws Exception {
          persistedJNDIMap.get(name).remove(address);
          delegate.deleteBindings(type, name, address);
       }
 
+      @Override
       public void deleteBindings(PersistedType type, String name) throws Exception {
          persistedJNDIMap.get(name).clear();
          delegate.deleteBindings(type, name);
       }
 
+      @Override
       public void start() throws Exception {
          delegate.start();
       }
 
+      @Override
       public void stop() throws Exception {
          delegate.stop();
       }
 
+      @Override
       public boolean isStarted() {
          return delegate.isStarted();
       }
 
+      @Override
       public void load() throws Exception {
          delegate.load();
       }

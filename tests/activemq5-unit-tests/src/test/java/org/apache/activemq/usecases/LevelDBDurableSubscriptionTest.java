@@ -27,6 +27,7 @@ import org.apache.activemq.store.PersistenceAdapter;
  */
 public class LevelDBDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
+   @Override
    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
       File dataDir = new File("target/test-data/durableLevelDB");
       LevelDBStore adaptor = new LevelDBStore();

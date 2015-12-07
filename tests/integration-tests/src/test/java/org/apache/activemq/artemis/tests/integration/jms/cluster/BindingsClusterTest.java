@@ -59,6 +59,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
+   @Override
    @Before
    public void setUp() throws Exception {
       //todo fix if needed

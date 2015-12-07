@@ -88,6 +88,7 @@ public class Artemis {
 
             // Sort the list by file name..
             Collections.sort(files, new Comparator<File>() {
+               @Override
                public int compare(File file, File file1) {
                   return file.getName().compareTo(file1.getName());
                }

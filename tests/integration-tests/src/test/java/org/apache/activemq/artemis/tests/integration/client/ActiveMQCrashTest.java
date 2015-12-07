@@ -67,6 +67,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
       ClientSession session = clientSessionFactory.createSession();
 
       session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
+         @Override
          public void sendAcknowledged(final Message message) {
             ackReceived = true;
          }
@@ -95,6 +96,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
          this.server = server;
       }
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          ActiveMQCrashTest.log.info("AckInterceptor.intercept " + packet);
 

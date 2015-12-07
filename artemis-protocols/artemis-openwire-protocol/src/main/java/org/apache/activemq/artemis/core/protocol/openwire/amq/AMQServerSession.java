@@ -88,6 +88,7 @@ public class AMQServerSession extends ServerSessionImpl {
       super(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, persistDeliveryCountBeforeDelivery, xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, activeMQServerImpl, managementAddress, simpleString, callback, context, new AMQTransactionFactory(), queueCreator);
    }
 
+   @Override
    protected void doClose(final boolean failed) throws Exception {
       synchronized (this) {
          if (tx != null && tx.getXid() == null) {

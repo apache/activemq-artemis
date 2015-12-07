@@ -376,6 +376,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       clientSession.setTransactionTimeout(2);
 
       MessageHandler handler = new MessageHandler() {
+         @Override
          public void onMessage(ClientMessage message) {
             try {
                latchReceives.countDown();

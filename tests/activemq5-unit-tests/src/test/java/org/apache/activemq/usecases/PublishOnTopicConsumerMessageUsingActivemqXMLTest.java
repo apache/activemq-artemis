@@ -42,6 +42,7 @@ public class PublishOnTopicConsumerMessageUsingActivemqXMLTest extends PublishOn
     * @return ActiveMQConnectionFactory
     * @throws Exception
     */
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("tcp://localhost:61616");
    }
@@ -51,6 +52,7 @@ public class PublishOnTopicConsumerMessageUsingActivemqXMLTest extends PublishOn
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       File journalFile = new File(JOURNAL_ROOT);
       recursiveDelete(journalFile);
@@ -65,6 +67,7 @@ public class PublishOnTopicConsumerMessageUsingActivemqXMLTest extends PublishOn
    * Stops the Broker
    * @see junit.framework.TestCase#tearDown()
    */
+   @Override
    protected void tearDown() throws Exception {
       LOG.info("Closing Broker");
       if (broker != null) {

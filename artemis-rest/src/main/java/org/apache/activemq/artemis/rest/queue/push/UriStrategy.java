@@ -64,10 +64,12 @@ public class UriStrategy implements PushStrategy {
       connManager.setMaxTotal(1000);
    }
 
+   @Override
    public void setRegistration(PushRegistration reg) {
       this.registration = reg;
    }
 
+   @Override
    public void start() throws Exception {
       initAuthentication();
       method = registration.getTarget().getMethod();
@@ -98,10 +100,12 @@ public class UriStrategy implements PushStrategy {
       }
    }
 
+   @Override
    public void stop() {
       connManager.shutdown();
    }
 
+   @Override
    public boolean push(ClientMessage message) {
       ActiveMQRestLogger.LOGGER.debug("Pushing " + message);
       String uri = createUri(message);
@@ -193,6 +197,7 @@ public class UriStrategy implements PushStrategy {
 
    static class PreemptiveAuth implements HttpRequestInterceptor {
 
+      @Override
       public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
          AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
 

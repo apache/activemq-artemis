@@ -32,105 +32,131 @@ public class StubX509Certificate extends X509Certificate {
       this.id = id;
    }
 
+   @Override
    public Principal getSubjectDN() {
       return this.id;
    }
 
    // --- Stubbed Methods ---
+   @Override
    public void checkValidity() {
    }
 
+   @Override
    public void checkValidity(Date arg0) {
    }
 
+   @Override
    public int getVersion() {
       return 0;
    }
 
+   @Override
    public BigInteger getSerialNumber() {
       return null;
    }
 
+   @Override
    public Principal getIssuerDN() {
       return null;
    }
 
+   @Override
    public Date getNotBefore() {
       return null;
    }
 
+   @Override
    public Date getNotAfter() {
       return null;
    }
 
+   @Override
    public byte[] getTBSCertificate() {
       return null;
    }
 
+   @Override
    public byte[] getSignature() {
       return null;
    }
 
+   @Override
    public String getSigAlgName() {
       return null;
    }
 
+   @Override
    public String getSigAlgOID() {
       return null;
    }
 
+   @Override
    public byte[] getSigAlgParams() {
       return null;
    }
 
+   @Override
    public boolean[] getIssuerUniqueID() {
       return null;
    }
 
+   @Override
    public boolean[] getSubjectUniqueID() {
       return null;
    }
 
+   @Override
    public boolean[] getKeyUsage() {
       return null;
    }
 
+   @Override
    public int getBasicConstraints() {
       return 0;
    }
 
+   @Override
    public byte[] getEncoded() {
       return null;
    }
 
+   @Override
    public void verify(PublicKey arg0) {
    }
 
+   @Override
    public void verify(PublicKey arg0, String arg1) {
    }
 
+   @Override
    public String toString() {
       return null;
    }
 
+   @Override
    public PublicKey getPublicKey() {
       return null;
    }
 
+   @Override
    public boolean hasUnsupportedCriticalExtension() {
       return false;
    }
 
+   @Override
    @SuppressWarnings({"unchecked", "rawtypes"})
    public Set getCriticalExtensionOIDs() {
       return null;
    }
 
+   @Override
    @SuppressWarnings({"unchecked", "rawtypes"})
    public Set getNonCriticalExtensionOIDs() {
       return null;
    }
 
+   @Override
    public byte[] getExtensionValue(String arg0) {
       return null;
    }

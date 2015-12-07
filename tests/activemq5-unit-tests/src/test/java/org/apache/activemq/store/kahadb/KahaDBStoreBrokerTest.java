@@ -29,11 +29,13 @@ import org.apache.activemq.util.IOHelper;
  */
 public class KahaDBStoreBrokerTest extends BrokerTest {
 
+   @Override
    protected void setUp() throws Exception {
       this.setAutoFail(true);
       super.setUp();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = new BrokerService();
       KahaDBStore kaha = new KahaDBStore();

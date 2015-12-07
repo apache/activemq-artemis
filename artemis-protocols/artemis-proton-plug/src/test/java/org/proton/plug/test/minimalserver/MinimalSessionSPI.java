@@ -49,6 +49,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
 
    static AtomicInteger tempQueueGenerator = new AtomicInteger(0);
 
+   @Override
    public String tempQueueName() {
       return "TempQueueName" + tempQueueGenerator.incrementAndGet();
    }
@@ -162,6 +163,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
          if (thread == null) {
             System.out.println("Start!!!");
             thread = new Thread() {
+               @Override
                public void run() {
                   try {
                      while (running) {

@@ -33,6 +33,7 @@ public class TwoSecureBrokerRequestReplyTest extends JmsMultipleBrokersTestSuppo
 
    private static final Logger LOG = LoggerFactory.getLogger(TwoSecureBrokerRequestReplyTest.class);
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(true);
       super.setUp();

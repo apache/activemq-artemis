@@ -83,6 +83,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyInterceptor1 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
@@ -99,6 +100,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class InterceptUserOnCreateQueue implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.CREATE_QUEUE) {
             String userName = getUsername(packet, connection);
@@ -129,6 +131,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class InterceptUserOnCreateConsumer implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_CREATECONSUMER) {
             String userName = getUsername(packet, connection);
@@ -159,6 +162,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyOutgoingInterceptor1 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
@@ -175,6 +179,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyInterceptor2 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             return false;
@@ -187,6 +192,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyOutgoingInterceptor2 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (isForceDeliveryResponse(packet)) {
             return true;
@@ -202,6 +208,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyInterceptor3 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
@@ -218,6 +225,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyOutgoingInterceptor3 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
@@ -234,6 +242,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyInterceptor4 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (isForceDeliveryResponse(packet)) {
             return true;
@@ -250,6 +259,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    private class MyOutgoingInterceptor4 implements Interceptor {
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (isForceDeliveryResponse(packet)) {
             return true;
@@ -306,6 +316,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          this.wasCalled = wasCalled;
       }
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
@@ -353,6 +364,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          this.wasCalled = wasCalled;
       }
 
+      @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
 
          if (isForceDeliveryResponse(packet)) {

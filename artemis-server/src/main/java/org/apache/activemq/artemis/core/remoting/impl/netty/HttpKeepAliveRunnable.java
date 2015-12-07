@@ -31,6 +31,7 @@ public class HttpKeepAliveRunnable implements Runnable {
 
    private Future<?> future;
 
+   @Override
    public synchronized void run() {
       if (closed) {
          return;

@@ -1079,6 +1079,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       int order;
 
+      @Override
       public int compareTo(final OrderedConsumerHolder o) {
          int thisOrder = order;
          int otherOrder = o.order;

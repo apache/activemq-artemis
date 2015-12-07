@@ -38,6 +38,7 @@ public class CraigsBugTest extends EmbeddedBrokerTestSupport {
       final Connection conn = cf.createConnection();
 
       Runnable r = new Runnable() {
+         @Override
          public void run() {
             try {
                Session session = conn.createSession(false, 1);
@@ -60,6 +61,7 @@ public class CraigsBugTest extends EmbeddedBrokerTestSupport {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       bindAddress = "tcp://localhost:0";
       super.setUp();

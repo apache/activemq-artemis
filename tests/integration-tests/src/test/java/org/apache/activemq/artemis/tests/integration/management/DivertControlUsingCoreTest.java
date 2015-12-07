@@ -47,30 +47,37 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
       return new DivertControl() {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_DIVERT + name);
 
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
+         @Override
          public String getFilter() {
             return (String) proxy.retrieveAttributeValue("filter");
          }
 
+         @Override
          public String getForwardingAddress() {
             return (String) proxy.retrieveAttributeValue("forwardingAddress");
          }
 
+         @Override
          public String getRoutingName() {
             return (String) proxy.retrieveAttributeValue("routingName");
          }
 
+         @Override
          public String getTransformerClassName() {
             return (String) proxy.retrieveAttributeValue("transformerClassName");
          }
 
+         @Override
          public String getUniqueName() {
             return (String) proxy.retrieveAttributeValue("uniqueName");
          }
 
+         @Override
          public boolean isExclusive() {
             return (Boolean) proxy.retrieveAttributeValue("exclusive");
          }

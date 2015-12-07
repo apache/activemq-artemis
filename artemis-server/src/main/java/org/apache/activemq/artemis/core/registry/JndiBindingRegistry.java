@@ -35,6 +35,7 @@ public class JndiBindingRegistry implements BindingRegistry {
       this.context = new InitialContext();
    }
 
+   @Override
    public Object lookup(String name) {
       try {
          if (context == null) {
@@ -49,6 +50,7 @@ public class JndiBindingRegistry implements BindingRegistry {
       }
    }
 
+   @Override
    public boolean bind(String name, Object obj) {
       try {
          return bindToJndi(name, obj);
@@ -58,6 +60,7 @@ public class JndiBindingRegistry implements BindingRegistry {
       }
    }
 
+   @Override
    public void unbind(String name) {
       try {
          if (context != null) {
@@ -68,6 +71,7 @@ public class JndiBindingRegistry implements BindingRegistry {
       }
    }
 
+   @Override
    public void close() {
       try {
          if (context != null) {

@@ -273,21 +273,26 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       journal.start();
       journal.load(new LoaderCallback() {
 
+         @Override
          public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
          }
 
+         @Override
          public void updateRecord(RecordInfo info) {
             if (info.userRecordType == JournalRecordIds.UPDATE_DELIVERY_COUNT) {
                updates.incrementAndGet();
             }
          }
 
+         @Override
          public void deleteRecord(long id) {
          }
 
+         @Override
          public void addRecord(RecordInfo info) {
          }
 
+         @Override
          public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction) {
          }
       });

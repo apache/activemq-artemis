@@ -31,12 +31,14 @@ public class DataResponseTest extends ResponseTest {
 
    public static final DataResponseTest SINGLETON = new DataResponseTest();
 
+   @Override
    public Object createObject() throws Exception {
       DataResponse info = new DataResponse();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       DataResponse info = (DataResponse) object;

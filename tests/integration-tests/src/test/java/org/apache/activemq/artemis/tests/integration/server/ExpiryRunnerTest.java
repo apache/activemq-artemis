@@ -263,6 +263,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public void run() {
          while (true) {
             try {

@@ -91,6 +91,7 @@ public class NetworkLoadTest extends TestCase {
          MessageConsumer consumer = fromSession.createConsumer(new ActiveMQQueue("Q" + from));
 
          consumer.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(Message msg) {
                try {
                   producer.send(msg);
@@ -122,6 +123,7 @@ public class NetworkLoadTest extends TestCase {
    private BrokerService[] brokers;
    private ForwardingClient[] forwardingClients;
 
+   @Override
    protected void setUp() throws Exception {
       groupId = "network-load-test-" + System.currentTimeMillis();
       brokers = new BrokerService[BROKER_COUNT];
@@ -143,6 +145,7 @@ public class NetworkLoadTest extends TestCase {
       }
    }
 
+   @Override
    protected void tearDown() throws Exception {
       for (int i = 0; i < forwardingClients.length; i++) {
          LOG.info("Stoping fowarding client " + i);
@@ -234,6 +237,7 @@ public class NetworkLoadTest extends TestCase {
 
       // Setup the consumer..
       consumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message msg) {
             ActiveMQTextMessage m = (ActiveMQTextMessage) msg;
             ActiveMQTextMessage last = lastMessageReceived.get();

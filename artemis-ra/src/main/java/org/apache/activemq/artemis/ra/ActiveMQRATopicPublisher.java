@@ -51,6 +51,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     * @return The topic
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Topic getTopic() throws JMSException {
       if (ActiveMQRATopicPublisher.trace) {
          ActiveMQRALogger.LOGGER.trace("getTopic()");
@@ -68,6 +69,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     * @param timeToLive   The time to live
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void publish(final Message message,
                        final int deliveryMode,
                        final int priority,
@@ -105,6 +107,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     * @param message The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void publish(final Message message) throws JMSException {
       session.lock();
       try {
@@ -135,6 +138,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     * @param timeToLive   The time to live
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void publish(final Topic destination,
                        final Message message,
                        final int deliveryMode,
@@ -176,6 +180,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     * @param message     The message
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void publish(final Topic destination, final Message message) throws JMSException {
       session.lock();
       try {

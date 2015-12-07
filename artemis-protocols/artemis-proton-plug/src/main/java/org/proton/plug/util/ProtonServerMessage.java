@@ -122,6 +122,7 @@ public class ProtonServerMessage implements ProtonJMessage {
       encode(writableBuffer);
    }
 
+   @Override
    public int encode(WritableBuffer writableBuffer) {
       final int firstPosition = writableBuffer.position();
 

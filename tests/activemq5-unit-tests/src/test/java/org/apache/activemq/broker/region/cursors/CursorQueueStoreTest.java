@@ -35,11 +35,13 @@ import org.apache.activemq.broker.region.policy.StorePendingQueueMessageStorageP
  */
 public class CursorQueueStoreTest extends CursorSupport {
 
+   @Override
    protected Destination getDestination(Session session) throws JMSException {
       String queueName = "QUEUE" + getClass().getName();
       return session.createQueue(queueName);
    }
 
+   @Override
    protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
       Connection connection = fac.createConnection();
       connection.setClientID("testConsumer");
@@ -47,6 +49,7 @@ public class CursorQueueStoreTest extends CursorSupport {
       return connection;
    }
 
+   @Override
    protected MessageConsumer getConsumer(Connection connection) throws Exception {
       Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination dest = getDestination(consumerSession);
@@ -54,6 +57,7 @@ public class CursorQueueStoreTest extends CursorSupport {
       return consumer;
    }
 
+   @Override
    protected void configureBroker(BrokerService answer) throws Exception {
       PolicyEntry policy = new PolicyEntry();
       policy.setPendingQueuePolicy(new StorePendingQueueMessageStoragePolicy());

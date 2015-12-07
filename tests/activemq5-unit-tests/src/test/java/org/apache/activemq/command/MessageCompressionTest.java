@@ -43,6 +43,7 @@ public class MessageCompressionTest extends TestCase {
    private ActiveMQQueue queue;
    private String connectionUri;
 
+   @Override
    protected void setUp() throws Exception {
       broker = new BrokerService();
       connectionUri = broker.addConnector(BROKER_URL).getPublishableConnectString();
@@ -50,6 +51,7 @@ public class MessageCompressionTest extends TestCase {
       queue = new ActiveMQQueue("TEST." + System.currentTimeMillis());
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (broker != null) {
          broker.stop();

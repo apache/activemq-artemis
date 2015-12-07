@@ -67,6 +67,7 @@ public class CreateTemporaryQueueBeforeStartTest extends TestCase {
       final AtomicInteger count = new AtomicInteger(0);
       for (int i = 0; i < number; i++) {
          Thread thread = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   QueueConnection connection = createConnection();
@@ -114,6 +115,7 @@ public class CreateTemporaryQueueBeforeStartTest extends TestCase {
       return new ActiveMQConnectionFactory(connectionUri);
    }
 
+   @Override
    protected void setUp() throws Exception {
       broker.setUseJmx(false);
       broker.setPersistent(false);
@@ -124,6 +126,7 @@ public class CreateTemporaryQueueBeforeStartTest extends TestCase {
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

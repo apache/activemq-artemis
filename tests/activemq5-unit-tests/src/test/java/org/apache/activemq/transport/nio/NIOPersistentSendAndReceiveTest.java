@@ -24,12 +24,14 @@ public class NIOPersistentSendAndReceiveTest extends NIOJmsSendAndReceiveTest {
 
    protected BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       this.topic = false;
       this.deliveryMode = DeliveryMode.PERSISTENT;
       super.setUp();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService answer = new BrokerService();
       answer.setPersistent(true);

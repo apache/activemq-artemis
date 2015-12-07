@@ -46,6 +46,7 @@ public class RemoteConnectionStressTest extends ActiveMQTestBase {
    MBeanServer mbeanServer;
    JMSServerManagerImpl jmsServer;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();

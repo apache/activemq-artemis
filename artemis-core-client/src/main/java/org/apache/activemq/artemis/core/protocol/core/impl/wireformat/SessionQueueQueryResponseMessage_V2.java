@@ -88,6 +88,7 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
       return result;
    }
 
+   @Override
    public ClientSession.QueueQuery toQueueQuery() {
       return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreationEnabled());
    }

@@ -39,6 +39,7 @@ public class SlowConsumer extends PerfConsumer {
       super(fac, dest, null);
    }
 
+   @Override
    public void onMessage(Message msg) {
       super.onMessage(msg);
       LOG.debug("GOT A MSG " + msg);

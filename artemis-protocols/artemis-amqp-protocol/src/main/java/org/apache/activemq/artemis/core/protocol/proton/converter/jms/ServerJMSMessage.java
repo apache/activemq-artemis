@@ -125,6 +125,7 @@ public class ServerJMSMessage implements Message {
 
    }
 
+   @Override
    public final Destination getJMSDestination() throws JMSException {
       SimpleString sdest = message.getAddress();
 

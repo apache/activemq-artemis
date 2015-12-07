@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class DelayInterceptor implements Interceptor {
 
+   @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() == PacketImpl.SESS_SEND) {
          // Lose the send

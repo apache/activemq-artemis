@@ -62,6 +62,7 @@ public class MessageExpirationTest extends BrokerTestSupport {
       return broker;
    }
 
+   @Override
    protected PolicyEntry getDefaultPolicy() {
       PolicyEntry policy = super.getDefaultPolicy();
       // disable spooling
@@ -107,6 +108,7 @@ public class MessageExpirationTest extends BrokerTestSupport {
       // Produce in an async thread since the producer will be getting blocked
       // by the usage manager..
       new Thread() {
+         @Override
          public void run() {
             // m1 and m3 should not expire.. but the others should.
             try {

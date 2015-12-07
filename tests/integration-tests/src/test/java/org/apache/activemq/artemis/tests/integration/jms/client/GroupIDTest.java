@@ -37,6 +37,7 @@ public class GroupIDTest extends GroupingTest {
       return cf;
    }
 
+   @Override
    @Test
    public void testManyGroups() {
       // this test does not make sense here

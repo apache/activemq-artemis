@@ -50,14 +50,17 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter {
       this.window = unit.toMillis(unitAmount);
    }
 
+   @Override
    public int getRate() {
       return rate;
    }
 
+   @Override
    public boolean isSpin() {
       return spin;
    }
 
+   @Override
    public void limit() {
       while (!check()) {
          if (spin) {

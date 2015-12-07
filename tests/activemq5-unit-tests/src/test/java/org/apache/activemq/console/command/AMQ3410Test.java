@@ -42,6 +42,7 @@ public class AMQ3410Test extends TestCase {
 
    protected AbstractApplicationContext context;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -53,6 +54,7 @@ public class AMQ3410Test extends TestCase {
       return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
    }
 
+   @Override
    protected void tearDown() throws Exception {
       BrokerService broker = (BrokerService) context.getBean("localbroker");
       broker.stop();

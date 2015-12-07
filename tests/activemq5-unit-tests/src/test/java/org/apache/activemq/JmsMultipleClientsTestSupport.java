@@ -94,6 +94,7 @@ public class JmsMultipleClientsTestSupport {
 
          for (int i = 0; i < producerCount; i++) {
             Thread t = new Thread(new Runnable() {
+               @Override
                public void run() {
                   try {
                      sendMessages(factory.createConnection(), dest, msgCount);

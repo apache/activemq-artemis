@@ -26,6 +26,7 @@ public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements 
       super(jndiProperties, lookup);
    }
 
+   @Override
    public Object createConnectionFactory() throws Exception {
       return createObject();
    }

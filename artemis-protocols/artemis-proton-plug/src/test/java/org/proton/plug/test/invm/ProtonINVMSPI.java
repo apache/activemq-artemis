@@ -43,11 +43,13 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    public ProtonINVMSPI() {
       mainExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             Thread.currentThread().setName("MainExecutor-INVM");
          }
       });
       returningExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             Thread.currentThread().setName("ReturningExecutor-INVM");
          }
@@ -73,6 +75,7 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
       bytes.retain();
       mainExecutor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                if (DebugInfo.debug) {
@@ -130,6 +133,7 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
          bytes.retain();
          returningExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
 

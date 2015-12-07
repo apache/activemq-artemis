@@ -57,11 +57,13 @@ public class CachedLDAPAuthorizationModuleLegacyOpenLDAPTest extends AbstractCac
       cleanAndLoad("dc=apache,dc=org", "org/apache/activemq/security/activemq-openldap-legacy.ldif", LDAP_HOST, LDAP_PORT, LDAP_USER, LDAP_PASS, map.open());
    }
 
+   @Override
    @Test
    public void testRenameDestination() throws Exception {
       // Subtree rename not implemented by OpenLDAP.
    }
 
+   @Override
    protected SimpleCachedLDAPAuthorizationMap createMap() {
       SimpleCachedLDAPAuthorizationMap newMap = super.createMap();
       newMap.setConnectionURL("ldap://" + LDAP_HOST + ":" + String.valueOf(LDAP_PORT));
@@ -75,18 +77,22 @@ public class CachedLDAPAuthorizationModuleLegacyOpenLDAPTest extends AbstractCac
       return newMap;
    }
 
+   @Override
    protected InputStream getAddLdif() {
       return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-openldap-legacy-add.ldif");
    }
 
+   @Override
    protected InputStream getRemoveLdif() {
       return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-openldap-legacy-delete.ldif");
    }
 
+   @Override
    protected String getQueueBaseDn() {
       return "ou=Queue,ou=Destination,ou=ActiveMQ,dc=activemq,dc=apache,dc=org";
    }
 
+   @Override
    protected LdapConnection getLdapConnection() throws LdapException, IOException {
       LdapConnection connection = new LdapNetworkConnection(LDAP_HOST, LDAP_PORT);
       connection.bind(new Dn(LDAP_USER), LDAP_PASS);

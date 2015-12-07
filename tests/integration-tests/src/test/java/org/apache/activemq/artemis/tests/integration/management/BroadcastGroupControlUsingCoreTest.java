@@ -34,42 +34,52 @@ public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTes
       return new BroadcastGroupControl() {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_BROADCAST_GROUP + name);
 
+         @Override
          public long getBroadcastPeriod() {
             return ((Integer) proxy.retrieveAttributeValue("broadcastPeriod")).longValue();
          }
 
+         @Override
          public Object[] getConnectorPairs() {
             return (Object[]) proxy.retrieveAttributeValue("connectorPairs");
          }
 
+         @Override
          public String getConnectorPairsAsJSON() {
             return (String) proxy.retrieveAttributeValue("connectorPairsAsJSON");
          }
 
+         @Override
          public String getGroupAddress() {
             return (String) proxy.retrieveAttributeValue("groupAddress");
          }
 
+         @Override
          public int getGroupPort() {
             return (Integer) proxy.retrieveAttributeValue("groupPort");
          }
 
+         @Override
          public int getLocalBindPort() {
             return (Integer) proxy.retrieveAttributeValue("localBindPort");
          }
 
+         @Override
          public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
+         @Override
          public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
+         @Override
          public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }

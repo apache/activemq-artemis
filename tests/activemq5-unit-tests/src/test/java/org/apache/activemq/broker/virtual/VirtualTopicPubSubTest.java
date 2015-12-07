@@ -58,6 +58,7 @@ public class VirtualTopicPubSubTest extends EmbeddedBrokerTestSupport {
    public void doTestVirtualTopicCreation(int total) throws Exception {
 
       ConsumerBean messageList = new ConsumerBean() {
+         @Override
          public synchronized void onMessage(Message message) {
             super.onMessage(message);
             if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
@@ -120,6 +121,7 @@ public class VirtualTopicPubSubTest extends EmbeddedBrokerTestSupport {
       return "Consumer.A.VirtualTopic.TEST";
    }
 
+   @Override
    protected void tearDown() throws Exception {
       for (Connection connection : connections) {
          connection.close();

@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class MyStompInterceptor implements StompFrameInterceptor {
 
+   @Override
    public boolean intercept(StompFrame frame, RemotingConnection remotingConnection)
       throws ActiveMQException {
 

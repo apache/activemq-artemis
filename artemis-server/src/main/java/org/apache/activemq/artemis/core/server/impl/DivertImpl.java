@@ -72,6 +72,7 @@ public class DivertImpl implements Divert {
       this.storageManager = storageManager;
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       // We must make a copy of the message, otherwise things like returning credits to the page won't work
       // properly on ack, since the original address will be overwritten
@@ -112,22 +113,27 @@ public class DivertImpl implements Divert {
       route(message, context);
    }
 
+   @Override
    public SimpleString getRoutingName() {
       return routingName;
    }
 
+   @Override
    public SimpleString getUniqueName() {
       return uniqueName;
    }
 
+   @Override
    public boolean isExclusive() {
       return exclusive;
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
+   @Override
    public Transformer getTransformer() {
       return transformer;
    }

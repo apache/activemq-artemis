@@ -83,6 +83,7 @@ public class AMQ3932Test {
       ExecutorService executor = Executors.newSingleThreadExecutor();
 
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                started.countDown();
@@ -113,6 +114,7 @@ public class AMQ3932Test {
       ExecutorService executor = Executors.newSingleThreadExecutor();
 
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                started.countDown();
@@ -143,6 +145,7 @@ public class AMQ3932Test {
       ExecutorService executor = Executors.newSingleThreadExecutor();
 
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                started.countDown();

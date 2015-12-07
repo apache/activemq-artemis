@@ -170,6 +170,7 @@ public class AMQ1853Test {
          return latch;
       }
 
+      @Override
       public void run() {
 
          ActiveMQConnectionFactory connectionFactory = null;
@@ -264,6 +265,7 @@ public class AMQ1853Test {
          return bMessageReceiptIsOrdered;
       }
 
+      @Override
       public void run() {
 
          try {
@@ -317,6 +319,7 @@ public class AMQ1853Test {
          }
       }
 
+      @Override
       public synchronized void onException(JMSException ex) {
          LOG.error("Consumer for destination, (" + destinationName + "), JMS Exception occurred.  Shutting down client.");
       }
@@ -325,6 +328,7 @@ public class AMQ1853Test {
          this.bStop = bStop;
       }
 
+      @Override
       public synchronized void onMessage(Message message) {
          receivedMessageCounter++;
          latch.countDown();

@@ -635,6 +635,7 @@ public class Create extends InputAbstract {
       File dir = new File(path(getHome().toString(), false) + "/lib");
 
       File[] matches = dir.listFiles(new FilenameFilter() {
+         @Override
          public boolean accept(File dir, String name) {
             return name.startsWith("jboss-logmanager") && name.endsWith(".jar");
          }

@@ -30,12 +30,14 @@ public class MemorySizeTest extends Assert {
    @Test
    public void testObjectSizes() throws Exception {
       UnitTestLogger.LOGGER.info("Server message size is " + MemorySize.calculateSize(new MemorySize.ObjectFactory() {
+         @Override
          public Object createObject() {
             return new ServerMessageImpl(1, 1000);
          }
       }));
 
       UnitTestLogger.LOGGER.info("Message reference size is " + MemorySize.calculateSize(new MemorySize.ObjectFactory() {
+         @Override
          public Object createObject() {
             return new MessageReferenceImpl();
          }

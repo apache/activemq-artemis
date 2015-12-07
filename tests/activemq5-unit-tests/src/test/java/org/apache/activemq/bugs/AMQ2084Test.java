@@ -86,6 +86,7 @@ public class AMQ2084Test {
          QueueReceiver receiver = session.createReceiver(queue, selectors);
          System.out.println("Message Selector: " + receiver.getMessageSelector());
          receiver.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(Message message) {
                try {
                   if (message instanceof TextMessage) {
@@ -124,6 +125,7 @@ public class AMQ2084Test {
          TopicSubscriber receiver = session.createSubscriber(topic, selectors, false);
 
          receiver.setMessageListener(new MessageListener() {
+            @Override
             public void onMessage(Message message) {
                try {
                   if (message instanceof TextMessage) {

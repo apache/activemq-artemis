@@ -57,6 +57,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       return brokerConsumer;
    }
 
+   @Override
    public void onFlow(int currentCredits) {
       super.onFlow(currentCredits);
       sessionSPI.onFlowConsumer(brokerConsumer, currentCredits);
@@ -65,6 +66,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
 * start the session
 * */
+   @Override
    public void start() throws ActiveMQAMQPException {
       super.start();
       // protonSession.getServerSession().start();
@@ -145,6 +147,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
    * close the session
    * */
+   @Override
    public void close() throws ActiveMQAMQPException {
       super.close();
       try {
@@ -156,6 +159,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       }
    }
 
+   @Override
    public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Object message = delivery.getContext();
 
@@ -215,6 +219,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
+   @Override
    public int deliverMessage(Object message, int deliveryCount) throws Exception {
       if (closed) {
          System.err.println("Message can't be delivered as it's closed");

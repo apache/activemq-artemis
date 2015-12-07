@@ -39,6 +39,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
    private ServiceRegistry serviceRegistry;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       // Setup Configuration

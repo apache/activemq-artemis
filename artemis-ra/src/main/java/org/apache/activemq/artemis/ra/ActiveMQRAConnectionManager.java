@@ -57,6 +57,7 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
     * @return The connection
     * @throws ResourceException Thrown if there is a problem obtaining the connection
     */
+   @Override
    public Object allocateConnection(final ManagedConnectionFactory mcf,
                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
       if (ActiveMQRAConnectionManager.trace) {

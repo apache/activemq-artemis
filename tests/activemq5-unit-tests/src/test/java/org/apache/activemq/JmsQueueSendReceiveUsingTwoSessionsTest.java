@@ -26,6 +26,7 @@ public class JmsQueueSendReceiveUsingTwoSessionsTest extends JmsQueueSendReceive
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       useSeparateSession = true;
       super.setUp();

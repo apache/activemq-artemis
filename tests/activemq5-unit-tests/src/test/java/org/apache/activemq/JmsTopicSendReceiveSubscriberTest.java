@@ -26,6 +26,7 @@ import javax.jms.TopicSession;
  */
 public class JmsTopicSendReceiveSubscriberTest extends JmsTopicSendReceiveTest {
 
+   @Override
    protected MessageConsumer createConsumer() throws JMSException {
       if (durable) {
          return super.createConsumer();

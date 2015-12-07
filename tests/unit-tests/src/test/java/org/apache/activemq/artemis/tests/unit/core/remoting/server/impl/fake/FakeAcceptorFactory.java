@@ -47,6 +47,7 @@ public class FakeAcceptorFactory implements AcceptorFactory {
 
    private final class FakeAcceptor implements Acceptor {
 
+      @Override
       public String getName() {
          return "fake";
       }

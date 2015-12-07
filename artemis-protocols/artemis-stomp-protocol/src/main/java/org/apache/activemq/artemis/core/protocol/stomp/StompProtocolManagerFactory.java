@@ -34,6 +34,7 @@ public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<
 
    private static final String[] SUPPORTED_PROTOCOLS = {STOMP_PROTOCOL_NAME};
 
+   @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
                                                 final List<StompFrameInterceptor> incomingInterceptors,
                                                 List<StompFrameInterceptor> outgoingInterceptors) {

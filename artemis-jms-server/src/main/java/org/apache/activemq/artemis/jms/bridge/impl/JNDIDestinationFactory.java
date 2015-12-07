@@ -28,6 +28,7 @@ public class JNDIDestinationFactory extends JNDIFactorySupport implements Destin
       super(jndiProperties, lookup);
    }
 
+   @Override
    public Destination createDestination() throws Exception {
       return (Destination) createObject();
    }

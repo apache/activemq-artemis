@@ -211,6 +211,7 @@ public final class StompConnection implements RemotingConnection {
       dataReceived = true;
    }
 
+   @Override
    public synchronized boolean checkDataReceived() {
       boolean res = dataReceived;
 
@@ -251,6 +252,7 @@ public final class StompConnection implements RemotingConnection {
       return ActiveMQBuffers.dynamicBuffer(size);
    }
 
+   @Override
    public void destroy() {
       synchronized (failLock) {
          if (destroyed) {
@@ -277,6 +279,7 @@ public final class StompConnection implements RemotingConnection {
       manager.cleanup(this);
    }
 
+   @Override
    public void fail(final ActiveMQException me) {
       synchronized (failLock) {
          if (destroyed) {
@@ -295,43 +298,53 @@ public final class StompConnection implements RemotingConnection {
       internalClose();
    }
 
+   @Override
    public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       fail(me);
    }
 
+   @Override
    public void flush() {
    }
 
+   @Override
    public List<FailureListener> getFailureListeners() {
       // we do not return the listeners otherwise the remoting service
       // would NOT destroy the connection.
       return Collections.emptyList();
    }
 
+   @Override
    public Object getID() {
       return transportConnection.getID();
    }
 
+   @Override
    public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
+   @Override
    public long getCreationTime() {
       return creationTime;
    }
 
+   @Override
    public Connection getTransportConnection() {
       return transportConnection;
    }
 
+   @Override
    public boolean isClient() {
       return false;
    }
 
+   @Override
    public boolean isDestroyed() {
       return destroyed;
    }
 
+   @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       manager.handleBuffer(this, buffer);
    }

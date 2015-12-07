@@ -203,6 +203,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
          Exception failure;
 
+         @Override
          public void onMessage(final ClientMessage message) {
             if (count >= numMessages) {
                failure = new Exception("too many messages");

@@ -50,6 +50,7 @@ public class ColocatedHAManager implements HAManager {
    /**
     * starts the HA manager.
     */
+   @Override
    public void start() {
       if (started)
          return;
@@ -62,6 +63,7 @@ public class ColocatedHAManager implements HAManager {
    /**
     * stop any backups
     */
+   @Override
    public void stop() {
       for (ActiveMQServer activeMQServer : backupServers.values()) {
          try {
@@ -103,6 +105,7 @@ public class ColocatedHAManager implements HAManager {
     *
     * @return the backups
     */
+   @Override
    public Map<String, ActiveMQServer> getBackupServers() {
       return backupServers;
    }

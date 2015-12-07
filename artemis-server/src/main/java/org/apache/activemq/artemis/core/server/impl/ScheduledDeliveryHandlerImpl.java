@@ -53,6 +53,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       this.scheduledExecutor = scheduledExecutor;
    }
 
+   @Override
    public boolean checkAndSchedule(final MessageReference ref, final boolean tail) {
       long deliveryTime = ref.getScheduledDeliveryTime();
 
@@ -76,12 +77,14 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       }
    }
 
+   @Override
    public int getScheduledCount() {
       synchronized (scheduledReferences) {
          return scheduledReferences.size();
       }
    }
 
+   @Override
    public List<MessageReference> getScheduledReferences() {
       List<MessageReference> refs = new LinkedList<MessageReference>();
 
@@ -93,6 +96,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       return refs;
    }
 
+   @Override
    public List<MessageReference> cancel(final Filter filter) {
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
@@ -110,6 +114,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       return refs;
    }
 
+   @Override
    public MessageReference removeReferenceWithID(final long id) {
       synchronized (scheduledReferences) {
          Iterator<RefScheduled> iter = scheduledReferences.iterator();
@@ -163,6 +168,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          this.deliveryTime = deliveryTime;
       }
 
+      @Override
       public void run() {
          HashMap<Queue, LinkedList<MessageReference>> refs = new HashMap<Queue, LinkedList<MessageReference>>();
 
@@ -260,6 +266,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    static class MessageReferenceComparator implements Comparator<RefScheduled> {
 
+      @Override
       public int compare(RefScheduled ref1, RefScheduled ref2) {
          long diff = ref1.getRef().getScheduledDeliveryTime() - ref2.getRef().getScheduledDeliveryTime();
 

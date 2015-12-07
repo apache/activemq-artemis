@@ -192,6 +192,7 @@ public class DurableSubscriberWithNetworkRestartTest extends JmsMultipleBrokersT
       sleep(600);
    }
 
+   @Override
    public void setUp() throws Exception {
       super.setAutoFail(false);
       super.setUp();
@@ -204,6 +205,7 @@ public class DurableSubscriberWithNetworkRestartTest extends JmsMultipleBrokersT
       createBroker(new URI("broker:(tcp://localhost:61616)/" + SPOKE + options));
    }
 
+   @Override
    protected void configureBroker(BrokerService broker) {
       broker.setKeepDurableSubsActive(false);
       broker.getManagementContext().setCreateConnector(false);
@@ -219,6 +221,7 @@ public class DurableSubscriberWithNetworkRestartTest extends JmsMultipleBrokersT
       broker.getSystemUsage().getMemoryUsage().setLimit(100 * 1024 * 1024);
    }
 
+   @Override
    public void tearDown() throws Exception {
       super.tearDown();
    }

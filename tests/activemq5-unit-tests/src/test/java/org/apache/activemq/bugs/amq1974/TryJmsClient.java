@@ -65,6 +65,7 @@ public class TryJmsClient {
 
    private void startUsageMonitor(final BrokerService brokerService) {
       new Thread(new Runnable() {
+         @Override
          public void run() {
             while (true) {
                try {
@@ -106,6 +107,7 @@ public class TryJmsClient {
 
    private class MessageSend implements Runnable {
 
+      @Override
       public void run() {
          try {
             String url = "vm://TestBroker";

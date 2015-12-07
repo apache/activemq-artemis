@@ -34,10 +34,12 @@ public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMe
 
    // ObjectMessage implementation ----------------------------------
 
+   @Override
    public void setObject(final Serializable object) throws JMSException {
       this.object = object;
    }
 
+   @Override
    public Serializable getObject() throws JMSException {
       return object;
    }

@@ -31,12 +31,14 @@ public class DiscoveryEventTest extends DataFileGeneratorTestSupport {
 
    public static final DiscoveryEventTest SINGLETON = new DiscoveryEventTest();
 
+   @Override
    public Object createObject() throws Exception {
       DiscoveryEvent info = new DiscoveryEvent();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       DiscoveryEvent info = (DiscoveryEvent) object;

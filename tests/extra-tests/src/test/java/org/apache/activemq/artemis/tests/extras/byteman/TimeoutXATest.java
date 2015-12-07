@@ -124,6 +124,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
       final CountDownLatch latchStore = new CountDownLatch(1000);
 
       Thread storingThread = new Thread() {
+         @Override
          public void run() {
             try {
                for (int i = 0; i < 100000; i++) {
@@ -140,6 +141,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
       removingTXEntered0.await();
 
       Thread t = new Thread() {
+         @Override
          public void run() {
             try {
                xaSession.getXAResource().rollback(xid);

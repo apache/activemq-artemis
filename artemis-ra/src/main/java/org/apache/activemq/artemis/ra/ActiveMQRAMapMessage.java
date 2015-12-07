@@ -53,6 +53,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean getBoolean(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getBoolean(" + name + ")");
@@ -68,6 +69,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public byte getByte(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getByte(" + name + ")");
@@ -83,6 +85,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public byte[] getBytes(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getBytes(" + name + ")");
@@ -98,6 +101,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public char getChar(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getChar(" + name + ")");
@@ -113,6 +117,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public double getDouble(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getDouble(" + name + ")");
@@ -128,6 +133,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public float getFloat(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getFloat(" + name + ")");
@@ -143,6 +149,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int getInt(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getInt(" + name + ")");
@@ -158,6 +165,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public long getLong(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getLong(" + name + ")");
@@ -172,6 +180,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The values
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    @SuppressWarnings("rawtypes")
    public Enumeration getMapNames() throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
@@ -188,6 +197,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Object getObject(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getObject(" + name + ")");
@@ -203,6 +213,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public short getShort(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getShort(" + name + ")");
@@ -218,6 +229,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public String getString(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getString(" + name + ")");
@@ -233,6 +245,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @return True / false
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean itemExists(final String name) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("itemExists(" + name + ")");
@@ -248,6 +261,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setBoolean(" + name + ", " + value + ")");
@@ -263,6 +277,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setByte(final String name, final byte value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setByte(" + name + ", " + value + ")");
@@ -280,6 +295,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param length The length
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setBytes(" + name + ", " + Arrays.toString(value) + ", " + offset + ", " +
@@ -296,6 +312,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setBytes(" + name + ", " + Arrays.toString(value) + ")");
@@ -311,6 +328,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setChar(final String name, final char value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setChar(" + name + ", " + value + ")");
@@ -326,6 +344,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setDouble(final String name, final double value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setDouble(" + name + ", " + value + ")");
@@ -341,6 +360,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setFloat(final String name, final float value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setFloat(" + name + ", " + value + ")");
@@ -356,6 +376,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setInt(final String name, final int value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setInt(" + name + ", " + value + ")");
@@ -371,6 +392,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setLong(final String name, final long value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setLong(" + name + ", " + value + ")");
@@ -386,6 +408,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setObject(final String name, final Object value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setObject(" + name + ", " + value + ")");
@@ -401,6 +424,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setShort(final String name, final short value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setShort(" + name + ", " + value + ")");
@@ -416,6 +440,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setString(final String name, final String value) throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setString(" + name + ", " + value + ")");

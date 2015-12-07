@@ -45,6 +45,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
    private Connection startedConnection;
    private Connection stoppedConnection;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -56,6 +57,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    @After
    public void tearDown() throws Exception {
       stoppedConnection.close();

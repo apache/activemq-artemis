@@ -76,6 +76,7 @@ public class DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest extends DbRestartJDBC
    }
 
    // ignore this test case
+   @Override
    public void testAdvisory() throws Exception {
    }
 

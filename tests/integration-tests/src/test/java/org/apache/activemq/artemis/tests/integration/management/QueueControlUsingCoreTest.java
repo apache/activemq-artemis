@@ -48,98 +48,122 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             }
          }
 
+         @Override
          public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
             return (Boolean) proxy.invokeOperation("changeMessagePriority", messageID, newPriority);
          }
 
+         @Override
          public int changeMessagesPriority(final String filter, final int newPriority) throws Exception {
             return (Integer) proxy.invokeOperation("changeMessagesPriority", filter, newPriority);
          }
 
+         @Override
          public long countMessages(final String filter) throws Exception {
             return ((Number) proxy.invokeOperation("countMessages", filter)).longValue();
          }
 
+         @Override
          public boolean expireMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("expireMessage", messageID);
          }
 
+         @Override
          public int expireMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("expireMessages", filter);
          }
 
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
+         @Override
          public int getConsumerCount() {
             return (Integer) proxy.retrieveAttributeValue("consumerCount");
          }
 
+         @Override
          public String getDeadLetterAddress() {
             return (String) proxy.retrieveAttributeValue("deadLetterAddress");
          }
 
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount");
          }
 
+         @Override
          public String getExpiryAddress() {
             return (String) proxy.retrieveAttributeValue("expiryAddress");
          }
 
+         @Override
          public String getFilter() {
             return (String) proxy.retrieveAttributeValue("filter");
          }
 
+         @Override
          public long getMessageCount() {
             return ((Number) proxy.retrieveAttributeValue("messageCount")).longValue();
          }
 
+         @Override
          public long getMessagesAdded() {
             return (Integer) proxy.retrieveAttributeValue("messagesAdded");
          }
 
+         @Override
          public long getMessagesAcknowledged() {
             return (Integer) proxy.retrieveAttributeValue("messagesAcknowledged");
          }
 
+         @Override
          public void resetMessagesAdded() throws Exception {
             proxy.invokeOperation("resetMessagesAdded");
          }
 
+         @Override
          public void resetMessagesAcknowledged() throws Exception {
             proxy.invokeOperation("resetMessagesAcknowledged");
          }
 
+         @Override
          public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
+         @Override
          public long getID() {
             return (Long) proxy.retrieveAttributeValue("ID");
          }
 
+         @Override
          public long getScheduledCount() {
             return (Long) proxy.retrieveAttributeValue("scheduledCount", Long.class);
          }
 
+         @Override
          public boolean isDurable() {
             return (Boolean) proxy.retrieveAttributeValue("durable");
          }
 
+         @Override
          public boolean isTemporary() {
             return (Boolean) proxy.retrieveAttributeValue("temporary");
          }
 
+         @Override
          public String listMessageCounter() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounter");
          }
 
+         @Override
          public String listMessageCounterAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterAsHTML");
          }
 
+         @Override
          public String listMessageCounterHistory() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterHistory");
          }
@@ -147,6 +171,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          /**
           * Returns the first message on the queue as JSON
           */
+         @Override
          public String getFirstMessageAsJSON() throws Exception {
             return (String) proxy.invokeOperation("getFirstMessageAsJSON");
          }
@@ -154,6 +179,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          /**
           * Returns the timestamp of the first message in milliseconds.
           */
+         @Override
          public Long getFirstMessageTimestamp() throws Exception {
             return (Long) proxy.invokeOperation("getFirstMessageTimestamp");
          }
@@ -161,6 +187,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          /**
           * Returns the age of the first message in milliseconds.
           */
+         @Override
          public Long getFirstMessageAge() throws Exception {
             Object value = proxy.invokeOperation("getFirstMessageAge");
 
@@ -171,10 +198,12 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (Long) value;
          }
 
+         @Override
          public String listMessageCounterHistoryAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterHistoryAsHTML");
          }
 
+         @Override
          public Map<String, Object>[] listMessages(final String filter) throws Exception {
             Object[] res = (Object[]) proxy.invokeOperation("listMessages", filter);
             Map<String, Object>[] results = new Map[res.length];
@@ -184,10 +213,12 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return results;
          }
 
+         @Override
          public String listMessagesAsJSON(final String filter) throws Exception {
             return (String) proxy.invokeOperation("listMessagesAsJSON", filter);
          }
 
+         @Override
          public Map<String, Object>[] listScheduledMessages() throws Exception {
             Object[] res = (Object[]) proxy.invokeOperation("listScheduledMessages");
             Map<String, Object>[] results = new Map[res.length];
@@ -197,10 +228,12 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return results;
          }
 
+         @Override
          public String listScheduledMessagesAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listScheduledMessagesAsJSON");
          }
 
+         @Override
          public int moveMessages(final String filter, final String otherQueueName) throws Exception {
             return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName);
          }
@@ -213,50 +246,61 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (Integer) proxy.invokeOperation("moveMessages", flushLimit, filter, otherQueueName, rejectDuplicates);
          }
 
+         @Override
          public int moveMessages(final String filter,
                                  final String otherQueueName,
                                  final boolean rejectDuplicates) throws Exception {
             return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName, rejectDuplicates);
          }
 
+         @Override
          public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
             return (Boolean) proxy.invokeOperation("moveMessage", messageID, otherQueueName);
          }
 
+         @Override
          public boolean moveMessage(final long messageID,
                                     final String otherQueueName,
                                     final boolean rejectDuplicates) throws Exception {
             return (Boolean) proxy.invokeOperation("moveMessage", messageID, otherQueueName, rejectDuplicates);
          }
 
+         @Override
          public boolean retryMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("retryMessage", messageID);
          }
 
+         @Override
          public int retryMessages() throws Exception {
             return (Integer) proxy.invokeOperation("retryMessages");
          }
 
+         @Override
          public int removeMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("removeMessages", filter);
          }
 
+         @Override
          public int removeMessages(final int limit, final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("removeMessages", limit, filter);
          }
 
+         @Override
          public boolean removeMessage(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("removeMessage", messageID);
          }
 
+         @Override
          public void resetMessageCounter() throws Exception {
             proxy.invokeOperation("resetMessageCounter");
          }
 
+         @Override
          public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("sendMessageToDeadLetterAddress", messageID);
          }
 
+         @Override
          public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
             return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
          }
@@ -269,22 +313,27 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             proxy.invokeOperation("setExpiryAddress", expiryAddress);
          }
 
+         @Override
          public void pause() throws Exception {
             proxy.invokeOperation("pause");
          }
 
+         @Override
          public void resume() throws Exception {
             proxy.invokeOperation("resume");
          }
 
+         @Override
          public boolean isPaused() throws Exception {
             return (Boolean) proxy.invokeOperation("isPaused");
          }
 
+         @Override
          public String listConsumersAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listConsumersAsJSON");
          }
 
+         @Override
          public Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception {
             // This map code could be done better,
             // however that's just to convert stuff for the test class, so I

@@ -30,12 +30,14 @@ public class MessageDispatchNotificationTest extends BaseCommandTestSupport {
 
    public static final MessageDispatchNotificationTest SINGLETON = new MessageDispatchNotificationTest();
 
+   @Override
    public Object createObject() throws Exception {
       MessageDispatchNotification info = new MessageDispatchNotification();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       MessageDispatchNotification info = (MessageDispatchNotification) object;

@@ -45,10 +45,12 @@ public class FakeConsumer implements Consumer {
       this.filter = filter;
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
+   @Override
    public String debug() {
       return toString();
    }
@@ -89,6 +91,7 @@ public class FakeConsumer implements Consumer {
       references.clear();
    }
 
+   @Override
    public synchronized HandleStatus handle(final MessageReference reference) {
       if (statusToReturn == HandleStatus.BUSY) {
          return HandleStatus.BUSY;
@@ -142,6 +145,7 @@ public class FakeConsumer implements Consumer {
       //To change body of implemented methods use File | Settings | File Templates.
    }
 
+   @Override
    public List<MessageReference> getDeliveringMessages() {
       return Collections.emptyList();
    }

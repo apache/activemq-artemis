@@ -82,6 +82,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       }
    }
 
+   @Override
    public void run() {
       try {
          if (replicatedPolicy.isCheckForLiveServer() && isNodeIdUsed()) {
@@ -155,6 +156,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
          replicationManager = new ReplicationManager(rc, activeMQServer.getExecutorFactory());
          replicationManager.start();
          Thread t = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack(), replicatedPolicy.getInitialReplicationSyncTimeout());
@@ -229,6 +231,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       @Override
       public void connectionClosed() {
          activeMQServer.getThreadPool().execute(new Runnable() {
+            @Override
             public void run() {
                synchronized (replicationLock) {
                   if (replicationManager != null) {
@@ -300,6 +303,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       }
    }
 
+   @Override
    public void close(boolean permanently, boolean restarting) throws Exception {
 
       replicationManager = null;
@@ -334,6 +338,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       }
    }
 
+   @Override
    public ReplicationManager getReplicationManager() {
       synchronized (replicationLock) {
          return replicationManager;

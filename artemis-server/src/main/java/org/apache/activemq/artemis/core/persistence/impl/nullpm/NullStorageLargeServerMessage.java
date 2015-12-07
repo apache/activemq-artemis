@@ -76,6 +76,7 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
       return "NullStorageLargeServerMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]";
    }
 
+   @Override
    public ServerMessage copy() {
       // This is a simple copy, used only to avoid changing original properties
       return new NullStorageLargeServerMessage(this);

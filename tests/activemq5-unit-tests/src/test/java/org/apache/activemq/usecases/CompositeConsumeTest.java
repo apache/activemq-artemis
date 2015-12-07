@@ -32,6 +32,7 @@ public class CompositeConsumeTest extends JmsTopicSendReceiveWithTwoConnectionsT
 
    private static final Logger LOG = LoggerFactory.getLogger(CompositeConsumeTest.class);
 
+   @Override
    public void testSendReceive() throws Exception {
       messages.clear();
 
@@ -58,6 +59,7 @@ public class CompositeConsumeTest extends JmsTopicSendReceiveWithTwoConnectionsT
    /**
     * Returns the subscription subject
     */
+   @Override
    protected String getSubject() {
       return getPrefix() + "FOO.BAR," + getPrefix() + "FOO.X.Y," + getPrefix() + "BAR.>";
    }

@@ -96,6 +96,7 @@ public class NettyConnection implements Connection {
    }
    // Connection implementation ----------------------------
 
+   @Override
    public void forceClose() {
       if (channel != null) {
          try {
@@ -116,14 +117,17 @@ public class NettyConnection implements Connection {
       return channel;
    }
 
+   @Override
    public RemotingConnection getProtocolConnection() {
       return protocolConnection;
    }
 
+   @Override
    public void setProtocolConnection(RemotingConnection protocolConnection) {
       this.protocolConnection = protocolConnection;
    }
 
+   @Override
    public void close() {
       if (closed) {
          return;
@@ -150,16 +154,19 @@ public class NettyConnection implements Connection {
       listener.connectionDestroyed(getID());
    }
 
+   @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
       return new ChannelBufferWrapper(PartialPooledByteBufAllocator.INSTANCE.directBuffer(size), true);
    }
 
+   @Override
    public Object getID() {
       // TODO: Think of it
       return channel.hashCode();
    }
 
    // This is called periodically to flush the batch buffer
+   @Override
    public void checkFlushBatchBuffer() {
       if (!batchingEnabled) {
          return;
@@ -179,14 +186,17 @@ public class NettyConnection implements Connection {
       }
    }
 
+   @Override
    public void write(final ActiveMQBuffer buffer) {
       write(buffer, false, false);
    }
 
+   @Override
    public void write(ActiveMQBuffer buffer, final boolean flush, final boolean batched) {
       write(buffer, flush, batched, null);
    }
 
+   @Override
    public void write(ActiveMQBuffer buffer,
                      final boolean flush,
                      final boolean batched,
@@ -291,6 +301,7 @@ public class NettyConnection implements Connection {
       }
    }
 
+   @Override
    public String getRemoteAddress() {
       SocketAddress address = channel.remoteAddress();
       if (address == null) {
@@ -299,6 +310,7 @@ public class NettyConnection implements Connection {
       return address.toString();
    }
 
+   @Override
    public String getLocalAddress() {
       SocketAddress address = channel.localAddress();
       if (address == null) {
@@ -311,15 +323,18 @@ public class NettyConnection implements Connection {
       return directDeliver;
    }
 
+   @Override
    public void addReadyListener(final ReadyListener listener) {
       readyListeners.add(listener);
    }
 
+   @Override
    public void removeReadyListener(final ReadyListener listener) {
       readyListeners.remove(listener);
    }
 
    //never allow this
+   @Override
    public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return null;
    }

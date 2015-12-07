@@ -27,5 +27,6 @@ public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
 
    void repeat();
 
+   @Override
    void close();
 }

@@ -45,6 +45,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(true, true);
 
       Thread t = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                server.stop();
@@ -113,6 +114,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       Thread t = new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                server.stop();

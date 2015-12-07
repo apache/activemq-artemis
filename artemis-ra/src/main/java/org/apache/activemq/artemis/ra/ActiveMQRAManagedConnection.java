@@ -189,6 +189,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @return The connection
     * @throws ResourceException Thrown if an error occurs
     */
+   @Override
    public synchronized Object getConnection(final Subject subject,
                                             final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
@@ -248,6 +249,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     *
     * @throws ResourceException Could not property close the session and connection.
     */
+   @Override
    public void destroy() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("destroy()");
@@ -314,6 +316,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     *
     * @throws ResourceException Thrown if an error occurs
     */
+   @Override
    public void cleanup() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("cleanup()");
@@ -343,6 +346,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @throws ResourceException     Failed to associate connection.
     * @throws IllegalStateException ManagedConnection in an illegal state.
     */
+   @Override
    public void associateConnection(final Object obj) throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("associateConnection(" + obj + ")");
@@ -433,6 +437,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     *
     * @param l The connection event listener to be added.
     */
+   @Override
    public void addConnectionEventListener(final ConnectionEventListener l) {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("addConnectionEventListener(" + l + ")");
@@ -446,6 +451,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     *
     * @param l The connection event listener to be removed.
     */
+   @Override
    public void removeConnectionEventListener(final ConnectionEventListener l) {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("removeConnectionEventListener(" + l + ")");
@@ -460,6 +466,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @return The XAResource for the connection.
     * @throws ResourceException XA transaction not supported
     */
+   @Override
    public XAResource getXAResource() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("getXAResource()");
@@ -493,6 +500,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @return The local transaction for the connection.
     * @throws ResourceException Thrown if operation fails.
     */
+   @Override
    public LocalTransaction getLocalTransaction() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("getLocalTransaction()");
@@ -514,6 +522,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @throws ResourceException     Thrown if the operation fails.
     * @throws IllegalStateException Thrown if the managed connection already is destroyed.
     */
+   @Override
    public ManagedConnectionMetaData getMetaData() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("getMetaData()");
@@ -532,6 +541,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @param out The log writer
     * @throws ResourceException If operation fails
     */
+   @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("setLogWriter(" + out + ")");
@@ -544,6 +554,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     * @return Always null
     * @throws ResourceException If operation fails
     */
+   @Override
    public PrintWriter getLogWriter() throws ResourceException {
       if (ActiveMQRAManagedConnection.trace) {
          ActiveMQRALogger.LOGGER.trace("getLogWriter()");
@@ -557,6 +568,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     *
     * @param exception The JMS exception
     */
+   @Override
    public void onException(final JMSException exception) {
       if (ActiveMQConnection.EXCEPTION_FAILOVER.equals(exception.getErrorCode())) {
          return;

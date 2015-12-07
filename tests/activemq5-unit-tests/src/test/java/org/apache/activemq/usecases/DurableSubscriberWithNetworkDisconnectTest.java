@@ -91,6 +91,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
       // Setup consumers
       MessageConsumer remoteConsumer = sesSpoke.createDurableSubscriber(topic, consumerName);
       remoteConsumer.setMessageListener(new MessageListener() {
+         @Override
          public void onMessage(Message msg) {
             try {
                TextMessage textMsg = (TextMessage) msg;
@@ -167,6 +168,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
       sleep(600);
    }
 
+   @Override
    public void setUp() throws Exception {
       networkDownTimeStart = 0;
       inactiveDuration = 1000;
@@ -179,6 +181,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
       createBroker(new URI("broker:(tcp://localhost:61616)/" + SPOKE + options));
    }
 
+   @Override
    public void tearDown() throws Exception {
       super.tearDown();
       if (socketProxy != null) {

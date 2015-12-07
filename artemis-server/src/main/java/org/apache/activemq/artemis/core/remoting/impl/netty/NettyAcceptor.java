@@ -244,6 +244,7 @@ public class NettyAcceptor implements Acceptor {
       connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (channelClazz != null) {
          // Already started
@@ -411,6 +412,7 @@ public class NettyAcceptor implements Acceptor {
       }
    }
 
+   @Override
    public String getName() {
       return name;
    }
@@ -440,10 +442,12 @@ public class NettyAcceptor implements Acceptor {
       }
    }
 
+   @Override
    public Map<String, Object> getConfiguration() {
       return this.configuration;
    }
 
+   @Override
    public synchronized void stop() {
       if (channelClazz == null) {
          return;
@@ -514,10 +518,12 @@ public class NettyAcceptor implements Acceptor {
       paused = false;
    }
 
+   @Override
    public boolean isStarted() {
       return channelClazz != null;
    }
 
+   @Override
    public synchronized void pause() {
       if (paused) {
          return;
@@ -544,6 +550,7 @@ public class NettyAcceptor implements Acceptor {
       paused = true;
    }
 
+   @Override
    public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
@@ -553,6 +560,7 @@ public class NettyAcceptor implements Acceptor {
     *
     * @param defaultActiveMQPrincipal
     */
+   @Override
    public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
       throw new IllegalStateException("unsecure connections not allowed");
    }
@@ -562,6 +570,7 @@ public class NettyAcceptor implements Acceptor {
     *
     * @return
     */
+   @Override
    public boolean isUnsecurable() {
       return false;
    }
@@ -599,6 +608,7 @@ public class NettyAcceptor implements Acceptor {
          super(group, handler, listener);
       }
 
+      @Override
       public NettyServerConnection createConnection(final ChannelHandlerContext ctx,
                                                     String protocol,
                                                     boolean httpEnabled) throws Exception {
@@ -613,6 +623,7 @@ public class NettyAcceptor implements Acceptor {
             SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
             if (sslHandler != null) {
                sslHandler.handshakeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Channel>>() {
+                  @Override
                   public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception {
                      if (future.isSuccess()) {
                         active = true;
@@ -639,6 +650,7 @@ public class NettyAcceptor implements Acceptor {
 
    private class Listener implements ConnectionLifeCycleListener {
 
+      @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
                                     final String protocol) {
@@ -649,12 +661,14 @@ public class NettyAcceptor implements Acceptor {
          listener.connectionCreated(component, connection, protocol);
       }
 
+      @Override
       public void connectionDestroyed(final Object connectionID) {
          if (connections.remove(connectionID) != null) {
             listener.connectionDestroyed(connectionID);
          }
       }
 
+      @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
          new Thread() {
@@ -666,6 +680,7 @@ public class NettyAcceptor implements Acceptor {
 
       }
 
+      @Override
       public void connectionReadyForWrites(final Object connectionID, boolean ready) {
          NettyServerConnection conn = connections.get(connectionID);
 
@@ -679,6 +694,7 @@ public class NettyAcceptor implements Acceptor {
 
       private boolean cancelled;
 
+      @Override
       public synchronized void run() {
          if (!cancelled) {
             for (Connection connection : connections.values()) {

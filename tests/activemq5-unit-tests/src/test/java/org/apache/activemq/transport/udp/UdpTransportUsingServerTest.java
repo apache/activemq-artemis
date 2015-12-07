@@ -51,16 +51,19 @@ public class UdpTransportUsingServerTest extends UdpTestSupport {
       assertTrue("Should not be an exception", !response.isException());
    }
 
+   @Override
    protected Transport createProducer() throws Exception {
       LOG.info("Producer using URI: " + producerURI);
       URI uri = new URI(producerURI);
       return TransportFactory.connect(uri);
    }
 
+   @Override
    protected TransportServer createServer() throws Exception {
       return TransportFactory.bind(new URI(serverURI));
    }
 
+   @Override
    protected Transport createConsumer() throws Exception {
       return null;
    }

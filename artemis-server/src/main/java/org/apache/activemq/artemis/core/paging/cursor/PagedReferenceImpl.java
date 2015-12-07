@@ -48,10 +48,12 @@ public class PagedReferenceImpl implements PagedReference {
 
    private boolean alreadyAcked;
 
+   @Override
    public ServerMessage getMessage() {
       return getPagedMessage().getMessage();
    }
 
+   @Override
    public synchronized PagedMessage getPagedMessage() {
       PagedMessage returnMessage = message != null ? message.get() : null;
 
@@ -67,6 +69,7 @@ public class PagedReferenceImpl implements PagedReference {
       return returnMessage;
    }
 
+   @Override
    public PagePosition getPosition() {
       return position;
    }
@@ -86,14 +89,17 @@ public class PagedReferenceImpl implements PagedReference {
       this.subscription = subscription;
    }
 
+   @Override
    public boolean isPaged() {
       return true;
    }
 
+   @Override
    public void setPersistedCount(int count) {
       this.persistedCount = count;
    }
 
+   @Override
    public int getPersistedCount() {
       return persistedCount;
    }

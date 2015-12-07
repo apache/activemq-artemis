@@ -39,6 +39,7 @@ public class StoreUsageTest extends EmbeddedBrokerTestSupport {
       return broker;
    }
 
+   @Override
    protected boolean isPersistent() {
       return true;
    }
@@ -60,6 +61,7 @@ public class StoreUsageTest extends EmbeddedBrokerTestSupport {
       Thread.sleep(WAIT_TIME_MILLS);
 
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return producer.getSentCount() == producer.getMessageCount();
          }

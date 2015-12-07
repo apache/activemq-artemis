@@ -123,6 +123,7 @@ public class ReliableTransportTest extends TestCase {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       if (replayStrategy == null) {
          replayStrategy = new ExceptionIfDroppedReplayStrategy();

@@ -114,6 +114,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       mapFactories.put(connectionFactory.getName(), connectionFactory);
    }
 
+   @Override
    public void deleteConnectionFactory(final String cfName) throws Exception {
       PersistedConnectionFactory oldCF = mapFactories.remove(cfName);
       if (oldCF != null) {
@@ -136,11 +137,13 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
    }
 
+   @Override
    public List<PersistedBindings> recoverPersistedBindings() throws Exception {
       ArrayList<PersistedBindings> list = new ArrayList<PersistedBindings>(mapBindings.values());
       return list;
    }
 
+   @Override
    public void addBindings(PersistedType type, String name, String... address) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
@@ -169,6 +172,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       jmsJournal.appendCommitRecord(tx, true);
    }
 
+   @Override
    public void deleteBindings(PersistedType type, String name, String address) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
@@ -196,6 +200,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       jmsJournal.appendCommitRecord(tx, true);
    }
 
+   @Override
    public void deleteBindings(PersistedType type, String name) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
@@ -206,6 +211,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       }
    }
 
+   @Override
    public void deleteDestination(final PersistedType type, final String name) throws Exception {
       PersistedDestination destination = destinations.remove(new Pair<PersistedType, String>(type, name));
       if (destination != null) {
@@ -233,6 +239,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       jmsJournal.stop();
    }
 
+   @Override
    public void load() throws Exception {
       mapFactories.clear();
 

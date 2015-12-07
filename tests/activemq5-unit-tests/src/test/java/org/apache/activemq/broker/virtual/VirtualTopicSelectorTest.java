@@ -37,14 +37,17 @@ public class VirtualTopicSelectorTest extends CompositeTopicTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(VirtualTopicSelectorTest.class);
 
+   @Override
    protected Destination getConsumer1Dsetination() {
       return new ActiveMQQueue("Consumer.1.VirtualTopic.TEST");
    }
 
+   @Override
    protected Destination getConsumer2Dsetination() {
       return new ActiveMQQueue("Consumer.2.VirtualTopic.TEST");
    }
 
+   @Override
    protected Destination getProducerDestination() {
       return new ActiveMQTopic("VirtualTopic.TEST");
    }

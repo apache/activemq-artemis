@@ -51,6 +51,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     * @return The object
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public Serializable getObject() throws JMSException {
       if (ActiveMQRAObjectMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getObject()");
@@ -65,6 +66,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     * @param object The object
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void setObject(final Serializable object) throws JMSException {
       if (ActiveMQRAObjectMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setObject(" + object + ")");

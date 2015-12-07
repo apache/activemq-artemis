@@ -57,50 +57,62 @@ public class DivertBinding implements Binding {
       exclusive = divert.isExclusive();
    }
 
+   @Override
    public long getID() {
       return id;
    }
 
+   @Override
    public Filter getFilter() {
       return filter;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public Bindable getBindable() {
       return divert;
    }
 
+   @Override
    public SimpleString getRoutingName() {
       return routingName;
    }
 
+   @Override
    public SimpleString getUniqueName() {
       return uniqueName;
    }
 
+   @Override
    public SimpleString getClusterName() {
       return uniqueName;
    }
 
+   @Override
    public boolean isExclusive() {
       return exclusive;
    }
 
+   @Override
    public boolean isHighAcceptPriority(final ServerMessage message) {
       return true;
    }
 
+   @Override
    public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       divert.route(message, context);
    }
 
+   @Override
    public int getDistance() {
       return 0;
    }
 
+   @Override
    public BindingType getType() {
       return BindingType.DIVERT;
    }
@@ -142,6 +154,7 @@ public class DivertBinding implements Binding {
       //noop
    }
 
+   @Override
    public void close() throws Exception {
    }
 

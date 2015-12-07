@@ -33,6 +33,7 @@ public class ClientRebalanceTest extends JmsMultipleBrokersTestSupport {
    private static final Logger LOG = Logger.getLogger(ClientRebalanceTest.class);
    private static final String QUEUE_NAME = "Test.ClientRebalanceTest";
 
+   @Override
    protected void setUp() throws Exception {
       setAutoFail(true);
       super.setUp();

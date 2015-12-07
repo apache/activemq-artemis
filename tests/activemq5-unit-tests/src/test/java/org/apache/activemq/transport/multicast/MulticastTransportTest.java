@@ -36,6 +36,7 @@ public class MulticastTransportTest extends UdpTransportTest {
 
    private String multicastURI = "multicast://224.1.2.3:6255";
 
+   @Override
    protected Transport createProducer() throws Exception {
       LOG.info("Producer using URI: " + multicastURI);
 
@@ -50,6 +51,7 @@ public class MulticastTransportTest extends UdpTransportTest {
       return new CommandJoiner(transport, wireFormat);
    }
 
+   @Override
    protected Transport createConsumer() throws Exception {
       OpenWireFormat wireFormat = createWireFormat();
       MulticastTransport transport = new MulticastTransport(wireFormat, new URI(multicastURI));

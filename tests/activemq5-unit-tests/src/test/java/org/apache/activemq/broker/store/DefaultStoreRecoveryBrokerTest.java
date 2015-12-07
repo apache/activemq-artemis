@@ -29,10 +29,12 @@ import org.apache.activemq.broker.RecoveryBrokerTest;
  */
 public class DefaultStoreRecoveryBrokerTest extends RecoveryBrokerTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
    }
 
+   @Override
    protected BrokerService createRestartedBroker() throws Exception {
       return BrokerFactory.createBroker(new URI("broker://()/localhost"));
    }

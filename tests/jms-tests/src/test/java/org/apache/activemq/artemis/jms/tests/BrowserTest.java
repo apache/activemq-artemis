@@ -64,6 +64,7 @@ public class BrowserTest extends JMSTestCase {
 
          try {
             ps.createBrowser(new Queue() {
+               @Override
                public String getQueueName() throws JMSException {
                   return "NoSuchQueue";
                }

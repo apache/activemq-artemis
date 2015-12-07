@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnectionForContext {
 
    final Runnable closeRunnable = new Runnable() {
+      @Override
       public void run() {
          try {
             close();
@@ -43,6 +44,7 @@ public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnec
 
    protected final ThreadAwareContext threadAwareContext = new ThreadAwareContext();
 
+   @Override
    public JMSContext createContext(int sessionMode) {
       switch (sessionMode) {
          case Session.AUTO_ACKNOWLEDGE:
@@ -60,6 +62,7 @@ public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnec
       return new ActiveMQJMSContext(this, sessionMode, threadAwareContext);
    }
 
+   @Override
    public XAJMSContext createXAContext() {
       refCounter.increment();
 

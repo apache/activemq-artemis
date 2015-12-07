@@ -31,6 +31,7 @@ public class JmsAutoAckTest extends TestSupport {
 
    private Connection connection;
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       connection = createConnection();
@@ -39,6 +40,7 @@ public class JmsAutoAckTest extends TestSupport {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

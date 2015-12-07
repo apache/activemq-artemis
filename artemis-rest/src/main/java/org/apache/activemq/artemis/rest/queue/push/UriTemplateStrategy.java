@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 
 public class UriTemplateStrategy extends UriStrategy {
 
+   @Override
    protected String createUri(ClientMessage message) {
       String dupId = registration.getId() + "-" + message.getMessageID() + "-" + message.getTimestamp();
       String uri = targetUri.build(dupId).toString();

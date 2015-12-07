@@ -23,6 +23,7 @@ import javax.jms.DeliveryMode;
  */
 public class JmsDurableTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 
+   @Override
    public void setUp() throws Exception {
       topic = true;
       durable = true;

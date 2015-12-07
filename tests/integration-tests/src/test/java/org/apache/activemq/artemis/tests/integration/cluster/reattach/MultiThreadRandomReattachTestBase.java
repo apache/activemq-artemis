@@ -1232,6 +1232,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          this.numMessages = numMessages;
       }
 
+      @Override
       public synchronized void onMessage(final ClientMessage message) {
          try {
             message.acknowledge();

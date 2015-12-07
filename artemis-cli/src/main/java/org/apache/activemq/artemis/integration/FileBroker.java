@@ -43,6 +43,7 @@ public class FileBroker implements Broker {
       this.configurationUrl = broker.configuration;
    }
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;

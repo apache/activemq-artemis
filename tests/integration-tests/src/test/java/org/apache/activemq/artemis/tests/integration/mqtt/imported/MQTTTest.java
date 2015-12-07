@@ -55,6 +55,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    private static final int NUM_MESSAGES = 250;
 
+   @Override
    @Before
    public void setUp() throws Exception {
       Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");

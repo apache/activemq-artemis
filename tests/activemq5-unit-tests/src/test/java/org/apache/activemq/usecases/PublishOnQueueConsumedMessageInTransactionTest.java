@@ -63,6 +63,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
    // The warning message is not thrown back to the client
    // private String url = "tcp://localhost:61616";
 
+   @Override
    protected void setUp() throws Exception {
       File dataFile = new File(dataFileRoot);
       recursiveDelete(dataFile);
@@ -116,6 +117,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
       }
    }
 
+   @Override
    public synchronized void onMessage(Message m) {
       try {
          objectMessage = (ObjectMessage) m;
@@ -182,6 +184,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
       file.delete();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();

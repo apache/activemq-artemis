@@ -82,6 +82,7 @@ public class SpringTest extends TestCase {
     *
     * @throws Exception
     */
+   @Override
    protected void tearDown() throws Exception {
       if (consumer != null) {
          consumer.stop();
@@ -95,6 +96,7 @@ public class SpringTest extends TestCase {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       if (System.getProperty("basedir") == null) {
          File file = new File(".");

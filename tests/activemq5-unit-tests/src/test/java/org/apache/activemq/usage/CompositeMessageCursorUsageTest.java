@@ -35,12 +35,14 @@ public class CompositeMessageCursorUsageTest extends TestCase {
 
    BrokerService broker;
 
+   @Override
    public void setUp() throws Exception {
       broker = new BrokerService();
       broker.setPersistent(false);
       broker.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       broker.stop();
    }
@@ -53,6 +55,7 @@ public class CompositeMessageCursorUsageTest extends TestCase {
       JmsTemplate jt = new JmsTemplate(cf);
 
       jt.send(compositeQueue, new MessageCreator() {
+         @Override
          public Message createMessage(Session session) throws JMSException {
             TextMessage tm = session.createTextMessage();
             tm.setText("test");
@@ -61,6 +64,7 @@ public class CompositeMessageCursorUsageTest extends TestCase {
       });
 
       jt.send("noCompositeA", new MessageCreator() {
+         @Override
          public Message createMessage(Session session) throws JMSException {
             TextMessage tm = session.createTextMessage();
             tm.setText("test");
@@ -69,6 +73,7 @@ public class CompositeMessageCursorUsageTest extends TestCase {
       });
 
       jt.send("noCompositeB", new MessageCreator() {
+         @Override
          public Message createMessage(Session session) throws JMSException {
             TextMessage tm = session.createTextMessage();
             tm.setText("test");

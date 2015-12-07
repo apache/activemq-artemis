@@ -37,12 +37,14 @@ public class IntegerResponseTest extends ResponseTest {
 
    public static IntegerResponseTest SINGLETON = new IntegerResponseTest();
 
+   @Override
    public Object createObject() throws Exception {
       IntegerResponse info = new IntegerResponse();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       IntegerResponse info = (IntegerResponse) object;

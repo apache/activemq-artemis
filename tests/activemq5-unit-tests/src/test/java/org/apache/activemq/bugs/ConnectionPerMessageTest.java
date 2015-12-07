@@ -79,11 +79,13 @@ public class ConnectionPerMessageTest extends EmbeddedBrokerTestSupport {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       bindAddress = "vm://localhost";
       super.setUp();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService answer = new BrokerService();
       answer.setDeleteAllMessagesOnStartup(true);
@@ -93,10 +95,12 @@ public class ConnectionPerMessageTest extends EmbeddedBrokerTestSupport {
       return answer;
    }
 
+   @Override
    protected boolean isPersistent() {
       return true;
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

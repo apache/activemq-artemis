@@ -60,14 +60,17 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       defaultMaxIO = maxIO;
    }
 
+   @Override
    public int getAlignment() {
       return 1;
    }
 
+   @Override
    public int calculateBlockStart(final int position) {
       return position;
    }
 
+   @Override
    public synchronized boolean isOpen() {
       return channel != null;
    }
@@ -76,10 +79,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
     * this.maxIO represents the default maxIO.
     * Some operations while initializing files on the journal may require a different maxIO
     */
+   @Override
    public synchronized void open() throws IOException {
       open(defaultMaxIO, true);
    }
 
+   @Override
    public void open(final int maxIO, final boolean useExecutor) throws IOException {
       try {
          rfile = new RandomAccessFile(getFile(), "rw");
@@ -99,6 +104,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
+   @Override
    public void fill(final int size) throws IOException {
       ByteBuffer bb = ByteBuffer.allocate(size);
 
@@ -150,10 +156,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       notifyAll();
    }
 
+   @Override
    public int read(final ByteBuffer bytes) throws Exception {
       return read(bytes, null);
    }
 
+   @Override
    public synchronized int read(final ByteBuffer bytes,
                                 final IOCallback callback) throws IOException, ActiveMQIllegalStateException {
       try {
@@ -181,6 +189,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
+   @Override
    public void sync() throws IOException {
       if (channel != null) {
          try {
@@ -193,6 +202,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
+   @Override
    public long size() throws IOException {
       if (channel == null) {
          return getFile().length();
@@ -224,10 +234,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       return "NIOSequentialFile " + getFile();
    }
 
+   @Override
    public SequentialFile cloneFile() {
       return new NIOSequentialFile(factory, directory, getFileName(), maxIO, writerExecutor);
    }
 
+   @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
       if (callback == null) {
          throw new NullPointerException("callback parameter need to be set");
@@ -241,6 +253,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
+   @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
       internalWrite(bytes, sync, null);
    }
@@ -287,6 +300,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          maxIOSemaphore.acquire();
 
          writerExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   try {

@@ -36,6 +36,7 @@ import org.apache.activemq.broker.region.policy.VMPendingSubscriberMessageStorag
 
 public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService service = new BrokerService();
       service.setPersistent(false);
@@ -167,6 +168,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
    protected ConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connector.getConnectUri());
       connectionFactory.setExceptionListener(new ExceptionListener() {
+         @Override
          public void onException(JMSException arg0) {
             if (arg0 instanceof ResourceAllocationException) {
                gotResourceException.set(true);

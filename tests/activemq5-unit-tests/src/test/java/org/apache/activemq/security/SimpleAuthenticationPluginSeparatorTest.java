@@ -41,6 +41,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestUserReceiveFails() {
       addCombinationValues("userName", new Object[]{"user"});
       addCombinationValues("password", new Object[]{"password"});
@@ -50,6 +51,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestInvalidAuthentication() {
       addCombinationValues("userName", new Object[]{"user"});
       addCombinationValues("password", new Object[]{"password"});
@@ -58,6 +60,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestUserReceiveSucceeds() {
       addCombinationValues("userName", new Object[]{"user"});
       addCombinationValues("password", new Object[]{"password"});
@@ -67,6 +70,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestGuestReceiveSucceeds() {
       addCombinationValues("userName", new Object[]{"guest"});
       addCombinationValues("password", new Object[]{"password"});
@@ -76,6 +80,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link org.apache.activemq.CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestGuestReceiveFails() {
       addCombinationValues("userName", new Object[]{"guest"});
       addCombinationValues("password", new Object[]{"password"});
@@ -85,6 +90,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link org.apache.activemq.CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestUserSendSucceeds() {
       addCombinationValues("userName", new Object[]{"user"});
       addCombinationValues("password", new Object[]{"password"});
@@ -94,6 +100,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link org.apache.activemq.CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestUserSendFails() {
       addCombinationValues("userName", new Object[]{"user"});
       addCombinationValues("password", new Object[]{"password"});
@@ -103,6 +110,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link org.apache.activemq.CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestGuestSendFails() {
       addCombinationValues("userName", new Object[]{"guest"});
       addCombinationValues("password", new Object[]{"password"});
@@ -112,6 +120,7 @@ public class SimpleAuthenticationPluginSeparatorTest extends SimpleAuthenticatio
    /**
     * @see {@link org.apache.activemq.CombinationTestSupport}
     */
+   @Override
    public void initCombosForTestGuestSendSucceeds() {
       addCombinationValues("userName", new Object[]{"guest"});
       addCombinationValues("password", new Object[]{"password"});

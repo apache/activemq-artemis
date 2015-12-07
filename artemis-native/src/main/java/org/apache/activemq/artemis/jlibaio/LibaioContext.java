@@ -86,6 +86,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          if (loadLibrary(library)) {
             loaded = true;
             Runtime.getRuntime().addShutdownHook(new Thread() {
+               @Override
                public void run() {
                   shuttingDown.set(true);
                   checkShutdown();

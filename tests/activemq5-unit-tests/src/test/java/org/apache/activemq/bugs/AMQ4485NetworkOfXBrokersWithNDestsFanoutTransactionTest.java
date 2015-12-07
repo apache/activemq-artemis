@@ -342,6 +342,7 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
       }
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

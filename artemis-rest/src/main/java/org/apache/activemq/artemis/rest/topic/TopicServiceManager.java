@@ -53,6 +53,7 @@ public class TopicServiceManager extends DestinationServiceManager {
       this.destination = destination;
    }
 
+   @Override
    public void start() throws Exception {
       initDefaults();
 
@@ -90,6 +91,7 @@ public class TopicServiceManager extends DestinationServiceManager {
       destination.createTopicResource(queueName, defaultDurable, topicDeployment.getConsumerSessionTimeoutSeconds(), topicDeployment.isDuplicatesAllowed());
    }
 
+   @Override
    public void stop() {
       if (started == false)
          return;

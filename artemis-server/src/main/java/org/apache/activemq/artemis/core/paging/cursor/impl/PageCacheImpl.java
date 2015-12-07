@@ -64,22 +64,27 @@ class PageCacheImpl implements PageCache {
       }
    }
 
+   @Override
    public long getPageId() {
       return page.getPageId();
    }
 
+   @Override
    public void lock() {
       lock.writeLock().lock();
    }
 
+   @Override
    public void unlock() {
       lock.writeLock().unlock();
    }
 
+   @Override
    public void setMessages(final PagedMessage[] messages) {
       this.messages = messages;
    }
 
+   @Override
    public int getNumberOfMessages() {
       lock.readLock().lock();
       try {
@@ -90,6 +95,7 @@ class PageCacheImpl implements PageCache {
       }
    }
 
+   @Override
    public void close() {
    }
 

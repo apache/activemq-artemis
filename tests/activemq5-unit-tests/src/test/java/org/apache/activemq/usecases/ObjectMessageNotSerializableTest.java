@@ -54,6 +54,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       junit.textui.TestRunner.run(suite());
    }
 
+   @Override
    protected void setUp() throws Exception {
       exceptions.clear();
       broker = createBroker();
@@ -67,6 +68,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       final CountDownLatch consumerStarted = new CountDownLatch(1);
 
       Thread vmConsumerThread = new Thread("Consumer Thread") {
+         @Override
          public void run() {
             try {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -95,6 +97,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       vmConsumerThread.start();
 
       Thread producingThread = new Thread("Producing Thread") {
+         @Override
          public void run() {
             try {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -137,6 +140,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       final CountDownLatch consumerStarted = new CountDownLatch(3);
       final Vector<Throwable> exceptions = new Vector<Throwable>();
       Thread vmConsumerThread = new Thread("Consumer Thread") {
+         @Override
          public void run() {
             try {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -165,6 +169,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       vmConsumerThread.start();
 
       Thread tcpConsumerThread = new Thread("Consumer Thread") {
+         @Override
          public void run() {
             try {
 
@@ -193,6 +198,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       tcpConsumerThread.start();
 
       Thread notherVmConsumerThread = new Thread("Consumer Thread") {
+         @Override
          public void run() {
             try {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -221,6 +227,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       notherVmConsumerThread.start();
 
       Thread producingThread = new Thread("Producing Thread") {
+         @Override
          public void run() {
             try {
                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
@@ -269,6 +276,7 @@ public class ObjectMessageNotSerializableTest extends CombinationTestSupport {
       return broker;
    }
 
+   @Override
    protected void tearDown() throws Exception {
       broker.stop();
       broker.waitUntilStopped();

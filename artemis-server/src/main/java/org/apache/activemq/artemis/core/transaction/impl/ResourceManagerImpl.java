@@ -91,22 +91,27 @@ public class ResourceManagerImpl implements ResourceManager {
 
    // ResourceManager implementation ---------------------------------------------
 
+   @Override
    public Transaction getTransaction(final Xid xid) {
       return transactions.get(xid);
    }
 
+   @Override
    public boolean putTransaction(final Xid xid, final Transaction tx) {
       return transactions.putIfAbsent(xid, tx) == null;
    }
 
+   @Override
    public Transaction removeTransaction(final Xid xid) {
       return transactions.remove(xid);
    }
 
+   @Override
    public int getTimeoutSeconds() {
       return defaultTimeoutSeconds;
    }
 
+   @Override
    public List<Xid> getPreparedTransactions() {
       List<Xid> xids = new ArrayList<Xid>();
 
@@ -118,6 +123,7 @@ public class ResourceManagerImpl implements ResourceManager {
       return xids;
    }
 
+   @Override
    public Map<Xid, Long> getPreparedTransactionsWithCreationTime() {
       Map<Xid, Long> xidsWithCreationTime = new HashMap<Xid, Long>();
 
@@ -127,18 +133,22 @@ public class ResourceManagerImpl implements ResourceManager {
       return xidsWithCreationTime;
    }
 
+   @Override
    public void putHeuristicCompletion(final long recordID, final Xid xid, final boolean isCommit) {
       heuristicCompletions.add(new HeuristicCompletionHolder(recordID, xid, isCommit));
    }
 
+   @Override
    public List<Xid> getHeuristicCommittedTransactions() {
       return getHeuristicCompletedTransactions(true);
    }
 
+   @Override
    public List<Xid> getHeuristicRolledbackTransactions() {
       return getHeuristicCompletedTransactions(false);
    }
 
+   @Override
    public long removeHeuristicCompletion(final Xid xid) {
       Iterator<HeuristicCompletionHolder> iterator = heuristicCompletions.iterator();
       while (iterator.hasNext()) {
@@ -167,6 +177,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
       private Future<?> future;
 
+      @Override
       public void run() {
          if (closed) {
             return;

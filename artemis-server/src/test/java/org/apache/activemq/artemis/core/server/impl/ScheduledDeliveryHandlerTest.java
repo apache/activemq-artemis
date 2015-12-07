@@ -198,6 +198,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       class ProducerThread implements Runnable {
 
+         @Override
          public void run() {
             try {
                for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {

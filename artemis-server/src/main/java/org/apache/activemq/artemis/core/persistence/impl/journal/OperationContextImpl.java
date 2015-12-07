@@ -98,28 +98,34 @@ public class OperationContextImpl implements OperationContext {
       this.executor = executor;
    }
 
+   @Override
    public void pageSyncLineUp() {
       pageLineUp.incrementAndGet();
    }
 
+   @Override
    public synchronized void pageSyncDone() {
       paged++;
       checkTasks();
    }
 
+   @Override
    public void storeLineUp() {
       storeLineUp.incrementAndGet();
    }
 
+   @Override
    public void replicationLineUp() {
       replicationLineUp.incrementAndGet();
    }
 
+   @Override
    public synchronized void replicationDone() {
       replicated++;
       checkTasks();
    }
 
+   @Override
    public void executeOnCompletion(final IOCallback completion) {
       if (errorCode != -1) {
          completion.onError(errorCode, errorMessage);
@@ -163,6 +169,7 @@ public class OperationContextImpl implements OperationContext {
 
    }
 
+   @Override
    public synchronized void done() {
       stored++;
       checkTasks();
@@ -194,6 +201,7 @@ public class OperationContextImpl implements OperationContext {
       executorsPending.incrementAndGet();
       try {
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   // If any IO is done inside the callback, it needs to be done on a new context

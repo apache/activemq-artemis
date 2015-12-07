@@ -32,10 +32,12 @@ public class ClientSASLPlain implements ClientSASL {
       this.password = password;
    }
 
+   @Override
    public String getName() {
       return "PLAIN";
    }
 
+   @Override
    public byte[] getBytes() {
 
       if (username == null) {

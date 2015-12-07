@@ -658,6 +658,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          this.name = name;
       }
 
+      @Override
       public void run() {
          try {
             Message lastMessage = null;
@@ -705,38 +706,48 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
       DummyXAResource() {
       }
 
+      @Override
       public void commit(final Xid arg0, final boolean arg1) throws XAException {
       }
 
+      @Override
       public void end(final Xid arg0, final int arg1) throws XAException {
       }
 
+      @Override
       public void forget(final Xid arg0) throws XAException {
       }
 
+      @Override
       public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
+      @Override
       public boolean isSameRM(final XAResource arg0) throws XAException {
          return false;
       }
 
+      @Override
       public int prepare(final Xid arg0) throws XAException {
          return XAResource.XA_OK;
       }
 
+      @Override
       public Xid[] recover(final int arg0) throws XAException {
          return null;
       }
 
+      @Override
       public void rollback(final Xid arg0) throws XAException {
       }
 
+      @Override
       public boolean setTransactionTimeout(final int arg0) throws XAException {
          return false;
       }
 
+      @Override
       public void start(final Xid arg0, final int arg1) throws XAException {
 
       }

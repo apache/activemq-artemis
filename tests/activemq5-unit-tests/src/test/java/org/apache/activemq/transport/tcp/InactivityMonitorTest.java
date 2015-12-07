@@ -55,6 +55,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
    private final AtomicBoolean ignoreClientError = new AtomicBoolean(false);
    private final AtomicBoolean ignoreServerError = new AtomicBoolean(false);
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       startTransportServer();
@@ -67,6 +68,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
    private void startClient() throws Exception, URISyntaxException {
       clientTransport = TransportFactory.connect(new URI("tcp://localhost:" + serverPort + "?trace=true&wireFormat.maxInactivityDuration=1000"));
       clientTransport.setTransportListener(new TransportListener() {
+         @Override
          public void onCommand(Object command) {
             clientReceiveCount.incrementAndGet();
             if (clientRunOnCommand != null) {
@@ -74,6 +76,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
             }
          }
 
+         @Override
          public void onException(IOException error) {
             if (!ignoreClientError.get()) {
                LOG.info("Client transport error:");
@@ -82,9 +85,11 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
             }
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -104,6 +109,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       serverPort = server.getSocketAddress().getPort();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       ignoreClientError.set(true);
       ignoreServerError.set(true);
@@ -124,11 +130,13 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       super.tearDown();
    }
 
+   @Override
    public void onAccept(Transport transport) {
       try {
          LOG.info("[" + getName() + "] Server Accepted a Connection");
          serverTransport = transport;
          serverTransport.setTransportListener(new TransportListener() {
+            @Override
             public void onCommand(Object command) {
                serverReceiveCount.incrementAndGet();
                if (serverRunOnCommand != null) {
@@ -136,6 +144,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
                }
             }
 
+            @Override
             public void onException(IOException error) {
                if (!ignoreClientError.get()) {
                   LOG.info("Server transport error:", error);
@@ -143,9 +152,11 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
                }
             }
 
+            @Override
             public void transportInterupted() {
             }
 
+            @Override
             public void transportResumed() {
             }
          });
@@ -156,6 +167,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       }
    }
 
+   @Override
    public void onAcceptError(Exception error) {
       LOG.trace(error.toString());
    }
@@ -168,6 +180,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       // this should simulate a client hang.
       clientTransport = new TcpTransport(new OpenWireFormat(), SocketFactory.getDefault(), new URI("tcp://localhost:" + serverPort), null);
       clientTransport.setTransportListener(new TransportListener() {
+         @Override
          public void onCommand(Object command) {
             clientReceiveCount.incrementAndGet();
             if (clientRunOnCommand != null) {
@@ -175,6 +188,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
             }
          }
 
+         @Override
          public void onException(IOException error) {
             if (!ignoreClientError.get()) {
                LOG.info("Client transport error:");
@@ -183,9 +197,11 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
             }
          }
 
+         @Override
          public void transportInterupted() {
          }
 
+         @Override
          public void transportResumed() {
          }
       });
@@ -232,6 +248,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       addCombinationValues("clientInactivityLimit", new Object[]{Long.valueOf(1000)});
       addCombinationValues("serverInactivityLimit", new Object[]{Long.valueOf(1000)});
       addCombinationValues("serverRunOnCommand", new Object[]{new Runnable() {
+         @Override
          public void run() {
             try {
                LOG.info("Sleeping");

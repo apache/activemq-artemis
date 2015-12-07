@@ -49,6 +49,7 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
     *
     * @see junit.framework.TestCase#setUp()
     */
+   @Override
    protected void setUp() throws Exception {
       this.durable = true;
       super.setUp();

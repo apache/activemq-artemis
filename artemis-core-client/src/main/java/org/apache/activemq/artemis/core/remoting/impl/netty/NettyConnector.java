@@ -346,6 +346,7 @@ public class NettyConnector extends AbstractConnector {
          "]";
    }
 
+   @Override
    public synchronized void start() {
       if (channelClazz != null) {
          return;
@@ -454,6 +455,7 @@ public class NettyConnector extends AbstractConnector {
       }
 
       bootstrap.handler(new ChannelInitializer<Channel>() {
+         @Override
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled && !useServlet) {
@@ -528,6 +530,7 @@ public class NettyConnector extends AbstractConnector {
       ActiveMQClientLogger.LOGGER.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
    }
 
+   @Override
    public synchronized void close() {
       if (channelClazz == null) {
          return;
@@ -559,10 +562,12 @@ public class NettyConnector extends AbstractConnector {
       connections.clear();
    }
 
+   @Override
    public boolean isStarted() {
       return channelClazz != null;
    }
 
+   @Override
    public Connection createConnection() {
       if (channelClazz == null) {
          return null;
@@ -866,6 +871,7 @@ public class NettyConnector extends AbstractConnector {
 
          private java.util.concurrent.Future<?> future;
 
+         @Override
          public synchronized void run() {
             if (closed) {
                return;
@@ -895,6 +901,7 @@ public class NettyConnector extends AbstractConnector {
 
    private class Listener implements ConnectionLifeCycleListener {
 
+      @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
                                     final String protocol) {
@@ -903,10 +910,12 @@ public class NettyConnector extends AbstractConnector {
          }
       }
 
+      @Override
       public void connectionDestroyed(final Object connectionID) {
          if (connections.remove(connectionID) != null) {
             // Execute on different thread to avoid deadlocks
             closeExecutor.execute(new Runnable() {
+               @Override
                public void run() {
                   listener.connectionDestroyed(connectionID);
                }
@@ -914,15 +923,18 @@ public class NettyConnector extends AbstractConnector {
          }
       }
 
+      @Override
       public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
          closeExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                listener.connectionException(connectionID, me);
             }
          });
       }
 
+      @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
          listener.connectionReadyForWrites(connectionID, ready);
       }
@@ -933,6 +945,7 @@ public class NettyConnector extends AbstractConnector {
 
       private boolean cancelled;
 
+      @Override
       public synchronized void run() {
          if (!cancelled) {
             for (Connection connection : connections.values()) {
@@ -946,6 +959,7 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
+   @Override
    public boolean isEquivalent(Map<String, Object> configuration) {
       //here we only check host and port because these two parameters
       //is sufficient to determine the target host
@@ -976,6 +990,7 @@ public class NettyConnector extends AbstractConnector {
       return result;
    }
 
+   @Override
    public void finalize() throws Throwable {
       close();
       super.finalize();
@@ -992,6 +1007,7 @@ public class NettyConnector extends AbstractConnector {
 
    private static ClassLoader getThisClassLoader() {
       return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         @Override
          public ClassLoader run() {
             return ClientSessionFactoryImpl.class.getClassLoader();
          }

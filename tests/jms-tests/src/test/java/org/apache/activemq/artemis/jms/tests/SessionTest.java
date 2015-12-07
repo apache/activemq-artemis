@@ -238,6 +238,7 @@ public class SessionTest extends ActiveMQServerTestCase {
             this.consumer = consumer;
          }
 
+         @Override
          public void run() {
             try {
                m = consumer.receive(3000);

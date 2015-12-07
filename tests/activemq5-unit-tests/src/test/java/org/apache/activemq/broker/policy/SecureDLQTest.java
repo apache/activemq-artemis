@@ -65,9 +65,11 @@ public class SecureDLQTest extends DeadLetterTestSupport {
    }
 
    // lets disable the inapplicable tests
+   @Override
    public void testTransientTopicMessage() throws Exception {
    }
 
+   @Override
    public void testDurableTopicMessage() throws Exception {
    }
 

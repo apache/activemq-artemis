@@ -28,6 +28,7 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
 
    protected final int groupPort = ActiveMQTestBase.getUDPDiscoveryPort();
 
+   @Override
    protected boolean isNetty() {
       return false;
    }

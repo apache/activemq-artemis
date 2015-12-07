@@ -54,6 +54,7 @@ public class ActiveMQXATopicConnectionFactory extends ActiveMQConnectionFactory 
       super(ha, initialConnectors);
    }
 
+   @Override
    public int getFactoryType() {
       return JMSFactoryType.TOPIC_XA_CF.intValue();
    }

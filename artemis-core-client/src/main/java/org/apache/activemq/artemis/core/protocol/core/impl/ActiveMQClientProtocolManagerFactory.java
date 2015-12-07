@@ -45,6 +45,7 @@ public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManag
       return factory;
    }
 
+   @Override
    public ClientProtocolManager newProtocolManager() {
       return new ActiveMQClientProtocolManager();
    }

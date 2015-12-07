@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.stress.journal;
 
 public class AllPossibilitiesCompactStressTest extends MixupCompactorTestBase {
 
+   @Override
    public void internalTest() throws Exception {
       createJournal();
 

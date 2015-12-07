@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
  */
 public abstract class TransactionOperationAbstract implements TransactionOperation {
 
+   @Override
    public void beforePrepare(Transaction tx) throws Exception {
 
    }
@@ -35,10 +36,12 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before prepare
     */
+   @Override
    public void afterPrepare(Transaction tx) {
 
    }
 
+   @Override
    public void beforeCommit(Transaction tx) throws Exception {
    }
 
@@ -47,9 +50,11 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before commit
     */
+   @Override
    public void afterCommit(Transaction tx) {
    }
 
+   @Override
    public void beforeRollback(Transaction tx) throws Exception {
    }
 
@@ -58,6 +63,7 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before rollback
     */
+   @Override
    public void afterRollback(Transaction tx) {
    }
 

@@ -52,6 +52,7 @@ public class TopicProducerFlowControlTest extends TestCase implements MessageLis
 
    private BrokerService broker;
 
+   @Override
    protected void setUp() throws Exception {
       // Setup and start the broker
       broker = new BrokerService();
@@ -93,6 +94,7 @@ public class TopicProducerFlowControlTest extends TestCase implements MessageLis
       broker.setDestinationPolicy(pm);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       broker.stop();
       broker.waitUntilStopped();
@@ -129,6 +131,7 @@ public class TopicProducerFlowControlTest extends TestCase implements MessageLis
       final MessageProducer producer = session.createProducer(destination);
 
       Thread producingThread = new Thread("Producing Thread") {
+         @Override
          public void run() {
             try {
                for (long i = 0; i < numMessagesToSend; i++) {
@@ -157,6 +160,7 @@ public class TopicProducerFlowControlTest extends TestCase implements MessageLis
       producingThread.start();
 
       Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return consumed.get() == numMessagesToSend;
          }
@@ -166,6 +170,7 @@ public class TopicProducerFlowControlTest extends TestCase implements MessageLis
       assertEquals("Didn't consume all messages", numMessagesToSend, consumed.get());
 
       assertTrue("Producer got blocked", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             return blockedCounter.get() > 0;
          }

@@ -45,6 +45,7 @@ public class MultipleTestsWithSpringFactoryBeanTest extends TestCase {
    public void test2() throws Exception {
    }
 
+   @Override
    protected void setUp() throws Exception {
       LOG.info("### starting up the test case: " + getName());
 
@@ -60,6 +61,7 @@ public class MultipleTestsWithSpringFactoryBeanTest extends TestCase {
       LOG.info("### started up the test case: " + getName());
    }
 
+   @Override
    protected void tearDown() throws Exception {
       connection.close();
 

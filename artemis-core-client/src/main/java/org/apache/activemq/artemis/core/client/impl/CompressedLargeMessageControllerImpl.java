@@ -47,6 +47,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    /**
     *
     */
+   @Override
    public void discardUnusedPackets() {
       bufferDelegate.discardUnusedPackets();
    }
@@ -54,22 +55,27 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    /**
     * Add a buff to the List, or save it to the OutputStream if set
     */
+   @Override
    public void addPacket(byte[] chunk, int flowControlSize, boolean isContinues) {
       bufferDelegate.addPacket(chunk, flowControlSize, isContinues);
    }
 
+   @Override
    public synchronized void cancel() {
       bufferDelegate.cancel();
    }
 
+   @Override
    public synchronized void close() {
       bufferDelegate.cancel();
    }
 
+   @Override
    public void setOutputStream(final OutputStream output) throws ActiveMQException {
       bufferDelegate.setOutputStream(new InflaterWriter(output));
    }
 
+   @Override
    public synchronized void saveBuffer(final OutputStream output) throws ActiveMQException {
       setOutputStream(output);
       waitCompletion(0);
@@ -78,6 +84,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    /**
     * @param timeWait Milliseconds to Wait. 0 means forever
     */
+   @Override
    public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException {
       return bufferDelegate.waitCompletion(timeWait);
    }
@@ -108,6 +115,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalStateException("Position not supported over compressed large messages");
    }
 
+   @Override
    public byte readByte() {
       try {
          return getStream().readByte();
@@ -196,82 +204,102 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public int readerIndex() {
       return 0;
    }
 
+   @Override
    public void readerIndex(final int readerIndex) {
       // TODO
    }
 
+   @Override
    public int writerIndex() {
       // TODO
       return 0;
    }
 
+   @Override
    public long getSize() {
       return this.bufferDelegate.getSize();
    }
 
+   @Override
    public void writerIndex(final int writerIndex) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setIndex(final int readerIndex, final int writerIndex) {
       positioningNotSupported();
    }
 
+   @Override
    public void clear() {
    }
 
+   @Override
    public boolean readable() {
       return true;
    }
 
+   @Override
    public boolean writable() {
       return false;
    }
 
+   @Override
    public int readableBytes() {
       return 1;
    }
 
+   @Override
    public int writableBytes() {
       return 0;
    }
 
+   @Override
    public void markReaderIndex() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void resetReaderIndex() {
       // TODO: reset positioning if possible
    }
 
+   @Override
    public void markWriterIndex() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void resetWriterIndex() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void discardReadBytes() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public short getUnsignedByte(final int index) {
       return (short) (getByte(index) & 0xFF);
    }
 
+   @Override
    public int getUnsignedShort(final int index) {
       return getShort(index) & 0xFFFF;
    }
 
+   @Override
    public long getUnsignedInt(final int index) {
       return getInt(index) & 0xFFFFFFFFL;
    }
 
+   @Override
    public void getBytes(int index, final byte[] dst) {
       // TODO: optimize this by using System.arraycopy
       for (int i = 0; i < dst.length; i++) {
@@ -279,10 +307,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst) {
       getBytes(index, dst, dst.writableBytes());
    }
 
+   @Override
    public void getBytes(final int index, final ActiveMQBuffer dst, final int length) {
       if (length > dst.writableBytes()) {
          throw new IndexOutOfBoundsException();
@@ -291,18 +321,22 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       dst.writerIndex(dst.writerIndex() + length);
    }
 
+   @Override
    public void setBytes(final int index, final byte[] src) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setBytes(final int index, final ActiveMQBuffer src, final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public int readUnsignedByte() {
       try {
          return getStream().readUnsignedByte();
@@ -312,6 +346,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public short readShort() {
       try {
          return getStream().readShort();
@@ -321,6 +356,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public int readUnsignedShort() {
       try {
          return getStream().readUnsignedShort();
@@ -330,6 +366,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public int readInt() {
       try {
          return getStream().readInt();
@@ -339,10 +376,12 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public long readUnsignedInt() {
       return readInt() & 0xFFFFFFFFL;
    }
 
+   @Override
    public long readLong() {
       try {
          return getStream().readLong();
@@ -352,6 +391,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public void readBytes(final byte[] dst, final int dstIndex, final int length) {
       try {
          int nReadBytes = getStream().read(dst, dstIndex, length);
@@ -364,14 +404,17 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       }
    }
 
+   @Override
    public void readBytes(final byte[] dst) {
       readBytes(dst, 0, dst.length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst) {
       readBytes(dst, dst.writableBytes());
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int length) {
       if (length > dst.writableBytes()) {
          throw new IndexOutOfBoundsException();
@@ -380,18 +423,21 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       dst.writerIndex(dst.writerIndex() + length);
    }
 
+   @Override
    public void readBytes(final ActiveMQBuffer dst, final int dstIndex, final int length) {
       byte[] destBytes = new byte[length];
       readBytes(destBytes);
       dst.setBytes(dstIndex, destBytes);
    }
 
+   @Override
    public void readBytes(final ByteBuffer dst) {
       byte[] bytesToGet = new byte[dst.remaining()];
       readBytes(bytesToGet);
       dst.put(bytesToGet);
    }
 
+   @Override
    public int skipBytes(final int length) {
 
       try {
@@ -425,38 +471,47 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
    }
 
 
+   @Override
    public void writeByte(final byte value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeShort(final short value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeInt(final int value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeLong(final long value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeBytes(final byte[] src, final int srcIndex, final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeBytes(final byte[] src) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeBytes(final ByteBuffer src) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public ByteBuffer toByteBuffer() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
@@ -475,18 +530,22 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       return (char) readShort();
    }
 
+   @Override
    public char getChar(final int index) {
       return (char) getShort(index);
    }
 
+   @Override
    public double getDouble(final int index) {
       return Double.longBitsToDouble(getLong(index));
    }
 
+   @Override
    public float getFloat(final int index) {
       return Float.intBitsToFloat(getInt(index));
    }
 
+   @Override
    public ActiveMQBuffer readBytes(final int length) {
       byte[] bytesToGet = new byte[length];
       readBytes(bytesToGet);
@@ -604,48 +663,59 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public ActiveMQBuffer copy() {
       throw new UnsupportedOperationException();
    }
 
+   @Override
    public ActiveMQBuffer slice(final int index, final int length) {
       throw new UnsupportedOperationException();
    }
 
    // Inner classes -------------------------------------------------
 
+   @Override
    public ByteBuf byteBuf() {
       return null;
    }
 
+   @Override
    public ActiveMQBuffer copy(final int index, final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public ActiveMQBuffer duplicate() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public ActiveMQBuffer readSlice(final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setChar(final int index, final char value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setDouble(final int index, final double value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void setFloat(final int index, final float value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public ActiveMQBuffer slice() {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
+   @Override
    public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }

@@ -80,6 +80,7 @@ public final class TransactionRollbackOrderTest extends TestCase {
          int msgCount;
          int msgCommittedCount;
 
+         @Override
          public void onMessage(Message m) {
             try {
                msgCount++;
@@ -154,6 +155,7 @@ public final class TransactionRollbackOrderTest extends TestCase {
 
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          LOG.info("Closing the connection");

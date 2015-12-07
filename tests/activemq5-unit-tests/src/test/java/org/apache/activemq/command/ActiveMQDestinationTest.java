@@ -75,13 +75,16 @@ public class ActiveMQDestinationTest extends DataStructureTestSupport {
          this.topicName = topicName;
       }
 
+      @Override
       public void delete() throws JMSException {
       }
 
+      @Override
       public String getTopicName() throws JMSException {
          return topicName;
       }
 
+      @Override
       public String getQueueName() throws JMSException {
          return qName;
       }

@@ -207,6 +207,7 @@ public class JMSUtil {
             connectionFailed(me, failedOver);
          }
 
+         @Override
          public void beforeReconnect(ActiveMQException exception) {
             System.out.println("MyListener.beforeReconnect");
          }

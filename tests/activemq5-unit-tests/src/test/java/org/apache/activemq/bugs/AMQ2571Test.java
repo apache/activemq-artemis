@@ -56,6 +56,7 @@ public class AMQ2571Test extends EmbeddedBrokerTestSupport {
          final TextMessage message = sessionB.createTextMessage("Testing AMQ TempQueue.");
 
          Thread sendingThread = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   long end = System.currentTimeMillis() + 5 * 60 * 1000;

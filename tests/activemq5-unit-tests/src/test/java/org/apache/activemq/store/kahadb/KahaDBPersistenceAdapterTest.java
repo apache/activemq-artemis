@@ -27,6 +27,7 @@ import org.apache.activemq.store.PersistenceAdapterTestSupport;
  */
 public class KahaDBPersistenceAdapterTest extends PersistenceAdapterTestSupport {
 
+   @Override
    protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
       KahaDBStore kaha = new KahaDBStore();
       kaha.setDirectory(new File("target/activemq-data/kahadb"));

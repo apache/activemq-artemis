@@ -148,6 +148,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
          this.handler = handler;
       }
 
+      @Override
       public void run() {
          Proposal proposal = new Proposal(code, ANYCLUSTER);
 

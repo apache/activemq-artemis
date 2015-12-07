@@ -37,12 +37,14 @@ public class ConnectionIdTest extends DataFileGeneratorTestSupport {
 
    public static ConnectionIdTest SINGLETON = new ConnectionIdTest();
 
+   @Override
    public Object createObject() throws Exception {
       ConnectionId info = new ConnectionId();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ConnectionId info = (ConnectionId) object;

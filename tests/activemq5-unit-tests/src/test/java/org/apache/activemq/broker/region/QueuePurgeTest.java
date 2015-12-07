@@ -59,6 +59,7 @@ public class QueuePurgeTest extends CombinationTestSupport {
    Queue queue;
    MessageConsumer consumer;
 
+   @Override
    protected void setUp() throws Exception {
       setMaxTestTime(10 * 60 * 1000); // 10 mins
       setAutoFail(true);
@@ -80,6 +81,7 @@ public class QueuePurgeTest extends CombinationTestSupport {
       connection.start();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
       if (consumer != null) {

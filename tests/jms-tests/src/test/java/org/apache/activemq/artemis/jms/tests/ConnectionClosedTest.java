@@ -136,6 +136,7 @@ public class ConnectionClosedTest extends JMSTestCase {
 
          public String failed;
 
+         @Override
          public void run() {
             try {
                long start = System.currentTimeMillis();

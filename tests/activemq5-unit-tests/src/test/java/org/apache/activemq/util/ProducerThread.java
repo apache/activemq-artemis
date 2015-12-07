@@ -36,6 +36,7 @@ public class ProducerThread extends Thread {
       this.sess = sess;
    }
 
+   @Override
    public void run() {
       MessageProducer producer = null;
       try {

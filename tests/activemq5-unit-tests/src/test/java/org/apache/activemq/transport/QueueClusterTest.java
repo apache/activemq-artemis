@@ -21,11 +21,13 @@ package org.apache.activemq.transport;
  */
 public class QueueClusterTest extends TopicClusterTest {
 
+   @Override
    protected void setUp() throws Exception {
       topic = false;
       super.setUp();
    }
 
+   @Override
    protected int expectedReceiveCount() {
       return MESSAGE_COUNT * NUMBER_IN_CLUSTER;
    }

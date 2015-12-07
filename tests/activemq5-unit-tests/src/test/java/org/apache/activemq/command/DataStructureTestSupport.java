@@ -149,6 +149,7 @@ public abstract class DataStructureTestSupport extends CombinationTestSupport {
       }
    }
 
+   @Override
    protected void setUp() throws Exception {
       wireFormat = createWireFormat();
       super.setUp();

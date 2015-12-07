@@ -1772,6 +1772,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
       Exception ex;
 
+      @Override
       public void run() {
          try {
             for (int i = 0; i < numMessages; i++) {

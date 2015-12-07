@@ -145,6 +145,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     *
     * @throws ActiveMQException if an exception occurs while closing the session
     */
+   @Override
    void close() throws ActiveMQException;
 
    /**

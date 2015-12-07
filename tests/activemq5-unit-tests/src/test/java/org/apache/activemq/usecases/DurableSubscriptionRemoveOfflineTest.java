@@ -33,11 +33,13 @@ public class DurableSubscriptionRemoveOfflineTest extends EmbeddedBrokerTestSupp
 
    private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionRemoveOfflineTest.class);
 
+   @Override
    protected void setUp() throws Exception {
       useTopic = true;
       super.setUp();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }
@@ -108,6 +110,7 @@ public class DurableSubscriptionRemoveOfflineTest extends EmbeddedBrokerTestSupp
       }, 20000));
    }
 
+   @Override
    protected boolean isPersistent() {
       return true;
    }

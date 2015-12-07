@@ -153,6 +153,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
          List<Thread> threads = new LinkedList<Thread>();
 
          threads.add(new Thread("ConsumerCloser") {
+            @Override
             public void run() {
                try {
                   System.out.println(Thread.currentThread().getName() + " closing consumer");
@@ -166,6 +167,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
          });
 
          threads.add(new Thread("SessionCloser") {
+            @Override
             public void run() {
                for (ServerSession sess : serverSessions) {
                   System.out.println("Thread " + Thread.currentThread().getName() + " starting");

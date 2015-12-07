@@ -88,86 +88,107 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             }
          }
 
+         @Override
          public boolean changeMessagePriority(final String messageID, final int newPriority) throws Exception {
             return (Boolean) proxy.invokeOperation("changeMessagePriority", messageID, newPriority);
          }
 
+         @Override
          public int changeMessagesPriority(final String filter, final int newPriority) throws Exception {
             return (Integer) proxy.invokeOperation("changeMessagesPriority", filter, newPriority);
          }
 
+         @Override
          public long countMessages(final String filter) throws Exception {
             return ((Number) proxy.invokeOperation("countMessages", filter)).intValue();
          }
 
+         @Override
          public boolean expireMessage(final String messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("expireMessage", messageID);
          }
 
+         @Override
          public int expireMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("expireMessages", filter);
          }
 
+         @Override
          public int getConsumerCount() {
             return (Integer) proxy.retrieveAttributeValue("consumerCount");
          }
 
+         @Override
          public String getDeadLetterAddress() {
             return (String) proxy.retrieveAttributeValue("deadLetterAddress");
          }
 
+         @Override
          public int getDeliveringCount() {
             return (Integer) proxy.retrieveAttributeValue("deliveringCount");
          }
 
+         @Override
          public String getExpiryAddress() {
             return (String) proxy.retrieveAttributeValue("expiryAddress");
          }
 
+         @Override
          public String getFirstMessageAsJSON() throws Exception {
             return (String) proxy.retrieveAttributeValue("firstMessageAsJSON");
          }
 
+         @Override
          public Long getFirstMessageTimestamp() throws Exception {
             return (Long) proxy.retrieveAttributeValue("firstMessageTimestamp");
          }
 
+         @Override
          public Long getFirstMessageAge() throws Exception {
             return (Long) proxy.retrieveAttributeValue("firstMessageAge");
          }
 
+         @Override
          public long getMessageCount() {
             return ((Number) proxy.retrieveAttributeValue("messageCount")).longValue();
          }
 
+         @Override
          public long getMessagesAdded() {
             return (Integer) proxy.retrieveAttributeValue("messagesAdded");
          }
 
+         @Override
          public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
+         @Override
          public long getScheduledCount() {
             return (Long) proxy.retrieveAttributeValue("scheduledCount");
          }
 
+         @Override
          public boolean isTemporary() {
             return (Boolean) proxy.retrieveAttributeValue("temporary");
          }
 
+         @Override
          public String listMessageCounter() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounter");
          }
 
+         @Override
          public void resetMessageCounter() throws Exception {
             proxy.invokeOperation("resetMessageCounter");
          }
 
+         @Override
          public String listMessageCounterAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterAsHTML");
          }
 
+         @Override
          public String listMessageCounterHistory() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterHistory");
          }
@@ -176,10 +197,12 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             return (Boolean) proxy.invokeOperation("retryMessage",messageID);
          }
 
+         @Override
          public int retryMessages() throws Exception {
             return (Integer) proxy.invokeOperation("retryMessages");
          }
 
+         @Override
          public boolean retryMessage(final String messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("retryMessage",messageID);
          }
@@ -204,10 +227,12 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             return null;
          }
 
+         @Override
          public String listMessageCounterHistoryAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listMessageCounterHistoryAsHTML");
          }
 
+         @Override
          public Map<String, Object>[] listMessages(final String filter) throws Exception {
             Object[] res = (Object[]) proxy.invokeOperation("listMessages", filter);
             Map<String, Object>[] results = new Map[res.length];
@@ -217,40 +242,49 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             return results;
          }
 
+         @Override
          public String listMessagesAsJSON(final String filter) throws Exception {
             return (String) proxy.invokeOperation("listMessagesAsJSON", filter);
          }
 
+         @Override
          public boolean moveMessage(String messageID,
                                     String otherQueueName,
                                     boolean rejectDuplicates) throws Exception {
             return (Boolean) proxy.invokeOperation("moveMessage", messageID, otherQueueName, rejectDuplicates);
          }
 
+         @Override
          public int moveMessages(String filter, String otherQueueName, boolean rejectDuplicates) throws Exception {
             return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName, rejectDuplicates);
          }
 
+         @Override
          public int moveMessages(final String filter, final String otherQueueName) throws Exception {
             return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName);
          }
 
+         @Override
          public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception {
             return (Boolean) proxy.invokeOperation("moveMessage", messageID, otherQueueName);
          }
 
+         @Override
          public int removeMessages(final String filter) throws Exception {
             return (Integer) proxy.invokeOperation("removeMessages", filter);
          }
 
+         @Override
          public boolean removeMessage(final String messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("removeMessage", messageID);
          }
 
+         @Override
          public boolean sendMessageToDeadLetterAddress(final String messageID) throws Exception {
             return (Boolean) proxy.invokeOperation("sendMessageToDeadLetterAddress", messageID);
          }
 
+         @Override
          public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
             return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
          }
@@ -263,36 +297,44 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
             proxy.invokeOperation("setExpiryAddress", expiryAddress);
          }
 
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
+         @Override
          public boolean isPaused() throws Exception {
             return (Boolean) proxy.invokeOperation("isPaused");
          }
 
+         @Override
          public void pause() throws Exception {
             proxy.invokeOperation("pause");
          }
 
+         @Override
          public void resume() throws Exception {
             proxy.invokeOperation("resume");
          }
 
+         @Override
          public String getSelector() {
             return (String) proxy.retrieveAttributeValue("selector");
          }
 
+         @Override
          public void addBinding(String jndi) throws Exception {
             // TODO: Add a test for this
             proxy.invokeOperation("addBindings", jndi);
          }
 
+         @Override
          public String[] getRegistryBindings() {
             // TODO: Add a test for this
             return null;
          }
 
+         @Override
          public String listConsumersAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listConsumersAsJSON");
          }

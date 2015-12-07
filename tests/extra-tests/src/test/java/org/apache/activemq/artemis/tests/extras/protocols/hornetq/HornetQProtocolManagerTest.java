@@ -50,6 +50,7 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
    EmbeddedJMS embeddedJMS;
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -69,6 +70,7 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
       embeddedJMS.start();
    }
 
+   @Override
    public void tearDown() throws Exception {
       embeddedJMS.stop();
       super.tearDown();

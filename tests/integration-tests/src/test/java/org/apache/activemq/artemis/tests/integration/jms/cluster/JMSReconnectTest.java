@@ -306,6 +306,7 @@ public class JMSReconnectTest extends ActiveMQTestBase {
 
       volatile JMSException e;
 
+      @Override
       public void onException(final JMSException e) {
          this.e = e;
       }

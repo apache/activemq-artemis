@@ -74,6 +74,7 @@ public class PropertiesLoader {
          return other instanceof FileNameKey && this.absPath.equals(((FileNameKey) other).absPath);
       }
 
+      @Override
       public int hashCode() {
          return this.absPath.hashCode();
       }
@@ -115,6 +116,7 @@ public class PropertiesLoader {
          return baseDir;
       }
 
+      @Override
       public String toString() {
          return "PropsFile=" + absPath;
       }

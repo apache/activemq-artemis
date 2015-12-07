@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
  */
 public class SimpleInterceptor implements Interceptor {
 
+   @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
       System.out.println("SimpleInterceptor gets called!");
       System.out.println("Packet: " + packet.getClass().getName());

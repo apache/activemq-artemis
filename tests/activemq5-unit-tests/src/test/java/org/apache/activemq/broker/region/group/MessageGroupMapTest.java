@@ -75,6 +75,7 @@ public class MessageGroupMapTest extends TestCase {
       assertContains(set, "2");
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       map = createMessageGroupMap();

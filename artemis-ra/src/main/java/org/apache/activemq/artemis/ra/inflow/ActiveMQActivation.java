@@ -400,6 +400,7 @@ public class ActiveMQActivation {
       }
 
       Thread threadTearDown = new Thread("TearDown/ActiveMQActivation") {
+         @Override
          public void run() {
             for (ActiveMQMessageHandler handler : handlersCopy) {
                handler.teardown();
@@ -711,6 +712,7 @@ public class ActiveMQActivation {
     */
    private class SetupActivation implements Work {
 
+      @Override
       public void run() {
          try {
             setup();
@@ -720,6 +722,7 @@ public class ActiveMQActivation {
          }
       }
 
+      @Override
       public void release() {
       }
    }

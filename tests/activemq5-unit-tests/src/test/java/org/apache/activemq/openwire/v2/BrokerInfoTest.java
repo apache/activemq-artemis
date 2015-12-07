@@ -28,12 +28,14 @@ public class BrokerInfoTest extends BaseCommandTestSupport {
 
    public static final BrokerInfoTest SINGLETON = new BrokerInfoTest();
 
+   @Override
    public Object createObject() throws Exception {
       BrokerInfo info = new BrokerInfo();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       BrokerInfo info = (BrokerInfo) object;

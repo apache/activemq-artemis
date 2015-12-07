@@ -51,6 +51,7 @@ public class ProtonClientContext extends AbstractProtonContextSender implements 
       }
    }
 
+   @Override
    public void send(ProtonJMessage message) {
       if (sender.getSenderSettleMode() != SenderSettleMode.SETTLED) {
          catchUpRunnable.countUp();

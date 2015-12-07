@@ -33,6 +33,7 @@ import javax.jms.Session;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
 
@@ -47,6 +48,7 @@ public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {
       return broker;
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerTwoConsumersSmallMessagesOnePrefetch() throws Exception {
       super.testOneProducerTwoConsumersSmallMessagesOnePrefetch();
@@ -57,12 +59,14 @@ public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {
       assertEachConsumerReceivedAtLeastXMessages(1);
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
       super.testOneProducerTwoConsumersSmallMessagesLargePrefetch();
       assertMessagesDividedAmongConsumers();
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerTwoConsumersLargeMessagesOnePrefetch() throws Exception {
       super.testOneProducerTwoConsumersLargeMessagesOnePrefetch();
@@ -73,12 +77,14 @@ public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {
       assertEachConsumerReceivedAtLeastXMessages(1);
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
       super.testOneProducerTwoConsumersLargeMessagesLargePrefetch();
       assertMessagesDividedAmongConsumers();
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerManyConsumersFewMessages() throws Exception {
       super.testOneProducerManyConsumersFewMessages();
@@ -88,12 +94,14 @@ public class RoundRobinDispatchPolicyTest extends QueueSubscriptionTest {
       assertMessagesDividedAmongConsumers();
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testOneProducerManyConsumersManyMessages() throws Exception {
       super.testOneProducerManyConsumersManyMessages();
       assertMessagesDividedAmongConsumers();
    }
 
+   @Override
    @Test(timeout = 60 * 1000)
    public void testManyProducersManyConsumers() throws Exception {
       super.testManyProducersManyConsumers();

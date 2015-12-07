@@ -78,14 +78,17 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
    // Public --------------------------------------------------------
 
+   @Override
    public final boolean exists() {
       return file.exists();
    }
 
+   @Override
    public final String getFileName() {
       return file.getName();
    }
 
+   @Override
    public final void delete() throws IOException, InterruptedException, ActiveMQException {
       if (isOpen()) {
          close();
@@ -96,6 +99,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public void copyTo(SequentialFile newFileName) throws Exception {
       try {
          ActiveMQJournalLogger.LOGGER.debug("Copying " + this + " as " + newFileName);
@@ -134,10 +138,12 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       position.set(pos);
    }
 
+   @Override
    public long position() {
       return position.get();
    }
 
+   @Override
    public final void renameTo(final String newFileName) throws IOException, InterruptedException, ActiveMQException {
       try {
          close();
@@ -161,11 +167,13 @@ public abstract class AbstractSequentialFile implements SequentialFile {
     * @throws IOException       we declare throwing IOException because sub-classes need to do it
     * @throws ActiveMQException
     */
+   @Override
    public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
       final CountDownLatch donelatch = new CountDownLatch(1);
 
       if (writerExecutor != null) {
          writerExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                donelatch.countDown();
             }
@@ -177,6 +185,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public final boolean fits(final int size) {
       if (timedBuffer == null) {
          return position.get() + size <= fileSize;
@@ -186,6 +195,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public void setTimedBuffer(final TimedBuffer buffer) {
       if (timedBuffer != null) {
          timedBuffer.setObserver(null);
@@ -199,6 +209,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
    }
 
+   @Override
    public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws IOException {
       if (timedBuffer != null) {
          bytes.setIndex(0, bytes.capacity());
@@ -212,6 +223,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public void write(final ActiveMQBuffer bytes,
                      final boolean sync) throws IOException, InterruptedException, ActiveMQException {
       if (sync) {
@@ -226,6 +238,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
       if (timedBuffer != null) {
          timedBuffer.addBytes(bytes, sync, callback);
@@ -244,6 +257,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       }
    }
 
+   @Override
    public void write(final EncodingSupport bytes, final boolean sync) throws InterruptedException, ActiveMQException {
       if (sync) {
          SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
@@ -269,6 +283,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          this.delegates = delegates;
       }
 
+      @Override
       public void done() {
          for (IOCallback callback : delegates) {
             try {
@@ -280,6 +295,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          }
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
          for (IOCallback callback : delegates) {
             try {
@@ -303,6 +319,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
    protected class LocalBufferObserver implements TimedBufferObserver {
 
+      @Override
       public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks) {
          buffer.flip();
 
@@ -314,10 +331,12 @@ public abstract class AbstractSequentialFile implements SequentialFile {
          }
       }
 
+      @Override
       public ByteBuffer newBuffer(final int size, final int limit) {
          return AbstractSequentialFile.this.newBuffer(size, limit);
       }
 
+      @Override
       public int getRemainingBytes() {
          if (fileSize - position.get() > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;

@@ -35,6 +35,7 @@ public final class FakePagingManager implements PagingManager {
       return 0;
    }
 
+   @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 
@@ -46,6 +47,7 @@ public final class FakePagingManager implements PagingManager {
       return 0;
    }
 
+   @Override
    public SimpleString[] getStoreNames() {
       return null;
    }
@@ -54,13 +56,16 @@ public final class FakePagingManager implements PagingManager {
       return 0;
    }
 
+   @Override
    public PagingStore getPageStore(final SimpleString address) throws Exception {
       return null;
    }
 
+   @Override
    public void deletePageStore(SimpleString storeName) throws Exception {
    }
 
+   @Override
    public PageTransactionInfo getTransaction(final long transactionID) {
       return null;
    }
@@ -87,9 +92,11 @@ public final class FakePagingManager implements PagingManager {
       return false;
    }
 
+   @Override
    public void reloadStores() throws Exception {
    }
 
+   @Override
    public void removeTransaction(final long transactionID) {
 
    }
@@ -106,13 +113,16 @@ public final class FakePagingManager implements PagingManager {
    public void sync(final Collection<SimpleString> destinationsToSync) throws Exception {
    }
 
+   @Override
    public boolean isStarted() {
       return false;
    }
 
+   @Override
    public void start() throws Exception {
    }
 
+   @Override
    public void stop() throws Exception {
    }
 
@@ -128,6 +138,7 @@ public final class FakePagingManager implements PagingManager {
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#getTransactions()
     */
+   @Override
    public Map<Long, PageTransactionInfo> getTransactions() {
       return null;
    }
@@ -136,6 +147,7 @@ public final class FakePagingManager implements PagingManager {
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#processReload()
     */
+   @Override
    public void processReload() {
    }
 
@@ -151,6 +163,7 @@ public final class FakePagingManager implements PagingManager {
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener#onChange()
     */
+   @Override
    public void onChange() {
    }
 

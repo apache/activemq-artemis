@@ -25,6 +25,7 @@ public class XAConnectionFactoryTest extends ActiveMQInitialContextFactoryTest {
       assertTrue("connection factory implements XA", context.lookup(getConnectionFactoryLookupName()) instanceof XAConnectionFactory);
    }
 
+   @Override
    protected void configureEnvironment() {
       environment.put("xa", "true");
       super.configureEnvironment();

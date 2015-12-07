@@ -170,6 +170,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
          this.txSize = txSize;
       }
 
+      @Override
       public void run() {
          try {
 
@@ -235,6 +236,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
          super("Monitor-thread");
       }
 
+      @Override
       public void run() {
 
          ActiveMQServer server = inProcessBackup.getServer();

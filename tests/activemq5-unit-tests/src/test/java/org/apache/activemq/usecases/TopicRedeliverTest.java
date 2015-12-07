@@ -52,6 +52,7 @@ public class TopicRedeliverTest extends TestSupport {
       super(n);
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
       topic = true;
@@ -153,6 +154,7 @@ public class TopicRedeliverTest extends TestSupport {
       Connection connection = createConnection();
       final AtomicBoolean gotException = new AtomicBoolean();
       connection.setExceptionListener(new ExceptionListener() {
+         @Override
          public void onException(JMSException exception) {
             LOG.error("unexpected ex:" + exception);
             gotException.set(true);

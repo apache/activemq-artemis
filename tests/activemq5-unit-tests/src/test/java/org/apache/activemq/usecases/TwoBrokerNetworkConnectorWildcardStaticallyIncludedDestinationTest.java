@@ -21,6 +21,7 @@ import org.apache.activemq.network.NetworkConnector;
 
 public class TwoBrokerNetworkConnectorWildcardStaticallyIncludedDestinationTest extends AbstractTwoBrokerNetworkConnectorWildcardIncludedDestinationTestSupport {
 
+   @Override
    protected void addIncludedDestination(NetworkConnector nc) {
       nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.QUEUE_TYPE));
       nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.TOPIC_TYPE));

@@ -30,6 +30,7 @@ public class StubDualJaasConfiguration extends Configuration {
       this.sslConfigEntry = sslConfigEntry;
    }
 
+   @Override
    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
       if ("activemq-domain".equals(name)) {
          return new AppConfigurationEntry[]{nonSslConfigEntry};
@@ -39,6 +40,7 @@ public class StubDualJaasConfiguration extends Configuration {
       }
    }
 
+   @Override
    public void refresh() {
    }
 

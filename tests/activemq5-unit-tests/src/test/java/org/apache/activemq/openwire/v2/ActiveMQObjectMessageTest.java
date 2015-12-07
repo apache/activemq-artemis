@@ -30,12 +30,14 @@ public class ActiveMQObjectMessageTest extends ActiveMQMessageTest {
 
    public static final ActiveMQObjectMessageTest SINGLETON = new ActiveMQObjectMessageTest();
 
+   @Override
    public Object createObject() throws Exception {
       ActiveMQObjectMessage info = new ActiveMQObjectMessage();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ActiveMQObjectMessage info = (ActiveMQObjectMessage) object;

@@ -30,12 +30,14 @@ public class ReplayCommandTest extends BaseCommandTestSupport {
 
    public static final ReplayCommandTest SINGLETON = new ReplayCommandTest();
 
+   @Override
    public Object createObject() throws Exception {
       ReplayCommand info = new ReplayCommand();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ReplayCommand info = (ReplayCommand) object;

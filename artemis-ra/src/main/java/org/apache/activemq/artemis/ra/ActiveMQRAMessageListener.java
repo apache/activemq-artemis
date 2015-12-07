@@ -59,6 +59,7 @@ public class ActiveMQRAMessageListener implements MessageListener {
     *
     * @param message The message
     */
+   @Override
    public void onMessage(Message message) {
       if (ActiveMQRAMessageListener.trace) {
          ActiveMQRALogger.LOGGER.trace("onMessage(" + message + ")");

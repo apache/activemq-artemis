@@ -27,6 +27,7 @@ public class MeasureCommitPerfTest extends AbstractSendReceivePerfTest {
    }
 
    /* This will by default send non persistent messages */
+   @Override
    protected void sendMessages(Connection c, String qName) throws JMSException {
       Session s = c.createSession(true, Session.SESSION_TRANSACTED);
 

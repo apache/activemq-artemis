@@ -51,6 +51,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public long getBodyLength() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getBodyLength()");
@@ -65,6 +66,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public boolean readBoolean() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readBoolean()");
@@ -79,6 +81,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public byte readByte() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readByte()");
@@ -95,6 +98,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The result
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int readBytes(final byte[] value, final int length) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readBytes(" + Arrays.toString(value) + ", " + length + ")");
@@ -110,6 +114,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The result
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int readBytes(final byte[] value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readBytes(" + Arrays.toString(value) + ")");
@@ -124,6 +129,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public char readChar() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readChar()");
@@ -138,6 +144,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public double readDouble() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readDouble()");
@@ -152,6 +159,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public float readFloat() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readFloat()");
@@ -166,6 +174,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int readInt() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readInt()");
@@ -180,6 +189,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public long readLong() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readLong()");
@@ -194,6 +204,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public short readShort() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readShort()");
@@ -208,6 +219,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int readUnsignedByte() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readUnsignedByte()");
@@ -222,6 +234,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public int readUnsignedShort() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readUnsignedShort()");
@@ -236,6 +249,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public String readUTF() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readUTF()");
@@ -249,6 +263,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     *
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void reset() throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("reset()");
@@ -263,6 +278,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeBoolean(final boolean value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBoolean(" + value + ")");
@@ -277,6 +293,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeByte(final byte value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeByte(" + value + ")");
@@ -293,6 +310,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param length The length
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
@@ -307,6 +325,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeBytes(final byte[] value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ")");
@@ -321,6 +340,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeChar(final char value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeChar(" + value + ")");
@@ -335,6 +355,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeDouble(final double value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeDouble(" + value + ")");
@@ -349,6 +370,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeFloat(final float value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeFloat(" + value + ")");
@@ -363,6 +385,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeInt(final int value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeInt(" + value + ")");
@@ -377,6 +400,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeLong(final long value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeLong(" + value + ")");
@@ -391,6 +415,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeObject(final Object value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeObject(" + value + ")");
@@ -405,6 +430,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeShort(final short value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeShort(" + value + ")");
@@ -419,6 +445,7 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
+   @Override
    public void writeUTF(final String value) throws JMSException {
       if (ActiveMQRABytesMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeUTF(" + value + ")");

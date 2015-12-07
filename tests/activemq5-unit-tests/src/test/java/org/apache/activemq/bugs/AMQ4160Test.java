@@ -57,6 +57,7 @@ public class AMQ4160Test extends JmsMultipleBrokersTestSupport {
     * Since these tests involve wait conditions, protect against indefinite
     * waits (due to unanticipated issues).
     */
+   @Override
    public void setUp() throws Exception {
       setAutoFail(true);
       setMaxTestTime(MAX_TEST_TIME);
@@ -327,6 +328,7 @@ public class AMQ4160Test extends JmsMultipleBrokersTestSupport {
                   return next.getMbeanObjectName();
                }
 
+               @Override
                public void resetStats() {
                   next.resetStats();
                }

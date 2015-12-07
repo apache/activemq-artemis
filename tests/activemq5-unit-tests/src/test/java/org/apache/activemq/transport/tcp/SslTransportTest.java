@@ -41,12 +41,14 @@ public class SslTransportTest extends TestCase {
    String password;
    String certDistinguishedName;
 
+   @Override
    protected void setUp() throws Exception {
       certDistinguishedName = "ThisNameIsDistinguished";
       username = "SomeUserName";
       password = "SomePassword";
    }
 
+   @Override
    protected void tearDown() throws Exception {
       super.tearDown();
    }

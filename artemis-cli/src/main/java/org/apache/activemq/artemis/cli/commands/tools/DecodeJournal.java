@@ -54,6 +54,7 @@ public class DecodeJournal extends LockAbstract {
    @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
    public String input = "exp.dmp";
 
+   @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
       try {

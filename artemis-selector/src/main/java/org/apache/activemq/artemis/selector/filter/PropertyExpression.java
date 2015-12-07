@@ -29,6 +29,7 @@ public class PropertyExpression implements Expression {
       this.name = name;
    }
 
+   @Override
    public Object evaluate(Filterable message) throws FilterException {
       return message.getProperty(name);
    }
@@ -40,6 +41,7 @@ public class PropertyExpression implements Expression {
    /**
     * @see java.lang.Object#toString()
     */
+   @Override
    public String toString() {
       return name;
    }
@@ -47,6 +49,7 @@ public class PropertyExpression implements Expression {
    /**
     * @see java.lang.Object#hashCode()
     */
+   @Override
    public int hashCode() {
       return name.hashCode();
    }
@@ -54,6 +57,7 @@ public class PropertyExpression implements Expression {
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
+   @Override
    public boolean equals(Object o) {
       if (o == null || !this.getClass().equals(o.getClass())) {
          return false;

@@ -211,6 +211,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       return objectName;
    }
 
+   @Override
    protected void setUp() throws Exception {
       bindAddress = "tcp://localhost:0";
       useTopic = false;
@@ -218,6 +219,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       mbeanServer = broker.getManagementContext().getMBeanServer();
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -226,6 +228,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       super.tearDown();
    }
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService answer = new BrokerService();
       answer.setUseJmx(true);
@@ -248,6 +251,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
    /**
     * Returns the name of the destination used in this test case
     */
+   @Override
    protected String getDestinationString() {
       return getClass().getName() + "." + getName(true);
    }

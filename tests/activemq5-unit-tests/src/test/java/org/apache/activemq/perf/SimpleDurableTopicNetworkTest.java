@@ -23,6 +23,7 @@ import javax.jms.JMSException;
 
 public class SimpleDurableTopicNetworkTest extends SimpleNetworkTest {
 
+   @Override
    protected void setUp() throws Exception {
       numberofProducers = 1;
       numberOfConsumers = 1;
@@ -31,6 +32,7 @@ public class SimpleDurableTopicNetworkTest extends SimpleNetworkTest {
       super.setUp();
    }
 
+   @Override
    protected PerfProducer createProducer(ConnectionFactory fac,
                                          Destination dest,
                                          int number,
@@ -40,6 +42,7 @@ public class SimpleDurableTopicNetworkTest extends SimpleNetworkTest {
       return pp;
    }
 
+   @Override
    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
       return new PerfConsumer(fac, dest, "subs:" + number);
    }

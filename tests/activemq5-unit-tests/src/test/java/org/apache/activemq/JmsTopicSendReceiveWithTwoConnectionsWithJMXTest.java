@@ -22,6 +22,7 @@ package org.apache.activemq;
  */
 public class JmsTopicSendReceiveWithTwoConnectionsWithJMXTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
+   @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false&broker.useJmx=true");
    }

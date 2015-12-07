@@ -37,12 +37,14 @@ public class ExceptionResponseTest extends ResponseTest {
 
    public static ExceptionResponseTest SINGLETON = new ExceptionResponseTest();
 
+   @Override
    public Object createObject() throws Exception {
       ExceptionResponse info = new ExceptionResponse();
       populateObject(info);
       return info;
    }
 
+   @Override
    protected void populateObject(Object object) throws Exception {
       super.populateObject(object);
       ExceptionResponse info = (ExceptionResponse) object;

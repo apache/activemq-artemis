@@ -33,6 +33,7 @@ public class IndividualDeadLetterViaXmlTest extends DeadLetterTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(IndividualDeadLetterViaXmlTest.class);
 
+   @Override
    protected BrokerService createBroker() throws Exception {
       BrokerFactoryBean factory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/broker/policy/individual-dlq.xml"));
       factory.afterPropertiesSet();
@@ -40,6 +41,7 @@ public class IndividualDeadLetterViaXmlTest extends DeadLetterTest {
       return answer;
    }
 
+   @Override
    protected Destination createDlqDestination() {
       String queueName = "Test.DLQ." + getClass().getName() + "." + getName();
       LOG.info("Using queue name: " + queueName);

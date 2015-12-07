@@ -97,6 +97,7 @@ public class CloseRollbackRedeliveryQueueTest extends EmbeddedBrokerTestSupport 
       assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
    }
 
+   @Override
    protected void setUp() throws Exception {
       super.setUp();
 
@@ -110,11 +111,13 @@ public class CloseRollbackRedeliveryQueueTest extends EmbeddedBrokerTestSupport 
 
    }
 
+   @Override
    protected ConnectionFactory createConnectionFactory() throws Exception {
       // failover: enables message audit - which could get in the way of redelivery
       return new ActiveMQConnectionFactory("failover:" + bindAddress);
    }
 
+   @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
@@ -124,6 +127,7 @@ public class CloseRollbackRedeliveryQueueTest extends EmbeddedBrokerTestSupport 
 
    protected MessageCreator createMessageCreator(final int i) {
       return new MessageCreator() {
+         @Override
          public Message createMessage(Session session) throws JMSException {
             TextMessage answer = session.createTextMessage("Message: " + i);
             answer.setIntProperty("Counter", i);

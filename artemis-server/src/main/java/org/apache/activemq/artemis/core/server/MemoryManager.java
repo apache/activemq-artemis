@@ -50,10 +50,12 @@ public class MemoryManager implements ActiveMQComponent {
       return low;
    }
 
+   @Override
    public synchronized boolean isStarted() {
       return started;
    }
 
+   @Override
    public synchronized void start() {
       ActiveMQServerLogger.LOGGER.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
                                            " FREE_MEMORY_PERCENT: " +
@@ -73,6 +75,7 @@ public class MemoryManager implements ActiveMQComponent {
       thread.start();
    }
 
+   @Override
    public synchronized void stop() {
       if (!started) {
          // Already stopped
@@ -92,6 +95,7 @@ public class MemoryManager implements ActiveMQComponent {
 
    private class MemoryRunnable implements Runnable {
 
+      @Override
       public void run() {
          while (true) {
             try {

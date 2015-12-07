@@ -54,6 +54,7 @@ public class ActiveMQQueueConnectionFactory extends ActiveMQConnectionFactory im
       super(ha, initialConnectors);
    }
 
+   @Override
    public int getFactoryType() {
       return JMSFactoryType.QUEUE_CF.intValue();
    }

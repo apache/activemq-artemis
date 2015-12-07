@@ -104,6 +104,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
          for (final ConnectorServiceConfiguration config : configs) {
             if (connectorServices.get(config.getConnectorName()) == null) {
                ConnectorServiceFactory factory = AccessController.doPrivileged(new PrivilegedAction<ConnectorServiceFactory>() {
+                  @Override
                   public ConnectorServiceFactory run() {
                      return (ConnectorServiceFactory) ClassloadingUtil.newInstanceFromClassLoader(config.getFactoryClassName());
                   }
@@ -184,6 +185,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
       if (factory == null && className != null) {
          factory = AccessController.doPrivileged(new PrivilegedAction<AcceptorFactory>() {
+            @Override
             public AcceptorFactory run() {
                return (AcceptorFactory) ClassloadingUtil.newInstanceFromClassLoader(className);
             }
@@ -206,6 +208,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       if (className != null) {
          try {
             transformer = AccessController.doPrivileged(new PrivilegedAction<Transformer>() {
+               @Override
                public Transformer run() {
                   return (Transformer) ClassloadingUtil.newInstanceFromClassLoader(className);
                }
@@ -222,6 +225,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       if (classNames != null) {
          for (final String className : classNames) {
             BaseInterceptor interceptor = AccessController.doPrivileged(new PrivilegedAction<BaseInterceptor>() {
+               @Override
                public BaseInterceptor run() {
                   return (BaseInterceptor) ClassloadingUtil.newInstanceFromClassLoader(className);
                }

@@ -38,6 +38,7 @@ public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
    private String destination3String = "TEST.ONE.TWO";
    private String destination4String = "TEST.TWO.ONE";
 
+   @Override
    protected void setUp() throws Exception {
       topic = true;
       durable = false;
@@ -45,10 +46,12 @@ public class JmsTopicWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
       super.setUp();
    }
 
+   @Override
    protected String getConsumerSubject() {
       return "FOO.>";
    }
 
+   @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";
    }

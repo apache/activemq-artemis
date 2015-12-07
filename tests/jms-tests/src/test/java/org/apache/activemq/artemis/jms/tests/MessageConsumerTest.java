@@ -121,6 +121,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
             int count;
 
+            @Override
             public synchronized void onMessage(final Message m) {
                try {
                   prod.send(m);
@@ -484,6 +485,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ps.createConsumer(new Topic() {
+               @Override
                public String getTopicName() throws JMSException {
                   return "NoSuchTopic";
                }
@@ -512,6 +514,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          try {
             ps.createConsumer(new Queue() {
+               @Override
                public String getQueueName() throws JMSException {
                   return "NoSuchQueue";
                }
@@ -1332,6 +1335,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
             boolean failed;
 
+            @Override
             public void run() {
                try {
                   for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -1626,6 +1630,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          final Message m = producerSession.createMessage();
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block
@@ -1673,6 +1678,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          final Message m1 = producerSession.createMessage();
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block
@@ -1721,6 +1727,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          final Message m1 = producerSession.createMessage();
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block
@@ -1819,6 +1826,7 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   for (int i = 0; i < count; i++) {
@@ -1876,6 +1884,7 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
 
          new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block
@@ -1923,6 +1932,7 @@ public class MessageConsumerTest extends JMSTestCase {
          consumerConnection.start();
          final CountDownLatch latch = new CountDownLatch(1);
          Thread closerThread = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   // this is needed to make sure the main thread has enough time to block
@@ -2310,6 +2320,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          consumerConnection.start();
          Thread worker1 = new Thread(new Runnable() {
+            @Override
             public void run() {
                try {
                   topicConsumer.receive(3000);
@@ -2350,6 +2361,7 @@ public class MessageConsumerTest extends JMSTestCase {
       final AtomicInteger messagesReceived = new AtomicInteger(0);
 
       MessageListener myListener = new MessageListener() {
+         @Override
          public void onMessage(final Message message) {
             messagesReceived.incrementAndGet();
             try {
@@ -2449,6 +2461,7 @@ public class MessageConsumerTest extends JMSTestCase {
          MessageConsumer queueConsumer = consumerSession.createConsumer(queue1);
 
          MessageListener myListener = new MessageListener() {
+            @Override
             public void onMessage(final Message message) {
                try {
                   Thread.sleep(1);
@@ -2640,6 +2653,7 @@ public class MessageConsumerTest extends JMSTestCase {
                this.consumer = consumer;
             }
 
+            @Override
             public void run() {
                try {
                   m = consumer.receive(1500);
@@ -3894,6 +3908,7 @@ public class MessageConsumerTest extends JMSTestCase {
          this.sess = sess;
       }
 
+      @Override
       public void onMessage(final Message m) {
          TextMessage tm = (TextMessage) m;
          count++;
@@ -3990,6 +4005,7 @@ public class MessageConsumerTest extends JMSTestCase {
          ActiveMQTestBase.waitForLatch(latch);
       }
 
+      @Override
       public void onMessage(final Message m) {
          try {
             TextMessage tm = (TextMessage) m;
@@ -4069,6 +4085,7 @@ public class MessageConsumerTest extends JMSTestCase {
          ActiveMQTestBase.waitForLatch(latch);
       }
 
+      @Override
       public void onMessage(final Message m) {
          messages.add(m);
          log.trace("Added message " + m + " to my list");

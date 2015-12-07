@@ -145,6 +145,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       PageSubscription cursorEven = createNonPersistentCursor(new Filter() {
 
+         @Override
          public boolean match(ServerMessage message) {
             Boolean property = message.getBooleanProperty("even");
             if (property == null) {
@@ -155,6 +156,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             }
          }
 
+         @Override
          public SimpleString getFilterString() {
             return new SimpleString("even=true");
          }
@@ -163,6 +165,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       PageSubscription cursorOdd = createNonPersistentCursor(new Filter() {
 
+         @Override
          public boolean match(ServerMessage message) {
             Boolean property = message.getBooleanProperty("even");
             if (property == null) {
@@ -173,6 +176,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             }
          }
 
+         @Override
          public SimpleString getFilterString() {
             return new SimpleString("even=true");
          }

@@ -31,11 +31,13 @@ import org.apache.activemq.broker.BrokerService;
  */
 public class CursorDurableTest extends CursorSupport {
 
+   @Override
    protected Destination getDestination(Session session) throws JMSException {
       String topicName = getClass().getName();
       return session.createTopic(topicName);
    }
 
+   @Override
    protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
       Connection connection = fac.createConnection();
       connection.setClientID("testConsumer");
@@ -43,6 +45,7 @@ public class CursorDurableTest extends CursorSupport {
       return connection;
    }
 
+   @Override
    protected MessageConsumer getConsumer(Connection connection) throws Exception {
       Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Topic topic = (Topic) getDestination(consumerSession);
@@ -50,6 +53,7 @@ public class CursorDurableTest extends CursorSupport {
       return consumer;
    }
 
+   @Override
    protected void configureBroker(BrokerService answer) throws Exception {
       answer.setDeleteAllMessagesOnStartup(true);
       answer.addConnector(bindAddress);

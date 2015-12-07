@@ -74,14 +74,17 @@ public class Redistributor implements Consumer {
       this.batchSize = batchSize;
    }
 
+   @Override
    public Filter getFilter() {
       return null;
    }
 
+   @Override
    public String debug() {
       return toString();
    }
 
+   @Override
    public String toManagementString() {
       return "Redistributor[" + queue.getName() + "/" + queue.getID() + "]";
    }
@@ -126,6 +129,7 @@ public class Redistributor implements Consumer {
       }
    }
 
+   @Override
    public synchronized HandleStatus handle(final MessageReference reference) throws Exception {
       if (!active) {
          return HandleStatus.BUSY;
@@ -153,6 +157,7 @@ public class Redistributor implements Consumer {
       else {
          active = false;
          executor.execute(new Runnable() {
+            @Override
             public void run() {
                try {
                   routingInfo.getB().finishCopy();
@@ -187,6 +192,7 @@ public class Redistributor implements Consumer {
       return HandleStatus.HANDLED;
    }
 
+   @Override
    public void proceedDeliver(MessageReference ref) {
       // no op
    }
@@ -194,6 +200,7 @@ public class Redistributor implements Consumer {
    private void internalExecute(final Runnable runnable) {
       pendingRuns.countUp();
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             try {
                runnable.run();
@@ -214,10 +221,12 @@ public class Redistributor implements Consumer {
 
       storageManager.afterCompleteOperations(new IOCallback() {
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
          }
 
+         @Override
          public void done() {
             execPrompter();
          }
@@ -243,6 +252,7 @@ public class Redistributor implements Consumer {
 
    private class Prompter implements Runnable {
 
+      @Override
       public void run() {
          synchronized (Redistributor.this) {
             active = true;

@@ -55,6 +55,7 @@ public class CachedLDAPAuthorizationModuleTest extends AbstractCachedLDAPAuthori
       return "cn=users,ou=Group,ou=ActiveMQ,ou=system";
    }
 
+   @Override
    protected String getQueueBaseDn() {
       return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
    }

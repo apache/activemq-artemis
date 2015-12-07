@@ -250,6 +250,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       sf.close();
       final CountDownLatch latch = new CountDownLatch(numMessages);
       server.getRemotingService().addIncomingInterceptor(new Interceptor() {
+         @Override
          public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
             if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE) {
                latch.countDown();
@@ -262,6 +263,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       ClientSession sessionRec = sfReceive.createSession(false, true, true);
       ClientConsumer consumer = sessionRec.createConsumer(QUEUE);
       consumer.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage message) {
             try {
                message.acknowledge();
@@ -327,6 +329,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
       consumer.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage msg) {
          }
       });
@@ -348,6 +351,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
       consumer.setMessageHandler(new MessageHandler() {
+         @Override
          public void onMessage(final ClientMessage msg) {
          }
       });
@@ -398,6 +402,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          {
 
             consumer.setMessageHandler(new MessageHandler() {
+               @Override
                public void onMessage(final ClientMessage msg) {
                   try {
                      ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(-1);
@@ -440,6 +445,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
 
       Thread tCons = new Thread() {
+         @Override
          public void run() {
             try {
                final ServerLocator locatorSend = createFactory(isNetty());

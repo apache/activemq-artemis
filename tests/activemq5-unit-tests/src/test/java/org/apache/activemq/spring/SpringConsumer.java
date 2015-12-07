@@ -78,6 +78,7 @@ public class SpringConsumer extends ConsumerBean implements MessageListener {
       }
    }
 
+   @Override
    public void onMessage(Message message) {
       super.onMessage(message);
       try {

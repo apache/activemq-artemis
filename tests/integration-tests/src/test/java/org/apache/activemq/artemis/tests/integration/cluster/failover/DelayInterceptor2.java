@@ -31,6 +31,7 @@ public class DelayInterceptor2 implements Interceptor {
 
    private final CountDownLatch latch = new CountDownLatch(1);
 
+   @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() == PacketImpl.NULL_RESPONSE && loseResponse) {
          // Lose the response from the commit - only lose the first one

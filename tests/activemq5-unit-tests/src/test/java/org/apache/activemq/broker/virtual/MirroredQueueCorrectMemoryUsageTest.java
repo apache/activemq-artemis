@@ -132,11 +132,13 @@ public class MirroredQueueCorrectMemoryUsageTest extends EmbeddedBrokerTestSuppo
       return broker;
    }
 
+   @Override
    @Before
    protected void setUp() throws Exception {
       super.setUp();
    }
 
+   @Override
    @After
    protected void tearDown() throws Exception {
       super.tearDown();

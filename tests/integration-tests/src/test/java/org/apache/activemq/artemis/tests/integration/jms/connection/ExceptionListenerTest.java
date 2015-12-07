@@ -79,6 +79,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
          this.latch = latch;
       }
 
+      @Override
       public synchronized void onException(final JMSException arg0) {
          numCalls++;
          latch.countDown();

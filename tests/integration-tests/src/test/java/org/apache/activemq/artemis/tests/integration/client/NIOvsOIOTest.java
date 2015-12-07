@@ -268,6 +268,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
 
       private int count;
 
+      @Override
       public void onMessage(ClientMessage msg) {
          try {
             msg.acknowledge();
