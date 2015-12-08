@@ -199,7 +199,12 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
 
       if (currentPart != 1) {
-         throw new JMSRuntimeException("Invalid message queue name: " + queueName);
+         /* JMS 2.0 introduced the ability to create "shared" subscriptions which do not require a clientID.
+          * In this case the subscription name will be the same as the queue name, but the above algorithm will put that
+          * in the wrong position in the array so we need to move it.
+          */
+         parts[1] = parts[0];
+         parts[0] = new StringBuffer();
       }
 
       Pair<String, String> pair = new Pair<>(parts[0].toString(), parts[1].toString());

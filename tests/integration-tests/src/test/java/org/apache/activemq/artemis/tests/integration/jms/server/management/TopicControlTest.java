@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
@@ -42,6 +43,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSContext;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -201,6 +204,42 @@ public class TopicControlTest extends ManagementTestBase {
       connection_1.close();
       connection_2.close();
       connection_3.close();
+   }
+
+   @Test
+   public void testListXXXSubscriptionsAsJSONJMS2() throws Exception {
+      ConnectionFactory cf = JMSUtil.createFactory(InVMConnectorFactory.class.getName(), ActiveMQClient.DEFAULT_CONNECTION_TTL_INVM, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD_INVM);
+      JMSContext jmsContext1 = cf.createContext();
+      jmsContext1.createSharedDurableConsumer(topic, subscriptionName, null);
+      JMSContext jmsContext2 = cf.createContext();
+      jmsContext2.createSharedDurableConsumer(topic, subscriptionName + "2", null);
+      JMSContext jmsContext3 = cf.createContext();
+      jmsContext3.createConsumer(topic);
+
+      TopicControl topicControl = createManagementControl();
+      String jsonString = topicControl.listDurableSubscriptionsAsJSON();
+      SubscriptionInfo[] infos = SubscriptionInfo.from(jsonString);
+      Assert.assertEquals(2, infos.length);
+
+      Assert.assertTrue(infos[0].getClientID().length() == 0);
+      Assert.assertTrue(infos[0].getName().equals(subscriptionName));
+
+      Assert.assertTrue(infos[1].getClientID().length() == 0);
+      Assert.assertTrue(infos[1].getName().equals(subscriptionName + "2"));
+
+      jsonString = topicControl.listNonDurableSubscriptionsAsJSON();
+      infos = SubscriptionInfo.from(jsonString);
+      Assert.assertEquals(1, infos.length);
+      Assert.assertEquals(null, infos[0].getClientID());
+      Assert.assertEquals(null, infos[0].getName());
+
+      jsonString = topicControl.listAllSubscriptionsAsJSON();
+      infos = SubscriptionInfo.from(jsonString);
+      Assert.assertEquals(3, infos.length);
+
+      jmsContext1.close();
+      jmsContext2.close();
+      jmsContext3.close();
    }
 
    @Test
