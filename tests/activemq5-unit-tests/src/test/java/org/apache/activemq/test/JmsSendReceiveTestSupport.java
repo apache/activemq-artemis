@@ -35,7 +35,6 @@ import javax.jms.TextMessage;
 
 import junit.framework.AssertionFailedError;
 
-import org.apache.activemq.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

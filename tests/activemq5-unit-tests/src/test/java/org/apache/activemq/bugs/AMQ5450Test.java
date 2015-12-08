@@ -132,7 +132,7 @@ public class AMQ5450Test {
 
       MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
       multiKahaDBPersistenceAdapter.deleteAllMessages();
-      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<>();
 
       if (compositeMatch) {
          StringBuffer compositeDestBuf = new StringBuffer();

@@ -142,7 +142,7 @@ public class ScaleDownHandler {
       ActiveMQServerLogger.LOGGER.debug("Scaling down messages on address " + address);
       long messageCount = 0;
 
-      final HashMap<Queue, QueuesXRefInnerManager> controls = new HashMap<Queue, QueuesXRefInnerManager>();
+      final HashMap<Queue, QueuesXRefInnerManager> controls = new HashMap<>();
 
       PagingStore pageStore = pagingManager.getPageStore(address);
 

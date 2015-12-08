@@ -133,7 +133,7 @@ public class AMQ3167Test {
       PolicyEntry pol_ent;
       ArrayList<PolicyEntry> ent_list;
 
-      ent_list = new ArrayList<PolicyEntry>();
+      ent_list = new ArrayList<>();
 
       //
       // QUEUES

@@ -39,8 +39,6 @@ public abstract class SpringTestSupport extends TestCase {
 
    protected abstract AbstractApplicationContext createApplicationContext();
 
-   ;
-
    @Override
    protected void tearDown() throws Exception {
       if (context != null) {
@@ -57,7 +55,7 @@ public abstract class SpringTestSupport extends TestCase {
    }
 
    protected void assertSetEquals(String description, Object[] expected, Set<?> actual) {
-      Set<Object> expectedSet = new HashSet<Object>();
+      Set<Object> expectedSet = new HashSet<>();
       expectedSet.addAll(Arrays.asList(expected));
       assertEquals(description, expectedSet, actual);
    }

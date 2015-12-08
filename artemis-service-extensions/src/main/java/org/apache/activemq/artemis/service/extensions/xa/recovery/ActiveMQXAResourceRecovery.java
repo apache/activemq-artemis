@@ -172,7 +172,7 @@ public class ActiveMQXAResourceRecovery {
          }
 
          // other tokens are for connector configurations
-         connectorParameters = new HashMap<String, Object>();
+         connectorParameters = new HashMap<>();
          if (strings.length >= 3) {
             for (int i = 3; i < strings.length; i++) {
                String[] str = strings[i].split("=");

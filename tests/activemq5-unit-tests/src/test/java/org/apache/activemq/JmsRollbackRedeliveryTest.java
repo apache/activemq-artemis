@@ -111,7 +111,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<String, Boolean>();
+         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
          while (received.get() < nbMessages) {
             Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue(destinationName);
@@ -148,7 +148,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<String, Boolean>();
+         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
          Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(destinationName);
          MessageConsumer consumer = session.createConsumer(destination);
@@ -183,7 +183,7 @@ public class JmsRollbackRedeliveryTest {
       // Consume messages and rollback transactions
       {
          AtomicInteger received = new AtomicInteger();
-         Map<String, Boolean> rolledback = new ConcurrentHashMap<String, Boolean>();
+         Map<String, Boolean> rolledback = new ConcurrentHashMap<>();
          Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(destinationName);
          while (received.get() < nbMessages) {

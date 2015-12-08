@@ -102,7 +102,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
    private static class TopologyListener implements ClusterTopologyListener {
 
       final String prefix;
-      final Map<String, Pair<TransportConfiguration, TransportConfiguration>> nodes = new ConcurrentHashMap<String, Pair<TransportConfiguration, TransportConfiguration>>();
+      final Map<String, Pair<TransportConfiguration, TransportConfiguration>> nodes = new ConcurrentHashMap<>();
 
       public TopologyListener(String string) {
          prefix = string;
@@ -110,7 +110,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
       @Override
       public void nodeUP(TopologyMember topologyMember, boolean last) {
-         Pair<TransportConfiguration, TransportConfiguration> connectorPair = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connectorPair = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
          nodes.put(topologyMember.getBackupGroupName(), connectorPair);
       }
 

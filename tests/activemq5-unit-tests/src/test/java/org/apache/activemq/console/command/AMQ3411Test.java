@@ -70,7 +70,7 @@ public class AMQ3411Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.addAll(DEFAULT_TOKENS);
 
@@ -92,7 +92,7 @@ public class AMQ3411Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--password");
       tokens.add(password);
@@ -117,7 +117,7 @@ public class AMQ3411Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--passwordFactory");
       tokens.add(LowercasingPasswordFactory.class.getCanonicalName());
@@ -141,7 +141,7 @@ public class AMQ3411Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--passwordFactory");
       tokens.add("org.apache.activemq.console.command.TestAMQ3411.DoesntExistFactory");
@@ -173,7 +173,7 @@ public class AMQ3411Test extends TestCase {
 
       command.setCommandContext(context);
 
-      List<String> tokens = new ArrayList<String>();
+      List<String> tokens = new ArrayList<>();
       tokens.addAll(DEFAULT_OPTIONS);
       tokens.add("--passwordFactory");
       tokens.add("java.lang.Object");

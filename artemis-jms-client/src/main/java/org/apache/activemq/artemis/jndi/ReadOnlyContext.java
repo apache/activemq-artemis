@@ -74,17 +74,17 @@ public class ReadOnlyContext implements Context, Serializable {
    private String nameInNamespace = "";
 
    public ReadOnlyContext() {
-      environment = new Hashtable<String, Object>();
-      bindings = new HashMap<String, Object>();
-      treeBindings = new HashMap<String, Object>();
+      environment = new Hashtable<>();
+      bindings = new HashMap<>();
+      treeBindings = new HashMap<>();
    }
 
    public ReadOnlyContext(Hashtable env) {
       if (env == null) {
-         this.environment = new Hashtable<String, Object>();
+         this.environment = new Hashtable<>();
       }
       else {
-         this.environment = new Hashtable<String, Object>(env);
+         this.environment = new Hashtable<>(env);
       }
       this.bindings = Collections.EMPTY_MAP;
       this.treeBindings = Collections.EMPTY_MAP;
@@ -92,13 +92,13 @@ public class ReadOnlyContext implements Context, Serializable {
 
    public ReadOnlyContext(Hashtable environment, Map<String, Object> bindings) {
       if (environment == null) {
-         this.environment = new Hashtable<String, Object>();
+         this.environment = new Hashtable<>();
       }
       else {
-         this.environment = new Hashtable<String, Object>(environment);
+         this.environment = new Hashtable<>(environment);
       }
-      this.bindings = new HashMap<String, Object>();
-      treeBindings = new HashMap<String, Object>();
+      this.bindings = new HashMap<>();
+      treeBindings = new HashMap<>();
       if (bindings != null) {
          for (Map.Entry<String, Object> binding : bindings.entrySet()) {
             try {
@@ -120,7 +120,7 @@ public class ReadOnlyContext implements Context, Serializable {
    protected ReadOnlyContext(ReadOnlyContext clone, Hashtable env) {
       this.bindings = clone.bindings;
       this.treeBindings = clone.treeBindings;
-      this.environment = new Hashtable<String, Object>(env);
+      this.environment = new Hashtable<>(env);
    }
 
    protected ReadOnlyContext(ReadOnlyContext clone, Hashtable<String, Object> env, String nameInNamespace) {
@@ -155,7 +155,7 @@ public class ReadOnlyContext implements Context, Serializable {
       assert name != null && name.length() > 0;
       assert !frozen;
 
-      Map<String, Object> newBindings = new HashMap<String, Object>();
+      Map<String, Object> newBindings = new HashMap<>();
       int pos = name.indexOf('/');
       if (pos == -1) {
          if (treeBindings.put(name, value) != null) {

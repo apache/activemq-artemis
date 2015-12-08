@@ -82,7 +82,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
    public void doTestStressSend(final boolean netty) throws Exception {
       // first set up the server
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, 61616);
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");
       params.put(TransportConstants.USE_NIO_PROP_NAME, true);
@@ -96,7 +96,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       server.start();
 
       // now the client side
-      Map<String, Object> connectionParams = new HashMap<String, Object>();
+      Map<String, Object> connectionParams = new HashMap<>();
       connectionParams.put(TransportConstants.PORT_PROP_NAME, 61616);
       connectionParams.put(TransportConstants.HOST_PROP_NAME, "localhost");
       connectionParams.put(TransportConstants.USE_NIO_PROP_NAME, true);

@@ -258,7 +258,7 @@ public class InVMConnection implements Connection {
 
    @Override
    public TransportConfiguration getConnectorConfig() {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
 
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, serverID);
 

@@ -265,8 +265,8 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
    private void reloadJournal() throws Exception {
       assertEquals(0, errors.get());
 
-      ArrayList<RecordInfo> committedRecords = new ArrayList<RecordInfo>();
-      ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
+      ArrayList<RecordInfo> committedRecords = new ArrayList<>();
+      ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
       journal.load(committedRecords, preparedTransactions, new TransactionFailureCallback() {
          @Override
          public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
@@ -297,7 +297,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
    class FastAppenderTx extends Thread {
 
-      LinkedBlockingDeque<Long> queue = new LinkedBlockingDeque<Long>();
+      LinkedBlockingDeque<Long> queue = new LinkedBlockingDeque<>();
 
       OperationContextImpl ctx = new OperationContextImpl(executorFactory.getExecutor());
 

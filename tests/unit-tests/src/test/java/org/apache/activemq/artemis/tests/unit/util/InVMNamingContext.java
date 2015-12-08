@@ -177,13 +177,13 @@ public class InVMNamingContext implements Context, Serializable {
          }
       }
 
-      List<Binding> l = new ArrayList<Binding>();
+      List<Binding> l = new ArrayList<>();
       for (Object element : map.keySet()) {
          String name = (String) element;
          Object object = map.get(name);
          l.add(new Binding(name, object));
       }
-      return new NamingEnumerationImpl<Binding>(l.iterator());
+      return new NamingEnumerationImpl<>(l.iterator());
    }
 
    @Override
@@ -254,7 +254,7 @@ public class InVMNamingContext implements Context, Serializable {
 
    @Override
    public Hashtable<String, String> getEnvironment() throws NamingException {
-      Hashtable<String, String> env = new Hashtable<String, String>();
+      Hashtable<String, String> env = new Hashtable<>();
       env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory");
       return env;
    }

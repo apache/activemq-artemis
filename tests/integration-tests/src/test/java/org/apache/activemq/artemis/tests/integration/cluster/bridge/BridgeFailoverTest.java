@@ -42,7 +42,7 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       String TARGET_QUEUE = "noCluster.targetQueue";
 
       bridgeConfiguration.setHA(true);
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("target-4");
       connectors.add("backup-4");
       bridgeConfiguration.setName("Bridge-for-test");
@@ -108,7 +108,7 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       String TARGET_QUEUE = "noCluster.targetQueue";
 
       bridgeConfiguration.setHA(true);
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("target-4");
       connectors.add("backup-4");
       bridgeConfiguration.setName("Bridge-for-test");
@@ -213,7 +213,7 @@ public class BridgeFailoverTest extends MultiServerTestBase {
       String TARGET_QUEUE = "noCluster.targetQueue";
 
       bridgeConfiguration.setHA(true);
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("target-4");
       connectors.add("backup-4");
       bridgeConfiguration.setName("Bridge-for-test");

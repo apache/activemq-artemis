@@ -29,7 +29,7 @@ public class ActiveMQStompException extends Exception {
    private static final long serialVersionUID = -274452327574950068L;
 
    private int code = NONE;
-   private final List<Header> headers = new ArrayList<Header>(10);
+   private final List<Header> headers = new ArrayList<>(10);
    private String body;
    private VersionedStompFrameHandler handler;
    private boolean disconnect;

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -193,7 +192,7 @@ public class AMQ5266Test {
 
          List<String> idList = entry.getValue();
 
-         int distinctConsumed = new TreeSet<String>(idList).size();
+         int distinctConsumed = new TreeSet<>(idList).size();
 
          StringBuilder sb = new StringBuilder();
          sb.append("   Queue: " + entry.getKey() +
@@ -231,7 +230,7 @@ public class AMQ5266Test {
          this.activemqURL = activemqURL;
          this.activemqQueues = activemqQueues;
 
-         threads = new ArrayList<PublisherThread>();
+         threads = new ArrayList<>();
 
          // Build the threads and tell them how many messages to publish
          for (int i = 0; i < threadCount; i++) {
@@ -382,7 +381,7 @@ public class AMQ5266Test {
       private String[] queues = null;
       // Map of IDs that were consumed, keyed by queue name.
       // We'll compare these against what was published to know if any got stuck or dropped.
-      private Map<String, List<String>> idsByQueue = new HashMap<String, List<String>>();
+      private Map<String, List<String>> idsByQueue = new HashMap<>();
       private Map<String, List<ConsumerThread>> threads;
 
       public ExportQueueConsumer(String activemqURL,
@@ -401,12 +400,12 @@ public class AMQ5266Test {
             queues[i] = queues[i].trim();
          }
 
-         threads = new HashMap<String, List<ConsumerThread>>();
+         threads = new HashMap<>();
 
          // For each queue, create a list of threads and set up the list of ids
          for (String q : queues) {
 
-            List<ConsumerThread> list = new ArrayList<ConsumerThread>();
+            List<ConsumerThread> list = new ArrayList<>();
 
             idsByQueue.put(q, Collections.synchronizedList(new ArrayList<String>()));
 

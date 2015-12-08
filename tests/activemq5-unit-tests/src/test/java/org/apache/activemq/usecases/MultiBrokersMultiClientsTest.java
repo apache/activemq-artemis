@@ -45,7 +45,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
    private static final Logger LOG = LoggerFactory.getLogger(MultiBrokersMultiClientsTest.class);
 
    protected Map<String, MessageConsumer> consumerMap;
-   final Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
+   final Map<Thread, Throwable> unhandeledExceptions = new HashMap<>();
 
    public void testTopicAllConnected() throws Exception {
       bridgeAllBrokers();
@@ -82,7 +82,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
       // Get message count
       for (int i = 1; i <= BROKER_COUNT; i++) {
          for (int j = 0; j < CONSUMER_COUNT; j++) {
-            MessageIdList msgs = getConsumerMessages("Broker" + i, (MessageConsumer) consumerMap.get("Consumer:" + i + ":" + j));
+            MessageIdList msgs = getConsumerMessages("Broker" + i, consumerMap.get("Consumer:" + i + ":" + j));
             assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, msgs.getMessageCount());
          }
       }
@@ -156,7 +156,7 @@ public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport 
          createBroker(new URI("broker:()/Broker" + i + "?persistent=false&useJmx=false"));
       }
 
-      consumerMap = new HashMap<String, MessageConsumer>();
+      consumerMap = new HashMap<>();
    }
 
    @Override

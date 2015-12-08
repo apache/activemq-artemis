@@ -87,7 +87,7 @@ public class JSONArray {
     * Construct an empty JSONArray.
     */
    public JSONArray() {
-      myArrayList = new ArrayList<Object>();
+      myArrayList = new ArrayList<>();
    }
 
    /**
@@ -161,7 +161,7 @@ public class JSONArray {
     * @param collection A Collection.
     */
    public JSONArray(final Collection collection) {
-      myArrayList = collection == null ? new ArrayList<Object>() : new ArrayList<Object>(collection);
+      myArrayList = collection == null ? new ArrayList<>() : new ArrayList<>(collection);
    }
 
    /**
@@ -169,7 +169,7 @@ public class JSONArray {
     * The collection should have Java Beans.
     */
    public JSONArray(final Collection collection, final boolean includeSuperClass) {
-      myArrayList = collection == null ? new ArrayList<Object>() : new ArrayList<Object>(collection.size());
+      myArrayList = collection == null ? new ArrayList<>() : new ArrayList<>(collection.size());
       if (collection != null) {
          Iterator<Object> iter = collection.iterator();
          while (iter.hasNext()) {

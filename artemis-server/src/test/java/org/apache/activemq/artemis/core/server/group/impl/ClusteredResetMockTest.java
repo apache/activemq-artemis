@@ -102,7 +102,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
          assertTrue(latchSends.await(10, TimeUnit.SECONDS));
 
-         HashSet<SimpleString> codesAsked = new HashSet<SimpleString>();
+         HashSet<SimpleString> codesAsked = new HashSet<>();
 
          for (Notification notification : fake.pendingNotifications) {
             codesAsked.add(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID));
@@ -172,7 +172,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
    class FakeManagement implements ManagementService {
 
-      public ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<Notification>();
+      public ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<>();
 
       final ReusableLatch latch;
 

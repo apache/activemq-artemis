@@ -64,7 +64,7 @@ import org.junit.Test;
  */
 public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase {
 
-   final ConcurrentHashMap<Integer, AtomicInteger> mapCounter = new ConcurrentHashMap<Integer, AtomicInteger>();
+   final ConcurrentHashMap<Integer, AtomicInteger> mapCounter = new ConcurrentHashMap<>();
 
    volatile ActiveMQResourceAdapter resourceAdapter;
 
@@ -329,7 +329,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
    }
 
    private List<ServerSession> lookupServerSessions(String parameter) {
-      List<ServerSession> serverSessions = new LinkedList<ServerSession>();
+      List<ServerSession> serverSessions = new LinkedList<>();
 
       for (ServerSession session : server.getSessions()) {
          if (session.getMetaData(parameter) != null) {

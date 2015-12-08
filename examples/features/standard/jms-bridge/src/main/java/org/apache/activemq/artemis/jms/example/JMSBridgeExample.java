@@ -126,7 +126,7 @@ public class JMSBridgeExample {
    }
 
    private static Hashtable<String, String> createJndiParams(String server) {
-      Hashtable<String, String> jndiProps = new Hashtable<String, String>();
+      Hashtable<String, String> jndiProps = new Hashtable<>();
       jndiProps.put("connectionFactory.ConnectionFactory", server);
       jndiProps.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       jndiProps.put("queue.target/queue", "target");

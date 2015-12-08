@@ -44,7 +44,7 @@ public class DurableSubscriptionOffline1Test extends DurableSubscriptionOfflineT
       String osName = System.getProperty("os.name");
       LOG.debug("Running on [" + osName + "]");
 
-      List<PersistenceAdapterChoice> persistenceAdapterChoices = new ArrayList<PersistenceAdapterChoice>();
+      List<PersistenceAdapterChoice> persistenceAdapterChoices = new ArrayList<>();
 
       persistenceAdapterChoices.add(PersistenceAdapterChoice.KahaDB);
       persistenceAdapterChoices.add(PersistenceAdapterChoice.JDBC);
@@ -53,7 +53,7 @@ public class DurableSubscriptionOffline1Test extends DurableSubscriptionOfflineT
          persistenceAdapterChoices.add(PersistenceAdapterChoice.LevelDB);
       }
 
-      List<Object[]> testParameters = new ArrayList<Object[]>();
+      List<Object[]> testParameters = new ArrayList<>();
       Boolean[] booleanValues = {Boolean.FALSE, Boolean.TRUE};
       List<Boolean> booleans = java.util.Arrays.asList(booleanValues);
       for (Boolean booleanValue : booleans) {

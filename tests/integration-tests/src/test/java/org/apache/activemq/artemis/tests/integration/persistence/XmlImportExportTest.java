@@ -87,7 +87,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       if (forceLongs) {
          JournalStorageManager manager = (JournalStorageManager) server.getStorageManager();
          BatchingIDGenerator idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
-         idGenerator.forceNextID(((long) Integer.MAX_VALUE) + 1L);
+         idGenerator.forceNextID((Integer.MAX_VALUE) + 1L);
       }
    }
 

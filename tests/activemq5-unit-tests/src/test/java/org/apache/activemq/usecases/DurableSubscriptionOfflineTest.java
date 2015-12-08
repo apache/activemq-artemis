@@ -21,7 +21,6 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.apache.activemq.store.kahadb.disk.page.PageFile;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -310,7 +309,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
 
       class CheckForDupsClient implements Runnable {
 
-         HashSet<Long> ids = new HashSet<Long>();
+         HashSet<Long> ids = new HashSet<>();
          final int id;
 
          public CheckForDupsClient(int id) {

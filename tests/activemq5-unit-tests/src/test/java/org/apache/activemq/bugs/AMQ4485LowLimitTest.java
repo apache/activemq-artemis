@@ -71,8 +71,8 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
    final int numMessages = 1000;
    final int consumerSleepTime = 40;
    StringBuilder brokersUrl = new StringBuilder();
-   HashMap<ActiveMQQueue, AtomicInteger> accumulators = new HashMap<ActiveMQQueue, AtomicInteger>();
-   private ArrayList<Throwable> exceptions = new ArrayList<Throwable>();
+   HashMap<ActiveMQQueue, AtomicInteger> accumulators = new HashMap<>();
+   private ArrayList<Throwable> exceptions = new ArrayList<>();
 
    protected void buildUrlList() throws Exception {
       for (int i = 0; i < numBrokers; i++) {
@@ -246,7 +246,6 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
                   if (tally.expected.size() == 1) {
                      startConsumer(tally.brokerName, tally.destination);
                   }
-                  ;
                   return false;
                }
                LOG.info("got tally on " + tally.brokerName);
@@ -330,7 +329,7 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
    }
 
    private List<ConsumerState> startAllGWConsumers(int nBrokers) throws Exception {
-      List<ConsumerState> consumerStates = new LinkedList<ConsumerState>();
+      List<ConsumerState> consumerStates = new LinkedList<>();
       for (int id = 0; id < nBrokers; id++) {
          ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("failover:(tcp://localhost:" + (portBase + id) + ")");
          connectionFactory.setWatchTopicAdvisories(false);
@@ -437,7 +436,7 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
          }
       });
       LOG.info("verify infos " + broker.getBrokerName() + ", len: " + regionBroker.getPeerBrokerInfos().length);
-      List<String> missing = new ArrayList<String>();
+      List<String> missing = new ArrayList<>();
       for (int i = 0; i < max; i++) {
          missing.add("B" + i);
       }
@@ -469,6 +468,6 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
       String brokerName;
       QueueReceiver receiver;
       ActiveMQDestination destination;
-      ConcurrentLinkedQueue<Integer> expected = new ConcurrentLinkedQueue<Integer>();
+      ConcurrentLinkedQueue<Integer> expected = new ConcurrentLinkedQueue<>();
    }
 }

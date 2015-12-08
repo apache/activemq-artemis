@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PushSubscriptionsResource {
 
-   protected Map<String, PushSubscription> consumers = new ConcurrentHashMap<String, PushSubscription>();
+   protected Map<String, PushSubscription> consumers = new ConcurrentHashMap<>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected final String startup = Long.toString(System.currentTimeMillis());

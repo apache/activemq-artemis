@@ -45,7 +45,7 @@ public class TempDestDeleteTest extends EmbeddedBrokerTestSupport implements Con
 
    protected int consumerCounter;
    protected ConsumerEventSource topicConsumerEventSource;
-   protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<ConsumerEvent>(1000);
+   protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<>(1000);
 
    private ConsumerEventSource queueConsumerEventSource;
    private Connection connection;

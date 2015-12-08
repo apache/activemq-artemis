@@ -138,7 +138,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
 
          System.out.println(".....");
 
-         final List<ServerSession> serverSessions = new LinkedList<ServerSession>();
+         final List<ServerSession> serverSessions = new LinkedList<>();
 
          // We will force now the failure simultaneously from several places
          for (ServerSession srvSess : server.getSessions()) {
@@ -150,7 +150,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
 
          resetLatches(2); // from Transactional reaper
 
-         List<Thread> threads = new LinkedList<Thread>();
+         List<Thread> threads = new LinkedList<>();
 
          threads.add(new Thread("ConsumerCloser") {
             @Override
@@ -219,7 +219,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queue);
-      HashMap<Integer, AtomicInteger> mapCount = new HashMap<Integer, AtomicInteger>();
+      HashMap<Integer, AtomicInteger> mapCount = new HashMap<>();
 
       while (true) {
          TextMessage message = (TextMessage) consumer.receiveNoWait();

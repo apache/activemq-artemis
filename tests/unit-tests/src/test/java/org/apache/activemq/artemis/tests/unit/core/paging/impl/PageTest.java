@@ -193,7 +193,7 @@ public class PageTest extends ActiveMQTestBase {
    protected ArrayList<ActiveMQBuffer> addPageElements(final SimpleString simpleDestination,
                                                        final Page page,
                                                        final int numberOfElements) throws Exception {
-      ArrayList<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
+      ArrayList<ActiveMQBuffer> buffers = new ArrayList<>();
 
       int initialNumberOfMessages = page.getNumberOfMessages();
 

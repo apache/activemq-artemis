@@ -42,13 +42,13 @@ import org.junit.Before;
 
 public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
-   protected List<RecordInfo> records = new LinkedList<RecordInfo>();
+   protected List<RecordInfo> records = new LinkedList<>();
 
    protected TestableJournal journal;
 
    protected int recordLength = 1024;
 
-   protected Map<Long, TransactionHolder> transactions = new LinkedHashMap<Long, TransactionHolder>();
+   protected Map<Long, TransactionHolder> transactions = new LinkedHashMap<>();
 
    protected int maxAIO;
 
@@ -233,9 +233,9 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void loadAndCheck(final boolean printDebugJournal) throws Exception {
-      List<RecordInfo> committedRecords = new ArrayList<RecordInfo>();
+      List<RecordInfo> committedRecords = new ArrayList<>();
 
-      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
       journal.load(committedRecords, preparedTransactions, null);
 
@@ -247,7 +247,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
       // check prepared transactions
 
-      List<PreparedTransactionInfo> prepared = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> prepared = new ArrayList<>();
 
       for (Map.Entry<Long, TransactionHolder> entry : transactions.entrySet()) {
          if (entry.getValue().prepared) {
@@ -537,9 +537,9 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
    static final class TransactionHolder {
 
-      List<RecordInfo> records = new ArrayList<RecordInfo>();
+      List<RecordInfo> records = new ArrayList<>();
 
-      List<RecordInfo> deletes = new ArrayList<RecordInfo>();
+      List<RecordInfo> deletes = new ArrayList<>();
 
       boolean prepared;
    }

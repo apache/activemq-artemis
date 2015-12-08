@@ -49,7 +49,7 @@ public class DirectDeliverTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.DIRECT_DELIVER, true);
 
       TransportConfiguration tc = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);

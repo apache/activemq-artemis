@@ -122,7 +122,7 @@ public class AMQ3140Test {
          }
       });
 
-      List<Sender> senderThreads = new ArrayList<Sender>();
+      List<Sender> senderThreads = new ArrayList<>();
       for (int i = 0; i < THREAD_COUNT; i++) {
          Sender sender = new Sender();
          senderThreads.add(sender);

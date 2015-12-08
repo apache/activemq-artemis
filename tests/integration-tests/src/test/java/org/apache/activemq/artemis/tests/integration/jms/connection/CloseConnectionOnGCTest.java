@@ -61,7 +61,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
 
       Connection conn = cf.createConnection();
 
-      WeakReference<Connection> wr = new WeakReference<Connection>(conn);
+      WeakReference<Connection> wr = new WeakReference<>(conn);
 
       Assert.assertEquals(1, server.getRemotingService().getConnections().size());
       final CountDownLatch latch = new CountDownLatch(1);
@@ -87,9 +87,9 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
       Connection conn2 = cf.createConnection();
       Connection conn3 = cf.createConnection();
 
-      WeakReference<Connection> wr1 = new WeakReference<Connection>(conn1);
-      WeakReference<Connection> wr2 = new WeakReference<Connection>(conn2);
-      WeakReference<Connection> wr3 = new WeakReference<Connection>(conn3);
+      WeakReference<Connection> wr1 = new WeakReference<>(conn1);
+      WeakReference<Connection> wr2 = new WeakReference<>(conn2);
+      WeakReference<Connection> wr3 = new WeakReference<>(conn3);
 
       Assert.assertEquals(3, server.getRemotingService().getConnections().size());
 
@@ -122,9 +122,9 @@ public class CloseConnectionOnGCTest extends JMSTestBase {
       Connection conn2 = cf.createConnection();
       Connection conn3 = cf.createConnection();
 
-      WeakReference<Connection> wr1 = new WeakReference<Connection>(conn1);
-      WeakReference<Connection> wr2 = new WeakReference<Connection>(conn2);
-      WeakReference<Connection> wr3 = new WeakReference<Connection>(conn3);
+      WeakReference<Connection> wr1 = new WeakReference<>(conn1);
+      WeakReference<Connection> wr2 = new WeakReference<>(conn2);
+      WeakReference<Connection> wr3 = new WeakReference<>(conn3);
 
       Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session sess2 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);

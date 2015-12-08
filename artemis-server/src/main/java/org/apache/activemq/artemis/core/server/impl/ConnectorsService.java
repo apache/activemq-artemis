@@ -52,7 +52,7 @@ public final class ConnectorsService implements ActiveMQComponent {
 
    private final Configuration configuration;
 
-   private final Set<ConnectorService> connectors = new HashSet<ConnectorService>();
+   private final Set<ConnectorService> connectors = new HashSet<>();
 
    private final ServiceRegistry serviceRegistry;
 

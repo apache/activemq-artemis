@@ -150,7 +150,7 @@ public class FanoutTransportBrokerTest extends NetworkTestSupport {
 
       // The MockTransport is on the remote connection.
       // Slip in a new transport filter after the MockTransport
-      MockTransport mt = (MockTransport) connection3.getTransport().narrow(MockTransport.class);
+      MockTransport mt = connection3.getTransport().narrow(MockTransport.class);
       mt.install(new TransportFilter(mt.getNext()) {
          @Override
          public void oneway(Object command) throws IOException {

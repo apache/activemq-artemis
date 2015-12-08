@@ -201,7 +201,7 @@ public class AdvisoryTempDestinationTests extends TestCase {
       tempTopicEntry.setTempTopic(true);
 
       PolicyMap pMap = new PolicyMap();
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       policyEntries.add(tempQueueEntry);
       policyEntries.add(tempTopicEntry);
       pMap.setPolicyEntries(policyEntries);

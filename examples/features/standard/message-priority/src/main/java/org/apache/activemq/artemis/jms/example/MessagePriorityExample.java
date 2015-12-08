@@ -41,7 +41,7 @@ public class MessagePriorityExample {
 
    public static void main(final String[] args) throws Exception {
       AtomicBoolean result = new AtomicBoolean(true);
-      final ArrayList<TextMessage> msgReceived = new ArrayList<TextMessage>();
+      final ArrayList<TextMessage> msgReceived = new ArrayList<>();
       Connection connection = null;
       try {
 

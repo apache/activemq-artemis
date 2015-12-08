@@ -71,9 +71,9 @@ public final class StompConnection implements RemotingConnection {
 
    private final Acceptor acceptorUsed;
 
-   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();
+   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
 
-   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<CloseListener>();
+   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
 
    private final Object failLock = new Object();
 
@@ -177,7 +177,7 @@ public final class StompConnection implements RemotingConnection {
 
    @Override
    public List<CloseListener> removeCloseListeners() {
-      List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
+      List<CloseListener> ret = new ArrayList<>(closeListeners);
 
       closeListeners.clear();
 
@@ -186,7 +186,7 @@ public final class StompConnection implements RemotingConnection {
 
    @Override
    public List<FailureListener> removeFailureListeners() {
-      List<FailureListener> ret = new ArrayList<FailureListener>(failureListeners);
+      List<FailureListener> ret = new ArrayList<>(failureListeners);
 
       failureListeners.clear();
 
@@ -374,7 +374,7 @@ public final class StompConnection implements RemotingConnection {
    }
 
    private void callFailureListeners(final ActiveMQException me) {
-      final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
+      final List<FailureListener> listenersClone = new ArrayList<>(failureListeners);
 
       for (final FailureListener listener : listenersClone) {
          try {
@@ -390,7 +390,7 @@ public final class StompConnection implements RemotingConnection {
    }
 
    private void callClosingListeners() {
-      final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
+      final List<CloseListener> listenersClone = new ArrayList<>(closeListeners);
 
       for (final CloseListener listener : listenersClone) {
          try {
@@ -417,7 +417,7 @@ public final class StompConnection implements RemotingConnection {
       }
       else {
          StringTokenizer tokenizer = new StringTokenizer(acceptVersion, ",");
-         Set<String> requestVersions = new HashSet<String>(tokenizer.countTokens());
+         Set<String> requestVersions = new HashSet<>(tokenizer.countTokens());
          while (tokenizer.hasMoreTokens()) {
             requestVersions.add(tokenizer.nextToken());
          }

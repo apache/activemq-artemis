@@ -51,13 +51,13 @@ public final class BindingsImpl implements Bindings {
 
    private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
-   private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new ConcurrentHashMap<SimpleString, List<Binding>>();
+   private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new ConcurrentHashMap<>();
 
-   private final Map<SimpleString, Integer> routingNamePositions = new ConcurrentHashMap<SimpleString, Integer>();
+   private final Map<SimpleString, Integer> routingNamePositions = new ConcurrentHashMap<>();
 
-   private final Map<Long, Binding> bindingsMap = new ConcurrentHashMap<Long, Binding>();
+   private final Map<Long, Binding> bindingsMap = new ConcurrentHashMap<>();
 
-   private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<Binding>();
+   private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<>();
 
    private volatile MessageLoadBalancingType messageLoadBalancingType = MessageLoadBalancingType.OFF;
 
@@ -104,7 +104,7 @@ public final class BindingsImpl implements Bindings {
          List<Binding> bindings = routingNameBindingMap.get(routingName);
 
          if (bindings == null) {
-            bindings = new CopyOnWriteArrayList<Binding>();
+            bindings = new CopyOnWriteArrayList<>();
 
             List<Binding> oldBindings = routingNameBindingMap.putIfAbsent(routingName, bindings);
 

@@ -81,7 +81,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       String objectNameStr = broker.getBrokerObjectName().toString();
       objectNameStr += ",destinationType=Queue,destinationName=" + getDestinationString();
       ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
-      QueueViewMBean proxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      QueueViewMBean proxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
       long count = proxy.getQueueSize();
       assertEquals("Queue size", count, messageCount);
@@ -130,7 +130,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       assertEquals(message, received);
 
       ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
-      BrokerViewMBean brokerProxy = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
+      BrokerViewMBean brokerProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
 
       brokerProxy.removeQueue(getDestinationString());
       producer.send(message);
@@ -153,10 +153,10 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       // Now get the QueueViewMBean and purge
 
       ObjectName queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-      QueueViewMBean queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      QueueViewMBean queueProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
       ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
-      BrokerViewMBean brokerProxy = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
+      BrokerViewMBean brokerProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
 
       long count = queueProxy.getQueueSize();
       assertEquals("Queue size", count, messageCount);
@@ -166,7 +166,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       sendMessages(session, messageCount);
 
       queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-      queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      queueProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
       count = queueProxy.getQueueSize();
       assertEquals("Queue size", count, messageCount);
@@ -186,7 +186,7 @@ public class PurgeTest extends EmbeddedBrokerTestSupport {
       sendMessages(session, messageCount);
 
       queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-      queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      queueProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
       count = queueProxy.getQueueSize();
       assertEquals("Queue size", count, messageCount);

@@ -87,7 +87,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
          // the main portion is outside of the VM heap
          // and the JDK will not have any reference about it to take GC into account
          // so we force a GC and try again.
-         WeakReference<Object> obj = new WeakReference<Object>(new Object());
+         WeakReference<Object> obj = new WeakReference<>(new Object());
          try {
             long timeout = System.currentTimeMillis() + 5000;
             while (System.currentTimeMillis() > timeout && obj.get() != null) {

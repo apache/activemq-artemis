@@ -32,7 +32,7 @@ public class NetworkDestinationFilterTest extends TestCase {
    public void testFilter() throws Exception {
       NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
       assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
-      List<ActiveMQDestination> dests = new ArrayList<ActiveMQDestination>();
+      List<ActiveMQDestination> dests = new ArrayList<>();
       config.setDynamicallyIncludedDestinations(dests);
       assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
       dests.add(new ActiveMQQueue("TEST.>"));

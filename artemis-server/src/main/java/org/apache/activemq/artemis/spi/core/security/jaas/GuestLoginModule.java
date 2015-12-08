@@ -48,7 +48,7 @@ public class GuestLoginModule implements LoginModule {
    private Subject subject;
    private boolean debug;
    private boolean credentialsInvalidate;
-   private Set<Principal> principals = new HashSet<Principal>();
+   private Set<Principal> principals = new HashSet<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
 

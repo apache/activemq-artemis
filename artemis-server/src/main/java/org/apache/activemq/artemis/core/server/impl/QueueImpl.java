@@ -143,10 +143,10 @@ public class QueueImpl implements Queue {
    // Messages will first enter intermediateMessageReferences
    // Before they are added to messageReferences
    // This is to avoid locking the queue on the producer
-   private final ConcurrentLinkedQueue<MessageReference> intermediateMessageReferences = new ConcurrentLinkedQueue<MessageReference>();
+   private final ConcurrentLinkedQueue<MessageReference> intermediateMessageReferences = new ConcurrentLinkedQueue<>();
 
    // This is where messages are stored
-   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<MessageReference>(QueueImpl.NUM_PRIORITIES);
+   private final PriorityLinkedList<MessageReference> messageReferences = new PriorityLinkedListImpl<>(QueueImpl.NUM_PRIORITIES);
 
    // The quantity of pagedReferences on messageReferences priority list
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
@@ -157,7 +157,7 @@ public class QueueImpl implements Queue {
    // used to control if we should recalculate certain positions inside deliverAsync
    private volatile boolean consumersChanged = true;
 
-   private final List<ConsumerHolder> consumerList = new CopyOnWriteArrayList<ConsumerHolder>();
+   private final List<ConsumerHolder> consumerList = new CopyOnWriteArrayList<>();
 
    private final ScheduledDeliveryHandler scheduledDeliveryHandler;
 
@@ -190,7 +190,7 @@ public class QueueImpl implements Queue {
 
    private Redistributor redistributor;
 
-   private final Set<ScheduledFuture<?>> futures = new ConcurrentHashSet<ScheduledFuture<?>>();
+   private final Set<ScheduledFuture<?>> futures = new ConcurrentHashSet<>();
 
    private ScheduledFuture<?> redistributorFuture;
 
@@ -198,9 +198,9 @@ public class QueueImpl implements Queue {
 
    // We cache the consumers here since we don't want to include the redistributor
 
-   private final Set<Consumer> consumerSet = new HashSet<Consumer>();
+   private final Set<Consumer> consumerSet = new HashSet<>();
 
-   private final Map<SimpleString, Consumer> groups = new HashMap<SimpleString, Consumer>();
+   private final Map<SimpleString, Consumer> groups = new HashMap<>();
 
    private volatile SimpleString expiryAddress;
 
@@ -252,7 +252,7 @@ public class QueueImpl implements Queue {
       }
 
       synchronized (this) {
-         ArrayList<SimpleString> groupsUsed = new ArrayList<SimpleString>();
+         ArrayList<SimpleString> groupsUsed = new ArrayList<>();
          groupsUsed.addAll(groups.keySet());
          return groupsUsed;
       }
@@ -740,7 +740,7 @@ public class QueueImpl implements Queue {
          for (SimpleString groupID : groups.keySet()) {
             if (consumer == groups.get(groupID)) {
                if (groupsToRemove == null) {
-                  groupsToRemove = new LinkedList<SimpleString>();
+                  groupsToRemove = new LinkedList<>();
                }
                groupsToRemove.add(groupID);
             }
@@ -823,7 +823,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized Set<Consumer> getConsumers() {
-      return new HashSet<Consumer>(consumerSet);
+      return new HashSet<>(consumerSet);
    }
 
    @Override
@@ -944,7 +944,7 @@ public class QueueImpl implements Queue {
 
       List<ConsumerHolder> consumerListClone = cloneConsumersList();
 
-      Map<String, List<MessageReference>> mapReturn = new HashMap<String, List<MessageReference>>();
+      Map<String, List<MessageReference>> mapReturn = new HashMap<>();
 
       for (ConsumerHolder holder : consumerListClone) {
          List<MessageReference> msgs = holder.consumer.getDeliveringMessages();
@@ -2551,7 +2551,7 @@ public class QueueImpl implements Queue {
       List<ConsumerHolder> consumerListClone;
 
       synchronized (this) {
-         consumerListClone = new ArrayList<ConsumerHolder>(consumerList);
+         consumerListClone = new ArrayList<>(consumerList);
       }
       return consumerListClone;
    }

@@ -209,7 +209,7 @@ public final class ManagementHelper {
          else if (val instanceof JSONObject) {
             JSONObject jsonObject = (JSONObject) val;
 
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
 
             Iterator<String> iter = jsonObject.keys();
 
@@ -222,7 +222,7 @@ public final class ManagementHelper {
                   innerVal = ManagementHelper.fromJSONArray(((JSONArray) innerVal));
                }
                else if (innerVal instanceof JSONObject) {
-                  Map<String, Object> innerMap = new HashMap<String, Object>();
+                  Map<String, Object> innerMap = new HashMap<>();
                   JSONObject o = (JSONObject) innerVal;
                   Iterator it = o.keys();
                   while (it.hasNext()) {

@@ -137,7 +137,7 @@ public class BrokerTest extends BrokerTestSupport {
       connection2.send(sessionInfo2);
       connection2.request(consumerInfo2);
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
 
       for (int i = 0; i < 4; i++) {
          Message m1 = receiveMessage(connection1);
@@ -197,7 +197,7 @@ public class BrokerTest extends BrokerTestSupport {
       //one to ensure they arrive in the order we want
       connection1.request(createMessage(producerInfo, destination, deliveryMode));
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
 
       for (int i = 0; i < 4; i++) {
          Message m1 = receiveMessage(connection1);
@@ -249,7 +249,7 @@ public class BrokerTest extends BrokerTestSupport {
       //one to ensure they arrive in the order we want
       connection1.request(createMessage(producerInfo, destination, deliveryMode));
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
 
       for (int i = 0; i < 4; i++) {
          Message m1 = receiveMessage(connection1);

@@ -144,7 +144,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       return entry;
    }
 
-   private final Map<String, ServerSessionPacketHandler> sessionHandlers = new ConcurrentHashMap<String, ServerSessionPacketHandler>();
+   private final Map<String, ServerSessionPacketHandler> sessionHandlers = new ConcurrentHashMap<>();
 
    ServerSessionPacketHandler getSessionHandler(final String sessionName) {
       return sessionHandlers.get(sessionName);
@@ -315,7 +315,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
                   @Override
                   public void run() {
                      String nodeId = server.getNodeID().toString();
-                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<TransportConfiguration, TransportConfiguration>(null, null);
+                     Pair<TransportConfiguration, TransportConfiguration> emptyConfig = new Pair<>(null, null);
                      if (channel0.supports(PacketImpl.CLUSTER_TOPOLOGY_V2)) {
                         channel0.send(new ClusterTopologyChangeMessage_V2(System.currentTimeMillis(), nodeId, null, emptyConfig, true));
                      }
@@ -331,9 +331,9 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       private Pair<TransportConfiguration, TransportConfiguration> getPair(TransportConfiguration conn,
                                                                            boolean isBackup) {
          if (isBackup) {
-            return new Pair<TransportConfiguration, TransportConfiguration>(null, conn);
+            return new Pair<>(null, conn);
          }
-         return new Pair<TransportConfiguration, TransportConfiguration>(conn, null);
+         return new Pair<>(conn, null);
       }
    }
 }

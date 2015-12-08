@@ -52,7 +52,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    // -----------------------------------------------------------------------------------
    private final PacketDecoder packetDecoder;
 
-   private final Map<Long, Channel> channels = new ConcurrentHashMap<Long, Channel>();
+   private final Map<Long, Channel> channels = new ConcurrentHashMap<>();
 
    private final long blockingCallTimeout;
 
@@ -246,7 +246,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       // method is
       // complete
 
-      Set<Channel> allChannels = new HashSet<Channel>(channels.values());
+      Set<Channel> allChannels = new HashSet<>(channels.values());
 
       if (!criticalError) {
          removeAllChannels();

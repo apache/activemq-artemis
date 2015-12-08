@@ -87,9 +87,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final List<BaseInterceptor> outgoingInterceptors = new CopyOnWriteArrayList<>();
 
-   private final Map<String, Acceptor> acceptors = new HashMap<String, Acceptor>();
+   private final Map<String, Acceptor> acceptors = new HashMap<>();
 
-   private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<Object, ConnectionEntry>();
+   private final Map<Object, ConnectionEntry> connections = new ConcurrentHashMap<>();
 
    private final ReusableLatch connectionCountLatch = new ReusableLatch(0);
 
@@ -318,7 +318,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       if (!started)
          return;
       failureCheckAndFlushThread.close(false);
-      HashMap<Object, ConnectionEntry> connectionEntries = new HashMap<Object, ConnectionEntry>(connections);
+      HashMap<Object, ConnectionEntry> connectionEntries = new HashMap<>(connections);
 
       // Now we ensure that no connections will process any more packets after this method is
       // complete then send a disconnect packet
@@ -366,7 +366,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          ActiveMQServerLogger.LOGGER.debug("Sending disconnect on live connections");
       }
 
-      HashSet<ConnectionEntry> connectionEntries = new HashSet<ConnectionEntry>(connections.values());
+      HashSet<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 
       // Now we ensure that no connections will process any more packets after this method is complete
       // then send a disconnect packet
@@ -452,7 +452,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    @Override
    public synchronized Set<RemotingConnection> getConnections() {
-      Set<RemotingConnection> conns = new HashSet<RemotingConnection>(connections.size());
+      Set<RemotingConnection> conns = new HashSet<>(connections.size());
 
       for (ConnectionEntry entry : connections.values()) {
          conns.add(entry.connection);
@@ -661,7 +661,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             try {
                long now = System.currentTimeMillis();
 
-               Set<Object> idsToRemove = new HashSet<Object>();
+               Set<Object> idsToRemove = new HashSet<>();
 
                for (ConnectionEntry entry : connections.values()) {
                   final RemotingConnection conn = entry.connection;

@@ -90,7 +90,7 @@ public class MQTTConnection implements RemotingConnection {
    @Override
    public List<CloseListener> removeCloseListeners() {
       synchronized (closeListeners) {
-         List<CloseListener> deletedCloseListeners = new ArrayList<CloseListener>(closeListeners);
+         List<CloseListener> deletedCloseListeners = new ArrayList<>(closeListeners);
          closeListeners.clear();
          return deletedCloseListeners;
       }
@@ -109,7 +109,7 @@ public class MQTTConnection implements RemotingConnection {
    @Override
    public List<FailureListener> removeFailureListeners() {
       synchronized (failureListeners) {
-         List<FailureListener> deletedFailureListeners = new ArrayList<FailureListener>(failureListeners);
+         List<FailureListener> deletedFailureListeners = new ArrayList<>(failureListeners);
          failureListeners.clear();
          return deletedFailureListeners;
       }

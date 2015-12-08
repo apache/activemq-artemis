@@ -79,7 +79,7 @@ public class LDAPLoginModule implements LoginModule {
    private CallbackHandler handler;
    private LDAPLoginProperty[] config;
    private String username;
-   private Set<RolePrincipal> groups = new HashSet<RolePrincipal>();
+   private Set<RolePrincipal> groups = new HashSet<>();
 
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
@@ -191,7 +191,7 @@ public class LDAPLoginModule implements LoginModule {
          }
 
          // setup attributes
-         List<String> list = new ArrayList<String>();
+         List<String> list = new ArrayList<>();
          if (isLoginPropertySet(USER_ROLE_NAME)) {
             list.add(getLDAPPropertyValue(USER_ROLE_NAME));
          }
@@ -313,7 +313,7 @@ public class LDAPLoginModule implements LoginModule {
       expandRolesBool = Boolean.valueOf(getLDAPPropertyValue(EXPAND_ROLES)).booleanValue();
 
       if (list == null) {
-         list = new ArrayList<String>();
+         list = new ArrayList<>();
       }
       if (!isLoginPropertySet(ROLE_NAME)) {
          return list;
@@ -333,8 +333,8 @@ public class LDAPLoginModule implements LoginModule {
          ActiveMQServerLogger.LOGGER.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
          ActiveMQServerLogger.LOGGER.debug("  filter: " + filter);
       }
-      HashSet<String> haveSeenNames = new HashSet<String>();
-      Queue<String> pendingNameExpansion = new LinkedList<String>();
+      HashSet<String> haveSeenNames = new HashSet<>();
+      Queue<String> pendingNameExpansion = new LinkedList<>();
       NamingEnumeration<SearchResult> results = context.search(getLDAPPropertyValue(ROLE_BASE), filter, constraints);
       while (results.hasMore()) {
          SearchResult result = results.next();
@@ -443,7 +443,7 @@ public class LDAPLoginModule implements LoginModule {
          return values;
       }
       if (values == null) {
-         values = new ArrayList<String>();
+         values = new ArrayList<>();
       }
       Attribute attr = attrs.get(attrId);
       if (attr == null) {
@@ -459,7 +459,7 @@ public class LDAPLoginModule implements LoginModule {
 
    protected DirContext open() throws NamingException {
       try {
-         Hashtable<String, String> env = new Hashtable<String, String>();
+         Hashtable<String, String> env = new Hashtable<>();
          env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(INITIAL_CONTEXT_FACTORY));
          if (isLoginPropertySet(CONNECTION_USERNAME)) {
             env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));

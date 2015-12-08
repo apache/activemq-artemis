@@ -290,7 +290,6 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase {
       }
    }
 
-   @SuppressWarnings("unchecked")
    public static void ensureEquivalent(final MapMessage m1, final ActiveMQMapMessage m2) throws JMSException {
       MessageHeaderTestBase.ensureEquivalent((Message) m1, m2);
 

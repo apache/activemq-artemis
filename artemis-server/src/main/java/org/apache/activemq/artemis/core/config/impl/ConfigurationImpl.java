@@ -101,25 +101,25 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean persistIDCache = ActiveMQDefaultConfiguration.isDefaultPersistIdCache();
 
-   private List<String> incomingInterceptorClassNames = new ArrayList<String>();
+   private List<String> incomingInterceptorClassNames = new ArrayList<>();
 
-   private List<String> outgoingInterceptorClassNames = new ArrayList<String>();
+   private List<String> outgoingInterceptorClassNames = new ArrayList<>();
 
-   protected Map<String, TransportConfiguration> connectorConfigs = new HashMap<String, TransportConfiguration>();
+   protected Map<String, TransportConfiguration> connectorConfigs = new HashMap<>();
 
-   private Set<TransportConfiguration> acceptorConfigs = new HashSet<TransportConfiguration>();
+   private Set<TransportConfiguration> acceptorConfigs = new HashSet<>();
 
-   protected List<BridgeConfiguration> bridgeConfigurations = new ArrayList<BridgeConfiguration>();
+   protected List<BridgeConfiguration> bridgeConfigurations = new ArrayList<>();
 
-   protected List<DivertConfiguration> divertConfigurations = new ArrayList<DivertConfiguration>();
+   protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
 
-   protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<ClusterConnectionConfiguration>();
+   protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
 
-   private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<CoreQueueConfiguration>();
+   private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<>();
 
-   protected transient List<BroadcastGroupConfiguration> broadcastGroupConfigurations = new ArrayList<BroadcastGroupConfiguration>();
+   protected transient List<BroadcastGroupConfiguration> broadcastGroupConfigurations = new ArrayList<>();
 
-   protected transient Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations = new LinkedHashMap<String, DiscoveryGroupConfiguration>();
+   protected transient Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations = new LinkedHashMap<>();
 
    // Paging related attributes ------------------------------------------------------------
 
@@ -204,15 +204,15 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected GroupingHandlerConfiguration groupingHandlerConfiguration;
 
-   private Map<String, AddressSettings> addressesSettings = new HashMap<String, AddressSettings>();
+   private Map<String, AddressSettings> addressesSettings = new HashMap<>();
 
-   private Map<String, ResourceLimitSettings> resourceLimitSettings = new HashMap<String, ResourceLimitSettings>();
+   private Map<String, ResourceLimitSettings> resourceLimitSettings = new HashMap<>();
 
-   private Map<String, Set<Role>> securitySettings = new HashMap<String, Set<Role>>();
+   private Map<String, Set<Role>> securitySettings = new HashMap<>();
 
-   private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<SecuritySettingPlugin>();
+   private List<SecuritySettingPlugin> securitySettingPlugins = new ArrayList<>();
 
-   protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<ConnectorServiceConfiguration>();
+   protected List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
 
    private boolean maskPassword = ActiveMQDefaultConfiguration.isDefaultMaskPassword();
 

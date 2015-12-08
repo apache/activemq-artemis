@@ -90,7 +90,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    protected ActiveMQServer backupServer;
 
-   protected Map<String, Object> backupParams = new HashMap<String, Object>();
+   protected Map<String, Object> backupParams = new HashMap<>();
 
    private TransportConfiguration backuptc;
 

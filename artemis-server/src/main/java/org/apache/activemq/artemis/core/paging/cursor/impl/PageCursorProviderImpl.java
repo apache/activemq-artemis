@@ -70,7 +70,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    private final SoftValueHashMap<Long, PageCache> softCache;
 
-   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<Long, PageSubscription>();
+   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<>();
 
    // Static --------------------------------------------------------
 
@@ -83,7 +83,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       this.pagingStore = pagingStore;
       this.storageManager = storageManager;
       this.executor = executor;
-      this.softCache = new SoftValueHashMap<Long, PageCache>(maxCacheSize);
+      this.softCache = new SoftValueHashMap<>(maxCacheSize);
    }
 
    // Public --------------------------------------------------------
@@ -340,7 +340,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void cleanup() {
-      ArrayList<Page> depagedPages = new ArrayList<Page>();
+      ArrayList<Page> depagedPages = new ArrayList<>();
 
       while (true) {
          if (pagingStore.lock(100)) {
@@ -507,7 +507,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * @return
     */
    private synchronized ArrayList<PageSubscription> cloneSubscriptions() {
-      ArrayList<PageSubscription> cursorList = new ArrayList<PageSubscription>(activeCursors.values());
+      ArrayList<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
       return cursorList;
    }
 

@@ -46,7 +46,7 @@ public class DurableSubscriptionOffline2Test extends DurableSubscriptionOfflineT
    public static Collection<Boolean[]> getTestParameters() {
       Boolean[] f = {Boolean.FALSE};
       Boolean[] t = {Boolean.TRUE};
-      List<Boolean[]> booleanChoices = new ArrayList<Boolean[]>();
+      List<Boolean[]> booleanChoices = new ArrayList<>();
       booleanChoices.add(f);
       booleanChoices.add(t);
 

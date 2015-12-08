@@ -52,8 +52,6 @@ public class ServerSocketTstFactory extends ServerSocketFactory {
       }
    }
 
-   ;
-
    private final Random rnd;
 
    public ServerSocketTstFactory() {

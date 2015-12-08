@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 
 public class FakeSequentialFileFactory implements SequentialFileFactory {
 
-   private final Map<String, FakeSequentialFile> fileMap = new ConcurrentHashMap<String, FakeSequentialFile>();
+   private final Map<String, FakeSequentialFile> fileMap = new ConcurrentHashMap<>();
 
    private final int alignment;
 
@@ -52,7 +52,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    public FakeSequentialFileFactory(final int alignment, final boolean supportsCallback) {
       this.alignment = alignment;
       this.supportsCallback = supportsCallback;
-      callbacksInHold = new ArrayList<CallbackRunnable>();
+      callbacksInHold = new ArrayList<>();
    }
 
    public FakeSequentialFileFactory() {
@@ -98,7 +98,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
    @Override
    public List<String> listFiles(final String extension) {
-      List<String> files = new ArrayList<String>();
+      List<String> files = new ArrayList<>();
 
       for (String s : fileMap.keySet()) {
          if (s.endsWith("." + extension)) {

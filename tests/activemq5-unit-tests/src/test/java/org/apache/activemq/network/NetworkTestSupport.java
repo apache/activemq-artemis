@@ -36,7 +36,7 @@ import org.apache.activemq.usage.SystemUsage;
 
 public class NetworkTestSupport extends BrokerTestSupport {
 
-   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected ArrayList<StubConnection> connections = new ArrayList<>();
 
    protected TransportConnector connector;
 

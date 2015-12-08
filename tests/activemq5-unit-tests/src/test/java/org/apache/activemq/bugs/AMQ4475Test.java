@@ -112,7 +112,7 @@ public class AMQ4475Test {
       long startTime = System.nanoTime();
 
       // Produce to network
-      List<Future<ProducerTask>> tasks = new ArrayList<Future<ProducerTask>>();
+      List<Future<ProducerTask>> tasks = new ArrayList<>();
 
       for (int index = 0; index < 1; index++) {
          ProducerTask p = new ProducerTask(connectionUri, original, NUM_MSGS);

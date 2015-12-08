@@ -135,9 +135,9 @@ public final class ClusterManager implements ActiveMQComponent {
    private volatile State state = State.STOPPED;
 
    // the cluster connections which links this node to other cluster nodes
-   private final Map<String, ClusterConnection> clusterConnections = new HashMap<String, ClusterConnection>();
+   private final Map<String, ClusterConnection> clusterConnections = new HashMap<>();
 
-   private final Set<ServerLocatorInternal> clusterLocators = new ConcurrentHashSet<ServerLocatorInternal>();
+   private final Set<ServerLocatorInternal> clusterLocators = new ConcurrentHashSet<>();
 
    private final Executor executor;
 
@@ -359,15 +359,15 @@ public final class ClusterManager implements ActiveMQComponent {
    }
 
    public Map<String, Bridge> getBridges() {
-      return new HashMap<String, Bridge>(bridges);
+      return new HashMap<>(bridges);
    }
 
    public Set<ClusterConnection> getClusterConnections() {
-      return new HashSet<ClusterConnection>(clusterConnections.values());
+      return new HashSet<>(clusterConnections.values());
    }
 
    public Set<BroadcastGroup> getBroadcastGroups() {
-      return new HashSet<BroadcastGroup>(broadcastGroups.values());
+      return new HashSet<>(broadcastGroups.values());
    }
 
    public ClusterConnection getClusterConnection(final String name) {
@@ -682,7 +682,7 @@ public final class ClusterManager implements ActiveMQComponent {
    }
 
    private synchronized Collection<ClusterConnection> cloneClusterConnections() {
-      ArrayList<ClusterConnection> list = new ArrayList<ClusterConnection>(clusterConnections.values());
+      ArrayList<ClusterConnection> list = new ArrayList<>(clusterConnections.values());
       return list;
    }
 

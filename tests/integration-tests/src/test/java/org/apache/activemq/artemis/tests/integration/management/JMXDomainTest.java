@@ -40,7 +40,7 @@ public class JMXDomainTest extends ManagementTestBase {
 
       String jmxDomain_1 = ActiveMQDefaultConfiguration.getDefaultJmxDomain() + ".1";
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       Configuration config_1 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setJMXDomain(jmxDomain_1);
 

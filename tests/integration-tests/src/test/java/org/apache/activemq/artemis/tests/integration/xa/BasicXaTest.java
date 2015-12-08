@@ -49,7 +49,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
+   private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
    private ActiveMQServer messagingService;
 

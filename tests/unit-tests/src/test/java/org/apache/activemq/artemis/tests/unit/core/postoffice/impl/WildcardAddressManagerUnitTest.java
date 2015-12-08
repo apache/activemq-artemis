@@ -179,7 +179,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
    class BindignsFake implements Bindings {
 
-      ArrayList<Binding> bindings = new ArrayList<Binding>();
+      ArrayList<Binding> bindings = new ArrayList<>();
 
       @Override
       public Collection<Binding> getBindings() {

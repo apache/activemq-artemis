@@ -68,7 +68,7 @@ public class AMQ2512Test extends EmbeddedBrokerTestSupport {
 
       final long startTime = System.nanoTime();
 
-      final List<Consumer> consumers = new ArrayList<Consumer>();
+      final List<Consumer> consumers = new ArrayList<>();
       for (int i = 0; i < 20; i++) {
          consumers.add(new Consumer("worker-" + i));
       }

@@ -34,14 +34,14 @@ public class SecurityConfiguration extends Configuration {
    /**
     * the current valid users
     */
-   protected final Map<String, User> users = new HashMap<String, User>();
+   protected final Map<String, User> users = new HashMap<>();
 
    protected String defaultUser = null;
 
    /**
     * the roles for the users
     */
-   protected final Map<String, List<String>> roles = new HashMap<String, List<String>>();
+   protected final Map<String, List<String>> roles = new HashMap<>();
 
    public SecurityConfiguration() {
    }

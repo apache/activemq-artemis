@@ -90,7 +90,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    private boolean recoverCalled;
 
-   private final Set<ActiveMQMessageConsumer> consumers = new HashSet<ActiveMQMessageConsumer>();
+   private final Set<ActiveMQMessageConsumer> consumers = new HashSet<>();
 
    // Constructors --------------------------------------------------
 
@@ -240,7 +240,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       connection.getThreadAwareContext().assertNotMessageListenerThread();
       synchronized (connection) {
          try {
-            for (ActiveMQMessageConsumer cons : new HashSet<ActiveMQMessageConsumer>(consumers)) {
+            for (ActiveMQMessageConsumer cons : new HashSet<>(consumers)) {
                cons.close();
             }
 

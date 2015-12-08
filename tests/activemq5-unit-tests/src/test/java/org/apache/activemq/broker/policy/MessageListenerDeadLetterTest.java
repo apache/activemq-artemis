@@ -96,8 +96,6 @@ public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
       super.tearDown();
    }
 
-   ;
-
    @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       ActiveMQConnectionFactory answer = super.createConnectionFactory();

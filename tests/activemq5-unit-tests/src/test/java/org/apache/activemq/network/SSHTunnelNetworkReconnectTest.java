@@ -31,7 +31,7 @@ import org.apache.activemq.broker.BrokerService;
  */
 public class SSHTunnelNetworkReconnectTest extends NetworkReconnectTest {
 
-   ArrayList<Process> processes = new ArrayList<Process>();
+   ArrayList<Process> processes = new ArrayList<>();
 
    @Override
    protected BrokerService createFirstBroker() throws Exception {

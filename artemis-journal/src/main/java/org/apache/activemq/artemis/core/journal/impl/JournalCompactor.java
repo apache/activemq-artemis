@@ -48,18 +48,18 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    private static final short COMPACT_SPLIT_LINE = 2;
 
    // Snapshot of transactions that were pending when the compactor started
-   private final Map<Long, PendingTransaction> pendingTransactions = new ConcurrentHashMap<Long, PendingTransaction>();
+   private final Map<Long, PendingTransaction> pendingTransactions = new ConcurrentHashMap<>();
 
-   private final Map<Long, JournalRecord> newRecords = new HashMap<Long, JournalRecord>();
+   private final Map<Long, JournalRecord> newRecords = new HashMap<>();
 
-   private final Map<Long, JournalTransaction> newTransactions = new HashMap<Long, JournalTransaction>();
+   private final Map<Long, JournalTransaction> newTransactions = new HashMap<>();
 
    /**
     * Commands that happened during compacting
     * We can't process any counts during compacting, as we won't know in what files the records are taking place, so
     * we cache those updates. As soon as we are done we take the right account.
     */
-   private final LinkedList<CompactCommand> pendingCommands = new LinkedList<CompactCommand>();
+   private final LinkedList<CompactCommand> pendingCommands = new LinkedList<>();
 
    public static SequentialFile readControlFile(final SequentialFileFactory fileFactory,
                                                 final List<String> dataFiles,
@@ -70,7 +70,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       if (controlFile.exists()) {
          JournalFile file = new JournalFileImpl(controlFile, 0, JournalImpl.FORMAT_VERSION);
 
-         final ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();
+         final ArrayList<RecordInfo> records = new ArrayList<>();
 
          JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallbackAbstract() {
             @Override
@@ -101,7 +101,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
             for (int i = 0; i < numberRenames; i++) {
                String from = input.readUTF();
                String to = input.readUTF();
-               renameFile.add(new Pair<String, String>(from, to));
+               renameFile.add(new Pair<>(from, to));
             }
 
          }

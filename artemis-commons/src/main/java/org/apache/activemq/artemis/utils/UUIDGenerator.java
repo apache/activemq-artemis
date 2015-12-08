@@ -258,7 +258,7 @@ public final class UUIDGenerator {
       try {
          networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
-         List<NetworkInterface> ifaces = new ArrayList<NetworkInterface>();
+         List<NetworkInterface> ifaces = new ArrayList<>();
          while (networkInterfaces.hasMoreElements()) {
             ifaces.add(networkInterfaces.nextElement());
          }
@@ -275,7 +275,7 @@ public final class UUIDGenerator {
                                                           final Method isLoopbackMethod,
                                                           final Method isVirtualMethod) {
       ExecutorService executor = Executors.newFixedThreadPool(ifaces.size());
-      Collection<Callable<byte[]>> tasks = new ArrayList<Callable<byte[]>>(ifaces.size());
+      Collection<Callable<byte[]>> tasks = new ArrayList<>(ifaces.size());
 
       for (final NetworkInterface networkInterface : ifaces) {
          tasks.add(new Callable<byte[]>() {

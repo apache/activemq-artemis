@@ -38,7 +38,7 @@ public class MQTTConnectionManager {
    private MQTTSession session;
 
    //TODO Read in a list of existing client IDs from stored Sessions.
-   public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<String>();
+   public static Set<String> CONNECTED_CLIENTS = new ConcurrentHashSet<>();
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 

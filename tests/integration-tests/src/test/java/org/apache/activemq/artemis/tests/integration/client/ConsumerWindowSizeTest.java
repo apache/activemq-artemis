@@ -102,8 +102,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<ClientConsumer>();
-      ArrayList<ClientSession> sessions = new ArrayList<ClientSession>();
+      ArrayList<ClientConsumer> consumers = new ArrayList<>();
+      ArrayList<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");
@@ -205,8 +205,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<ClientConsumer>();
-      ArrayList<ClientSession> sessions = new ArrayList<ClientSession>();
+      ArrayList<ClientConsumer> consumers = new ArrayList<>();
+      ArrayList<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");
@@ -257,8 +257,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<ClientConsumer>();
-      ArrayList<ClientSession> sessions = new ArrayList<ClientSession>();
+      ArrayList<ClientConsumer> consumers = new ArrayList<>();
+      ArrayList<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");

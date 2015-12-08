@@ -97,7 +97,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
             action = "afterRollback()")})
    public void testTimeoutOnTX2() throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-      XAConnection connection = (XAConnection)connectionFactory.createXAConnection();
+      XAConnection connection = connectionFactory.createXAConnection();
 
       Connection connction2 = connectionFactory.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);

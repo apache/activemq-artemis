@@ -70,7 +70,7 @@ public class AMQ1917Test extends TestCase {
 
       connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
 
-      BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(10000);
+      BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(10000);
       tpe = new ThreadPoolExecutor(NUM_THREADS, NUM_THREADS, 60000, TimeUnit.MILLISECONDS, queue);
       ThreadFactory limitedthreadFactory = new LimitedThreadFactory(tpe.getThreadFactory());
       tpe.setThreadFactory(limitedthreadFactory);

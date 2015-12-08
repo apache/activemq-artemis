@@ -70,7 +70,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       ActiveMQMessageAudit audit = new ActiveMQMessageAudit();
       IdGenerator idGen = new IdGenerator();
       // add to a list
-      List<String> list = new ArrayList<String>();
+      List<String> list = new ArrayList<>();
       for (int i = 0; i < count; i++) {
          String id = idGen.generateId();
          list.add(id);
@@ -86,7 +86,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       int count = 10000;
       ActiveMQMessageAudit audit = new ActiveMQMessageAudit();
       // add to a list
-      List<MessageReference> list = new ArrayList<MessageReference>();
+      List<MessageReference> list = new ArrayList<>();
       for (int i = 0; i < count; i++) {
          ProducerId pid = new ProducerId();
          pid.setConnectionId("test");
@@ -111,7 +111,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       ActiveMQMessageAudit audit = new ActiveMQMessageAudit();
       IdGenerator idGen = new IdGenerator();
       // add to a list
-      List<String> list = new ArrayList<String>();
+      List<String> list = new ArrayList<>();
       for (int i = 0; i < count; i++) {
          String id = idGen.generateId();
          if (i == 0) {
@@ -136,7 +136,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       LOG.debug("Length: " + bytes.length);
       audit = recover(bytes);
 
-      List<MessageReference> list = new ArrayList<MessageReference>();
+      List<MessageReference> list = new ArrayList<>();
 
       for (int j = 0; j < 1000; j++) {
          ProducerId pid = new ProducerId();

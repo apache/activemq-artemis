@@ -45,7 +45,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    private Properties users;
    private Properties roles;
    private String user;
-   private final Set<Principal> principals = new HashSet<Principal>();
+   private final Set<Principal> principals = new HashSet<>();
    private boolean loginSucceeded;
 
    @Override

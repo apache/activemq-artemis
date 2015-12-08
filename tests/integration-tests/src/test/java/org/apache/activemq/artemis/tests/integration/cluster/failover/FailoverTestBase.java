@@ -296,8 +296,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    public static final class LatchClusterTopologyListener implements ClusterTopologyListener {
 
       final CountDownLatch latch;
-      List<String> liveNode = new ArrayList<String>();
-      List<String> backupNode = new ArrayList<String>();
+      List<String> liveNode = new ArrayList<>();
+      List<String> backupNode = new ArrayList<>();
 
       public LatchClusterTopologyListener(CountDownLatch latch) {
          this.latch = latch;

@@ -177,7 +177,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       useLocalTx = !activation.isDeliveryTransacted() && activation.getActivationSpec().isUseLocalTx();
       transacted = activation.isDeliveryTransacted();
       if (activation.isDeliveryTransacted() && !activation.getActivationSpec().isUseLocalTx()) {
-         Map<String, Object> xaResourceProperties = new HashMap<String, Object>();
+         Map<String, Object> xaResourceProperties = new HashMap<>();
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, ((ActiveMQResourceAdapter) spec.getResourceAdapter()).getJndiName());
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, ((ClientSessionFactoryInternal) cf).getLiveNodeId());
          xaResourceProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, ActiveMQResourceAdapter.PRODUCT_NAME);

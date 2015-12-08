@@ -95,7 +95,7 @@ public class FileBroker implements Broker {
    * will need impproving if we get more.
    * */
    public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<ActiveMQComponent>();
+      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

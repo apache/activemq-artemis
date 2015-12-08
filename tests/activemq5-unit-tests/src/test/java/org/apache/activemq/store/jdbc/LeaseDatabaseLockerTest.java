@@ -149,7 +149,7 @@ public class LeaseDatabaseLockerTest {
       lockerB.setLeaseHolderId("B");
       jdbc.setLocker(lockerB);
 
-      final Set<LeaseDatabaseLocker> lockedSet = new HashSet<LeaseDatabaseLocker>();
+      final Set<LeaseDatabaseLocker> lockedSet = new HashSet<>();
       ExecutorService executor = Executors.newCachedThreadPool();
       executor.execute(new Runnable() {
          @Override

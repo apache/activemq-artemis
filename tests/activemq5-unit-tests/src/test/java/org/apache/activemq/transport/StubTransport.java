@@ -29,7 +29,7 @@ import org.apache.activemq.util.ServiceStopper;
  */
 public class StubTransport extends TransportSupport {
 
-   private Queue<Object> queue = new ConcurrentLinkedQueue<Object>();
+   private Queue<Object> queue = new ConcurrentLinkedQueue<>();
    private AtomicInteger receiveCounter;
 
    @Override

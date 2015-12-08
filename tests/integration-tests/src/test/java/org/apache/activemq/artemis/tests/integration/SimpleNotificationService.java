@@ -29,7 +29,7 @@ public class SimpleNotificationService implements NotificationService {
 
    // Attributes ----------------------------------------------------
 
-   private final List<NotificationListener> listeners = new ArrayList<NotificationListener>();
+   private final List<NotificationListener> listeners = new ArrayList<>();
 
    // Static --------------------------------------------------------
 
@@ -70,7 +70,7 @@ public class SimpleNotificationService implements NotificationService {
 
    public static class Listener implements NotificationListener {
 
-      private final List<Notification> notifications = new ArrayList<Notification>();
+      private final List<Notification> notifications = new ArrayList<>();
 
       @Override
       public void onNotification(final Notification notification) {

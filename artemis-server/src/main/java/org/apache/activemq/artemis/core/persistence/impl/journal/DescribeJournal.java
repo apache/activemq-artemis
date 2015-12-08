@@ -134,7 +134,7 @@ public final class DescribeJournal {
 
       final PrintStream out = System.out;
 
-      final Map<Long, PageSubscriptionCounterImpl> counters = new HashMap<Long, PageSubscriptionCounterImpl>();
+      final Map<Long, PageSubscriptionCounterImpl> counters = new HashMap<>();
 
       out.println("Journal path: " + path);
 
@@ -249,17 +249,17 @@ public final class DescribeJournal {
 
       out.println("### Surviving Records Summary ###");
 
-      List<RecordInfo> records = new LinkedList<RecordInfo>();
-      List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
+      List<RecordInfo> records = new LinkedList<>();
+      List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
 
       journal.start();
 
       final StringBuffer bufferFailingTransactions = new StringBuffer();
 
       int messageCount = 0;
-      Map<Long, Integer> messageRefCounts = new HashMap<Long, Integer>();
+      Map<Long, Integer> messageRefCounts = new HashMap<>();
       int preparedMessageCount = 0;
-      Map<Long, Integer> preparedMessageRefCount = new HashMap<Long, Integer>();
+      Map<Long, Integer> preparedMessageRefCount = new HashMap<>();
       journal.load(records, preparedTransactions, new TransactionFailureCallback() {
 
          @Override

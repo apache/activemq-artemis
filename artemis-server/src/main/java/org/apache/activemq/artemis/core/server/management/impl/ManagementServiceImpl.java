@@ -124,7 +124,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    private boolean notificationsEnabled;
 
-   private final Set<NotificationListener> listeners = new ConcurrentHashSet<NotificationListener>();
+   private final Set<NotificationListener> listeners = new ConcurrentHashSet<>();
 
    private final ObjectNameBuilder objectNameBuilder;
 
@@ -139,7 +139,7 @@ public class ManagementServiceImpl implements ManagementService {
       managementAddress = configuration.getManagementAddress();
       managementNotificationAddress = configuration.getManagementNotificationAddress();
 
-      registry = new ConcurrentHashMap<String, Object>();
+      registry = new ConcurrentHashMap<>();
       broadcaster = new NotificationBroadcasterSupport();
       notificationsEnabled = true;
       objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain());
@@ -282,7 +282,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public void unregisterAcceptors() {
-      List<String> acceptors = new ArrayList<String>();
+      List<String> acceptors = new ArrayList<>();
       synchronized (this) {
          for (String resourceName : registry.keySet()) {
             if (resourceName.startsWith(ResourceNames.CORE_ACCEPTOR)) {
@@ -431,8 +431,8 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public synchronized Object[] getResources(final Class<?> resourceType) {
-      List<Object> resources = new ArrayList<Object>();
-      Collection<Object> clone = new ArrayList<Object>(registry.values());
+      List<Object> resources = new ArrayList<>();
+      Collection<Object> clone = new ArrayList<>(registry.values());
       for (Object entry : clone) {
          if (resourceType.isAssignableFrom(entry.getClass())) {
             resources.add(entry);
@@ -441,7 +441,7 @@ public class ManagementServiceImpl implements ManagementService {
       return resources.toArray(new Object[resources.size()]);
    }
 
-   private final Set<ObjectName> registeredNames = new HashSet<ObjectName>();
+   private final Set<ObjectName> registeredNames = new HashSet<>();
 
    @Override
    public void registerInJMX(final ObjectName objectName, final Object managedResource) throws Exception {
@@ -521,7 +521,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public synchronized void stop() throws Exception {
-      Set<String> resourceNames = new HashSet<String>(registry.keySet());
+      Set<String> resourceNames = new HashSet<>(registry.keySet());
 
       for (String resourceName : resourceNames) {
          unregisterFromRegistry(resourceName);
@@ -529,7 +529,7 @@ public class ManagementServiceImpl implements ManagementService {
 
       if (jmxManagementEnabled) {
          if (!registeredNames.isEmpty()) {
-            List<String> unexpectedResourceNames = new ArrayList<String>();
+            List<String> unexpectedResourceNames = new ArrayList<>();
             for (String name : resourceNames) {
                // only addresses and queues should still be registered
                if (!(name.startsWith(ResourceNames.CORE_ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE))) {

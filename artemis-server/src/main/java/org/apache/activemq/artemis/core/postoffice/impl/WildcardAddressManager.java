@@ -47,9 +47,9 @@ public class WildcardAddressManager extends SimpleAddressManager {
     * These are all the addresses, we use this so we can link back from the actual address to its linked wilcard addresses
     * or vice versa
     */
-   private final Map<SimpleString, Address> addresses = new ConcurrentHashMap<SimpleString, Address>();
+   private final Map<SimpleString, Address> addresses = new ConcurrentHashMap<>();
 
-   private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<SimpleString, Address>();
+   private final Map<SimpleString, Address> wildCardAddresses = new ConcurrentHashMap<>();
 
    public WildcardAddressManager(final BindingsFactory bindingsFactory) {
       super(bindingsFactory);

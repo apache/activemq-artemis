@@ -37,7 +37,7 @@ public class LinkedListTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      list = new LinkedListImpl<Integer>();
+      list = new LinkedListImpl<>();
    }
 
    @Test
@@ -58,7 +58,7 @@ public class LinkedListTest extends ActiveMQTestBase {
          }
       }
 
-      LinkedListImpl<MyObject> objs = new LinkedListImpl<MyObject>();
+      LinkedListImpl<MyObject> objs = new LinkedListImpl<>();
 
       // Initial add
       for (int i = 0; i < 100; i++) {
@@ -117,7 +117,7 @@ public class LinkedListTest extends ActiveMQTestBase {
          }
       }
 
-      LinkedListImpl<MyObject> objs = new LinkedListImpl<MyObject>();
+      LinkedListImpl<MyObject> objs = new LinkedListImpl<>();
 
       // Initial add
       for (int i = 1000; i >= 0; i--) {
@@ -169,10 +169,10 @@ public class LinkedListTest extends ActiveMQTestBase {
       while (timeout > System.currentTimeMillis() && count.get() != expected) {
          seqCount++;
          if (seqCount > 5) {
-            LinkedList<String> toOME = new LinkedList<String>();
+            LinkedList<String> toOME = new LinkedList<>();
             int someCount = 0;
             try {
-               WeakReference<Object> ref = new WeakReference<Object>(new Object());
+               WeakReference<Object> ref = new WeakReference<>(new Object());
                while (ref.get() != null) {
                   toOME.add("sdlfkjshadlfkjhas dlfkjhas dlfkjhads lkjfhads lfkjhads flkjashdf " + someCount++);
                }
@@ -1103,7 +1103,7 @@ public class LinkedListTest extends ActiveMQTestBase {
    public void testResizing() {
       int numIters = 1000;
 
-      List<LinkedListIterator<Integer>> iters = new java.util.LinkedList<LinkedListIterator<Integer>>();
+      List<LinkedListIterator<Integer>> iters = new java.util.LinkedList<>();
 
       int num = 10;
 

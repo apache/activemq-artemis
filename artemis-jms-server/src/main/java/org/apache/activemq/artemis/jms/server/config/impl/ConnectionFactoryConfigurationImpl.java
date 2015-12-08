@@ -540,7 +540,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       int nConnectors = buffer.readInt();
 
       if (nConnectors > 0) {
-         connectorNames = new ArrayList<String>(nConnectors);
+         connectorNames = new ArrayList<>(nConnectors);
 
          for (int i = 0; i < nConnectors; i++) {
             SimpleString str = buffer.readSimpleString();

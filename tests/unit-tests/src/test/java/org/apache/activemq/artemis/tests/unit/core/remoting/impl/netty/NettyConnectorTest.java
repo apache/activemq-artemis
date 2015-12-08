@@ -43,7 +43,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
@@ -79,7 +79,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
@@ -126,7 +126,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
@@ -172,7 +172,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
@@ -223,7 +223,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
@@ -262,7 +262,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
       ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {

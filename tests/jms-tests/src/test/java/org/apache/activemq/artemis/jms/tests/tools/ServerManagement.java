@@ -53,7 +53,7 @@ public class ServerManagement {
 
    private static JmsTestLogger log = JmsTestLogger.LOGGER;
 
-   private static List<Server> servers = new ArrayList<Server>();
+   private static List<Server> servers = new ArrayList<>();
 
    /**
     * Makes sure that a "hollow" TestServer (either local or remote, depending on the nature of the

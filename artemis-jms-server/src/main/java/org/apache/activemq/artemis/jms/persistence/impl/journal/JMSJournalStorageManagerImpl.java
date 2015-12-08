@@ -62,11 +62,11 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    private volatile boolean started;
 
-   private final Map<String, PersistedConnectionFactory> mapFactories = new ConcurrentHashMap<String, PersistedConnectionFactory>();
+   private final Map<String, PersistedConnectionFactory> mapFactories = new ConcurrentHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedDestination>();
+   private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new ConcurrentHashMap<>();
 
-   private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedBindings>();
+   private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new ConcurrentHashMap<>();
 
    private final Configuration config;
 
@@ -101,7 +101,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
    // Public --------------------------------------------------------
    @Override
    public List<PersistedConnectionFactory> recoverConnectionFactories() {
-      List<PersistedConnectionFactory> cfs = new ArrayList<PersistedConnectionFactory>(mapFactories.values());
+      List<PersistedConnectionFactory> cfs = new ArrayList<>(mapFactories.values());
       return cfs;
    }
 
@@ -124,7 +124,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    @Override
    public List<PersistedDestination> recoverDestinations() {
-      List<PersistedDestination> destinations = new ArrayList<PersistedDestination>(this.destinations.values());
+      List<PersistedDestination> destinations = new ArrayList<>(this.destinations.values());
       return destinations;
    }
 
@@ -134,18 +134,18 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       long id = idGenerator.generateID();
       destination.setId(id);
       jmsJournal.appendAddRecord(id, DESTINATION_RECORD, destination, true);
-      destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
+      destinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
    }
 
    @Override
    public List<PersistedBindings> recoverPersistedBindings() throws Exception {
-      ArrayList<PersistedBindings> list = new ArrayList<PersistedBindings>(mapBindings.values());
+      ArrayList<PersistedBindings> list = new ArrayList<>(mapBindings.values());
       return list;
    }
 
    @Override
    public void addBindings(PersistedType type, String name, String... address) throws Exception {
-      Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
+      Pair<PersistedType, String> key = new Pair<>(type, name);
 
       long tx = idGenerator.generateID();
 
@@ -174,7 +174,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    @Override
    public void deleteBindings(PersistedType type, String name, String address) throws Exception {
-      Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
+      Pair<PersistedType, String> key = new Pair<>(type, name);
 
       long tx = idGenerator.generateID();
 
@@ -202,7 +202,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    @Override
    public void deleteBindings(PersistedType type, String name) throws Exception {
-      Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
+      Pair<PersistedType, String> key = new Pair<>(type, name);
 
       PersistedBindings currentBindings = mapBindings.remove(key);
 
@@ -213,7 +213,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    @Override
    public void deleteDestination(final PersistedType type, final String name) throws Exception {
-      PersistedDestination destination = destinations.remove(new Pair<PersistedType, String>(type, name));
+      PersistedDestination destination = destinations.remove(new Pair<>(type, name));
       if (destination != null) {
          jmsJournal.appendDeleteRecord(destination.getId(), false);
       }
@@ -243,9 +243,9 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
    public void load() throws Exception {
       mapFactories.clear();
 
-      List<RecordInfo> data = new ArrayList<RecordInfo>();
+      List<RecordInfo> data = new ArrayList<>();
 
-      ArrayList<PreparedTransactionInfo> list = new ArrayList<PreparedTransactionInfo>();
+      ArrayList<PreparedTransactionInfo> list = new ArrayList<>();
 
       jmsJournal.load(data, list, null);
 
@@ -266,13 +266,13 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
-            destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
+            destinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
          }
          else if (rec == BINDING_RECORD) {
             PersistedBindings bindings = new PersistedBindings();
             bindings.decode(buffer);
             bindings.setId(id);
-            Pair<PersistedType, String> key = new Pair<PersistedType, String>(bindings.getType(), bindings.getName());
+            Pair<PersistedType, String> key = new Pair<>(bindings.getType(), bindings.getName());
             mapBindings.put(key, bindings);
          }
          else {

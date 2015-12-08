@@ -39,7 +39,7 @@ public class MessageGroup2Example {
    private boolean result = true;
 
    public static void main(String[] args) throws Exception {
-      final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
+      final Map<String, String> messageReceiverMap = new ConcurrentHashMap<>();
       Connection connection = null;
       try {
          //Step 2. Perform a lookup on the queue

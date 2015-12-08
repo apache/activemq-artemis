@@ -120,7 +120,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    private boolean useAutoRecovery = true;
 
-   private final List<ActiveMQRAManagedConnectionFactory> managedConnectionFactories = new ArrayList<ActiveMQRAManagedConnectionFactory>();
+   private final List<ActiveMQRAManagedConnectionFactory> managedConnectionFactories = new ArrayList<>();
 
    private String entries;
 
@@ -129,7 +129,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * configured the exact same way. Using the same connection factory instance also makes connection load-balancing
     * behave as expected for outbound connections.
     */
-   private final Map<ConnectionFactoryProperties, Pair<ActiveMQConnectionFactory, AtomicInteger>> knownConnectionFactories = new HashMap<ConnectionFactoryProperties, Pair<ActiveMQConnectionFactory, AtomicInteger>>();
+   private final Map<ConnectionFactoryProperties, Pair<ActiveMQConnectionFactory, AtomicInteger>> knownConnectionFactories = new HashMap<>();
 
    /**
     * Constructor
@@ -141,7 +141,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       raProperties = new ActiveMQRAProperties();
       configured = new AtomicBoolean(false);
-      activations = new ConcurrentHashMap<ActivationSpec, ActiveMQActivation>();
+      activations = new ConcurrentHashMap<>();
       recoveryManager = new RecoveryManager();
    }
 
@@ -215,7 +215,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          return null;
       }
       else {
-         List<XAResource> xaresources = new ArrayList<XAResource>();
+         List<XAResource> xaresources = new ArrayList<>();
          for (ActivationSpec spec : specs) {
             ActiveMQActivation activation = activations.get(spec);
             if (activation != null) {
@@ -1573,7 +1573,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       defaultActiveMQConnectionFactory = createActiveMQConnectionFactory(raProperties);
       recoveryActiveMQConnectionFactory = createRecoveryActiveMQConnectionFactory(raProperties);
 
-      Map<String, String> recoveryConfProps = new HashMap<String, String>();
+      Map<String, String> recoveryConfProps = new HashMap<>();
       recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, getJndiName());
       recoveryManager.register(recoveryActiveMQConnectionFactory, raProperties.getUserName(), raProperties.getPassword(), recoveryConfProps);
    }
@@ -1842,7 +1842,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    public Map<String, Object> overrideConnectionParameters(final Map<String, Object> connectionParams,
                                                            final Map<String, Object> overrideConnectionParams) {
-      Map<String, Object> map = new HashMap<String, Object>();
+      Map<String, Object> map = new HashMap<>();
       if (connectionParams != null) {
          map.putAll(connectionParams);
       }

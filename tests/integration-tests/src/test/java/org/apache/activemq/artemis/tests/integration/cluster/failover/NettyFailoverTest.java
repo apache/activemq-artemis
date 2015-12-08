@@ -46,7 +46,7 @@ public class NettyFailoverTest extends FailoverTest {
 
    @Test
    public void testFailoverWithHostAlias() throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 

@@ -60,7 +60,7 @@ public final class EmbeddedExample {
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
 
       // Step 3. Configure the JMS ConnectionFactory
-      ArrayList<String> connectorNames = new ArrayList<String>();
+      ArrayList<String> connectorNames = new ArrayList<>();
       connectorNames.add("connector");
       ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(connectorNames).setBindings("cf");
       jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);

@@ -17,11 +17,8 @@
 
 package org.apache.activemq.broker.region.cursors;
 
-import org.apache.activeio.journal.active.JournalImpl;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
-import org.apache.activemq.store.journal.JournalPersistenceAdapter;
-
 import java.io.File;
 
 /**

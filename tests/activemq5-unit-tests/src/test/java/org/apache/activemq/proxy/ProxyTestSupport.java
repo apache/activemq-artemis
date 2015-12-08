@@ -31,7 +31,7 @@ import org.apache.activemq.usage.SystemUsage;
 
 public class ProxyTestSupport extends BrokerTestSupport {
 
-   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected ArrayList<StubConnection> connections = new ArrayList<>();
 
    protected TransportConnector connector;
 

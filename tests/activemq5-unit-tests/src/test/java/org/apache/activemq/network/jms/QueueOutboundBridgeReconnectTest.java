@@ -54,7 +54,7 @@ public class QueueOutboundBridgeReconnectTest {
    private ActiveMQConnectionFactory producerConnectionFactory;
    private ActiveMQConnectionFactory consumerConnectionFactory;
    private Destination destination;
-   private final ArrayList<Connection> connections = new ArrayList<Connection>();
+   private final ArrayList<Connection> connections = new ArrayList<>();
 
    @Test
    public void testMultipleProducerBrokerRestarts() throws Exception {

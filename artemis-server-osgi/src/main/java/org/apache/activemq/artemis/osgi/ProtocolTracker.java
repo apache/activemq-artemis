@@ -48,7 +48,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
       this.name = name;
       this.context = context;
       this.callback = callback;
-      this.protocols = new HashMap<String, Boolean>();
+      this.protocols = new HashMap<>();
       for (String requiredProtocol : requiredProtocols) {
          this.protocols.put(requiredProtocol, false);
       }
@@ -118,7 +118,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
    }
 
    private List<String> getMissing() {
-      List<String> missing = new ArrayList<String>();
+      List<String> missing = new ArrayList<>();
       for (String protocol : protocols.keySet()) {
          Boolean present = protocols.get(protocol);
          if (!present) {

@@ -86,7 +86,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    @Override
    public List<MessageReference> getScheduledReferences() {
-      List<MessageReference> refs = new LinkedList<MessageReference>();
+      List<MessageReference> refs = new LinkedList<>();
 
       synchronized (scheduledReferences) {
          for (RefScheduled ref : scheduledReferences) {
@@ -98,7 +98,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
    @Override
    public List<MessageReference> cancel(final Filter filter) {
-      List<MessageReference> refs = new ArrayList<MessageReference>();
+      List<MessageReference> refs = new ArrayList<>();
 
       synchronized (scheduledReferences) {
          Iterator<RefScheduled> iter = scheduledReferences.iterator();
@@ -170,7 +170,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       @Override
       public void run() {
-         HashMap<Queue, LinkedList<MessageReference>> refs = new HashMap<Queue, LinkedList<MessageReference>>();
+         HashMap<Queue, LinkedList<MessageReference>> refs = new HashMap<>();
 
          runnables.remove(deliveryTime);
 
@@ -212,7 +212,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                LinkedList<MessageReference> references = refs.get(reference.getQueue());
 
                if (references == null) {
-                  references = new LinkedList<MessageReference>();
+                  references = new LinkedList<>();
                   refs.put(reference.getQueue(), references);
                }
 

@@ -67,9 +67,9 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
       ClientSession createSession = sf.createSession();
 
-      Set<ClientSession> sendSessions = new HashSet<ClientSession>();
+      Set<ClientSession> sendSessions = new HashSet<>();
 
-      Set<Sender> senders = new HashSet<Sender>();
+      Set<Sender> senders = new HashSet<>();
 
       final int numSessions = 100;
 
@@ -131,9 +131,9 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
       consumeSession.start();
 
-      Set<ClientSession> sendSessions = new HashSet<ClientSession>();
+      Set<ClientSession> sendSessions = new HashSet<>();
 
-      final Set<Sender> senders = new HashSet<Sender>();
+      final Set<Sender> senders = new HashSet<>();
 
       final int numSessions = 100;
 
@@ -193,7 +193,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
    private class Sender extends Thread {
 
-      private final BlockingQueue<ClientMessage> queue = new LinkedBlockingQueue<ClientMessage>();
+      private final BlockingQueue<ClientMessage> queue = new LinkedBlockingQueue<>();
 
       private final ClientProducer producer;
 

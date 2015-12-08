@@ -431,7 +431,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
             messagesJournal.start();
 
-            LinkedList<RecordInfo> infos = new LinkedList<RecordInfo>();
+            LinkedList<RecordInfo> infos = new LinkedList<>();
 
             messagesJournal.load(infos, null, null);
 

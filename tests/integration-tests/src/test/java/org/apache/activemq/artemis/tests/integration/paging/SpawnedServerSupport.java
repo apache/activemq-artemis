@@ -73,7 +73,7 @@ public class SpawnedServerSupport {
    }
 
    protected static final ClusterConnectionConfiguration setupClusterConn(String connectorName, String... connectors) {
-      List<String> connectorList = new LinkedList<String>();
+      List<String> connectorList = new LinkedList<>();
       for (String conn : connectors) {
          connectorList.add(conn);
       }
@@ -97,7 +97,7 @@ public class SpawnedServerSupport {
       else {
          className = NettyConnectorFactory.class.getName();
       }
-      Map<String, Object> serverParams = new HashMap<String, Object>();
+      Map<String, Object> serverParams = new HashMap<>();
       serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
       return new TransportConfiguration(className, serverParams);
    }

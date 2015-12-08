@@ -36,7 +36,7 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      mapExpectedSets = new HashMap<SimpleString, PersistedRoles>();
+      mapExpectedSets = new HashMap<>();
    }
 
    protected void addSetting(PersistedRoles setting) throws Exception {

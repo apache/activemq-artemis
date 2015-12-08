@@ -136,7 +136,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
          return Collections.<PagingStore>emptyList();
       }
       else {
-         ArrayList<PagingStore> storesReturn = new ArrayList<PagingStore>(files.length);
+         ArrayList<PagingStore> storesReturn = new ArrayList<>(files.length);
 
          for (File file : files) {
 

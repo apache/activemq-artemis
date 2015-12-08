@@ -102,20 +102,20 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    /**
     * Files reserved in each journal for synchronization of existing data from the 'live' server.
     */
-   private final Map<JournalContent, Map<Long, JournalSyncFile>> filesReservedForSync = new HashMap<JournalContent, Map<Long, JournalSyncFile>>();
+   private final Map<JournalContent, Map<Long, JournalSyncFile>> filesReservedForSync = new HashMap<>();
 
    /**
     * Used to hold the real Journals before the backup is synchronized. This field should be
     * {@code null} on an up-to-date server.
     */
-   private Map<JournalContent, Journal> journalsHolder = new HashMap<JournalContent, Journal>();
+   private Map<JournalContent, Journal> journalsHolder = new HashMap<>();
 
    private StorageManager storageManager;
 
    private PagingManager pageManager;
 
-   private final ConcurrentMap<SimpleString, ConcurrentMap<Integer, Page>> pageIndex = new ConcurrentHashMap<SimpleString, ConcurrentMap<Integer, Page>>();
-   private final ConcurrentMap<Long, ReplicatedLargeMessage> largeMessages = new ConcurrentHashMap<Long, ReplicatedLargeMessage>();
+   private final ConcurrentMap<SimpleString, ConcurrentMap<Integer, Page>> pageIndex = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Long, ReplicatedLargeMessage> largeMessages = new ConcurrentHashMap<>();
 
    // Used on tests, to simulate failures on delete pages
    private boolean deletePages = true;
@@ -715,7 +715,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       ConcurrentMap<Integer, Page> resultIndex = pageIndex.get(storeName);
 
       if (resultIndex == null) {
-         resultIndex = new ConcurrentHashMap<Integer, Page>();
+         resultIndex = new ConcurrentHashMap<>();
          ConcurrentMap<Integer, Page> mapResult = pageIndex.putIfAbsent(storeName, resultIndex);
          if (mapResult != null) {
             resultIndex = mapResult;

@@ -91,9 +91,9 @@ public class BrokerService implements Service {
    private BrokerId brokerId;
    private Throwable startException = null;
    private boolean startAsync = false;
-   public Set<Integer> extraConnectors = new HashSet<Integer>();
+   public Set<Integer> extraConnectors = new HashSet<>();
 
-   private List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+   private List<TransportConnector> transportConnectors = new ArrayList<>();
    private File dataDirectoryFile;
 
    private PolicyMap destinationPolicy;

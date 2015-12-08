@@ -42,14 +42,14 @@ public class SimpleAddressManager implements AddressManager {
    /**
     * HashMap<Address, Binding>
     */
-   private final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<SimpleString, Bindings>();
+   private final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    /**
     * HashMap<QueueName, Binding>
     */
-   private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<SimpleString, Binding>();
+   private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<>();
 
-   private final ConcurrentHashSet<SimpleString> pendingDeletes = new ConcurrentHashSet<SimpleString>();
+   private final ConcurrentHashSet<SimpleString> pendingDeletes = new ConcurrentHashSet<>();
 
    private final BindingsFactory bindingsFactory;
 

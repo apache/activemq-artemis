@@ -74,7 +74,7 @@ public class SimpleNonPersistentQueueNetworkTest extends SimpleNetworkTest {
    protected void configureBroker(BrokerService answer) throws Exception {
       answer.setPersistent(false);
       answer.setMonitorConnectionSplits(true);
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setQueue(">");
       entry.setMemoryLimit(1024 * 1024 * 100); // Set to 1 MB

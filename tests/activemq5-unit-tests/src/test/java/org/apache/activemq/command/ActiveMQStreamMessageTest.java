@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.command;
 
-import java.io.Serializable;
-
 import javax.jms.JMSException;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;
@@ -678,7 +676,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
          // Test with a 1Meg String
          StringBuffer bigSB = new StringBuffer(1024 * 1024);
          for (int i = 0; i < 1024 * 1024; i++) {
-            bigSB.append((char) 'a' + i % 26);
+            bigSB.append('a' + i % 26);
          }
          String bigString = bigSB.toString();
 

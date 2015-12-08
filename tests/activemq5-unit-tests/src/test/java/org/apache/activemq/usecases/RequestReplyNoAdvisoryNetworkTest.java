@@ -53,7 +53,7 @@ public class RequestReplyNoAdvisoryNetworkTest extends JmsMultipleBrokersTestSup
 
    private static final transient Logger LOG = LoggerFactory.getLogger(RequestReplyNoAdvisoryNetworkTest.class);
 
-   Vector<BrokerService> brokers = new Vector<BrokerService>();
+   Vector<BrokerService> brokers = new Vector<>();
    BrokerService a, b;
    ActiveMQQueue sendQ = new ActiveMQQueue("sendQ");
    static final String connectionIdMarker = "ID:marker.";

@@ -33,8 +33,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.activemq.transport.tcp.TcpTransport;
-import org.apache.activemq.transport.vm.VMTransport;
 import org.apache.activemq.util.Wait;
 
 /**

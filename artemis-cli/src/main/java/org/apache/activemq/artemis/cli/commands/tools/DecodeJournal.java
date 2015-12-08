@@ -122,7 +122,7 @@ public class DecodeJournal extends LockAbstract {
 
       String line;
 
-      HashMap<Long, AtomicInteger> txCounters = new HashMap<Long, AtomicInteger>();
+      HashMap<Long, AtomicInteger> txCounters = new HashMap<>();
 
       long lineNumber = 0;
 

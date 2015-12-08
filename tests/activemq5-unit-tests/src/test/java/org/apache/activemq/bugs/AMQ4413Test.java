@@ -235,7 +235,7 @@ public class AMQ4413Test {
          }
       };
 
-      ArrayList<Future<Boolean>> results = new ArrayList<Future<Boolean>>();
+      ArrayList<Future<Boolean>> results = new ArrayList<>();
       results.add(threadPool.submit(publisher));
       results.add(threadPool.submit(durableSubscriber));
 

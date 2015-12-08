@@ -46,7 +46,7 @@ public class SystemUsage implements Service {
    private boolean sendFailIfNoSpaceAfterTimeoutExplicitySet;
    private long sendFailIfNoSpaceAfterTimeout = 0;
 
-   private final List<SystemUsage> children = new CopyOnWriteArrayList<SystemUsage>();
+   private final List<SystemUsage> children = new CopyOnWriteArrayList<>();
 
    public SystemUsage() {
       this("default", null, null, null);

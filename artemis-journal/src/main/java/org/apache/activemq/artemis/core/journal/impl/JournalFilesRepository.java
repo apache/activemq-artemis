@@ -61,11 +61,11 @@ public class JournalFilesRepository {
 
    private final JournalImpl journal;
 
-   private final BlockingDeque<JournalFile> dataFiles = new LinkedBlockingDeque<JournalFile>();
+   private final BlockingDeque<JournalFile> dataFiles = new LinkedBlockingDeque<>();
 
-   private final ConcurrentLinkedQueue<JournalFile> freeFiles = new ConcurrentLinkedQueue<JournalFile>();
+   private final ConcurrentLinkedQueue<JournalFile> freeFiles = new ConcurrentLinkedQueue<>();
 
-   private final BlockingQueue<JournalFile> openedFiles = new LinkedBlockingQueue<JournalFile>();
+   private final BlockingQueue<JournalFile> openedFiles = new LinkedBlockingQueue<>();
 
    private final AtomicLong nextFileID = new AtomicLong(0);
 

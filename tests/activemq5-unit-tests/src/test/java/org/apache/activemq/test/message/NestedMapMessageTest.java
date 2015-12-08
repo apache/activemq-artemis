@@ -79,11 +79,11 @@ public class NestedMapMessageTest extends JmsTopicSendReceiveWithTwoConnectionsA
 
       answer.setString("textField", data[index]);
 
-      Map<String, Object> grandChildMap = new HashMap<String, Object>();
+      Map<String, Object> grandChildMap = new HashMap<>();
       grandChildMap.put("x", "abc");
       grandChildMap.put("y", Arrays.asList(new Object[]{"a", "b", "c"}));
 
-      Map<String, Object> nestedMap = new HashMap<String, Object>();
+      Map<String, Object> nestedMap = new HashMap<>();
       nestedMap.put("a", "foo");
       nestedMap.put("b", Integer.valueOf(23));
       nestedMap.put("c", Long.valueOf(45));

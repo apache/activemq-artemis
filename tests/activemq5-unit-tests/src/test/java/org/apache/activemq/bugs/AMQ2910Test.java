@@ -39,7 +39,7 @@ public class AMQ2910Test extends JmsMultipleClientsTestSupport {
 
    final int maxConcurrency = 60;
    final int msgCount = 200;
-   final Vector<Throwable> exceptions = new Vector<Throwable>();
+   final Vector<Throwable> exceptions = new Vector<>();
 
    @Override
    protected BrokerService createBroker() throws Exception {

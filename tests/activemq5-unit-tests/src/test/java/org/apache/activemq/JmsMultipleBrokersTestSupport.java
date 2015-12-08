@@ -514,8 +514,8 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
    @Override
    protected void setUp() throws Exception {
       super.setUp();
-      brokers = new HashMap<String, BrokerItem>();
-      destinations = new HashMap<String, Destination>();
+      brokers = new HashMap<>();
+      destinations = new HashMap<>();
    }
 
    @Override
@@ -619,7 +619,7 @@ public class JmsMultipleBrokersTestSupport extends CombinationTestSupport {
       }
 
       public MessageConsumer createDurableSubscriber(Topic dest, Session sess, String name) throws Exception {
-         MessageConsumer client = sess.createDurableSubscriber((Topic) dest, name);
+         MessageConsumer client = sess.createDurableSubscriber(dest, name);
          MessageIdList messageIdList = new MessageIdList();
          messageIdList.setParent(allMessages);
          client.setMessageListener(messageIdList);

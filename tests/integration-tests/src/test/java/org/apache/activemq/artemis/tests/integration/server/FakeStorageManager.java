@@ -24,9 +24,9 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class FakeStorageManager extends NullStorageManager {
 
-   List<Long> messageIds = new ArrayList<Long>();
+   List<Long> messageIds = new ArrayList<>();
 
-   List<Long> ackIds = new ArrayList<Long>();
+   List<Long> ackIds = new ArrayList<>();
 
    @Override
    public void storeMessage(final ServerMessage message) throws Exception {

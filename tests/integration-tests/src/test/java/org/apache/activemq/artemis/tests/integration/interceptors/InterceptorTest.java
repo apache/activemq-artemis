@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
-import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl;
@@ -507,8 +506,8 @@ public class InterceptorTest extends ActiveMQTestBase {
    @Test
    public void testInterceptUsernameOnConsumer() throws Exception {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("dumb", "dumber");
-      ((SecurityConfiguration)securityManager.getConfiguration()).addUser("an", "other");
+      securityManager.getConfiguration().addUser("dumb", "dumber");
+      securityManager.getConfiguration().addUser("an", "other");
 
       server.getRemotingService().addIncomingInterceptor(new InterceptUserOnCreateConsumer());
 

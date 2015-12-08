@@ -60,7 +60,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
       client.connect();
       client.subscribe("test");
 
-      final AtomicReference<Throwable> asyncError = new AtomicReference<Throwable>();
+      final AtomicReference<Throwable> asyncError = new AtomicReference<>();
       final CountDownLatch connectedDoneLatch = new CountDownLatch(CLIENTS);
       final CountDownLatch disconnectDoneLatch = new CountDownLatch(CLIENTS);
       final CountDownLatch sendBarrier = new CountDownLatch(1);

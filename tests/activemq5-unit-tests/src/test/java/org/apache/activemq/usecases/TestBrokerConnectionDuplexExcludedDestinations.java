@@ -163,7 +163,6 @@ public class TestBrokerConnectionDuplexExcludedDestinations extends TestCase {
       // we should be able to receive excluded queue message on Hub
       MessageConsumer excludedConsumerHub = hubSession.createConsumer(excludedQueueHub);
       msg = excludedConsumerHub.receive(200);
-      ;
       assertEquals(excludedMsgHub, msg);
 
       hubProducer.close();

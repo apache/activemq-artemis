@@ -120,7 +120,7 @@ public class FailoverPrefetchZeroTest {
       produceMessage(consumerSession, destination, 1);
 
       final CountDownLatch receiveDone = new CountDownLatch(1);
-      final Vector<Message> received = new Vector<Message>();
+      final Vector<Message> received = new Vector<>();
       Executors.newSingleThreadExecutor().execute(new Runnable() {
          @Override
          public void run() {

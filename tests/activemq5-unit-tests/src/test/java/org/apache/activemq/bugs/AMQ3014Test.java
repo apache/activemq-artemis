@@ -195,7 +195,6 @@ public class AMQ3014Test {
       }
 
       Assert.assertFalse("Timed out waiting for bridge to form.", remoteBrokerInfos.isEmpty());
-      ;
       Assert.assertNotNull("Local broker ID is null.", remoteBrokerInfos.get(0).getBrokerId());
    }
 }

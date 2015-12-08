@@ -112,7 +112,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       session.start();
 
-      HashSet<Integer> values = new HashSet<Integer>();
+      HashSet<Integer> values = new HashSet<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = consumer.receive(1000);

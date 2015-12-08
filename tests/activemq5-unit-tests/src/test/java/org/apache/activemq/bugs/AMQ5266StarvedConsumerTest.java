@@ -45,10 +45,6 @@ import org.apache.activemq.broker.region.RegionBroker;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
-import org.apache.activemq.store.jdbc.adapter.DefaultJDBCAdapter;
-import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
-import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -212,7 +208,7 @@ public class AMQ5266StarvedConsumerTest {
 
          List<String> idList = entry.getValue();
 
-         int distinctConsumed = new TreeSet<String>(idList).size();
+         int distinctConsumed = new TreeSet<>(idList).size();
 
          StringBuilder sb = new StringBuilder();
          sb.append("   Queue: " + entry.getKey() +
@@ -250,7 +246,7 @@ public class AMQ5266StarvedConsumerTest {
          this.activemqURL = activemqURL;
          this.activemqQueues = activemqQueues;
 
-         threads = new ArrayList<PublisherThread>();
+         threads = new ArrayList<>();
 
          // Build the threads and tell them how many messages to publish
          for (int i = 0; i < threadCount; i++) {
@@ -407,7 +403,7 @@ public class AMQ5266StarvedConsumerTest {
       private String[] queues = null;
       // Map of IDs that were consumed, keyed by queue name.
       // We'll compare these against what was published to know if any got stuck or dropped.
-      private Map<String, List<String>> idsByQueue = new HashMap<String, List<String>>();
+      private Map<String, List<String>> idsByQueue = new HashMap<>();
       private Map<String, List<ConsumerThread>> threads;
 
       public ExportQueueConsumer(String activemqURL,
@@ -426,12 +422,12 @@ public class AMQ5266StarvedConsumerTest {
             queues[i] = queues[i].trim();
          }
 
-         threads = new HashMap<String, List<ConsumerThread>>();
+         threads = new HashMap<>();
 
          // For each queue, create a list of threads and set up the list of ids
          for (String q : queues) {
 
-            List<ConsumerThread> list = new ArrayList<ConsumerThread>();
+            List<ConsumerThread> list = new ArrayList<>();
 
             idsByQueue.put(q, Collections.synchronizedList(new ArrayList<String>()));
 

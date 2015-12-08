@@ -399,7 +399,7 @@ public class AMQSession implements SessionCallback {
       }
       else {
          Iterator<AMQConsumer> iter = consumers.values().iterator();
-         Set<Long> acked = new HashSet<Long>();
+         Set<Long> acked = new HashSet<>();
          while (iter.hasNext()) {
             AMQConsumer consumer = iter.next();
             consumer.rollbackTx(acked);

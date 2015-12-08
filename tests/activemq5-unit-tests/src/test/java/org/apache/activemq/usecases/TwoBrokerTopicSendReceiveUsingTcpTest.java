@@ -20,7 +20,6 @@ import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 
@@ -62,7 +61,7 @@ public class TwoBrokerTopicSendReceiveUsingTcpTest extends TwoBrokerTopicSendRec
    @Override
    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
       try {
-         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(((TransportConnector) receiverBroker.getTransportConnectors().get(0)).getConnectUri());
+         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(receiverBroker.getTransportConnectors().get(0).getConnectUri());
          return fac;
       }
       catch (Exception e) {
@@ -74,7 +73,7 @@ public class TwoBrokerTopicSendReceiveUsingTcpTest extends TwoBrokerTopicSendRec
    @Override
    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
       try {
-         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(((TransportConnector) senderBroker.getTransportConnectors().get(0)).getConnectUri());
+         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(senderBroker.getTransportConnectors().get(0).getConnectUri());
          return fac;
       }
       catch (Exception e) {

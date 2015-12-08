@@ -310,7 +310,7 @@ public class TransportConfiguration implements Serializable {
 
       if (params == null) {
          if (num > 0) {
-            params = new HashMap<String, Object>();
+            params = new HashMap<>();
          }
       }
       else {

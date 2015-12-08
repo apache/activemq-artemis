@@ -54,7 +54,7 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
 
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
 
-   private final Map<String, String> metadata = new HashMap<String, String>();
+   private final Map<String, String> metadata = new HashMap<>();
 
    private final ClientSessionFactoryInternal sessionFactory;
 
@@ -74,10 +74,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    /**
     * All access to producers are guarded (i.e. synchronized) on itself.
     */
-   private final Set<ClientProducerInternal> producers = new HashSet<ClientProducerInternal>();
+   private final Set<ClientProducerInternal> producers = new HashSet<>();
 
    // Consumers must be an ordered map so if we fail we recreate them in the same order with the same ids
-   private final Map<ConsumerContext, ClientConsumerInternal> consumers = new LinkedHashMap<ConsumerContext, ClientConsumerInternal>();
+   private final Map<ConsumerContext, ClientConsumerInternal> consumers = new LinkedHashMap<>();
 
    private volatile boolean closed;
 
@@ -1012,7 +1012,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       HashMap<String, String> metaDataToSend;
 
       synchronized (metadata) {
-         metaDataToSend = new HashMap<String, String>(metadata);
+         metaDataToSend = new HashMap<>(metadata);
       }
 
       sessionContext.resetMetadata(metaDataToSend);
@@ -1652,7 +1652,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       Set<ClientProducerInternal> producersClone;
 
       synchronized (producers) {
-         producersClone = new HashSet<ClientProducerInternal>(producers);
+         producersClone = new HashSet<>(producers);
       }
       return producersClone;
    }
@@ -1664,7 +1664,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    public Set<ClientConsumerInternal> cloneConsumers() {
       synchronized (consumers) {
-         return new HashSet<ClientConsumerInternal>(consumers.values());
+         return new HashSet<>(consumers.values());
       }
    }
 

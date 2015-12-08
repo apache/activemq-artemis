@@ -230,7 +230,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    private QueueCreator jmsQueueCreator;
 
-   private final Map<String, ServerSession> sessions = new ConcurrentHashMap<String, ServerSession>();
+   private final Map<String, ServerSession> sessions = new ConcurrentHashMap<>();
 
    /**
     * This class here has the same principle of CountDownLatch but you can reuse the counters.
@@ -238,7 +238,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    private final ReusableLatch activationLatch = new ReusableLatch(0);
 
-   private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<ActivateCallback>();
+   private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
 
    private volatile GroupingHandler groupingHandler;
 
@@ -329,11 +329,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.securityManager = securityManager;
 
-      addressSettingsRepository = new HierarchicalObjectRepository<AddressSettings>();
+      addressSettingsRepository = new HierarchicalObjectRepository<>();
 
       addressSettingsRepository.setDefault(new AddressSettings());
 
-      securityRepository = new HierarchicalObjectRepository<Set<Role>>();
+      securityRepository = new HierarchicalObjectRepository<>();
 
       securityRepository.setDefault(new HashSet<Role>());
 
@@ -1130,7 +1130,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public synchronized List<ServerSession> getSessions(final String connectionID) {
       Set<Entry<String, ServerSession>> sessionEntries = sessions.entrySet();
-      List<ServerSession> matchingSessions = new ArrayList<ServerSession>();
+      List<ServerSession> matchingSessions = new ArrayList<>();
       for (Entry<String, ServerSession> sessionEntry : sessionEntries) {
          ServerSession serverSession = sessionEntry.getValue();
          if (serverSession.getConnectionID().toString().equals(connectionID)) {
@@ -1142,7 +1142,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public synchronized Set<ServerSession> getSessions() {
-      return new HashSet<ServerSession>(sessions.values());
+      return new HashSet<>(sessions.values());
    }
 
    @Override
@@ -1773,11 +1773,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       journalLoader.handleGroupingBindings(groupingInfos);
 
-      Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<SimpleString, List<Pair<byte[], Long>>>();
+      Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
 
-      HashSet<Pair<Long, Long>> pendingLargeMessages = new HashSet<Pair<Long, Long>>();
+      HashSet<Pair<Long, Long>> pendingLargeMessages = new HashSet<>();
 
-      List<PageCountPending> pendingNonTXPageCounter = new LinkedList<PageCountPending>();
+      List<PageCountPending> pendingNonTXPageCounter = new LinkedList<>();
 
       journalInfo[1] = storageManager.loadMessageJournal(postOffice, pagingManager, resourceManager, queueBindingInfosMap, duplicateIDMap, pendingLargeMessages, pendingNonTXPageCounter, journalLoader);
 

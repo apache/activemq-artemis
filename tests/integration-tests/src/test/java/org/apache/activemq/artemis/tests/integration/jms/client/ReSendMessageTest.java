@@ -62,7 +62,7 @@ public class ReSendMessageTest extends JMSTestBase {
       conn.start();
 
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-      ArrayList<Message> msgs = new ArrayList<Message>();
+      ArrayList<Message> msgs = new ArrayList<>();
 
       for (int i = 0; i < 10; i++) {
          BytesMessage bm = sess.createBytesMessage();
@@ -96,7 +96,7 @@ public class ReSendMessageTest extends JMSTestBase {
       conn.start();
 
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-      ArrayList<Message> msgs = new ArrayList<Message>();
+      ArrayList<Message> msgs = new ArrayList<>();
 
       for (int i = 0; i < 1; i++) {
          MapMessage mm = sess.createMapMessage();

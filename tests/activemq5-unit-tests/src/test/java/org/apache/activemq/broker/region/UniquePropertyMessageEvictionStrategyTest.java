@@ -33,7 +33,7 @@ public class UniquePropertyMessageEvictionStrategyTest extends EmbeddedBrokerTes
    @Override
    protected BrokerService createBroker() throws Exception {
       BrokerService broker = super.createBroker();
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setTopic(">");
 

@@ -65,7 +65,7 @@ public class NettyConnection implements Connection {
 
    private final Semaphore writeLock = new Semaphore(1);
 
-   private final Set<ReadyListener> readyListeners = new ConcurrentHashSet<ReadyListener>();
+   private final Set<ReadyListener> readyListeners = new ConcurrentHashSet<>();
 
    private RemotingConnection protocolConnection;
 

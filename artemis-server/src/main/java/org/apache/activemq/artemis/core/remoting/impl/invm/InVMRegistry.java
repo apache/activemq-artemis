@@ -25,7 +25,7 @@ public final class InVMRegistry {
 
    public static final InVMRegistry instance = new InVMRegistry();
 
-   private final ConcurrentMap<Integer, InVMAcceptor> acceptors = new ConcurrentHashMap<Integer, InVMAcceptor>();
+   private final ConcurrentMap<Integer, InVMAcceptor> acceptors = new ConcurrentHashMap<>();
 
    public void registerAcceptor(final int id, final InVMAcceptor acceptor) {
       if (acceptors.putIfAbsent(id, acceptor) != null) {

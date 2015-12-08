@@ -122,7 +122,7 @@ public class MulticastDiscoveryOnFaultyNetworkTest extends JmsMultipleBrokersTes
       if (!useStaticDiscovery) {
          List<TransportConnector> transportConnectors = remoteBroker.getTransportConnectors();
          if (!transportConnectors.isEmpty()) {
-            TransportConnector mCastTrpConnector = ((TransportConnector) transportConnectors.get(0));
+            TransportConnector mCastTrpConnector = (transportConnectors.get(0));
             mCastTrpConnector.setDiscoveryUri(new URI("multicast://default?group=TESTERIC"));
          }
       }

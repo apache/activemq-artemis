@@ -61,7 +61,7 @@ public class DurableSubDelayedUnsubscribeTest {
    private static final int CARGO_SIZE = 400; // max
    private static final int MAX_CLIENTS = 15;
    private static boolean ALLOW_SUBSCRIPTION_ABANDONMENT = true;
-   private static final Vector<Throwable> exceptions = new Vector<Throwable>();
+   private static final Vector<Throwable> exceptions = new Vector<>();
 
    private BrokerService broker;
    private ActiveMQTopic topic;
@@ -357,7 +357,7 @@ public class DurableSubDelayedUnsubscribeTest {
 
       private int clientRover = 0;
 
-      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<Client>();
+      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
 
       private boolean stopped;
 
@@ -605,7 +605,7 @@ public class DurableSubDelayedUnsubscribeTest {
          setDaemon(true);
       }
 
-      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<String>();
+      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<>();
 
       public void shutdown() throws Exception {
          done.set(true);
@@ -650,7 +650,7 @@ public class DurableSubDelayedUnsubscribeTest {
          LOG.info("Housekeeper sweeping.");
 
          int closed = 0;
-         ArrayList<String> sweeped = new ArrayList<String>();
+         ArrayList<String> sweeped = new ArrayList<>();
          try {
             for (String clientId : abandonedSubscriptions) {
                LOG.info("Sweeping out subscription of " + clientId + ".");

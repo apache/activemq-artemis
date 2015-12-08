@@ -141,7 +141,7 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             msg1.setLong("long", 37L);
             msg1.setString("string", "crocodile");
             msg = msg1;
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             map.put("int", Integer.valueOf(13));
             map.put("long", Long.valueOf(37L));
             map.put("string", "crocodile");

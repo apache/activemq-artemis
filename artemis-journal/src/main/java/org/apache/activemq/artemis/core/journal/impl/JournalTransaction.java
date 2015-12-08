@@ -103,7 +103,7 @@ public class JournalTransaction {
    public void merge(final JournalTransaction other) {
       if (other.pos != null) {
          if (pos == null) {
-            pos = new ArrayList<JournalUpdate>();
+            pos = new ArrayList<>();
          }
 
          pos.addAll(other.pos);
@@ -111,7 +111,7 @@ public class JournalTransaction {
 
       if (other.neg != null) {
          if (neg == null) {
-            neg = new ArrayList<JournalUpdate>();
+            neg = new ArrayList<>();
          }
 
          neg.addAll(other.neg);
@@ -119,7 +119,7 @@ public class JournalTransaction {
 
       if (other.pendingFiles != null) {
          if (pendingFiles == null) {
-            pendingFiles = new HashSet<JournalFile>();
+            pendingFiles = new HashSet<>();
          }
 
          pendingFiles.addAll(other.pendingFiles);
@@ -169,7 +169,7 @@ public class JournalTransaction {
 
    public TransactionCallback getCallback(final JournalFile file) throws Exception {
       if (callbackList == null) {
-         callbackList = new HashMap<JournalFile, TransactionCallback>();
+         callbackList = new HashMap<>();
       }
 
       currentCallback = callbackList.get(file);
@@ -194,7 +194,7 @@ public class JournalTransaction {
       addFile(file);
 
       if (pos == null) {
-         pos = new ArrayList<JournalUpdate>();
+         pos = new ArrayList<>();
       }
 
       pos.add(new JournalUpdate(file, id, size));
@@ -206,7 +206,7 @@ public class JournalTransaction {
       addFile(file);
 
       if (neg == null) {
-         neg = new ArrayList<JournalUpdate>();
+         neg = new ArrayList<>();
       }
 
       neg.add(new JournalUpdate(file, id, 0));
@@ -349,7 +349,7 @@ public class JournalTransaction {
 
    private void addFile(final JournalFile file) {
       if (pendingFiles == null) {
-         pendingFiles = new HashSet<JournalFile>();
+         pendingFiles = new HashSet<>();
       }
 
       if (!pendingFiles.contains(file)) {

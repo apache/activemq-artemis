@@ -139,7 +139,7 @@ public class FailoverConsumerUnconsumedTest {
       final Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
 
-      final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
+      final Vector<TestConsumer> testConsumers = new Vector<>();
       TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
       testConsumer.setMessageListener(new MessageListener() {
          @Override
@@ -278,7 +278,7 @@ public class FailoverConsumerUnconsumedTest {
       final Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
 
-      final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
+      final Vector<TestConsumer> testConsumers = new Vector<>();
       for (int i = 0; i < maxConsumers - 1; i++) {
          testConsumers.add(new TestConsumer(consumerSession, destination, connection));
       }

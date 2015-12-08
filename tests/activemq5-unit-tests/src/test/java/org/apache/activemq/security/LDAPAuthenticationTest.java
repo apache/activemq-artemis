@@ -16,16 +16,9 @@
  */
 package org.apache.activemq.security;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;

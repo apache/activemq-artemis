@@ -19,7 +19,6 @@ package org.apache.activemq.bugs;
 
 import java.io.File;
 import java.lang.IllegalStateException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -85,7 +84,7 @@ public class AMQ2149Test {
    int numBrokerRestarts = 0;
    final static int MAX_BROKER_RESTARTS = 4;
    BrokerService broker;
-   Vector<Throwable> exceptions = new Vector<Throwable>();
+   Vector<Throwable> exceptions = new Vector<>();
 
    protected File dataDirFile;
    final LoggingBrokerPlugin[] plugins = new LoggingBrokerPlugin[]{new LoggingBrokerPlugin()};
@@ -145,7 +144,7 @@ public class AMQ2149Test {
       return stringBuilder.toString();
    }
 
-   HashSet<Connection> connections = new HashSet<Connection>();
+   HashSet<Connection> connections = new HashSet<>();
 
    private class Receiver implements MessageListener {
 
@@ -535,8 +534,8 @@ public class AMQ2149Test {
                                             int concurrentPairs,
                                             boolean transactional) throws Exception {
 
-      Vector<Thread> threads = new Vector<Thread>();
-      Vector<Receiver> receivers = new Vector<Receiver>();
+      Vector<Thread> threads = new Vector<>();
+      Vector<Receiver> receivers = new Vector<>();
 
       for (int i = 0; i < concurrentPairs; ++i) {
          final javax.jms.Destination destination = ActiveMQDestination.createDestination("test.dest." + i, destinationType);

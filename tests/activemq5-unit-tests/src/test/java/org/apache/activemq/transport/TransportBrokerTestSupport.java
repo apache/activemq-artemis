@@ -25,12 +25,11 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.BrokerTest;
 import org.apache.activemq.broker.StubConnection;
 import org.apache.activemq.broker.TransportConnector;
-import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 
 public abstract class TransportBrokerTestSupport extends BrokerTest {
 
    protected TransportConnector connector;
-   private ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   private ArrayList<StubConnection> connections = new ArrayList<>();
 
    @Override
    protected void setUp() throws Exception {

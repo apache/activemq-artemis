@@ -211,7 +211,7 @@ public class DurableSubscriberWithNetworkDisconnectTest extends JmsMultipleBroke
       List<TransportConnector> transportConnectors = remoteBroker.getTransportConnectors();
       URI remoteURI;
       if (!transportConnectors.isEmpty()) {
-         remoteURI = ((TransportConnector) transportConnectors.get(0)).getConnectUri();
+         remoteURI = transportConnectors.get(0).getConnectUri();
          if (useSocketProxy) {
             socketProxy = new SocketProxy(remoteURI);
             remoteURI = socketProxy.getUrl();

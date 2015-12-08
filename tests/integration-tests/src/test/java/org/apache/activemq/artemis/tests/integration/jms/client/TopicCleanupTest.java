@@ -131,7 +131,7 @@ public class TopicCleanupTest extends JMSTestBase {
          conn.close();
 
          boolean foundStrayRoutingBinding = false;
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(((ActiveMQTopic) topic).getAddress()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(topic.getAddress()));
          Map<SimpleString, List<Binding>> routingNames = ((BindingsImpl) bindings).getRoutingNameBindingMap();
          for (SimpleString key : routingNames.keySet()) {
             if (!key.toString().equals(topic.getAddress())) {

@@ -76,7 +76,7 @@ public class TransportConfigurationUtil {
    }
 
    private static Map<String, Object> cloneDefaults(Map<String, Object> defaults) {
-      Map<String, Object> cloned = new HashMap<String, Object>();
+      Map<String, Object> cloned = new HashMap<>();
       for (Map.Entry entry : defaults.entrySet()) {
          cloned.put((String) entry.getKey(), entry.getValue());
       }

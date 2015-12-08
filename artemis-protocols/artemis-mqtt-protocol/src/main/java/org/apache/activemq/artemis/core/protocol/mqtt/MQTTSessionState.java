@@ -80,13 +80,13 @@ public class MQTTSessionState {
 
    void addOutbandMessageRef(int mqttId, String address, long serverMessageId, int qos) {
       synchronized (outboundLock) {
-         outboundMessageReferenceStore.put(mqttId, new Pair<String, Long>(address, serverMessageId));
+         outboundMessageReferenceStore.put(mqttId, new Pair<>(address, serverMessageId));
          if (qos == 2) {
             if (reverseOutboundReferenceStore.containsKey(address)) {
                reverseOutboundReferenceStore.get(address).put(serverMessageId, mqttId);
             }
             else {
-               ConcurrentHashMap<Long, Integer> serverToMqttId = new ConcurrentHashMap<Long, Integer>();
+               ConcurrentHashMap<Long, Integer> serverToMqttId = new ConcurrentHashMap<>();
                serverToMqttId.put(serverMessageId, mqttId);
                reverseOutboundReferenceStore.put(address, serverToMqttId);
             }

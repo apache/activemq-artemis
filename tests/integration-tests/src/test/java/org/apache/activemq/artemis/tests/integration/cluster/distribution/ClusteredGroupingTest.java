@@ -526,7 +526,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       final ClientSession session = addClientSession(sf1.createSession(false, false, false));
       final ClientProducer producer = addClientProducer(session.createProducer(ADDRESS));
-      List<String> groups = new ArrayList<String>();
+      List<String> groups = new ArrayList<>();
 
       final AtomicInteger totalMessageProduced = new AtomicInteger(0);
 

@@ -1374,7 +1374,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
       this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), listener, null, null);
 
-      List<String> connectors = new ArrayList<String>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("invm");
 
       String testQueueName = "newQueue";

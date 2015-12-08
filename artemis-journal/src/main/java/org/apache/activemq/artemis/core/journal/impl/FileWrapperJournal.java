@@ -52,7 +52,7 @@ public final class FileWrapperJournal extends JournalBase {
 
    private final ReentrantLock lockAppend = new ReentrantLock();
 
-   private final ConcurrentMap<Long, AtomicInteger> transactions = new ConcurrentHashMap<Long, AtomicInteger>();
+   private final ConcurrentMap<Long, AtomicInteger> transactions = new ConcurrentHashMap<>();
    private final JournalImpl journal;
    protected volatile JournalFile currentFile;
 

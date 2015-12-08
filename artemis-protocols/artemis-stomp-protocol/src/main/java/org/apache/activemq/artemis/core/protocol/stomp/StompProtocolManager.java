@@ -73,12 +73,12 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
    private final Executor executor;
 
-   private final Map<String, StompSession> transactedSessions = new HashMap<String, StompSession>();
+   private final Map<String, StompSession> transactedSessions = new HashMap<>();
 
    // key => connection ID, value => Stomp session
-   private final Map<Object, StompSession> sessions = new HashMap<Object, StompSession>();
+   private final Map<Object, StompSession> sessions = new HashMap<>();
 
-   private final Set<String> destinations = new ConcurrentHashSet<String>();
+   private final Set<String> destinations = new ConcurrentHashSet<>();
 
    private final List<StompFrameInterceptor> incomingInterceptors;
    private final List<StompFrameInterceptor> outgoingInterceptors;

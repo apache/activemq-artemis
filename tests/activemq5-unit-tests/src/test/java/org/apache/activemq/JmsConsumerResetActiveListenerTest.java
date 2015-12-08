@@ -65,7 +65,7 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
 
       final CountDownLatch latch = new CountDownLatch(2);
       final AtomicBoolean first = new AtomicBoolean(true);
-      final Vector<Object> results = new Vector<Object>();
+      final Vector<Object> results = new Vector<>();
       consumer.setMessageListener(new MessageListener() {
 
          @Override
@@ -116,7 +116,7 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
 
       final CountDownLatch latch = new CountDownLatch(2);
       final AtomicBoolean first = new AtomicBoolean(true);
-      final Vector<Object> results = new Vector<Object>();
+      final Vector<Object> results = new Vector<>();
       consumer.setMessageListener(new MessageListener() {
 
          @Override

@@ -49,7 +49,7 @@ final class PageSyncTimer {
       }
    };
 
-   private final List<OperationContext> syncOperations = new LinkedList<OperationContext>();
+   private final List<OperationContext> syncOperations = new LinkedList<>();
 
    // Static --------------------------------------------------------
 

@@ -161,7 +161,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
    }
 
    private Set<Long> getAllMessageFileIds(File dir) {
-      Set<Long> idsOnBkp = new TreeSet<Long>();
+      Set<Long> idsOnBkp = new TreeSet<>();
       String[] fileList = dir.list();
       if (fileList != null) {
          for (String filename : fileList) {

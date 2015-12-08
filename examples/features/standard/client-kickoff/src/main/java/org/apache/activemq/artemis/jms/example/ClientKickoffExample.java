@@ -54,7 +54,7 @@ public class ClientKickoffExample {
          connection = cf.createQueueConnection();
 
          // Step 4. Set an exception listener on the connection to be notified after a problem occurred
-         final AtomicReference<JMSException> exception = new AtomicReference<JMSException>();
+         final AtomicReference<JMSException> exception = new AtomicReference<>();
          connection.setExceptionListener(new ExceptionListener() {
             @Override
             public void onException(final JMSException e) {

@@ -35,7 +35,7 @@ public final class UTF8Util {
 
    private static final boolean isTrace = ActiveMQUtilLogger.LOGGER.isTraceEnabled();
 
-   private static final ThreadLocal<SoftReference<StringUtilBuffer>> currenBuffer = new ThreadLocal<SoftReference<StringUtilBuffer>>();
+   private static final ThreadLocal<SoftReference<StringUtilBuffer>> currenBuffer = new ThreadLocal<>();
 
    public static void saveUTF(final ActiveMQBuffer out, final String str) {
       StringUtilBuffer buffer = UTF8Util.getThreadLocalBuffer();
@@ -149,7 +149,7 @@ public final class UTF8Util {
       StringUtilBuffer value;
       if (softReference == null) {
          value = new StringUtilBuffer();
-         softReference = new SoftReference<StringUtilBuffer>(value);
+         softReference = new SoftReference<>(value);
          UTF8Util.currenBuffer.set(softReference);
       }
       else {
@@ -158,7 +158,7 @@ public final class UTF8Util {
 
       if (value == null) {
          value = new StringUtilBuffer();
-         softReference = new SoftReference<StringUtilBuffer>(value);
+         softReference = new SoftReference<>(value);
          UTF8Util.currenBuffer.set(softReference);
       }
 

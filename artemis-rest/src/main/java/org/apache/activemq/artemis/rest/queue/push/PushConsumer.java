@@ -81,8 +81,8 @@ public class PushConsumer {
       strategy.setRegistration(registration);
       strategy.start();
 
-      sessions = new ArrayList<ClientSession>();
-      consumers = new ArrayList<ClientConsumer>();
+      sessions = new ArrayList<>();
+      consumers = new ArrayList<>();
 
       for (int i = 0; i < registration.getSessionCount(); i++) {
          ClientSession session = factory.createSession(false, false, 0);

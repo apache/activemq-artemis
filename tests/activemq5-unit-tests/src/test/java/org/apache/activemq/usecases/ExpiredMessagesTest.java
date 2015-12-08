@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 
-import java.io.File;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.activemq.TestSupport.getDestination;
@@ -213,8 +212,6 @@ public class ExpiredMessagesTest extends CombinationTestSupport {
       }
 
    }
-
-   ;
 
    private MessageConsumer createDlqConsumer(Connection connection) throws Exception {
       return connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(dlqDestination);

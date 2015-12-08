@@ -53,7 +53,7 @@ public class StompFrame {
 
    public StompFrame(String command, boolean disconnect) {
       this.command = command;
-      this.headers = new LinkedHashMap<String, String>();
+      this.headers = new LinkedHashMap<>();
       this.disconnect = disconnect;
    }
 

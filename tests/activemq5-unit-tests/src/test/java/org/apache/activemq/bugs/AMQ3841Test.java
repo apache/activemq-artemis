@@ -106,7 +106,7 @@ public class AMQ3841Test {
       if (deleteAllMessages) {
          multiKahaDBPersistenceAdapter.deleteAllMessages();
       }
-      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<>();
 
       FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
       template.setPersistenceAdapter(createStore(deleteAllMessages));

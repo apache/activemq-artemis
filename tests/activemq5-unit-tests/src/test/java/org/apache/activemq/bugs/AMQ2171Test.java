@@ -43,7 +43,7 @@ public class AMQ2171Test implements Thread.UncaughtExceptionHandler {
 
    private String brokerUri;
    private String brokerUriNoPrefetch;
-   private Collection<Throwable> exceptions = new CopyOnWriteArrayList<Throwable>();
+   private Collection<Throwable> exceptions = new CopyOnWriteArrayList<>();
 
    @Before
    public void setUp() throws Exception {
@@ -88,8 +88,7 @@ public class AMQ2171Test implements Thread.UncaughtExceptionHandler {
          connection.start();
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         @SuppressWarnings("unchecked")
-         Enumeration<Message> unread = (Enumeration<Message>) session.createBrowser(destination).getEnumeration();
+         Enumeration<Message> unread = session.createBrowser(destination).getEnumeration();
 
          int count = 0;
          while (unread.hasMoreElements()) {

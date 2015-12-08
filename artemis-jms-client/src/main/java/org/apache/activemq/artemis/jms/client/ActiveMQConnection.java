@@ -79,11 +79,11 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final int connectionType;
 
-   private final Set<ActiveMQSession> sessions = new ConcurrentHashSet<ActiveMQSession>();
+   private final Set<ActiveMQSession> sessions = new ConcurrentHashSet<>();
 
-   private final Set<SimpleString> tempQueues = new ConcurrentHashSet<SimpleString>();
+   private final Set<SimpleString> tempQueues = new ConcurrentHashSet<>();
 
-   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<SimpleString>();
+   private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<>();
 
    private volatile boolean hasNoLocal;
 
@@ -327,7 +327,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       sessionFactory.close();
 
       try {
-         for (ActiveMQSession session : new HashSet<ActiveMQSession>(sessions)) {
+         for (ActiveMQSession session : new HashSet<>(sessions)) {
             session.close();
          }
 
@@ -689,7 +689,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       private final WeakReference<ActiveMQConnection> connectionRef;
 
       JMSFailureListener(final ActiveMQConnection connection) {
-         connectionRef = new WeakReference<ActiveMQConnection>(connection);
+         connectionRef = new WeakReference<>(connection);
       }
 
       @Override
@@ -742,7 +742,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       private final WeakReference<ActiveMQConnection> connectionRef;
 
       FailoverEventListenerImpl(final ActiveMQConnection connection) {
-         connectionRef = new WeakReference<ActiveMQConnection>(connection);
+         connectionRef = new WeakReference<>(connection);
       }
 
       @Override

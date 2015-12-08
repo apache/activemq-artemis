@@ -106,9 +106,9 @@ public class RawRollbackTests {
       connection.start();
       Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       String next = "";
-      List<String> msgs = new ArrayList<String>();
+      List<String> msgs = new ArrayList<>();
       while (next != null) {
-         next = (String) receiveAndConvert(session);
+         next = receiveAndConvert(session);
          if (next != null)
             msgs.add(next);
       }

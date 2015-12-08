@@ -262,7 +262,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
                // For that reason I'm allocating the ArrayList with 2 already
                // I have thought about using LinkedList here but I think this will be good enough already
                // Note by Clebert
-               all = new ArrayList<SimpleString>(2);
+               all = new ArrayList<>(2);
             }
             all.add(new SimpleString(bytes));
          }

@@ -96,7 +96,7 @@ public class AMQ1853Test {
    public void testConsumerMessagesAreNotOrdered() throws Exception {
 
       TestConsumer consumerAllFail = null;
-      messageList = new Hashtable<String, AtomicInteger>();
+      messageList = new Hashtable<>();
 
       try {
 
@@ -194,7 +194,7 @@ public class AMQ1853Test {
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
             for (int i = 0; i < (producerMessages); i++) {
-               TextMessage message = (TextMessage) session.createTextMessage();
+               TextMessage message = session.createTextMessage();
                message.setLongProperty("TestTime", (System.currentTimeMillis()));
                try {
                   producer.send(message);

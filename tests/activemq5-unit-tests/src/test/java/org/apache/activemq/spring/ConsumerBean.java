@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class ConsumerBean extends Assert implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(ConsumerBean.class);
-   private final List<Message> messages = new ArrayList<Message>();
+   private final List<Message> messages = new ArrayList<>();
    private boolean verbose;
 
    /**
@@ -44,7 +44,7 @@ public class ConsumerBean extends Assert implements MessageListener {
    public List<Message> flushMessages() {
       List<Message> answer = null;
       synchronized (messages) {
-         answer = new ArrayList<Message>(messages);
+         answer = new ArrayList<>(messages);
          messages.clear();
       }
       return answer;

@@ -35,7 +35,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    private final StorageManager storageManager;
    private Queue queue;
-   List<MessageReference> refsToAck = new ArrayList<MessageReference>();
+   List<MessageReference> refsToAck = new ArrayList<>();
 
    List<ServerMessage> pagedMessagesToPostACK = null;
 
@@ -59,7 +59,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       refsToAck.add(ref);
       if (ref.isPaged()) {
          if (pagedMessagesToPostACK == null) {
-            pagedMessagesToPostACK = new ArrayList<ServerMessage>();
+            pagedMessagesToPostACK = new ArrayList<>();
          }
          pagedMessagesToPostACK.add(ref.getMessage());
       }
@@ -67,7 +67,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    @Override
    public void afterRollback(final Transaction tx) {
-      Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<QueueImpl, LinkedList<MessageReference>>();
+      Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
 
@@ -90,7 +90,7 @@ public class RefsOperation extends TransactionOperationAbstract {
                LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
 
                if (toCancel == null) {
-                  toCancel = new LinkedList<MessageReference>();
+                  toCancel = new LinkedList<>();
 
                   queueMap.put((QueueImpl) ref.getQueue(), toCancel);
                }
@@ -165,14 +165,14 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    @Override
    public synchronized List<MessageReference> getRelatedMessageReferences() {
-      List<MessageReference> listRet = new LinkedList<MessageReference>();
+      List<MessageReference> listRet = new LinkedList<>();
       listRet.addAll(listRet);
       return listRet;
    }
 
    @Override
    public synchronized List<MessageReference> getListOnConsumer(long consumerID) {
-      List<MessageReference> list = new LinkedList<MessageReference>();
+      List<MessageReference> list = new LinkedList<>();
       for (MessageReference ref : refsToAck) {
          if (ref.getConsumerId() != null && ref.getConsumerId().equals(consumerID)) {
             list.add(ref);

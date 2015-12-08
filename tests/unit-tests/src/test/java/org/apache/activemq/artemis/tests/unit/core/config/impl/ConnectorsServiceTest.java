@@ -77,7 +77,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
    public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception {
       ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
 
-      List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<ConnectorServiceConfiguration>();
+      List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<>();
       connectorServiceConfigurations.add(connectorServiceConfiguration);
 
       configuration.setConnectorServiceConfigurations(connectorServiceConfigurations);

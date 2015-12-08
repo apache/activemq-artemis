@@ -336,7 +336,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    }
 
    private Set<Pair<Long, Integer>> getFileIds(JournalImpl journal) {
-      Set<Pair<Long, Integer>> results = new HashSet<Pair<Long, Integer>>();
+      Set<Pair<Long, Integer>> results = new HashSet<>();
       for (JournalFile jf : journal.getDataFiles()) {
          results.add(getPair(jf));
       }
@@ -349,7 +349,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
     * @return
     */
    private Pair<Long, Integer> getPair(JournalFile jf) {
-      return new Pair<Long, Integer>(jf.getFileID(), jf.getPosCount());
+      return new Pair<>(jf.getFileID(), jf.getPosCount());
    }
 
    static JournalImpl getMessageJournalFromServer(TestableServer server) {

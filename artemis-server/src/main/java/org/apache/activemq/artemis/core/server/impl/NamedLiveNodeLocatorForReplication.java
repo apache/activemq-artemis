@@ -80,7 +80,7 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
       try {
          lock.lock();
          if (backupGroupName.equals(topologyMember.getBackupGroupName()) && topologyMember.getLive() != null) {
-            liveConfiguration = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+            liveConfiguration = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
             nodeID = topologyMember.getNodeId();
             condition.signal();
          }

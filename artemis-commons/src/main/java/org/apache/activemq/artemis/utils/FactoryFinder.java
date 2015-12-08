@@ -52,7 +52,7 @@ public class FactoryFinder {
     */
    protected static class StandaloneObjectFactory implements ObjectFactory {
 
-      final ConcurrentMap<String, Class> classMap = new ConcurrentHashMap<String, Class>();
+      final ConcurrentMap<String, Class> classMap = new ConcurrentHashMap<>();
 
       @Override
       public Object create(final String path) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {

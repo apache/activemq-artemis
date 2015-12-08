@@ -38,7 +38,7 @@ import org.apache.activemq.spring.ConsumerBean;
  */
 public class VirtualTopicPubSubTest extends EmbeddedBrokerTestSupport {
 
-   private Vector<Connection> connections = new Vector<Connection>();
+   private Vector<Connection> connections = new Vector<>();
    public int ackMode = Session.AUTO_ACKNOWLEDGE;
 
    public static Test suite() {

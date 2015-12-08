@@ -37,14 +37,14 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
    volatile boolean deleteMessages = false;
 
-   ArrayList<Long> deletedMessage = new ArrayList<Long>();
+   ArrayList<Long> deletedMessage = new ArrayList<>();
 
    @Test
    public void testDeleteMessagesOnStartup() throws Exception {
       createStorage();
 
       Queue theQueue = new FakeQueue(new SimpleString(""));
-      HashMap<Long, Queue> queues = new HashMap<Long, Queue>();
+      HashMap<Long, Queue> queues = new HashMap<>();
       queues.put(100L, theQueue);
 
       ServerMessage msg = new ServerMessageImpl(1, 100);

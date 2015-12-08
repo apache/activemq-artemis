@@ -40,8 +40,8 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final ActiveMQServerImpl server;
-   Map<String, Pair<TransportConfiguration, TransportConfiguration>> untriedConnectors = new HashMap<String, Pair<TransportConfiguration, TransportConfiguration>>();
-   Map<String, Pair<TransportConfiguration, TransportConfiguration>> triedConnectors = new HashMap<String, Pair<TransportConfiguration, TransportConfiguration>>();
+   Map<String, Pair<TransportConfiguration, TransportConfiguration>> untriedConnectors = new HashMap<>();
+   Map<String, Pair<TransportConfiguration, TransportConfiguration>> triedConnectors = new HashMap<>();
 
    private String nodeID;
 
@@ -83,7 +83,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
    public void nodeUP(TopologyMember topologyMember, boolean last) {
       try {
          lock.lock();
-         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
 
          if (server.checkLiveIsNotColocated(topologyMember.getNodeId())) {
             untriedConnectors.put(topologyMember.getNodeId(), connector);

@@ -827,7 +827,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
+         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
@@ -860,7 +860,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             return "";
          }
 
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
+         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
@@ -894,7 +894,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             return "<h3>*** Prepared Transaction Details ***</h3><p>No entry.</p>";
          }
 
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
+         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
@@ -933,7 +933,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                JSONObject msgJson = msgs.getJSONObject(i);
                JSONObject props = msgJson.getJSONObject(TransactionDetail.KEY_MSG_PROPERTIES);
                StringBuilder propstr = new StringBuilder();
-               @SuppressWarnings("unchecked")
                Iterator<String> propkeys = props.keys();
                while (propkeys.hasNext()) {
                   String key = propkeys.next();
@@ -1078,7 +1077,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Set<RemotingConnection> connections = remotingService.getConnections();
-         List<String> remoteConnections = new ArrayList<String>();
+         List<String> remoteConnections = new ArrayList<>();
          for (RemotingConnection connection : connections) {
             String remoteAddress = connection.getRemoteAddress();
             if (remoteAddress.contains(ipAddress)) {
@@ -1375,7 +1374,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
-      Map<String, Object> settings = new HashMap<String, Object>();
+      Map<String, Object> settings = new HashMap<>();
       if (addressSettings.getDeadLetterAddress() != null) {
          settings.put("DLA", addressSettings.getDeadLetterAddress());
       }
@@ -1844,7 +1843,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    private static List<String> toList(final String commaSeparatedString) {
-      List<String> list = new ArrayList<String>();
+      List<String> list = new ArrayList<>();
       if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
          return list;
       }

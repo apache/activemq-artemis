@@ -48,7 +48,7 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
    private MessageProducer replyProducer;
    private Session serverSession;
    private Destination requestDestination;
-   private List<JMSException> failures = new Vector<JMSException>();
+   private List<JMSException> failures = new Vector<>();
    private boolean dynamicallyCreateProducer;
    private String clientSideClientID;
 

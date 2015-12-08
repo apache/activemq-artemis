@@ -172,8 +172,6 @@ public abstract class TestSupport extends CombinationTestSupport {
 
    public static enum PersistenceAdapterChoice {LevelDB, KahaDB, AMQ, JDBC, MEM}
 
-   ;
-
    public PersistenceAdapter setDefaultPersistenceAdapter(BrokerService broker) throws IOException {
       return setPersistenceAdapter(broker, defaultPersistenceAdapter);
    }

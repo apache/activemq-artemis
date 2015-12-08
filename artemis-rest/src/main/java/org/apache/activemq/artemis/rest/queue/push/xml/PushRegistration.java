@@ -38,7 +38,7 @@ public class PushRegistration implements Serializable {
    private boolean durable;
    private XmlLink target;
    private Authentication authenticationMechanism;
-   private List<XmlHttpHeader> headers = new ArrayList<XmlHttpHeader>();
+   private List<XmlHttpHeader> headers = new ArrayList<>();
    private String destination;
    private Object loadedFrom;
    private String selector;

@@ -249,7 +249,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
    public class SessionFactoryFailoverListener implements FailoverEventListener {
 
-      private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<FailoverEventType>();
+      private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<>();
 
       private final CountDownLatch failureLatch;
 

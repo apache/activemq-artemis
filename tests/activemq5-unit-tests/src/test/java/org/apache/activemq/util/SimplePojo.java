@@ -28,9 +28,9 @@ public class SimplePojo {
    int age;
    boolean enabled;
    URI uri;
-   List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
-   List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
-   List<ActiveMQDestination> others = new ArrayList<ActiveMQDestination>();
+   List<ActiveMQDestination> favorites = new ArrayList<>();
+   List<ActiveMQDestination> nonFavorites = new ArrayList<>();
+   List<ActiveMQDestination> others = new ArrayList<>();
    String[] systems;
 
    public int getAge() {

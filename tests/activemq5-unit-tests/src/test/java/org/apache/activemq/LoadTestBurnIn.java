@@ -37,7 +37,6 @@ import junit.framework.Test;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class LoadTestBurnIn extends JmsTestSupport {
 
    @Override
    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-      return new ActiveMQConnectionFactory(((TransportConnector) broker.getTransportConnectors().get(0)).getServer().getConnectURI());
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
    }
 
    public void initCombosForTestSendReceive() {

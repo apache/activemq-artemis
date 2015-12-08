@@ -79,7 +79,7 @@ public class DurableSubProcessWithRestartTest {
 
    private final ReentrantReadWriteLock processLock = new ReentrantReadWriteLock(true);
    private int restartCount = 0;
-   static final Vector<Throwable> exceptions = new Vector<Throwable>();
+   static final Vector<Throwable> exceptions = new Vector<>();
 
    // this is a nice test but it takes 5mins, may be handy in the future
    // resulting bug https://issues.apache.org/jira/browse/AMQ-3190
@@ -257,7 +257,7 @@ public class DurableSubProcessWithRestartTest {
 
       ClientType(String... messageTypes) {
          this.messageTypes = messageTypes;
-         messageTypeSet = new HashSet<String>(Arrays.asList(messageTypes));
+         messageTypeSet = new HashSet<>(Arrays.asList(messageTypes));
 
          StringBuilder sb = new StringBuilder("TYPE in (");
          for (int i = 0; i < messageTypes.length; i++) {
@@ -298,7 +298,7 @@ public class DurableSubProcessWithRestartTest {
 
       private int clientRover = 0;
 
-      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<Client>();
+      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
 
       public ClientManager() {
          super("ClientManager");
@@ -391,7 +391,7 @@ public class DurableSubProcessWithRestartTest {
       private final ClientType clientType;
       private final String selector;
 
-      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<Message>();
+      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<>();
       private final HashSet<Integer> processed = CHECK_REDELIVERY ? new HashSet<Integer>(10000) : null;
 
       public Client(int id, ClientType clientType, Random lifetime, Random online, Random offline) throws JMSException {
@@ -601,7 +601,7 @@ public class DurableSubProcessWithRestartTest {
          setDaemon(true);
       }
 
-      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<String>();
+      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<>();
 
       @Override
       public void run() {
@@ -631,7 +631,7 @@ public class DurableSubProcessWithRestartTest {
          LOG.info("Housekeeper sweeping.");
 
          int closed = 0;
-         ArrayList<String> sweeped = new ArrayList<String>();
+         ArrayList<String> sweeped = new ArrayList<>();
          try {
             for (String clientId : abandonedSubscriptions) {
                LOG.info("Sweeping out subscription of " + clientId + ".");

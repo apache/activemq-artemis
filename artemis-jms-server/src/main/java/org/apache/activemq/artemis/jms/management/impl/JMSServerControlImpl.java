@@ -162,7 +162,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             server.createConnectionFactory(name, ha, JMSFactoryType.valueOf(cfType), connectorNames[0], JMSServerControlImpl.convert(bindings));
          }
          else {
-            List<String> connectorList = new ArrayList<String>(connectorNames.length);
+            List<String> connectorList = new ArrayList<>(connectorNames.length);
 
             for (String str : connectorNames) {
                connectorList.add(str);
@@ -262,7 +262,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             configuration.setDiscoveryGroupName(connectorNames[0]);
          }
          else {
-            ArrayList<String> connectorNamesList = new ArrayList<String>();
+            ArrayList<String> connectorNamesList = new ArrayList<>();
             for (String nameC : connectorNames) {
                connectorNamesList.add(nameC);
             }
@@ -593,7 +593,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
          Set<ServerSession> sessions = server.getActiveMQServer().getSessions();
 
-         Map<Object, ServerSession> jmsSessions = new HashMap<Object, ServerSession>();
+         Map<Object, ServerSession> jmsSessions = new HashMap<>();
 
          // First separate the real jms sessions, after all we are only interested in those here on the *jms* server controller
          for (ServerSession session : sessions) {
@@ -745,7 +745,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    @Override
    public String[] listTargetDestinations(String sessionID) throws Exception {
       String[] addresses = server.getActiveMQServer().getActiveMQServerControl().listTargetAddresses(sessionID);
-      Map<String, DestinationControl> allDests = new HashMap<String, DestinationControl>();
+      Map<String, DestinationControl> allDests = new HashMap<>();
 
       Object[] queueControls = server.getActiveMQServer().getManagementService().getResources(JMSQueueControl.class);
       for (Object queueControl2 : queueControls) {
@@ -759,7 +759,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          allDests.put(topicControl.getAddress(), topicControl);
       }
 
-      List<String> destinations = new ArrayList<String>();
+      List<String> destinations = new ArrayList<>();
       for (String addresse : addresses) {
          DestinationControl control = allDests.get(addresse);
          if (control != null) {

@@ -57,10 +57,10 @@ public class StompSession implements SessionCallback {
 
    private final OperationContext sessionContext;
 
-   private final Map<Long, StompSubscription> subscriptions = new ConcurrentHashMap<Long, StompSubscription>();
+   private final Map<Long, StompSubscription> subscriptions = new ConcurrentHashMap<>();
 
    // key = message ID, value = consumer ID
-   private final Map<Long, Pair<Long, Integer>> messagesToAck = new ConcurrentHashMap<Long, Pair<Long, Integer>>();
+   private final Map<Long, Pair<Long, Integer>> messagesToAck = new ConcurrentHashMap<>();
 
    private volatile boolean noLocal = false;
 
@@ -145,7 +145,7 @@ public class StompSession implements SessionCallback {
             }
          }
          else {
-            messagesToAck.put(newServerMessage.getMessageID(), new Pair<Long, Integer>(consumer.getID(), length));
+            messagesToAck.put(newServerMessage.getMessageID(), new Pair<>(consumer.getID(), length));
             // Must send AFTER adding to messagesToAck - or could get acked from client BEFORE it's been added!
             manager.send(connection, frame);
          }

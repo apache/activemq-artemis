@@ -64,7 +64,7 @@ public class NonHATopologyTest extends ActiveMQTestBase {
             server.getConfiguration().getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
             server.getConfiguration().getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
-            ArrayList<String> list = new ArrayList<String>();
+            ArrayList<String> list = new ArrayList<>();
             list.add("netty");
             Configuration config = server.getConfiguration();
             config.getClusterConfigurations().add(new ClusterConnectionConfiguration().setName("tst").setAddress("jms").setConnectorName("netty").setRetryInterval(1000).setConfirmationWindowSize(1000).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(list).setAllowDirectConnectionsOnly(true));

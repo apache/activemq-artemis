@@ -40,7 +40,7 @@ public class SecurityFormatter {
       List<String> consume = toList(consumeRoles);
       List<String> manage = toList(manageRoles);
 
-      Set<String> allRoles = new HashSet<String>();
+      Set<String> allRoles = new HashSet<>();
       allRoles.addAll(createDurableQueue);
       allRoles.addAll(deleteDurableQueue);
       allRoles.addAll(createNonDurableQueue);
@@ -49,7 +49,7 @@ public class SecurityFormatter {
       allRoles.addAll(consume);
       allRoles.addAll(manage);
 
-      Set<Role> roles = new HashSet<Role>(allRoles.size());
+      Set<Role> roles = new HashSet<>(allRoles.size());
       for (String role : allRoles) {
          roles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role)));
       }
@@ -57,7 +57,7 @@ public class SecurityFormatter {
    }
 
    private static List<String> toList(final String commaSeparatedString) {
-      List<String> list = new ArrayList<String>();
+      List<String> list = new ArrayList<>();
       if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
          return list;
       }

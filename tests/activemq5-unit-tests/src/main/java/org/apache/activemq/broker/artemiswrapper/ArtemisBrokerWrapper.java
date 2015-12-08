@@ -43,7 +43,7 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
-   protected final Map<String, SimpleString> testQueues = new HashMap<String, SimpleString>();
+   protected final Map<String, SimpleString> testQueues = new HashMap<>();
    protected JMSServerManagerImpl jmsServer;
 
    public ArtemisBrokerWrapper(BrokerService brokerService) {
@@ -56,7 +56,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       clearDataRecreateServerDirs();
       server = createServer(realStore, true);
       server.getConfiguration().getAcceptorConfigurations().clear();
-      HashMap<String, Object> params = new HashMap<String, Object>();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "61616");
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE,CORE");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -84,7 +84,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
       serverConfig.getAcceptorConfigurations().add(transportConfiguration);
       if (this.bservice.enableSsl()) {
-         params = new HashMap<String, Object>();
+         params = new HashMap<>();
          params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
          params.put(TransportConstants.PORT_PROP_NAME, 61611);
          params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
@@ -104,7 +104,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       for (Integer port : bservice.extraConnectors) {
          if (port.intValue() != 61616) {
             //extra port
-            params = new HashMap<String, Object>();
+            params = new HashMap<>();
             params.put(TransportConstants.PORT_PROP_NAME, port.intValue());
             params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
             TransportConfiguration extraTransportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -143,12 +143,12 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
          Map<String, Set<Role>> settings = server.getConfiguration().getSecurityRoles();
          if (settings == null) {
-            settings = new HashMap<String, Set<Role>>();
+            settings = new HashMap<>();
             server.getConfiguration().setSecurityRoles(settings);
          }
          Set<Role> anySet = settings.get("#");
          if (anySet == null) {
-            anySet = new HashSet<Role>();
+            anySet = new HashSet<>();
             settings.put("#", anySet);
          }
          anySet.add(senderRole);

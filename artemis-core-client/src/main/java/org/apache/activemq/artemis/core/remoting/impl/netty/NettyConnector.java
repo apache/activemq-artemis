@@ -135,7 +135,7 @@ public class NettyConnector extends AbstractConnector {
       ResourceLeakDetector.setEnabled(false);
 
       // Set default Configuration
-      Map<String, Object> config = new HashMap<String, Object>();
+      Map<String, Object> config = new HashMap<>();
       config.put(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST);
       config.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT);
       DEFAULT_CONFIG = Collections.unmodifiableMap(config);
@@ -202,7 +202,7 @@ public class NettyConnector extends AbstractConnector {
 
    private long batchDelay;
 
-   private ConcurrentMap<Object, Connection> connections = new ConcurrentHashMap<Object, Connection>();
+   private ConcurrentMap<Object, Connection> connections = new ConcurrentHashMap<>();
 
    private String servletPath;
 

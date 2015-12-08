@@ -103,7 +103,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
       String groupAddress = "231.7.7.7";
       int groupPort = 9876;
 
-      Map<String, Object> acceptorParams_1 = new HashMap<String, Object>();
+      Map<String, Object> acceptorParams_1 = new HashMap<>();
       acceptorParams_1.put(TransportConstants.PORT_PROP_NAME, port_1);
       TransportConfiguration acceptorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY);
 
@@ -113,7 +113,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
       TransportConfiguration connectorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY);
 
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
-      List<String> connectorInfos = new ArrayList<String>();
+      List<String> connectorInfos = new ArrayList<>();
       connectorInfos.add("netty");
 
       BroadcastGroupConfiguration broadcastGroupConfig = new BroadcastGroupConfiguration().setName(discoveryName).setBroadcastPeriod(250).setConnectorInfos(connectorInfos).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort));

@@ -59,7 +59,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    protected List<Byte> receiveList;
 
-   protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<ClientStompFrame>();
+   protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<>();
 
    protected boolean connected = false;
    private int serverPingCounter;
@@ -83,7 +83,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    private void startReaderThread() {
       readBuffer = ByteBuffer.allocateDirect(10240);
-      receiveList = new ArrayList<Byte>(10240);
+      receiveList = new ArrayList<>(10240);
 
       new ReaderThread().start();
    }

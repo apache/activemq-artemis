@@ -47,7 +47,7 @@ public class StoreConfigTest extends JMSTestBase {
 
       server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      List<String> transportConfigurations = new ArrayList<String>();
+      List<String> transportConfigurations = new ArrayList<>();
       transportConfigurations.add("tst");
       ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);
 
@@ -111,7 +111,7 @@ public class StoreConfigTest extends JMSTestBase {
 
       server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      List<String> transportConfigurations = new ArrayList<String>();
+      List<String> transportConfigurations = new ArrayList<>();
       transportConfigurations.add("tst");
 
       ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);
@@ -213,7 +213,7 @@ public class StoreConfigTest extends JMSTestBase {
 
       //      server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      List<String> transportConfigurations = new ArrayList<String>();
+      List<String> transportConfigurations = new ArrayList<>();
       transportConfigurations.add("tst");
 
       ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);

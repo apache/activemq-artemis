@@ -46,7 +46,6 @@ public class KahaDBStoreRecoveryBrokerTest extends RecoveryBrokerTest {
 
    enum CorruptionType {None, FailToLoad, LoadInvalid, LoadCorrupt, LoadOrderIndex0}
 
-   ;
    public CorruptionType failTest = CorruptionType.None;
 
    @Override
@@ -152,7 +151,7 @@ public class KahaDBStoreRecoveryBrokerTest extends RecoveryBrokerTest {
       connection.send(sessionInfo);
       connection.send(producerInfo);
 
-      ArrayList<String> expected = new ArrayList<String>();
+      ArrayList<String> expected = new ArrayList<>();
 
       int MESSAGE_COUNT = 10000;
       for (int i = 0; i < MESSAGE_COUNT; i++) {

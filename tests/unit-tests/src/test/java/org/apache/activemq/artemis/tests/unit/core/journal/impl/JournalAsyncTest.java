@@ -173,9 +173,9 @@ public class JournalAsyncTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      records = new ArrayList<RecordInfo>();
+      records = new ArrayList<>();
 
-      transactions = new ArrayList<PreparedTransactionInfo>();
+      transactions = new ArrayList<>();
 
       factory = null;
 

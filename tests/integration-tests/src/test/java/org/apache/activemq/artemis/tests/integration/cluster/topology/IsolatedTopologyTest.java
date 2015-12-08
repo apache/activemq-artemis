@@ -81,24 +81,24 @@ public class IsolatedTopologyTest extends ActiveMQTestBase {
    }
 
    private ActiveMQServer createServer1() throws Exception {
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
 
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, params, "acceptor-cc1");
 
-      params = new HashMap<String, Object>();
+      params = new HashMap<>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
 
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, params, "acceptor-cc2");
 
-      List<String> connectTo = new ArrayList<String>();
+      List<String> connectTo = new ArrayList<>();
       connectTo.add("other-cc1");
 
       ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration().setName("cc1").setAddress("jms").setConnectorName("local-cc1").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo);
 
-      ArrayList<String> connectTo2 = new ArrayList<String>();
+      ArrayList<String> connectTo2 = new ArrayList<>();
       connectTo2.add("other-cc2");
 
       ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration().setName("cc2").setAddress("jms").setConnectorName("local-cc2").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo2);
@@ -113,24 +113,24 @@ public class IsolatedTopologyTest extends ActiveMQTestBase {
 
    private ActiveMQServer createServer2() throws Exception {
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
 
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, params, "acceptor-cc1");
 
-      params = new HashMap<String, Object>();
+      params = new HashMap<>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
 
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, params, "acceptor-cc2");
 
-      List<String> connectTo = new ArrayList<String>();
+      List<String> connectTo = new ArrayList<>();
       connectTo.add("other-cc1");
 
       ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration().setName("cc1").setAddress("jms").setConnectorName("local-cc1").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo);
 
-      List<String> connectTo2 = new ArrayList<String>();
+      List<String> connectTo2 = new ArrayList<>();
       connectTo2.add("other-cc2");
 
       ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration().setName("cc2").setAddress("jms").setConnectorName("local-cc2").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo2);

@@ -111,7 +111,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
@@ -829,7 +829,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Pair<List<RecordInfo>, List<PreparedTransactionInfo>> journalData = loadMessageJournal(config);
 
-      HashSet<Long> deletedQueueReferences = new HashSet<Long>();
+      HashSet<Long> deletedQueueReferences = new HashSet<>();
 
       for (RecordInfo info : journalData.getA()) {
          if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
@@ -961,7 +961,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       assertEquals(numberOfMessages, getMessageCount(queue));
 
-      LinkedList<Xid> xids = new LinkedList<Xid>();
+      LinkedList<Xid> xids = new LinkedList<>();
 
       int msgReceived = 0;
       for (int i = 0; i < numberOfTX; i++) {
@@ -1492,9 +1492,9 @@ public class PagingTest extends ActiveMQTestBase {
          }
       }
 
-      ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();
+      ArrayList<RecordInfo> records = new ArrayList<>();
 
-      List<PreparedTransactionInfo> list = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> list = new ArrayList<>();
 
       JournalImpl jrn = new JournalImpl(config.getJournalFileSize(), 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
       jrn.start();
@@ -3128,7 +3128,7 @@ public class PagingTest extends ActiveMQTestBase {
    public void testDropMessages() throws Exception {
       clearDataRecreateServerDirs();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings();
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
@@ -3238,7 +3238,7 @@ public class PagingTest extends ActiveMQTestBase {
    public void testDropMessagesExpiring() throws Exception {
       clearDataRecreateServerDirs();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings();
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
@@ -3468,7 +3468,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration configuration = createDefaultInVMConfig();
 
-      Map<String, AddressSettings> addresses = new HashMap<String, AddressSettings>();
+      Map<String, AddressSettings> addresses = new HashMap<>();
 
       addresses.put("#", new AddressSettings());
 
@@ -3552,7 +3552,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration configuration = createDefaultInVMConfig();
 
-      Map<String, AddressSettings> addresses = new HashMap<String, AddressSettings>();
+      Map<String, AddressSettings> addresses = new HashMap<>();
 
       addresses.put("#", new AddressSettings());
 
@@ -4122,7 +4122,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setThreadPoolMaxSize(5).setJournalSyncNonTransactional(false);
 
-      Map<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      Map<String, AddressSettings> settings = new HashMap<>();
       AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(new SimpleString("DLA"));
       settings.put(ADDRESS.toString(), dla);
 
@@ -4339,7 +4339,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setMessageExpiryScanPeriod(500).setJournalSyncNonTransactional(false);
 
-      Map<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      Map<String, AddressSettings> settings = new HashMap<>();
       AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(new SimpleString("DLA")).setExpiryAddress(new SimpleString("DLA"));
       settings.put(ADDRESS.toString(), dla);
 
@@ -4481,7 +4481,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          Configuration config = createDefaultInVMConfig();
 
-         HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+         HashMap<String, AddressSettings> settings = new HashMap<>();
 
          AddressSettings set = new AddressSettings();
          set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
@@ -4563,7 +4563,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings();
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
@@ -4637,7 +4637,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings();
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);

@@ -86,7 +86,7 @@ public class AMQ3732Test {
 
       Queue queue = session.createQueue("AMQ3732Test");
 
-      final LinkedBlockingQueue<Message> workQueue = new LinkedBlockingQueue<Message>();
+      final LinkedBlockingQueue<Message> workQueue = new LinkedBlockingQueue<>();
 
       final MessageConsumer consumer1 = session.createConsumer(queue);
       final MessageConsumer consumer2 = session.createConsumer(queue);

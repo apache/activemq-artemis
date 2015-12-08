@@ -22,9 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -149,7 +146,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Destination destination = session.createQueue(queue);
 
-         ArrayList<TextMessage> consumedMessages = new ArrayList<TextMessage>();
+         ArrayList<TextMessage> consumedMessages = new ArrayList<>();
 
          MessageConsumer messageConsumer = session.createConsumer(destination);
 
@@ -226,7 +223,7 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
       try {
 
          ResultSet result = statement.executeQuery();
-         ArrayList<Long> dbSeq = new ArrayList<Long>();
+         ArrayList<Long> dbSeq = new ArrayList<>();
 
          while (result.next()) {
             dbSeq.add(result.getLong(1));

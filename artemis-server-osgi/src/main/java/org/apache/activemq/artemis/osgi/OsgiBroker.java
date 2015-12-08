@@ -136,7 +136,7 @@ public class OsgiBroker {
 
 
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
-      ArrayList<String> protocols = new ArrayList<String>();
+      ArrayList<String> protocols = new ArrayList<>();
       for (TransportConfiguration acceptor : acceptors) {
          String protoName = acceptor.getName().toUpperCase();
          if (!"ARTEMIS".equals(protoName)) {
@@ -161,7 +161,7 @@ public class OsgiBroker {
     * we get more.
     */
    public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<ActiveMQComponent>();
+      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

@@ -62,7 +62,7 @@ public class NioQueueSubscriptionTest extends QueueSubscriptionTest {
       answer.getManagementContext().setCreateConnector(false);
       answer.setUseJmx(false);
       answer.setDeleteAllMessagesOnStartup(true);
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setQueue(">");
       entry.setOptimizedDispatch(true);

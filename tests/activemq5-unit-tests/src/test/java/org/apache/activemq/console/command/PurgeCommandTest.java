@@ -147,7 +147,6 @@ public class PurgeCommandTest extends TestCase {
       return ManagementFactory.getPlatformMBeanServer();
    }
 
-   @SuppressWarnings("unchecked")
    public void purgeAllMessages() throws IOException, Exception {
       List<ObjectInstance> queueList = JmxMBeansUtil.queryMBeans(createJmxConnection(), "type=Broker,brokerName=localbroker,destinationType=Queue,destinationName=*");
       for (ObjectInstance oi : queueList) {
@@ -199,7 +198,6 @@ public class PurgeCommandTest extends TestCase {
     *
     * @throws Exception
     */
-   @SuppressWarnings("unchecked")
    public void testQueueViewMbean() throws Exception {
 
       try {
@@ -237,7 +235,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_WITH_PROPERTY);
 
@@ -263,7 +261,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX);
 
@@ -314,7 +312,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX_SQL_AND);
 
@@ -352,7 +350,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add(MSG_SEL_COMPLEX_SQL_OR);
 
@@ -403,7 +401,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.setCommandContext(context);
          purgeCommand.setJmxUseLocal(true);
 
-         List<String> tokens = new ArrayList<String>();
+         List<String> tokens = new ArrayList<>();
          tokens.add("--msgsel");
          tokens.add("(XTestProperty LIKE '1:*') AND (JMSPriority>3)");
 

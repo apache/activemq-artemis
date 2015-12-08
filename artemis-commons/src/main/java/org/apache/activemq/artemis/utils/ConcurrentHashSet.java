@@ -33,7 +33,7 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements ConcurrentSe
    private static final Object dummy = new Object();
 
    public ConcurrentHashSet() {
-      theMap = new ConcurrentHashMap<E, Object>();
+      theMap = new ConcurrentHashMap<>();
    }
 
    @Override

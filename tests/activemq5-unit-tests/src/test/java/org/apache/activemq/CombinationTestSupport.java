@@ -67,7 +67,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(CombinationTestSupport.class);
 
-   private final HashMap<String, ComboOption> comboOptions = new HashMap<String, ComboOption>();
+   private final HashMap<String, ComboOption> comboOptions = new HashMap<>();
    private boolean combosEvaluated;
    private Map<String, Object> options;
    protected File basedir;
@@ -85,7 +85,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    static class ComboOption {
 
       final String attribute;
-      final LinkedHashSet<Object> values = new LinkedHashSet<Object>();
+      final LinkedHashSet<Object> values = new LinkedHashSet<>();
 
       public ComboOption(String attribute, Collection<Object> options) {
          this.attribute = attribute;
@@ -206,8 +206,8 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       }
 
       try {
-         ArrayList<HashMap<String, Object>> expandedOptions = new ArrayList<HashMap<String, Object>>();
-         expandCombinations(new ArrayList<ComboOption>(comboOptions.values()), expandedOptions);
+         ArrayList<HashMap<String, Object>> expandedOptions = new ArrayList<>();
+         expandCombinations(new ArrayList<>(comboOptions.values()), expandedOptions);
 
          if (expandedOptions.isEmpty()) {
             combosEvaluated = true;
@@ -215,7 +215,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
          }
          else {
 
-            ArrayList<CombinationTestSupport> result = new ArrayList<CombinationTestSupport>();
+            ArrayList<CombinationTestSupport> result = new ArrayList<>();
             // Run the test case for each possible combination
             for (Iterator<HashMap<String, Object>> iter = expandedOptions.iterator(); iter.hasNext(); ) {
                CombinationTestSupport combo = (CombinationTestSupport) TestSuite.createTest(getClass(), name);
@@ -240,14 +240,14 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       if (!optionsLeft.isEmpty()) {
          HashMap<String, Object> map;
          if (comboOptions.size() == optionsLeft.size()) {
-            map = new HashMap<String, Object>();
+            map = new HashMap<>();
             expandedCombos.add(map);
          }
          else {
             map = expandedCombos.get(expandedCombos.size() - 1);
          }
 
-         LinkedList<ComboOption> l = new LinkedList<ComboOption>(optionsLeft);
+         LinkedList<ComboOption> l = new LinkedList<>(optionsLeft);
          ComboOption comboOption = l.removeLast();
          int i = 0;
          if (comboOption.values.isEmpty() && !l.isEmpty()) {
@@ -257,7 +257,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             for (Iterator<Object> iter = comboOption.values.iterator(); iter.hasNext(); ) {
                Object value = iter.next();
                if (i != 0) {
-                  map = new HashMap<String, Object>(map);
+                  map = new HashMap<>(map);
                   expandedCombos.add(map);
                }
                map.put(comboOption.attribute, value);
@@ -271,7 +271,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    public static Test suite(Class<? extends CombinationTestSupport> clazz) {
       TestSuite suite = new TestSuite();
 
-      ArrayList<String> names = new ArrayList<String>();
+      ArrayList<String> names = new ArrayList<>();
       Method[] methods = clazz.getMethods();
       for (int i = 0; i < methods.length; i++) {
          String name = methods[i].getName();

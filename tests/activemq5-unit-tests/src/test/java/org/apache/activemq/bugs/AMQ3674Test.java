@@ -56,7 +56,7 @@ public class AMQ3674Test {
 
       consumerConnection.setClientID("subscriber1");
       Session consumerMQSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      TopicSubscriber activeConsumer = (TopicSubscriber) consumerMQSession.createDurableSubscriber(destination, "myTopic");
+      TopicSubscriber activeConsumer = consumerMQSession.createDurableSubscriber(destination, "myTopic");
       consumerConnection.start();
 
       Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);

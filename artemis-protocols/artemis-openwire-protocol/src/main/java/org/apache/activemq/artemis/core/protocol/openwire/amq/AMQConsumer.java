@@ -54,7 +54,7 @@ public class AMQConsumer implements BrowserListener {
 
    private final int prefetchSize;
    private AtomicInteger windowAvailable;
-   private final java.util.Queue<MessageInfo> deliveringRefs = new ConcurrentLinkedQueue<MessageInfo>();
+   private final java.util.Queue<MessageInfo> deliveringRefs = new ConcurrentLinkedQueue<>();
    private long messagePullSequence = 0;
    private MessagePullHandler messagePullHandler;
 

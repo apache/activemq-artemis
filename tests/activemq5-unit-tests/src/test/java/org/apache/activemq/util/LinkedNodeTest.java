@@ -31,8 +31,6 @@ public class LinkedNodeTest extends TestCase {
          this.v = v;
       }
 
-      ;
-
       @Override
       public String toString() {
          return "" + v;

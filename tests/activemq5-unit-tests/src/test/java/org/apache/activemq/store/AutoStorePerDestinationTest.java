@@ -31,7 +31,7 @@ public class AutoStorePerDestinationTest extends StorePerDestinationTest {
       if (deleteAllMessages) {
          multiKahaDBPersistenceAdapter.deleteAllMessages();
       }
-      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<>();
 
       FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
       template.setPersistenceAdapter(createStore(deleteAllMessages));

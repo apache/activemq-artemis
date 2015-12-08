@@ -56,7 +56,7 @@ public class NetworkReconnectTest extends TestCase {
    private ActiveMQConnectionFactory producerConnectionFactory;
    private ActiveMQConnectionFactory consumerConnectionFactory;
    private Destination destination;
-   private ArrayList<Connection> connections = new ArrayList<Connection>();
+   private ArrayList<Connection> connections = new ArrayList<>();
 
    public void xtestMultipleProducerBrokerRestarts() throws Exception {
       for (int i = 0; i < 10; i++) {

@@ -78,7 +78,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
 
       Sender[] senders = new Sender[numSenders];
 
-      List<ClientSessionFactory> factories = new ArrayList<ClientSessionFactory>();
+      List<ClientSessionFactory> factories = new ArrayList<>();
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -143,7 +143,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
    private void testPerf(boolean nio) throws Exception {
       Configuration config = createDefaultInVMConfig();
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
 
       params.put(TransportConstants.USE_NIO_PROP_NAME, nio);
 

@@ -341,7 +341,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
    public void tearDown() throws Exception {
       try {
          if (flowControlConnection != null) {
-            TcpTransport t = (TcpTransport) flowControlConnection.getTransport().narrow(TcpTransport.class);
+            TcpTransport t = flowControlConnection.getTransport().narrow(TcpTransport.class);
             try {
                flowControlConnection.getTransport().stop();
                flowControlConnection.close();

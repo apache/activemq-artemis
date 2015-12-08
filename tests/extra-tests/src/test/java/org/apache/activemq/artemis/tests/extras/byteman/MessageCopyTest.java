@@ -132,7 +132,7 @@ public class MessageCopyTest {
          }
       }
 
-      ArrayList<Thread> threads = new ArrayList<Thread>();
+      ArrayList<Thread> threads = new ArrayList<>();
 
       for (int i = 0; i < T1_number; i++) {
          T1 t = new T1();

@@ -117,7 +117,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
       jmsServer0.setRegistry(new JndiBindingRegistry(context0));
       jmsServer0.start();
 
-      params1 = new HashMap<String, Object>();
+      params1 = new HashMap<>();
       params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
       Configuration conf1 = createBasicConfig().setJournalDirectory(getJournalDir(1, false)).setBindingsDirectory(getBindingsDir(1, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
@@ -388,7 +388,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase {
 
          // Consume the messages
 
-         Set<String> msgs = new HashSet<String>();
+         Set<String> msgs = new HashSet<>();
 
          int count = 0;
 

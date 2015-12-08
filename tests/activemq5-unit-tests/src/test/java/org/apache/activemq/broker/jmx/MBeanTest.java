@@ -419,7 +419,7 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
       for (int i = 0; i < count; i++) {
          String body = "message:" + i;
 
-         Map<String, Object> headers = new HashMap<String, Object>();
+         Map<String, Object> headers = new HashMap<>();
          headers.put("JMSCorrelationID", "MyCorrId");
          headers.put("JMSDeliveryMode", Boolean.FALSE);
          headers.put("JMSXGroupID", "MyGroupID");

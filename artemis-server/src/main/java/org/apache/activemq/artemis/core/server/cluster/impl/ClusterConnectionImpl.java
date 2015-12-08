@@ -123,9 +123,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     * however we need the guard to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
-   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<String, MessageFlowRecord>();
+   private final Map<String, MessageFlowRecord> records = new ConcurrentHashMap<>();
 
-   private final Map<String, MessageFlowRecord> disconnectedRecords = new ConcurrentHashMap<String, MessageFlowRecord>();
+   private final Map<String, MessageFlowRecord> disconnectedRecords = new ConcurrentHashMap<>();
 
    private final ScheduledExecutorService scheduledExecutor;
 
@@ -147,7 +147,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final boolean allowDirectConnectionsOnly;
 
-   private final Set<TransportConfiguration> allowableConnections = new HashSet<TransportConfiguration>();
+   private final Set<TransportConfiguration> allowableConnections = new HashSet<>();
 
    private final ClusterManager manager;
 
@@ -547,7 +547,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public Map<String, String> getNodes() {
       synchronized (recordsGuard) {
-         Map<String, String> nodes = new HashMap<String, String>();
+         Map<String, String> nodes = new HashMap<>();
          for (Entry<String, MessageFlowRecord> entry : records.entrySet()) {
             RemotingConnection fwdConnection = entry.getValue().getBridge().getForwardingConnection();
             if (fwdConnection != null) {
@@ -828,7 +828,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private final Queue queue;
 
-      private final Map<SimpleString, RemoteQueueBinding> bindings = new HashMap<SimpleString, RemoteQueueBinding>();
+      private final Map<SimpleString, RemoteQueueBinding> bindings = new HashMap<>();
 
       private volatile boolean isClosed = false;
 
@@ -1122,7 +1122,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private synchronized void clearBindings() throws Exception {
          ActiveMQServerLogger.LOGGER.debug(ClusterConnectionImpl.this + " clearing bindings");
-         for (RemoteQueueBinding binding : new HashSet<RemoteQueueBinding>(bindings.values())) {
+         for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             removeBinding(binding.getClusterName());
          }
       }

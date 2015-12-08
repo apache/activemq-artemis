@@ -372,7 +372,7 @@ public class AMQ3274Test {
       org.apache.activemq.command.ActiveMQDestination dest;
 
       if (conn instanceof org.apache.activemq.ActiveMQConnection) {
-         dest = org.apache.activemq.command.ActiveMQDestination.createDestination(dest_name, (byte) org.apache.activemq.command.ActiveMQDestination.QUEUE_TYPE);
+         dest = org.apache.activemq.command.ActiveMQDestination.createDestination(dest_name, org.apache.activemq.command.ActiveMQDestination.QUEUE_TYPE);
          ((org.apache.activemq.ActiveMQConnection) conn).destroyDestination(dest);
       }
    }
@@ -381,7 +381,7 @@ public class AMQ3274Test {
       org.apache.activemq.command.ActiveMQDestination dest;
 
       if (conn instanceof org.apache.activemq.ActiveMQConnection) {
-         dest = org.apache.activemq.command.ActiveMQDestination.createDestination(dest_name, (byte) org.apache.activemq.command.ActiveMQDestination.TOPIC_TYPE);
+         dest = org.apache.activemq.command.ActiveMQDestination.createDestination(dest_name, org.apache.activemq.command.ActiveMQDestination.TOPIC_TYPE);
          ((org.apache.activemq.ActiveMQConnection) conn).destroyDestination(dest);
       }
    }
@@ -518,7 +518,7 @@ public class AMQ3274Test {
             excl_dest = ActiveMQDestination.createDestination(">", ActiveMQDestination.TOPIC_TYPE);
          }
 
-         excludes = new ArrayList<ActiveMQDestination>();
+         excludes = new ArrayList<>();
          excludes.add(excl_dest);
          nw_conn.setExcludedDestinations(excludes);
 

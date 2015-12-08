@@ -61,7 +61,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
    private Server server;
    private HouseKeeper houseKeeper;
 
-   static final Vector<Throwable> exceptions = new Vector<Throwable>();
+   static final Vector<Throwable> exceptions = new Vector<>();
 
    @Test
    public void testProcess() {
@@ -205,7 +205,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
 
       ClientType(String... messageTypes) {
          this.messageTypes = messageTypes;
-         messageTypeSet = new HashSet<String>(Arrays.asList(messageTypes));
+         messageTypeSet = new HashSet<>(Arrays.asList(messageTypes));
 
          StringBuilder sb = new StringBuilder("TYPE in (");
          for (int i = 0; i < messageTypes.length; i++) {
@@ -246,7 +246,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
 
       private int clientRover = 0;
 
-      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<Client>();
+      private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
 
       public ClientManager() {
          super("ClientManager");
@@ -338,7 +338,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
       private final ClientType clientType;
       private final String selector;
 
-      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<Message>();
+      private final ConcurrentLinkedQueue<Message> waitingList = new ConcurrentLinkedQueue<>();
 
       public Client(int id, ClientType clientType, Random lifetime, Random online, Random offline) throws JMSException {
          super("Client" + id);
@@ -538,7 +538,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
          setDaemon(true);
       }
 
-      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<String>();
+      public final CopyOnWriteArrayList<String> abandonedSubscriptions = new CopyOnWriteArrayList<>();
 
       @Override
       public void run() {
@@ -561,7 +561,7 @@ public class DurableSubProcessTest extends org.apache.activemq.TestSupport {
          LOG.info("Housekeeper sweeping.");
 
          int closed = 0;
-         ArrayList<String> sweeped = new ArrayList<String>();
+         ArrayList<String> sweeped = new ArrayList<>();
          try {
             for (String clientId : abandonedSubscriptions) {
                sweeped.add(clientId);

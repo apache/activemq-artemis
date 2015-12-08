@@ -63,7 +63,7 @@ public class JdbcDurableSubDupTest {
 
    final int TO_RECEIVE = 5000;
    BrokerService broker = null;
-   Vector<Throwable> exceptions = new Vector<Throwable>();
+   Vector<Throwable> exceptions = new Vector<>();
    final int MAX_MESSAGES = 100000;
    int[] dupChecker = new int[MAX_MESSAGES];
 
@@ -198,7 +198,6 @@ public class JdbcDurableSubDupTest {
          }
          catch (InterruptedException e) {
          }
-         ;
 
          try {
             TextMessage m = (TextMessage) message;

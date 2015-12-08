@@ -81,7 +81,7 @@ public class UnlimitedEnqueueTest {
       brokerService.getSystemUsage().getTempUsage().setLimit((numMessages * payLoadSize) + (1000 * payLoadSize));
 
       PolicyMap policyMap = new PolicyMap();
-      List<PolicyEntry> entries = new ArrayList<PolicyEntry>();
+      List<PolicyEntry> entries = new ArrayList<>();
       PolicyEntry policy = new PolicyEntry();
 
       // NB: ensure queue cursor limit is below the default 70% usage that the destination will use

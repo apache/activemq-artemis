@@ -65,7 +65,7 @@ public class ActiveMQAdmin implements Admin {
    public ActiveMQAdmin() {
       serverLifeCycleActive = Boolean.valueOf(System.getProperty(SERVER_LIVE_CYCLE_PROPERTY, "true"));
       try {
-         Hashtable<String, String> env = new Hashtable<String, String>();
+         Hashtable<String, String> env = new Hashtable<>();
          env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          env.put("java.naming.provider.url", "tcp://localhost:61616");
          context = new InitialContext(env);

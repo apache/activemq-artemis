@@ -75,7 +75,7 @@ public class SecurityJMXTest extends TestCase {
       MBeanServerConnection connection = connector.getMBeanServerConnection();
       ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," + "destinationType=Queue,destinationName=TEST.Q");
       QueueViewMBean queueMbean = MBeanServerInvocationHandler.newProxyInstance(connection, name, QueueViewMBean.class, true);
-      HashMap<String, String> headers = new HashMap<String, String>();
+      HashMap<String, String> headers = new HashMap<>();
       headers.put("timeToLive", Long.toString(2000));
       headers.put("JMSDeliveryMode", Integer.toString(DeliveryMode.PERSISTENT));
       queueMbean.sendTextMessage(headers, "test", "system", "manager");

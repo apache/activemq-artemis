@@ -337,7 +337,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                pg.open();
 
                List<PagedMessage> pgMessages = pg.read(storageManager);
-               Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<Long, AtomicInteger>();
+               Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<>();
 
                for (PagedMessage pgd : pgMessages) {
                   if (pgd.getTransactionID() <= 0) {
@@ -405,7 +405,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
    private Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> generateMapsOnPendingCount(Map<Long, Queue> queues,
                                                                                                       List<PageCountPending> pendingNonTXPageCounter,
                                                                                                       Transaction txRecoverCounter) throws Exception {
-      Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> perAddressMap = new HashMap<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>>();
+      Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> perAddressMap = new HashMap<>();
       for (PageCountPending pgCount : pendingNonTXPageCounter) {
          long queueID = pgCount.getQueueID();
          long pageID = pgCount.getPageID();
@@ -441,7 +441,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
          List<PageCountPending> pendingCounters = perQueueMap.get(queueID);
 
          if (pendingCounters == null) {
-            pendingCounters = new LinkedList<PageCountPending>();
+            pendingCounters = new LinkedList<>();
             perQueueMap.put(queueID, pendingCounters);
          }
 

@@ -50,7 +50,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
    private final String name;
 
-   private final List<TransportConfiguration> connectors = new ArrayList<TransportConfiguration>();
+   private final List<TransportConfiguration> connectors = new ArrayList<>();
 
    private boolean started;
 

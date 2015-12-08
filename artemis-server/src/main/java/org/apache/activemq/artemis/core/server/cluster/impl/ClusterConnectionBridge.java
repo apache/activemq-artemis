@@ -156,7 +156,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
       // TODO - we can optimise this
 
-      Set<SimpleString> propNames = new HashSet<SimpleString>(messageCopy.getPropertyNames());
+      Set<SimpleString> propNames = new HashSet<>(messageCopy.getPropertyNames());
 
       byte[] queueIds = message.getBytesProperty(idsHeaderName);
 
@@ -289,8 +289,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    public static String buildSelectorFromArray(String[] list) {
-      List<String> includes = new ArrayList<String>();
-      List<String> excludes = new ArrayList<String>();
+      List<String> includes = new ArrayList<>();
+      List<String> excludes = new ArrayList<>();
 
       // Split the list into addresses to match and addresses to exclude.
       for (int i = 0; i < list.length; i++) {

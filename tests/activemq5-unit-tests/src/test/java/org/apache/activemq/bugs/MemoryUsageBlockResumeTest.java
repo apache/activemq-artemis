@@ -44,8 +44,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
-
 @RunWith(BlockJUnit4ClassRunner.class)
 public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.UncaughtExceptionHandler {
 
@@ -65,7 +63,7 @@ public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.Un
    Destination bigDestination = new ActiveMQQueue("FooTwoBig");
 
    private String connectionUri;
-   private final Vector<Throwable> exceptions = new Vector<Throwable>();
+   private final Vector<Throwable> exceptions = new Vector<>();
 
    @Test(timeout = 60 * 1000)
    public void testBlockByOtherResumeNoException() throws Exception {

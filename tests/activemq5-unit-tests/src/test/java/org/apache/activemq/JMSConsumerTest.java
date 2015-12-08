@@ -168,7 +168,6 @@ public class JMSConsumerTest extends JmsTestSupport {
             }
          }
       }
-      ;
 
       final ExecutorService executor = Executors.newCachedThreadPool();
       consumer.setMessageListener(new MessageListener() {

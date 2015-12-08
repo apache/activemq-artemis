@@ -277,7 +277,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList interceptorNodes = e.getElementsByTagName("remoting-interceptors");
 
-      ArrayList<String> incomingInterceptorList = new ArrayList<String>();
+      ArrayList<String> incomingInterceptorList = new ArrayList<>();
 
       if (interceptorNodes.getLength() > 0) {
          NodeList interceptors = interceptorNodes.item(0).getChildNodes();
@@ -309,7 +309,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList outgoingInterceptorNodes = e.getElementsByTagName("remoting-outgoing-interceptors");
 
-      ArrayList<String> outgoingInterceptorList = new ArrayList<String>();
+      ArrayList<String> outgoingInterceptorList = new ArrayList<>();
 
       if (outgoingInterceptorNodes.getLength() > 0) {
          NodeList interceptors = outgoingInterceptorNodes.item(0).getChildNodes();
@@ -504,7 +504,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
-      ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<ConnectorServiceConfiguration>();
+      ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
 
       for (int i = 0; i < connectorServiceConfigs.getLength(); i++) {
          Element node = (Element) connectorServiceConfigs.item(i);
@@ -594,18 +594,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    protected Pair<String, Set<Role>> parseSecurityRoles(final Node node) {
       final String match = node.getAttributes().getNamedItem("match").getNodeValue();
 
-      HashSet<Role> securityRoles = new HashSet<Role>();
+      HashSet<Role> securityRoles = new HashSet<>();
 
       Pair<String, Set<Role>> securityMatch = new Pair<String, Set<Role>>(match, securityRoles);
 
-      ArrayList<String> send = new ArrayList<String>();
-      ArrayList<String> consume = new ArrayList<String>();
-      ArrayList<String> createDurableQueue = new ArrayList<String>();
-      ArrayList<String> deleteDurableQueue = new ArrayList<String>();
-      ArrayList<String> createNonDurableQueue = new ArrayList<String>();
-      ArrayList<String> deleteNonDurableQueue = new ArrayList<String>();
-      ArrayList<String> manageRoles = new ArrayList<String>();
-      ArrayList<String> allRoles = new ArrayList<String>();
+      ArrayList<String> send = new ArrayList<>();
+      ArrayList<String> consume = new ArrayList<>();
+      ArrayList<String> createDurableQueue = new ArrayList<>();
+      ArrayList<String> deleteDurableQueue = new ArrayList<>();
+      ArrayList<String> createNonDurableQueue = new ArrayList<>();
+      ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
+      ArrayList<String> manageRoles = new ArrayList<>();
+      ArrayList<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
          Node child = children.item(i);
@@ -681,7 +681,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       });
 
-      return new Pair<SecuritySettingPlugin, Map<String, String>>(securitySettingPlugin, settings);
+      return new Pair<>(securitySettingPlugin, settings);
    }
 
    /**
@@ -695,7 +695,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       AddressSettings addressSettings = new AddressSettings();
 
-      Pair<String, AddressSettings> setting = new Pair<String, AddressSettings>(match, addressSettings);
+      Pair<String, AddressSettings> setting = new Pair<>(match, addressSettings);
 
       for (int i = 0; i < children.getLength(); i++) {
          final Node child = children.item(i);
@@ -1099,7 +1099,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseBroadcastGroupConfiguration(final Element e, final Configuration mainConfig) {
       String name = e.getAttribute("name");
 
-      List<String> connectorNames = new ArrayList<String>();
+      List<String> connectorNames = new ArrayList<>();
 
       NodeList children = e.getChildNodes();
 
@@ -1240,7 +1240,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String discoveryGroupName = null;
 
-      List<String> staticConnectorNames = new ArrayList<String>();
+      List<String> staticConnectorNames = new ArrayList<>();
 
       boolean allowDirectConnectionsOnly = false;
 
@@ -1342,7 +1342,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String filterString = null;
 
-      List<String> staticConnectorNames = new ArrayList<String>();
+      List<String> staticConnectorNames = new ArrayList<>();
 
       String discoveryGroupName = null;
 
@@ -1423,7 +1423,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       String clazz = getString(e, "factory-class", null, Validators.NOT_NULL_OR_EMPTY);
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
 
       NodeList paramsNodes = e.getElementsByTagName("param");
 

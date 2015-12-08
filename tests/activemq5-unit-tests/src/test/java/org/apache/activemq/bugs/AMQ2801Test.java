@@ -90,7 +90,7 @@ public class AMQ2801Test {
       memoryManager.getTempUsage().setLimit(3221225472L);
       broker.setSystemUsage(memoryManager);
 
-      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final List<PolicyEntry> policyEntries = new ArrayList<>();
       final PolicyEntry entry = new PolicyEntry();
       entry.setQueue(">");
       entry.setProducerFlowControl(false);

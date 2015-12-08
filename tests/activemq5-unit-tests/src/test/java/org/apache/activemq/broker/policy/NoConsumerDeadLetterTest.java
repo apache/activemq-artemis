@@ -25,7 +25,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.broker.BrokerService;
@@ -60,8 +59,8 @@ public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
 
    public void testConsumerReceivesMessages() throws Exception {
       this.topic = false;
-      ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) createConnectionFactory();
-      connection = (ActiveMQConnection) factory.createConnection();
+      ActiveMQConnectionFactory factory = createConnectionFactory();
+      connection = factory.createConnection();
       connection.start();
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -79,8 +78,8 @@ public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
 
       Thread.sleep(1000);
 
-      factory = (ActiveMQConnectionFactory) createConnectionFactory();
-      connection = (ActiveMQConnection) factory.createConnection();
+      factory = createConnectionFactory();
+      connection = factory.createConnection();
       connection.start();
 
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

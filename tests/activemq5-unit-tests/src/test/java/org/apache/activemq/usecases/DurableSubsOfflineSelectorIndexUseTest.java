@@ -45,7 +45,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
    public int messageCount = 400;
    private BrokerService broker;
    private ActiveMQTopic topic;
-   private List<Throwable> exceptions = new ArrayList<Throwable>();
+   private List<Throwable> exceptions = new ArrayList<>();
 
    @Override
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {

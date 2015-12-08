@@ -51,13 +51,13 @@ public class ScaleDownExample {
          server1 = ServerUtil.startServer(args[1], ScaleDownExample.class.getSimpleName() + "1", 1, 5000);
 
          // Step 1. Get an initial context for looking up JNDI for both servers
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
+         Hashtable<String, Object> properties = new Hashtable<>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          initialContext = new InitialContext(properties);
 
-         properties = new Hashtable<String, Object>();
+         properties = new Hashtable<>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          initialContext1 = new InitialContext(properties);

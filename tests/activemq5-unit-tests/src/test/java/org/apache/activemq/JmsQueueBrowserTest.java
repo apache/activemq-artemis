@@ -121,7 +121,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       for (int i = 0; i < 10; i++) {
          outbound[i] = session.createTextMessage(i + " Message");
       }
-      ;
 
       // lets consume any outstanding messages from previous test runs
       while (consumer.receive(1000) != null) {
@@ -178,7 +177,6 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       for (int i = 0; i < 10; i++) {
          outbound[i] = session.createTextMessage(i + " Message");
       }
-      ;
 
       // lets consume any outstanding messages from previous test runs
       while (consumer.receive(1000) != null) {
@@ -360,10 +358,9 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       }
 
       QueueBrowser browser = session2.createBrowser(destinationPrefetch1);
-      @SuppressWarnings("unchecked")
       Enumeration<Message> browserView = browser.getEnumeration();
 
-      List<Message> messages = new ArrayList<Message>();
+      List<Message> messages = new ArrayList<>();
       for (int i = 0; i < numMessages; i++) {
          Message m1 = consumer.receive(5000);
          assertNotNull("m1 is null for index: " + i, m1);

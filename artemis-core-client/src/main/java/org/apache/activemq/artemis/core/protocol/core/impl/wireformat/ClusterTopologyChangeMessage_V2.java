@@ -126,7 +126,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
          else {
             b = null;
          }
-         pair = new Pair<TransportConfiguration, TransportConfiguration>(a, b);
+         pair = new Pair<>(a, b);
          last = buffer.readBoolean();
       }
       if (buffer.readableBytes() > 0) {

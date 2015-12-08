@@ -105,7 +105,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       waitForDistribution(ADDRESS, backupServers.get(0).getServer(), 100);
       waitForDistribution(ADDRESS, backupServers.get(1).getServer(), 100);
 
-      List<TestableServer> toCrash = new ArrayList<TestableServer>();
+      List<TestableServer> toCrash = new ArrayList<>();
       for (TestableServer backupServer : backupServers) {
          if (!backupServer.getServer().getHAPolicy().isBackup()) {
             toCrash.add(backupServer);

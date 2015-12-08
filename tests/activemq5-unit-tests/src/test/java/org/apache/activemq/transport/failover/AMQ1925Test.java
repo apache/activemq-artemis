@@ -154,7 +154,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
          }
       }).start();
 
-      Collection<Integer> results = new ArrayList<Integer>(MESSAGE_COUNT);
+      Collection<Integer> results = new ArrayList<>(MESSAGE_COUNT);
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          Message message1 = consumer1.receive(20);
          Message message2 = consumer2.receive(20);

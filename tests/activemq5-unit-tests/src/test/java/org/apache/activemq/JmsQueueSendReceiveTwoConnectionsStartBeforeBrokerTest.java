@@ -30,7 +30,7 @@ public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQ
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest.class);
 
-   private Queue<Exception> errors = new ConcurrentLinkedQueue<Exception>();
+   private Queue<Exception> errors = new ConcurrentLinkedQueue<>();
    private int delayBeforeStartingBroker = 1000;
    private BrokerService broker;
 

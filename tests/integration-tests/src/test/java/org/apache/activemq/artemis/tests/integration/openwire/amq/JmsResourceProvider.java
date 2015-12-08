@@ -106,10 +106,10 @@ public class JmsResourceProvider {
     */
    public Destination createDestination(Session session, JmsTransactionTestSupport support) throws JMSException {
       if (isTopic) {
-         return (Destination) support.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
+         return support.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
       else {
-         return (Destination) support.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+         return support.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
    }
 

@@ -46,7 +46,7 @@ public class TwoBrokerQueueSendReceiveTest extends TwoBrokerTopicSendReceiveTest
       waitForMessagesToBeDelivered();
       assertEquals("Got all messages", data.length, messages.size());
 
-      BrokerService broker = (BrokerService) brokers.get("receiver");
+      BrokerService broker = brokers.get("receiver");
       final DemandForwardingBridgeSupport bridge = (DemandForwardingBridgeSupport) broker.getNetworkConnectors().get(0).activeBridges().toArray()[0];
       assertTrue("No extra, size:" + bridge.getLocalSubscriptionMap().size(), Wait.waitFor(new Wait.Condition() {
          @Override

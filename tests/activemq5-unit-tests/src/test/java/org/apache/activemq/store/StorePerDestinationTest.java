@@ -53,7 +53,7 @@ public class StorePerDestinationTest {
    static final Logger LOG = LoggerFactory.getLogger(StorePerDestinationTest.class);
    final static int maxFileLength = 1024 * 100;
    final static int numToSend = 5000;
-   final Vector<Throwable> exceptions = new Vector<Throwable>();
+   final Vector<Throwable> exceptions = new Vector<>();
    BrokerService brokerService;
 
    protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
@@ -85,7 +85,7 @@ public class StorePerDestinationTest {
       if (deleteAllMessages) {
          multiKahaDBPersistenceAdapter.deleteAllMessages();
       }
-      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<>();
 
       FilteredKahaDBPersistenceAdapter theRest = new FilteredKahaDBPersistenceAdapter();
       theRest.setPersistenceAdapter(createStore(deleteAllMessages));
@@ -181,7 +181,7 @@ public class StorePerDestinationTest {
    @Test
    public void testDirectoryDefault() throws Exception {
       MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<>();
 
       FilteredKahaDBPersistenceAdapter otherFilteredKahaDBPersistenceAdapter = new FilteredKahaDBPersistenceAdapter();
       PersistenceAdapter otherStore = createStore(false);

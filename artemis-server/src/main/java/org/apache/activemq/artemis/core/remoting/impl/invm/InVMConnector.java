@@ -41,7 +41,7 @@ public class InVMConnector extends AbstractConnector {
    public static final Map<String, Object> DEFAULT_CONFIG;
 
    static {
-      Map<String, Object> config = new HashMap<String, Object>();
+      Map<String, Object> config = new HashMap<>();
       config.put(TransportConstants.SERVER_ID_PROP_NAME, TransportConstants.DEFAULT_SERVER_ID);
       DEFAULT_CONFIG = Collections.unmodifiableMap(config);
    }
@@ -76,7 +76,7 @@ public class InVMConnector extends AbstractConnector {
 
    private final InVMAcceptor acceptor;
 
-   private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<String, Connection>();
+   private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
    private volatile boolean started;
 

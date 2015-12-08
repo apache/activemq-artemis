@@ -71,11 +71,11 @@ public class RepositoryTest extends ActiveMQTestBase {
    @Test
    public void testSingletwo() {
       securityRepository.addMatch("queues.another.aq.*", new HashSet<Role>());
-      HashSet<Role> roles = new HashSet<Role>(2);
+      HashSet<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true));
       roles.add(new Role("test2", true, true, true, true, true, true, true));
       securityRepository.addMatch("queues.aq", roles);
-      HashSet<Role> roles2 = new HashSet<Role>(2);
+      HashSet<Role> roles2 = new HashSet<>(2);
       roles2.add(new Role("test1", true, true, true, true, true, true, true));
       roles2.add(new Role("test2", true, true, true, true, true, true, true));
       roles2.add(new Role("test3", true, true, true, true, true, true, true));
@@ -88,7 +88,7 @@ public class RepositoryTest extends ActiveMQTestBase {
    @Test
    public void testWithoutWildcard() {
       securityRepository.addMatch("queues.1.*", new HashSet<Role>());
-      HashSet<Role> roles = new HashSet<Role>(2);
+      HashSet<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true));
       roles.add(new Role("test2", true, true, true, true, true, true, true));
       securityRepository.addMatch("queues.2.aq", roles);
@@ -98,7 +98,7 @@ public class RepositoryTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleWildcards() {
-      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
+      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<>();
       repository.addMatch("#", "#");
       repository.addMatch("a", "a");
       repository.addMatch("a.#", "a.#");
@@ -142,7 +142,7 @@ public class RepositoryTest extends ActiveMQTestBase {
 
    @Test
    public void testRepositoryMerge() {
-      HierarchicalRepository<DummyMergeable> repository = new HierarchicalObjectRepository<DummyMergeable>();
+      HierarchicalRepository<DummyMergeable> repository = new HierarchicalObjectRepository<>();
       repository.addMatch("#", new DummyMergeable(1));
       repository.addMatch("a.#", new DummyMergeable(2));
       repository.addMatch("b.#", new DummyMergeable(3));
@@ -172,7 +172,7 @@ public class RepositoryTest extends ActiveMQTestBase {
 
    @Test
    public void testAddListener() {
-      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
+      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<>();
       repository.addMatch("#", "1");
       repository.addMatch("B", "2");
 
@@ -213,7 +213,7 @@ public class RepositoryTest extends ActiveMQTestBase {
 
    @Test
    public void testIllegalMatches() {
-      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
+      HierarchicalRepository<String> repository = new HierarchicalObjectRepository<>();
       try {
          repository.addMatch("hjhjhjhjh.#.hhh", "test");
          fail("expected exception");
@@ -234,13 +234,13 @@ public class RepositoryTest extends ActiveMQTestBase {
 
       static int timesMerged = 0;
 
-      static ArrayList<Integer> merged = new ArrayList<Integer>();
+      static ArrayList<Integer> merged = new ArrayList<>();
 
       private final Integer id;
 
       static void reset() {
          DummyMergeable.timesMerged = 0;
-         DummyMergeable.merged = new ArrayList<Integer>();
+         DummyMergeable.merged = new ArrayList<>();
       }
 
       static boolean contains(final Integer i) {

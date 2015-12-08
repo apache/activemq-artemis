@@ -88,7 +88,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       CoreQueueConfiguration qc3 = new CoreQueueConfiguration().setAddress(inOutQueue2).setName(inOutQueue2);
 
       //incoming
-      HashMap<String, Object> config1 = new HashMap<String, Object>();
+      HashMap<String, Object> config1 = new HashMap<>();
       config1.put(VertxConstants.HOST, host);
       config1.put(VertxConstants.PORT, port);
       config1.put(VertxConstants.QUEUE_NAME, incomingQueue1);
@@ -97,7 +97,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       ConnectorServiceConfiguration inconf1 = new ConnectorServiceConfiguration().setFactoryClassName(VertxIncomingConnectorServiceFactory.class.getName()).setParams(config1).setName("test-vertx-incoming-connector1");
 
       //outgoing send style
-      HashMap<String, Object> config2 = new HashMap<String, Object>();
+      HashMap<String, Object> config2 = new HashMap<>();
       config2.put(VertxConstants.HOST, host);
       config2.put(VertxConstants.PORT, port);
       config2.put(VertxConstants.QUEUE_NAME, inOutQueue1);
@@ -105,7 +105,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
 
       ConnectorServiceConfiguration inconf2 = new ConnectorServiceConfiguration().setFactoryClassName(VertxIncomingConnectorServiceFactory.class.getName()).setParams(config2).setName("test-vertx-incoming-connector2");
 
-      HashMap<String, Object> config3 = new HashMap<String, Object>();
+      HashMap<String, Object> config3 = new HashMap<>();
       config3.put(VertxConstants.HOST, host);
       config3.put(VertxConstants.PORT, port);
       config3.put(VertxConstants.QUEUE_NAME, inOutQueue1);
@@ -114,7 +114,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       ConnectorServiceConfiguration outconf1 = new ConnectorServiceConfiguration().setFactoryClassName(VertxOutgoingConnectorServiceFactory.class.getName()).setParams(config3).setName("test-vertx-outgoing-connector1");
 
       //outgoing publish style
-      HashMap<String, Object> config4 = new HashMap<String, Object>();
+      HashMap<String, Object> config4 = new HashMap<>();
       config4.put(VertxConstants.HOST, host);
       config4.put(VertxConstants.PORT, port);
       config4.put(VertxConstants.QUEUE_NAME, inOutQueue2);
@@ -122,7 +122,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
 
       ConnectorServiceConfiguration inconf3 = new ConnectorServiceConfiguration().setFactoryClassName(VertxIncomingConnectorServiceFactory.class.getName()).setParams(config4).setName("test-vertx-incoming-connector3");
 
-      HashMap<String, Object> config5 = new HashMap<String, Object>();
+      HashMap<String, Object> config5 = new HashMap<>();
       config5.put(VertxConstants.HOST, host);
       config5.put(VertxConstants.PORT, port);
       config5.put(VertxConstants.QUEUE_NAME, inOutQueue2);

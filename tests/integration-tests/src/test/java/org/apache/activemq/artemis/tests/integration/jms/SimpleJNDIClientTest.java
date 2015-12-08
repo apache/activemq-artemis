@@ -393,9 +393,9 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
    private void startServer() throws Exception {
       liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(liveTC.getName(), liveTC);
-      List<String> connectorNames = new ArrayList<String>();
+      List<String> connectorNames = new ArrayList<>();
       connectorNames.add(liveTC.getName());
 
       Map params = new HashMap();
@@ -411,7 +411,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration().setName(bcGroupName).setBroadcastPeriod(broadcastPeriod).setConnectorInfos(connectorNames).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort).setLocalBindPort(localBindPort));
 
-      List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
+      List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<>();
       bcConfigs1.add(bcConfig1);
       liveConf.setBroadcastGroupConfigurations(bcConfigs1);
 

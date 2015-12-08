@@ -22,9 +22,8 @@ import javax.naming.Context;
 
 public class ActiveMQWASInitialContextFactoryTest extends JNDITestSupport {
 
-   @SuppressWarnings("unchecked")
    public void testTransformEnvironment() {
-      Hashtable<Object, Object> originalEnvironment = new Hashtable<Object, Object>();
+      Hashtable<Object, Object> originalEnvironment = new Hashtable<>();
       originalEnvironment.put("java.naming.connectionFactoryNames", "ConnectionFactory");
       originalEnvironment.put("java.naming.topic.jms.systemMessageTopic", "jms/systemMessageTopic");
       originalEnvironment.put(Context.PROVIDER_URL, "tcp://localhost:61616;tcp://localhost:61617");

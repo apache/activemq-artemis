@@ -530,8 +530,8 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          conn.start();
 
-         final List<Message> received = new ArrayList<Message>();
-         final List<Message> received2 = new ArrayList<Message>();
+         final List<Message> received = new ArrayList<>();
+         final List<Message> received2 = new ArrayList<>();
          final CountDownLatch latch = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 

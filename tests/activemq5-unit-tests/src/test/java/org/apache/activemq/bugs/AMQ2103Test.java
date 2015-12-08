@@ -25,7 +25,6 @@ import javax.jms.Session;
 import junit.framework.Test;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.broker.BrokerTestSupport;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -75,7 +74,7 @@ public class AMQ2103Test extends BrokerTestSupport {
       factory.setCopyMessageOnSend(false);
 
       Connection connection = factory.createConnection();
-      Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = new ActiveMQQueue("testQ");
       MessageConsumer consumer = session.createConsumer(destination);
       connection.start();

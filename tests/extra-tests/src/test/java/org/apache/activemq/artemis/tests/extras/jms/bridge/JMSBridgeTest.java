@@ -717,7 +717,7 @@ public class JMSBridgeTest extends BridgeTestBase {
       Connection connTarget = null;
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> prop = new HashMap<String, String>();
+      Map<String, String> prop = new HashMap<>();
       prop.put("key", "bridgekey");
       codec.init(prop);
 
@@ -942,7 +942,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          JMSBridgeTest.log.trace("Sending " + NUM_MESSAGES + " messages");
 
-         List<String> ids1 = new ArrayList<String>();
+         List<String> ids1 = new ArrayList<>();
 
          Session sessSource = connSource.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -983,7 +983,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
          connTarget.start();
 
-         List<TextMessage> msgs = new ArrayList<TextMessage>();
+         List<TextMessage> msgs = new ArrayList<>();
 
          for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(5000);
@@ -1021,7 +1021,7 @@ public class JMSBridgeTest extends BridgeTestBase {
 
             Iterator<TextMessage> iter = msgs.iterator();
 
-            List<String> ids2 = new ArrayList<String>();
+            List<String> ids2 = new ArrayList<>();
 
             while (iter.hasNext()) {
                Message msg = iter.next();

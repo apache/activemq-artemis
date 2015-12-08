@@ -124,7 +124,7 @@ public class MessageUtil {
 
    public static void clearProperties(Message message) {
 
-      List<SimpleString> toRemove = new ArrayList<SimpleString>();
+      List<SimpleString> toRemove = new ArrayList<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
          if (!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
@@ -139,7 +139,7 @@ public class MessageUtil {
    }
 
    public static Set<String> getPropertyNames(Message message) {
-      HashSet<String> set = new HashSet<String>();
+      HashSet<String> set = new HashSet<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
          if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) ||

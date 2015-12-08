@@ -276,7 +276,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       ProxyAssertSupport.assertFalse(m2.propertyExists("sausages"));
 
-      Set<String> propNames = new HashSet<String>();
+      Set<String> propNames = new HashSet<>();
       Enumeration en = m2.getPropertyNames();
       while (en.hasMoreElements()) {
          String propName = (String) en.nextElement();

@@ -63,7 +63,7 @@ public class PriorityNetworkDispatchPolicyTest {
    @Test
    public void testRemoveLowerPriorityDup() throws Exception {
 
-      List<Subscription> consumers = new ArrayList<Subscription>();
+      List<Subscription> consumers = new ArrayList<>();
 
       for (int i = 0; i < 3; i++) {
          ConsumerInfo instance = info.copy();

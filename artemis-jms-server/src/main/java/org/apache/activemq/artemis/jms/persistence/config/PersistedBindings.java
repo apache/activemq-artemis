@@ -36,7 +36,7 @@ public class PersistedBindings implements EncodingSupport {
 
    private String name;
 
-   private ArrayList<String> bindings = new ArrayList<String>();
+   private ArrayList<String> bindings = new ArrayList<>();
 
    // Static --------------------------------------------------------
 
@@ -61,7 +61,7 @@ public class PersistedBindings implements EncodingSupport {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();
       int bindingArraySize = buffer.readInt();
-      bindings = new ArrayList<String>(bindingArraySize);
+      bindings = new ArrayList<>(bindingArraySize);
 
       for (int i = 0; i < bindingArraySize; i++) {
          bindings.add(buffer.readSimpleString().toString());

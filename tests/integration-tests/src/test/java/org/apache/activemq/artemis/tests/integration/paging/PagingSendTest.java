@@ -284,7 +284,7 @@ public class PagingSendTest extends ActiveMQTestBase {
    public List<String> sendMessageBatch(int batchSize,
                                         ClientSession session,
                                         SimpleString queueAddr) throws ActiveMQException {
-      List<String> messageIds = new ArrayList<String>();
+      List<String> messageIds = new ArrayList<>();
       ClientProducer producer = session.createProducer(queueAddr);
       for (int i = 0; i < batchSize; i++) {
          Message message = session.createMessage(true);
@@ -308,7 +308,7 @@ public class PagingSendTest extends ActiveMQTestBase {
    public void checkBatchMessagesAreNotPagedTwice(Queue queue) throws Exception {
       LinkedListIterator<MessageReference> pageIterator = queue.totalIterator();
 
-      Set<String> messageOrderSet = new HashSet<String>();
+      Set<String> messageOrderSet = new HashSet<>();
 
       int duplicates = 0;
       while (pageIterator.hasNext()) {

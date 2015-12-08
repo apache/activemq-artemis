@@ -149,7 +149,7 @@ public class QueueDuplicatesTest extends TestCase {
 
    private static class SimpleConsumer implements MessageListener {
 
-      private Map<String, Message> msgs = new HashMap<String, Message>();
+      private Map<String, Message> msgs = new HashMap<>();
 
       @Override
       public void onMessage(Message message) {

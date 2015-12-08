@@ -263,7 +263,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       private long expiration;
       private int priority;
       private String text;
-      private final HashMap<String, Object> props = new HashMap<String, Object>();
+      private final HashMap<String, Object> props = new HashMap<>();
 
       @Override
       public String getJMSMessageID() throws JMSException {
@@ -430,7 +430,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
 
       @Override
       public Enumeration<?> getPropertyNames() throws JMSException {
-         return new Vector<String>(props.keySet()).elements();
+         return new Vector<>(props.keySet()).elements();
       }
 
       @Override

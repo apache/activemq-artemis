@@ -25,7 +25,7 @@ public class PairTest extends Assert {
 
    @Test
    public void testPair() {
-      Pair<Integer, Integer> p = new Pair<Integer, Integer>(Integer.valueOf(12), Integer.valueOf(13));
+      Pair<Integer, Integer> p = new Pair<>(Integer.valueOf(12), Integer.valueOf(13));
       int hash = p.hashCode();
       p.setA(null);
       assertTrue(hash != p.hashCode());

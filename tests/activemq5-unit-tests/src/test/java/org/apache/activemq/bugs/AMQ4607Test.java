@@ -52,7 +52,7 @@ public class AMQ4607Test extends JmsMultipleBrokersTestSupport implements Uncaug
 
    public boolean duplex = true;
    protected Map<String, MessageConsumer> consumerMap;
-   final Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
+   final Map<Thread, Throwable> unhandeledExceptions = new HashMap<>();
 
    private void assertNoUnhandeledExceptions() {
       for (Entry<Thread, Throwable> e : unhandeledExceptions.entrySet()) {
@@ -242,7 +242,7 @@ public class AMQ4607Test extends JmsMultipleBrokersTestSupport implements Uncaug
          createBroker(new URI("broker:(tcp://localhost:6161" + i + ")/Broker" + i + "?persistent=false&useJmx=true"));
       }
 
-      consumerMap = new LinkedHashMap<String, MessageConsumer>();
+      consumerMap = new LinkedHashMap<>();
    }
 
    @Override

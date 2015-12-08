@@ -32,7 +32,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.JmsTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -60,8 +59,8 @@ public class MessageGroupLateArrivalsTest {
    BrokerService broker;
    protected TransportConnector connector;
 
-   protected HashMap<String, Integer> messageCount = new HashMap<String, Integer>();
-   protected HashMap<String, Set<String>> messageGroups = new HashMap<String, Set<String>>();
+   protected HashMap<String, Integer> messageCount = new HashMap<>();
+   protected HashMap<String, Set<String>> messageGroups = new HashMap<>();
 
    @Before
    public void setUp() throws Exception {
@@ -149,7 +148,7 @@ public class MessageGroupLateArrivalsTest {
 
       doneSignal.await();
 
-      List<String> workers = new ArrayList<String>(messageCount.keySet());
+      List<String> workers = new ArrayList<>(messageCount.keySet());
       Collections.sort(workers);
       for (String worker : workers) {
          log.info("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker));

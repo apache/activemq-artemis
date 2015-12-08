@@ -185,7 +185,7 @@ public final class JMSBridgeImpl implements JMSBridge {
     * Constructor for MBean
     */
    public JMSBridgeImpl() {
-      messages = new LinkedList<Message>();
+      messages = new LinkedList<>();
       executor = createExecutor();
    }
 
@@ -1554,7 +1554,6 @@ public final class JMSBridgeImpl implements JMSBridge {
     * don't lose them!!
     */
    private static void copyProperties(final Message msg) throws JMSException {
-      @SuppressWarnings("unchecked")
       Enumeration<String> en = msg.getPropertyNames();
 
       Map<String, Object> oldProps = null;
@@ -1563,7 +1562,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          String propName = en.nextElement();
 
          if (oldProps == null) {
-            oldProps = new HashMap<String, Object>();
+            oldProps = new HashMap<>();
          }
 
          oldProps.put(propName, msg.getObjectProperty(propName));

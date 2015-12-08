@@ -178,7 +178,7 @@ public class JmsTempDestinationTest extends TestCase {
       int count = 500;
       int dataSize = 1024;
 
-      ArrayList<BytesMessage> list = new ArrayList<BytesMessage>(count);
+      ArrayList<BytesMessage> list = new ArrayList<>(count);
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createTemporaryQueue();
       MessageProducer producer = session.createProducer(queue);

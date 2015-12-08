@@ -87,15 +87,15 @@ public class BridgeReconnectTest extends BridgeTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      server0Params = new HashMap<String, Object>();
-      server1Params = new HashMap<String, Object>();
-      server2Params = new HashMap<String, Object>();
-      connectors = new HashMap<String, TransportConfiguration>();
+      server0Params = new HashMap<>();
+      server1Params = new HashMap<>();
+      server2Params = new HashMap<>();
+      connectors = new HashMap<>();
 
       server1 = createActiveMQServer(1, isNetty(), server1Params);
       server1tc = new TransportConfiguration(getConnector(), server1Params, "server1tc");
       connectors.put(server1tc.getName(), server1tc);
-      staticConnectors = new ArrayList<String>();
+      staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
    }
 
@@ -136,18 +136,18 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
       bridgeConfiguration.setQueueName(queueName);
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
       server2.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server1.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server0.getConfiguration().setQueueConfigurations(queueConfigs1);
       server2.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -187,17 +187,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
       server2.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -268,17 +268,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
       server2.getConfiguration().setQueueConfigurations(queueConfigs1);
@@ -333,17 +333,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
@@ -421,17 +421,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName).setForwardingAddress(forwardAddress).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setReconnectAttempts(reconnectAttempts).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(confirmationWindowSize).setStaticConnectors(staticConnectors).setPassword(CLUSTER_PASSWORD);
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
       startServers();
@@ -526,17 +526,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
@@ -628,17 +628,17 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       BridgeConfiguration bridgeConfiguration = createBridgeConfig();
 
-      List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+      List<BridgeConfiguration> bridgeConfigs = new ArrayList<>();
       bridgeConfigs.add(bridgeConfiguration);
       server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
 
       CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration().setAddress(testAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<>();
       queueConfigs0.add(queueConfig0);
       server0.getConfiguration().setQueueConfigurations(queueConfigs0);
 
       CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration().setAddress(forwardAddress).setName(queueName);
-      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+      List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<>();
       queueConfigs1.add(queueConfig1);
       server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 

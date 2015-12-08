@@ -35,7 +35,7 @@ public class ActiveMQXAResourceWrapperImplTest {
       String nodeId = "0";
       XAResource xaResource = new MockXAResource();
 
-      Map<String, Object> xaResourceWrapperProperties = new HashMap<String, Object>();
+      Map<String, Object> xaResourceWrapperProperties = new HashMap<>();
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, jndiName);
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, nodeId);
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, "6");

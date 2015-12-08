@@ -112,7 +112,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
    }
 
    protected List<Artifact> explodeDependencies(Artifact artifact) throws DependencyCollectionException {
-      final List<Artifact> dependencies = new LinkedList<Artifact>();
+      final List<Artifact> dependencies = new LinkedList<>();
 
       CollectRequest exploreDependenciesRequest = new CollectRequest(new Dependency(artifact, "compile"), remoteRepos);
       CollectResult result = repositorySystem.collectDependencies(repoSession, exploreDependenciesRequest);

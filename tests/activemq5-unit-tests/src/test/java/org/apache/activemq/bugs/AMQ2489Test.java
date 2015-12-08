@@ -99,7 +99,7 @@ public class AMQ2489Test extends TestSupport {
       final TestExceptionListener exceptionListener = new TestExceptionListener();
       connection.setExceptionListener(exceptionListener);
       try {
-         consumers = new ArrayList<Consumer>();
+         consumers = new ArrayList<>();
          // start customers
          for (int i = 0; i < CONSUMERS_CNT; i++) {
             consumers.add(new Consumer(acknowledgmentMode));
@@ -209,7 +209,7 @@ public class AMQ2489Test extends TestSupport {
 
    public final class TestExceptionListener implements ExceptionListener {
 
-      private final java.util.Queue<Exception> exceptions = new ConcurrentLinkedQueue<Exception>();
+      private final java.util.Queue<Exception> exceptions = new ConcurrentLinkedQueue<>();
 
       @Override
       public void onException(JMSException e) {

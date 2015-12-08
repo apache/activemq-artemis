@@ -30,7 +30,7 @@ public class FileTopicPushStore extends FilePushStore implements TopicPushStore 
 
    @Override
    public synchronized List<PushTopicRegistration> getByTopic(String topic) {
-      List<PushTopicRegistration> list = new ArrayList<PushTopicRegistration>();
+      List<PushTopicRegistration> list = new ArrayList<>();
       for (PushRegistration reg : map.values()) {
          PushTopicRegistration topicReg = (PushTopicRegistration) reg;
          if (topicReg.getTopic().equals(topic)) {

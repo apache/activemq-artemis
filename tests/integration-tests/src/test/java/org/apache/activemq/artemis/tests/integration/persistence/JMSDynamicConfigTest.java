@@ -46,7 +46,7 @@ public class JMSDynamicConfigTest extends JMSTestBase {
 
    @Test
    public void testStart() throws Exception {
-      ArrayList<String> connectors = new ArrayList<String>();
+      ArrayList<String> connectors = new ArrayList<>();
 
       connectors.add("invm");
 

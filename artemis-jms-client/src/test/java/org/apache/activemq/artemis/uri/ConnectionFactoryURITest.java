@@ -57,7 +57,7 @@ public class ConnectionFactoryURITest {
 
    private static final String[] V6IPs = {"fe80::baf6:b1ff:fe12:daf7%eth0", "2620:db8:1:2::1%em1"};
 
-   private static Set<String> ignoreList = new HashSet<String>();
+   private static Set<String> ignoreList = new HashSet<>();
 
    static {
       ignoreList.add("protocolManagerFactoryStr");

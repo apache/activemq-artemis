@@ -55,7 +55,7 @@ public abstract class DurableSubscriptionOfflineTestBase {
    public boolean keepDurableSubsActive = true;
    protected BrokerService broker;
    protected ActiveMQTopic topic;
-   protected final List<Throwable> exceptions = new ArrayList<Throwable>();
+   protected final List<Throwable> exceptions = new ArrayList<>();
    protected ActiveMQConnectionFactory connectionFactory;
    protected boolean isTopic = true;
    public PersistenceAdapterChoice defaultPersistenceAdapter = PersistenceAdapterChoice.KahaDB;

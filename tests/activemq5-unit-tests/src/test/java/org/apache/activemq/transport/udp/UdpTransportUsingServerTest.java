@@ -23,7 +23,6 @@ import org.apache.activemq.command.Response;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFactory;
 import org.apache.activemq.transport.TransportServer;
-import org.apache.activemq.transport.tcp.WireformatNegociationTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

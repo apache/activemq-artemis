@@ -109,7 +109,7 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    private final Object replicationLock = new Object();
 
-   private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<OperationContext>();
+   private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<>();
 
    private final ExecutorFactory executorFactory;
 
@@ -302,7 +302,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     */
    public Set<OperationContext> getActiveTokens() {
 
-      LinkedHashSet<OperationContext> activeContexts = new LinkedHashSet<OperationContext>();
+      LinkedHashSet<OperationContext> activeContexts = new LinkedHashSet<>();
 
       // The same context will be replicated on the pending tokens...
       // as the multiple operations will be replicated on the same context
@@ -577,7 +577,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     */
    public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
       ArrayList<Long> idsToSend;
-      idsToSend = new ArrayList<Long>(largeMessages.keySet());
+      idsToSend = new ArrayList<>(largeMessages.keySet());
 
       if (enabled)
          sendReplicatePacket(new ReplicationStartSyncMessage(idsToSend));

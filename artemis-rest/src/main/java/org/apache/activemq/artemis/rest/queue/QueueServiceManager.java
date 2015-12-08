@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 public class QueueServiceManager extends DestinationServiceManager {
 
    protected PushStore pushStore;
-   protected List<QueueDeployment> queues = new ArrayList<QueueDeployment>();
+   protected List<QueueDeployment> queues = new ArrayList<>();
    protected QueueDestinationsResource destination;
 
    public List<QueueDeployment> getQueues() {

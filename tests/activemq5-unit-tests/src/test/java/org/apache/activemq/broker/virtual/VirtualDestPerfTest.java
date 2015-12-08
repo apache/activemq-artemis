@@ -49,9 +49,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 public class VirtualDestPerfTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(VirtualDestPerfTest.class);
@@ -71,7 +68,7 @@ public class VirtualDestPerfTest {
       messageCount = 22000;
       messageSize = 10 * 1024;
 
-      LinkedHashMap<Integer, Long> results = new LinkedHashMap<Integer, Long>();
+      LinkedHashMap<Integer, Long> results = new LinkedHashMap<>();
 
       final ActiveMQQueue queue = new ActiveMQQueue("targetQ");
       for (Integer numThreads : new Integer[]{1, 2}) {
@@ -117,8 +114,8 @@ public class VirtualDestPerfTest {
    @Test
    @Ignore("comparison test - takes too long and really needs a peek at the graph")
    public void testPerf() throws Exception {
-      LinkedHashMap<Integer, Long> resultsT = new LinkedHashMap<Integer, Long>();
-      LinkedHashMap<Integer, Long> resultsF = new LinkedHashMap<Integer, Long>();
+      LinkedHashMap<Integer, Long> resultsT = new LinkedHashMap<>();
+      LinkedHashMap<Integer, Long> resultsF = new LinkedHashMap<>();
 
       for (int i = 2; i < 11; i++) {
          for (Boolean concurrent : new Boolean[]{true, false}) {
@@ -180,7 +177,7 @@ public class VirtualDestPerfTest {
       route.setName("target");
       route.setForwardOnly(true);
       route.setConcurrentSend(concurrentSend);
-      Collection<ActiveMQQueue> routes = new ArrayList<ActiveMQQueue>();
+      Collection<ActiveMQQueue> routes = new ArrayList<>();
       for (int i = 0; i < fanoutCount; i++) {
          routes.add(new ActiveMQQueue("route." + i));
       }

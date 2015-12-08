@@ -727,7 +727,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(atestq);
 
-      ArrayList<Xid> xids = new ArrayList<Xid>();
+      ArrayList<Xid> xids = new ArrayList<>();
 
       session.start();
 

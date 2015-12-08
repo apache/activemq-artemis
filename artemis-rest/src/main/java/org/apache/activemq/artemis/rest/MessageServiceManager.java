@@ -136,7 +136,7 @@ public class MessageServiceManager {
       defaultSettings.setDuplicatesAllowed(configuration.isDupsOk());
       defaultSettings.setDurableSend(configuration.isDefaultDurableSend());
 
-      HashMap<String, Object> transportConfig = new HashMap<String, Object>();
+      HashMap<String, Object> transportConfig = new HashMap<>();
       transportConfig.put(TransportConstants.SERVER_ID_PROP_NAME, configuration.getInVmId());
 
       ServerLocator consumerLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));

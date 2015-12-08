@@ -71,7 +71,7 @@ public class AMQ3622Test {
       policy.setPendingSubscriberPolicy(new FilePendingSubscriberMessageStoragePolicy());
       policy.setSubscriptionRecoveryPolicy(new LastImageSubscriptionRecoveryPolicy());
       policy.setExpireMessagesPeriod(500);
-      List<PolicyEntry> entries = new ArrayList<PolicyEntry>();
+      List<PolicyEntry> entries = new ArrayList<>();
 
       entries.add(policy);
       PolicyMap pMap = new PolicyMap();

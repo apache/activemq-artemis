@@ -304,7 +304,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    private static class UpdatePageTXOperation extends TransactionOperationAbstract {
 
-      private final HashMap<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<PageTransactionInfo, AtomicInteger>();
+      private final HashMap<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<>();
 
       private boolean stored = false;
 

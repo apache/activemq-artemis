@@ -619,7 +619,7 @@ public class RequestReplyToTopicViaThreeNetworkHopsTest {
             excl_dest = ActiveMQDestination.createDestination(">", ActiveMQDestination.QUEUE_TYPE);
          }
 
-         excludes = new ArrayList<ActiveMQDestination>();
+         excludes = new ArrayList<>();
          excludes.add(excl_dest);
          nw_conn.setExcludedDestinations(excludes);
 

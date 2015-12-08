@@ -54,8 +54,8 @@ public class VMTransportThreadSafeTest {
    private final static String location1 = "vm://transport1";
    private final static String location2 = "vm://transport2";
 
-   private final ConcurrentLinkedQueue<DummyCommand> localReceived = new ConcurrentLinkedQueue<DummyCommand>();
-   private final ConcurrentLinkedQueue<DummyCommand> remoteReceived = new ConcurrentLinkedQueue<DummyCommand>();
+   private final ConcurrentLinkedQueue<DummyCommand> localReceived = new ConcurrentLinkedQueue<>();
+   private final ConcurrentLinkedQueue<DummyCommand> remoteReceived = new ConcurrentLinkedQueue<>();
 
    private class DummyCommand extends BaseCommand {
 

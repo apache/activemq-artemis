@@ -48,7 +48,7 @@ public class DurableSubscriptionOffline3Test extends DurableSubscriptionOfflineT
 
       PersistenceAdapterChoice[] kahaDb = {PersistenceAdapterChoice.KahaDB};
       PersistenceAdapterChoice[] jdbc = {PersistenceAdapterChoice.JDBC};
-      List<PersistenceAdapterChoice[]> choices = new ArrayList<PersistenceAdapterChoice[]>();
+      List<PersistenceAdapterChoice[]> choices = new ArrayList<>();
       choices.add(kahaDb);
       choices.add(jdbc);
       if (!osName.equalsIgnoreCase("AIX") && !osName.equalsIgnoreCase("SunOS")) {

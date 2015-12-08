@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 public class PropertiesLoader {
 
-   static Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<FileNameKey, ReloadableProperties>();
+   static Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;
 
    public void init(Map options) {

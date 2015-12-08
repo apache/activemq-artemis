@@ -47,10 +47,10 @@ public class JournalRecord {
 
    void addUpdateFile(final JournalFile updateFile, final int size) {
       if (updateFiles == null) {
-         updateFiles = new ArrayList<Pair<JournalFile, Integer>>();
+         updateFiles = new ArrayList<>();
       }
 
-      updateFiles.add(new Pair<JournalFile, Integer>(updateFile, size));
+      updateFiles.add(new Pair<>(updateFile, size));
 
       updateFile.incPosCount();
 

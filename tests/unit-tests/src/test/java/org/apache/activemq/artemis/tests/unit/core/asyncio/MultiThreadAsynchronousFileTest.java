@@ -109,7 +109,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
          CountDownLatch latchStart = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS + 1);
 
-         ArrayList<ThreadProducer> list = new ArrayList<ThreadProducer>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
+         ArrayList<ThreadProducer> list = new ArrayList<>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
          for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++) {
             ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, file, sync);
             list.add(producer);
@@ -197,7 +197,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
                latchFinishThread = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
             }
 
-            LinkedList<CountDownCallback> list = new LinkedList<CountDownCallback>();
+            LinkedList<CountDownCallback> list = new LinkedList<>();
 
             for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_LINES; i++) {
 

@@ -48,7 +48,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
 
    private final SimpleString name;
 
-   private final Map<SimpleString, Response> responses = new ConcurrentHashMap<SimpleString, Response>();
+   private final Map<SimpleString, Response> responses = new ConcurrentHashMap<>();
 
    private final Lock lock = new ReentrantLock();
 
@@ -58,7 +58,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
 
    private final long groupTimeout;
 
-   private final ConcurrentMap<SimpleString, List<SimpleString>> groupMap = new ConcurrentHashMap<SimpleString, List<SimpleString>>();
+   private final ConcurrentMap<SimpleString, List<SimpleString>> groupMap = new ConcurrentHashMap<>();
 
    private final ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet();
 
@@ -240,7 +240,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
       try {
          lock.lock();
          responses.put(response.getGroupId(), response);
-         List<SimpleString> newList = new ArrayList<SimpleString>();
+         List<SimpleString> newList = new ArrayList<>();
          List<SimpleString> oldList = groupMap.putIfAbsent(response.getChosenClusterName(), newList);
          if (oldList != null) {
             newList = oldList;

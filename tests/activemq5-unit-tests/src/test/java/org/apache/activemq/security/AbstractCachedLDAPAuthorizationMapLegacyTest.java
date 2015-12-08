@@ -373,7 +373,7 @@ public abstract class AbstractCachedLDAPAuthorizationMapLegacyTest extends Abstr
                                    String ldapPass,
                                    DirContext context) throws Exception {
       // Cleanup everything used for testing.
-      List<String> dns = new LinkedList<String>();
+      List<String> dns = new LinkedList<>();
       dns.add(deleteFromDn);
 
       while (!dns.isEmpty()) {

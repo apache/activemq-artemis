@@ -103,7 +103,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
       Role role = new Role("rejectAll", false, false, false, false, false, false, false);
-      Set<Role> roles = new HashSet<Role>();
+      Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
       Connection connection = cf.createConnection();
@@ -187,7 +187,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
       Role role = new Role("allowAll", true, true, true, true, true, true, true);
-      Set<Role> roles = new HashSet<Role>();
+      Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
    }

@@ -33,7 +33,7 @@ public final class RecoveryManager {
 
    private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;" + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
 
-   private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<XARecoveryConfig>();
+   private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<>();
 
    public void start(final boolean useAutoRecovery) {
       if (useAutoRecovery) {

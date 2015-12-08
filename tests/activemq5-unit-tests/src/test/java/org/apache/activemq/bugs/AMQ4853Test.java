@@ -89,7 +89,7 @@ public class AMQ4853Test {
    public void test() throws Exception {
 
       // Create a stable set of consumers to fill in the advisory broker's consumer list.
-      ArrayList<Consumer> fixedConsumers = new ArrayList<Consumer>(100);
+      ArrayList<Consumer> fixedConsumers = new ArrayList<>(100);
       for (int i = 0; i < 200; ++i) {
          fixedConsumers.add(new Consumer());
       }

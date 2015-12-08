@@ -265,7 +265,7 @@ public class VirtualTopicDLQTest extends TestCase {
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
             for (int i = 0; i < numberMessages; i++) {
-               TextMessage message = (TextMessage) session.createTextMessage("I am a message :: " + String.valueOf(i));
+               TextMessage message = session.createTextMessage("I am a message :: " + String.valueOf(i));
                try {
                   producer.send(message);
 

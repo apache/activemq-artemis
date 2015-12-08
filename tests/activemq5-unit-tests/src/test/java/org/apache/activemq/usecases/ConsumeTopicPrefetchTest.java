@@ -66,7 +66,7 @@ public class ConsumeTopicPrefetchTest extends ProducerConsumerTestSupport {
 
       validateConsumerPrefetch(this.getSubject(), prefetchSize);
 
-      LinkedList<TextMessage> consumed = new LinkedList<TextMessage>();
+      LinkedList<TextMessage> consumed = new LinkedList<>();
       // lets consume them in two fetch batches
       int batchSize = messageCount / 2;
       for (int i = 0; i < batchSize; i++) {

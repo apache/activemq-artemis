@@ -45,7 +45,7 @@ import org.apache.activemq.util.IOHelper;
 
 public class RecoverExpiredMessagesTest extends BrokerRestartTestSupport {
 
-   final ArrayList<String> expected = new ArrayList<String>();
+   final ArrayList<String> expected = new ArrayList<>();
    final ActiveMQDestination destination = new ActiveMQQueue("TEST");
    public PendingQueueMessageStoragePolicy queuePendingPolicy;
 
