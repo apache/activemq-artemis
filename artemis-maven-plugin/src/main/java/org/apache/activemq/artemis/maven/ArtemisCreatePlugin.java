@@ -274,19 +274,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
             if (list != null) {
                getLog().debug("************************************************");
-               getLog().debug("Replacing configuration files:");
+               getLog().debug("Copying configuration files:");
 
-               for (String file : configuration.list()) {
-                  Path target = instance.toPath().resolve("etc").resolve(file);
-                  getLog().debug("Replacing " + file + " into " + target);
-
-                  Path originalFile = configuration.toPath().resolve(file);
-                  Files.copy(originalFile, target, StandardCopyOption.REPLACE_EXISTING);
-
-                  commandLineStream.println("");
-                  commandLineStream.println("# replacing " + originalFile.getFileName() + " on the default configuration");
-                  commandLineStream.println("cp " + originalFile + " " + target);
-               }
+               copyConfigurationFiles(list, configuration.toPath(), instance.toPath().resolve("etc"), commandLineStream);
             }
          }
 
@@ -314,6 +304,30 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
+      }
+   }
+
+   private void copyConfigurationFiles(String[] list, Path sourcePath, Path targetPath, PrintStream commandLineStream) throws IOException {
+      for (String file : list) {
+         Path target = targetPath.resolve(file);
+
+         Path originalFile = sourcePath.resolve(file);
+         Files.copy(originalFile, target, StandardCopyOption.REPLACE_EXISTING);
+
+         commandLineStream.println("");
+
+         if (originalFile.toFile().isDirectory()) {
+            getLog().debug("Creating directory " + target);
+            commandLineStream.println("# creating directory " + originalFile.getFileName());
+            commandLineStream.println("mkdir " + target);
+
+            copyConfigurationFiles(originalFile.toFile().list(), originalFile, target, commandLineStream);
+         }
+         else {
+            getLog().debug("Copying " + file + " to " + target);
+            commandLineStream.println("# copying config file " + originalFile.getFileName());
+            commandLineStream.println("cp " + originalFile + " " + target);
+         }
       }
    }
 
