@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -129,12 +128,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private boolean transferring = false;
 
-   /* As well as consumer credit based flow control, we also tap into TCP flow control (assuming transport is using TCP)
-    * This is useful in the case where consumer-window-size = -1, but we don't want to OOM by sending messages ad infinitum to the Netty
-    * write queue when the TCP buffer is full, e.g. the client is slow or has died.
-    */
-   private final AtomicBoolean writeReady = new AtomicBoolean(true);
-
    private final long creationTime;
 
    private AtomicLong consumerRateCheckTime = new AtomicLong(System.currentTimeMillis());
@@ -198,8 +191,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       this.strictUpdateDeliveryCount = strictUpdateDeliveryCount;
 
-      this.callback.addReadyListener(this);
-
       this.creationTime = System.currentTimeMillis();
 
       if (browseOnly) {
@@ -218,6 +209,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             availableCredits.set(credits);
          }
       }
+   }
+
+   @Override
+   public void readyForWriting() {
+      promptDelivery();
    }
 
    // ServerConsumer implementation
@@ -289,7 +285,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          // If the consumer is stopped then we don't accept the message, it
          // should go back into the
          // queue for delivery later.
-         if (!started || transferring) {
+         if (!started || transferring || !callback.isWritable(this)) {
             return HandleStatus.BUSY;
          }
 
@@ -394,8 +390,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("ServerConsumerImpl::" + this + " being closed with failed=" + failed, new Exception("trace"));
       }
-
-      callback.removeReadyListener(this);
 
       setStarted(false);
 
@@ -808,18 +802,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
          }
          return ref;
-      }
-   }
-
-   @Override
-   public void readyForWriting(final boolean ready) {
-      if (ready) {
-         writeReady.set(true);
-
-         promptDelivery();
-      }
-      else {
-         writeReady.set(false);
       }
    }
 

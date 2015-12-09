@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.net.SocketAddress;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 
 import io.netty.buffer.ByteBuf;
@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.IPV6Util;
 
 public class NettyConnection implements Connection {
@@ -65,9 +64,13 @@ public class NettyConnection implements Connection {
 
    private final Semaphore writeLock = new Semaphore(1);
 
-   private final Set<ReadyListener> readyListeners = new ConcurrentHashSet<>();
-
    private RemotingConnection protocolConnection;
+
+   private boolean ready = true;
+
+   /** if {@link #isWritable(ReadyListener)} returns false, we add a callback
+    *  here for when the connection (or Netty Channel) becomes available again. */
+   private final ConcurrentLinkedDeque<ReadyListener> readyListeners = new ConcurrentLinkedDeque<>();
 
    // Static --------------------------------------------------------
 
@@ -95,6 +98,37 @@ public class NettyConnection implements Connection {
       return channel;
    }
    // Connection implementation ----------------------------
+
+
+   public boolean isWritable(ReadyListener callback) {
+      synchronized (readyListeners) {
+         readyListeners.push(callback);
+
+         return ready;
+      }
+   }
+
+   public void fireReady(final boolean ready) {
+      synchronized (readyListeners) {
+         this.ready = ready;
+
+         if (ready) {
+            for (;;) {
+               ReadyListener readyListener = readyListeners.poll();
+               if (readyListener == null) {
+                  return;
+               }
+
+               try {
+                  readyListener.readyForWriting();
+               }
+               catch (Throwable logOnly) {
+                  ActiveMQClientLogger.LOGGER.warn(logOnly.getMessage(), logOnly);
+               }
+            }
+         }
+      }
+   }
 
    @Override
    public void forceClose() {
@@ -323,26 +357,10 @@ public class NettyConnection implements Connection {
       return directDeliver;
    }
 
-   @Override
-   public void addReadyListener(final ReadyListener listener) {
-      readyListeners.add(listener);
-   }
-
-   @Override
-   public void removeReadyListener(final ReadyListener listener) {
-      readyListeners.remove(listener);
-   }
-
    //never allow this
    @Override
    public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return null;
-   }
-
-   void fireReady(final boolean ready) {
-      for (ReadyListener listener : readyListeners) {
-         listener.readyForWriting(ready);
-      }
    }
 
    @Override

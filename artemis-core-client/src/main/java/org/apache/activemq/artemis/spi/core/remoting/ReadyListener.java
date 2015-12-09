@@ -18,6 +18,6 @@ package org.apache.activemq.artemis.spi.core.remoting;
 
 public interface ReadyListener {
 
-   void readyForWriting(boolean ready);
+   void readyForWriting();
 
 }

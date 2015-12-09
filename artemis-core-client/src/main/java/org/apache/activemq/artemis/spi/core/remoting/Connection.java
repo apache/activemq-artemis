@@ -39,6 +39,10 @@ public interface Connection {
 
    void setProtocolConnection(RemotingConnection connection);
 
+   boolean isWritable(ReadyListener listener);
+
+   void fireReady(boolean ready);
+
    /**
     * returns the unique id of this wire.
     *
@@ -103,10 +107,6 @@ public interface Connection {
     * Called periodically to flush any data in the batch buffer
     */
    void checkFlushBatchBuffer();
-
-   void addReadyListener(ReadyListener listener);
-
-   void removeReadyListener(ReadyListener listener);
 
    /**
     * Generates a {@link TransportConfiguration} to be used to connect to the same target this is

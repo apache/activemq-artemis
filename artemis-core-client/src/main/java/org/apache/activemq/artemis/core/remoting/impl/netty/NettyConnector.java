@@ -936,6 +936,10 @@ public class NettyConnector extends AbstractConnector {
 
       @Override
       public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         NettyConnection connection = (NettyConnection)connections.get(connectionID);
+         if (connection != null) {
+            connection.fireReady(ready);
+         }
          listener.connectionReadyForWrites(connectionID, ready);
       }
 

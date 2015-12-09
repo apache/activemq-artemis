@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerInfo;
@@ -58,7 +59,6 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQSession implements SessionCallback {
@@ -148,6 +148,11 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
+   public boolean isWritable(ReadyListener callback) {
+      return connection.isWritable(callback);
+   }
+
+   @Override
    public void sendProducerCreditsMessage(int credits, SimpleString address) {
       // TODO Auto-generated method stub
 
@@ -182,18 +187,6 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void closed() {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void addReadyListener(ReadyListener listener) {
-      // TODO Auto-generated method stub
-
-   }
-
-   @Override
-   public void removeReadyListener(ReadyListener listener) {
       // TODO Auto-generated method stub
 
    }

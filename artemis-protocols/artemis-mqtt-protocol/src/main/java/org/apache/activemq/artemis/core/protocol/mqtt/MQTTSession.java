@@ -59,7 +59,7 @@ public class MQTTSession {
 
       mqttConnectionManager = new MQTTConnectionManager(this);
       mqttPublishManager = new MQTTPublishManager(this);
-      sessionCallback = new MQTTSessionCallback(this);
+      sessionCallback = new MQTTSessionCallback(this, connection);
       subscriptionManager = new MQTTSubscriptionManager(this);
       retainMessageManager = new MQTTRetainMessageManager(this);
 

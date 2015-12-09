@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
@@ -116,6 +117,10 @@ public final class StompConnection implements RemotingConnection {
          }
       }
       return frame;
+   }
+
+   public boolean isWritable(ReadyListener callback) {
+      return transportConnection.isWritable(callback);
    }
 
    public boolean hasBytes() {
