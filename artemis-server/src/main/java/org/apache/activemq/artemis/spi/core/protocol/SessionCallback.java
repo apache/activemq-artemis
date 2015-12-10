@@ -43,9 +43,7 @@ public interface SessionCallback {
 
    void closed();
 
-   void addReadyListener(ReadyListener listener);
-
-   void removeReadyListener(ReadyListener listener);
-
    void disconnect(ServerConsumer consumerId, String queueName);
+
+   boolean isWritable(ReadyListener callback);
 }

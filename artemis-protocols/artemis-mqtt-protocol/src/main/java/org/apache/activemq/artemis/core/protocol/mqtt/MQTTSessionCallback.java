@@ -25,12 +25,19 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 public class MQTTSessionCallback implements SessionCallback {
 
-   private MQTTSession session;
+   private final MQTTSession session;
+   private final MQTTConnection connection;
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTSessionCallback(MQTTSession session) throws Exception {
+   public MQTTSessionCallback(MQTTSession session, MQTTConnection connection) throws Exception {
       this.session = session;
+      this.connection = connection;
+   }
+
+   @Override
+   public boolean isWritable(ReadyListener callback) {
+      return connection.isWritable(callback);
    }
 
    @Override
@@ -52,16 +59,6 @@ public class MQTTSessionCallback implements SessionCallback {
                                            boolean requiresResponse) {
       log.warn("Sending LARGE MESSAGE");
       return 1;
-   }
-
-   @Override
-   public void addReadyListener(ReadyListener listener) {
-      session.getConnection().getTransportConnection().addReadyListener(listener);
-   }
-
-   @Override
-   public void removeReadyListener(ReadyListener listener) {
-      session.getConnection().getTransportConnection().removeReadyListener(listener);
    }
 
    @Override

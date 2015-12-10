@@ -73,6 +73,11 @@ public class StompSession implements SessionCallback {
       this.consumerCredits = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_CONSUMERS_CREDIT, TransportConstants.STOMP_DEFAULT_CONSUMERS_CREDIT, connection.getAcceptorUsed().getConfiguration());
    }
 
+   @Override
+   public boolean isWritable(ReadyListener callback) {
+      return connection.isWritable(callback);
+   }
+
    void setServerSession(ServerSession session) {
       this.session = session;
    }
@@ -179,16 +184,6 @@ public class StompSession implements SessionCallback {
 
    @Override
    public void closed() {
-   }
-
-   @Override
-   public void addReadyListener(final ReadyListener listener) {
-      connection.getTransportConnection().addReadyListener(listener);
-   }
-
-   @Override
-   public void removeReadyListener(final ReadyListener listener) {
-      connection.getTransportConnection().removeReadyListener(listener);
    }
 
    @Override

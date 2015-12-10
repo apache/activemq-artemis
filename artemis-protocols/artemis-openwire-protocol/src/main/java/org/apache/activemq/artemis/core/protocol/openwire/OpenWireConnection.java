@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -160,6 +161,9 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       this.creationTime = System.currentTimeMillis();
    }
 
+   public boolean isWritable(ReadyListener callback) {
+      return transportConnection.isWritable(callback);
+   }
 
    // SecurityAuth implementation
    @Override

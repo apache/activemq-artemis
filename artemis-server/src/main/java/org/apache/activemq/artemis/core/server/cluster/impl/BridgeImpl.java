@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -58,8 +57,7 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TypedProperties;
@@ -69,7 +67,7 @@ import org.apache.activemq.artemis.utils.UUID;
  * A Core BridgeImpl
  */
 
-public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ConnectionLifeCycleListener {
+public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener {
    // Constants -----------------------------------------------------
 
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -134,8 +132,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private volatile ClientSessionFactoryInternal csf;
 
    private volatile ClientProducer producer;
-
-   private volatile boolean connectionWritable = false;
 
    private volatile boolean started;
 
@@ -498,13 +494,18 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    @Override
+   public void readyForWriting() {
+      queue.deliverAsync();
+   }
+
+   @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (filter != null && !filter.match(ref.getMessage())) {
          return HandleStatus.NO_MATCH;
       }
 
       synchronized (this) {
-         if (!active || !connectionWritable) {
+         if (!active || !session.isWritable(this)) {
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug(this + "::Ignoring reference on bridge as it is set to inactive ref=" + ref);
             }
@@ -552,29 +553,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             pendingAcks.countDown();
             throw e;
          }
-      }
-   }
-
-   @Override
-   public void connectionCreated(ActiveMQComponent component, Connection connection, String protocol) {
-
-   }
-
-   @Override
-   public void connectionDestroyed(Object connectionID) {
-
-   }
-
-   @Override
-   public void connectionException(Object connectionID, ActiveMQException me) {
-
-   }
-
-   @Override
-   public void connectionReadyForWrites(Object connectionID, boolean ready) {
-      connectionWritable = ready;
-      if (connectionWritable) {
-         queue.deliverAsync();
       }
    }
 
@@ -890,8 +868,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             session.addFailureListener(BridgeImpl.this);
 
             session.setSendAcknowledgementHandler(BridgeImpl.this);
-
-            session.addLifeCycleListener(BridgeImpl.this);
 
             afterConnect();
 

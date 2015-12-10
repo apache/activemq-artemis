@@ -93,12 +93,21 @@ public class LibaioTest {
    }
 
    @Test
-   public void testInitAndFallocate() throws Exception {
-      LibaioFile fileDescriptor = control.openFile(temporaryFolder.newFile("test.bin"), true);
-      fileDescriptor.fallocate(1024 * 1024);
+   public void testInitAndFallocate10M() throws Exception {
+      testInit(10 * 1024 * 1024);
+   }
 
-      ByteBuffer buffer = fileDescriptor.newBuffer(1024 * 1024);
-      fileDescriptor.read(0, 1024 * 1024, buffer, new TestInfo());
+   @Test
+   public void testInitAndFallocate10M100K() throws Exception {
+      testInit(10 * 1024 * 1024 + 100 * 1024);
+   }
+
+   private void testInit(int size) throws IOException {
+      LibaioFile fileDescriptor = control.openFile(temporaryFolder.newFile("test.bin"), true);
+      fileDescriptor.fallocate(size);
+
+      ByteBuffer buffer = fileDescriptor.newBuffer(size);
+      fileDescriptor.read(0, size, buffer, new TestInfo());
 
       TestInfo[] callbacks = new TestInfo[1];
       control.poll(callbacks, 1, 1);
@@ -108,15 +117,25 @@ public class LibaioTest {
       buffer.position(0);
 
       LibaioFile fileDescriptor2 = control.openFile(temporaryFolder.newFile("test2.bin"), true);
-      fileDescriptor2.fill(1024 * 1024);
-      fileDescriptor2.read(0, 1024 * 1024, buffer, new TestInfo());
+      fileDescriptor2.fill(size);
+      fileDescriptor2.read(0, size, buffer, new TestInfo());
 
       control.poll(callbacks, 1, 1);
-      for (int i = 0; i < 1024 * 1024; i++) {
+      for (int i = 0; i < size; i++) {
          Assert.assertEquals(0, buffer.get());
       }
 
       LibaioContext.freeBuffer(buffer);
+   }
+
+   @Test
+   public void testInitAndFallocate10K() throws Exception {
+      testInit(10 * 1024);
+   }
+
+   @Test
+   public void testInitAndFallocate20K() throws Exception {
+      testInit(20 * 1024);
    }
 
    @Test

@@ -48,9 +48,6 @@ public final class LibaioFile<Callback extends SubmitInfo> {
       return LibaioContext.lock(fd);
    }
 
-   /**
-    * {@inheritDoc}
-    */
    public void close() throws IOException {
       open = false;
       LibaioContext.close(fd);

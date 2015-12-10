@@ -44,8 +44,8 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
@@ -408,6 +408,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
    }
 
+
+   @Override
+   public boolean isWritable(ReadyListener callback) {
+      return sessionContext.isWritable(callback);
+   }
+
+
    /**
     * Note, we DO NOT currently support direct consumers (i.e. consumers where delivery occurs on
     * the remoting thread).
@@ -693,11 +700,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public String getNodeId() {
       return sessionFactory.getLiveNodeId();
-   }
-
-   @Override
-   public void addLifeCycleListener(ConnectionLifeCycleListener lifeCycleListener) {
-      sessionFactory.addLifeCycleListener(lifeCycleListener);
    }
 
    // ClientSessionInternal implementation

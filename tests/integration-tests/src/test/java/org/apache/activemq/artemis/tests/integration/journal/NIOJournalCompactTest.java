@@ -207,7 +207,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       final byte recordType = (byte) 0;
 
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO);
+      journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO);
 
       journal.start();
 
@@ -486,7 +486,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       final CountDownLatch latchDone = new CountDownLatch(1);
       final CountDownLatch latchWait = new CountDownLatch(1);
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
+      journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
 
          @Override
          protected SequentialFile createControlFile(final List<JournalFile> files,

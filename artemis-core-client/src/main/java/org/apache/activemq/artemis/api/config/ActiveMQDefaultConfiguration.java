@@ -99,6 +99,7 @@ public final class ActiveMQDefaultConfiguration {
    // These defaults are applied depending on whether the journal type
    // is NIO or AIO.
    private static int DEFAULT_JOURNAL_MAX_IO_AIO = 500;
+   private static int DEFAULT_JOURNAL_POOL_FILES = -1;
    private static int DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO;
    private static int DEFAULT_JOURNAL_BUFFER_SIZE_AIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO;
    private static int DEFAULT_JOURNAL_MAX_IO_NIO = 1;
@@ -677,6 +678,14 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getDefaultJournalMinFiles() {
       return DEFAULT_JOURNAL_MIN_FILES;
+   }
+
+   /**
+    * How many journal files can be resued
+    * @return
+    */
+   public static int getDefaultJournalPoolFiles() {
+      return DEFAULT_JOURNAL_POOL_FILES;
    }
 
    /**

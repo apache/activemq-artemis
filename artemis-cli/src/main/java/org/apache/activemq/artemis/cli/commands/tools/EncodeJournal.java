@@ -101,7 +101,7 @@ public class EncodeJournal extends LockAbstract {
                                     final PrintStream out) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null, 1);
 
-      JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
+      JournalImpl journal = new JournalImpl(fileSize, minFiles, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 
       List<JournalFile> files = journal.orderFiles();
 

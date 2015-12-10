@@ -114,7 +114,7 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
 
    @Override
    public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
-      return new ProtonSessionIntegrationCallback(this, manager, connection);
+      return new ProtonSessionIntegrationCallback(this, manager, connection, this.connection);
    }
 
 }

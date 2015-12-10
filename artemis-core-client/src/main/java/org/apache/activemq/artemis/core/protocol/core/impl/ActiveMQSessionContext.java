@@ -97,6 +97,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAS
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.VersionLoader;
@@ -236,6 +237,11 @@ public class ActiveMQSessionContext extends SessionContext {
       SessionQueueQueryResponseMessage_V2 response = (SessionQueueQueryResponseMessage_V2) sessionChannel.sendBlocking(request, PacketImpl.SESS_QUEUEQUERY_RESP_V2);
 
       return response.toQueueQuery();
+   }
+
+   @Override
+   public boolean isWritable(ReadyListener callback) {
+      return remotingConnection.isWritable(callback);
    }
 
    @Override

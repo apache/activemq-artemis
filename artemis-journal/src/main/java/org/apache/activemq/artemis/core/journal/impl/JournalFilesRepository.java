@@ -73,6 +73,8 @@ public class JournalFilesRepository {
 
    private final int minFiles;
 
+   private final int poolSize;
+
    private final int fileSize;
 
    private final String filePrefix;
@@ -104,7 +106,8 @@ public class JournalFilesRepository {
                                  final int userVersion,
                                  final int maxAIO,
                                  final int fileSize,
-                                 final int minFiles) {
+                                 final int minFiles,
+                                 final int poolSize) {
       if (filePrefix == null) {
          throw new IllegalArgumentException("filePrefix cannot be null");
       }
@@ -120,6 +123,7 @@ public class JournalFilesRepository {
       this.fileExtension = fileExtension;
       this.minFiles = minFiles;
       this.fileSize = fileSize;
+      this.poolSize = poolSize;
       this.userVersion = userVersion;
       this.journal = journal;
    }
@@ -358,7 +362,7 @@ public class JournalFilesRepository {
          ActiveMQJournalLogger.LOGGER.deletingFile(file);
          file.getFile().delete();
       }
-      else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < minFiles)) {
+      else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < poolSize) || (poolSize < 0)) {
          // Re-initialise it
 
          if (JournalFilesRepository.trace) {
@@ -378,7 +382,7 @@ public class JournalFilesRepository {
          if (trace) {
             ActiveMQJournalLogger.LOGGER.trace("DataFiles.size() = " + dataFiles.size());
             ActiveMQJournalLogger.LOGGER.trace("openedFiles.size() = " + openedFiles.size());
-            ActiveMQJournalLogger.LOGGER.trace("minfiles = " + minFiles);
+            ActiveMQJournalLogger.LOGGER.trace("minfiles = " + minFiles + ", poolSize = " + poolSize);
             ActiveMQJournalLogger.LOGGER.trace("Free Files = " + freeFilesCount.get());
             ActiveMQJournalLogger.LOGGER.trace("File " + file +
                                                   " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +

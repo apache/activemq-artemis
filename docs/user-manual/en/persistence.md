@@ -218,6 +218,18 @@ The message journal is configured using the following attributes in
     steady state you should tune this number of files to match that
     total amount of data.
 
+-   `journal-pool-files`
+
+    The system will create as many files as needed however when reclaiming files
+    it will shrink back to the `journal-pool-files`.
+
+    The default to this parameter is -1, meaning it will never delete files on the journal once created.
+
+    Notice that the system can't grow infinitely as you are still required to use paging for destinations that can
+    grow indefinitely.
+
+    Notice: in case you get too many files you can use [compacting](tools.md).
+
 -   `journal-max-io`
 
     Write requests are queued up before being submitted to the system

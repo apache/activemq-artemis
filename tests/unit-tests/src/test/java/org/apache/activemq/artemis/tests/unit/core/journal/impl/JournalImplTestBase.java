@@ -54,6 +54,8 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
    protected int minFiles;
 
+   protected int poolSize;
+
    protected int fileSize;
 
    protected boolean sync;
@@ -122,7 +124,16 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    // ---------------------------------------------------------------------------------
 
    protected void setup(final int minFreeFiles, final int fileSize, final boolean sync, final int maxAIO) {
+      this.minFiles = minFreeFiles;
+      this.poolSize = minFreeFiles;
+      this.fileSize = fileSize;
+      this.sync = sync;
+      this.maxAIO = maxAIO;
+   }
+
+   protected void setup(final int minFreeFiles, final int poolSize, final int fileSize, final boolean sync, final int maxAIO) {
       minFiles = minFreeFiles;
+      this.poolSize = poolSize;
       this.fileSize = fileSize;
       this.sync = sync;
       this.maxAIO = maxAIO;
@@ -130,13 +141,14 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
    protected void setup(final int minFreeFiles, final int fileSize, final boolean sync) {
       minFiles = minFreeFiles;
+      poolSize = minFreeFiles;
       this.fileSize = fileSize;
       this.sync = sync;
       maxAIO = 50;
    }
 
    public void createJournal() throws Exception {
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
+      journal = new JournalImpl(fileSize, minFiles, poolSize, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
          @Override
          public void onCompactDone() {
             latchDone.countDown();

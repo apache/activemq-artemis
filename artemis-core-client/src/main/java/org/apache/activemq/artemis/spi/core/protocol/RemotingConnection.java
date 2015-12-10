@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 /**
  * A RemotingConnection is a connection between a client and a server.
@@ -180,5 +181,7 @@ public interface RemotingConnection extends BufferHandler {
     * flush all outstanding data from the connection.
     */
    void flush();
+
+   boolean isWritable(ReadyListener callback);
 
 }

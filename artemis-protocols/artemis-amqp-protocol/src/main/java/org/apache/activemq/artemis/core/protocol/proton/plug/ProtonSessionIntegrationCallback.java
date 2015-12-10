@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -36,7 +38,6 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -58,16 +59,26 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    private final AMQPConnectionContext connection;
 
+   private final Connection transportConnection;
+
+
    private ServerSession serverSession;
 
    private AMQPSessionContext protonSession;
 
    public ProtonSessionIntegrationCallback(ActiveMQProtonConnectionCallback protonSPI,
                                            ProtonProtocolManager manager,
-                                           AMQPConnectionContext connection) {
+                                           AMQPConnectionContext connection,
+                                           Connection transportConnection) {
       this.protonSPI = protonSPI;
       this.manager = manager;
       this.connection = connection;
+      this.transportConnection = transportConnection;
+   }
+
+   @Override
+   public boolean isWritable(ReadyListener callback) {
+      return transportConnection.isWritable(callback);
    }
 
    @Override
@@ -303,16 +314,6 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public void closed() {
-   }
-
-   @Override
-   public void addReadyListener(ReadyListener listener) {
-
-   }
-
-   @Override
-   public void removeReadyListener(ReadyListener listener) {
-
    }
 
    @Override

@@ -318,7 +318,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
    }
 
    public static JournalImpl createJournal(final String journalType, final String journalDir) {
-      JournalImpl journal = new JournalImpl(10485760, 2, 0, 0, ValidateTransactionHealthTest.getFactory(journalType, journalDir), "journaltst", "tst", 500);
+      JournalImpl journal = new JournalImpl(10485760, 2, 2, 0, 0, ValidateTransactionHealthTest.getFactory(journalType, journalDir), "journaltst", "tst", 500);
       return journal;
    }
 
