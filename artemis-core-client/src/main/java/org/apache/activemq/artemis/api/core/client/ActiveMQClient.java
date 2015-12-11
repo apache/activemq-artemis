@@ -16,14 +16,26 @@
  */
 package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import java.net.URI;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
-
-import java.net.URI;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 /**
  * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
@@ -33,6 +45,10 @@ import java.net.URI;
  * be modified (its setter methods will throw a {@link IllegalStateException}.
  */
 public final class ActiveMQClient {
+
+   public static int globalThreadMaxPoolSize;
+
+   public static int globalScheduledThreadPoolSize;
 
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
@@ -102,6 +118,8 @@ public final class ActiveMQClient {
 
    public static final int DEFAULT_THREAD_POOL_MAX_SIZE = -1;
 
+   public static final int DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE = 500;
+
    public static final int DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE = 5;
 
    public static final boolean DEFAULT_CACHE_LARGE_MESSAGE_CLIENT = false;
@@ -113,6 +131,160 @@ public final class ActiveMQClient {
    public static final boolean DEFAULT_HA = false;
 
    public static final String DEFAULT_CORE_PROTOCOL = "CORE";
+
+   public static final String THREAD_POOL_MAX_SIZE_PROPERTY_KEY = "activemq.artemis.client.global.thread.pool.max.size";
+
+   public static final String SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY = "activemq.artemis.client.global.scheduled.thread.pool.core.size";
+
+   private static ThreadPoolExecutor globalThreadPool;
+
+   private static boolean injectedPools = false;
+
+   private static ScheduledThreadPoolExecutor globalScheduledThreadPool;
+
+
+   static {
+      initializeGlobalThreadPoolProperties();
+   }
+
+   public static synchronized void clearThreadPools() {
+      clearThreadPools(10, TimeUnit.SECONDS);
+   }
+
+
+   public static synchronized void clearThreadPools(long time, TimeUnit unit) {
+
+      if (injectedPools) {
+         globalThreadPool = null;
+         globalScheduledThreadPool = null;
+         injectedPools = false;
+         return;
+      }
+
+      if (globalThreadPool != null) {
+         globalThreadPool.shutdown();
+         try {
+            if (!globalThreadPool.awaitTermination(time, unit)) {
+               globalThreadPool.shutdownNow();
+               ActiveMQClientLogger.LOGGER.warn("Couldn't finish the client globalThreadPool in less than 10 seconds, interrupting it now");
+            }
+         }
+         catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         }
+         finally {
+            globalThreadPool = null;
+         }
+      }
+
+      if (globalScheduledThreadPool != null) {
+         globalScheduledThreadPool.shutdown();
+         try {
+            if (!globalScheduledThreadPool.awaitTermination(time, unit)) {
+               globalScheduledThreadPool.shutdownNow();
+               ActiveMQClientLogger.LOGGER.warn("Couldn't finish the client scheduled in less than 10 seconds, interrupting it now");
+            }
+         }
+         catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         }
+         finally {
+            globalScheduledThreadPool = null;
+         }
+      }
+   }
+
+   /** Warning: This method has to be called before any clients or servers is started on the JVM otherwise previous ServerLocator would be broken after this call. */
+   public static synchronized void injectPools(ThreadPoolExecutor globalThreadPool, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+
+      // We call clearThreadPools as that will shutdown any previously used executor
+      clearThreadPools();
+
+      ActiveMQClient.globalThreadPool = globalThreadPool;
+      ActiveMQClient.globalScheduledThreadPool = scheduledThreadPoolExecutor;
+      injectedPools = true;
+   }
+
+   public static synchronized ThreadPoolExecutor getGlobalThreadPool() {
+      if (globalThreadPool == null) {
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-global-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
+
+         if (globalThreadMaxPoolSize == -1) {
+            globalThreadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), factory);
+         }
+         else {
+            globalThreadPool = new ThreadPoolExecutor(ActiveMQClient.globalThreadMaxPoolSize, ActiveMQClient.globalThreadMaxPoolSize, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), factory);
+         }
+      }
+      return globalThreadPool;
+   }
+
+   public static synchronized ScheduledThreadPoolExecutor getGlobalScheduledThreadPool() {
+      if (globalScheduledThreadPool == null) {
+         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
+            @Override
+            public ThreadFactory run() {
+               return new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
+            }
+         });
+
+         globalScheduledThreadPool =  new ScheduledThreadPoolExecutor(ActiveMQClient.globalScheduledThreadPoolSize, factory);
+      }
+      return globalScheduledThreadPool;
+   }
+
+
+
+
+   /**
+    * (Re)Initializes the global thread pools properties from System properties.  This method will update the global
+    * thread pool configuration based on defined System properties (or defaults if they are not set) notifying
+    * all globalThreadPoolListeners.  The System properties key names are as follow:
+    *
+    * ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY="activemq.artemis.client.global.thread.pool.max.size"
+    * ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY="activemq.artemis.client.global.scheduled.thread.pool.core.size
+    *
+    * The min value for max thread pool size is 2.  Providing a value lower than 2 will be ignored and will defaul to 2.
+    *
+    * Note.  The ServerLocatorImpl registers a listener and uses it to configure it's global thread pools.  If global
+    * thread pools have already been created, they will be updated with these new values.
+    */
+   public static void initializeGlobalThreadPoolProperties() {
+
+      setGlobalThreadPoolProperties(Integer.valueOf(Integer.valueOf(System.getProperty(ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE))), Integer.valueOf(System.getProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE)));
+   }
+
+   /**
+    * Allows programatically configuration of global thread pools properties.  This method will update the global
+    * thread pool configuration based on the provided values notifying all globalThreadPoolListeners.
+    *
+    * Note.  The ServerLocatorImpl registers a listener and uses it to configure it's global thread pools.  If global
+    * thread pools have already been created, they will be updated with these new values.
+    *
+    * The min value for max thread pool size is 2.  Providing a value lower than 2 will be ignored and will default to 2.
+    */
+   public static void setGlobalThreadPoolProperties(int globalThreadMaxPoolSize, int globalScheduledThreadPoolSize) {
+
+      if (globalThreadMaxPoolSize < 2) globalThreadMaxPoolSize = 2;
+
+      ActiveMQClient.globalScheduledThreadPoolSize = globalScheduledThreadPoolSize;
+      ActiveMQClient.globalThreadMaxPoolSize = globalThreadMaxPoolSize;
+
+      // if injected, we won't do anything with the pool as they're not ours
+      if (!injectedPools) {
+         // Right now I'm ignoring the corePool size on purpose as there's no way to have two values for the number of threads
+         // this is basically a fixed size thread pool (although the pool grows on demand)
+         getGlobalThreadPool().setCorePoolSize(globalThreadMaxPoolSize);
+         getGlobalThreadPool().setMaximumPoolSize(globalThreadMaxPoolSize);
+
+         getGlobalScheduledThreadPool().setCorePoolSize(globalScheduledThreadPoolSize);
+      }
+   }
 
    /**
     * Creates an ActiveMQConnectionFactory;

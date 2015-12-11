@@ -187,11 +187,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private final List<Interceptor> outgoingInterceptors = new CopyOnWriteArrayList<>();
 
-   private static ExecutorService globalThreadPool;
-
    private Executor startExecutor;
-
-   private static ScheduledExecutorService globalScheduledThreadPool;
 
    private AfterConnectInternalListener afterConnectListener;
 
@@ -208,68 +204,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    public static Runnable finalizeCallback = null;
 
    public static synchronized void clearThreadPools() {
-
-      if (globalThreadPool != null) {
-         globalThreadPool.shutdown();
-         try {
-            if (!globalThreadPool.awaitTermination(10, TimeUnit.SECONDS)) {
-               throw new IllegalStateException("Couldn't finish the globalThreadPool");
-            }
-         }
-         catch (InterruptedException e) {
-            throw new ActiveMQInterruptedException(e);
-         }
-         finally {
-            globalThreadPool = null;
-         }
-      }
-
-      if (globalScheduledThreadPool != null) {
-         globalScheduledThreadPool.shutdown();
-         try {
-            if (!globalScheduledThreadPool.awaitTermination(10, TimeUnit.SECONDS)) {
-               throw new IllegalStateException("Couldn't finish the globalScheduledThreadPool");
-            }
-         }
-         catch (InterruptedException e) {
-            throw new ActiveMQInterruptedException(e);
-         }
-         finally {
-            globalScheduledThreadPool = null;
-         }
-      }
-   }
-
-   private static synchronized ExecutorService getGlobalThreadPool() {
-      if (globalThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-global-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
-
-         globalThreadPool = Executors.newCachedThreadPool(factory);
-      }
-
-      return globalThreadPool;
-   }
-
-   private static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
-      if (globalScheduledThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
-
-         globalScheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-
-               factory);
-      }
-
-      return globalScheduledThreadPool;
+      ActiveMQClient.clearThreadPools();
    }
 
    private synchronized void setThreadPools() {
@@ -277,9 +212,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          return;
       }
       else if (useGlobalPools) {
-         threadPool = getGlobalThreadPool();
+         threadPool = ActiveMQClient.getGlobalThreadPool();
 
-         scheduledThreadPool = getGlobalScheduledThreadPool();
+         scheduledThreadPool = ActiveMQClient.getGlobalScheduledThreadPool();
       }
       else {
          this.shutdownPool = true;
@@ -306,6 +241,23 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          });
 
          scheduledThreadPool = Executors.newScheduledThreadPool(scheduledThreadPoolMaxSize, factory);
+      }
+   }
+
+   @Override
+   public synchronized boolean setThreadPools(ExecutorService threadPool, ScheduledExecutorService scheduledThreadPool) {
+
+      if (threadPool == null || scheduledThreadPool == null) return false;
+
+      if (this.threadPool == null && this.scheduledThreadPool == null) {
+         useGlobalPools = false;
+         shutdownPool = false;
+         this.threadPool = threadPool;
+         this.scheduledThreadPool = scheduledThreadPool;
+         return true;
+      }
+      else {
+         return false;
       }
    }
 
@@ -409,9 +361,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       useGlobalPools = ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS;
 
-      scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
-
       threadPoolMaxSize = ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE;
+
+      scheduledThreadPoolMaxSize = ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE;
 
       retryInterval = ActiveMQClient.DEFAULT_RETRY_INTERVAL;
 
