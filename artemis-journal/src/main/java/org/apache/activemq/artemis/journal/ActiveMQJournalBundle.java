@@ -44,4 +44,7 @@ public interface ActiveMQJournalBundle {
 
    @Message(id = 149003, value = "File not opened")
    ActiveMQIOErrorException fileNotOpened();
+
+   @Message(id = 149004, value = "unable to open file")
+   String unableToOpenFile();
 }
