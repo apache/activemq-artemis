@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 /**
@@ -435,7 +436,7 @@ public class JournalFilesRepository {
       while (nextFile == null) {
          nextFile = openedFiles.poll(5, TimeUnit.SECONDS);
          if (nextFile == null) {
-            ActiveMQJournalLogger.LOGGER.errorOpeningFile(new Exception("trace"));
+            fileFactory.onIOError(ActiveMQJournalBundle.BUNDLE.fileNotOpened(), "unable to open ",  null);
          }
       }
 
