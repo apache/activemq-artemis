@@ -48,7 +48,7 @@ public class JMXDomainTest extends ManagementTestBase {
       server_1 = addServer(ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false));
 
       ObjectNameBuilder builder_0 = ObjectNameBuilder.DEFAULT;
-      ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1);
+      ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1, "localhost");
 
       checkNoResource(builder_0.getActiveMQServerObjectName());
       checkNoResource(builder_1.getActiveMQServerObjectName());

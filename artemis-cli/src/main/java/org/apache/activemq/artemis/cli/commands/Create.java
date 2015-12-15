@@ -91,6 +91,9 @@ public class Create extends InputAbstract {
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    String host;
 
+   @Option(name = "--name", description = "The name of the broker (Default: same as host)")
+   String name;
+
    @Option(name = "--port-offset", description = "Off sets the default ports")
    int portOffset;
 
@@ -512,9 +515,13 @@ public class Create extends InputAbstract {
 
       if (clustered) {
          filters.put("${host}", getHostForClustered());
+         if (name == null) {
+            name = getHostForClustered();
+         }
          String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT);
          connectorSettings = applyFilters(connectorSettings, filters);
 
+         filters.put("${name}", name);
          filters.put("${connector-config.settings}", connectorSettings);
          filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT));
          filters.put("${cluster.settings}", applyFilters(readTextFile(ETC_CLUSTER_SETTINGS_TXT), filters));
@@ -522,6 +529,10 @@ public class Create extends InputAbstract {
          filters.put("${cluster-password}", getClusterPassword());
       }
       else {
+         if (name == null) {
+            name = getHost();
+         }
+         filters.put("${name}", name);
          filters.put("${host}", getHost());
          filters.put("${connector-config.settings}", "");
          filters.put("${cluster-security.settings}", "");
