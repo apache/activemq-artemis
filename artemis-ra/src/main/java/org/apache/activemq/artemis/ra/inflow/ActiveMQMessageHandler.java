@@ -386,7 +386,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             session.resetIfNeeded();
          }
          catch (ActiveMQException e) {
-            ActiveMQRALogger.LOGGER.unableToResetSession();
+            ActiveMQRALogger.LOGGER.unableToResetSession(activation.toString(), e);
+            activation.startReconnectThread("Reset MessageHandler after Failure Thread");
          }
       }
 

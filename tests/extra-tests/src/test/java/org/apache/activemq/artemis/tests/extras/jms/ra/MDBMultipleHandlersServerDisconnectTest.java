@@ -70,6 +70,10 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
    ServerLocator nettyLocator;
 
+   // This thread will keep bugging the handlers.
+   // if they behave well with XA, the test pass!
+   final AtomicBoolean running = new AtomicBoolean(true);
+
    private volatile boolean playTXTimeouts = true;
    private volatile boolean playServerClosingSession = true;
    private volatile boolean playServerClosingConsumer = true;
@@ -85,6 +89,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       super.setUp();
       createQueue(true, "outQueue");
       DummyTMLocator.startTM();
+      running.set(true);
    }
 
    @Override
@@ -113,6 +118,11 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       server.getAddressSettingsRepository().addMatch("#", settings);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
+      resourceAdapter.setConfirmationWindowSize(-1);
+      resourceAdapter.setCallTimeout(1000L);
+      resourceAdapter.setConsumerWindowSize(1024 * 1024);
+      resourceAdapter.setReconnectAttempts(-1);
+      resourceAdapter.setRetryInterval(100L);
 
       //      qResourceAdapter.setTransactionManagerLocatorClass(DummyTMLocator.class.getName());
       //      qResourceAdapter.setTransactionManagerLocatorMethod("getTM");
@@ -125,17 +135,18 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final int NUMBER_OF_SESSIONS = 10;
 
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
-      spec.setMaxSession(NUMBER_OF_SESSIONS);
+
       spec.setTransactionTimeout(1);
-      spec.setReconnectAttempts(-1);
-      spec.setConfirmationWindowSize(-1);
-      spec.setReconnectInterval(1000);
-      spec.setCallTimeout(1000L);
+      spec.setMaxSession(NUMBER_OF_SESSIONS);
+      spec.setSetupAttempts(-1);
+      spec.setSetupInterval(100);
       spec.setResourceAdapter(qResourceAdapter);
       spec.setUseJNDI(false);
       spec.setDestinationType("javax.jms.Queue");
       spec.setDestination(MDBQUEUE);
-      spec.setConsumerWindowSize(1024 * 1024);
+
+      // Some the routines would be screwed up if using the default one
+      Assert.assertFalse(spec.isHasBeenUpdated());
 
       TestEndpointFactory endpointFactory = new TestEndpointFactory(true);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
@@ -146,7 +157,6 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final int NUMBER_OF_MESSAGES = 1000;
 
       Thread producer = new Thread() {
-         @Override
          public void run() {
             try {
                ServerLocator locator = createInVMLocator(0);
@@ -155,11 +165,18 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
                ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
 
+               StringBuffer buffer = new StringBuffer();
+
+               for (int b = 0; b < 500; b++) {
+                  buffer.append("ab");
+               }
+
                for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
 
                   ClientMessage message = session.createMessage(true);
 
-                  message.getBodyBuffer().writeString("teststring " + i);
+                  message.getBodyBuffer().writeString(buffer.toString() + i);
+
                   message.putIntProperty("i", i);
 
                   clientProducer.send(message);
@@ -181,12 +198,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
       final AtomicBoolean metaDataFailed = new AtomicBoolean(false);
 
-      // This thread will keep bugging the handlers.
-      // if they behave well with XA, the test pass!
-      final AtomicBoolean running = new AtomicBoolean(true);
-
       Thread buggerThread = new Thread() {
-         @Override
          public void run() {
             while (running.get()) {
                try {
@@ -197,7 +209,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
                   return;
                }
 
-               List<ServerSession> serverSessions = lookupServerSessions("resource-adapter");
+               List<ServerSession> serverSessions = lookupServerSessions("resource-adapter", NUMBER_OF_SESSIONS);
 
                System.err.println("Contains " + serverSessions.size() + " RA sessions");
 
@@ -256,6 +268,13 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
             break;
          }
 
+         if (i == NUMBER_OF_MESSAGES * 0.50) {
+            // This is to make sure the MDBs will survive a reboot
+            // and no duplications or message loss will happen because of this
+            System.err.println("Rebooting the MDBs at least once!");
+            activation.startReconnectThread("I");
+         }
+
          if (i == NUMBER_OF_MESSAGES * 0.90) {
             System.out.println("Disabled failures at " + i);
             playTXTimeouts = false;
@@ -266,17 +285,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
          System.out.println("Received " + i + " messages");
 
-         Assert.assertNotNull(message);
-         message.acknowledge();
-
-         Integer value = message.getIntProperty("i");
-         AtomicInteger mapCount = new AtomicInteger(1);
-
-         mapCount = mapCounter.putIfAbsent(value, mapCount);
-
-         if (mapCount != null) {
-            mapCount.incrementAndGet();
-         }
+         doReceiveMessage(message);
 
          if (i % 200 == 0) {
             System.out.println("received " + i);
@@ -285,6 +294,20 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       }
 
       session.commit();
+
+      while (true) {
+         ClientMessage message = consumer.receiveImmediate();
+         if (message == null) {
+            break;
+         }
+
+         System.out.println("Received extra message " + message);
+
+         doReceiveMessage(message);
+      }
+
+      session.commit();
+
       Assert.assertNull(consumer.receiveImmediate());
 
       StringWriter writer = new StringWriter();
@@ -328,14 +351,42 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
    }
 
-   private List<ServerSession> lookupServerSessions(String parameter) {
-      List<ServerSession> serverSessions = new LinkedList<>();
+   private void doReceiveMessage(ClientMessage message) throws Exception {
+      Assert.assertNotNull(message);
+      message.acknowledge();
+      Integer value = message.getIntProperty("i");
+      AtomicInteger mapCount = new AtomicInteger(1);
 
-      for (ServerSession session : server.getSessions()) {
-         if (session.getMetaData(parameter) != null) {
-            serverSessions.add(session);
-         }
+      mapCount = mapCounter.putIfAbsent(value, mapCount);
+
+      if (mapCount != null) {
+         mapCount.incrementAndGet();
       }
+   }
+
+   private List<ServerSession> lookupServerSessions(String parameter, int numberOfSessions) {
+      long timeout = System.currentTimeMillis() + 50000;
+      List<ServerSession> serverSessions = new LinkedList<ServerSession>();
+      do {
+         if (!serverSessions.isEmpty()) {
+            System.err.println("Retry on serverSessions!!! currently with " + serverSessions.size());
+            serverSessions.clear();
+            try {
+               Thread.sleep(100);
+            }
+            catch (Exception e) {
+               break;
+            }
+         }
+         serverSessions.clear();
+         for (ServerSession session : server.getSessions()) {
+            if (session.getMetaData(parameter) != null) {
+               serverSessions.add(session);
+            }
+         }
+      } while (running.get() && serverSessions.size() != numberOfSessions && timeout > System.currentTimeMillis());
+
+      System.err.println("Returning " + serverSessions.size() + " sessions");
       return serverSessions;
    }
 
@@ -347,7 +398,6 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          isDeliveryTransacted = deliveryTransacted;
       }
 
-      @Override
       public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException {
          TestEndpoint retEnd = new TestEndpoint();
          if (xaResource != null) {
@@ -356,7 +406,6 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          return retEnd;
       }
 
-      @Override
       public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
          return isDeliveryTransacted;
       }
@@ -397,7 +446,6 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
       }
 
-      @Override
       public void onMessage(Message message) {
          Integer value = 0;
 

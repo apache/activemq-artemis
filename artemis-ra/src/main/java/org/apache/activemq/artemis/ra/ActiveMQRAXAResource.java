@@ -21,8 +21,8 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.client.impl.ActiveMQXAResource;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 
 /**
  * ActiveMQXAResource.
@@ -76,13 +76,18 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
 
       ClientSessionInternal sessionInternal = (ClientSessionInternal) xaResource;
       try {
-         //this resets any tx stuff, we assume here that the tm and jca layer are well behaved when it comes to this
-         sessionInternal.resetIfNeeded();
-      }
-      catch (ActiveMQException e) {
-         ActiveMQRALogger.LOGGER.problemResettingXASession();
-      }
-      try {
+         try {
+            //this resets any tx stuff, we assume here that the tm and jca layer are well behaved when it comes to this
+            sessionInternal.resetIfNeeded();
+         }
+         catch (ActiveMQException e) {
+            ActiveMQRALogger.LOGGER.problemResettingXASession(e);
+
+            XAException xaException = new XAException(XAException.XAER_RMFAIL);
+            xaException.initCause(e);
+            throw xaException;
+         }
+
          xaResource.start(xid, flags);
       }
       finally {
