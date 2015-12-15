@@ -65,7 +65,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    // Attributes -----------------------------------------------------------------------------
 
-   private String name = "ConfigurationImpl::" + System.identityHashCode(this);
+   private String name = "localhost";
 
    private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
@@ -88,6 +88,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected boolean jmxManagementEnabled = ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled();
 
    protected String jmxDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
+
+   protected boolean jmxUseBrokerName =  ActiveMQDefaultConfiguration.isDefaultJMXUseBrokerName();
 
    protected long connectionTTLOverride = ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride();
 
@@ -856,6 +858,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setJMXDomain(final String domain) {
       jmxDomain = domain;
+      return this;
+   }
+
+   @Override
+   public boolean isJMXUseBrokerName() {
+      return jmxUseBrokerName;
+   }
+
+   @Override
+   public ConfigurationImpl setJMXUseBrokerName(boolean jmxUseBrokerName) {
+      this.jmxUseBrokerName = jmxUseBrokerName;
       return this;
    }
 

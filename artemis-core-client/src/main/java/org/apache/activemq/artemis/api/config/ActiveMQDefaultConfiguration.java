@@ -175,6 +175,9 @@ public final class ActiveMQDefaultConfiguration {
    // the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
    private static String DEFAULT_JMX_DOMAIN = "org.apache.activemq.artemis";
 
+   // the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
+   private static boolean DEFAULT_JMX_IS_USE_BROKER_NAME = true;
+
    // true means that message counters are enabled
    private static boolean DEFAULT_MESSAGE_COUNTER_ENABLED = false;
 
@@ -517,6 +520,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static String getDefaultJmxDomain() {
       return DEFAULT_JMX_DOMAIN;
+   }
+
+   public static boolean isDefaultJMXUseBrokerName() {
+      return DEFAULT_JMX_IS_USE_BROKER_NAME;
    }
 
    /**

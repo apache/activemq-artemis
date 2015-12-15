@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -193,6 +194,16 @@ public interface Configuration {
     * the same JVM and all servers are using the same MBeanServer.
     */
    Configuration setJMXDomain(String domain);
+
+  /**
+   * whether or not to use the broker name in the JMX tree
+   * */
+   boolean isJMXUseBrokerName();
+
+   /**
+    * whether or not to use the broker name in the JMX tree
+    * */
+   ConfigurationImpl setJMXUseBrokerName(boolean jmxUseBrokerName);
 
    /**
     * Returns the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
