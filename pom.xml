@@ -339,7 +339,7 @@
          <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
-            <version>3.6.0.Final</version>
+            <version>3.6.6.Final</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
