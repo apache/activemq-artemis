@@ -82,6 +82,7 @@ under the License.
             <module>request-reply</module>
             <module>scheduled-message</module>
             <module>security</module>
+            <module>security-ldap</module>
             <module>send-acknowledgements</module>
             <module>spring-integration</module>
             <module>ssl-enabled</module>
@@ -142,7 +143,7 @@ under the License.
             <module>rest</module>
             <module>scheduled-message</module>
             <module>security</module>
-            <module>security-jaas</module>
+            <module>security-ldap</module>
             <module>send-acknowledgements</module>
             <module>spring-integration</module>
 
