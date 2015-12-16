@@ -197,6 +197,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="jmx-use-broker-name" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>
+                 Whether or not to use the broker name in the JMX properties
+              </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="message-counter-enabled" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

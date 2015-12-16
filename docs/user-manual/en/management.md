@@ -25,6 +25,16 @@ JMS messages.
 This choice depends on your requirements, your application settings and
 your environment to decide which way suits you best.
 
+
+
+## Object name changes between versions 1.1 and 2
+
+In version 1.2 of Artemis new properties were added to distinguish object names when multiple brokers were deploiyed in 
+the same JVM and to be more like ActiveMQ 5. so for the server the name changed from `org.apache.activemq.artemis:module=Core,type=Server`
+to `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,ServerType=Server`. you can configure 
+the old style by setting `<jmx-use-broker-name>false</jmx-use-broker-name>`. Note that if you do not set a broker name
+then this will default to localhost.
+
 ## The Management API
 
 Regardless of the way you *invoke* management operations, the management
@@ -66,7 +76,7 @@ full details of the API please consult the javadoc. In summary:
     Core queues can be created or destroyed using the management
     operations `createQueue()` or `deployQueue()` or `destroyQueue()`)on
     the `ActiveMQServerControl` (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=Server` or the resource name
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Server` or the resource name
     `core.server`)
 
     `createQueue` will fail if the queue already exists while
@@ -133,7 +143,7 @@ full details of the API please consult the javadoc. In summary:
     any currently attached clients.
 
     to do this use the `forceFailover()` on the `ActiveMQServerControl`
-    (with the ObjectName `org.apache.activemq.artemis:module=Core,type=Server`
+    (with the ObjectName `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Server`
     or the resource name `core.server`)
 
     > **Note**
@@ -145,7 +155,7 @@ full details of the API please consult the javadoc. In summary:
 #### Core Address Management
 
 Core addresses can be managed using the `AddressControl` class (with the
-ObjectName `org.apache.activemq.artemis:module=Core,type=Address,name="<the
+ObjectName `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Address,name="<the
                   address name>"` or the resource name
 `core.address.<the
                   address name>`).
@@ -161,7 +171,7 @@ ObjectName `org.apache.activemq.artemis:module=Core,type=Address,name="<the
 The bulk of the core management API deals with core queues. The
 `QueueControl` class defines the Core queue management operations (with
 the ObjectName
-`org.apache.activemq.artemis:module=Core,type=Queue,address="<the bound
+`org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Queue,address="<the bound
                   address>",name="<the queue name>"` or the resource
 name `core.queue.<the queue name>`).
 
@@ -245,7 +255,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or. `stop()`
     method on the `AcceptorControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=Acceptor,name="<the acceptor name>"`
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Acceptor,name="<the acceptor name>"`
     or the resource name
     `core.acceptor.<the address name>`). The acceptors parameters
     can be retrieved using the `AcceptorControl` attributes (see [Understanding Acceptors](configuring-transports.md))
@@ -254,7 +264,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `DivertControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=Divert,name=<the divert name>`
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Divert,name=<the divert name>`
     or the resource name `core.divert.<the divert name>`). Diverts
     parameters can be retrieved using the `DivertControl` attributes
     (see [Diverting and Splitting Message Flows)](diverts.md))
@@ -263,7 +273,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` (resp. `stop()`)
     method on the `BridgeControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=Bridge,name="<the bridge name>"`
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Bridge,name="<the bridge name>"`
     or the resource name
     `core.bridge.<the bridge name>`). Bridges parameters can be retrieved
     using the `BridgeControl` attributes (see [Core bridges](core-bridges.md))
@@ -272,7 +282,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `BroadcastGroupControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=BroadcastGroup,name="<the broadcast group name>"` or the resource name
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=BroadcastGroup,name="<the broadcast group name>"` or the resource name
     `core.broadcastgroup.<the broadcast group name>`). Broadcast groups
     parameters can be retrieved using the `BroadcastGroupControl`
     attributes (see [Clusters](clusters.md))
@@ -281,7 +291,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `DiscoveryGroupControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=DiscoveryGroup,name="<the discovery group name>"` or the resource name
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=DiscoveryGroup,name="<the discovery group name>"` or the resource name
     `core.discovery.<the discovery group name>`). Discovery groups
     parameters can be retrieved using the `DiscoveryGroupControl`
     attributes (see [Clusters](clusters.md))
@@ -290,7 +300,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `ClusterConnectionControl` class (with the ObjectName
-    `org.apache.activemq.artemis:module=Core,type=ClusterConnection,name="<the cluster connection name>"` or the resource name
+    `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=ClusterConnection,name="<the cluster connection name>"` or the resource name
     `core.clusterconnection.<the cluster connection name>`). Cluster
     connections parameters can be retrieved using the
     `ClusterConnectionControl` attributes (see [Clusters](clusters.md))
@@ -304,7 +314,7 @@ objects* (i.e. JMS queues, topics and connection factories).
 
 JMS Resources (connection factories and destinations) can be created
 using the `JMSServerControl` class (with the ObjectName
-`org.apache.activemq.artemis:module=JMS,type=Server` or the resource name
+`org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=Server` or the resource name
 `jms.server`).
 
 -   Listing, creating, destroying connection factories
@@ -359,7 +369,7 @@ using the `JMSServerControl` class (with the ObjectName
 
 JMS Connection Factories can be managed using the
 `ConnectionFactoryControl` class (with the ObjectName
-`org.apache.activemq.artemis:module=JMS,type=ConnectionFactory,name="<the connection factory
+`org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=ConnectionFactory,name="<the connection factory
                   name>"` or the resource name
 `jms.connectionfactory.<the
                   connection factory name>`).
@@ -376,7 +386,7 @@ JMS Connection Factories can be managed using the
 #### JMS Queue Management
 
 JMS queues can be managed using the `JMSQueueControl` class (with the
-ObjectName `org.apache.activemq.artemis:module=JMS,type=Queue,name="<the queue
+ObjectName `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=Queue,name="<the queue
                   name>"` or the resource name `jms.queue.<the queue
                   name>`).
 
@@ -449,7 +459,7 @@ operations on a core queue.*
 #### JMS Topic Management
 
 JMS Topics can be managed using the `TopicControl` class (with the
-ObjectName `org.apache.activemq.artemis:module=JMS,type=Topic,name="<the topic
+ObjectName `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=Topic,name="<the topic
                   name>"` or the resource name `jms.topic.<the topic
                   name>`).
 
@@ -485,7 +495,7 @@ Apache ActiveMQ Artemis registers its resources with the domain `org.apache.acti
 
 For example, the `ObjectName` to manage a JMS Queue `exampleQueue` is:
 
-    org.apache.activemq.artemis:module=JMS,type=Queue,name="exampleQueue"
+    org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=Queue,name="exampleQueue"
 
 and the MBean is:
 
@@ -549,7 +559,7 @@ be to use a brower and go to the URL http://localhost:8161/jolokia/read/org.apac
 
 This would give you back something like the following:
 
-    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq.artemis:module=Core,type=Server","attribute":"Version","type":"read"},"value":"1.0.0.SNAPSHOT (Active Hornet, 126)"}
+    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Server","attribute":"Version","type":"read"},"value":"1.0.0.SNAPSHOT (Active Hornet, 126)"}
 
 ## Using Management Via Core API
 
@@ -714,10 +724,10 @@ These notifications can be received by 3 different ways:
 If JMX is enabled (see Configuring JMX section), JMX notifications can be received by
 subscribing to 2 MBeans:
 
--   `org.apache.activemq.artemis:module=Core,type=Server` for notifications on
+-   `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=Core,serviceType=Server` for notifications on
     *Core* resources
 
--   `org.apache.activemq.artemis:module=JMS,type=Server` for notifications on
+-   `org.apache.activemq.artemis:type=Broker,brokerName=<broker name>,module=JMS,serviceType=Server` for notifications on
     *JMS* resources
 
 ### Core Messages Notifications

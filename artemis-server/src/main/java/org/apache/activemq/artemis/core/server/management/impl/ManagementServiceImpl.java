@@ -142,7 +142,7 @@ public class ManagementServiceImpl implements ManagementService {
       registry = new ConcurrentHashMap<>();
       broadcaster = new NotificationBroadcasterSupport();
       notificationsEnabled = true;
-      objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain());
+      objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain(), configuration.getName(), configuration.isJMXUseBrokerName());
    }
 
    // Public --------------------------------------------------------

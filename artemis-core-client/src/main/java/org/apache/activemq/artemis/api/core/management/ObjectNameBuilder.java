@@ -31,7 +31,7 @@ public final class ObjectNameBuilder {
    /**
     * Default JMX domain for ActiveMQ Artemis resources.
     */
-   public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
+   public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "localhost", true);
 
    static final String JMS_MODULE = "JMS";
 
@@ -41,21 +41,45 @@ public final class ObjectNameBuilder {
 
    private final String domain;
 
+   private String brokerName;
+
+   private final boolean jmxUseBrokerName;
+
    // Static --------------------------------------------------------
 
    public static ObjectNameBuilder create(final String domain) {
       if (domain == null) {
-         return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
+         return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), null, false);
       }
       else {
-         return new ObjectNameBuilder(domain);
+         return new ObjectNameBuilder(domain, null, false);
+      }
+   }
+
+   public static ObjectNameBuilder create(final String domain, String brokerName) {
+      if (domain == null) {
+         return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
+      }
+      else {
+         return new ObjectNameBuilder(domain, brokerName, true);
+      }
+   }
+
+   public static ObjectNameBuilder create(final String domain, String brokerName, boolean jmxUseBrokerName) {
+      if (domain == null) {
+         return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, jmxUseBrokerName);
+      }
+      else {
+         return new ObjectNameBuilder(domain, brokerName, jmxUseBrokerName);
       }
    }
 
    // Constructors --------------------------------------------------
 
-   private ObjectNameBuilder(final String domain) {
+   private ObjectNameBuilder(final String domain, final String brokerName, boolean jmxUseBrokerName) {
       this.domain = domain;
+      this.brokerName = brokerName;
+      this.jmxUseBrokerName = jmxUseBrokerName;
    }
 
    // Public --------------------------------------------------------
@@ -64,7 +88,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
    public ObjectName getActiveMQServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":module=Core,type=Server");
+      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + "module=Core," + getObjectType() + "=Server");
    }
 
    /**
@@ -82,7 +106,7 @@ public final class ObjectNameBuilder {
     * @see QueueControl
     */
    public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,address=%s,name=%s", domain, ObjectNameBuilder.CORE_MODULE, "Queue", ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s:" + getBrokerProperties() + "module=%s," + getObjectType() + "=%s,address=%s,name=%s", domain, ObjectNameBuilder.CORE_MODULE, "Queue", ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
    }
 
    /**
@@ -141,7 +165,7 @@ public final class ObjectNameBuilder {
     * Returns the ObjectName used by JMSServerControl.
     */
    public ObjectName getJMSServerObjectName() throws Exception {
-      return ObjectName.getInstance(domain + ":module=JMS,type=Server");
+      return ObjectName.getInstance(domain + ":" + getBrokerProperties() + "module=JMS," + getObjectType() + "=Server");
    }
 
    /**
@@ -166,6 +190,25 @@ public final class ObjectNameBuilder {
    }
 
    private ObjectName createObjectName(final String module, final String type, final String name) throws Exception {
-      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,name=%s", domain, module, type, ObjectName.quote(name)));
+      String format = String.format("%s:" + getBrokerProperties() + "module=%s," + getObjectType() + "=%s,name=%s", domain, module, type, ObjectName.quote(name));
+      return ObjectName.getInstance(format);
+   }
+
+   private String getBrokerProperties() {
+      if (jmxUseBrokerName && brokerName != null) {
+         return String.format("type=Broker,brokerName=%s,", ObjectName.quote(brokerName));
+      }
+      else {
+         return "";
+      }
+   }
+
+   private String getObjectType() {
+      if (jmxUseBrokerName && brokerName != null) {
+         return "serviceType";
+      }
+      else {
+         return "type";
+      }
    }
 }
