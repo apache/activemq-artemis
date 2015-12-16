@@ -207,7 +207,7 @@ Please note that Apache ActiveMQ Artemis requires a Java 7 or later runtime to r
 
 By default the `etc/bootstrap.xml` configuration is
 used. The configuration can be changed e.g. by running
-`./activemq run -- xml:path/to/bootstrap.xml` or another
+`./artemis run -- xml:path/to/bootstrap.xml` or another
 config of your choosing.
 
 Environment variables are used to provide ease of changing ports, hosts and
