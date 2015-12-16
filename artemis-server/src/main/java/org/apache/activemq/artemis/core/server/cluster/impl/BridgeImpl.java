@@ -28,11 +28,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
@@ -216,6 +218,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       bb.putLong(messageID);
 
       return bytes;
+   }
+
+   // for tests
+   public ClientSessionFactory getSessionFactory() {
+      return csf;
    }
 
    /* (non-Javadoc)
@@ -905,8 +912,24 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                scheduleRetryConnect();
             }
          }
+         catch (ActiveMQInterruptedException e) {
+            ActiveMQServerLogger.LOGGER.errorConnectingBridge(e, this);
+         }
+         catch (InterruptedException e) {
+            ActiveMQServerLogger.LOGGER.errorConnectingBridge(e, this);
+         }
          catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorConnectingBridge(e, this);
+            if (csf != null) {
+               try {
+                  csf.close();
+                  csf = null;
+               }
+               catch (Throwable ignored) {
+               }
+            }
+            fail(false);
+            scheduleRetryConnect();
          }
       }
    }

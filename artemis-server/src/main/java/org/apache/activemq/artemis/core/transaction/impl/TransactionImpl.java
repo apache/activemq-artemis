@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -31,6 +32,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 
 public class TransactionImpl implements Transaction {
+
+   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private List<TransactionOperation> operations;
 
@@ -105,8 +108,7 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public boolean isEffective() {
-      return state == State.PREPARED || state == State.COMMITTED;
-
+      return state == State.PREPARED || state == State.COMMITTED || state == State.ROLLEDBACK;
    }
 
    @Override
@@ -141,32 +143,43 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public boolean hasTimedOut(final long currentTime, final int defaultTimeout) {
-      if (timeoutSeconds == -1) {
-         return getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
-      }
-      else {
-         return getState() != Transaction.State.PREPARED && currentTime > createTime + timeoutSeconds * 1000;
+      synchronized (timeoutLock) {
+         boolean timedout;
+         if (timeoutSeconds == -1) {
+            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
+         }
+         else {
+            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + timeoutSeconds * 1000;
+         }
+
+         if (timedout) {
+            markAsRollbackOnly(new ActiveMQException("TX Timeout"));
+         }
+
+         return timedout;
       }
    }
 
    @Override
    public void prepare() throws Exception {
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::prepare::" + this);
+      }
       storageManager.readLock();
       try {
          synchronized (timeoutLock) {
             if (isEffective()) {
-               ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has already been prepared or committed before, just ignoring the prepare call");
+               ActiveMQServerLogger.LOGGER.debug("TransactionImpl::prepare::" + this + " is being ignored");
                return;
             }
             if (state == State.ROLLBACK_ONLY) {
+               if (isTrace) {
+                  ActiveMQServerLogger.LOGGER.trace("TransactionImpl::prepare::rollbackonly, rollingback " + this);
+               }
+
+               internalRollback();
+
                if (exception != null) {
-                  // this TX will never be rolled back,
-                  // so we reset it now
-                  beforeRollback();
-                  afterRollback();
-                  if (operations != null) {
-                     operations.clear();
-                  }
                   throw exception;
                }
                else {
@@ -216,14 +229,17 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void commit(final boolean onePhase) throws Exception {
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::commit::" + this);
+      }
       synchronized (timeoutLock) {
          if (state == State.COMMITTED) {
             // I don't think this could happen, but just in case
-            ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has been committed before, just ignoring the commit call");
+            ActiveMQServerLogger.LOGGER.debug("TransactionImpl::commit::" + this + " is being ignored");
             return;
          }
          if (state == State.ROLLBACK_ONLY) {
-            rollback();
+            internalRollback();
 
             if (exception != null) {
                throw exception;
@@ -236,18 +252,23 @@ public class TransactionImpl implements Transaction {
 
          if (xid != null) {
             if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED) {
-               throw new IllegalStateException("Transaction is in invalid state " + state);
+               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          }
          else {
             if (state != State.ACTIVE) {
-               throw new IllegalStateException("Transaction is in invalid state " + state);
+               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          }
 
          beforeCommit();
 
          doCommit();
+
+         // We want to make sure that nothing else gets done after the commit is issued
+         // this will eliminate any possibility or races
+         final List<TransactionOperation> operationsToComplete = this.operations;
+         this.operations = null;
 
          // We use the Callback even for non persistence
          // If we are using non-persistence with replication, the replication manager will have
@@ -263,7 +284,7 @@ public class TransactionImpl implements Transaction {
 
             @Override
             public void done() {
-               afterCommit();
+               afterCommit(operationsToComplete);
             }
          });
 
@@ -285,44 +306,65 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void rollback() throws Exception {
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::rollback::" + this);
+      }
+
       synchronized (timeoutLock) {
          if (state == State.ROLLEDBACK) {
             // I don't think this could happen, but just in case
-            ActiveMQServerLogger.LOGGER.debug("XID " + xid + " has been rolledBack before, just ignoring the rollback call", new Exception("trace"));
+            ActiveMQServerLogger.LOGGER.debug("TransactionImpl::rollback::" + this + " is being ignored");
             return;
          }
          if (xid != null) {
             if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
-               throw new IllegalStateException("Transaction is in invalid state " + state);
+               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          }
          else {
             if (state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
-               throw new IllegalStateException("Transaction is in invalid state " + state);
+               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          }
 
-         beforeRollback();
+         internalRollback();
+      }
+   }
 
+   private void internalRollback() throws Exception {
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::internalRollback " + this);
+      }
+
+      beforeRollback();
+
+      try {
          doRollback();
          state = State.ROLLEDBACK;
-
-         // We use the Callback even for non persistence
-         // If we are using non-persistence with replication, the replication manager will have
-         // to execute this runnable in the correct order
-         storageManager.afterCompleteOperations(new IOCallback() {
-
-            @Override
-            public void onError(final int errorCode, final String errorMessage) {
-               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
-            }
-
-            @Override
-            public void done() {
-               afterRollback();
-            }
-         });
       }
+      catch (IllegalStateException e) {
+         // Something happened before and the TX didn't make to the Journal / Storage
+         // We will like to execute afterRollback and clear anything pending
+         ActiveMQServerLogger.LOGGER.warn(e);
+      }
+      // We want to make sure that nothing else gets done after the commit is issued
+      // this will eliminate any possibility or races
+      final List<TransactionOperation> operationsToComplete = this.operations;
+      this.operations = null;
+
+      // We use the Callback even for non persistence
+      // If we are using non-persistence with replication, the replication manager will have
+      // to execute this runnable in the correct order
+      storageManager.afterCompleteOperations(new IOCallback() {
+
+         public void onError(final int errorCode, final String errorMessage) {
+            ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+         }
+
+         public void done() {
+            afterRollback(operationsToComplete);
+         }
+      });
    }
 
    @Override
@@ -361,10 +403,14 @@ public class TransactionImpl implements Transaction {
    }
 
    @Override
-   public void markAsRollbackOnly(final ActiveMQException exception1) {
+   public void markAsRollbackOnly(final ActiveMQException exception) {
       synchronized (timeoutLock) {
+         if (isTrace) {
+            ActiveMQServerLogger.LOGGER.trace("TransactionImpl::" + this + " marking rollbackOnly for " + exception.toString() + ", msg=" + exception.getMessage());
+         }
+
          if (isEffective()) {
-            ActiveMQServerLogger.LOGGER.debug("Trying to mark transaction " + this.id + " xid=" + this.xid + " as rollbackOnly but it was already effective (prepared or committed!)");
+            ActiveMQServerLogger.LOGGER.debug("Trying to mark transaction " + this.id + " xid=" + this.xid + " as rollbackOnly but it was already effective (prepared, committed or rolledback!)");
             return;
          }
 
@@ -373,7 +419,7 @@ public class TransactionImpl implements Transaction {
          }
          state = State.ROLLBACK_ONLY;
 
-         this.exception = exception1;
+         this.exception = exception;
       }
    }
 
@@ -434,19 +480,23 @@ public class TransactionImpl implements Transaction {
       }
    }
 
-   private synchronized void afterCommit() {
-      if (operations != null) {
-         for (TransactionOperation operation : operations) {
+   private synchronized void afterCommit(List<TransactionOperation> oeprationsToComplete) {
+      if (oeprationsToComplete != null) {
+         for (TransactionOperation operation : oeprationsToComplete) {
             operation.afterCommit(this);
          }
+         // Help out GC here
+         oeprationsToComplete.clear();
       }
    }
 
-   private synchronized void afterRollback() {
-      if (operations != null) {
-         for (TransactionOperation operation : operations) {
+   private synchronized void afterRollback(List<TransactionOperation> oeprationsToComplete) {
+      if (oeprationsToComplete != null) {
+         for (TransactionOperation operation : oeprationsToComplete) {
             operation.afterRollback(this);
          }
+         // Help out GC here
+         oeprationsToComplete.clear();
       }
    }
 

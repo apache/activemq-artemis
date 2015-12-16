@@ -27,6 +27,7 @@ import javax.jms.XASession;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -91,7 +92,7 @@ public class TimeoutXATest extends ActiveMQTestBase {
          @BMRule(
             name = "afterRollback TX",
             targetClass = "org.apache.activemq.artemis.core.transaction.impl.TransactionImpl",
-            targetMethod = "afterRollback()",
+            targetMethod = "afterRollback",
             targetLocation = "ENTRY",
             helper = "org.apache.activemq.artemis.tests.extras.byteman.TimeoutXATest",
             action = "afterRollback()")})
@@ -166,23 +167,20 @@ public class TimeoutXATest extends ActiveMQTestBase {
       Thread.sleep(1000);
       removingTXAwait0.countDown();
 
-      enteredRollbackLatch.await();
+      Assert.assertTrue(enteredRollbackLatch.await(10, TimeUnit.SECONDS));
 
       waitingRollbackLatch.countDown();
 
       t.join();
 
       consumer.close();
-//
-//      connction2.start();
-//
+
       consumer = session.createConsumer(queue);
       for (int i = 0; i < 10; i++) {
          Assert.assertNotNull(consumer.receive(5000));
       }
       Assert.assertNull(consumer.receiveNoWait());
-//      session.commit();
-//      session.close();
+
       connection.close();
       connction2.close();
 

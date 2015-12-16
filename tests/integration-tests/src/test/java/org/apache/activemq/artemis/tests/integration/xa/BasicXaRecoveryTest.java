@@ -381,6 +381,9 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       else {
          clientSession.rollback(xid);
       }
+
+      xids = clientSession.recover(XAResource.TMSTARTRSCAN);
+      Assert.assertEquals(xids.length, 0);
    }
 
    @Test

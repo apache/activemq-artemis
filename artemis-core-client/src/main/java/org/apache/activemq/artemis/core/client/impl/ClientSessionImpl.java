@@ -539,8 +539,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       rollback(false);
    }
 
-   @Override
-   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException {
+   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
+   {
+      rollback(isLastMessageAsDelivered, true);
+   }
+
+   public void rollback(final boolean isLastMessageAsDelivered, final boolean waitConsumers) throws ActiveMQException
+   {
       if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
       }
@@ -559,7 +564,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       // We need to make sure we don't get any inflight messages
       for (ClientConsumerInternal consumer : cloneConsumers()) {
-         consumer.clear(true);
+         consumer.clear(waitConsumers);
       }
 
       // Acks must be flushed here *after connection is stopped and all onmessages finished executing
@@ -1173,7 +1178,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       try {
          if (rollbackOnly) {
             try {
-               rollback();
+               rollback(false, false);
             }
             catch (Throwable ignored) {
                ActiveMQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
@@ -1252,6 +1257,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          return sessionContext.configureTransactionTimeout(seconds);
       }
       catch (Throwable t) {
+         markRollbackOnly(); // The TM will ignore any errors from here, if things are this screwed up we mark rollbackonly
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);

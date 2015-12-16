@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.ra.ActiveMQRABundle;
@@ -420,12 +419,19 @@ public class ActiveMQActivation {
          // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
       }
 
-      if (threadTearDown.isAlive()) {
-         if (factory != null) {
-            // This will interrupt any threads waiting on reconnect
+      if (factory != null) {
+         try {
+            // closing the factory will help making sure pending threads are closed
             factory.close();
-            factory = null;
          }
+         catch (Throwable e) {
+            ActiveMQRALogger.LOGGER.warn(e);
+         }
+
+         factory = null;
+      }
+
+      if (threadTearDown.isAlive()) {
          threadTearDown.interrupt();
 
          try {
@@ -438,11 +444,6 @@ public class ActiveMQActivation {
          if (threadTearDown.isAlive()) {
             ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
          }
-      }
-
-      if (spec.isHasBeenUpdated() && factory != null) {
-         ra.closeConnectionFactory(spec);
-         factory = null;
       }
 
       nodes.clear();
@@ -465,23 +466,11 @@ public class ActiveMQActivation {
             factory = (ActiveMQConnectionFactory) fac;
          }
          else {
-            ActiveMQRAConnectionFactory raFact = (ActiveMQRAConnectionFactory) fac;
-            if (spec.isHasBeenUpdated()) {
-               factory = raFact.getResourceAdapter().createActiveMQConnectionFactory(spec);
-            }
-            else {
-               factory = raFact.getDefaultFactory();
-               if (factory != ra.getDefaultActiveMQConnectionFactory()) {
-                  ActiveMQRALogger.LOGGER.warnDifferentConnectionfactory();
-               }
-            }
+            factory = ra.newConnectionFactory(spec);
          }
       }
-      else if (spec.isHasBeenUpdated()) {
-         factory = ra.createActiveMQConnectionFactory(spec);
-      }
       else {
-         factory = ra.getDefaultActiveMQConnectionFactory();
+         factory = ra.newConnectionFactory(spec);
       }
    }
 
@@ -627,9 +616,18 @@ public class ActiveMQActivation {
       return buffer.toString();
    }
 
-   public void rebalance() {
-      ActiveMQRALogger.LOGGER.rebalancingConnections();
-      reconnect(null);
+   public void startReconnectThread(final String threadName) {
+      if (trace) {
+         ActiveMQRALogger.LOGGER.trace("Starting reconnect Thread " + threadName + " on MDB activation " + this);
+      }
+      Runnable runnable = new Runnable() {
+         @Override
+         public void run() {
+            reconnect(null);
+         }
+      };
+      Thread t = new Thread(runnable, threadName);
+      t.start();
    }
 
    /**
@@ -638,6 +636,9 @@ public class ActiveMQActivation {
     * @param failure if reconnecting in the event of a failure
     */
    public void reconnect(Throwable failure) {
+      if (trace) {
+         ActiveMQRALogger.LOGGER.trace("reconnecting activation " + this);
+      }
       if (failure != null) {
          if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
             ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
@@ -728,6 +729,7 @@ public class ActiveMQActivation {
    }
 
    private class RebalancingListener implements ClusterTopologyListener {
+
       @Override
       public void nodeUP(TopologyMember member, boolean last) {
          boolean newNode = false;
@@ -741,14 +743,8 @@ public class ActiveMQActivation {
          }
 
          if (lastReceived && newNode) {
-            Runnable runnable = new Runnable() {
-               @Override
-               public void run() {
-                  rebalance();
-               }
-            };
-            Thread t = new Thread(runnable, "NodeUP Connection Rebalancer");
-            t.start();
+            ActiveMQRALogger.LOGGER.rebalancingConnections("nodeUp " + member.toString());
+            startReconnectThread("NodeUP Connection Rebalancer");
          }
          else if (last) {
             lastReceived = true;
@@ -759,14 +755,8 @@ public class ActiveMQActivation {
       public void nodeDown(long eventUID, String nodeID) {
          if (nodes.remove(nodeID)) {
             removedNodes.put(nodeID, eventUID);
-            Runnable runnable = new Runnable() {
-               @Override
-               public void run() {
-                  rebalance();
-               }
-            };
-            Thread t = new Thread(runnable, "NodeDOWN Connection Rebalancer");
-            t.start();
+            ActiveMQRALogger.LOGGER.rebalancingConnections("nodeDown " + nodeID);
+            startReconnectThread("NodeDOWN Connection Rebalancer");
          }
       }
    }

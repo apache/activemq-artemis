@@ -680,6 +680,10 @@ public class BridgeReconnectTest extends BridgeTestBase {
          }
       }
 
+      for (int i = 0; i < 100 && queue.getDeliveringCount() != 0; i++) {
+         Thread.sleep(10);
+      }
+
       System.out.println("Check.. DeliveringCount: " + queue.getDeliveringCount());
       assertEquals("Delivering count of a source queue should be zero on connection failure", 0, queue.getDeliveringCount());
 

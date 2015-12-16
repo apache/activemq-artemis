@@ -811,7 +811,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
    private void createCF() {
       if (connectionFactory == null) {
-         connectionFactory = ra.createActiveMQConnectionFactory(mcf.getProperties());
+         connectionFactory = ra.getConnectionFactory(mcf.getProperties());
       }
    }
 

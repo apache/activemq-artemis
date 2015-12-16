@@ -74,6 +74,11 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
       latchFlag.setCount(1);
    }
 
+   @Override
+   protected boolean usePersistence() {
+      return true;
+   }
+
    @Test
    @BMRules(
       rules = {@BMRule(
@@ -84,6 +89,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
          action = "org.apache.activemq.artemis.tests.extras.byteman.ConcurrentDeliveryCancelTest.enterCancel();")})
    public void testConcurrentCancels() throws Exception {
 
+      System.out.println(server.getConfiguration().getJournalLocation().toString());
       server.getAddressSettingsRepository().clear();
       AddressSettings settings = new AddressSettings();
       settings.setMaxDeliveryAttempts(-1);
@@ -184,18 +190,6 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
                }
             }
          });
-         //
-         //         consumer.close();
-         //
-         //         threads.add(new Thread("ClientFailing")
-         //         {
-         //            public void run()
-         //            {
-         //               ClientSessionInternal impl = (ClientSessionInternal) ((HornetQSession)theSession).getCoreSession();
-         //               impl.getConnection().fail(new HornetQException("failure"));
-         //            }
-         //         });
-         //
 
          for (Thread t : threads) {
             t.start();
@@ -213,47 +207,55 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
       }
 
       Connection connection = cf.createConnection();
-      connection.setClientID("myID");
+      try {
+         connection.setClientID("myID");
 
-      Thread.sleep(2000); // I am too lazy to call end on all the transactions
-      connection.start();
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageConsumer consumer = session.createConsumer(queue);
-      HashMap<Integer, AtomicInteger> mapCount = new HashMap<>();
+         Thread.sleep(5000); // I am too lazy to call end on all the transactions
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer = session.createConsumer(queue);
+         HashMap<Integer, AtomicInteger> mapCount = new HashMap<>();
 
-      while (true) {
-         TextMessage message = (TextMessage) consumer.receiveNoWait();
-         if (message == null) {
-            break;
+         while (true) {
+            TextMessage message = (TextMessage) consumer.receiveNoWait();
+            if (message == null) {
+               break;
+            }
+
+            Integer value = message.getIntProperty("i");
+
+            AtomicInteger count = mapCount.get(value);
+            if (count == null) {
+               count = new AtomicInteger(0);
+               mapCount.put(message.getIntProperty("i"), count);
+            }
+
+            count.incrementAndGet();
          }
 
-         Integer value = message.getIntProperty("i");
-
-         AtomicInteger count = mapCount.get(value);
-         if (count == null) {
-            count = new AtomicInteger(0);
-            mapCount.put(message.getIntProperty("i"), count);
+         boolean failed = false;
+         for (int i = 0; i < numberOfMessages; i++) {
+            AtomicInteger count = mapCount.get(i);
+            if (count == null) {
+               System.out.println("Message " + i + " not received");
+               failed = true;
+            }
+            else if (count.get() > 1) {
+               System.out.println("Message " + i + " received " + count.get() + " times");
+               failed = true;
+            }
          }
 
-         count.incrementAndGet();
+         if (failed) {
+            System.err.println("Failed");
+            System.exit(-1);
+         }
+
+         Assert.assertFalse("test failed, look at the system.out of the test for more infomration", failed);
       }
-
-      boolean failed = false;
-      for (int i = 0; i < numberOfMessages; i++) {
-         AtomicInteger count = mapCount.get(i);
-         if (count == null) {
-            System.out.println("Message " + i + " not received");
-            failed = true;
-         }
-         else if (count.get() > 1) {
-            System.out.println("Message " + i + " received " + count.get() + " times");
-            failed = true;
-         }
+      finally {
+         connection.close();
       }
-
-      Assert.assertFalse("test failed, look at the system.out of the test for more infomration", failed);
-
-      connection.close();
 
    }
 }

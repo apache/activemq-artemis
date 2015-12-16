@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -185,7 +186,12 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                AsynchronousFailoverTest.log.info("Fail complete");
 
-               t.join();
+               t.join(TimeUnit.SECONDS.toMillis(20));
+               if (t.isAlive()) {
+                  System.out.println(threadDump("Thread still running from the test"));
+                  t.interrupt();
+                  fail("Test didn't complete successful, thread still running");
+               }
 
                runnable.checkForExceptions();
 

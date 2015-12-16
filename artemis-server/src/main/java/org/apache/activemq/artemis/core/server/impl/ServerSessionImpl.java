@@ -1047,7 +1047,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          ActiveMQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
 
          try {
-            if (!tx.isEffective()) {
+            if (tx.getState() != Transaction.State.PREPARED) {
                // we don't want to rollback anything prepared here
                if (tx.getXid() != null) {
                   resourceManager.removeTransaction(tx.getXid());
@@ -1085,7 +1085,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (theTX.isEffective()) {
-         ActiveMQServerLogger.LOGGER.debug("Client failed with Xid " + xid + " but the server already had it prepared");
+         ActiveMQServerLogger.LOGGER.debug("Client failed with Xid " + xid + " but the server already had it " + theTX.getState());
          tx = null;
       }
       else {
@@ -1568,9 +1568,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (theTx.getState() == State.ROLLEDBACK) {
          Transaction newTX = newTransaction();
          cancelAndRollback(clientFailed, newTX, wasStarted, toCancel);
-         throw new IllegalStateException("Transaction has already been rolled back");
       }
-      cancelAndRollback(clientFailed, theTx, wasStarted, toCancel);
+      else {
+         cancelAndRollback(clientFailed, theTx, wasStarted, toCancel);
+      }
    }
 
    private void cancelAndRollback(boolean clientFailed,
