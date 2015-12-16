@@ -16,8 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -36,33 +42,61 @@ public class CoreClientTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
-
    @Test
    public void testCoreClientNetty() throws Exception {
-      testCoreClient(true);
+      testCoreClient(true, null);
    }
 
    @Test
    public void testCoreClientInVM() throws Exception {
-      testCoreClient(false);
+      testCoreClient(false, null);
    }
 
-   private void testCoreClient(final boolean netty) throws Exception {
+   @Test
+   public void testCoreClientWithInjectedThreadPools() throws Exception {
+
+      ExecutorService threadPool = Executors.newCachedThreadPool();
+      ScheduledThreadPoolExecutor scheduledThreadPool =  new ScheduledThreadPoolExecutor(10);
+
+      ServerLocator locator =  createNonHALocator(false);
+      boolean setThreadPools = locator.setThreadPools(threadPool, scheduledThreadPool);
+
+      assertTrue(setThreadPools);
+      testCoreClient(true, locator);
+
+      threadPool.shutdown();
+      scheduledThreadPool.shutdown();
+
+      threadPool.awaitTermination(60, TimeUnit.SECONDS);
+      scheduledThreadPool.awaitTermination(60, TimeUnit.SECONDS);
+   }
+
+   @Test
+   public void testCoreClientWithGlobalThreadPoolParamtersChanged() throws Exception {
+
+      int originalScheduled = ActiveMQClient.globalScheduledThreadPoolSize;
+      int originalGlobal = ActiveMQClient.globalThreadMaxPoolSize;
+
+      try {
+         ActiveMQClient.setGlobalThreadPoolProperties(2, 1);
+         ServerLocator locator = createNonHALocator(false);
+         testCoreClient(true, locator);
+      }
+      finally {
+         // restoring original value otherwise future tests would be screwed up
+         ActiveMQClient.setGlobalThreadPoolProperties(originalGlobal, originalScheduled);
+         ActiveMQClient.clearThreadPools();
+      }
+   }
+
+   private void testCoreClient(final boolean netty, ServerLocator serverLocator) throws Exception {
       final SimpleString QUEUE = new SimpleString("CoreClientTestQueue");
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(netty), false));
 
       server.start();
-      ServerLocator locator = createNonHALocator(netty);
+
+      ServerLocator locator = serverLocator == null ? createNonHALocator(netty) : serverLocator;
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -105,5 +139,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
          message2.acknowledge();
       }
+
+      sf.close();
    }
 }
