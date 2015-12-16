@@ -2403,8 +2403,10 @@ public abstract class ActiveMQTestBase extends Assert {
    protected void closeAllSessionFactories() {
       synchronized (sessionFactories) {
          for (ClientSessionFactory sf : sessionFactories) {
-            closeSessionFactory(sf);
-            assert sf.isClosed();
+            if (!sf.isClosed()) {
+               closeSessionFactory(sf);
+               assert sf.isClosed();
+            }
          }
          sessionFactories.clear();
       }
