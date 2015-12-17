@@ -463,7 +463,9 @@ public class ActiveMQActivation {
          }
          Object fac = ctx.lookup(spec.getConnectionFactoryLookup());
          if (fac instanceof ActiveMQConnectionFactory) {
-            factory = (ActiveMQConnectionFactory) fac;
+            // This will clone the connection factory
+            // to make sure we won't close anyone's connection factory when we stop the MDB
+            factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
          }
          else {
             factory = ra.newConnectionFactory(spec);
