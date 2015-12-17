@@ -16,11 +16,18 @@ performance.
     on separate volumes too.
 
 -   Minimum number of journal files. Set `journal-min-files` to a number
-    of files that would fit your average sustainable rate. If you see
-    new files being created on the journal data directory too often,
-    i.e. lots of data is being persisted, you need to increase the
-    minimal number of files, this way the journal would reuse more files
-    instead of creating new data files.
+    of files that would fit your average sustainable rate.  This number
+    represents the lower threshold of the journal file pool.
+
+-   To set the upper threshold of the journal file pool. (`journal-min-files` being
+    the lower threshold).  Set `journal-pool-files` to a number that represents
+    something near your maximum expected load.  The journal will spill over
+    the pool should it need to, but will shrink back to the upper threshold, 
+    when possible.  This allows reuse of files, without taking up more disk
+    space than required.  If you see new files being created on the journal
+    data directory too often, i.e. lots of data is being persisted, 
+    you need to increase the journal-pool-size, this way the journal would
+    reuse more files instead of creating new data files, increasing performance
 
 -   Journal file size. The journal file size should be aligned to the
     capacity of a cylinder on the disk. The default value 10MiB should
