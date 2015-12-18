@@ -62,6 +62,10 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
       private final Executor delegate;
       private final ExecutorTask task = new ExecutorTask();
 
+      // used by stateUpdater
+      @SuppressWarnings("unused")
+      private volatile int state = 0;
+
       private static final AtomicIntegerFieldUpdater<OrderedExecutor> stateUpdater = AtomicIntegerFieldUpdater.newUpdater(OrderedExecutor.class, "state");
 
       private static final int STATE_NOT_RUNNING = 0;
