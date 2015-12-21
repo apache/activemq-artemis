@@ -386,6 +386,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    @Message(id = 214017, value = "Caught unexpected Throwable", format = Message.Format.MESSAGE_FORMAT)
    void caughtunexpectedThrowable(@Cause Throwable t);
 
+   @Deprecated
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214018, value = "Failed to invoke getTextContent() on node {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorOnXMLTransform(@Cause Throwable t, Node n);
