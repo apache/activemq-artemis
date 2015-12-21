@@ -366,7 +366,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
    private List<ServerSession> lookupServerSessions(String parameter, int numberOfSessions) {
       long timeout = System.currentTimeMillis() + 50000;
-      List<ServerSession> serverSessions = new LinkedList<ServerSession>();
+      List<ServerSession> serverSessions = new LinkedList<>();
       do {
          if (!serverSessions.isEmpty()) {
             System.err.println("Retry on serverSessions!!! currently with " + serverSessions.size());
