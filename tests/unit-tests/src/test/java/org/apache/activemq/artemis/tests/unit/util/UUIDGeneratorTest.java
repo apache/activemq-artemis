@@ -34,15 +34,9 @@ public class UUIDGeneratorTest extends ActiveMQTestBase {
 
    @Test
    public void testGetHardwareAddress() throws Exception {
-      String javaVersion = System.getProperty("java.vm.version");
-      if (javaVersion.startsWith("1.5")) {
-         Assert.assertNull(UUIDGenerator.getHardwareAddress());
-      }
-      else if (javaVersion.startsWith("1.6")) {
-         byte[] bytes = UUIDGenerator.getHardwareAddress();
-         Assert.assertNotNull(bytes);
-         Assert.assertTrue(bytes.length == 6);
-      }
+      byte[] bytes = UUIDGenerator.getHardwareAddress();
+      Assert.assertNotNull(bytes);
+      Assert.assertTrue(bytes.length == 6);
    }
 
    @Test

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.lang.reflect.Method;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.security.SecureRandom;
@@ -134,21 +133,13 @@ public final class UUIDGenerator {
     * @return A byte array containing the hardware address.
     */
    public static byte[] getHardwareAddress() {
-      Method getHardwareAddressMethod;
-      Method isUpMethod;
-      Method isLoopbackMethod;
-      Method isVirtualMethod;
       try {
-         getHardwareAddressMethod = NetworkInterface.class.getMethod("getHardwareAddress");
-         isUpMethod = NetworkInterface.class.getMethod("isUp");
-         isLoopbackMethod = NetworkInterface.class.getMethod("isLoopback");
-         isVirtualMethod = NetworkInterface.class.getMethod("isVirtual");
          // check if we have enough security permissions to create and shutdown an executor
-         ExecutorService executor = Executors.newFixedThreadPool(0);
+         ExecutorService executor = Executors.newFixedThreadPool(1);
          executor.shutdownNow();
       }
       catch (Throwable t) {
-         // not on Java 6 or not enough security permission
+         // not enough security permission
          return null;
       }
 
@@ -159,7 +150,7 @@ public final class UUIDGenerator {
             return null;
          }
 
-         byte[] address = findFirstMatchingHardwareAddress(ifaces, getHardwareAddressMethod, isUpMethod, isLoopbackMethod, isVirtualMethod);
+         byte[] address = findFirstMatchingHardwareAddress(ifaces);
          if (address != null) {
             if (ActiveMQUtilLogger.LOGGER.isDebugEnabled()) {
                ActiveMQUtilLogger.LOGGER.debug("using hardware address " + UUIDGenerator.asString(address));
@@ -269,11 +260,7 @@ public final class UUIDGenerator {
       }
    }
 
-   private static byte[] findFirstMatchingHardwareAddress(List<NetworkInterface> ifaces,
-                                                          final Method getHardwareAddressMethod,
-                                                          final Method isUpMethod,
-                                                          final Method isLoopbackMethod,
-                                                          final Method isVirtualMethod) {
+   private static byte[] findFirstMatchingHardwareAddress(List<NetworkInterface> ifaces) {
       ExecutorService executor = Executors.newFixedThreadPool(ifaces.size());
       Collection<Callable<byte[]>> tasks = new ArrayList<>(ifaces.size());
 
@@ -281,18 +268,17 @@ public final class UUIDGenerator {
          tasks.add(new Callable<byte[]>() {
             @Override
             public byte[] call() throws Exception {
-               boolean up = (Boolean) isUpMethod.invoke(networkInterface);
-               boolean loopback = (Boolean) isLoopbackMethod.invoke(networkInterface);
-               boolean virtual = (Boolean) isVirtualMethod.invoke(networkInterface);
+               boolean up = networkInterface.isUp();
+               boolean loopback = networkInterface.isLoopback();
+               boolean virtual = networkInterface.isVirtual();
 
                if (loopback || virtual || !up) {
                   throw new Exception("not suitable interface");
                }
 
-               Object res = getHardwareAddressMethod.invoke(networkInterface);
-               if (res != null && res instanceof byte[]) {
+               byte[] address = networkInterface.getHardwareAddress();
+               if (address != null) {
 
-                  byte[] address = (byte[]) res;
                   byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
 
                   if (UUIDGenerator.isBlackList(address)) {
