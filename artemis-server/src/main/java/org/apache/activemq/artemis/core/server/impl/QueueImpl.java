@@ -1106,7 +1106,7 @@ public class QueueImpl implements Queue {
       List<MessageReference> scheduledMessages = scheduledDeliveryHandler.cancel(null);
       if (scheduledMessages != null && scheduledMessages.size() > 0) {
          for (MessageReference ref : scheduledMessages) {
-            ref.getMessage().putLongProperty(MessageImpl.HDR_SCHEDULED_DELIVERY_TIME, ref.getScheduledDeliveryTime());
+            ref.getMessage().putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, ref.getScheduledDeliveryTime());
             ref.setScheduledDeliveryTime(0);
          }
          this.addHead(scheduledMessages);
@@ -1607,8 +1607,8 @@ public class QueueImpl implements Queue {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
 
-            SimpleString originalMessageAddress = ref.getMessage().getSimpleStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS);
-            SimpleString originalMessageQueue = ref.getMessage().getSimpleStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE);
+            SimpleString originalMessageAddress = ref.getMessage().getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS);
+            SimpleString originalMessageQueue = ref.getMessage().getSimpleStringProperty(Message.HDR_ORIGINAL_QUEUE);
 
             if (originalMessageAddress != null) {
 

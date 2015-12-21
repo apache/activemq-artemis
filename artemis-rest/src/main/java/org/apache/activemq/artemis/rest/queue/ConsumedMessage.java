@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.rest.HttpHeaderProperty;
@@ -55,7 +56,7 @@ public abstract class ConsumedMessage {
       if (aBoolean != null && aBoolean.booleanValue()) {
          return new ConsumedHttpMessage(message);
       }
-      else if (message.getType() == ClientMessage.OBJECT_TYPE) {
+      else if (message.getType() == Message.OBJECT_TYPE) {
          return new ConsumedObjectMessage(message);
       }
       else {

@@ -30,7 +30,7 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
    // Constants -----------------------------------------------------

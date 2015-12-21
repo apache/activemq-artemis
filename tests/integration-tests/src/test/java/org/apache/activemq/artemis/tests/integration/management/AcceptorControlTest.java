@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class AcceptorControlTest extends ManagementTestBase {
    // Static --------------------------------------------------------

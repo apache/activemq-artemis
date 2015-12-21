@@ -24,13 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,8 +69,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
       Assert.assertNotNull(m);
-      Assert.assertEquals(qName.toString(), m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
-      Assert.assertEquals(adSend.toString(), m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
+      Assert.assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
+      Assert.assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       Assert.assertNotNull(m);
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
       m.acknowledge();
@@ -158,8 +157,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(m);
 
-      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
-      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
+      assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       ExpiryAddressTest.log.info("acking");
       m.acknowledge();
@@ -174,8 +173,8 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(m);
 
-      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_ADDRESS));
-      assertNotNull(m.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE));
+      assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+      assertNotNull(m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
 
       ExpiryAddressTest.log.info("acking");
       m.acknowledge();

@@ -81,7 +81,7 @@ public class PostMessage {
       try {
          ClientProducer producer = pooled.producer;
          ClientMessage message = createActiveMQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
-         message.putStringProperty(ClientMessage.HDR_DUPLICATE_DETECTION_ID.toString(), dup);
+         message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), dup);
          producer.send(message);
          ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);

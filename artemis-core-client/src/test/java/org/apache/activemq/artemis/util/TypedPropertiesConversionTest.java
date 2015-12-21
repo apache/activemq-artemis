@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.junit.Assert;
 import org.junit.Before;

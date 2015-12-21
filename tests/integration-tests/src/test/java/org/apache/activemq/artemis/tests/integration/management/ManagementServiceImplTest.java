@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 import org.junit.Assert;
@@ -36,7 +37,6 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ManagementServiceImplTest extends ActiveMQTestBase {
 

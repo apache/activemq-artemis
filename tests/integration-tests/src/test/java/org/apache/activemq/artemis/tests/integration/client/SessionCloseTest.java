@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,7 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,28 +147,28 @@ public class SessionCloseTest extends ActiveMQTestBase {
       ActiveMQTestBase.expectXAException(XAException.XA_RETRY, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.commit(RandomUtil.randomXid(), RandomUtil.randomBoolean());
+            session.commit(randomXid(), RandomUtil.randomBoolean());
          }
       });
 
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.end(RandomUtil.randomXid(), XAResource.TMSUCCESS);
+            session.end(randomXid(), XAResource.TMSUCCESS);
          }
       });
 
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.forget(RandomUtil.randomXid());
+            session.forget(randomXid());
          }
       });
 
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.prepare(RandomUtil.randomXid());
+            session.prepare(randomXid());
          }
       });
 
@@ -180,14 +182,14 @@ public class SessionCloseTest extends ActiveMQTestBase {
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.rollback(RandomUtil.randomXid());
+            session.rollback(randomXid());
          }
       });
 
       ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction() {
          @Override
          public void run() throws XAException {
-            session.start(RandomUtil.randomXid(), XAResource.TMNOFLAGS);
+            session.start(randomXid(), XAResource.TMNOFLAGS);
          }
       });
 

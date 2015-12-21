@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 
 import javax.ws.rs.core.Response;
@@ -28,7 +29,7 @@ public class ConsumedObjectMessage extends ConsumedMessage {
 
    public ConsumedObjectMessage(ClientMessage message) {
       super(message);
-      if (message.getType() != ClientMessage.OBJECT_TYPE)
+      if (message.getType() != Message.OBJECT_TYPE)
          throw new IllegalArgumentException("Client message must be an OBJECT_TYPE");
    }
 
