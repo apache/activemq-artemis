@@ -26,7 +26,6 @@ import javax.xml.validation.Validator;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -145,16 +144,9 @@ public final class XMLUtil {
       return sb.toString();
    }
 
-   private static final Object[] EMPTY_ARRAY = new Object[0];
-
    /**
-    * This metod is here because Node.getTextContent() is not available in JDK 1.4 and I would like
-    * to have an uniform access to this functionality.
-    * <p>
     * Note: if the content is another element or set of elements, it returns a string representation
     * of the hierarchy.
-    * <p>
-    * TODO implementation of this method is a hack. Implement it properly.
     */
    public static String getTextContent(final Node n) {
       if (n.hasChildNodes()) {
@@ -173,55 +165,7 @@ public final class XMLUtil {
          }
       }
 
-      Method[] methods = Node.class.getMethods();
-
-      for (Method getTextContext : methods) {
-         if ("getTextContent".equals(getTextContext.getName())) {
-            try {
-               return (String) getTextContext.invoke(n, XMLUtil.EMPTY_ARRAY);
-            }
-            catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.errorOnXMLTransform(e, n);
-               return null;
-            }
-         }
-      }
-
-      String textContent = null;
-
-      if (n.hasChildNodes()) {
-         NodeList nl = n.getChildNodes();
-         for (int i = 0; i < nl.getLength(); i++) {
-            Node c = nl.item(i);
-            if (c.getNodeType() == Node.TEXT_NODE) {
-               textContent = n.getNodeValue();
-               if (textContent == null) {
-                  // TODO This is a hack. Get rid of it and implement this properly
-                  String s = c.toString();
-                  int idx = s.indexOf("#text:");
-                  if (idx != -1) {
-                     textContent = s.substring(idx + 6).trim();
-                     if (textContent.endsWith("]")) {
-                        textContent = textContent.substring(0, textContent.length() - 1);
-                     }
-                  }
-               }
-               if (textContent == null) {
-                  break;
-               }
-            }
-         }
-
-         // TODO This is a hack. Get rid of it and implement this properly
-         String s = n.toString();
-         int i = s.indexOf('>');
-         int i2 = s.indexOf("</");
-         if (i != -1 && i2 != -1) {
-            textContent = s.substring(i + 1, i2);
-         }
-      }
-
-      return textContent;
+      return n.getTextContent();
    }
 
    public static void assertEquivalent(final Node node, final Node node2) {
