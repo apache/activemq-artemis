@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +44,6 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class BridgeControlTest extends ManagementTestBase {
 

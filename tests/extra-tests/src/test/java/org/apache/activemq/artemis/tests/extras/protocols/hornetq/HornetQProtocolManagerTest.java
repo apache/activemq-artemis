@@ -25,11 +25,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -119,7 +119,7 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
 
       TextMessage message = session.createTextMessage("Test");
       for (int i = 0; i < 5; i++) {
-         message.setStringProperty(MessageImpl.HDR_DUPLICATE_DETECTION_ID.toString(), "duplicate");
+         message.setStringProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "duplicate");
          producer.send(message);
       }
 

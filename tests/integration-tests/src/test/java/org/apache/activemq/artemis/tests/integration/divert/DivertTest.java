@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -25,7 +26,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -213,10 +213,10 @@ public class DivertTest extends ActiveMQTestBase {
          System.out.println("Received message " + message);
          assertNotNull(message);
 
-         if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue1")) {
+         if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
             countOriginal1++;
          }
-         else if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue2")) {
+         else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
          }
          else {

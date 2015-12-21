@@ -22,6 +22,6 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 public class RandomUtil extends org.apache.activemq.artemis.utils.RandomUtil {
 
    public static Xid randomXid() {
-      return new XidImpl(RandomUtil.randomBytes(), RandomUtil.randomInt(), RandomUtil.randomBytes());
+      return new XidImpl(randomBytes(), randomInt(), randomBytes());
    }
 }

@@ -24,6 +24,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 public class SimpleStringTest extends Assert {
 

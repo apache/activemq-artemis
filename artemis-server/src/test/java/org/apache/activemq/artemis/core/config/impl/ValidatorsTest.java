@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 public class ValidatorsTest extends Assert {
 

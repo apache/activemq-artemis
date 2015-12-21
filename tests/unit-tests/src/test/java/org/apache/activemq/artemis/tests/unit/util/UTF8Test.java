@@ -31,9 +31,9 @@ import java.nio.ByteBuffer;
 
 import org.junit.Assert;
 
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Random;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
 public class UTF8Test extends ActiveMQTestBase {
