@@ -31,7 +31,6 @@ under the License.
       <endpoint />
       <applicationid />
       <mastersecret />
-      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
    </properties>
 
    <artifactId>aerogear</artifactId>

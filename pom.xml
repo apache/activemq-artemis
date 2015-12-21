@@ -115,11 +115,11 @@
       -->
 
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
-         -Dlogging.configuration=file:${activemq.basedir}/tests/config/logging.properties
-         -Djava.library.path=${activemq.basedir}/artemis-native/bin/ -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+         -Dlogging.configuration='file:${activemq.basedir}/tests/config/logging.properties'
+         -Djava.library.path='${activemq.basedir}/artemis-native/bin/' -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
-      <activemq.basedir>${project.basedir}</activemq.basedir>
+      <activemq.basedir>${basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
@@ -127,6 +127,10 @@
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
 
       <directory-version>1.5.7</directory-version>
+      <maven-checkstyle-plugin.suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml
+      </maven-checkstyle-plugin.suppressionsLocation>
+      <maven-checkstyle-plugin.configLocation>${activemq.basedir}/etc/checkstyle.xml</maven-checkstyle-plugin.configLocation>
+      <apache-rat-plugin.reportFile>${activemq.basedir}/ratReport.txt</apache-rat-plugin.reportFile>
    </properties>
 
    <scm>
@@ -1000,8 +1004,8 @@
             </dependencies>
             <configuration>
                <skip>${skipStyleCheck}</skip>
-               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
-               <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
+               <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
+               <suppressionsLocation>${maven-checkstyle-plugin.suppressionsLocation}</suppressionsLocation>
                <failsOnError>false</failsOnError>
                <failOnViolation>true</failOnViolation>
                <consoleOutput>true</consoleOutput>
@@ -1034,7 +1038,7 @@
             <artifactId>apache-rat-plugin</artifactId>
             <version>0.11</version>
             <configuration>
-               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
+               <reportFile>${apache-rat-plugin.reportFile}</reportFile>
                <skip>${skipLicenseCheck}</skip>
                <excludes>
                   <exclude>**/*.txt</exclude>
@@ -1104,7 +1108,7 @@
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>2.16</version>
             <configuration>
-               <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
+               <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
                <failsOnError>false</failsOnError>
             </configuration>
          </plugin>

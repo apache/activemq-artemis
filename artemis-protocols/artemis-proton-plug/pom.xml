@@ -24,10 +24,6 @@
 
    <artifactId>artemis-proton-plug</artifactId>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-   </properties>
-
    <dependencies>
       <!-- JMS Client because of some Convertions that are done -->
       <dependency>

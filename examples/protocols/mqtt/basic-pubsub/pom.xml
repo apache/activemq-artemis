@@ -31,10 +31,6 @@ under the License.
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis MQTT Publish Example</name>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
-   </properties>
-
    <dependencies>
       <dependency>
          <groupId>org.fusesource.mqtt-client</groupId>

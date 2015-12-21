@@ -71,11 +71,5 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
-
-
    </dependencies>
-
-   <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
-   </properties>
 </project>

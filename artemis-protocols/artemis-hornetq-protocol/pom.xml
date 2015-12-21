@@ -25,10 +25,6 @@
    <artifactId>artemis-hornetq-protocol</artifactId>
    <packaging>bundle</packaging>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-   </properties>
-
    <dependencies>
       <dependency>
          <groupId>org.jboss.logging</groupId>

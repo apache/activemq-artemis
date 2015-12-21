@@ -76,7 +76,6 @@
    </dependencies>
 
    <properties>
-      <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
       <webapp-outdir-user-manual>${basedir}/target/classes/user-manual</webapp-outdir-user-manual>
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
