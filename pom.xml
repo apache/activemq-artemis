@@ -282,7 +282,7 @@
          <dependency>
             <groupId>org.jboss.logmanager</groupId>
             <artifactId>jboss-logmanager</artifactId>
-            <version>1.5.3.Final</version>
+            <version>1.5.4.Final</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
