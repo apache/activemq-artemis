@@ -31,10 +31,6 @@ under the License.
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Proton Ruby Example</name>
 
-   <properties>
-      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
-   </properties>
-
    <build>
       <plugins>
          <plugin>

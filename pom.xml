@@ -115,11 +115,11 @@
       -->
 
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
-         -Dlogging.configuration=file:${activemq.basedir}/tests/config/logging.properties
-         -Djava.library.path=${activemq.basedir}/artemis-native/bin/ -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
+         -Dlogging.configuration='file:${activemq.basedir}/tests/config/logging.properties'
+         -Djava.library.path='${activemq.basedir}/artemis-native/bin/' -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
-      <activemq.basedir>${project.basedir}</activemq.basedir>
+      <activemq.basedir>${basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>

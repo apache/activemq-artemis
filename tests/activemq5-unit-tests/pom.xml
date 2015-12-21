@@ -28,7 +28,6 @@
    <name>ActiveMQ5.x unit tests</name>
 
    <properties>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <activemq5.project.version>5.11.1</activemq5.project.version>
       <jmdns-version>3.4.1</jmdns-version>
       <ftpserver-version>1.0.6</ftpserver-version>
