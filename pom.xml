@@ -893,12 +893,10 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-pmd-plugin</artifactId>
-               <version>3.0.1</version>
+               <version>3.6</version>
                <configuration>
                   <linkXRef>true</linkXRef>
-                  <sourceEncoding>utf-8</sourceEncoding>
                   <minimumTokens>100</minimumTokens>
-                  <targetJdk>1.5</targetJdk>
                </configuration>
             </plugin>
             <plugin>
