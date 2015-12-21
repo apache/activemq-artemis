@@ -142,6 +142,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
          this.finish = finish;
       }
 
+      @Override
       public void run() {
          try {
             align.countDown();
@@ -215,6 +216,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
          this.numberOfMessages = numberOfMessages;
       }
 
+      @Override
       public void run() {
          long deletesNr = 0;
          try {

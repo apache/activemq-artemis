@@ -161,6 +161,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       this.creationTime = System.currentTimeMillis();
    }
 
+   @Override
    public boolean isWritable(ReadyListener callback) {
       return transportConnection.isWritable(callback);
    }

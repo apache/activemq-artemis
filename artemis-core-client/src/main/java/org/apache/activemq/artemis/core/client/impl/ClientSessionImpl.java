@@ -539,6 +539,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       rollback(false);
    }
 
+   @Override
    public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
    {
       rollback(isLastMessageAsDelivered, true);
