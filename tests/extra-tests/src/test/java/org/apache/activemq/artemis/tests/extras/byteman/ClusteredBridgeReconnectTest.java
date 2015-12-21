@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 @RunWith(BMUnitRunner.class)
 public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
-   static ThreadLocal<Boolean> inConnect = new ThreadLocal<Boolean>();
+   static ThreadLocal<Boolean> inConnect = new ThreadLocal<>();
 
    public static void enterConnect() {
       inConnect.set(Boolean.TRUE);
