@@ -26,6 +26,7 @@ import java.lang.management.ManagementFactory;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -133,6 +134,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
+import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
@@ -266,6 +268,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private ServiceRegistry serviceRegistry;
 
+   private Date startDate;
    // Constructors
    // ---------------------------------------------------------------------------------
 
@@ -368,6 +371,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.debug("Server already started!");
          return;
       }
+
+      startDate = new Date();
 
       state = SERVER_STATE.STARTING;
 
@@ -771,10 +776,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       scaledDownNodeIDs.clear();
 
       if (identity != null) {
-         ActiveMQServerLogger.LOGGER.serverStopped("identity=" + identity + ",version=" + getVersion().getFullVersion(), tempNodeID);
+         ActiveMQServerLogger.LOGGER.serverStopped("identity=" + identity + ",version=" + getVersion().getFullVersion(), tempNodeID, getUptime());
       }
       else {
-         ActiveMQServerLogger.LOGGER.serverStopped(getVersion().getFullVersion(), tempNodeID);
+         ActiveMQServerLogger.LOGGER.serverStopped(getVersion().getFullVersion(), tempNodeID, getUptime());
       }
    }
 
@@ -2074,5 +2079,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
       }
+   }
+
+   public String getUptime() {
+      long delta = getUptimeMillis();
+
+      if (delta == 0) {
+         return "not started";
+      }
+
+      return TimeUtils.printDuration(delta);
+   }
+
+   public long getUptimeMillis() {
+      if (startDate == null) {
+         return 0;
+      }
+
+      return new Date().getTime() - startDate.getTime();
    }
 }
