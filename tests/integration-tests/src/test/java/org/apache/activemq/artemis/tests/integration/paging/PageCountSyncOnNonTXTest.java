@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -134,7 +134,7 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
       }
       assertEquals("Process didn't end as expected", 1, process.waitFor());
 
-      ActiveMQServer server = PageCountSyncServer.createServer(getTestDir());
+      ActiveMQServer server = SpawnedServerSupport.createServer(getTestDir());
 
       try {
          server.start();

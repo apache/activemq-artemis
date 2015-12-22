@@ -27,14 +27,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 
 public class AMQ2383Test {
 
    @Test
    public void activeMQTest() throws Exception {
-      Destination dest = ActiveMQQueue.createDestination("testQueue", ActiveMQQueue.QUEUE_TYPE);
+      Destination dest = ActiveMQDestination.createDestination("testQueue", ActiveMQDestination.QUEUE_TYPE);
       ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.useJmx=false&broker.persistent=false");
       Connection producerConnection = factory.createConnection();
       producerConnection.start();

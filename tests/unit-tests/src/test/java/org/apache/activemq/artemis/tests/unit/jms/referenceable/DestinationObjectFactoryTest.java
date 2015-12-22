@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.jms.referenceable;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 import javax.naming.Reference;
@@ -26,7 +27,6 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class DestinationObjectFactoryTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------

@@ -27,7 +27,6 @@ import javax.management.ObjectName;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
-import org.apache.activemq.transport.discovery.multicast.MulticastDiscoveryAgentFactory;
 import org.apache.activemq.util.SocketProxy;
 import org.apache.activemq.util.Wait;
 import org.hamcrest.BaseMatcher;
@@ -179,7 +178,7 @@ public class DiscoveryNetworkReconnectTest {
       brokerB.waitUntilStarted();
 
       // control multicast advertise agent to inject proxy
-      agent = MulticastDiscoveryAgentFactory.createDiscoveryAgent(new URI(discoveryAddress));
+      agent = DiscoveryAgentFactory.createDiscoveryAgent(new URI(discoveryAddress));
       agent.registerService(proxy.getUrl().toString());
       agent.start();
 

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ import javax.jms.MessageFormatException;
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------

@@ -39,6 +39,7 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.store.PersistenceAdapter;
+import org.apache.activemq.store.jdbc.DataSourceServiceSupport;
 import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.apache.activemq.util.IOHelper;
@@ -57,7 +58,7 @@ public class RecoverExpiredMessagesTest extends BrokerRestartTestSupport {
 
    public void initCombosForTestRecovery() throws Exception {
       addCombinationValues("queuePendingPolicy", new PendingQueueMessageStoragePolicy[]{new FilePendingQueueMessageStoragePolicy(), new VMPendingQueueMessageStoragePolicy()});
-      PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{new KahaDBPersistenceAdapter(), new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())};
+      PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{new KahaDBPersistenceAdapter(), new JDBCPersistenceAdapter(DataSourceServiceSupport.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())};
       for (PersistenceAdapter adapter : persistenceAdapters) {
          adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
       }

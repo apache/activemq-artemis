@@ -173,8 +173,8 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    private boolean sendAcksAsync = true;
    private TransportListener transportListener;
    private ExceptionListener exceptionListener;
-   private int auditDepth = ActiveMQMessageAudit.DEFAULT_WINDOW_SIZE;
-   private int auditMaximumProducerNumber = ActiveMQMessageAudit.MAXIMUM_PRODUCER_COUNT;
+   private int auditDepth = ActiveMQMessageAuditNoSync.DEFAULT_WINDOW_SIZE;
+   private int auditMaximumProducerNumber = ActiveMQMessageAuditNoSync.MAXIMUM_PRODUCER_COUNT;
    private boolean useDedicatedTaskRunner;
    private long consumerFailoverRedeliveryWaitPeriod = 0;
    private boolean checkForDuplicates = true;

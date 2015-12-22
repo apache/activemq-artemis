@@ -31,7 +31,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.TestSupport;
+import org.apache.activemq.AutoFailTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.junit.After;
@@ -146,7 +146,7 @@ public class TransactedStoreUsageSuspendResumeTest {
 
       boolean allMessagesReceived = messagesReceivedCountDown.await(10, TimeUnit.MINUTES);
       if (!allMessagesReceived) {
-         TestSupport.dumpAllThreads("StuckConsumer!");
+         AutoFailTestSupport.dumpAllThreads("StuckConsumer!");
       }
       assertTrue("Got all messages: " + messagesReceivedCountDown, allMessagesReceived);
 

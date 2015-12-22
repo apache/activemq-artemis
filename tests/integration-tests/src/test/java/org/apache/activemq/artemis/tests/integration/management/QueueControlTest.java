@@ -39,14 +39,13 @@ import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.Assert;
@@ -1257,10 +1256,10 @@ public class QueueControlTest extends ManagementTestBase {
       // send 2 messages on queue, both scheduled
       long timeout = System.currentTimeMillis() + 5000;
       ClientMessage m1 = session.createMessage(true);
-      m1.putLongProperty(MessageImpl.HDR_SCHEDULED_DELIVERY_TIME, timeout);
+      m1.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timeout);
       producer.send(m1);
       ClientMessage m2 = session.createMessage(true);
-      m2.putLongProperty(MessageImpl.HDR_SCHEDULED_DELIVERY_TIME, timeout);
+      m2.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timeout);
       producer.send(m2);
 
       QueueControl queueControl = createManagementControl(address, queue);

@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.tests.unit.jms.client;
 
 import javax.jms.MessageFormatException;
 
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.junit.Assert;
 import org.junit.Before;
