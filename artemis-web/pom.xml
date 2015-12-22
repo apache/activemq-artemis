@@ -33,6 +33,12 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-processor</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-dto</artifactId>
          <version>${project.version}</version>
@@ -64,7 +70,13 @@
          <version>${project.version}</version>
       </dependency>
 
-
+      <!--
+         JBoss Logging
+     -->
+     <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+     </dependency>
    </dependencies>
 
 
