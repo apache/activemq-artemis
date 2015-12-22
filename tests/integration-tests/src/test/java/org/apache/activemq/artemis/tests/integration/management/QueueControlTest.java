@@ -1305,7 +1305,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       ClientConsumer cons = session.createConsumer(queue);
       session.start();
-      LinkedList<ClientMessage> msgs = new LinkedList<ClientMessage>();
+      LinkedList<ClientMessage> msgs = new LinkedList<>();
       for (int i = 0; i < 50; i++) {
          ClientMessage msg = cons.receive(1000);
          msgs.add(msg);
