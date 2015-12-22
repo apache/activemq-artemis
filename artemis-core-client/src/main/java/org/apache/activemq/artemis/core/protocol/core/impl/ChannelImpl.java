@@ -260,7 +260,7 @@ public final class ChannelImpl implements Channel {
             }
 
             if (resendCache != null && packet.isRequiresConfirmations()) {
-               resendCache.add(packet);
+               addResendPacket(packet);
             }
          }
          finally {
@@ -332,7 +332,7 @@ public final class ChannelImpl implements Channel {
             response = null;
 
             if (resendCache != null && packet.isRequiresConfirmations()) {
-               resendCache.add(packet);
+               addResendPacket(packet);
             }
 
             connection.getTransportConnection().write(buffer, false, false);
@@ -523,6 +523,10 @@ public final class ChannelImpl implements Channel {
 
          confirmed.setChannelID(id);
 
+         if (isTrace) {
+            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::flushConfirmation flushing confirmation " + confirmed);
+         }
+
          doWrite(confirmed);
       }
    }
@@ -598,30 +602,35 @@ public final class ChannelImpl implements Channel {
       connection.getTransportConnection().write(buffer, false, false);
    }
 
+   private void addResendPacket(Packet packet) {
+      resendCache.add(packet);
+
+      if (isTrace) {
+         ActiveMQClientLogger.LOGGER.trace("ChannelImpl::addResendPacket adding packet " + packet + " stored commandID=" + firstStoredCommandID + " possible commandIDr=" + (firstStoredCommandID + resendCache.size()));
+      }
+   }
+
    private void clearUpTo(final int lastReceivedCommandID) {
       final int numberToClear = 1 + lastReceivedCommandID - firstStoredCommandID;
 
-      if (numberToClear == -1) {
-         throw ActiveMQClientMessageBundle.BUNDLE.invalidCommandID(lastReceivedCommandID);
+      if (isTrace) {
+         ActiveMQClientLogger.LOGGER.trace("ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID +
+                                              " first commandID=" + firstStoredCommandID +
+                                              " number to clear " + numberToClear);
       }
-
-      int sizeToFree = 0;
 
       for (int i = 0; i < numberToClear; i++) {
          final Packet packet = resendCache.poll();
 
          if (packet == null) {
-            if (lastReceivedCommandID > 0) {
-               ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
-            }
+            ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
             firstStoredCommandID = lastReceivedCommandID + 1;
             return;
          }
 
-         if (packet.getType() != PacketImpl.PACKETS_CONFIRMED) {
-            sizeToFree += packet.getPacketSize();
+         if (isTrace) {
+            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::clearUpTo confirming " + packet + " towards " + commandConfirmationHandler);
          }
-
          if (commandConfirmationHandler != null) {
             commandConfirmationHandler.commandConfirmed(packet);
          }

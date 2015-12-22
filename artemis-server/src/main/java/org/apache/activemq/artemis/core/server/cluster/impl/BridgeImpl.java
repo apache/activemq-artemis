@@ -18,9 +18,10 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ListIterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -98,7 +99,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    private final SimpleString forwardingAddress;
 
-   private final java.util.Queue<MessageReference> refs = new ConcurrentLinkedQueue<>();
+   private final java.util.Map<Long, MessageReference> refs = new LinkedHashMap<>();
 
    private final Transformer transformer;
 
@@ -126,6 +127,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    protected ScheduledFuture<?> futureScheduledReconnection;
 
    protected volatile ClientSessionInternal session;
+
+   // on cases where sub-classes need a consumer
+   protected volatile ClientSessionInternal sessionConsumer;
 
    protected String targetNodeID;
 
@@ -230,8 +234,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
     */
    @Override
    public List<MessageReference> getDeliveringMessages() {
-      synchronized (this) {
-         return new ArrayList<>(refs);
+      synchronized (refs) {
+         return new ArrayList<>(refs.values());
       }
    }
 
@@ -271,34 +275,43 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    private void cancelRefs() {
-      MessageReference ref;
-
       LinkedList<MessageReference> list = new LinkedList<>();
 
-      while ((ref = refs.poll()) != null) {
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("Cancelling reference " + ref + " on bridge " + this);
-         }
-         list.addFirst(ref);
+      synchronized (refs) {
+         list.addAll(refs.values());
+         refs.clear();
+      }
+
+      if (isTrace) {
+         ActiveMQServerLogger.LOGGER.trace("BridgeImpl::cancelRefs cancelling " + list.size() + " references");
       }
 
       if (isTrace && list.isEmpty()) {
          ActiveMQServerLogger.LOGGER.trace("didn't have any references to cancel on bridge " + this);
+         return;
       }
 
-      Queue refqueue = null;
+      ListIterator<MessageReference> listIterator = list.listIterator(list.size());
+
+      Queue refqueue;
 
       long timeBase = System.currentTimeMillis();
 
-      for (MessageReference ref2 : list) {
-         refqueue = ref2.getQueue();
+      while (listIterator.hasPrevious()) {
+         MessageReference ref = listIterator.previous();
+
+         if (isTrace) {
+            ActiveMQServerLogger.LOGGER.trace("BridgeImpl::cancelRefs Cancelling reference " + ref + " on bridge " + this);
+         }
+
+         refqueue = ref.getQueue();
 
          try {
-            refqueue.cancel(ref2, timeBase);
+            refqueue.cancel(ref, timeBase);
          }
          catch (Exception e) {
             // There isn't much we can do besides log an error
-            ActiveMQServerLogger.LOGGER.errorCancellingRefOnBridge(e, ref2);
+            ActiveMQServerLogger.LOGGER.errorCancellingRefOnBridge(e, ref);
          }
       }
    }
@@ -317,10 +330,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
-   @Override
    public void disconnect() {
       executor.execute(new Runnable() {
-         @Override
          public void run() {
             if (session != null) {
                try {
@@ -330,6 +341,15 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                   ActiveMQServerLogger.LOGGER.debug(dontcare.getMessage(), dontcare);
                }
                session = null;
+            }
+            if (sessionConsumer != null) {
+               try {
+                  sessionConsumer.cleanUp(false);
+               }
+               catch (Exception dontcare) {
+                  ActiveMQServerLogger.LOGGER.debug(dontcare.getMessage(), dontcare);
+               }
+               sessionConsumer = null;
             }
          }
       });
@@ -379,7 +399,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
-   @Override
    public void pause() throws Exception {
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Bridge " + this.name + " being paused");
@@ -452,16 +471,29 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void sendAcknowledged(final Message message) {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
+         ActiveMQServerLogger.LOGGER.trace("BridgeImpl::sendAcknowledged received confirmation for message " + message);
+      }
       if (active) {
          try {
-            final MessageReference ref = refs.poll();
+
+            final MessageReference ref;
+
+            synchronized (refs) {
+               ref = refs.remove(message.getMessageID());
+            }
 
             if (ref != null) {
                if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace(this + " Acking " + ref + " on queue " + ref.getQueue());
+                  ActiveMQServerLogger.LOGGER.trace("BridgeImpl::sendAcknowledged bridge " + this + " Acking " + ref + " on queue " + ref.getQueue());
                }
                ref.getQueue().acknowledge(ref);
                pendingAcks.countDown();
+            }
+            else {
+               if (isTrace) {
+                  ActiveMQServerLogger.LOGGER.trace("BridgeImpl::sendAcknowledged bridge " + this + " could not find reference for message " + message);
+               }
             }
          }
          catch (Exception e) {
@@ -529,7 +561,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
          ref.handled();
 
-         refs.add(ref);
+         synchronized (refs) {
+            refs.put(ref.getMessage().getMessageID(), ref);
+         }
 
          final ServerMessage message = beforeForward(ref.getMessage());
 
@@ -686,9 +720,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       catch (final ActiveMQException e) {
          ActiveMQServerLogger.LOGGER.bridgeUnableToSendMessage(e, ref);
 
-         // We remove this reference as we are returning busy which means the reference will never leave the Queue.
-         // because of this we have to remove the reference here
-         refs.remove(ref);
+         synchronized (refs) {
+            // We remove this reference as we are returning busy which means the reference will never leave the Queue.
+            // because of this we have to remove the reference here
+            refs.remove(message.getMessageID());
+         }
 
          connectionFailed(e, false);
 
@@ -840,6 +876,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                }
                // Session is pre-acknowledge
                session = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
+               sessionConsumer = (ClientSessionInternal) csf.createSession(user, password, false, true, true, true, 1);
             }
 
             if (forwardingAddress != null) {
@@ -1031,7 +1068,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          bridge = bridge2;
       }
 
-      @Override
       public void run() {
          bridge.connect();
       }
@@ -1058,8 +1094,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
             }
 
-            internalCancelReferences();
-
             if (session != null) {
                ActiveMQServerLogger.LOGGER.debug("Cleaning up session " + session);
                session.removeFailureListener(BridgeImpl.this);
@@ -1070,6 +1104,18 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                catch (ActiveMQException dontcare) {
                }
             }
+
+            if (sessionConsumer != null) {
+               ActiveMQServerLogger.LOGGER.debug("Cleaning up session " + session);
+               try {
+                  sessionConsumer.close();
+                  sessionConsumer = null;
+               }
+               catch (ActiveMQException dontcare) {
+               }
+            }
+
+            internalCancelReferences();
 
             if (csf != null) {
                csf.cleanup();
