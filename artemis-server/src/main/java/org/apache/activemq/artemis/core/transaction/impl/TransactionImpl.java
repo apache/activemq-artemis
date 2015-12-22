@@ -357,10 +357,12 @@ public class TransactionImpl implements Transaction {
       // to execute this runnable in the correct order
       storageManager.afterCompleteOperations(new IOCallback() {
 
+         @Override
          public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
          }
 
+         @Override
          public void done() {
             afterRollback(operationsToComplete);
          }

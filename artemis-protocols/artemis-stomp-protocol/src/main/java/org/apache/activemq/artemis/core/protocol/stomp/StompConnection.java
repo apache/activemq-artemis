@@ -119,6 +119,7 @@ public final class StompConnection implements RemotingConnection {
       return frame;
    }
 
+   @Override
    public boolean isWritable(ReadyListener callback) {
       return transportConnection.isWritable(callback);
    }

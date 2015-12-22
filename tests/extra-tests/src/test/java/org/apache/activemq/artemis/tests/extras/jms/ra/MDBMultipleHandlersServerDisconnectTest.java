@@ -157,6 +157,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final int NUMBER_OF_MESSAGES = 1000;
 
       Thread producer = new Thread() {
+         @Override
          public void run() {
             try {
                ServerLocator locator = createInVMLocator(0);
@@ -199,6 +200,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
       final AtomicBoolean metaDataFailed = new AtomicBoolean(false);
 
       Thread buggerThread = new Thread() {
+         @Override
          public void run() {
             while (running.get()) {
                try {
@@ -398,6 +400,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          isDeliveryTransacted = deliveryTransacted;
       }
 
+      @Override
       public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException {
          TestEndpoint retEnd = new TestEndpoint();
          if (xaResource != null) {
@@ -406,6 +409,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          return retEnd;
       }
 
+      @Override
       public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
          return isDeliveryTransacted;
       }
@@ -446,6 +450,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
 
       }
 
+      @Override
       public void onMessage(Message message) {
          Integer value = 0;
 

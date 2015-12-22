@@ -101,6 +101,7 @@ public class InVMConnection implements Connection {
       // no op
    }
 
+   @Override
    public boolean isWritable(ReadyListener listener) {
       return true;
    }

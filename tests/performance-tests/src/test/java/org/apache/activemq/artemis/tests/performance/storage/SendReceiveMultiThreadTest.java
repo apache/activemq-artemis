@@ -93,6 +93,7 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
       cf = new ActiveMQConnectionFactory();
 
       Thread slowSending = new Thread() {
+         @Override
          public void run() {
             Connection conn = null;
             try {
@@ -207,6 +208,7 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
 
       int errors = 0;
 
+      @Override
       public void run() {
          try {
 
@@ -258,6 +260,7 @@ public class SendReceiveMultiThreadTest extends ActiveMQTestBase {
          this.finish = finish;
       }
 
+      @Override
       public void run() {
          try {
 

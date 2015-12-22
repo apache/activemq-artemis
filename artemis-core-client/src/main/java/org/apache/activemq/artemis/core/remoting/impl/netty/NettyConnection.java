@@ -100,6 +100,7 @@ public class NettyConnection implements Connection {
    // Connection implementation ----------------------------
 
 
+   @Override
    public boolean isWritable(ReadyListener callback) {
       synchronized (readyListeners) {
          readyListeners.push(callback);
@@ -108,6 +109,7 @@ public class NettyConnection implements Connection {
       }
    }
 
+   @Override
    public void fireReady(final boolean ready) {
       synchronized (readyListeners) {
          this.ready = ready;
