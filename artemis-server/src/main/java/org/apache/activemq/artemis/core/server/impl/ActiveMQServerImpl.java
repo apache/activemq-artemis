@@ -415,7 +415,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             backupActivationThread.start();
          }
          else {
-            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), nodeManager.getNodeId(), identity != null ? identity : "");
+            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(),  identity != null ? identity : "" );
          }
          // start connector service
          connectorsService = new ConnectorsService(configuration, storageManager, scheduledPool, postOffice, serviceRegistry);
