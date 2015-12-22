@@ -64,7 +64,7 @@
            <execution>
              <phase>generate-resources</phase>
              <configuration>
-               <tasks>
+               <target>
                  <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" />
                  <mkdir dir="${project.build.directory}/schema/org.apache.activemq/dto" />
                  <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq/dto" />
@@ -79,7 +79,7 @@
                  <copy todir="${project.build.directory}/classes">
                    <fileset dir="${project.build.directory}/schema" />
                  </copy>
-               </tasks>
+               </target>
              </configuration>
              <goals>
                <goal>run</goal>
