@@ -82,15 +82,15 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void serverStarting(String type, Configuration configuration);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221001, value = "Apache ActiveMQ Artemis Message Broker version {0} [nodeID={1}] {2}", format = Message.Format.MESSAGE_FORMAT)
-   void serverStarted(String fullVersion, SimpleString nodeId, String identity);
+   @Message(id = 221001, value = "Apache ActiveMQ Artemis Message Broker version {0} [{1}, nodeID={2}] {3}", format = Message.Format.MESSAGE_FORMAT)
+   void serverStarted(String fullVersion, String name, SimpleString nodeId, String identity);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221002, value = "Apache ActiveMQ Artemis Message Broker version {0} [{1}] stopped", format = Message.Format.MESSAGE_FORMAT)
-   void serverStopped(String version, SimpleString nodeId);
+   @Message(id = 221002, value = "Apache ActiveMQ Artemis Message Broker version {0} [{1}] stopped, uptime {2}", format = Message.Format.MESSAGE_FORMAT)
+   void serverStopped(String version, SimpleString nodeId, String uptime);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221003, value = "trying to deploy queue {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221003, value = "Trying to deploy queue {0}", format = Message.Format.MESSAGE_FORMAT)
    void deployQueue(SimpleString queueName);
 
    @LogMessage(level = Logger.Level.INFO)

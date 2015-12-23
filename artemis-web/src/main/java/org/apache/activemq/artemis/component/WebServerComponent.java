@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.component;
 
 import java.net.URI;
 
+import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
@@ -35,12 +36,14 @@ public class WebServerComponent implements ExternalComponent {
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
+   private URI uri;
+   private String jolokiaUrl;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
       webServerConfig = (WebServerDTO) config;
       String path = webServerConfig.path.startsWith("/") ? webServerConfig.path : "/" + webServerConfig.path;
-      URI uri = new URI(webServerConfig.bind);
+      uri = new URI(webServerConfig.bind);
       server = new Server();
       ServerConnector connector = new ServerConnector(server);
       connector.setPort(uri.getPort());
@@ -53,6 +56,9 @@ public class WebServerComponent implements ExternalComponent {
       if (webServerConfig.apps != null) {
          for (AppDTO app : webServerConfig.apps) {
             deployWar(app.url, app.war, artemisHome, path);
+            if (app.war.startsWith("jolokia")) {
+               jolokiaUrl = webServerConfig.bind + "/" + app.url;
+            }
          }
       }
 
@@ -77,8 +83,10 @@ public class WebServerComponent implements ExternalComponent {
    @Override
    public void start() throws Exception {
       server.start();
-
-      System.out.println("HTTP Server started at " + webServerConfig.bind);
+      ActiveMQWebLogger.LOGGER.webserverStarted(webServerConfig.bind);
+      if (jolokiaUrl != null) {
+         ActiveMQWebLogger.LOGGER.jolokiaAvailable(jolokiaUrl);
+      }
    }
 
    @Override
