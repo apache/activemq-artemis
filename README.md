@@ -7,6 +7,14 @@ This file describes some minimum 'stuff one needs to know' to get started coding
 For details about the modifying the code, building the project, running tests, IDE integration, etc. see
 our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 
+## Building the ASYNC IO library
+
+ActiveMQ Artemis provides two journal persistence types, NIO (which uses the Java NIO libraries), and ASYNCIO which interacts with the linux kernel libaio library.   The ASYNCIO journal type should be used where possible as it is far superior in terms of performance.
+
+ActiveMQ Artemis does not ship with the Artemis Native ASYNCIO library in the source distribution.  These need to be built prior to running "mvn install", to ensure that the ASYNCIO journal type is available in the resulting build.  Don't worry if you don't want to use ASYNCIO or your system does not support libaio, ActiveMQ Artemis will check at runtime to see if the required libraries and system dependencies are available, if not it will default to using NIO.
+
+To build the ActiveMQ Artemis ASYNCIO native libraries, please follow the instructions in the artemis-native/README.
+
 ## Documentation
 
 Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](http://activemq.apache.org/artemis/docs.html) website.

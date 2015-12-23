@@ -54,6 +54,7 @@
             <exclude>ratReport.txt</exclude>
             <exclude>.gitignore</exclude>
             <exclude>artemis_doap.rdf</exclude>
+            <exclude>artemis-native/bin/</exclude>
 
             <!--  build output  -->
             <exclude>
