@@ -19,6 +19,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+  <feature name="artemis" version="${pom.version}">
+    <feature>artemis-core</feature>
+    <feature>artemis-amqp</feature>
+    <feature>artemis-stomp</feature>
+    <feature>artemis-mqtt</feature>
+    <feature>artemis-hornetq</feature>
+  </feature>
+
 	<feature name="netty-core" version="${netty.version}">
 		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
@@ -45,7 +53,6 @@
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
-
 	</feature>
 
 	<feature name="artemis-amqp" version="${pom.version}">
@@ -61,7 +68,6 @@
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${pom.version}</bundle>
 	</feature>
-
 
 	<feature name="artemis-mqtt" version="${pom.version}">
 		<feature>artemis-core</feature>

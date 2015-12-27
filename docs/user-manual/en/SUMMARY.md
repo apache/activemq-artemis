@@ -47,6 +47,7 @@
 * [Logging](logging.md)
 * [REST Interface](rest.md)
 * [Embedding Apache ActiveMQ Artemis](embedding-activemq.md)
+* [Apache Karaf](karaf.md)
 * [Spring Integration](spring-integration.md)
 * [AeroGear Integration](aerogear-integration.md)
 * [VertX Integration](vertx-integration.md)

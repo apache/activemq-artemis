@@ -47,7 +47,4 @@ If you are trying to copy the examples somewhere else and modifying them. Consid
     # if trying to modify the 'topic' example:
     cd examples/jms/topic && mvn dependency:list
 
-## Artemis on Apache Karaf
 
-feature:repo-add mvn:org.apache.activemq/artemis-features/1.1.1-SNAPSHOT/xml
-feature:install artemis-core artemis-hornetq artemis-stomp artemis-mqtt artemis-amqp
