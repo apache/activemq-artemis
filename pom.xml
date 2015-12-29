@@ -1096,6 +1096,14 @@
                   <exclude>**/node/**</exclude>
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
+
+                  <!-- things from cmake on the native build -->
+                  <exclude>**/CMakeCache.txt</exclude>
+                  <exclude>**/CMakeFiles/</exclude>
+                  <exclude>**/Makefile</exclude>
+                  <exclude>**/cmake_install.cmake</exclude>
+                  <exclude>artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h</exclude>
+
                </excludes>
             </configuration>
             <executions>
