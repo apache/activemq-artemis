@@ -103,7 +103,9 @@ public class NettyConnection implements Connection {
    @Override
    public boolean isWritable(ReadyListener callback) {
       synchronized (readyListeners) {
-         readyListeners.push(callback);
+         if (!ready) {
+            readyListeners.push(callback);
+         }
 
          return ready;
       }
