@@ -1036,7 +1036,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                context.encode(bodyBuffer, localChunkLen);
 
-               byte[] body = bodyBuffer.toByteBuffer().array();
+               byte[] body;
+
+               if (bodyBuffer.toByteBuffer().hasArray()) {
+                  body = bodyBuffer.toByteBuffer().array();
+               }
+               else {
+                  body = new byte[0];
+               }
 
                int packetSize = callback.sendLargeMessageContinuation(ServerConsumerImpl.this, body, positionPendingLargeMessage + localChunkLen < sizePendingLargeMessage, false);
 
