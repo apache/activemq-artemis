@@ -28,6 +28,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+import javax.naming.InitialContext;
 import java.util.List;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -103,6 +104,62 @@ public class DurableSubscriptionTest extends JMSTestCase {
       finally {
          if (conn != null) {
             conn.close();
+         }
+      }
+   }
+
+   // https://issues.apache.org/jira/browse/ARTEMIS-177
+   @Test
+   public void testDurableSubscriptionRemovalRaceCondition() throws Exception {
+      final String topicName = "myTopic";
+      final String clientID = "myClientID";
+      final String subscriptionName = "mySub";
+      createTopic(topicName);
+      InitialContext ic = getInitialContext();
+      Topic myTopic = (Topic) ic.lookup("/topic/" + topicName);
+
+      Connection conn = null;
+
+      for (int i = 0; i < 1000; i++) {
+         try {
+            conn = createConnection();
+
+            conn.setClientID(clientID);
+
+            Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer prod = s.createProducer(myTopic);
+            prod.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+            s.createDurableSubscriber(myTopic, subscriptionName);
+
+            prod.send(s.createTextMessage("k"));
+
+            conn.close();
+
+            destroyTopic(topicName);
+
+            createTopic(topicName);
+
+            conn = createConnection();
+            conn.setClientID(clientID);
+
+            s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            MessageConsumer durable = s.createDurableSubscriber(myTopic, subscriptionName);
+
+            conn.start();
+
+            TextMessage tm = (TextMessage) durable.receiveNoWait();
+            ProxyAssertSupport.assertNull(tm);
+
+            durable.close();
+
+            s.unsubscribe(subscriptionName);
+         }
+         finally {
+            if (conn != null) {
+               conn.close();
+            }
          }
       }
    }
