@@ -31,8 +31,6 @@ import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 /**
  * A simple address manager that maintains the addresses and bindings.
@@ -49,8 +47,6 @@ public class SimpleAddressManager implements AddressManager {
     */
    private final ConcurrentMap<SimpleString, Binding> nameMap = new ConcurrentHashMap<>();
 
-   private final ConcurrentHashSet<SimpleString> pendingDeletes = new ConcurrentHashSet<>();
-
    private final BindingsFactory bindingsFactory;
 
    public SimpleAddressManager(final BindingsFactory bindingsFactory) {
@@ -59,7 +55,7 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public boolean addBinding(final Binding binding) throws Exception {
-      if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null || pendingDeletes.contains(binding.getUniqueName())) {
+      if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
@@ -76,24 +72,6 @@ public class SimpleAddressManager implements AddressManager {
 
       if (binding == null) {
          return null;
-      }
-
-      if (tx != null) {
-         pendingDeletes.add(uniqueName);
-         tx.addOperation(new TransactionOperationAbstract() {
-
-            @Override
-            public void afterCommit(Transaction tx) {
-               pendingDeletes.remove(uniqueName);
-            }
-
-            @Override
-            public void afterRollback(Transaction tx) {
-               nameMap.put(uniqueName, binding);
-               pendingDeletes.remove(uniqueName);
-            }
-
-         });
       }
 
       removeBindingInternal(binding.getAddress(), uniqueName);
