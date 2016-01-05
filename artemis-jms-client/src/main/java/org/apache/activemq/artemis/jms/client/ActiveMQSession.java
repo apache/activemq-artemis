@@ -644,7 +644,11 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (dest.isQueue()) {
             AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
-            if (!response.isExists()) {
+            /* The address query will send back exists=true even if the node only has a REMOTE binding for the destination.
+             * Therefore, we must check if the queue names list contains the exact name of the address to know whether or
+             * not a LOCAL binding for the address exists. If no LOCAL binding exists then it should be created here.
+             */
+            if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
                   session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), true);
                }
