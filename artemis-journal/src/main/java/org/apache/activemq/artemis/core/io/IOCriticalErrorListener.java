@@ -21,5 +21,5 @@ package org.apache.activemq.artemis.core.io;
  */
 public interface IOCriticalErrorListener {
 
-   void onIOException(Exception code, String message, SequentialFile file);
+   void onIOException(Throwable code, String message, SequentialFile file);
 }

@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -893,7 +894,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public synchronized MessageReference getReference(final long id1) {
+   public synchronized MessageReference getReference(final long id1) throws ActiveMQException {
       LinkedListIterator<MessageReference> iterator = iterator();
 
       try {
@@ -1053,7 +1054,13 @@ public class QueueImpl implements Queue {
 
    @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
-      getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
+      try {
+         getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
+      }
+      catch (ActiveMQException e) {
+         criticalError(e);
+         getPageSubscription().getPagingStore().criticalException(e);
+      }
    }
 
    @Override
@@ -1102,7 +1109,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public void deliverScheduledMessages() {
+   public void deliverScheduledMessages() throws ActiveMQException {
       List<MessageReference> scheduledMessages = scheduledDeliveryHandler.cancel(null);
       if (scheduledMessages != null && scheduledMessages.size() > 0) {
          for (MessageReference ref : scheduledMessages) {
@@ -1311,7 +1318,7 @@ public class QueueImpl implements Queue {
       Transaction tx = new BindingsTransactionImpl(storageManager);
 
       try {
-         postOffice.removeBinding(name, tx);
+         postOffice.removeBinding(name, tx, true);
 
          deleteAllReferences();
 
@@ -1770,7 +1777,12 @@ public class QueueImpl implements Queue {
 
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
-      messageReferences.addTail(ref, ref.getMessage().getPriority());
+      try {
+         messageReferences.addTail(ref, ref.getMessage().getPriority());
+      }
+      catch (ActiveMQException e) {
+         criticalError(e);
+      }
    }
 
    /**
@@ -1781,9 +1793,18 @@ public class QueueImpl implements Queue {
     * @param ref
     */
    private void internalAddHead(final MessageReference ref) {
-      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
-      refAdded(ref);
-      messageReferences.addHead(ref, ref.getMessage().getPriority());
+      try {
+         queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+         refAdded(ref);
+         messageReferences.addHead(ref, ref.getMessage().getPriority());
+      }
+      catch (ActiveMQException e) {
+         criticalError(e);
+      }
+   }
+
+   void criticalError(ActiveMQException e) {
+      storageManager.criticalError(e);
    }
 
    private synchronized void doInternalPoll() {
@@ -2011,14 +2032,17 @@ public class QueueImpl implements Queue {
          return null;
       }
       else {
-         // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
-         return ref.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID);
+         try {
+            // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
+            return ref.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID);
+         }
+         catch (ActiveMQException e) {
+            criticalError(e);
+            throw new IllegalStateException(e);
+         }
       }
    }
 
-   /**
-    * @param ref
-    */
    protected void refRemoved(MessageReference ref) {
       queueMemorySize.addAndGet(-ref.getMessageMemoryEstimate());
       if (ref.isPaged()) {
@@ -2026,9 +2050,6 @@ public class QueueImpl implements Queue {
       }
    }
 
-   /**
-    * @param ref
-    */
    protected void refAdded(final MessageReference ref) {
       if (ref.isPaged()) {
          pagedReferences.incrementAndGet();
@@ -2502,23 +2523,29 @@ public class QueueImpl implements Queue {
    }
 
    private boolean checkExpired(final MessageReference reference) {
-      if (reference.getMessage().isExpired()) {
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("Reference " + reference + " is expired");
-         }
-         reference.handled();
+      try {
+         if (reference.getMessage().isExpired()) {
+            if (isTrace) {
+               ActiveMQServerLogger.LOGGER.trace("Reference " + reference + " is expired");
+            }
+            reference.handled();
 
-         try {
-            expire(reference);
-         }
-         catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorExpiringRef(e);
-         }
+            try {
+               expire(reference);
+            }
+            catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorExpiringRef(e);
+            }
 
-         return true;
+            return true;
+         }
+         else {
+            return false;
+         }
       }
-      else {
-         return false;
+      catch (ActiveMQException e) {
+         criticalError(e);
+         throw new IllegalStateException(e);
       }
    }
 
@@ -2557,7 +2584,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public void postAcknowledge(final MessageReference ref) {
+   public void postAcknowledge(final MessageReference ref) throws ActiveMQException {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
       queue.decDelivering();

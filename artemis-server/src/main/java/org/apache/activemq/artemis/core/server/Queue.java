@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -122,7 +123,7 @@ public interface Queue extends Bindable {
 
    MessageReference removeReferenceWithID(long id) throws Exception;
 
-   MessageReference getReference(long id);
+   MessageReference getReference(long id) throws ActiveMQException;
 
    int deleteAllReferences() throws Exception;
 
@@ -236,9 +237,9 @@ public interface Queue extends Bindable {
    /**
     * cancels scheduled messages and send them to the head of the queue.
     */
-   void deliverScheduledMessages();
+   void deliverScheduledMessages() throws ActiveMQException;
 
-   void postAcknowledge(MessageReference ref);
+   void postAcknowledge(MessageReference ref) throws ActiveMQException;
 
    float getRate();
 

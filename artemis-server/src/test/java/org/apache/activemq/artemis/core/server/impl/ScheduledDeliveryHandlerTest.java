@@ -229,7 +229,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
    }
 
-   private void validateSequence(ScheduledDeliveryHandlerImpl handler) {
+   private void validateSequence(ScheduledDeliveryHandlerImpl handler) throws Exception {
       long lastSequence = -1;
       for (MessageReference ref : handler.getScheduledReferences()) {
          assertEquals(lastSequence + 1, ref.getMessage().getMessageID());
@@ -256,7 +256,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       handler.checkAndSchedule(refImpl, tail);
    }
 
-   private void debugList(boolean fail, ScheduledDeliveryHandlerImpl handler, long numberOfExpectedMessages) {
+   private void debugList(boolean fail, ScheduledDeliveryHandlerImpl handler, long numberOfExpectedMessages) throws Exception {
       List<MessageReference> refs = handler.getScheduledReferences();
 
       HashSet<Long> messages = new HashSet<>();

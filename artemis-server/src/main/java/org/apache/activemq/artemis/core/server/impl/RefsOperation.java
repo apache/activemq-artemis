@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -24,12 +31,6 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class RefsOperation extends TransactionOperationAbstract {
 
@@ -55,7 +56,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       ignoreRedeliveryCheck = true;
    }
 
-   synchronized void addAck(final MessageReference ref) {
+   synchronized void addAck(final MessageReference ref) throws ActiveMQException {
       refsToAck.add(ref);
       if (ref.isPaged()) {
          if (pagedMessagesToPostACK == null) {
@@ -147,7 +148,17 @@ public class RefsOperation extends TransactionOperationAbstract {
    public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
          synchronized (ref.getQueue()) {
-            queue.postAcknowledge(ref);
+            try {
+               queue.postAcknowledge(ref);
+            }
+            catch (ActiveMQException e) {
+               if (queue instanceof QueueImpl) {
+                  ((QueueImpl) queue).criticalError(e);
+               }
+               else {
+                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               }
+            }
          }
       }
 

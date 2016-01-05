@@ -536,6 +536,10 @@ public final class ChannelImpl implements Channel {
       if (resendCache != null && packet.isRequiresConfirmations()) {
          lastConfirmedCommandID.incrementAndGet();
 
+         if (isTrace) {
+            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::confirming packet " + packet + " last commandID=" + lastConfirmedCommandID);
+         }
+
          receivedBytes += packet.getPacketSize();
 
          if (receivedBytes >= confWindowSize) {

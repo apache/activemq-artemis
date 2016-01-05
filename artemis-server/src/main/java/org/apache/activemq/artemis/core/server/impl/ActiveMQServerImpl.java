@@ -415,7 +415,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             backupActivationThread.start();
          }
          else {
-            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(),  identity != null ? identity : "" );
+            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(), identity != null ? identity : "");
          }
          // start connector service
          connectorsService = new ConnectorsService(configuration, storageManager, scheduledPool, postOffice, serviceRegistry);
@@ -508,18 +508,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * Stops the server in a different thread.
     */
    public final void stopTheServer(final boolean criticalIOError) {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
-      executor.submit(new Runnable() {
+      Thread thread = new Thread() {
          @Override
          public void run() {
             try {
-               stop(false, criticalIOError, false);
+               ActiveMQServerImpl.this.stop(false, criticalIOError, false);
             }
             catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorStoppingServer(e);
             }
          }
-      });
+      };
+
+      thread.start();
    }
 
    @Override
@@ -721,7 +722,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(t, managementService.getClass().getName());
          }
       }
-
 
       pagingManager = null;
       securityStore = null;
@@ -1016,7 +1016,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (securityStore != null) {
          X509Certificate[] certificates = null;
          if (connection.getTransportConnection() instanceof NettyConnection) {
-            certificates = CertificateUtil.getCertsFromChannel(((NettyConnection)connection.getTransportConnection()).getChannel());
+            certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
          }
          securityStore.authenticate(username, password, certificates);
       }
@@ -1428,7 +1428,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.bindingNotDivert(name);
       }
 
-      postOffice.removeBinding(name, null);
+      postOffice.removeBinding(name, null, true);
    }
 
    @Override
@@ -1954,11 +1954,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       boolean failedAlready = false;
 
       @Override
-      public synchronized void onIOException(Exception cause, String message, SequentialFile file) {
+      public synchronized void onIOException(Throwable cause, String message, SequentialFile file) {
          if (!failedAlready) {
             failedAlready = true;
 
-            ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file.toString(), cause);
+            if (file == null) {
+               ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, "NULL", cause);
+            }
+            else {
+               ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file.toString(), cause);
+            }
 
             stopTheServer(true);
          }
@@ -2021,10 +2026,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * move any older data away and log a warning about it.
     */
    void moveServerData() {
-      File[] dataDirs = new File[]{configuration.getBindingsLocation(),
-                                   configuration.getJournalLocation(),
-                                   configuration.getPagingLocation(),
-                                   configuration.getLargeMessagesLocation()};
+      File[] dataDirs = new File[]{configuration.getBindingsLocation(), configuration.getJournalLocation(), configuration.getPagingLocation(), configuration.getLargeMessagesLocation()};
 
       boolean allEmpty = true;
       int lowestSuffixForMovedData = 1;

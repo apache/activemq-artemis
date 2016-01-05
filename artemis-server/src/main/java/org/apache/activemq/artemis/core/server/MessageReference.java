@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+
 /**
  * A reference to a message.
  *
@@ -25,7 +27,7 @@ public interface MessageReference {
 
    boolean isPaged();
 
-   ServerMessage getMessage();
+   ServerMessage getMessage() throws ActiveMQException;
 
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,

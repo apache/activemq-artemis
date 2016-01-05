@@ -106,7 +106,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
          DuplicateIDCacheImpl cacheID = new DuplicateIDCacheImpl(ADDRESS, 10, journal, true);
 
          for (int i = 0; i < 100; i++) {
-            cacheID.addToCache(RandomUtil.randomBytes(), null);
+            cacheID.addToCache(RandomUtil.randomBytes());
          }
 
          journal.stop();

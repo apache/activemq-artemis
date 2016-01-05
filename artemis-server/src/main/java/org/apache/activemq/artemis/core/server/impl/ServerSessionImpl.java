@@ -316,6 +316,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public void markTXFailed(Throwable e) {
+      Transaction currentTX = this.tx;
+      if (currentTX != null) {
+         if (e instanceof ActiveMQException) {
+            currentTX.markAsRollbackOnly((ActiveMQException) e);
+         }
+         else {
+            ActiveMQException exception = new ActiveMQException(e.getMessage());
+            exception.initCause(e);
+            currentTX.markAsRollbackOnly(exception);
+         }
+      }
+   }
+
+   @Override
    public boolean removeConsumer(final long consumerID) throws Exception {
       return consumers.remove(consumerID) != null;
    }

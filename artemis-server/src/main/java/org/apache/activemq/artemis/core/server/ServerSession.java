@@ -73,6 +73,8 @@ public interface ServerSession extends SecurityAuth {
 
    void xaSuspend() throws Exception;
 
+   void markTXFailed(Throwable e);
+
    QueueCreator getQueueCreator();
 
    List<Xid> xaGetInDoubtXids();

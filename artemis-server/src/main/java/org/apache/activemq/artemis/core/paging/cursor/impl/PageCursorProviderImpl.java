@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -109,7 +111,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public PagedMessage getMessage(final PagePosition pos) {
+   public PagedMessage getMessage(final PagePosition pos) throws ActiveMQException {
       PageCache cache = getPageCache(pos.getPageNr());
 
       if (cache == null || pos.getMessageNr() >= cache.getNumberOfMessages()) {
@@ -128,10 +130,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public PageCache getPageCache(final long pageId) {
+   public PageCache getPageCache(final long pageId) throws ActiveMQException {
       try {
-         boolean needToRead = false;
-         PageCache cache = null;
+         PageCache cache;
          synchronized (softCache) {
             if (pageId > pagingStore.getCurrentWritingPage()) {
                return null;
@@ -144,47 +145,43 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                }
 
                cache = createPageCache(pageId);
-               needToRead = true;
                // anyone reading from this cache will have to wait reading to finish first
                // we also want only one thread reading this cache
-               cache.lock();
                if (isTrace) {
                   ActiveMQServerLogger.LOGGER.trace("adding " + pageId + " into cursor = " + this.pagingStore.getAddress());
                }
+               readPage((int) pageId, cache);
                softCache.put(pageId, cache);
-            }
-         }
-
-         // Reading is done outside of the synchronized block, however
-         // the page stays locked until the entire reading is finished
-         if (needToRead) {
-            Page page = null;
-            try {
-               page = pagingStore.createPage((int) pageId);
-
-               storageManager.beforePageRead();
-               page.open();
-
-               List<PagedMessage> pgdMessages = page.read(storageManager);
-               cache.setMessages(pgdMessages.toArray(new PagedMessage[pgdMessages.size()]));
-            }
-            finally {
-               try {
-                  if (page != null) {
-                     page.close();
-                  }
-               }
-               catch (Throwable ignored) {
-               }
-               storageManager.afterPageRead();
-               cache.unlock();
             }
          }
 
          return cache;
       }
-      catch (Exception e) {
-         throw new RuntimeException("Couldn't complete paging due to an IO Exception on Paging - " + e.getMessage(), e);
+      catch (Throwable e) {
+         throw new ActiveMQIOErrorException("Couldn't complete paging due to an IO Exception on Paging - " + e.getMessage(), e);
+      }
+   }
+
+   private void readPage(int pageId, PageCache cache) throws Exception {
+      Page page = null;
+      try {
+         page = pagingStore.createPage(pageId);
+
+         storageManager.beforePageRead();
+         page.open();
+
+         List<PagedMessage> pgdMessages = page.read(storageManager);
+         cache.setMessages(pgdMessages.toArray(new PagedMessage[pgdMessages.size()]));
+      }
+      finally {
+         try {
+            if (page != null) {
+               page.close();
+            }
+         }
+         catch (Throwable ignored) {
+         }
+         storageManager.afterPageRead();
       }
    }
 

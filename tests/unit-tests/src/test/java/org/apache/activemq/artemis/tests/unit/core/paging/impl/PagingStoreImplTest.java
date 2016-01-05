@@ -782,6 +782,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
    static final class FakeStoreFactory implements PagingStoreFactory {
 
+      @Override
+      public void criticalException(Throwable e) {
+      }
+
       final SequentialFileFactory factory;
 
       public FakeStoreFactory() {
