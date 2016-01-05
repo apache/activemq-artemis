@@ -295,9 +295,9 @@ for every case. Just like in the non-JAAS use-case, the first place to look is i
 using the `PropertiesLogin` JAAS login module which reads user, password, and role information from properties files
 much like the non-JAAS security manager implementation:
 
-    <jaas-security login-module="PropertiesLogin"/>
+    <jaas-security domain="PropertiesLogin"/>
     
-No matter what login module you're using, you'll need to specify it here in `bootstrap.xml`. The `login-module` attribute
+No matter what login module you're using, you'll need to specify it here in `bootstrap.xml`. The `domain` attribute
 here refers to the relevant login module entry in `login.config`. For example:
 
     PropertiesLogin {
