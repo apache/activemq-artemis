@@ -68,16 +68,6 @@ public class LivePageCacheImpl implements LivePageCache {
    }
 
    @Override
-   public void lock() {
-      // nothing to be done on live cache
-   }
-
-   @Override
-   public void unlock() {
-      // nothing to be done on live cache
-   }
-
-   @Override
    public synchronized boolean isLive() {
       return isLive;
    }

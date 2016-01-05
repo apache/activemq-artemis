@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 
@@ -23,5 +24,5 @@ public interface PagedReference extends MessageReference {
 
    PagePosition getPosition();
 
-   PagedMessage getPagedMessage();
+   PagedMessage getPagedMessage() throws ActiveMQException;
 }

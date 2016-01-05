@@ -64,6 +64,8 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  */
 public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
+   void criticalError(Throwable error);
+
    /**
     * Get the context associated with the thread for later reuse
     */

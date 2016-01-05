@@ -31,6 +31,14 @@ public class ByteUtilTest {
    }
 
    @Test
+   public void testNonASCII() {
+      Assert.assertEquals("aA", ByteUtil.toSimpleString(new byte[]{97, 0, 65, 0}));
+      Assert.assertEquals(ByteUtil.NON_ASCII_STRING, ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
+
+      System.out.println(ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
+   }
+
+   @Test
    public void testMaxString() {
       byte[] byteArray = new byte[20 * 1024];
       System.out.println(ByteUtil.maxString(ByteUtil.bytesToHex(byteArray, 2), 150));

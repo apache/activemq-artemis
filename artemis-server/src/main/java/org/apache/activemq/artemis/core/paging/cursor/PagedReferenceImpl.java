@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging.cursor;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -49,12 +50,12 @@ public class PagedReferenceImpl implements PagedReference {
    private boolean alreadyAcked;
 
    @Override
-   public ServerMessage getMessage() {
+   public ServerMessage getMessage() throws ActiveMQException {
       return getPagedMessage().getMessage();
    }
 
    @Override
-   public synchronized PagedMessage getPagedMessage() {
+   public synchronized PagedMessage getPagedMessage() throws ActiveMQException {
       PagedMessage returnMessage = message != null ? message.get() : null;
 
       // We only keep a few references on the Queue from paging...
@@ -107,25 +108,42 @@ public class PagedReferenceImpl implements PagedReference {
    @Override
    public int getMessageMemoryEstimate() {
       if (messageEstimate < 0) {
-         messageEstimate = getMessage().getMemoryEstimate();
+         try {
+            messageEstimate = getMessage().getMemoryEstimate();
+         }
+         catch (ActiveMQException e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         }
       }
       return messageEstimate;
    }
 
    @Override
    public MessageReference copy(final Queue queue) {
-      return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
+      try {
+         return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
+      }
+      catch (ActiveMQException e) {
+         ActiveMQServerLogger.LOGGER.warn(e);
+         return this;
+      }
    }
 
    @Override
    public long getScheduledDeliveryTime() {
       if (deliveryTime == null) {
-         ServerMessage msg = getMessage();
-         if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
-            deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+         try {
+            ServerMessage msg = getMessage();
+            if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
+               deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
+            }
+            else {
+               deliveryTime = 0L;
+            }
          }
-         else {
-            deliveryTime = 0L;
+         catch (ActiveMQException e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            return 0L;
          }
       }
       return deliveryTime;

@@ -113,8 +113,7 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public Binding removeBinding(final SimpleString uniqueName, final Transaction tx) throws Exception {
-
+   public Binding removeBinding(SimpleString uniqueName, Transaction tx, boolean deleteData) throws Exception {
       return null;
    }
 

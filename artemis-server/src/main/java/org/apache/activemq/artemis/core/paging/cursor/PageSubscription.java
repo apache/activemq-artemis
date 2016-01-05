@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.paging.cursor;
 
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -95,7 +96,7 @@ public interface PageSubscription {
 
    void reloadPageCompletion(PagePosition position);
 
-   void reloadPageInfo(long pageNr);
+   void reloadPageInfo(long pageNr) throws ActiveMQException;
 
    /**
     * To be called when the cursor decided to ignore a position.
@@ -147,7 +148,7 @@ public interface PageSubscription {
     * @param pos
     * @return
     */
-   PagedMessage queryMessage(PagePosition pos);
+   PagedMessage queryMessage(PagePosition pos) throws ActiveMQException;
 
    /**
     * @return executor used by the PageSubscription

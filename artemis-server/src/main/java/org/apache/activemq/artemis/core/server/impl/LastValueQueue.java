@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -66,7 +67,15 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addTail(final MessageReference ref, final boolean direct) {
-      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      SimpleString prop;
+
+      try {
+         prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      }
+      catch (ActiveMQException e) {
+         criticalError(e);
+         throw new IllegalStateException(e);
+      }
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -103,45 +112,59 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addHead(final MessageReference ref) {
-      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      try {
+         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
 
-      if (prop != null) {
-         HolderReference hr = map.get(prop);
+         if (prop != null) {
+            HolderReference hr = map.get(prop);
 
-         if (hr != null) {
-            // We keep the current ref and ack the one we are returning
+            if (hr != null) {
+               // We keep the current ref and ack the one we are returning
 
-            super.referenceHandled();
+               super.referenceHandled();
 
-            try {
-               super.acknowledge(ref);
+               try {
+                  super.acknowledge(ref);
+               }
+               catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
+               }
             }
-            catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
+            else {
+               map.put(prop, (HolderReference) ref);
+
+               super.addHead(ref);
             }
          }
          else {
-            map.put(prop, (HolderReference) ref);
-
             super.addHead(ref);
          }
       }
-      else {
-         super.addHead(ref);
+      catch (ActiveMQException e) {
+         criticalError(e);
+         throw new IllegalStateException(e);
       }
    }
 
    @Override
    protected void refRemoved(MessageReference ref) {
-      synchronized (this) {
-         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      try {
 
-         if (prop != null) {
-            map.remove(prop);
+         synchronized (this) {
+            SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+
+            if (prop != null) {
+               map.remove(prop);
+            }
          }
+
+         super.refRemoved(ref);
+      }
+      catch (ActiveMQException e) {
+         criticalError(e);
+         throw new IllegalStateException(e);
       }
 
-      super.refRemoved(ref);
    }
 
    private class HolderReference implements MessageReference {
@@ -200,7 +223,13 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public ServerMessage getMessage() {
-         return ref.getMessage();
+         try {
+            return ref.getMessage();
+         }
+         catch (ActiveMQException e) {
+            criticalError(e);
+            throw new IllegalStateException(e);
+         }
       }
 
       @Override
@@ -256,7 +285,13 @@ public class LastValueQueue extends QueueImpl {
        */
       @Override
       public int getMessageMemoryEstimate() {
-         return ref.getMessage().getMemoryEstimate();
+         try {
+            return ref.getMessage().getMemoryEstimate();
+         }
+         catch (ActiveMQException e) {
+            criticalError(e);
+            throw new IllegalStateException(e);
+         }
       }
 
       /* (non-Javadoc)

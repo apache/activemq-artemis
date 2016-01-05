@@ -19,8 +19,11 @@ package org.apache.activemq.artemis.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class ByteUtil {
+
+   public static final String NON_ASCII_STRING = "@@@@@";
 
    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
@@ -34,22 +37,30 @@ public class ByteUtil {
    }
 
    public static String bytesToHex(byte[] bytes, int groupSize) {
-      if (bytes == null) {
-         return "null";
-      }
-      else {
-         char[] hexChars = new char[bytes.length * 2 + numberOfGroups(bytes, groupSize)];
-         int outPos = 0;
-         for (int j = 0; j < bytes.length; j++) {
-            if (j > 0 && j % groupSize == 0) {
-               hexChars[outPos++] = ' ';
-            }
-            int v = bytes[j] & 0xFF;
-            hexChars[outPos++] = hexArray[v >>> 4];
-            hexChars[outPos++] = hexArray[v & 0x0F];
+      char[] hexChars = new char[bytes.length * 2 + numberOfGroups(bytes, groupSize)];
+      int outPos = 0;
+      for (int j = 0; j < bytes.length; j++) {
+         if (j > 0 && j % groupSize == 0) {
+            hexChars[outPos++] = ' ';
          }
-         return new String(hexChars);
+         int v = bytes[j] & 0xFF;
+         hexChars[outPos++] = hexArray[v >>> 4];
+         hexChars[outPos++] = hexArray[v & 0x0F];
       }
+      return new String(hexChars);
+   }
+
+   public static String toSimpleString(byte[] bytes) {
+      SimpleString simpleString = new SimpleString(bytes);
+      String value = simpleString.toString();
+
+      for (char c : value.toCharArray()) {
+         if (c < ' ' || c > 127) {
+            return NON_ASCII_STRING;
+         }
+      }
+
+      return value;
    }
 
    private static int numberOfGroups(byte[] bytes, int groupSize) {

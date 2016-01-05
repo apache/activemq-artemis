@@ -25,6 +25,8 @@ public interface DuplicateIDCache {
 
    boolean contains(byte[] duplicateID);
 
+   boolean atomicVerify(final byte[] duplID, final Transaction tx) throws Exception;
+
    void addToCache(byte[] duplicateID) throws Exception;
 
    void addToCache(byte[] duplicateID, Transaction tx) throws Exception;

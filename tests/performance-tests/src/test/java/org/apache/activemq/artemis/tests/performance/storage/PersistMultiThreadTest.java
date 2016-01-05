@@ -257,6 +257,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void criticalException(Throwable e) {
+      }
+
+      @Override
       public int getNumberOfPages() {
          return 0;
       }
