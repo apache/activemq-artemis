@@ -40,10 +40,23 @@ import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 
+/**
+ * Artemis is the main CLI entry point for managing/running a broker.
+ *
+ * Want to start or debug a broker from an IDE?  This is probably the best class to
+ * run.  Make sure set the -Dartemis.instance=path/to/instance system property.
+ * You should also use the 'apache-artemis' module for the class path since that
+ * includes all artemis modules.
+ */
 public class Artemis {
 
    public static void main(String... args) throws Exception {
-      execute(null, null, args);
+      String home = System.getProperty("artemis.home");
+      File fileHome = home != null ? new File(home) : null;
+      String instance = System.getProperty("artemis.instance");
+      File fileInstance = instance != null ? new File(instance) : null;
+
+      execute(fileHome, fileInstance, args);
    }
 
    public static Object internalExecute(String... args) throws Exception {
