@@ -54,6 +54,7 @@
             <include>org.apache.activemq:artemis-jms-client</include>
             <include>org.apache.activemq:artemis-jms-server</include>
             <include>org.apache.activemq:artemis-journal</include>
+            <include>org.apache.activemq:artemis-jdbc-store</include>
             <include>org.apache.activemq:artemis-native</include>
             <include>org.apache.activemq:artemis-amqp-protocol</include>
             <include>org.apache.activemq:artemis-openwire-protocol</include>
@@ -93,6 +94,7 @@
             <include>org.fusesource.hawtbuf:hawtbuf</include>
             <include>org.jgroups:jgroups</include>
             <include>io.netty:netty-codec-mqtt</include>
+            <include>org.apache.derby:derby</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
