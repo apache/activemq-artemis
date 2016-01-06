@@ -22,13 +22,13 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
 public class JournalAddRecord extends JournalInternalRecord {
 
-   private final long id;
+   protected final long id;
 
-   private final EncodingSupport record;
+   protected final EncodingSupport record;
 
-   private final byte recordType;
+   protected final byte recordType;
 
-   private final boolean add;
+   protected final boolean add;
 
    /**
     * @param id
