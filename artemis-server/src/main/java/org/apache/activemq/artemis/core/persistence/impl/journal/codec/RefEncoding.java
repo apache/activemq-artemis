@@ -14,40 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.journal;
+package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
-import java.util.ArrayList;
-import java.util.List;
+public class RefEncoding extends QueueEncoding {
 
-public class PreparedTransactionInfo {
-
-   private final long id;
-
-   private final byte[] extraData;
-
-   private final List<RecordInfo> records = new ArrayList<RecordInfo>();
-
-   private final List<RecordInfo> recordsToDelete = new ArrayList<RecordInfo>();
-
-   public PreparedTransactionInfo(final long id, final byte[] extraData) {
-      this.id = id;
-
-      this.extraData = extraData;
+   public RefEncoding() {
+      super();
    }
 
-   public long getId() {
-      return id;
-   }
-
-   public byte[] getExtraData() {
-      return extraData;
-   }
-
-   public List<RecordInfo> getRecords() {
-      return records;
-   }
-
-   public List<RecordInfo> getRecordsToDelete() {
-      return recordsToDelete;
+   public RefEncoding(final long queueID) {
+      super(queueID);
    }
 }

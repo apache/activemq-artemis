@@ -265,9 +265,9 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          if (entry.getValue().prepared) {
             PreparedTransactionInfo info = new PreparedTransactionInfo(entry.getKey(), null);
 
-            info.records.addAll(entry.getValue().records);
+            info.getRecords().addAll(entry.getValue().records);
 
-            info.recordsToDelete.addAll(entry.getValue().deletes);
+            info.getRecordsToDelete().addAll(entry.getValue().deletes);
 
             prepared.add(info);
          }
@@ -465,15 +465,15 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          PreparedTransactionInfo ractual = iterActual.next();
 
-         Assert.assertEquals("ids not same", rexpected.id, ractual.id);
+         Assert.assertEquals("ids not same", rexpected.getId(), ractual.getId());
 
-         checkRecordsEquivalent(rexpected.records, ractual.records);
+         checkRecordsEquivalent(rexpected.getRecords(), ractual.getRecords());
 
-         Assert.assertEquals("deletes size not same", rexpected.recordsToDelete.size(), ractual.recordsToDelete.size());
+         Assert.assertEquals("deletes size not same", rexpected.getRecordsToDelete().size(), ractual.getRecordsToDelete().size());
 
-         Iterator<RecordInfo> iterDeletesExpected = rexpected.recordsToDelete.iterator();
+         Iterator<RecordInfo> iterDeletesExpected = rexpected.getRecordsToDelete().iterator();
 
-         Iterator<RecordInfo> iterDeletesActual = ractual.recordsToDelete.iterator();
+         Iterator<RecordInfo> iterDeletesActual = ractual.getRecordsToDelete().iterator();
 
          while (iterDeletesExpected.hasNext()) {
             long lexpected = iterDeletesExpected.next().id;
