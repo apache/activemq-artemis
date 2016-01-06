@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.paging.cursor;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -50,12 +49,12 @@ public class PagedReferenceImpl implements PagedReference {
    private boolean alreadyAcked;
 
    @Override
-   public ServerMessage getMessage() throws ActiveMQException {
+   public ServerMessage getMessage() {
       return getPagedMessage().getMessage();
    }
 
    @Override
-   public synchronized PagedMessage getPagedMessage() throws ActiveMQException {
+   public synchronized PagedMessage getPagedMessage() {
       PagedMessage returnMessage = message != null ? message.get() : null;
 
       // We only keep a few references on the Queue from paging...
@@ -111,7 +110,7 @@ public class PagedReferenceImpl implements PagedReference {
          try {
             messageEstimate = getMessage().getMemoryEstimate();
          }
-         catch (ActiveMQException e) {
+         catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -120,13 +119,7 @@ public class PagedReferenceImpl implements PagedReference {
 
    @Override
    public MessageReference copy(final Queue queue) {
-      try {
-         return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
-      }
-      catch (ActiveMQException e) {
-         ActiveMQServerLogger.LOGGER.warn(e);
-         return this;
-      }
+      return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
    }
 
    @Override
@@ -141,7 +134,7 @@ public class PagedReferenceImpl implements PagedReference {
                deliveryTime = 0L;
             }
          }
-         catch (ActiveMQException e) {
+         catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             return 0L;
          }

@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -38,7 +37,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    private Queue queue;
    List<MessageReference> refsToAck = new ArrayList<>();
 
-   List<ServerMessage> pagedMessagesToPostACK = null;
+   List<MessageReference> pagedMessagesToPostACK = null;
 
    /**
     * It will ignore redelivery check, which is used during consumer.close
@@ -56,13 +55,13 @@ public class RefsOperation extends TransactionOperationAbstract {
       ignoreRedeliveryCheck = true;
    }
 
-   synchronized void addAck(final MessageReference ref) throws ActiveMQException {
+   synchronized void addAck(final MessageReference ref) {
       refsToAck.add(ref);
       if (ref.isPaged()) {
          if (pagedMessagesToPostACK == null) {
             pagedMessagesToPostACK = new ArrayList<>();
          }
-         pagedMessagesToPostACK.add(ref.getMessage());
+         pagedMessagesToPostACK.add(ref);
       }
    }
 
@@ -148,29 +147,23 @@ public class RefsOperation extends TransactionOperationAbstract {
    public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
          synchronized (ref.getQueue()) {
-            try {
-               queue.postAcknowledge(ref);
-            }
-            catch (ActiveMQException e) {
-               if (queue instanceof QueueImpl) {
-                  ((QueueImpl) queue).criticalError(e);
-               }
-               else {
-                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-               }
-            }
+            queue.postAcknowledge(ref);
          }
       }
 
       if (pagedMessagesToPostACK != null) {
-         for (ServerMessage msg : pagedMessagesToPostACK) {
-            try {
-               msg.decrementRefCount();
-            }
-            catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-            }
+         for (MessageReference refmsg : pagedMessagesToPostACK) {
+            decrementRefCount(refmsg);
          }
+      }
+   }
+
+   private void decrementRefCount(MessageReference refmsg) {
+      try {
+         refmsg.getMessage().decrementRefCount();
+      }
+      catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
    }
 

@@ -176,12 +176,6 @@ public class PagingStoreImpl implements PagingStore {
 
    }
 
-   @Override
-   public void criticalException(Throwable e) {
-      ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-      storeFactory.criticalException(e);
-   }
-
    /**
     * @param addressSettings
     */

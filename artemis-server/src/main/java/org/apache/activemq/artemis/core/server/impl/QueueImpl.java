@@ -1054,13 +1054,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
-      try {
-         getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
-      }
-      catch (ActiveMQException e) {
-         criticalError(e);
-         getPageSubscription().getPagingStore().criticalException(e);
-      }
+      getRefsOperation(tx, ignoreRedeliveryCheck).addAck(reference);
    }
 
    @Override
@@ -1777,12 +1771,7 @@ public class QueueImpl implements Queue {
 
    private synchronized void internalAddTail(final MessageReference ref) {
       refAdded(ref);
-      try {
-         messageReferences.addTail(ref, ref.getMessage().getPriority());
-      }
-      catch (ActiveMQException e) {
-         criticalError(e);
-      }
+      messageReferences.addTail(ref, getPriority(ref));
    }
 
    /**
@@ -1793,18 +1782,22 @@ public class QueueImpl implements Queue {
     * @param ref
     */
    private void internalAddHead(final MessageReference ref) {
-      try {
-         queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
-         refAdded(ref);
-         messageReferences.addHead(ref, ref.getMessage().getPriority());
-      }
-      catch (ActiveMQException e) {
-         criticalError(e);
-      }
+      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      refAdded(ref);
+
+      int priority = getPriority(ref);
+
+      messageReferences.addHead(ref, priority);
    }
 
-   void criticalError(ActiveMQException e) {
-      storageManager.criticalError(e);
+   private int getPriority(MessageReference ref) {
+      try {
+         return ref.getMessage().getPriority();
+      }
+      catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         return 4; // the default one in case of failure
+      }
    }
 
    private synchronized void doInternalPoll() {
@@ -2036,9 +2029,9 @@ public class QueueImpl implements Queue {
             // But we don't use the groupID on internal queues (clustered queues) otherwise the group map would leak forever
             return ref.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID);
          }
-         catch (ActiveMQException e) {
-            criticalError(e);
-            throw new IllegalStateException(e);
+         catch (Throwable e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            return null;
          }
       }
    }
@@ -2543,9 +2536,9 @@ public class QueueImpl implements Queue {
             return false;
          }
       }
-      catch (ActiveMQException e) {
-         criticalError(e);
-         throw new IllegalStateException(e);
+      catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         return false;
       }
    }
 
@@ -2584,7 +2577,7 @@ public class QueueImpl implements Queue {
    }
 
    @Override
-   public void postAcknowledge(final MessageReference ref) throws ActiveMQException {
+   public void postAcknowledge(final MessageReference ref) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
       queue.decDelivering();
@@ -2594,9 +2587,17 @@ public class QueueImpl implements Queue {
          return;
       }
 
-      final ServerMessage message = ref.getMessage();
+      ServerMessage message;
 
-      boolean durableRef = message.isDurable() && queue.durable;
+      try {
+         message = ref.getMessage();
+      }
+      catch (Throwable e) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         message = null;
+      }
+
+      boolean durableRef = message != null && message.isDurable() && queue.durable;
 
       try {
          message.decrementRefCount();

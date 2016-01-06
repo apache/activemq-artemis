@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 
@@ -25,7 +24,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
  */
 public interface PageCursorProvider {
 
-   PageCache getPageCache(long pageNr) throws ActiveMQException;
+   PageCache getPageCache(long pageNr);
 
    PagedReference newReference(final PagePosition pos, final PagedMessage msg, PageSubscription sub);
 
@@ -39,7 +38,7 @@ public interface PageCursorProvider {
 
    PageSubscription createSubscription(long queueId, Filter filter, boolean durable);
 
-   PagedMessage getMessage(PagePosition pos) throws ActiveMQException;
+   PagedMessage getMessage(PagePosition pos);
 
    void processReload() throws Exception;
 

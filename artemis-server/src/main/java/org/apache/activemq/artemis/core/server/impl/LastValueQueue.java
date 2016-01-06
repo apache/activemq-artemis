@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -67,15 +66,7 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addTail(final MessageReference ref, final boolean direct) {
-      SimpleString prop;
-
-      try {
-         prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
-      }
-      catch (ActiveMQException e) {
-         criticalError(e);
-         throw new IllegalStateException(e);
-      }
+      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
 
       if (prop != null) {
          HolderReference hr = map.get(prop);
@@ -112,59 +103,45 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public synchronized void addHead(final MessageReference ref) {
-      try {
-         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
+      SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
 
-         if (prop != null) {
-            HolderReference hr = map.get(prop);
+      if (prop != null) {
+         HolderReference hr = map.get(prop);
 
-            if (hr != null) {
-               // We keep the current ref and ack the one we are returning
+         if (hr != null) {
+            // We keep the current ref and ack the one we are returning
 
-               super.referenceHandled();
+            super.referenceHandled();
 
-               try {
-                  super.acknowledge(ref);
-               }
-               catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
-               }
+            try {
+               super.acknowledge(ref);
             }
-            else {
-               map.put(prop, (HolderReference) ref);
-
-               super.addHead(ref);
+            catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
             }
          }
          else {
+            map.put(prop, (HolderReference) ref);
+
             super.addHead(ref);
          }
       }
-      catch (ActiveMQException e) {
-         criticalError(e);
-         throw new IllegalStateException(e);
+      else {
+         super.addHead(ref);
       }
    }
 
    @Override
    protected void refRemoved(MessageReference ref) {
-      try {
+      synchronized (this) {
+         SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
 
-         synchronized (this) {
-            SimpleString prop = ref.getMessage().getSimpleStringProperty(Message.HDR_LAST_VALUE_NAME);
-
-            if (prop != null) {
-               map.remove(prop);
-            }
+         if (prop != null) {
+            map.remove(prop);
          }
-
-         super.refRemoved(ref);
-      }
-      catch (ActiveMQException e) {
-         criticalError(e);
-         throw new IllegalStateException(e);
       }
 
+      super.refRemoved(ref);
    }
 
    private class HolderReference implements MessageReference {
@@ -223,13 +200,7 @@ public class LastValueQueue extends QueueImpl {
 
       @Override
       public ServerMessage getMessage() {
-         try {
-            return ref.getMessage();
-         }
-         catch (ActiveMQException e) {
-            criticalError(e);
-            throw new IllegalStateException(e);
-         }
+         return ref.getMessage();
       }
 
       @Override
@@ -285,13 +256,7 @@ public class LastValueQueue extends QueueImpl {
        */
       @Override
       public int getMessageMemoryEstimate() {
-         try {
-            return ref.getMessage().getMemoryEstimate();
-         }
-         catch (ActiveMQException e) {
-            criticalError(e);
-            throw new IllegalStateException(e);
-         }
+         return ref.getMessage().getMemoryEstimate();
       }
 
       /* (non-Javadoc)

@@ -239,7 +239,7 @@ public interface Queue extends Bindable {
     */
    void deliverScheduledMessages() throws ActiveMQException;
 
-   void postAcknowledge(MessageReference ref) throws ActiveMQException;
+   void postAcknowledge(MessageReference ref);
 
    float getRate();
 

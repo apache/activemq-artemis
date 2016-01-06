@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -111,7 +109,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public PagedMessage getMessage(final PagePosition pos) throws ActiveMQException {
+   public PagedMessage getMessage(final PagePosition pos) {
       PageCache cache = getPageCache(pos.getPageNr());
 
       if (cache == null || pos.getMessageNr() >= cache.getNumberOfMessages()) {
@@ -130,7 +128,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public PageCache getPageCache(final long pageId) throws ActiveMQException {
+   public PageCache getPageCache(final long pageId) {
       try {
          PageCache cache;
          synchronized (softCache) {
@@ -157,8 +155,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
          return cache;
       }
-      catch (Throwable e) {
-         throw new ActiveMQIOErrorException("Couldn't complete paging due to an IO Exception on Paging - " + e.getMessage(), e);
+      catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
    }
 
