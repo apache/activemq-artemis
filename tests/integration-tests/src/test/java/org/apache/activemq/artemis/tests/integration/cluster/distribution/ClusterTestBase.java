@@ -512,7 +512,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          throw new IllegalArgumentException("No sf at " + node);
       }
 
-      ClientSession session = addClientSession(sf.createSession(user, password, false, true, true, false, 0));
+      ClientSession session = addClientSession(sf.createSession(user, password, false, true, true, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE));
 
       String filterString = null;
 
@@ -574,7 +574,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No sf at " + node);
          }
 
-         ClientSession session = addClientSession(sf.createSession(user, password, false, false, autoCommitAcks, false, 0));
+         ClientSession session = addClientSession(sf.createSession(user, password, false, false, autoCommitAcks, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE));
 
          String filterString = null;
 
@@ -1362,7 +1362,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       addServerLocator(locators[node]);
       ClientSessionFactory sf = createSessionFactory(locators[node]);
 
-      ClientSession session = sf.createSession(user, password, false, true, true, false, 0);
+      ClientSession session = sf.createSession(user, password, false, true, true, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
       session.close();
       sfs[node] = sf;
    }
