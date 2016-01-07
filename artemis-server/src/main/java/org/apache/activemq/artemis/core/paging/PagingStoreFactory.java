@@ -38,6 +38,4 @@ public interface PagingStoreFactory {
 
    SequentialFileFactory newFileFactory(SimpleString address) throws Exception;
 
-   void criticalException(Throwable e);
-
 }
