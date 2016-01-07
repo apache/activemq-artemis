@@ -126,29 +126,23 @@ public class AMQServerConsumer extends ServerConsumerImpl {
    }
 
    public void amqPutBackToDeliveringList(final List<MessageReference> refs) {
-      try {
-         synchronized (this.deliveringRefs) {
-            for (MessageReference ref : refs) {
-               ref.incrementDeliveryCount();
-               deliveringRefs.add(ref);
-            }
-            //adjust the order. Suppose deliveringRefs has 2 existing
-            //refs m1, m2, and refs has 3 m3, m4, m5
-            //new order must be m3, m4, m5, m1, m2
-            if (refs.size() > 0) {
-               long first = refs.get(0).getMessage().getMessageID();
-               MessageReference m = deliveringRefs.peek();
-               while (m.getMessage().getMessageID() != first) {
-                  deliveringRefs.poll();
-                  deliveringRefs.add(m);
-                  m = deliveringRefs.peek();
-               }
+      synchronized (this.deliveringRefs) {
+         for (MessageReference ref : refs) {
+            ref.incrementDeliveryCount();
+            deliveringRefs.add(ref);
+         }
+         //adjust the order. Suppose deliveringRefs has 2 existing
+         //refs m1, m2, and refs has 3 m3, m4, m5
+         //new order must be m3, m4, m5, m1, m2
+         if (refs.size() > 0) {
+            long first = refs.get(0).getMessage().getMessageID();
+            MessageReference m = deliveringRefs.peek();
+            while (m.getMessage().getMessageID() != first) {
+               deliveringRefs.poll();
+               deliveringRefs.add(m);
+               m = deliveringRefs.peek();
             }
          }
-      }
-      catch (ActiveMQException e) {
-         // TODO: what to do here?
-         throw new IllegalStateException(e.getMessage(), e);
       }
    }
 
