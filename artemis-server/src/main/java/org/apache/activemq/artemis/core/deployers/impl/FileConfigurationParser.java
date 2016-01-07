@@ -54,6 +54,8 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.Validators;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.config.storage.FileStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -212,6 +214,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       //if we aren already set then set to default
       if (config.getHAPolicyConfiguration() == null) {
          config.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+      }
+
+      NodeList storeTypeNodes = e.getElementsByTagName("store");
+
+      if (storeTypeNodes.getLength() > 0) {
+         parseStoreConfiguration((Element) storeTypeNodes.item(0), config);
       }
 
       config.setResolveProtocols(getBoolean(e, "resolve-protocols", config.isResolveProtocols()));
@@ -666,7 +674,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return securityMatch;
    }
 
-   private Pair<SecuritySettingPlugin,Map<String,String>> parseSecuritySettingPlugins(Node item) {
+   private Pair<SecuritySettingPlugin, Map<String, String>> parseSecuritySettingPlugins(Node item) {
       final String clazz = item.getAttributes().getNamedItem("class-name").getNodeValue();
       final Map<String, String> settings = new HashMap<>();
       NodeList children = item.getChildNodes();
@@ -905,6 +913,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       HA_LIST.add("replication");
    }
 
+   private static final ArrayList<String> STORE_TYPE_LIST = new ArrayList<>();
+
+   static {
+      STORE_TYPE_LIST.add("database-store");
+      STORE_TYPE_LIST.add("file-store");
+   }
+
+   private void parseStoreConfiguration(final Element e, final Configuration mainConfig) {
+      for (String storeType : STORE_TYPE_LIST) {
+         NodeList storeNodeList = e.getElementsByTagName(storeType);
+         if (storeNodeList.getLength() > 0) {
+            Element storeNode = (Element) storeNodeList.item(0);
+            if (storeNode.getTagName().equals("database-store")) {
+               mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode));
+            }
+            else if (storeNode.getTagName().equals("file-store")) {
+               mainConfig.setStoreConfiguration(createFileStoreConfig(storeNode));
+            }
+         }
+      }
+   }
+
    private void parseHAPolicyConfiguration(final Element e, final Configuration mainConfig) {
       for (String haType : HA_LIST) {
          NodeList haNodeList = e.getElementsByTagName(haType);
@@ -1103,6 +1133,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          return scaleDownConfiguration;
       }
       return null;
+   }
+
+   private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode) {
+      NodeList databaseStoreNode = storeNode.getElementsByTagName("database-store");
+
+      DatabaseStorageConfiguration conf = new DatabaseStorageConfiguration();
+      conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), Validators.NO_CHECK));
+      conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
+      conf.setJdbcConnectionUrl(getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
+      return conf;
+   }
+
+   private FileStorageConfiguration createFileStoreConfig(Element storeNode) {
+      return new FileStorageConfiguration();
    }
 
    private void parseBroadcastGroupConfiguration(final Element e, final Configuration mainConfig) {

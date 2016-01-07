@@ -16,21 +16,29 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+@RunWith(Parameterized.class)
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<SimpleString, PersistedAddressSetting> mapExpectedAddresses;
+
+   public AddressSettingsConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    @Override
    @Before
@@ -40,7 +48,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       mapExpectedAddresses = new HashMap<>();
    }
 
-   protected void addAddress(JournalStorageManager journal1, String address, AddressSettings setting) throws Exception {
+   protected void addAddress(StorageManager journal1, String address, AddressSettings setting) throws Exception {
       SimpleString str = new SimpleString(address);
       PersistedAddressSetting persistedSetting = new PersistedAddressSetting(str, setting);
       mapExpectedAddresses.put(str, persistedSetting);
@@ -84,7 +92,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
     * @param journal1
     * @throws Exception
     */
-   private void checkAddresses(JournalStorageManager journal1) throws Exception {
+   private void checkAddresses(StorageManager journal1) throws Exception {
       List<PersistedAddressSetting> listSetting = journal1.recoverAddressSettings();
 
       assertEquals(mapExpectedAddresses.size(), listSetting.size());

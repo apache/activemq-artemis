@@ -9,6 +9,7 @@ ratReport.txt
 .settings
 .checkstyle
 .factorypath
+**/derby.log
 
 # for native build
 CMakeCache.txt

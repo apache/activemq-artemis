@@ -683,6 +683,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="store" type="storeType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The Store Type used by the server
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1437,6 +1445,55 @@
       </xsd:attribute>
 
    </xsd:complexType>
+
+   <xsd:complexType name="storeType">
+      <xsd:choice>
+         <xsd:element name="file-store" type="fileStoreType" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Use a file based store for peristing journal, paging and large messages
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="database-store" type="databaseStoreType" minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Use a database for persisting journal, paging and large messages
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:choice>
+   </xsd:complexType>
+
+   <xsd:complexType name="fileStoreType">
+   </xsd:complexType>
+
+   <xsd:complexType name="databaseStoreType">
+      <xsd:all>
+         <xsd:element name="jdbc-connection-url" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC Connection URL e.g. jdbc:mysql://localhost:3306/
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to store message journal entries
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="bindings-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to store bindings journal entries
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:all>
+   </xsd:complexType>
+
    <xsd:complexType name="haPolicyType">
       <xsd:choice>
          <xsd:element name="live-only" type="haLiveOnlyPolicyType" minOccurs="0" maxOccurs="1">
@@ -1488,6 +1545,7 @@
          </xsd:element>
       </xsd:choice>
    </xsd:complexType>
+
 
    <xsd:complexType name="haColocationReplicationType">
       <xsd:all>

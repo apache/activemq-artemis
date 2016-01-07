@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -30,6 +31,10 @@ import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 public class RolesConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<SimpleString, PersistedRoles> mapExpectedSets;
+
+   public RolesConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    @Override
    @Before

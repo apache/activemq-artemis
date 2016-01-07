@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
@@ -40,8 +40,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    private boolean allowsAutoFailBack;
 
    public enum SyncDataType {
-      JournalBindings(JournalContent.BINDINGS.typeByte),
-      JournalMessages(JournalContent.MESSAGES.typeByte),
+      JournalBindings(AbstractJournalStorageManager.JournalContent.BINDINGS.typeByte),
+      JournalMessages(AbstractJournalStorageManager.JournalContent.MESSAGES.typeByte),
       LargeMessages((byte) 2);
 
       private byte code;
@@ -50,8 +50,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
          this.code = code;
       }
 
-      public static JournalContent getJournalContentType(SyncDataType dataType) {
-         return JournalContent.getType(dataType.code);
+      public static AbstractJournalStorageManager.JournalContent getJournalContentType(SyncDataType dataType) {
+         return AbstractJournalStorageManager.JournalContent.getType(dataType.code);
       }
 
       public static SyncDataType getDataType(byte code) {
@@ -86,7 +86,7 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
    public ReplicationStartSyncMessage(JournalFile[] datafiles,
-                                      JournalContent contentType,
+                                      AbstractJournalStorageManager.JournalContent contentType,
                                       String nodeID,
                                       boolean allowsAutoFailBack) {
       this();
