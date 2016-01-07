@@ -147,9 +147,9 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
       public void close() {
          System.out.println("Closing!!!");
          running = false;
-         if (thread != null) {
+         if (thread != null && Thread.currentThread() != thread) {
             try {
-               thread.join();
+               thread.join(1000);
             }
             catch (Throwable ignored) {
             }

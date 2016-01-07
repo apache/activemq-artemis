@@ -36,6 +36,7 @@ import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+import org.junit.Ignore;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.AMQPClientSenderContext;
 import org.proton.plug.AMQPClientSessionContext;
@@ -52,7 +53,12 @@ import org.proton.plug.util.ByteUtil;
 
 /**
  * This is simulating a JMS client against a simple server
+ * This is being effectively tested by {@link org.apache.activemq.artemis.tests.integration.proton.ProtonTest} with a proper framework in place.
+ * This test eventually hungs on the testsuite.
+ * While it is still valid for debugging, for that reason the test will be ignored.
+ * and will be kept here for debug purposes.
  */
+@Ignore // remove this to debug it
 @RunWith(Parameterized.class)
 public class ProtonTest extends AbstractJMSTest {
 
