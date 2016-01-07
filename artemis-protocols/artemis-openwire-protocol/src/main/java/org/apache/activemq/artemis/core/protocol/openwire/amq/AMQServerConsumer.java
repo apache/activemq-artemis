@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
