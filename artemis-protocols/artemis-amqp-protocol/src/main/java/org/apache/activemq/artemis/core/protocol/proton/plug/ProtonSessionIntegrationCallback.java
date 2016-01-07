@@ -66,14 +66,18 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    private AMQPSessionContext protonSession;
 
+   private final Executor closeExecutor;
+
    public ProtonSessionIntegrationCallback(ActiveMQProtonConnectionCallback protonSPI,
                                            ProtonProtocolManager manager,
                                            AMQPConnectionContext connection,
-                                           Connection transportConnection) {
+                                           Connection transportConnection,
+                                           Executor executor) {
       this.protonSPI = protonSPI;
       this.manager = manager;
       this.connection = connection;
       this.transportConnection = transportConnection;
+      this.closeExecutor = executor;
    }
 
    @Override
@@ -220,7 +224,18 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public void close() throws Exception {
-      serverSession.close(false);
+      closeExecutor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               serverSession.close(false);
+            }
+            catch (Exception e) {
+               // TODO Logger
+               e.printStackTrace();
+            }
+         }
+      });
    }
 
    @Override

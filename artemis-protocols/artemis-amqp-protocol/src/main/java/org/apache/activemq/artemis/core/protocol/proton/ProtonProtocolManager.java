@@ -92,13 +92,15 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
-      ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection);
+      ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor());
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
       if (server.getConfiguration().getConnectionTTLOverride() != -1) {
          ttl = server.getConfiguration().getConnectionTTLOverride();
       }
-      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
+
+      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().
+         createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
