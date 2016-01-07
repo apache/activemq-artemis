@@ -27,7 +27,6 @@ public final class JournalRecordIds {
 
    // grouping journal record type
 
-   // mtaylor Added to compile
    public static final byte GROUP_RECORD = 20;
 
    // BindingsImpl journal record type

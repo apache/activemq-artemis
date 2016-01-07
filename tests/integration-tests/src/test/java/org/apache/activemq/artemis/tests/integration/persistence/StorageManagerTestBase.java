@@ -16,9 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
 import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
@@ -29,23 +39,39 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-
+@RunWith(Parameterized.class)
 public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    protected ExecutorService executor;
 
    protected ExecutorFactory execFactory;
 
-   protected JournalStorageManager journal;
+   protected StorageManager journal;
 
    protected JMSStorageManager jmsJournal;
+
+   protected StoreConfiguration.StoreType storeType;
+
+   public StorageManagerTestBase(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+      }
+
       super.setUp();
 
       execFactory = getOrderedExecutor();
@@ -79,6 +105,15 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
          jmsJournal = null;
       }
 
+      // Stops the database engine early to stop thread leaks showing.
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         try {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+         }
+         catch (SQLException e) {
+         }
+      }
+
       super.tearDown();
       if (exception != null)
          throw exception;
@@ -88,7 +123,13 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected void createStorage() throws Exception {
-      journal = createJournalStorageManager(createDefaultInVMConfig());
+
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         journal = createJDBCJournalStorageManager(createDefaultJDBCConfig());
+      }
+      else {
+         journal = createJournalStorageManager(createDefaultInVMConfig());
+      }
 
       journal.start();
 
@@ -107,6 +148,15 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
    }
 
    /**
+    * @param configuration
+    */
+   protected JDBCJournalStorageManager createJDBCJournalStorageManager(Configuration configuration) {
+      JDBCJournalStorageManager jsm = new JDBCJournalStorageManager(configuration, execFactory, null);
+      addActiveMQComponent(jsm);
+      return jsm;
+   }
+
+   /**
     * @throws Exception
     */
    protected void createJMSStorage() throws Exception {
@@ -115,4 +165,5 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       jmsJournal.start();
       jmsJournal.load();
    }
+
 }

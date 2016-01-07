@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,6 +27,10 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public class JMSStorageManagerTest extends StorageManagerTestBase {
+
+   public JMSStorageManagerTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    //https://issues.jboss.org/browse/HORNETQ-812
    @Test

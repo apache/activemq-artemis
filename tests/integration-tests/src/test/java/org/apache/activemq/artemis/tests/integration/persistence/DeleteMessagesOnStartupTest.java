@@ -17,12 +17,13 @@
 package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -30,14 +31,28 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
    volatile boolean deleteMessages = false;
 
    ArrayList<Long> deletedMessage = new ArrayList<>();
+
+   public DeleteMessagesOnStartupTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
+
+   // This is only applicable for FILE based store, as the database storage manager will automatically delete records.
+   @Parameterized.Parameters(name = "storeType")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}};
+      return Arrays.asList(params);
+   }
 
    @Test
    public void testDeleteMessagesOnStartup() throws Exception {

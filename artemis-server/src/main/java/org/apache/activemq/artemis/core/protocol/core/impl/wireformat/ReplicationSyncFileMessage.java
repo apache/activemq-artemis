@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
@@ -35,7 +35,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    /**
     * The JournalType or {@code null} if sync'ing large-messages.
     */
-   private JournalContent journalType;
+   private AbstractJournalStorageManager.JournalContent journalType;
    /**
     * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the
     * message id if we are sync'ing a large-message.
@@ -74,7 +74,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       super(REPLICATION_SYNC_FILE);
    }
 
-   public ReplicationSyncFileMessage(JournalContent content,
+   public ReplicationSyncFileMessage(AbstractJournalStorageManager.JournalContent content,
                                      SimpleString storeName,
                                      long id,
                                      int size,
@@ -135,7 +135,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       fileId = buffer.readLong();
       switch (FileType.getFileType(buffer.readByte())) {
          case JOURNAL: {
-            journalType = JournalContent.getType(buffer.readByte());
+            journalType = AbstractJournalStorageManager.JournalContent.getType(buffer.readByte());
             fileType = FileType.JOURNAL;
             break;
          }
@@ -160,7 +160,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       return fileId;
    }
 
-   public JournalContent getJournalContent() {
+   public AbstractJournalStorageManager.JournalContent getJournalContent() {
       return journalType;
    }
 

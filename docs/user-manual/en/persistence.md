@@ -3,12 +3,14 @@
 In this chapter we will describe how persistence works with Apache ActiveMQ Artemis and
 how to configure it.
 
-Apache ActiveMQ Artemis ships with a high performance journal. Since Apache ActiveMQ Artemis handles
-its own persistence, rather than relying on a database or other 3rd
-party persistence engine it is very highly optimised for the specific
-messaging use cases.
+Apache ActiveMQ Artemis ships with two persistence options.  The Apache ActiveMQ Artemis File journal
+which is highly optimized for the messaging use case and gives great performance, and also Apache Artemis
+JDBC Store, which uses JDBC to connect to a database of your choice.  The JDBC Store is still under development,
+but it is possible to use it's journal features, (essentially everything except for paging and large messages).
 
-An Apache ActiveMQ Artemis journal is an *append only* journal. It consists of a set of
+## Apache ActiveMQ Artemis File Journal (Default)
+
+An Apache ActiveMQ Artemis file journal is an *append only* journal. It consists of a set of
 files on disk. Each file is pre-created to a fixed size and initially
 filled with padding. As operations are performed on the server, e.g. add
 message, update message, delete message, records are appended to the
@@ -126,7 +128,7 @@ If no persistence is required at all, Apache ActiveMQ Artemis can also be config
 not to persist any data at all to storage as discussed in the Configuring
 the broker for Zero Persistence section.
 
-## Configuring the bindings journal
+### Configuring the bindings journal
 
 The bindings journal is configured using the following attributes in
 `broker.xml`
@@ -143,11 +145,11 @@ The bindings journal is configured using the following attributes in
     `bindings-directory` if it does not already exist. The default value
     is `true`
 
-## Configuring the jms journal
+### Configuring the jms journal
 
 The jms config shares its configuration with the bindings journal.
 
-## Configuring the message journal
+### Configuring the message journal
 
 The message journal is configured using the following attributes in
 `broker.xml`
@@ -297,7 +299,7 @@ The message journal is configured using the following attributes in
 
     The default for this parameter is `30`
 
-## An important note on disabling disk write cache.
+### An important note on disabling disk write cache.
 
 > **Warning**
 >
@@ -336,7 +338,7 @@ The message journal is configured using the following attributes in
 > On Windows you can check / change the setting by right clicking on the
 > disk and clicking properties.
 
-## Installing AIO
+### Installing AIO
 
 The Java NIO journal gives great performance, but If you are running
 Apache ActiveMQ Artemis using Linux Kernel 2.6 or later, we highly recommend you use
@@ -356,6 +358,40 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
     apt-get install libaio
 
+## Apache ActiveMQ Artemis JDBC Persistence
+
+The Apache ActiveMQ Artemis JDBC persistence store is still under development and only supports persistence of standard messages and bindings (this is everything except large messages and paging).  The JDBC store uses a JDBC connection to store messages and bindings data in records in database tables.  The data stored in the database tables is encoded using Apache ActiveMQ Artemis journal encoding.
+
+### Configuring JDBC Persistence
+
+To configure Apache ActiveMQ Artemis to use a database for persisting messages and bindings data you must do two things.
+
+1. Add the appropriate JDBC client libraries to the Artemis runtime.  You can do this by dropping the relevant jars in the lib folder of the ActiveMQ Artemis distribution.
+
+2. create a store element in your broker.xml config file under the <core> element.  For example:
+
+```xml
+      <store>
+         <database-store>
+            <jdbc-connection-url>jdbc:derby:target/derby/database-store;create=true</jdbc-connection-url>
+            <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
+            <message-table-name>MESSAGE_TABLE</message-table-name>
+         </database-store>
+      </store>
+```
+
+-   `jdbc-connection-url`
+
+    The full JDBC connection URL for your database server.  The connection url should include all configuration parameters and database name.
+    
+-   `bindings-table-name`
+
+    The name of the table in which bindings data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+    
+-   `message-table-name`
+
+    The name of the table in which messages and related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
 ## Configuring Apache ActiveMQ Artemis for Zero Persistence
 
 In some situations, zero persistence is sometimes required for a
@@ -366,3 +402,5 @@ straightforward. Simply set the parameter `persistence-enabled` in
 Please note that if you set this parameter to false, then *zero*
 persistence will occur. That means no bindings data, message data, large
 message data, duplicate id caches or paging data will be persisted.
+
+

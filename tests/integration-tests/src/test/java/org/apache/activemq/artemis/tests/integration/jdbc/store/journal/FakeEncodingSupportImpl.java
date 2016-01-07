@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.security;
+package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
-public interface SecurityAuth {
+public class FakeEncodingSupportImpl implements EncodingSupport {
 
-   String getUsername();
+   private byte[] data;
 
-   String getPassword();
+   public FakeEncodingSupportImpl(byte[] data) {
+      this.data = data;
+   }
 
-   RemotingConnection getRemotingConnection();
+   @Override
+   public int getEncodeSize() {
+      return data.length;
+   }
+
+   @Override
+   public void encode(ActiveMQBuffer buffer) {
+      buffer.writeBytes(data);
+   }
+
+   @Override
+   public void decode(ActiveMQBuffer buffer) {
+      data = new byte[buffer.readableBytes()];
+      buffer.readBytes(data);
+   }
 }

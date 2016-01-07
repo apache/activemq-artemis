@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
@@ -228,6 +229,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private HAPolicyConfiguration haPolicyConfiguration;
 
+   private StoreConfiguration storeConfiguration;
+
    /**
     * Parent folder for all data folders.
     */
@@ -407,7 +410,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
-
    @Override
    public ConfigurationImpl addConnectorConfiguration(final String name, final String uri) throws Exception {
 
@@ -421,7 +423,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       return this;
    }
-
 
    @Override
    public ConfigurationImpl clearConnectorConfigurations() {
@@ -1276,6 +1277,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public boolean isResolveProtocols() {
       return resolveProtocols;
+   }
+
+   @Override
+   public StoreConfiguration getStoreConfiguration() {
+      return storeConfiguration;
+   }
+
+   @Override
+   public ConfigurationImpl setStoreConfiguration(StoreConfiguration storeConfiguration) {
+      this.storeConfiguration = storeConfiguration;
+      return this;
    }
 
    @Override

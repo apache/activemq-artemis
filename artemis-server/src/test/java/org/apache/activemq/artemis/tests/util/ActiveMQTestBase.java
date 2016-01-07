@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -385,6 +386,19 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected Configuration createDefaultConfig(final boolean netty) throws Exception {
       return createDefaultConfig(0, netty);
+   }
+
+   protected Configuration createDefaultJDBCConfig() throws Exception {
+      Configuration configuration = createDefaultConfig(true);
+
+      DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
+      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
+      dbStorageConfiguration.setBindingsTableName("BINDINGS");
+      dbStorageConfiguration.setMessageTableName("MESSAGES");
+
+      configuration.setStoreConfiguration(dbStorageConfiguration);
+
+      return configuration;
    }
 
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
@@ -747,6 +761,10 @@ public abstract class ActiveMQTestBase extends Assert {
     */
    protected final String getTestDir() {
       return testDir;
+   }
+
+   protected final String getTestJDBCConnectionUrl() {
+      return "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true";
    }
 
    protected final File getTestDirfile() {
