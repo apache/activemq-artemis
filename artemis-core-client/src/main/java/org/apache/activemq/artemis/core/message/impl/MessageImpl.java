@@ -420,6 +420,13 @@ public abstract class MessageImpl implements MessageInternal {
       map.put("expiration", expiration);
       map.put("timestamp", timestamp);
       map.put("priority", priority);
+      map.putAll(toPropertyMap());
+      return map;
+   }
+
+   @Override
+   public Map<String, Object> toPropertyMap() {
+      Map<String, Object> map = new HashMap<>();
       for (SimpleString propName : properties.getPropertyNames()) {
          map.put(propName.toString(), properties.getProperty(propName));
       }

@@ -161,6 +161,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_JMS_QUEUES = "auto-delete-jms-queues";
 
+   private static final String MANAGEMENT_BROWSE_PAGE_SIZE = "management-browse-page-size";
+
    private static final String MAX_CONNECTIONS_NODE_NAME = "max-connections";
 
    private static final String MAX_QUEUES_NODE_NAME = "max-queues";
@@ -777,6 +779,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
          else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteJmsQueues(XMLUtil.parseBoolean(child));
+         }
+         else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
+            addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          }
       }
       return setting;

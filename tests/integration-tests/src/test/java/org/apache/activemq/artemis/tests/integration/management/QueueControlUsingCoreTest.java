@@ -27,6 +27,8 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.junit.Before;
 
+import javax.management.openmbean.CompositeData;
+
 public class QueueControlUsingCoreTest extends QueueControlTest {
 
    protected ClientSession session;
@@ -326,6 +328,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public boolean isPaused() throws Exception {
             return (Boolean) proxy.invokeOperation("isPaused");
+         }
+
+         @Override
+         public CompositeData[] browse(String filter) throws Exception {
+            return null;
          }
 
          @Override

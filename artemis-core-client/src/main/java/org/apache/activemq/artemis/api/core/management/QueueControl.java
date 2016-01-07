@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
+import javax.management.openmbean.CompositeData;
 import java.util.Map;
 
 /**
@@ -376,6 +377,12 @@ public interface QueueControl {
     */
    @Operation(desc = "Inspects if the queue is paused", impact = MBeanOperationInfo.INFO)
    boolean isPaused() throws Exception;
+
+   /**
+    * Resets the MessagesAdded property
+    */
+   @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
+   CompositeData[] browse(String filter) throws Exception;
 
    /**
     * Resets the MessagesAdded property

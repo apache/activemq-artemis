@@ -835,6 +835,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public Map<String, Object> toPropertyMap() {
+         return null;
+      }
+
+      @Override
       public FakeMessage writeBodyBufferBytes(byte[] bytes) {
          return this;
       }

@@ -692,6 +692,11 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Map<String, Object> toPropertyMap() {
+         return null;
+      }
+
+      @Override
       public FakeMessageWithID writeBodyBufferBytes(byte[] bytes) {
          return this;
       }

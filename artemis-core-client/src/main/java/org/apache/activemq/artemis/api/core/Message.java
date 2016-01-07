@@ -579,4 +579,10 @@ public interface Message {
     * @return Returns the message in Map form, useful when encoding to JSON
     */
    Map<String, Object> toMap();
+
+
+   /**
+    * @return Returns the message properties in Map form, useful when encoding to JSON
+    */
+   Map<String, Object> toPropertyMap();
 }

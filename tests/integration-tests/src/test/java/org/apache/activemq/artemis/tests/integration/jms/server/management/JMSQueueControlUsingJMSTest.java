@@ -32,6 +32,7 @@ import org.junit.Test;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
+import javax.management.openmbean.CompositeData;
 import java.util.Map;
 
 /**
@@ -315,6 +316,21 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          @Override
          public void resume() throws Exception {
             proxy.invokeOperation("resume");
+         }
+
+         @Override
+         public CompositeData[] browse() throws Exception {
+            Map map = (Map) proxy.invokeOperation("browse");
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
+         }
+
+         @Override
+         public CompositeData[] browse(String filter) throws Exception {
+            return new CompositeData[0];
          }
 
          @Override

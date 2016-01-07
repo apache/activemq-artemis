@@ -16,12 +16,17 @@
  */
 package org.apache.activemq.artemis.jms.management.impl;
 
+import javax.jms.InvalidSelectorException;
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.Operation;
@@ -33,6 +38,7 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.SelectorTranslator;
+import org.apache.activemq.artemis.jms.management.impl.openmbean.JMSOpenTypeSupport;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -203,6 +209,10 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
          jmsMessages[i++] = jmsMessage;
       }
       return jmsMessages;
+   }
+
+   private CompositeData toJMSCompositeType(CompositeDataSupport data) throws Exception {
+      return JMSOpenTypeSupport.convert(data);
    }
 
    @Override
@@ -403,6 +413,30 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    @Override
    public void resume() throws Exception {
       coreQueueControl.resume();
+   }
+
+   @Override
+   public CompositeData[] browse() throws Exception {
+      return browse(null);
+   }
+
+   @Override
+   public CompositeData[] browse(String filter) throws Exception {
+      try {
+         CompositeData[] messages =  coreQueueControl.browse(filter);
+
+         ArrayList<CompositeData> c = new ArrayList<>();
+
+         for (CompositeData message : messages) {
+            c.add(toJMSCompositeType((CompositeDataSupport) message));
+         }
+         CompositeData[] rc = new CompositeData[c.size()];
+         c.toArray(rc);
+         return rc;
+      }
+      catch (ActiveMQInvalidFilterExpressionException e) {
+         throw new InvalidSelectorException(e.getMessage());
+      }
    }
 
    @Override

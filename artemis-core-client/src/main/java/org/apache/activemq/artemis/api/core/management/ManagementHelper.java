@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,8 +26,12 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -178,7 +184,20 @@ public final class ManagementHelper {
                if (clz.isArray()) {
                   Object[] innerArray = (Object[]) parameter;
 
-                  jsonArray.put(ManagementHelper.toJSONArray(innerArray));
+                  if (innerArray instanceof CompositeData[]) {
+                     JSONArray jsonArray1 = new JSONArray();
+                     for (Object data : innerArray) {
+                        String s = Base64.encodeObject((CompositeDataSupport)data);
+                        jsonArray1.put(s);
+                     }
+                     JSONObject jsonObject = new JSONObject();
+                     jsonObject.put(CompositeData.class.getName(), jsonArray1);
+                     jsonArray.put(jsonObject);
+                     System.out.println("ManagementHelper.toJSONArray");
+                  }
+                  else {
+                     jsonArray.put(ManagementHelper.toJSONArray(innerArray));
+                  }
                }
                else {
                   ManagementHelper.checkType(parameter);
@@ -233,6 +252,16 @@ public final class ManagementHelper {
                }
                else if (innerVal instanceof Integer) {
                   innerVal = ((Integer) innerVal).longValue();
+               }
+
+               if (CompositeData.class.getName().equals(key)) {
+                  Object[] data = (Object[]) innerVal;
+                  CompositeData[] cds = new CompositeData[data.length];
+                  for (int i1 = 0; i1 < data.length; i1++) {
+                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode((data[i1].toString()))));
+                     cds[i1] = (CompositeDataSupport) ois.readObject();
+                  }
+                  innerVal = cds;
                }
 
                map.put(key, innerVal);
