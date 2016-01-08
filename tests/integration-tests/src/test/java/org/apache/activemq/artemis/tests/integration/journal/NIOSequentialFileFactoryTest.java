@@ -17,10 +17,18 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
@@ -29,4 +37,151 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       return new NIOSequentialFileFactory(new File(folder), true, 1);
    }
 
+   @Test
+   public void testInterrupts() throws Throwable {
+
+      final EncodingSupport fakeEncoding = new EncodingSupport() {
+         @Override
+         public int getEncodeSize() {
+            return 10;
+         }
+
+         @Override
+         public void encode(ActiveMQBuffer buffer) {
+            buffer.writeBytes(new byte[10]);
+         }
+
+         @Override
+         public void decode(ActiveMQBuffer buffer) {
+
+         }
+      };
+
+      final AtomicInteger calls = new AtomicInteger(0);
+      final NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()), new IOCriticalErrorListener() {
+         @Override
+         public void onIOException(Throwable code, String message, SequentialFile file) {
+            new Exception("shutdown").printStackTrace();
+            calls.incrementAndGet();
+         }
+      }, 1);
+
+      Thread threadOpen = new Thread() {
+         public void run() {
+            try {
+               Thread.currentThread().interrupt();
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadOpen.start();
+      threadOpen.join();
+
+      Thread threadClose = new Thread() {
+         public void run() {
+            try {
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+               file.write(fakeEncoding, true);
+               Thread.currentThread().interrupt();
+               file.close();
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadClose.start();
+      threadClose.join();
+
+      Thread threadWrite = new Thread() {
+         public void run() {
+            try {
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+               Thread.currentThread().interrupt();
+               file.write(fakeEncoding, true);
+               file.close();
+
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadWrite.start();
+      threadWrite.join();
+
+      Thread threadFill = new Thread() {
+         public void run() {
+            try {
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+               Thread.currentThread().interrupt();
+               file.fill(1024);
+               file.close();
+
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadFill.start();
+      threadFill.join();
+
+      Thread threadWriteDirect = new Thread() {
+         public void run() {
+            try {
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+               ByteBuffer buffer = ByteBuffer.allocate(10);
+               buffer.put(new byte[10]);
+               Thread.currentThread().interrupt();
+               file.writeDirect(buffer, true);
+               file.close();
+
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadWriteDirect.start();
+      threadWriteDirect.join();
+
+      Thread threadRead = new Thread() {
+         public void run() {
+            try {
+               SequentialFile file = factory.createSequentialFile("file.txt");
+               file.open();
+               file.write(fakeEncoding, true);
+               file.position(0);
+               ByteBuffer readBytes = ByteBuffer.allocate(fakeEncoding.getEncodeSize());
+               Thread.currentThread().interrupt();
+               file.read(readBytes);
+               file.close();
+
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      threadRead.start();
+      threadRead.join();
+
+      // An interrupt exception shouldn't issue a shutdown
+      Assert.assertEquals(0, calls.get());
+   }
 }

@@ -559,15 +559,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void setStarted(final boolean started) {
       synchronized (lock) {
-         // This is to make sure that the delivery process has finished any pending delivery
-         // otherwise a message may sneak in on the client while we are trying to stop the consumer
-         lockDelivery.writeLock().lock();
-         try {
-            this.started = browseOnly || started;
-         }
-         finally {
-            lockDelivery.writeLock().unlock();
-         }
+         this.started = browseOnly || started;
       }
 
       // Outside the lock
@@ -579,16 +571,18 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public void setTransferring(final boolean transferring) {
       synchronized (lock) {
-         // This is to make sure that the delivery process has finished any pending delivery
-         // otherwise a message may sneak in on the client while we are trying to stop the consumer
-         lockDelivery.writeLock().lock();
-         try {
-            this.transferring = transferring;
-         }
-         finally {
-            lockDelivery.writeLock().unlock();
-         }
+         this.transferring = transferring;
       }
+
+      // This is to make sure that the delivery process has finished any pending delivery
+      // otherwise a message may sneak in on the client while we are trying to stop the consumer
+      try {
+         lockDelivery.writeLock().lock();
+      }
+      finally {
+         lockDelivery.writeLock().unlock();
+      }
+
 
       // Outside the lock
       if (transferring) {
