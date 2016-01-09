@@ -555,6 +555,7 @@ final class PageSubscriptionImpl implements PageSubscription {
       processACK(position);
    }
 
+   @Override
    public void lateDeliveryRollback(PagePosition position) {
       PageCursorInfo cursorInfo = processACK(position);
       cursorInfo.decrementPendingTX();

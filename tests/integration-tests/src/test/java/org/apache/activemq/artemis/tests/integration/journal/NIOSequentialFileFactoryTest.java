@@ -67,6 +67,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       }, 1);
 
       Thread threadOpen = new Thread() {
+         @Override
          public void run() {
             try {
                Thread.currentThread().interrupt();
@@ -83,6 +84,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       threadOpen.join();
 
       Thread threadClose = new Thread() {
+         @Override
          public void run() {
             try {
                SequentialFile file = factory.createSequentialFile("file.txt");
@@ -101,6 +103,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       threadClose.join();
 
       Thread threadWrite = new Thread() {
+         @Override
          public void run() {
             try {
                SequentialFile file = factory.createSequentialFile("file.txt");
@@ -120,6 +123,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       threadWrite.join();
 
       Thread threadFill = new Thread() {
+         @Override
          public void run() {
             try {
                SequentialFile file = factory.createSequentialFile("file.txt");
@@ -139,6 +143,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       threadFill.join();
 
       Thread threadWriteDirect = new Thread() {
+         @Override
          public void run() {
             try {
                SequentialFile file = factory.createSequentialFile("file.txt");
@@ -160,6 +165,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       threadWriteDirect.join();
 
       Thread threadRead = new Thread() {
+         @Override
          public void run() {
             try {
                SequentialFile file = factory.createSequentialFile("file.txt");

@@ -330,8 +330,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void disconnect() {
       executor.execute(new Runnable() {
+         @Override
          public void run() {
             if (session != null) {
                try {
@@ -399,6 +401,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
    public void pause() throws Exception {
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Bridge " + this.name + " being paused");
@@ -1068,6 +1071,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          bridge = bridge2;
       }
 
+      @Override
       public void run() {
          bridge.connect();
       }
