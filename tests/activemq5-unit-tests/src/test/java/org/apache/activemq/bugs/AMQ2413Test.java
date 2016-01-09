@@ -128,33 +128,19 @@ public class AMQ2413Test extends CombinationTestSupport implements MessageListen
    public void testReceipt() throws Exception {
 
       running.set(true);
-      TestProducer p = null;
-      TestConsumer c = null;
-      try {
 
-         for (int i = 0; i < CONSUMER_COUNT; i++) {
-            TestConsumer consumer = new TestConsumer();
-            consumer.start();
-            services.add(consumer);
-         }
-         for (int i = 0; i < PRODUCER_COUNT; i++) {
-            TestProducer producer = new TestProducer(i);
-            producer.start();
-            services.add(producer);
-         }
-         waitForMessageReceipt();
-
+      for (int i = 0; i < CONSUMER_COUNT; i++) {
+         TestConsumer consumer = new TestConsumer();
+         consumer.start();
+         services.add(consumer);
       }
-      finally {
-         if (p != null) {
-            p.close();
-         }
-
-         if (c != null) {
-            c.close();
-         }
+      for (int i = 0; i < PRODUCER_COUNT; i++) {
+         TestProducer producer = new TestProducer(i);
+         producer.start();
+         services.add(producer);
       }
 
+      waitForMessageReceipt();
    }
 
    /*
