@@ -25,7 +25,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.jms.Connection;
 import javax.jms.ConnectionMetaData;
 
 import org.junit.Assert;
@@ -61,24 +60,14 @@ public class ManifestTest extends ActiveMQTestBase {
       JarFile jar = new JarFile(file);
       Manifest manifest = jar.getManifest();
 
-      // Open a connection and get ConnectionMetaData
-      Connection conn = null;
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(createBasicConfig());
 
-      try {
-         ActiveMQServer server = ActiveMQServers.newActiveMQServer(createBasicConfig());
+      ConnectionMetaData meta = new ActiveMQConnectionMetaData(server.getVersion());
 
-         ConnectionMetaData meta = new ActiveMQConnectionMetaData(server.getVersion());
+      // Compare the value from ConnectionMetaData and MANIFEST.MF
+      Attributes attrs = manifest.getMainAttributes();
 
-         // Compare the value from ConnectionMetaData and MANIFEST.MF
-         Attributes attrs = manifest.getMainAttributes();
-
-         Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
-      }
-      finally {
-         if (conn != null) {
-            conn.close();
-         }
-      }
+      Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
    }
 
    // Package protected ---------------------------------------------

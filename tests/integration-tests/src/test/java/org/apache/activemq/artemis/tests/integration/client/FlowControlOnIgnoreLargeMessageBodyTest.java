@@ -31,8 +31,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
-import javax.naming.Context;
-import javax.naming.NamingException;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
@@ -290,7 +288,6 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
 
    @Test
    public void testFlowControl() {
-      Context context = null;
       try {
          LoadProducer producer = new LoadProducer("producer", topic, cf, FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT);
 
@@ -340,16 +337,6 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
       }
       catch (Exception e) {
          log.warn(e.getMessage(), e);
-      }
-      finally {
-         if (context != null) {
-            try {
-               context.close();
-            }
-            catch (NamingException ex) {
-               log.warn(ex.getMessage(), ex);
-            }
-         }
       }
    }
 
