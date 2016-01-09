@@ -212,6 +212,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
             Map<String, ProtocolManager> supportedProtocols = new ConcurrentHashMap();
 
+            @SuppressWarnings("deprecation")
             String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
 
             if (protocol != null) {

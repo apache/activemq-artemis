@@ -466,6 +466,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
 
    /** from {@link java.io.DataInput} interface */
    @Override
+   @SuppressWarnings("deprecation")
    public String readLine() throws IOException {
       return getStream().readLine();
    }

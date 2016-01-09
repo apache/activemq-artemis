@@ -47,7 +47,7 @@ public class DestinationGCTest extends EmbeddedBrokerTestSupport {
       broker.setMaxPurgedDestinationsPerSweep(1);
       PolicyEntry entry = new PolicyEntry();
       entry.setGcInactiveDestinations(true);
-      entry.setInactiveTimoutBeforeGC(3000);
+      entry.setInactiveTimeoutBeforeGC(3000);
       PolicyMap map = new PolicyMap();
       map.setDefaultEntry(entry);
       broker.setDestinationPolicy(map);
