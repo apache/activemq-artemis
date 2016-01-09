@@ -591,7 +591,6 @@ public class Create extends InputAbstract {
          write(BIN_ARTEMIS_SERVICE, null, true);
          makeExec(BIN_ARTEMIS_SERVICE);
          write(ETC_ARTEMIS_PROFILE, filters, true);
-         makeExec(ETC_ARTEMIS_PROFILE);
       }
 
       write(ETC_LOGGING_PROPERTIES, null, false);
