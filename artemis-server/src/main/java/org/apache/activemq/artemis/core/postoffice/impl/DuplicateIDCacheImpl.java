@@ -196,6 +196,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    }
 
+   @Override
    public synchronized void addToCache(final byte[] duplID, final Transaction tx, boolean instantAdd) throws Exception {
       long recordID = -1;
 
