@@ -28,7 +28,6 @@ import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
-import org.apache.activemq.artemis.core.client.impl.DelegatingSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
@@ -109,7 +108,7 @@ public class JmsProducerTest extends JMSTestBase {
 
       ActiveMQSession sessionUsed = (ActiveMQSession) (((ActiveMQJMSContext) context).getUsedSession());
 
-      ClientSessionImpl coreSession = (ClientSessionImpl) ((DelegatingSession) sessionUsed.getCoreSession()).getInternalSession();
+      ClientSessionImpl coreSession = (ClientSessionImpl) sessionUsed.getCoreSession();
 
       // JMSConsumer is supposed to cache the producer, each call to createProducer is supposed to always return the same producer
       assertEquals(1, coreSession.cloneProducers().size());
