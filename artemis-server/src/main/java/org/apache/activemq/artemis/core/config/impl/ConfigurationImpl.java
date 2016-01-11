@@ -1145,6 +1145,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public ConfigurationImpl putSecurityRoles(String match, Set<Role> roles) {
+      securitySettings.put(match, roles);
+      return this;
+   }
+
+   @Override
    public ConfigurationImpl setSecurityRoles(final Map<String, Set<Role>> securitySettings) {
       this.securitySettings = securitySettings;
       return this;

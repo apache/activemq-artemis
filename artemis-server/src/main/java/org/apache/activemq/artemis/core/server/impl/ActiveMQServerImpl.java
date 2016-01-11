@@ -104,6 +104,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServerSessionFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
@@ -695,6 +696,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       stopComponent(memoryManager);
+
+      for (SecuritySettingPlugin securitySettingPlugin : configuration.getSecuritySettingPlugins()) {
+         securitySettingPlugin.stop();
+      }
 
       if (threadPool != null && !threadPoolSupplied) {
          threadPool.shutdown();
@@ -1738,6 +1743,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void deploySecurityFromConfiguration() {
       for (Map.Entry<String, Set<Role>> entry : configuration.getSecurityRoles().entrySet()) {
          securityRepository.addMatch(entry.getKey(), entry.getValue(), true);
+      }
+
+      for (SecuritySettingPlugin securitySettingPlugin : configuration.getSecuritySettingPlugins()) {
+         securitySettingPlugin.setSecurityRepository(securityRepository);
       }
    }
 

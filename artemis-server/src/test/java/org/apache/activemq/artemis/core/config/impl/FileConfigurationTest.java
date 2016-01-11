@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -316,13 +318,15 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("color='blue'", conf.getQueueConfigurations().get(1).getFilterString());
       assertEquals(false, conf.getQueueConfigurations().get(1).isDurable());
 
-      assertEquals(2, conf.getSecurityRoles().size());
+      Map<String, Set<Role>> roles = conf.getSecurityRoles();
 
-      assertTrue(conf.getSecurityRoles().containsKey("a1"));
+      assertEquals(2, roles.size());
 
-      assertTrue(conf.getSecurityRoles().containsKey("a2"));
+      assertTrue(roles.containsKey("a1"));
 
-      Role a1Role = conf.getSecurityRoles().get("a1").toArray(new Role[1])[0];
+      assertTrue(roles.containsKey("a2"));
+
+      Role a1Role = roles.get("a1").toArray(new Role[1])[0];
 
       assertFalse(a1Role.isSend());
       assertFalse(a1Role.isConsume());
@@ -332,7 +336,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertFalse(a1Role.isDeleteNonDurableQueue());
       assertFalse(a1Role.isManage());
 
-      Role a2Role = conf.getSecurityRoles().get("a2").toArray(new Role[1])[0];
+      Role a2Role = roles.get("a2").toArray(new Role[1])[0];
 
       assertFalse(a2Role.isSend());
       assertFalse(a2Role.isConsume());
@@ -341,8 +345,16 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertFalse(a2Role.isCreateNonDurableQueue());
       assertTrue(a2Role.isDeleteNonDurableQueue());
       assertFalse(a2Role.isManage());
+   }
 
-      List<SecuritySettingPlugin> securitySettingPlugins = conf.getSecuritySettingPlugins();
+   @Test
+   public void testSecuritySettingPlugin() throws Exception {
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("securitySettingPlugin.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.readConfiguration();
+
+      List<SecuritySettingPlugin> securitySettingPlugins = fc.getSecuritySettingPlugins();
       SecuritySettingPlugin securitySettingPlugin = securitySettingPlugins.get(0);
       assertTrue(securitySettingPlugin instanceof LegacyLDAPSecuritySettingPlugin);
       LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = (LegacyLDAPSecuritySettingPlugin) securitySettingPlugin;
@@ -358,6 +370,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(legacyLDAPSecuritySettingPlugin.getAdminPermissionValue(), "testAdminPermissionValue");
       assertEquals(legacyLDAPSecuritySettingPlugin.getReadPermissionValue(), "testReadPermissionValue");
       assertEquals(legacyLDAPSecuritySettingPlugin.getWritePermissionValue(), "testWritePermissionValue");
+      assertEquals(legacyLDAPSecuritySettingPlugin.isEnableListener(), false);
    }
 
    @Test

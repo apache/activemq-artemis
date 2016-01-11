@@ -122,12 +122,10 @@ in sub-groups of addresses.
 
 ## Security Setting Plugin
 
-Aside from configuring sets of permissions via XML these permissions can also be
-configured via plugins which implement `org.apache.activemq.artemis.core.server.SecuritySettingPlugin`.
-One or more plugins can be defined and configured alongside the normal XML, e.g.:
+Aside from configuring sets of permissions via XML these permissions can alternatively be
+configured via a plugin which implements `org.apache.activemq.artemis.core.server.SecuritySettingPlugin` e.g.:
 
     <security-settings>
-       ...
        <security-setting-plugin class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
           <setting name="initialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory"/>
           <setting name="connectionURL" value="ldap://localhost:1024"/>
@@ -210,6 +208,9 @@ Here is an example of the plugin's configuration:
 
 -   `writePermissionValue`. Specifies a value that matches the `write` permission. The default value is `write`.
 
+-   `enableListener`. Whether or not to enable a listener that will automatically receive updates made in the LDAP server
+    and update the broker's authorization configuration in real-time. The default value is `true`.
+
 The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value
 will be mapped from the ActiveMQ 5.x type to the Artemis type, and the role will be mapped as-is. It's worth noting that
 since the name of queue or topic coming from LDAP will server as the "match" for the security-setting the security-setting
@@ -254,46 +255,12 @@ This is the default security manager.
 
 -   The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any standard JAAS login module. Artemis ships 
 with several login modules which will be discussed further down. 
-
-### Non-JAAS Security Manager
-
-If you wish to use the legacy, deprecated `ActiveMQSecurityManager`, then it needs to be added to the `bootstrap.xml` 
-configuration. Lets take a look at what this might look like:
-
-    <basic-security>
-      <users>file:${activemq.home}/config/non-clustered/artemis-users.properties</users>
-      <roles>file:${activemq.home}/config/non-clustered/artemis-roles.properties</roles>
-      <default-user>guest</default-user>
-    </basic-security>
-
-The first 2 elements `users` and `roles` define what properties files should be used to load in the users and passwords.
-
-The next thing to note is the element `defaultuser`. This defines what user will be assumed when the client does not 
-specify a username/password when creating a session. In this case they will be the user `guest`. Multiple roles can be 
-specified for a default user in the `artemis-roles.properties`.
-
-Lets now take a look at the `artemis-users.properties` file, this is basically just a set of key value pairs that define
-the users and their password, like so:
-
-    bill=activemq
-    andrew=activemq1
-    frank=activemq2
-    sam=activemq3
-
-The `artemis-roles.properties` defines what groups these users belong too where the key is the user and the value is a 
-comma separated list of the groups the user belongs to, like so:
-
-    bill=user
-    andrew=europe-user,user
-    frank=us-user,news-user,user
-    sam=news-user,user
     
 ### JAAS Security Manager
 
 When using JAAS much of the configuration depends on which login module is used. However, there are a few commonalities
-for every case. Just like in the non-JAAS use-case, the first place to look is in `bootstrap.xml`. Here is an example
-using the `PropertiesLogin` JAAS login module which reads user, password, and role information from properties files
-much like the non-JAAS security manager implementation:
+for every case. The first place to look is in `bootstrap.xml`. Here is an example using the `PropertiesLogin` JAAS login 
+module which reads user, password, and role information from properties files:
 
     <jaas-security domain="PropertiesLogin"/>
     

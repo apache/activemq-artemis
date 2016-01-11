@@ -698,7 +698,7 @@
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>
-               <xsd:sequence>
+               <xsd:choice>
                   <xsd:element name="security-setting" maxOccurs="unbounded" minOccurs="0">
                      <xsd:complexType>
                         <xsd:annotation>
@@ -735,7 +735,7 @@
                         </xsd:attribute>
                      </xsd:complexType>
                   </xsd:element>
-                  <xsd:element name="security-setting-plugin" maxOccurs="unbounded" minOccurs="0">
+                  <xsd:element name="security-setting-plugin" maxOccurs="1" minOccurs="0">
                      <xsd:complexType>
                         <xsd:annotation>
                            <xsd:documentation>
@@ -771,7 +771,7 @@
                         </xsd:attribute>
                      </xsd:complexType>
                   </xsd:element>
-               </xsd:sequence>
+               </xsd:choice>
             </xsd:complexType>
          </xsd:element>
 

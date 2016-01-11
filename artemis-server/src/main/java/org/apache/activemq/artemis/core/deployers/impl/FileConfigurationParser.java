@@ -541,12 +541,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          NodeList list = node.getElementsByTagName(SECURITY_ELEMENT_NAME);
          for (int i = 0; i < list.getLength(); i++) {
             Pair<String, Set<Role>> securityItem = parseSecurityRoles(list.item(i));
-            config.getSecurityRoles().put(securityItem.getA(), securityItem.getB());
+            config.putSecurityRoles(securityItem.getA(), securityItem.getB());
          }
          list = node.getElementsByTagName(SECURITY_PLUGIN_ELEMENT_NAME);
          for (int i = 0; i < list.getLength(); i++) {
             Pair<SecuritySettingPlugin, Map<String, String>> securityItem = parseSecuritySettingPlugins(list.item(i));
-            config.addSecuritySettingPlugin(securityItem.getA().init(securityItem.getB()).populateSecurityRoles());
+            config.addSecuritySettingPlugin(securityItem.getA().init(securityItem.getB()));
          }
       }
    }

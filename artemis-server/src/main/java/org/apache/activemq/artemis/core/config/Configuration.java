@@ -868,6 +868,8 @@ public interface Configuration {
     */
    Map<String, Set<Role>> getSecurityRoles();
 
+   Configuration putSecurityRoles(String match, Set<Role> roles);
+
    Configuration setConnectorServiceConfigurations(List<ConnectorServiceConfiguration> configs);
 
    Configuration addConnectorServiceConfiguration(ConnectorServiceConfiguration config);

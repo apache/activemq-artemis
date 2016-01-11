@@ -20,10 +20,8 @@ import javax.jms.ConnectionFactory;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -98,20 +96,13 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          //guest cannot do anything
          Role destRole = new Role("manager", false, false, false, false, true, true, false);
 
-         Map<String, Set<Role>> settings = server.getConfiguration().getSecurityRoles();
-         if (settings == null) {
-            settings = new HashMap<>();
-            server.getConfiguration().setSecurityRoles(settings);
-         }
-         Set<Role> anySet = settings.get("#");
-         if (anySet == null) {
-            anySet = new HashSet<>();
-            settings.put("#", anySet);
-         }
-         anySet.add(senderRole);
-         anySet.add(receiverRole);
-         anySet.add(guestRole);
-         anySet.add(destRole);
+         Set<Role> roles =  new HashSet<>();
+         roles.add(senderRole);
+         roles.add(receiverRole);
+         roles.add(guestRole);
+         roles.add(destRole);
+
+         server.getConfiguration().putSecurityRoles("#", roles);
       }
       jmsServer = new JMSServerManagerImpl(server);
       namingContext = new InVMNamingContext();
