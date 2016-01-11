@@ -143,6 +143,9 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
+   @Rule
+   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
+
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
    public static final String INVM_CONNECTOR_FACTORY = InVMConnectorFactory.class.getCanonicalName();
@@ -173,10 +176,8 @@ public abstract class ActiveMQTestBase extends Assert {
    private final Collection<ActiveMQComponent> otherComponents = new HashSet<>();
    private final Set<ExecutorService> executorSet = new HashSet<>();
 
-   private boolean checkThread = true;
    private String testDir;
    private int sendMsgCount = 0;
-   private Map<Thread, StackTraceElement[]> previousThreads;
 
    @Rule
    public TestName name = new TestName();
@@ -306,46 +307,6 @@ public abstract class ActiveMQTestBase extends Assert {
             }
          }
 
-         if (checkThread) {
-            StringBuffer buffer = null;
-
-            boolean failed = true;
-
-            boolean failedOnce = false;
-
-            long timeout = System.currentTimeMillis() + 60000;
-            while (failed && timeout > System.currentTimeMillis()) {
-               buffer = new StringBuffer();
-
-               failed = checkThread(buffer);
-
-               if (failed) {
-                  failedOnce = true;
-                  forceGC();
-                  Thread.sleep(500);
-                  log.info("There are still threads running, trying again");
-                  System.out.println(buffer);
-               }
-            }
-
-            if (failed) {
-               logAndSystemOut("Thread leaked on test " + this.getClass().getName() + "::" + this.getName() + "\n" +
-                                  buffer);
-               logAndSystemOut("Thread leakage! Failure!!!");
-
-               fail("Thread leaked");
-            }
-            else if (failedOnce) {
-               System.out.println("******************** Threads cleared after retries ********************");
-               System.out.println();
-            }
-
-
-         }
-         else {
-            checkThread = true;
-         }
-
          if (Thread.currentThread().getContextClassLoader() == null) {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             fail("Thread Context ClassLoader was set to null at some point before this test. We will set to this.getClass().getClassLoader(), but you are supposed to fix your tests");
@@ -369,8 +330,6 @@ public abstract class ActiveMQTestBase extends Assert {
       InVMRegistry.instance.clear();
 
       // checkFreePort(TransportConstants.DEFAULT_PORT);
-
-      previousThreads = Thread.getAllStackTraces();
 
       logAndSystemOut("#test " + getName());
    }
@@ -401,7 +360,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected void disableCheckThread() {
-      checkThread = false;
+      leakCheckRule.disable();
    }
 
    protected String getName() {
@@ -1957,87 +1916,6 @@ public abstract class ActiveMQTestBase extends Assert {
             stopComponent(c);
          }
          otherComponents.clear();
-      }
-   }
-
-   /**
-    * @param buffer
-    * @return
-    */
-   private boolean checkThread(StringBuffer buffer) {
-      boolean failedThread = false;
-
-      Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
-
-      if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
-
-         buffer.append("*********************************************************************************\n");
-         buffer.append("LEAKING THREADS\n");
-
-         for (Thread aliveThread : postThreads.keySet()) {
-            if (!isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
-               failedThread = true;
-               buffer.append("=============================================================================\n");
-               buffer.append("Thread " + aliveThread + " is still alive with the following stackTrace:\n");
-               StackTraceElement[] elements = postThreads.get(aliveThread);
-               for (StackTraceElement el : elements) {
-                  buffer.append(el + "\n");
-               }
-            }
-
-         }
-         buffer.append("*********************************************************************************\n");
-
-      }
-      return failedThread;
-   }
-
-   /**
-    * if it's an expected thread... we will just move along ignoring it
-    *
-    * @param thread
-    * @return
-    */
-   private boolean isExpectedThread(Thread thread) {
-      final String threadName = thread.getName();
-      final ThreadGroup group = thread.getThreadGroup();
-      final boolean isSystemThread = group != null && "system".equals(group.getName());
-      final String javaVendor = System.getProperty("java.vendor");
-
-      if (threadName.contains("SunPKCS11")) {
-         return true;
-      }
-      else if (threadName.contains("Attach Listener")) {
-         return true;
-      }
-      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
-         return true;
-      }
-      else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
-         return true;
-      }
-      else if (threadName.contains("globalEventExecutor")) {
-         return true;
-      }
-      else if (threadName.contains("threadDeathWatcher")) {
-         return true;
-      }
-      else if (threadName.contains("netty-threads")) {
-         // This is ok as we use EventLoopGroup.shutdownGracefully() which will shutdown things with a bit of delay
-         // if the EventLoop's are still busy.
-         return true;
-      }
-      else if (threadName.contains("threadDeathWatcher")) {
-         //another netty thread
-         return true;
-      }
-      else {
-         for (StackTraceElement element : thread.getStackTrace()) {
-            if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
-               return true;
-            }
-         }
-         return false;
       }
    }
 

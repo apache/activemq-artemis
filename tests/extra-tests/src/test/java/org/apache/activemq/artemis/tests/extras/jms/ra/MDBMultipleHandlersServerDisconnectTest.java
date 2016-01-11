@@ -345,7 +345,7 @@ public class MDBMultipleHandlersServerDisconnectTest extends ActiveMQRATestBase 
          System.out.println(writer.toString());
       }
 
-      Assert.assertFalse(failed);
+      Assert.assertFalse(writer.toString(), failed);
 
       System.out.println("Received " + NUMBER_OF_MESSAGES + " messages");
 
