@@ -727,6 +727,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
+   @Override
    public void individualAcknowledge(Transaction tx,
                                      final long messageID) throws Exception {
       if (browseOnly) {
