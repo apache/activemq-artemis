@@ -78,6 +78,7 @@ public class ActiveMQJMSVendor extends JMSVendor {
    }
 
    @Override
+   @SuppressWarnings("deprecation")
    public Destination createDestination(String name) {
       return super.createDestination(name);
    }

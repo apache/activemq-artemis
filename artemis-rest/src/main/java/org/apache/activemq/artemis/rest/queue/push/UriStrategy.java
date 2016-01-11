@@ -33,13 +33,13 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.XmlHttpHeader;
@@ -199,20 +199,19 @@ public class UriStrategy implements PushStrategy {
 
       @Override
       public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
-         AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
+         AuthState authState = (AuthState) context.getAttribute(HttpClientContext.TARGET_AUTH_STATE);
 
          // If no auth scheme available yet, try to initialize it preemptively
          if (authState.getAuthScheme() == null) {
             AuthScheme authScheme = (AuthScheme) context.getAttribute("preemptive-auth");
-            CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(ClientContext.CREDS_PROVIDER);
-            HttpHost targetHost = (HttpHost) context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+            CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(HttpClientContext.CREDS_PROVIDER);
+            HttpHost targetHost = (HttpHost) context.getAttribute(HttpCoreContext.HTTP_TARGET_HOST);
             if (authScheme != null) {
                Credentials creds = credsProvider.getCredentials(new AuthScope(targetHost.getHostName(), targetHost.getPort()));
                if (creds == null) {
                   throw new HttpException("No credentials for preemptive authentication");
                }
-               authState.setAuthScheme(authScheme);
-               authState.setCredentials(creds);
+               authState.update(authScheme, creds);
             }
          }
       }
