@@ -23,7 +23,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -38,10 +37,6 @@ public class ClusteredTopicExample {
       Connection connection0 = null;
 
       Connection connection1 = null;
-
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
 
       try {
 
@@ -115,14 +110,6 @@ public class ClusteredTopicExample {
 
          if (connection1 != null) {
             connection1.close();
-         }
-
-         if (ic0 != null) {
-            ic0.close();
-         }
-
-         if (ic1 != null) {
-            ic1.close();
          }
       }
    }

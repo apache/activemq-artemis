@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
@@ -75,7 +74,6 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
       }
       ActiveMQServer server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
-      ServerLocator locator = null;
       try {
          final String testAddress = "testAddress";
          final String queueName0 = "queue0";
@@ -118,10 +116,6 @@ public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase {
          assertEquals(BRIDGE_TTL, bridgeTTL);
       }
       finally {
-         if (locator != null) {
-            locator.close();
-         }
-
          serverWithBridge.stop();
 
          server1.stop();
