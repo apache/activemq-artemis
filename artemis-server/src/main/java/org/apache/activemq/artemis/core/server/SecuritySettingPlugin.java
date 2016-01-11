@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 
 public interface SecuritySettingPlugin extends Serializable {
    /**
@@ -35,8 +36,14 @@ public interface SecuritySettingPlugin extends Serializable {
    SecuritySettingPlugin init(Map<String, String> options);
 
    /**
-    * Once {@code #populateSecurityRoles} is invoked this method should return the security role information from the
-    * external environment (e.g. file, LDAP, etc.).
+    * Clean up all the associated resources associated with this plugin (e.g. LDAP connections, file handles, etc.)
+    *
+    * @return {@code this} instance
+    */
+   SecuritySettingPlugin stop();
+
+   /**
+    * Fetch the security role information from the external environment (e.g. file, LDAP, etc.) and return it.
     *
     * @return the Map's key corresponds to the "match" for the security setting and the corresponding value is the set of
     * {@code org.apache.activemq.artemis.core.security.Role} objects defining the appropriate authorization
@@ -44,14 +51,11 @@ public interface SecuritySettingPlugin extends Serializable {
    Map<String, Set<Role>> getSecurityRoles();
 
    /**
-    * Fetch the security role information from the external environment (e.g. file, LDAP, etc.). This method should put
-    * the security role information in the variable that is returned by {@code #getSecurityRoles()}. This method is
-    * called by the broker when the file-based configuration is read (see {@code org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser#parseSecurity(org.w3c.dom.Element, org.apache.activemq.artemis.core.config.Configuration)}
-    * so that later when {@code #getSecurityRoles()} is called by {@code org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#deploySecurity()}
-    * the necessary information will be present. If you're creating/configuring the plugin programmatically then you'll
-    * want to invoke this method soon after instantiating and configuring it.
+    * This method is called by the broker during the start-up process. It's for plugins that might need to modify the
+    * security settings during runtime (e.g. LDAP plugin that uses a listener to receive updates, etc.). Any changes
+    * made to this {@code HierarchicalRepository} will be reflected in the broker.
     *
-    * @return {@code this} instance
+    * @param securityRepository
     */
-   SecuritySettingPlugin populateSecurityRoles();
+   void setSecurityRepository(HierarchicalRepository<Set<Role>> securityRepository);
 }

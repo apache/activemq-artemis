@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
@@ -23,11 +28,6 @@ import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FileConfigurationParserTest extends ActiveMQTestBase {
 
@@ -43,7 +43,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
     */
    @Test
    public void testSchemaValidation() throws Exception {
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 7; i++) {
          String filename = "InvalidConfigurationTest" + i + ".xml";
          FileConfiguration fc = new FileConfiguration();
          FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);

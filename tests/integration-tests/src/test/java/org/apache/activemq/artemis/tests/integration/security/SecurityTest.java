@@ -229,7 +229,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
       server.createQueue(ADDRESS, NON_DURABLE_QUEUE, null, false, false);
@@ -324,7 +324,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
 
       server.start();
 
@@ -418,7 +418,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -506,7 +506,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
@@ -590,7 +590,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("bar", true, true, true, true, true, true, true));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
       ClientSessionFactory cf = createSessionFactory(locator);
