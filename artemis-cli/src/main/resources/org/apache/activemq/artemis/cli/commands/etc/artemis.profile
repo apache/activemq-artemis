@@ -23,7 +23,7 @@ ARTEMIS_HOME='${artemis.home}'
 
 
 # Java Opts
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:$ARTEMIS_HOME/lib/${logmanager} -Djava.util.logging.manager=org.jboss.logmanager.LogManager ${login-config} ${java-opts}"
+JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:$ARTEMIS_HOME/lib/${logmanager} ${login-config} ${java-opts}"
 
 
 # Debug args: Uncomment to enable debug
