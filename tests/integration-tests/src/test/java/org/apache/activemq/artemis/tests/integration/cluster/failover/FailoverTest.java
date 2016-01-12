@@ -466,7 +466,7 @@ public class FailoverTest extends FailoverTestBase {
 
       crash(session);
 
-      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
    }
 
