@@ -575,7 +575,6 @@ public class Create extends InputAbstract {
          new File(directory, ETC_LOGIN_CONFIG_WITHOUT_GUEST).renameTo(new File(directory, ETC_LOGIN_CONFIG));
       }
 
-      filters.put("${login-config}", "-Djava.security.auth.login.config=" + path(directory, false) + "/etc/login.config");
       write(ETC_ARTEMIS_ROLES_PROPERTIES, filters, false);
 
       if (IS_WINDOWS) {
@@ -604,9 +603,12 @@ public class Create extends InputAbstract {
 
       performAutoTune(filters, aio, dataFolder);
 
-      write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
       write(ETC_ARTEMIS_USERS_PROPERTIES, filters, false);
+
+      // we want this variable to remain unchanged so that it will use the value set in the profile
+      filters.remove("${artemis.instance}");
+      write(ETC_BOOTSTRAP_XML, filters, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
