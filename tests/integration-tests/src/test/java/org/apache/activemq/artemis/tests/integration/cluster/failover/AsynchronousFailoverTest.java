@@ -33,11 +33,10 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.client.impl.DelegatingSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
@@ -138,8 +137,6 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
    private void runTest(final TestRunner runnable) throws Throwable {
       final int numIts = 1;
 
-      DelegatingSession.debug = true;
-
       try {
          for (int i = 0; i < numIts; i++) {
             AsynchronousFailoverTest.log.info("Iteration " + i);
@@ -197,10 +194,6 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                createSession.close();
 
-               if (sf.numSessions() != 0) {
-                  DelegatingSession.dumpSessionCreationStacks();
-               }
-
                Assert.assertEquals(0, sf.numSessions());
 
                locator.close();
@@ -220,7 +213,6 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
          }
       }
       finally {
-         DelegatingSession.debug = false;
       }
    }
 
