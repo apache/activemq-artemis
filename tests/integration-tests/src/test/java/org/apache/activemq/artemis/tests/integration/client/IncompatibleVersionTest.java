@@ -87,12 +87,12 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
 
    @Override
    @After
-   public void tearDown() {
+   public void tearDown() throws Exception {
       connection.destroy();
 
       closeServerLocator(locator);
       stopComponent(server);
-      // You CANNOT CALL super.tearDown();
+      super.tearDown();
    }
 
    @Test
