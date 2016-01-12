@@ -114,6 +114,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       System.clearProperty("javax.net.ssl.keyStorePassword");
       System.clearProperty("javax.net.ssl.keyStoreType");
       stopBroker();
+      super.tearDown();
    }
 
    public void startBroker() throws Exception {
