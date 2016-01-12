@@ -51,84 +51,78 @@ public class ThreadLeakCheckRule extends ExternalResource {
     * Override to tear down your specific external resource.
     */
    protected void after() {
-      if (enabled) {
-         StringBuffer buffer = null;
+      try {
+         if (enabled) {
+            boolean failed = true;
 
-         boolean failed = true;
+            boolean failedOnce = false;
 
-         boolean failedOnce = false;
+            long timeout = System.currentTimeMillis() + 60000;
+            while (failed && timeout > System.currentTimeMillis()) {
+               failed = checkThread();
 
-         long timeout = System.currentTimeMillis() + 60000;
-         while (failed && timeout > System.currentTimeMillis()) {
-            buffer = new StringBuffer();
-
-            failed = checkThread(buffer);
+               if (failed) {
+                  failedOnce = true;
+                  ActiveMQTestBase.forceGC();
+                  try {
+                     Thread.sleep(500);
+                  }
+                  catch (Throwable e) {
+                  }
+               }
+            }
 
             if (failed) {
-               failedOnce = true;
-               ActiveMQTestBase.forceGC();
-               try {
-                  Thread.sleep(500);
-               }
-               catch (Throwable e) {
-               }
-
-               System.out.println("There are still threads running, trying again");
-               System.out.println(buffer);
+               Assert.fail("Thread leaked");
             }
+            else if (failedOnce) {
+               System.out.println("******************** Threads cleared after retries ********************");
+               System.out.println();
+            }
+
          }
-
-         if (failed) {
-            System.out.println("Thread leaked on test \n" +
-                               buffer);
-            System.out.println("Thread leakage! Failure!!!");
-
-            Assert.fail("Thread leaked");
+         else {
+            enabled = true;
          }
-         else if (failedOnce) {
-            System.out.println("******************** Threads cleared after retries ********************");
-            System.out.println();
-         }
-
-
       }
-      else {
-         enabled = true;
+      finally {
+         // clearing just to help GC
+         previousThreads = null;
       }
 
    }
 
 
-
-   /**
-    * @param buffer
-    * @return
-    */
-   private boolean checkThread(StringBuffer buffer) {
+   private boolean checkThread() {
       boolean failedThread = false;
 
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
 
       if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
 
-         buffer.append("*********************************************************************************\n");
-         buffer.append("LEAKING THREADS\n");
 
          for (Thread aliveThread : postThreads.keySet()) {
-            if (!isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
+            if (aliveThread.isAlive() && !isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
+               if (!failedThread) {
+                  System.out.println("*********************************************************************************");
+                  System.out.println("LEAKING THREADS");
+               }
                failedThread = true;
-               buffer.append("=============================================================================\n");
-               buffer.append("Thread " + aliveThread + " is still alive with the following stackTrace:\n");
+               System.out.println("=============================================================================");
+               System.out.println("Thread " + aliveThread + " is still alive with the following stackTrace:");
                StackTraceElement[] elements = postThreads.get(aliveThread);
                for (StackTraceElement el : elements) {
-                  buffer.append(el + "\n");
+                  System.out.println(el);
                }
             }
 
          }
-         buffer.append("*********************************************************************************\n");
-
+         if (failedThread) {
+            System.out.println("*********************************************************************************");
+         }
       }
+
+
       return failedThread;
    }
 

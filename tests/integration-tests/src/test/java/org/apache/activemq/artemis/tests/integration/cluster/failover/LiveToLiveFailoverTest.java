@@ -246,7 +246,6 @@ public class LiveToLiveFailoverTest extends FailoverTest {
    @Override
    @Test
    public void testCreateNewFactoryAfterFailover() throws Exception {
-      this.disableCheckThread();
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
