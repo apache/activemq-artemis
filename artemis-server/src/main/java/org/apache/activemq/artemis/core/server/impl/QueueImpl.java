@@ -2493,8 +2493,10 @@ public class QueueImpl implements Queue {
    private void proceedDeliver(Consumer consumer, MessageReference reference) {
       try {
          consumer.proceedDeliver(reference);
+         deliveriesInTransit.countDown();
       }
       catch (Throwable t) {
+         deliveriesInTransit.countDown();
          ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
 
          synchronized (this) {
@@ -2509,9 +2511,6 @@ public class QueueImpl implements Queue {
             // The message failed to be delivered, hence we try again
             addHead(reference);
          }
-      }
-      finally {
-         deliveriesInTransit.countDown();
       }
    }
 
