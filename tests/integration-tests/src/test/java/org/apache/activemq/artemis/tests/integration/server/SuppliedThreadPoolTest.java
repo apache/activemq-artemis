@@ -55,6 +55,9 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase {
       if (server.isActive()) {
          server.stop();
       }
+      serviceRegistry.getExecutorService().shutdown();
+      serviceRegistry.getScheduledExecutorService().shutdown();
+      super.tearDown();
    }
 
    @Test
