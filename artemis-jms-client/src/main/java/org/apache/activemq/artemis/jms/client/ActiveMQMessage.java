@@ -25,6 +25,8 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
@@ -91,6 +93,13 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
 
       return jmsMessage;
+   }
+
+
+
+   public static CompositeData coreCompositeTypeToJMSCompositeType(CompositeDataSupport data) throws Exception {
+      CompositeData jmsdata = new CompositeDataSupport(data.getCompositeType(), new HashMap<String, Object>());
+      return jmsdata;
    }
 
    // Static --------------------------------------------------------

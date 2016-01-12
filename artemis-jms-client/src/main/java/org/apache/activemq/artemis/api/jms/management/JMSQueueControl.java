@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.api.jms.management;
 import java.util.Map;
 
 import javax.management.MBeanOperationInfo;
+import javax.management.openmbean.CompositeData;
 
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
@@ -296,6 +297,19 @@ public interface JMSQueueControl extends DestinationControl {
     */
    @Operation(desc = "Resume the queue.", impact = MBeanOperationInfo.ACTION)
    void resume() throws Exception;
+
+
+   /**
+    * Resumes the queue. Messages are again delivered to its consumers.
+    */
+   @Operation(desc = "Browse the queue.", impact = MBeanOperationInfo.ACTION)
+   CompositeData[] browse() throws Exception;
+
+   /**
+    * Resumes the queue. Messages are again delivered to its consumers.
+    */
+   @Operation(desc = "Browse the queue.", impact = MBeanOperationInfo.ACTION)
+   CompositeData[] browse(String filter) throws Exception;
 
    @Operation(desc = "List all the existent consumers on the Queue")
    String listConsumersAsJSON() throws Exception;

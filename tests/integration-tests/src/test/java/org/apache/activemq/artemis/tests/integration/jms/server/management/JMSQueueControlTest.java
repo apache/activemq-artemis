@@ -16,15 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.management.Notification;
+import javax.management.openmbean.CompositeData;
 import javax.naming.Context;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
@@ -148,6 +153,211 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       data = queueControl.listMessages(null);
       Assert.assertEquals(0, data.length);
+   }
+
+   @Test
+   public void testBrowseMessagesWithNullFilter() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      String[] ids = JMSUtil.sendMessages(queue, 2);
+
+      Assert.assertEquals(2, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(2, data.length);
+      System.out.println(data[0]);
+      Assert.assertEquals(ids[0], data[0].get("JMSMessageID").toString());
+      Assert.assertEquals(ids[1], data[1].get("JMSMessageID").toString());
+
+      JMSUtil.consumeMessages(2, queue);
+
+      data = queueControl.browse();
+      Assert.assertEquals(0, data.length);
+   }
+
+   @Test
+   public void testBrowseMessagesWithNullFilterReplyTo() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+      Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      Message m = JMSUtil.sendMessageWithReplyTo(session, queue, "foo");
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("JMSReplyTo"));
+      Assert.assertEquals("jms.queue.foo", data[0].get("JMSReplyTo"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      data = queueControl.browse();
+      Assert.assertEquals(0, data.length);
+      connection.close();
+   }
+
+   @Test
+   public void testBrowseMessagesWithAllProps() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+      Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      JMSUtil.sendMessageWithProperty(session, queue, MessageUtil.CORRELATIONID_HEADER_NAME.toString(), "foo");
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("JMSCorrelationID"));
+      Assert.assertEquals("foo", data[0].get("JMSCorrelationID"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      JMSUtil.sendMessageWithProperty(session, queue, MessageUtil.JMSXGROUPID.toString(), "myGroupID");
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("JMSXGroupID"));
+      Assert.assertEquals("myGroupID", data[0].get("JMSXGroupID"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      JMSUtil.sendMessageWithProperty(session, queue, "JMSXGroupSeq", 33);
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("JMSXGroupID"));
+      Assert.assertEquals(33, data[0].get("JMSXGroupSeq"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      JMSUtil.sendMessageWithProperty(session, queue, "JMSXUserID", "theheadhonch");
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("JMSXUserID"));
+      Assert.assertEquals("theheadhonch", data[0].get("JMSXUserID"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      data = queueControl.browse();
+      Assert.assertEquals(0, data.length);
+      connection.close();
+   }
+
+   @Test
+   public void testBrowseBytesMessages() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
+
+      Connection conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      byte[] bytes = RandomUtil.randomBytes(201);
+
+      BytesMessage message = JMSUtil.sendByteMessage(session, queue, bytes);
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("BodyLength"));
+      Assert.assertEquals(201L, data[0].get("BodyLength"));
+      Assert.assertNotNull(data[0].get("BodyPreview"));
+      Assert.assertArrayEquals(message.getBody(byte[].class), (byte[]) data[0].get("BodyPreview"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      bytes = RandomUtil.randomBytes(301);
+
+      message = JMSUtil.sendByteMessage(session, queue, bytes);
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertNotNull(data[0].get("BodyLength"));
+      Assert.assertEquals(301L, data[0].get("BodyLength"));
+      Assert.assertNotNull(data[0].get("BodyPreview"));
+      byte[] body = message.getBody(byte[].class);
+      Assert.assertArrayEquals(Arrays.copyOf(body, 255), (byte[]) data[0].get("BodyPreview"));
+      System.out.println(data[0]);
+      JMSUtil.consumeMessages(1, queue);
+
+      data = queueControl.browse();
+      Assert.assertEquals(0, data.length);
+      conn.close();
+   }
+
+   @Test
+   public void testBrowseMapMessages() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
+
+      Connection conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(queue);
+      MapMessage message = session.createMapMessage();
+      message.setString("stringP", "aStringP");
+      message.setBoolean("booleanP", true);
+      message.setByte("byteP", (byte) 1);
+      message.setChar("charP", 'q');
+      message.setDouble("doubleP", 3.2);
+      message.setFloat("floatP", 4.5F);
+      message.setInt("intP", 8);
+      message.setLong("longP", 7);
+      message.setShort("shortP", (short) 777);
+      producer.send(message);
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      String contentMap = (String) data[0].get("ContentMap");
+      Assert.assertNotNull(contentMap);
+      Assert.assertTrue(contentMap.contains("intP=8"));
+      Assert.assertTrue(contentMap.contains("floatP=4.5"));
+      Assert.assertTrue(contentMap.contains("longP=7"));
+      Assert.assertTrue(contentMap.contains("charP=q"));
+      Assert.assertTrue(contentMap.contains("byteP=1"));
+      Assert.assertTrue(contentMap.contains("doubleP=3.2"));
+      Assert.assertTrue(contentMap.contains("stringP=aStringP"));
+      Assert.assertTrue(contentMap.contains("booleanP=true"));
+      Assert.assertTrue(contentMap.contains("shortP=777"));
+      System.out.println(data[0]);
+
+      JMSUtil.consumeMessages(1, queue);
+
+      data = queueControl.browse();
+      Assert.assertEquals(0, data.length);
+      conn.close();
    }
 
    @Test

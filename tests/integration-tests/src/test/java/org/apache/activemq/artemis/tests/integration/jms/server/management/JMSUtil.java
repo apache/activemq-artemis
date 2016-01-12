@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.jms.server.management;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -152,6 +153,48 @@ public class JMSUtil {
       MessageProducer producer = session.createProducer(destination);
       Message message = session.createMessage();
       message.setLongProperty(key, value);
+      producer.send(message);
+      return message;
+   }
+
+   public static BytesMessage sendByteMessage(final Session session,
+                                                    final Destination destination,
+                                                    final byte[] bytes) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      BytesMessage message = session.createBytesMessage();
+      message.writeBytes(bytes);
+      producer.send(message);
+      return message;
+   }
+
+   public static Message sendMessageWithProperty(final Session session,
+                                                 final Destination destination,
+                                                 final String key,
+                                                 final int value) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      Message message = session.createMessage();
+      message.setIntProperty(key, value);
+      producer.send(message);
+      return message;
+   }
+
+   public static Message sendMessageWithProperty(final Session session,
+                                                 final Destination destination,
+                                                 final String key,
+                                                 final String value) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      Message message = session.createMessage();
+      message.setStringProperty(key, value);
+      producer.send(message);
+      return message;
+   }
+
+   public static Message sendMessageWithReplyTo(final Session session,
+                                                    final Destination destination,
+                                                    final String replyTo) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      Message message = session.createMessage();
+      message.setJMSReplyTo(ActiveMQJMSClient.createQueue(replyTo));
       producer.send(message);
       return message;
    }

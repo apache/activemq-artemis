@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
+import javax.management.openmbean.CompositeData;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -31,6 +32,7 @@ import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.management.impl.openmbean.OpenTypeSupport;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -849,6 +851,42 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.isPaused();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public CompositeData[] browse(String filterStr) throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         int pageSize = addressSettingsRepository.getMatch(queue.getName().toString()).getManagementBrowsePageSize();
+         int currentPageSize = 0;
+         ArrayList<CompositeData> c = new ArrayList<>();
+         Filter filter = FilterImpl.createFilter(filterStr);
+         queue.flushExecutor();
+         LinkedListIterator<MessageReference> iterator = queue.totalIterator();
+         try {
+            while (iterator.hasNext() && currentPageSize++ < pageSize) {
+               MessageReference ref = iterator.next();
+               if (filter == null || filter.match(ref.getMessage())) {
+                  c.add(OpenTypeSupport.convert(ref));
+
+               }
+            }
+            CompositeData[] rc = new CompositeData[c.size()];
+            c.toArray(rc);
+            return rc;
+         }
+         finally {
+            iterator.close();
+         }
+      }
+      catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
       }
       finally {
          blockOnIO();

@@ -66,6 +66,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_SLOW_CONSUMER_CHECK_PERIOD = 5;
 
+   public static final int MANAGEMENT_BROWSE_PAGE_SIZE = 200;
+
    public static final SlowConsumerPolicy DEFAULT_SLOW_CONSUMER_POLICY = SlowConsumerPolicy.NOTIFY;
 
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
@@ -110,6 +112,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean autoDeleteJmsQueues = null;
 
+   private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
+
    public AddressSettings(AddressSettings other) {
       this.addressFullMessagePolicy = other.addressFullMessagePolicy;
       this.maxSizeBytes = other.maxSizeBytes;
@@ -132,6 +136,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.slowConsumerPolicy = other.slowConsumerPolicy;
       this.autoCreateJmsQueues = other.autoCreateJmsQueues;
       this.autoDeleteJmsQueues = other.autoDeleteJmsQueues;
+      this.managementBrowsePageSize = other.managementBrowsePageSize;
    }
 
    public AddressSettings() {
@@ -319,6 +324,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public int getManagementBrowsePageSize() {
+      return managementBrowsePageSize != null ? managementBrowsePageSize : AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
+   }
+
+   public AddressSettings setManagementBrowsePageSize(int managementBrowsePageSize) {
+      this.managementBrowsePageSize = managementBrowsePageSize;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -386,6 +400,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (autoDeleteJmsQueues == null) {
          autoDeleteJmsQueues = merged.autoDeleteJmsQueues;
       }
+      if (managementBrowsePageSize == null) {
+         managementBrowsePageSize = merged.managementBrowsePageSize;
+      }
    }
 
    @Override
@@ -445,6 +462,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       autoCreateJmsQueues = BufferHelper.readNullableBoolean(buffer);
 
       autoDeleteJmsQueues = BufferHelper.readNullableBoolean(buffer);
+
+      managementBrowsePageSize = BufferHelper.readNullableInteger(buffer);
    }
 
    @Override
@@ -470,7 +489,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(slowConsumerThreshold) +
          BufferHelper.sizeOfNullableSimpleString(slowConsumerPolicy != null ? slowConsumerPolicy.toString() : null) +
          BufferHelper.sizeOfNullableBoolean(autoCreateJmsQueues) +
-         BufferHelper.sizeOfNullableBoolean(autoDeleteJmsQueues);
+         BufferHelper.sizeOfNullableBoolean(autoDeleteJmsQueues) +
+         BufferHelper.sizeOfNullableInteger(managementBrowsePageSize);
    }
 
    @Override
@@ -516,6 +536,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, autoCreateJmsQueues);
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteJmsQueues);
+
+      BufferHelper.writeNullableInteger(buffer, managementBrowsePageSize);
    }
 
    /* (non-Javadoc)
@@ -546,6 +568,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((slowConsumerPolicy == null) ? 0 : slowConsumerPolicy.hashCode());
       result = prime * result + ((autoCreateJmsQueues == null) ? 0 : autoCreateJmsQueues.hashCode());
       result = prime * result + ((autoDeleteJmsQueues == null) ? 0 : autoDeleteJmsQueues.hashCode());
+      result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
       return result;
    }
 
@@ -687,6 +710,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
          return false;
+      else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
+         return false;
+      if (managementBrowsePageSize == null) {
+         if (other.managementBrowsePageSize != null)
+            return false;
+      }
+      else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
+         return false;
       return true;
    }
 
@@ -736,6 +767,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          autoCreateJmsQueues +
          ", autoDeleteJmsQueues=" +
          autoDeleteJmsQueues +
+         ", managementBrowsePageSize=" +
+         managementBrowsePageSize +
          "]";
    }
 }
