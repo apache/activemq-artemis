@@ -84,7 +84,9 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       buffer.writeLong(consumerID);
       buffer.writeInt(deliveryCount);
       buffer.writeLong(largeMessageSize);
-      message.encodeHeadersAndProperties(buffer);
+      if (message != null) {
+         message.encodeHeadersAndProperties(buffer);
+      }
    }
 
    @Override
