@@ -1604,7 +1604,7 @@ public class QueueImpl implements Queue {
 
       final HashMap<SimpleString, Long> queues = new HashMap<>();
 
-      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction() {
+      return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
          @Override
          public void actMessage(Transaction tx, MessageReference ref) throws Exception {
 
