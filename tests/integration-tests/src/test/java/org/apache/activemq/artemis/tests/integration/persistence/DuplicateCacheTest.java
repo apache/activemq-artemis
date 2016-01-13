@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
@@ -31,6 +32,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DuplicateCacheTest extends StorageManagerTestBase {
+
+   public DuplicateCacheTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    @After
    @Override

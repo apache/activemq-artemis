@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.persistence;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
@@ -35,6 +36,10 @@ import java.util.Map;
 public class JMSConnectionFactoryConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<String, PersistedConnectionFactory> mapExpectedCFs;
+
+   public JMSConnectionFactoryConfigurationStorageTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    @Override
    @Before

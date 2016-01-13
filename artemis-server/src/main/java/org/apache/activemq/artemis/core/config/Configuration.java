@@ -271,8 +271,9 @@ public interface Configuration {
 
    /**
     * Add an acceptor to the config
+    *
     * @param name the name of the acceptor
-    * @param uri the URI of the acceptor
+    * @param uri  the URI of the acceptor
     * @return this
     * @throws Exception in case of Parsing errors on the URI
     */
@@ -935,4 +936,7 @@ public interface Configuration {
     */
    File getBrokerInstance();
 
+   StoreConfiguration getStoreConfiguration();
+
+   Configuration setStoreConfiguration(StoreConfiguration storeConfiguration);
 }

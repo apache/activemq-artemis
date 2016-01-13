@@ -32,12 +32,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
-import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
@@ -437,7 +437,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @throws ActiveMQException
     * @throws Exception
     */
-   public void syncJournalFile(JournalFile jf, JournalContent content) throws Exception {
+   public void syncJournalFile(JournalFile jf, AbstractJournalStorageManager.JournalContent content) throws Exception {
       if (!enabled) {
          return;
       }
@@ -473,7 +473,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param maxBytesToSend maximum number of bytes to read and send from the file
     * @throws Exception
     */
-   private void sendLargeFile(JournalContent content,
+   private void sendLargeFile(AbstractJournalStorageManager.JournalContent content,
                               SimpleString pageStore,
                               final long id,
                               SequentialFile file,
@@ -536,7 +536,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @throws ActiveMQException
     */
    public void sendStartSyncMessage(JournalFile[] datafiles,
-                                    JournalContent contentType,
+                                    AbstractJournalStorageManager.JournalContent contentType,
                                     String nodeID,
                                     boolean allowsAutoFailBack) throws ActiveMQException {
       if (enabled)

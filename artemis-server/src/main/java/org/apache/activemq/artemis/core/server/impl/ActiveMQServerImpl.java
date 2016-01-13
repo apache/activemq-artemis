@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
@@ -70,6 +71,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
@@ -1479,7 +1481,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    private StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
-         return new JournalStorageManager(configuration, executorFactory, shutdownOnCriticalIO);
+         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+            return new JDBCJournalStorageManager(configuration, executorFactory, shutdownOnCriticalIO);
+         }
+         // Default to File Based Storage Manager, (Legacy default configuration).
+         else {
+            return new JournalStorageManager(configuration, executorFactory, shutdownOnCriticalIO);
+         }
       }
       return new NullStorageManager();
    }

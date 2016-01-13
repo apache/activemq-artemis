@@ -26,7 +26,8 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 public final class JournalRecordIds {
 
    // grouping journal record type
-   static final byte GROUP_RECORD = 20;
+
+   public static final byte GROUP_RECORD = 20;
 
    // BindingsImpl journal record type
 

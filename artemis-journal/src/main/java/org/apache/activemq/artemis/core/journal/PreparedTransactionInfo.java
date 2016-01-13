@@ -21,17 +21,33 @@ import java.util.List;
 
 public class PreparedTransactionInfo {
 
-   public final long id;
+   private final long id;
 
-   public final byte[] extraData;
+   private final byte[] extraData;
 
-   public final List<RecordInfo> records = new ArrayList<>();
+   private final List<RecordInfo> records = new ArrayList<RecordInfo>();
 
-   public final List<RecordInfo> recordsToDelete = new ArrayList<>();
+   private final List<RecordInfo> recordsToDelete = new ArrayList<RecordInfo>();
 
    public PreparedTransactionInfo(final long id, final byte[] extraData) {
       this.id = id;
 
       this.extraData = extraData;
+   }
+
+   public long getId() {
+      return id;
+   }
+
+   public byte[] getExtraData() {
+      return extraData;
+   }
+
+   public List<RecordInfo> getRecords() {
+      return records;
+   }
+
+   public List<RecordInfo> getRecordsToDelete() {
+      return recordsToDelete;
    }
 }

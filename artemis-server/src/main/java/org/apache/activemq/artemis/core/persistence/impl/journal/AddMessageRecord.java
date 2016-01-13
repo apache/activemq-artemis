@@ -26,9 +26,9 @@ public final class AddMessageRecord {
 
    final ServerMessage message;
 
-   long scheduledDeliveryTime;
+   private long scheduledDeliveryTime;
 
-   int deliveryCount;
+   private int deliveryCount;
 
    public ServerMessage getMessage() {
       return message;
@@ -40,5 +40,13 @@ public final class AddMessageRecord {
 
    public int getDeliveryCount() {
       return deliveryCount;
+   }
+
+   public void setScheduledDeliveryTime(long scheduledDeliveryTime) {
+      this.scheduledDeliveryTime = scheduledDeliveryTime;
+   }
+
+   public void setDeliveryCount(int deliveryCount) {
+      this.deliveryCount = deliveryCount;
    }
 }

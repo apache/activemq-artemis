@@ -1786,9 +1786,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             PreparedTransactionInfo info = new PreparedTransactionInfo(transaction.transactionID, transaction.extraData);
 
-            info.records.addAll(transaction.recordInfos);
+            info.getRecords().addAll(transaction.recordInfos);
 
-            info.recordsToDelete.addAll(transaction.recordsToDelete);
+            info.getRecordsToDelete().addAll(transaction.recordsToDelete);
 
             loadManager.addPreparedTransaction(info);
          }
