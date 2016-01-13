@@ -274,7 +274,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
       });
       sessionRec.start();
-      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue(latch.await(60, TimeUnit.SECONDS));
       sessionRec.close();
       locator.close();
    }
