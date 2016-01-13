@@ -169,6 +169,10 @@ public class ThreadLeakCheckRule extends ExternalResource {
          //another netty thread
          return true;
       }
+      else if (threadName.contains("hawtdispatch")) {
+         // Static workers used by MQTT client.
+         return true;
+      }
       else {
          for (StackTraceElement element : thread.getStackTrace()) {
             if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
