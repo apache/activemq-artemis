@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DivertTest extends ActiveMQTestBase {
 
-   private static final int TIMEOUT = 500;
+   private static final int TIMEOUT = 3000;
 
    @Test
    public void testSingleNonExclusiveDivert() throws Exception {
