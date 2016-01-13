@@ -46,26 +46,23 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -1515,32 +1512,6 @@ public class PagingTest extends ActiveMQTestBase {
 
       server.start();
 
-      Page pg = server.getPagingManager().getPageStore(ADDRESS).getCurrentPage();
-
-      pg.open();
-
-      List<PagedMessage> msgs = pg.read(server.getStorageManager());
-
-      assertTrue(msgs.size() > 0);
-
-      pg.close();
-
-      long[] queues = new long[]{server.locateQueue(new SimpleString("q1")).getID(), server.locateQueue(new SimpleString("q2")).getID()};
-
-      for (long q : queues) {
-         for (int i = 0; i < msgs.size(); i++) {
-            server.getStorageManager().storeCursorAcknowledge(q, new PagePositionImpl(pg.getPageId(), i));
-         }
-      }
-
-      server.stop();
-
-      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
-
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, new HashMap<String, AddressSettings>());
-
-      server.start();
-
       ClientSessionFactory csf = createSessionFactory(locator);
 
       ClientSession sess = csf.createSession();
@@ -1556,9 +1527,6 @@ public class PagingTest extends ActiveMQTestBase {
 
       Queue q1 = server.locateQueue(new SimpleString("q1"));
       Queue q2 = server.locateQueue(new SimpleString("q2"));
-
-      System.err.println("isComplete = " + q1.getPageSubscription().isComplete(619) + " on queue " + q1.getID());
-      System.err.println("isComplete = " + q2.getPageSubscription().isComplete(619) + " on queue " + q2.getID());
 
       q1.getPageSubscription().cleanupEntries(false);
       q2.getPageSubscription().cleanupEntries(false);
@@ -4132,7 +4100,6 @@ public class PagingTest extends ActiveMQTestBase {
 
       final int messageSize = 1024;
 
-
       ServerLocator locator = null;
       ClientSessionFactory sf = null;
       ClientSession session = null;
@@ -4186,8 +4153,6 @@ public class PagingTest extends ActiveMQTestBase {
                assertNotNull(msg);
 
                msg.acknowledge();
-
-//               assertEquals("str" + msgNr, msg.getStringProperty("id"));
 
                for (int j = 0; j < messageSize; j++) {
                   assertEquals(getSamplebyte(j), msg.getBodyBuffer().readByte());
