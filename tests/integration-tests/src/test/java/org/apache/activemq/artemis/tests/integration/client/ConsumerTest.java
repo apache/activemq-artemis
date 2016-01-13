@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -546,6 +547,26 @@ public class ConsumerTest extends ActiveMQTestBase {
       }
 
       session.close();
+   }
+
+   // https://jira.jboss.org/jira/browse/HORNETQ-111
+   // Test that, on rollback credits are released for messages cleared in the buffer
+   @Test
+   public void testInVMURI() throws Exception {
+      locator.close();
+      ServerLocator locator = addServerLocator(ServerLocatorImpl.newLocator("vm:/1"));
+      ClientSessionFactory factory = locator.createSessionFactory();
+      ClientSession session = factory.createSession();
+      session.createQueue(QUEUE, QUEUE);
+      ClientProducer producer = session.createProducer(QUEUE);
+      producer.send(session.createMessage(true));
+
+      ClientConsumer consumer = session.createConsumer(QUEUE);
+      session.start();
+      Assert.assertNotNull(consumer.receiveImmediate());
+      session.close();
+      factory.close();
+
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-111

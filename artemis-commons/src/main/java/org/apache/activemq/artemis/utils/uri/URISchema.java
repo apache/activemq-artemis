@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 
 public abstract class URISchema<T, P> {
 
@@ -102,7 +101,7 @@ public abstract class URISchema<T, P> {
 
    static {
       // This is to customize the BeanUtils to use Fluent Proeprties as well
-      beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospector());
+      beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
    }
 
    public static Map<String, String> parseQuery(String uri,
