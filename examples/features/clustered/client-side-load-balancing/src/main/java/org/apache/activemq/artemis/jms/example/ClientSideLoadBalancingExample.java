@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -67,9 +69,9 @@ public class ClientSideLoadBalancingExample {
          Session sessionB = connectionB.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         System.out.println("Session A - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress());
-         System.out.println("Session B - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress());
-         System.out.println("Session C - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session A - " + ((ClientSessionInternal) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session B - " + ((ClientSessionInternal)((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session C - " + ((ClientSessionInternal)((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress());
 
          // Step 6. We create JMS MessageProducer objects on the sessions
          MessageProducer producerA = sessionA.createProducer(queue);
