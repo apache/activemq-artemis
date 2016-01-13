@@ -26,6 +26,8 @@ grant {
         permission java.io.FilePermission "${user.dir}/artemis-core-client/target/classes/-", "read";
         permission java.io.FilePermission "${user.dir}/artemis-core-client/target/artemis-core-client-${project.version}.jar", "read";
         permission java.util.PropertyPermission "activemq.version.property.filename", "read";
+        permission java.util.PropertyPermission "activemq.artemis.client.global.thread.pool.max.size", "read";
+        permission java.util.PropertyPermission "activemq.artemis.client.global.scheduled.thread.pool.core.size", "read";
         permission java.util.PropertyPermission "io.netty.eventLoopThreads", "read";
         permission java.util.PropertyPermission "io.netty.noUnsafe", "read";
         permission java.util.PropertyPermission "io.netty.tryUnsafe", "read";
