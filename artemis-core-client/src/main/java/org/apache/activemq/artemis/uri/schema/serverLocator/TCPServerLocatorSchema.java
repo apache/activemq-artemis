@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schema.serverLocator;
 
 import java.net.URI;
 import java.util.List;
@@ -25,9 +25,9 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
    @Override
@@ -52,7 +52,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    protected URI internalNewURI(ServerLocator bean) throws Exception {
-      String query = URISchema.getData(null, bean);
+      String query = getData(null, bean);
       TransportConfiguration[] staticConnectors = bean.getStaticTransportConfigurations();
       return getURI(query, staticConnectors);
    }

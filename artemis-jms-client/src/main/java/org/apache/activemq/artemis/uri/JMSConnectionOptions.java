@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.uri;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.uri.schema.serverLocator.ConnectionOptions;
 
 /**
  * This will represent all the possible options you could setup on URLs

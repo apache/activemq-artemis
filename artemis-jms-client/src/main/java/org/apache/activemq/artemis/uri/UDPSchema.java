@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.uri.schema.serverLocator.UDPServerLocatorSchema;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 

@@ -16,8 +16,24 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import org.apache.activemq.artemis.utils.uri.URISchema;
+import org.apache.commons.beanutils.Converter;
+
 public enum MessageLoadBalancingType {
    OFF("OFF"), STRICT("STRICT"), ON_DEMAND("ON_DEMAND");
+
+   static {
+      // for URI support on ClusterConnection
+      URISchema.registerConverter(new MessageLoadBalancingTypeConverter(), MessageLoadBalancingType.class);
+   }
+
+   static class MessageLoadBalancingTypeConverter implements Converter {
+
+      @Override
+      public <T> T convert(Class<T> type, Object value) {
+         return type.cast(MessageLoadBalancingType.getType(value.toString()));
+      }
+   }
 
    private String type;
 
@@ -27,5 +43,20 @@ public enum MessageLoadBalancingType {
 
    public String getType() {
       return type;
+   }
+
+   public static MessageLoadBalancingType getType(String string) {
+      if (string.equals(OFF.getType())) {
+         return MessageLoadBalancingType.OFF;
+      }
+      else if (string.equals(STRICT.getType())) {
+         return MessageLoadBalancingType.STRICT;
+      }
+      else if (string.equals(ON_DEMAND.getType())) {
+         return MessageLoadBalancingType.ON_DEMAND;
+      }
+      else {
+         return null;
+      }
    }
 }

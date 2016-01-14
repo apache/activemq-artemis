@@ -59,6 +59,10 @@ public class URIFactory<T, P> {
       return schemaFactory.newObject(uri, param);
    }
 
+   public T newObject(String uri, P param) throws Exception {
+      return newObject(new URI(uri), param);
+   }
+
    public void populateObject(URI uri, T bean) throws Exception {
       URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
 
@@ -67,6 +71,11 @@ public class URIFactory<T, P> {
       }
 
       schemaFactory.populateObject(uri, bean);
+   }
+
+
+   public void populateObject(String uri, T bean) throws Exception {
+      populateObject(new URI(uri), bean);
    }
 
    public URI createSchema(String scheme, T bean) throws Exception {

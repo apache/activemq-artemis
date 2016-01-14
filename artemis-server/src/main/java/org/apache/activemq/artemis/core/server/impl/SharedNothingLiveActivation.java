@@ -49,7 +49,6 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -392,20 +391,6 @@ public class SharedNothingLiveActivation extends LiveActivation {
    }
 
    private TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames) {
-      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
-      int count = 0;
-      for (String connectorName : connectorNames) {
-         TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
-
-         if (connector == null) {
-            ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
-
-            return null;
-         }
-
-         tcConfigs[count++] = connector;
-      }
-
-      return tcConfigs;
+      return activeMQServer.getConfiguration().getTransportConfigurations(connectorNames);
    }
 }

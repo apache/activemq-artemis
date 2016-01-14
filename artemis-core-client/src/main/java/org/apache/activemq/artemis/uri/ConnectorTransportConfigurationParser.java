@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.uri;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.uri.schema.connector.InVMTransportConfigurationSchema;
+import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.uri.URIFactory;
-
-import java.util.List;
 
 public class ConnectorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String> {
 

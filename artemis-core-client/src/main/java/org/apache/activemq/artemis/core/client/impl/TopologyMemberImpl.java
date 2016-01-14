@@ -19,7 +19,11 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
+
+import java.util.Map;
 
 public final class TopologyMemberImpl implements TopologyMember {
 
@@ -115,6 +119,15 @@ public final class TopologyMemberImpl implements TopologyMember {
       else {
          return false;
       }
+   }
+
+   @Override
+   public String toURI() {
+      TransportConfiguration liveConnector = getLive();
+      Map<String, Object> props = liveConnector.getParams();
+      String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", props);
+      int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 0, props);
+      return "tcp://" + host + ":" + port;
    }
 
    @Override

@@ -54,7 +54,9 @@ under the License.
             <module>clustered-queue</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
+            <module>clustered-static-discovery-uri</module>
             <module>clustered-topic</module>
+            <module>clustered-topic-uri</module>
             <module>queue-message-redistribution</module>
             <module>symmetric-cluster</module>
          </modules>
@@ -69,7 +71,9 @@ under the License.
             <module>clustered-queue</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
+            <module>clustered-static-discovery-uri</module>
             <module>clustered-topic</module>
+            <module>clustered-topic-uri</module>
             <module>queue-message-redistribution</module>
             <module>symmetric-cluster</module>
          </modules>

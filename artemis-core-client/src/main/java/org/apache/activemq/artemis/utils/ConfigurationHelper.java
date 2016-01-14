@@ -16,17 +16,17 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
-import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+
 public class ConfigurationHelper {
 
-   public static String getStringProperty(final String propName, final String def, final Map<String, Object> props) {
+   public static String getStringProperty(final String propName, final String def, final Map<String, ?> props) {
       if (props == null) {
          return def;
       }
@@ -46,7 +46,7 @@ public class ConfigurationHelper {
       }
    }
 
-   public static int getIntProperty(final String propName, final int def, final Map<String, Object> props) {
+   public static int getIntProperty(final String propName, final int def, final Map<String, ?> props) {
       if (props == null) {
          return def;
       }
@@ -71,7 +71,7 @@ public class ConfigurationHelper {
       }
    }
 
-   public static long getLongProperty(final String propName, final long def, final Map<String, Object> props) {
+   public static long getLongProperty(final String propName, final long def, final Map<String, ?> props) {
       if (props == null) {
          return def;
       }
@@ -97,7 +97,7 @@ public class ConfigurationHelper {
       }
    }
 
-   public static boolean getBooleanProperty(final String propName, final boolean def, final Map<String, Object> props) {
+   public static boolean getBooleanProperty(final String propName, final boolean def, final Map<String, ?> props) {
       if (props == null) {
          return def;
       }
@@ -160,7 +160,7 @@ public class ConfigurationHelper {
 
    public static String getPasswordProperty(final String propName,
                                             final String def,
-                                            final Map<String, Object> props,
+                                            final Map<String, ?> props,
                                             String defaultMaskPassword,
                                             String defaultPasswordCodec) {
       if (props == null) {
@@ -201,4 +201,17 @@ public class ConfigurationHelper {
       }
    }
 
+   public static double getDoubleProperty(String name, double def, Map<String, ?> props) {
+      if (props == null) {
+         return def;
+      }
+      Object prop = props.get(name);
+      if (prop == null) {
+         return def;
+      }
+      else {
+         String value = prop.toString();
+         return Double.parseDouble(value);
+      }
+   }
 }
