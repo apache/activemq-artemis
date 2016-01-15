@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -99,6 +100,8 @@ public class ManagementServiceImpl implements ManagementService {
    private final NotificationBroadcasterSupport broadcaster;
 
    private PostOffice postOffice;
+
+   private SecurityStore securityStore;
 
    private PagingManager pagingManager;
 
@@ -166,6 +169,7 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public ActiveMQServerControlImpl registerServer(final PostOffice postOffice,
+                                                   final SecurityStore securityStore,
                                                    final StorageManager storageManager1,
                                                    final Configuration configuration,
                                                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
@@ -178,6 +182,7 @@ public class ManagementServiceImpl implements ManagementService {
                                                    final PagingManager pagingManager,
                                                    final boolean backup) throws Exception {
       this.postOffice = postOffice;
+      this.securityStore = securityStore;
       this.addressSettingsRepository = addressSettingsRepository;
       this.securityRepository = securityRepository;
       this.storageManager = storageManager1;
@@ -229,7 +234,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerQueue(final Queue queue,
                                           final SimpleString address,
                                           final StorageManager storageManager) throws Exception {
-      QueueControlImpl queueControl = new QueueControlImpl(queue, address.toString(), postOffice, storageManager, addressSettingsRepository);
+      QueueControlImpl queueControl = new QueueControlImpl(queue, address.toString(), postOffice, storageManager, securityStore, addressSettingsRepository);
       if (messageCounterManager != null) {
          MessageCounter counter = new MessageCounter(queue.getName().toString(), null, queue, false, queue.isDurable(), messageCounterManager.getMaxDayCount());
          queueControl.setMessageCounter(counter);

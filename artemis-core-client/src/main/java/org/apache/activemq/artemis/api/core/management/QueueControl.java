@@ -307,6 +307,27 @@ public interface QueueControl {
    int sendMessagesToDeadLetterAddress(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filterStr) throws Exception;
 
    /**
+    *
+    * @param headers the message headers and properties to set. Can only
+    *                container Strings maped to primitive types.
+    * @param body the text to send
+    * @param userID
+    * @param durable
+    *@param user
+    * @param password   @return
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
+                      @Parameter(name = "headers", desc = "A type for the message") final int type,
+                      @Parameter(name = "body", desc = "The body (byte[]) of the message encoded as a string using Base64") String body,
+                      @Parameter(name = "body", desc = "The user ID to set on the message") String userID,
+                      @Parameter(name = "durable", desc = "Whether the message is durable") boolean durable,
+                      @Parameter(name = "user", desc = "The user to authenticate with") String user,
+                      @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
+
+
+   /**
     * Changes the message's priority corresponding to the specified message ID to the specified priority.
     *
     * @param newPriority between 0 and 9 inclusive.
