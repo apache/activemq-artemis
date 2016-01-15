@@ -22,12 +22,17 @@ import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -40,6 +45,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.SelectorTranslator;
 import org.apache.activemq.artemis.jms.management.impl.openmbean.JMSOpenTypeSupport;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
@@ -292,6 +299,52 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.sendMessagesToDeadLetterAddress(filter);
+   }
+
+   @Override
+   public String sendTextMessageWithProperties(String properties) throws Exception {
+      String[] kvs = properties.split(",");
+      Map<String, String> props = new HashMap<String, String>();
+      for (String kv : kvs) {
+         String[] it = kv.split("=");
+         if (it.length == 2) {
+            props.put(it[0],it[1]);
+         }
+      }
+      return sendTextMessage(props, props.remove("body"), props.remove("username"), props.remove("password"));
+   }
+
+   @Override
+   public String sendTextMessage(String body) throws Exception {
+      return sendTextMessage(Collections.EMPTY_MAP, body);
+   }
+
+   @Override
+   public String sendTextMessage(Map headers, String body) throws Exception {
+      return sendTextMessage(headers, body, null, null);
+   }
+
+   @Override
+   public String sendTextMessage(String body, String user, String password) throws Exception {
+      return sendTextMessage(Collections.EMPTY_MAP, body, user, password);
+   }
+
+   @Override
+   public String sendTextMessage(Map<String, String> headers, String body, String user, String password) throws Exception {
+      boolean durable = false;
+      if (headers.containsKey("JMSDeliveryMode")) {
+         String jmsDeliveryMode = headers.remove("JMSDeliveryMode");
+         if (jmsDeliveryMode != null && (jmsDeliveryMode.equals("2") || jmsDeliveryMode.equalsIgnoreCase("PERSISTENT"))) {
+            durable = true;
+         }
+      }
+      String userID = UUIDGenerator.getInstance().generateStringUUID();
+      ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(56);
+      buffer.writeNullableSimpleString(new SimpleString(body));
+      byte[] bytes = new byte[buffer.readableBytes()];
+      buffer.readBytes(bytes);
+      coreQueueControl.sendMessage(headers, Message.TEXT_TYPE, Base64.encodeBytes(bytes), userID, durable, user, password);
+      return userID;
    }
 
    @Override
