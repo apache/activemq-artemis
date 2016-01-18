@@ -22,10 +22,15 @@ ARTEMIS_INSTANCE='${artemis.instance}'
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
 
 
-
 # Java Opts
 JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:$ARTEMIS_HOME/lib/${logmanager} -Djava.security.auth.login.config=$ARTEMIS_INSTANCE/etc/login.config ${java-opts} -Dartemis.instance=$ARTEMIS_INSTANCE"
 
+#
+# There might be options that you only want to enable on specifc commands, like setting a JMX port
+# See https://issues.apache.org/jira/browse/ARTEMIS-318
+#if [ "$1" == "run" ]; then
+#  JAVA_ARGS="$JAVA_ARGS -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
+#fi
 
 # Debug args: Uncomment to enable debug
 #DEBUG_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
