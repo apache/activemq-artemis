@@ -1106,9 +1106,12 @@
                   <exclude>**/src/test/resources/keystore</exclude>
                   <exclude>**/*.log</exclude>
                   <exclude>**/*.redo</exclude>
+
+                  <!-- NPM files -->
                   <exclude>**/node/**</exclude>
                   <exclude>**/node_modules/**</exclude>
                   <exclude>**/package.json</exclude>
+                  <exclude>**/npm-shrinkwrap.json</exclude>
 
                   <!-- things from cmake on the native build -->
                   <exclude>**/CMakeCache.txt</exclude>
