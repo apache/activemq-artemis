@@ -106,7 +106,7 @@ if $cygwin ; then
 fi
 
 # Empty JAVA_ARGS unless the command is 'run' or 'data'. See https://issues.apache.org/jira/browse/ARTEMIS-318.
-if [ $1 != "run" -a $1 != "data" ]; then
+if [ "$1" != "run" -a "$1" != "data" ]; then
   JAVA_ARGS=""
 fi
 
