@@ -1,6 +1,6 @@
 # Project Information
 
-The official Apache ActiveMQ Artemis project page is <http://activemq.apache.org//>.
+The official Apache ActiveMQ Artemis project page is <http://activemq.apache.org/artemis/>.
 
 ## Software Download
 
