@@ -499,13 +499,22 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
+   private static int failedGCCalls = 0;
+
    public static void forceGC() {
+
+      if (failedGCCalls >= 10) {
+         log.info("ignoring forceGC call since it seems System.gc is not working anyways");
+         return;
+      }
       log.info("#test forceGC");
       CountDownLatch finalized = new CountDownLatch(1);
       WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
 
+      long timeout = System.currentTimeMillis() + 1000;
+
       // A loop that will wait GC, using the minimal time as possible
-      while (!(dumbReference.get() == null && finalized.getCount() == 0)) {
+      while (!(dumbReference.get() == null && finalized.getCount() == 0) && System.currentTimeMillis() < timeout) {
          System.gc();
          System.runFinalization();
          try {
@@ -514,7 +523,16 @@ public abstract class ActiveMQTestBase extends Assert {
          catch (InterruptedException e) {
          }
       }
-      log.info("#test forceGC Done");
+
+      if (dumbReference.get() != null) {
+         failedGCCalls++;
+         log.info("It seems that GC is disabled at your VM");
+      }
+      else {
+         // a success would reset the count
+         failedGCCalls = 0;
+      }
+      log.info("#test forceGC Done ");
    }
 
    public static void forceGC(final Reference<?> ref, final long timeout) {
