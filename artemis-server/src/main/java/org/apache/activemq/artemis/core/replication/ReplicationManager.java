@@ -263,6 +263,8 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       if (!started) {
          return;
       }
+      replicatingChannel.getConnection().getTransportConnection().fireReady(true);
+      latch.setCount(0);
 
       enabled = false;
 
@@ -281,6 +283,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       if (toStop != null) {
          toStop.removeFailureListener(failureListener);
       }
+
       remotingConnection = null;
       started = false;
    }
