@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class FileConfigurationParserTest extends ActiveMQTestBase {
@@ -67,6 +68,23 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
+   }
+
+   @Test
+   public void testParsingClusterConnectionURIs() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + "<cluster-connections>\n" +
+         "   <cluster-connection-uri name=\"my-cluster\" address=\"multicast://my-discovery-group?messageLoadBalancingType=STRICT;retryInterval=333;connectorName=netty-connector;maxHops=1\"/>\n" +
+         "</cluster-connections>\n" + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      Assert.assertEquals(1, config.getClusterConfigurations().size());
+
+      Assert.assertEquals("my-discovery-group", config.getClusterConfigurations().get(0).getDiscoveryGroupName());
+      Assert.assertEquals(333, config.getClusterConfigurations().get(0).getRetryInterval());
    }
 
    @Test

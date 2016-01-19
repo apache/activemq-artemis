@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,21 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.uri.schemas.clusterConnection.ClusterConnectionMulticastSchema;
+import org.apache.activemq.artemis.uri.schemas.clusterConnection.ClusterConnectionStaticSchema;
+import org.apache.activemq.artemis.utils.uri.URIFactory;
 
-import java.net.URI;
-import java.util.Set;
+public class ClusterConnectionConfigurationParser extends URIFactory<ClusterConnectionConfiguration, String> {
 
-public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigurationSchema {
-
-   public TCPAcceptorTransportConfigurationSchema(Set<String> allowableProperties) {
-      super(allowableProperties);
-   }
-
-   @Override
-   public String getFactoryName(URI uri) {
-      return NettyAcceptorFactory.class.getName();
+   public ClusterConnectionConfigurationParser() {
+      registerSchema(new ClusterConnectionStaticSchema());
+      registerSchema(new ClusterConnectionMulticastSchema());
    }
 }

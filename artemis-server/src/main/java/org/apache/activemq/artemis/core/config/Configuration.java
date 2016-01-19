@@ -369,6 +369,8 @@ public interface Configuration {
 
    Configuration addClusterConfiguration(final ClusterConnectionConfiguration config);
 
+   ClusterConnectionConfiguration addClusterConfiguration(String name, String uri) throws Exception;
+
    Configuration clearClusterConfigurations();
 
    /**
@@ -910,6 +912,10 @@ public interface Configuration {
    * be set, any other protocols will need to be set directly on the ActiveMQServer
    * */
    Configuration setResolveProtocols(boolean resolveProtocols);
+
+   TransportConfiguration[] getTransportConfigurations(String ...connectorNames);
+
+   TransportConfiguration[] getTransportConfigurations(List<String> connectorNames);
 
    /*
    * @see #setResolveProtocols()

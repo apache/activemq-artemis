@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.utils;
 
+import java.net.URI;
+import java.util.Map;
+
 import org.apache.activemq.artemis.utils.uri.URIFactory;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.net.URI;
-import java.util.Map;
 
 public class URIParserTest {
 

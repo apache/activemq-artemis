@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schemas.acceptor;
 
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.utils.uri.URISchema;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.uri.schema.connector.InVMTransportConfigurationSchema;
 
-import java.net.URI;
-import java.util.Map;
+public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema {
 
-public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String> {
-
-   protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception {
-      return setData(uri, new ConnectionOptions(), query);
+   @Override
+   protected String getFactoryName() {
+      return InVMAcceptorFactory.class.getName();
    }
 }

@@ -14,13 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schema.serverLocator;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
-import java.util.List;
+import java.net.URI;
+import java.util.Map;
 
-public abstract class AbstractTransportConfigurationSchema extends URISchema<List<TransportConfiguration>, String> {
+public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String> {
 
+   protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception {
+      return setData(uri, new ConnectionOptions(), query);
+   }
 }

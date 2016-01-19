@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schema.connector;
 
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import java.util.List;
 
-public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema {
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
-   @Override
-   protected String getFactoryName() {
-      return InVMAcceptorFactory.class.getName();
-   }
+public abstract class AbstractTransportConfigurationSchema extends URISchema<List<TransportConfiguration>, String> {
+
 }

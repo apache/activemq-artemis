@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schema.serverLocator;
 
 /**
  * This will represent all the possible options you could setup on URLs

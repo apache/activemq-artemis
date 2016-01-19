@@ -16,13 +16,21 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.uri.ClusterConnectionConfigurationParser;
+import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 
 public final class ClusterConnectionConfiguration implements Serializable {
 
@@ -30,7 +38,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private String name;
 
-   private String address;
+   private String address = ActiveMQDefaultConfiguration.getDefaultClusterAddress();
 
    private String connectorName;
 
@@ -56,6 +64,8 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private MessageLoadBalancingType messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType());
 
+   private URISupport.CompositeData compositeMembers;
+
    private List<String> staticConnectors = Collections.emptyList();
 
    private String discoveryGroupName = null;
@@ -75,6 +85,11 @@ public final class ClusterConnectionConfiguration implements Serializable {
    public ClusterConnectionConfiguration() {
    }
 
+   public ClusterConnectionConfiguration(URI uri) throws Exception {
+      ClusterConnectionConfigurationParser parser = new ClusterConnectionConfigurationParser();
+      parser.populateObject(uri, this);
+   }
+
    public String getName() {
       return name;
    }
@@ -91,6 +106,15 @@ public final class ClusterConnectionConfiguration implements Serializable {
    public ClusterConnectionConfiguration setAddress(String address) {
       this.address = address;
       return this;
+   }
+
+   public ClusterConnectionConfiguration setCompositeMembers(URISupport.CompositeData members) {
+      this.compositeMembers = members;
+      return this;
+   }
+
+   public URISupport.CompositeData getCompositeMembers() {
+      return compositeMembers;
    }
 
    /**
@@ -334,6 +358,72 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
+   /**
+    * This method will match the configuration and return the proper TransportConfiguration for the Configuration
+    */
+   public TransportConfiguration[] getTransportConfigurations(Configuration configuration) throws Exception {
+
+      if (getCompositeMembers() != null) {
+         ConnectorTransportConfigurationParser connectorTransportConfigurationParser = new ConnectorTransportConfigurationParser();
+
+         URI[] members = getCompositeMembers().getComponents();
+
+         List<TransportConfiguration> list = new LinkedList<>();
+
+         for (int i = 0; i < members.length; i++) {
+            list.addAll(connectorTransportConfigurationParser.newObject(members[i], null));
+         }
+
+         return list.toArray(new TransportConfiguration[list.size()]);
+      }
+      else {
+         return configuration.getTransportConfigurations(staticConnectors);
+      }
+   }
+
+   /**
+    * This method will return the proper discovery configuration from the main configuration
+    */
+   public DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(Configuration configuration) {
+      if (discoveryGroupName != null) {
+         DiscoveryGroupConfiguration dg = configuration.getDiscoveryGroupConfigurations().get(discoveryGroupName);
+
+         if (dg == null) {
+            ActiveMQServerLogger.LOGGER.clusterConnectionNoDiscoveryGroup(discoveryGroupName);
+            return null;
+         }
+         return dg;
+      }
+      else {
+         return null;
+      }
+   }
+
+   public TransportConfiguration getTransportConfiguration(Configuration configuration) {
+      TransportConfiguration connector = configuration.getConnectorConfigurations().get(getConnectorName());
+
+      if (connector == null) {
+         ActiveMQServerLogger.LOGGER.clusterConnectionNoConnector(connectorName);
+         return null;
+      }
+      return connector;
+   }
+
+   public boolean validateConfiguration() {
+      if (getName() == null) {
+         ActiveMQServerLogger.LOGGER.clusterConnectionNotUnique();
+         return false;
+      }
+
+      if (getAddress() == null) {
+         ActiveMQServerLogger.LOGGER.clusterConnectionNoForwardAddress();
+
+         return false;
+      }
+
+      return true;
+   }
+
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -439,5 +529,34 @@ public final class ClusterConnectionConfiguration implements Serializable {
       else if (!staticConnectors.equals(other.staticConnectors))
          return false;
       return true;
+   }
+
+   @Override
+   public String toString() {
+      return "ClusterConnectionConfiguration{" +
+         "name='" + name + '\'' +
+         ", address='" + address + '\'' +
+         ", connectorName='" + connectorName + '\'' +
+         ", clientFailureCheckPeriod=" + clientFailureCheckPeriod +
+         ", connectionTTL=" + connectionTTL +
+         ", retryInterval=" + retryInterval +
+         ", retryIntervalMultiplier=" + retryIntervalMultiplier +
+         ", maxRetryInterval=" + maxRetryInterval +
+         ", initialConnectAttempts=" + initialConnectAttempts +
+         ", reconnectAttempts=" + reconnectAttempts +
+         ", callTimeout=" + callTimeout +
+         ", callFailoverTimeout=" + callFailoverTimeout +
+         ", duplicateDetection=" + duplicateDetection +
+         ", messageLoadBalancingType=" + messageLoadBalancingType +
+         ", compositeMembers=" + compositeMembers +
+         ", staticConnectors=" + staticConnectors +
+         ", discoveryGroupName='" + discoveryGroupName + '\'' +
+         ", maxHops=" + maxHops +
+         ", confirmationWindowSize=" + confirmationWindowSize +
+         ", allowDirectConnectionsOnly=" + allowDirectConnectionsOnly +
+         ", minLargeMessageSize=" + minLargeMessageSize +
+         ", clusterNotificationInterval=" + clusterNotificationInterval +
+         ", clusterNotificationAttempts=" + clusterNotificationAttempts +
+         '}';
    }
 }

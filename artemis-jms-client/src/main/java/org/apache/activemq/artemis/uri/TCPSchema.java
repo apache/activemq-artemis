@@ -21,6 +21,8 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.uri.schema.serverLocator.TCPServerLocatorSchema;
+import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 

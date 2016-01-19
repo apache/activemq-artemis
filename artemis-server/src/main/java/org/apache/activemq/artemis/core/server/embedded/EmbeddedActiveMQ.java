@@ -18,10 +18,13 @@ package org.apache.activemq.artemis.core.server.embedded;
 
 import javax.management.MBeanServer;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -42,8 +45,9 @@ public class EmbeddedActiveMQ {
     *
     * @param filename
     */
-   public void setConfigResourcePath(String filename) {
+   public EmbeddedActiveMQ setConfigResourcePath(String filename) {
       configResourcePath = filename;
+      return this;
    }
 
    /**
@@ -51,8 +55,30 @@ public class EmbeddedActiveMQ {
     *
     * @param securityManager
     */
-   public void setSecurityManager(ActiveMQSecurityManager securityManager) {
+   public EmbeddedActiveMQ setSecurityManager(ActiveMQSecurityManager securityManager) {
       this.securityManager = securityManager;
+      return this;
+   }
+
+   /**
+    * It will iterate the cluster connections until you have at least the number of expected servers
+    * @param timeWait Time to wait on each iteration
+    * @param unit unit of time to wait
+    * @param iterations number of iterations
+    * @param servers number of minimal servers
+    * @return
+    */
+   public boolean waitClusterForming(long timeWait, TimeUnit unit, int iterations, int servers) throws Exception {
+      for (int i = 0; i < iterations; i++) {
+         for (ClusterConnection connection : activeMQServer.getClusterManager().getClusterConnections()) {
+            if (connection.getTopology().getMembers().size() == servers) {
+               return true;
+            }
+            Thread.sleep(unit.toMillis(timeWait));
+         }
+      }
+
+      return false;
    }
 
    /**
@@ -60,8 +86,9 @@ public class EmbeddedActiveMQ {
     *
     * @param mbeanServer
     */
-   public void setMbeanServer(MBeanServer mbeanServer) {
+   public EmbeddedActiveMQ setMbeanServer(MBeanServer mbeanServer) {
       this.mbeanServer = mbeanServer;
+      return this;
    }
 
    /**
@@ -70,18 +97,19 @@ public class EmbeddedActiveMQ {
     *
     * @param configuration
     */
-   public void setConfiguration(Configuration configuration) {
+   public EmbeddedActiveMQ setConfiguration(Configuration configuration) {
       this.configuration = configuration;
+      return this;
    }
 
    public ActiveMQServer getActiveMQServer() {
       return activeMQServer;
    }
 
-   public void start() throws Exception {
+   public EmbeddedActiveMQ start() throws Exception {
       initStart();
       activeMQServer.start();
-
+      return this;
    }
 
    protected void initStart() throws Exception {
@@ -105,7 +133,8 @@ public class EmbeddedActiveMQ {
       }
    }
 
-   public void stop() throws Exception {
+   public EmbeddedActiveMQ stop() throws Exception {
       activeMQServer.stop();
+      return this;
    }
 }

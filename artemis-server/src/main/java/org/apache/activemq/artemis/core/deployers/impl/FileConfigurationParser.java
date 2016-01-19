@@ -409,6 +409,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseClusterConnectionConfiguration(ccNode, config);
       }
 
+      NodeList ccNodesURI = e.getElementsByTagName("cluster-connection-uri");
+
+      for (int i = 0; i < ccNodesURI.getLength(); i++) {
+         Element ccNode = (Element) ccNodesURI.item(i);
+
+         parseClusterConnectionConfigurationURI(ccNode, config);
+      }
+
       NodeList dvNodes = e.getElementsByTagName("divert");
 
       for (int i = 0; i < dvNodes.getLength(); i++) {
@@ -1236,7 +1244,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   private void parseClusterConnectionConfiguration(final Element e, final Configuration mainConfig) {
+   private void parseClusterConnectionConfigurationURI(final Element e, final Configuration mainConfig) throws Exception {
+      String name = e.getAttribute("name");
+
+
+      String uri = e.getAttribute("address");
+
+      ClusterConnectionConfiguration config = mainConfig.addClusterConfiguration(name, uri);
+
+      System.out.println("Adding cluster connection :: " + config);
+   }
+
+   private void parseClusterConnectionConfiguration(final Element e, final Configuration mainConfig) throws Exception {
       String name = e.getAttribute("name");
 
       String address = getString(e, "address", null, Validators.NOT_NULL_OR_EMPTY);

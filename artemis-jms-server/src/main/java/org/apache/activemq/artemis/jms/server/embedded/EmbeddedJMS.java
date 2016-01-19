@@ -55,8 +55,9 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
     *
     * @param registry
     */
-   public void setRegistry(BindingRegistry registry) {
+   public EmbeddedJMS setRegistry(BindingRegistry registry) {
       this.registry = registry;
+      return this;
    }
 
    /**
@@ -64,8 +65,9 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
     *
     * @param jmsConfiguration
     */
-   public void setJmsConfiguration(JMSConfiguration jmsConfiguration) {
+   public EmbeddedJMS setJmsConfiguration(JMSConfiguration jmsConfiguration) {
       this.jmsConfiguration = jmsConfiguration;
+      return this;
    }
 
    /**
@@ -73,8 +75,9 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
     *
     * @param context
     */
-   public void setContext(Context context) {
+   public EmbeddedJMS setContext(Context context) {
       this.context = context;
+      return this;
    }
 
    /**
@@ -89,7 +92,7 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
    }
 
    @Override
-   public void start() throws Exception {
+   public EmbeddedJMS start() throws Exception {
       super.initStart();
       if (jmsConfiguration != null) {
          serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfiguration);
@@ -116,11 +119,14 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
       }
       serverManager.setRegistry(registry);
       serverManager.start();
+
+      return this;
    }
 
    @Override
-   public void stop() throws Exception {
+   public EmbeddedJMS stop() throws Exception {
       serverManager.stop();
+      return this;
    }
 
 }

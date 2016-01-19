@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.ha;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -24,12 +28,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ScaleDownPolicy {
 
@@ -126,20 +124,6 @@ public class ScaleDownPolicy {
 
    private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames,
                                                                     ActiveMQServer activeMQServer) {
-      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
-      int count = 0;
-      for (String connectorName : connectorNames) {
-         TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
-
-         if (connector == null) {
-            ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
-
-            return null;
-         }
-
-         tcConfigs[count++] = connector;
-      }
-
-      return tcConfigs;
+      return activeMQServer.getConfiguration().getTransportConfigurations(connectorNames);
    }
 }

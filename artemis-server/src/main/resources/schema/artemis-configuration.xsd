@@ -458,18 +458,12 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="cluster-connections" maxOccurs="1" minOccurs="0">
+         <xsd:element name="cluster-connections" type="clusterConnectionChoiceType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   a list of cluster connections
                </xsd:documentation>
             </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="cluster-connection" type="cluster-connectionType" maxOccurs="unbounded"
-                               minOccurs="0"/>
-               </xsd:sequence>
-            </xsd:complexType>
          </xsd:element>
 
          <xsd:element name="grouping-handler" type="groupingHandlerType" maxOccurs="1" minOccurs="0">
@@ -1181,6 +1175,33 @@
 
    <!-- CLUSTER CONNECTION CONFIGURATION -->
 
+   <xsd:complexType name="clusterConnectionChoiceType">
+      <xsd:sequence>
+      <xsd:choice maxOccurs="unbounded">
+         <xsd:element name="cluster-connection-uri" type="cluster-connectionUriType"/>
+         <xsd:element name="cluster-connection" type="cluster-connectionType">
+         </xsd:element>
+      </xsd:choice>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="cluster-connectionUriType">
+      <xsd:attribute name="address" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               uri of the cluster connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="name" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               name of the cluster connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
    <xsd:complexType name="cluster-connectionType">
       <xsd:sequence>
          <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="1">
@@ -1385,6 +1406,31 @@
          <xsd:annotation>
             <xsd:documentation>
                unique name for this cluster connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="uri" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               The URI for the cluster connection options
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:complexType>
+
+
+   <xsd:complexType name="cluster-connection-uri-type">
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               unique name for this cluster connection
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="uri" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               The URI for the cluster connection options
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>

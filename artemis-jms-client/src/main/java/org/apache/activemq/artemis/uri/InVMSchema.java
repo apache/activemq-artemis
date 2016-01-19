@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.uri;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.uri.schema.serverLocator.InVMServerLocatorSchema;
+import org.apache.activemq.artemis.uri.schema.connector.InVMTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 import java.net.URI;

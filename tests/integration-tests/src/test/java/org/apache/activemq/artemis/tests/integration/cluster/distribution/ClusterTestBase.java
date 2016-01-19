@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1689,6 +1690,23 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setReconnectAttempts(reconnectAttempts).setRetryInterval(retryInterval).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly);
 
       config.getClusterConfigurations().add(clusterConf);
+   }
+
+
+   protected void setupClusterConnection(final String name,
+                                         final String uri,
+                                         int server) throws Exception {
+      ActiveMQServer serverFrom = servers[server];
+
+      if (serverFrom == null) {
+         throw new IllegalStateException("No server at node " + server);
+      }
+
+      ClusterConnectionConfiguration configuration = new ClusterConnectionConfiguration(new URI(uri)).setName(name);
+
+      serverFrom.getConfiguration().addClusterConfiguration(configuration);
+
+
    }
 
    protected void setupClusterConnection(final String name,

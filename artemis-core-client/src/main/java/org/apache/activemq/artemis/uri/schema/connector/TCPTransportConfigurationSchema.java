@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.uri;
+package org.apache.activemq.artemis.uri.schema.connector;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class TCPTransportConfigurationSchema extends AbstractTransportConfigurationSchema {
 
@@ -61,7 +60,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
                                                                          String factoryName) throws URISyntaxException {
       HashMap<String, Object> props = new HashMap<>();
 
-      URISchema.setData(uri, props, allowableProperties, query);
+      setData(uri, props, allowableProperties, query);
       List<TransportConfiguration> transportConfigurations = new ArrayList<>();
 
       transportConfigurations.add(new TransportConfiguration(factoryName, props, name));
@@ -72,8 +71,8 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
          for (String s : split) {
             URI extraUri = new URI(s);
             HashMap<String, Object> newProps = new HashMap<>();
-            URISchema.setData(extraUri, newProps, allowableProperties, query);
-            URISchema.setData(extraUri, newProps, allowableProperties, URISchema.parseQuery(extraUri.getQuery(), null));
+            setData(extraUri, newProps, allowableProperties, query);
+            setData(extraUri, newProps, allowableProperties, parseQuery(extraUri.getQuery(), null));
             transportConfigurations.add(new TransportConfiguration(factoryName, newProps, name + ":" + extraUri.toString()));
          }
       }

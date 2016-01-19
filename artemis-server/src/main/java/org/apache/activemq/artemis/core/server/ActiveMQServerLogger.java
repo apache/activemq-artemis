@@ -869,7 +869,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222134, value = "No connector defined with name {0}. The bridge will not be deployed.",
       format = Message.Format.MESSAGE_FORMAT)
-   void bridgeNoConnector(String name);
+   void noConnector(String name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222135, value = "Stopping Redistributor, Timed out waiting for tasks to complete", format = Message.Format.MESSAGE_FORMAT)
