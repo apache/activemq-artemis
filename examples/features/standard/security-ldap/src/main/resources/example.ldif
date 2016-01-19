@@ -49,7 +49,7 @@ objectClass: simpleSecurityObject
 objectClass: top
 
 ###################
-## Define groups ##
+## Define roles ##
 ###################
 
 dn: cn=user,dc=activemq,dc=org
