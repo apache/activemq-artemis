@@ -172,7 +172,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       ActiveMQServer server = getActiveMQServer();
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
       server.createQueue(ADDRESS, NON_DURABLE_QUEUE, null, false, false);
@@ -260,7 +260,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       ActiveMQServer server = getActiveMQServer();
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("admins", true, true, true, true, true, true, true));
-      server.getConfiguration().getSecurityRoles().put("#", roles);
+      server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
       ClientSessionFactory cf = locator.createSessionFactory();

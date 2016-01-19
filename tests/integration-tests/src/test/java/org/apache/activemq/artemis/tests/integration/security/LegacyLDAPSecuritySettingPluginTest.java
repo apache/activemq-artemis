@@ -297,8 +297,7 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
          .setConnectionUsername("uid=admin,ou=system")
          .setConnectionPassword("secret")
          .setConnectionProtocol("s")
-         .setAuthentication("simple")
-         .populateSecurityRoles();
+         .setAuthentication("simple");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
       Configuration configuration = new ConfigurationImpl()
