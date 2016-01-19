@@ -263,14 +263,17 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       if (!started) {
          return;
       }
-      replicatingChannel.getConnection().getTransportConnection().fireReady(true);
-      latch.setCount(0);
+
+      enabled = false;
+
+      // This is to avoid the write holding a lock while we are trying to close it
+      if (replicatingChannel != null) {
+         replicatingChannel.close();
+         replicatingChannel.getConnection().getTransportConnection().fireReady(true);
+         latch.setCount(0);
+      }
 
       synchronized (replicationLock) {
-         enabled = false;
-         if (replicatingChannel != null) {
-            replicatingChannel.close();
-         }
          clearReplicationTokens();
       }
 
@@ -278,7 +281,6 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       if (toStop != null) {
          toStop.removeFailureListener(failureListener);
       }
-
       remotingConnection = null;
       started = false;
    }
