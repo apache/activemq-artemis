@@ -9,12 +9,19 @@ still unsolved. This is specially true for the ['site' plugin](https://maven.apa
 
 ## Full Release
 
-The full release uses `gitbook` to build a static website from the documentation, if you don't have `gitbook` installed 
-then you can build the distribution without docs (see below) or install `gitbook` using `npm`:
+#### Upgrading the `gitbook` version and regenerating the `npm-shrinkwrap.json` file
+The full release uses `gitbook` to build a static website from the documentation. This is automatically installed using
+an `NPM` plugin and is controled via a package.json file.
 
-    $ npm install -g gitbook gitbook-cli
+Install `NPM` using the instructions below
 
-If you don't have `npm` installed then you would need to install it first.
+    cd artemis-website
+    alter the `package.json` changing the version
+    npm cache clean; rm -rf ./node_modules/ ./node npm-shrinkwrap.json
+    npm install --save-dev
+    npm shrinkwrap --dev
+
+The new npm-shrinkwrap.json should be written, commit it.
 
 #### Install npm On Fedora
 
@@ -42,7 +49,7 @@ To install it to your local maven repo:
 
 ## Build the distribution without docs
 
-It is possible to build a distribution with out the manuals and Javadocs if you don't have or want `gitbook` installed, 
+It is possible to build a distribution with out the manuals and Javadocs.
 simply run
 
     $ mvn package
