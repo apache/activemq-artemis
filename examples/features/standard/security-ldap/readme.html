@@ -25,12 +25,12 @@ under the License.
     <script type="text/javascript" src="../../../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
-     <h1>JMS Security Example</h1>
+     <h1>JMS Security LDAP Example</h1>
 
      <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
 
-     <p>This example shows how to configure and use security using ActiveMQ Artemis with LDAP.</p>
+     <p>This example shows how to configure and use security using ActiveMQ Artemis and the Apache DS LDAP server.</p>
 
      <p>With security properly configured, ActiveMQ Artemis can restrict client access to its resources, including
      connection creation, message sending/receiving, etc. This is done by configuring users and roles as well as permissions in
@@ -42,41 +42,81 @@ under the License.
      <p>For a full description of how to configure security with ActiveMQ Artemis, please consult the user
      manual.</p>
 
-     <p>This example demonstrates how to configure users/roles, how to configure topics with proper permissions using wild-card
-     expressions, and how they take effects in a simple program. </p>
+     <p>This example demonstrates how to configure users/roles in the Apache DS LDAP server, how to configure topics with
+     proper permissions using wild-card expressions, and how they take effects in a simple program.</p>
 
-     <p>First we need to configure users with roles. Users and Roles are configured in <code>activemq-users.xml</code>. This example has four users
-     configured as below </p>
+     <p>Users and roles are configured in Apache DS. The SecurityExample class will start an embedded version of Apache
+     DS and load the contents of example.ldif which contains the users and passwords for this example.</p>
 
      <pre class="prettyprint">
      <code>
-		   &lt;user name=&quot;bill&quot; password=&quot;activemq&quot;&gt;
-		      &lt;role name=&quot;user&quot;/&gt;
-		   &lt;/user&gt;
+         dn: dc=activemq,dc=org
+         dc: activemq
+         objectClass: top
+         objectClass: domain
 
-		   &lt;user name=&quot;andrew&quot; password=&quot;activemq1&quot;&gt;
-		      &lt;role name=&quot;europe-user&quot;/&gt;
-		      &lt;role name=&quot;user&quot;/&gt;
-		   &lt;/user&gt;
+         dn: uid=bill,dc=activemq,dc=org
+         uid: bill
+         userPassword: activemq
+         objectClass: account
+         objectClass: simpleSecurityObject
+         objectClass: top
 
-		   &lt;user name=&quot;frank&quot; password=&quot;activemq2&quot;&gt;
-		      &lt;role name=&quot;us-user&quot;/&gt;
-		      &lt;role name=&quot;news-user&quot;/&gt;
-		      &lt;role name=&quot;user&quot;/&gt;
-		   &lt;/user&gt;
+         dn: uid=andrew,dc=activemq,dc=org
+         uid: andrew
+         userPassword: activemq1
+         objectClass: account
+         objectClass: simpleSecurityObject
+         objectClass: top
 
-		   &lt;user name=&quot;sam&quot; password=&quot;activemq3&quot;&gt;
-		      &lt;role name=&quot;news-user&quot;/&gt;
-		      &lt;role name=&quot;user&quot;/&gt;
-		   &lt;/user&gt;
+         dn: uid=frank,dc=activemq,dc=org
+         uid: frank
+         userPassword: activemq2
+         objectClass: account
+         objectClass: simpleSecurityObject
+         objectClass: top
+
+         dn: uid=sam,dc=activemq,dc=org
+         uid: sam
+         userPassword: activemq3
+         objectClass: account
+         objectClass: simpleSecurityObject
+         objectClass: top
+
+         ###################
+         ## Define roles ##
+         ###################
+
+         dn: cn=user,dc=activemq,dc=org
+         cn: user
+         member: uid=bill,dc=activemq,dc=org
+         member: uid=andrew,dc=activemq,dc=org
+         member: uid=frank,dc=activemq,dc=org
+         member: uid=sam,dc=activemq,dc=org
+         objectClass: groupOfNames
+         objectClass: top
+
+         dn: cn=europe-user,dc=activemq,dc=org
+         cn: europe-user
+         member: uid=andrew,dc=activemq,dc=org
+         objectClass: groupOfNames
+         objectClass: top
+
+         dn: cn=news-user,dc=activemq,dc=org
+         cn: news-user
+         member: uid=frank,dc=activemq,dc=org
+         member: uid=sam,dc=activemq,dc=org
+         objectClass: groupOfNames
+         objectClass: top
+
+         dn: cn=us-user,dc=activemq,dc=org
+         cn: us-user
+         member: uid=frank,dc=activemq,dc=org
+         objectClass: groupOfNames
+         objectClass: top
      </code>
      </pre>
 
-     <p>
-     Each user has three properties available: user name, password, and roles it belongs to. It should be noted that
-     a user can belong to more than one role. In the above configuration, all users belong to role 'user'. User 'andrew' also
-     belongs to role 'europe-user', user 'frank' also belongs to 'us-user' and 'news-user' and user 'sam' also belongs to 'news-user'.
-     </p>
      <p>
      User name and password consists of a valid account that can be used to establish connections to a ActiveMQ Artemis server, while
      roles are used in controlling the access privileges against ActiveMQ Artemis topics and queues. You can achieve this control by
@@ -129,13 +169,8 @@ under the License.
      <p>To illustrate the effect of permissions, three topics are deployed. Topic 'genericTopic' matches 'jms.topic.#' wild-card, topic 'news.europe.europeTopic' matches
      jms.topic.news.europe.#' wild-cards, and topic 'news.us.usTopic' matches 'jms.topic.news.us.#'.</p>
 
-     <p>With ActiveMQ Artemis, the security manager is also configurable. You can use JAASSecurityManager or JBossASSecurityManager based on you need. Please
-     check out the activemq-beans.xml for how to do. In this example we just use the basic ActiveMQSecurityManagerImpl which reads users/roles/passwords from the xml
-     file <code>activemq-users.xml</code>.
-
-
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
+     <p><i>To run the example, simply type <code>mvn verify</code> from this directory</i></p>
 
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
