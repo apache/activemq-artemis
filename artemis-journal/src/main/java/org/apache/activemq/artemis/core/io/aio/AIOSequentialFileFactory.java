@@ -19,12 +19,7 @@ package org.apache.activemq.artemis.core.io.aio;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.ArtemisConstants;
@@ -38,7 +33,6 @@ import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
@@ -48,7 +42,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private volatile boolean reuseBuffers = true;
 
-   private ExecutorService pollerExecutor;
+   private Thread pollerThread;
 
    volatile LibaioContext<AIOSequentialCallback> libaioContext;
 
@@ -195,14 +189,8 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          this.running.set(true);
 
-         pollerExecutor = Executors.newCachedThreadPool(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
-            @Override
-            public ActiveMQThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), true, AIOSequentialFileFactory.class.getClassLoader());
-            }
-         }));
-
-         pollerExecutor.execute(new PollerRunnable());
+         pollerThread = new PollerThread();
+         pollerThread.start();
       }
 
    }
@@ -215,11 +203,11 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          libaioContext.close();
          libaioContext = null;
 
-         if (pollerExecutor != null) {
-            pollerExecutor.shutdown();
-
+         if (pollerThread != null) {
             try {
-               if (!pollerExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS)) {
+               pollerThread.join(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT * 1000);
+
+               if (pollerThread.isAlive()) {
                   ActiveMQJournalLogger.LOGGER.timeoutOnPollerShutdown(new Exception("trace"));
                }
             }
@@ -230,11 +218,6 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
          super.stop();
       }
-   }
-
-   @Override
-   protected void finalize() {
-      stop();
    }
 
    /**
@@ -348,11 +331,22 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
    }
 
-   private class PollerRunnable implements Runnable {
+   private class PollerThread extends Thread {
+
+      public PollerThread() {
+         super("Apache ActiveMQ Artemis libaio poller");
+      }
 
       @Override
       public void run() {
-         libaioContext.poll();
+         while (running.get()) {
+            try {
+               libaioContext.poll();
+            }
+            catch (Throwable e) {
+               ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+            }
+         }
       }
    }
 

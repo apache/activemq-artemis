@@ -557,9 +557,16 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_bl
 
         int result = io_getevents(theControl->ioContext, 1, max, theControl->events, 0);
 
+        if (result == -EINTR)
+        {
+           // ARTEMIS-353: jmap will issue some weird interrupt signal what would break the execution here
+           // we need to ignore such calls here
+           continue;
+        }
+
         if (result < 0)
         {
-            throwIOExceptionErrorNo(env, "Error while submitting IO: ", -result);
+            throwIOExceptionErrorNo(env, "Error while calling io_getevents IO: ", -result);
             break;
         }
         #ifdef DEBUG
