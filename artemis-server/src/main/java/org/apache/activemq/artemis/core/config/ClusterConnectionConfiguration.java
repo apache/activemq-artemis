@@ -377,7 +377,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          return list.toArray(new TransportConfiguration[list.size()]);
       }
       else {
-         return configuration.getTransportConfigurations(staticConnectors);
+         return staticConnectors != null ? configuration.getTransportConfigurations(staticConnectors) : null;
       }
    }
 
