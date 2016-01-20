@@ -29,6 +29,7 @@ import javax.management.openmbean.CompositeData;
 import javax.naming.Context;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +154,24 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       data = queueControl.listMessages(null);
       Assert.assertEquals(0, data.length);
+   }
+
+   @Test
+   public void testSendTextMessage() throws Exception {
+      JMSQueueControl queueControl = createManagementControl();
+
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      String id = queueControl.sendTextMessage(new HashMap<String, String>(), "theBody", "myUser", "myPassword");
+
+      Assert.assertEquals(1, getMessageCount(queueControl));
+
+      CompositeData[] data = queueControl.browse();
+      Assert.assertEquals(1, data.length);
+      Assert.assertEquals("ID:" + id, data[0].get("JMSMessageID"));
+      Assert.assertEquals("theBody", data[0].get("Text"));
+      System.out.println(data[0]);
+
    }
 
    @Test

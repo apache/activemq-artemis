@@ -307,6 +307,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
          }
 
+         @Override
+         public String sendMessage(Map<String, String> headers, int type, String body, String userID, boolean durable, String user, String password) throws Exception {
+            return (String) proxy.invokeOperation("sendMessage", headers, type, body, userID, durable, user, password);
+         }
+
          public void setDeadLetterAddress(final String deadLetterAddress) throws Exception {
             proxy.invokeOperation("setDeadLetterAddress", deadLetterAddress);
          }
@@ -332,7 +337,12 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public CompositeData[] browse(String filter) throws Exception {
-            return null;
+            Map map = (Map) proxy.invokeOperation("browse", filter);
+            CompositeData[] compositeDatas = (CompositeData[]) map.get(CompositeData.class.getName());
+            if (compositeDatas == null) {
+               compositeDatas = new CompositeData[0];
+            }
+            return compositeDatas;
          }
 
          @Override

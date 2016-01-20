@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -66,6 +67,7 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void setStorageManager(StorageManager storageManager);
 
    ActiveMQServerControlImpl registerServer(final PostOffice postOffice,
+                                            final SecurityStore securityStore,
                                             final StorageManager storageManager,
                                             final Configuration configuration,
                                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,

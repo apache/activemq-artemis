@@ -90,7 +90,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
                                       final String address,
                                       final RemotingConnection connection) {
       X509Certificate[] certificates = null;
-      if (connection.getTransportConnection() instanceof NettyConnection) {
+      if (connection != null && connection.getTransportConnection() instanceof NettyConnection) {
          certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
       }
       Subject localSubject;

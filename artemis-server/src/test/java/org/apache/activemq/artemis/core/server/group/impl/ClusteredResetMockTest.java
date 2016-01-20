@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -207,6 +208,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
 
       @Override
       public ActiveMQServerControlImpl registerServer(PostOffice postOffice,
+                                                      SecurityStore securityStore,
                                                       StorageManager storageManager,
                                                       Configuration configuration,
                                                       HierarchicalRepository<AddressSettings> addressSettingsRepository,

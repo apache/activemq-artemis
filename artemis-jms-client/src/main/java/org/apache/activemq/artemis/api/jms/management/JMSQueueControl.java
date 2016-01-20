@@ -166,6 +166,69 @@ public interface JMSQueueControl extends DestinationControl {
    int sendMessagesToDeadLetterAddress(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filterStr) throws Exception;
 
    /**
+    * Sends a TextMesage to the destination.
+    *
+    * @param body the text to send
+    * @return the message id of the message sent.
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendTextMessage(@Parameter(name = "body") String body) throws Exception;
+
+   /**
+    * Sends a TextMessage to the destination.
+    *
+    * @param properties the message properties to set as a comma sep name=value list. Can only
+    *                contain Strings maped to primitive types or JMS properties. eg: body=hi,JMSReplyTo=Queue2
+    * @return the message id of the message sent.
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendTextMessageWithProperties(String properties) throws Exception;
+
+   /**
+    * Sends a TextMesage to the destination.
+    *
+    * @param headers the message headers and properties to set. Can only
+    *                container Strings maped to primitive types.
+    * @param body the text to send
+    * @return the message id of the message sent.
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendTextMessage(@Parameter(name = "headers") Map<String,String> headers,
+                          @Parameter(name = "body") String body) throws Exception;
+
+   /**
+    * Sends a TextMesage to the destination.
+    * @param body the text to send
+    * @param user
+    * @param password
+    * @return
+    * @throws Exception
+    */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendTextMessage(@Parameter(name = "body") String body,
+                          @Parameter(name = "user") String user,
+                          @Parameter(name = "password") String password) throws Exception;
+
+   /**
+   *
+   * @param headers the message headers and properties to set. Can only
+   *                container Strings maped to primitive types.
+   * @param body the text to send
+   * @param user
+   * @param password
+   * @return
+   * @throws Exception
+   */
+   @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
+   String sendTextMessage(@Parameter(name = "headers") Map<String,String> headers,
+                         @Parameter(name = "body") String body,
+                         @Parameter(name = "user") String user,
+                         @Parameter(name = "password") String password) throws Exception;
+
+   /**
     * Changes the message's priority corresponding to the specified message ID to the specified priority.
     *
     * @param newPriority between 0 and 9 inclusive.

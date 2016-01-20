@@ -38,15 +38,22 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -64,6 +71,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    private final PostOffice postOffice;
 
+   private final StorageManager storageManager;
+   private final SecurityStore securityStore;
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
    private MessageCounter counter;
@@ -106,11 +115,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String address,
                            final PostOffice postOffice,
                            final StorageManager storageManager,
+                           final SecurityStore securityStore,
                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       super(QueueControl.class, storageManager);
       this.queue = queue;
       this.address = address;
       this.postOffice = postOffice;
+      this.storageManager = storageManager;
+      this.securityStore = securityStore;
       this.addressSettingsRepository = addressSettingsRepository;
    }
 
@@ -701,6 +713,45 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       finally {
          blockOnIO();
       }
+   }
+
+   @Override
+   public String sendMessage(final Map<String, String> headers,
+                             final int type,
+                             final String body,
+                             final String userID,
+                             boolean durable, final String user,
+                             final String password) throws Exception {
+      securityStore.check(queue.getAddress(), CheckType.SEND, new SecurityAuth() {
+         @Override
+         public String getUsername() {
+            return user;
+         }
+
+         @Override
+         public String getPassword() {
+            return password;
+         }
+
+         @Override
+         public RemotingConnection getRemotingConnection() {
+            return null;
+         }
+      });
+      ServerMessageImpl message = new ServerMessageImpl(storageManager.generateID(), 50);
+      for (String header : headers.keySet()) {
+         message.putStringProperty(new SimpleString(header), new SimpleString(headers.get(header)));
+      }
+      message.setType((byte) type);
+      message.setDurable(durable);
+      message.setTimestamp(System.currentTimeMillis());
+      message.setUserID(new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(userID)));
+      if (body != null) {
+         message.getBodyBuffer().writeBytes(Base64.decode(body));
+      }
+      message.setAddress(queue.getAddress());
+      postOffice.route(message, null, true);
+      return ""  + message.getMessageID();
    }
 
    @Override
