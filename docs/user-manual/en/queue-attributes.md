@@ -14,7 +14,6 @@ The following shows a queue predefined in the jms element of the `broker.xml`
 configuration file.
 
     <queue name="selectorQueue">
-       <entry name="/queue/selectorQueue"/>
        <selector string="color='red'"/>
        <durable>true</durable>
     </queue>
@@ -22,10 +21,6 @@ configuration file.
 This name attribute of queue defines the name of the queue. When we do
 this at a jms level we follow a naming convention so the actual name of
 the core queue will be `jms.queue.selectorQueue`.
-
-The entry element configures the name that will be used to bind the
-queue to JNDI. This is a mandatory element and the queue can contain
-multiple of these to bind the same queue to different names.
 
 The selector element defines what JMS message selector the predefined
 queue will have. Only messages that match the selector will be added to
@@ -55,9 +50,7 @@ which are.
 2.  The address element defines what address is used for routing
     messages.
 
-3.  There is no entry element.
-
-4.  The filter uses the *Core filter syntax* (described in [filter Expressions](filter-expressions.md)), *not* the
+3.  The filter uses the *Core filter syntax* (described in [filter Expressions](filter-expressions.md)), *not* the
     JMS selector syntax.
 
 ## Using the API
