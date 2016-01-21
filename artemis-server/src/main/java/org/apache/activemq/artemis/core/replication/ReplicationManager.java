@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -343,7 +344,8 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             if (!replicatingChannel.getConnection().isWritable(this)) {
                latch.countUp();
                try {
-                  latch.await();
+                  //don't wait for ever as this may hang tests etc, we've probably been closed anyway
+                  latch.await(5, TimeUnit.SECONDS);
                }
                catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
