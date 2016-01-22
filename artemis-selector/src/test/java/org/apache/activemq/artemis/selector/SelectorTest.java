@@ -449,6 +449,22 @@ public class SelectorTest {
    }
 
    @Test
+   public void testSpecialEscapeLiteral() throws Exception {
+      MockMessage message = createMessage();
+      assertSelector(message, "foo LIKE '%_%' ESCAPE '%'", true);
+      assertSelector(message, "endingUnderScore LIKE '_D7xlJIQn$_' ESCAPE '$'", true);
+      assertSelector(message, "endingUnderScore LIKE '_D7xlJIQn__' ESCAPE '_'", true);
+      assertSelector(message, "endingUnderScore LIKE '%D7xlJIQn%_' ESCAPE '%'", true);
+      assertSelector(message, "endingUnderScore LIKE '%D7xlJIQn%'  ESCAPE '%'", true);
+
+      // literal '%' at the end, no match
+      assertSelector(message, "endingUnderScore LIKE '%D7xlJIQn%%'  ESCAPE '%'", false);
+
+      assertSelector(message, "endingUnderScore LIKE '_D7xlJIQn\\_' ESCAPE '\\'", true);
+      assertSelector(message, "endingUnderScore LIKE '%D7xlJIQn\\_' ESCAPE '\\'", true);
+   }
+
+   @Test
    public void testInvalidSelector() throws Exception {
       MockMessage message = createMessage();
       assertInvalidSelector(message, "3+5");
@@ -476,6 +492,7 @@ public class SelectorTest {
       message.setStringProperty("quote", "'In God We Trust'");
       message.setStringProperty("foo", "_foo");
       message.setStringProperty("punctuation", "!#$&()*+,-./:;<=>?@[\\]^`{|}~");
+      message.setStringProperty("endingUnderScore", "XD7xlJIQn_");
       message.setBooleanProperty("trueProp", true);
       message.setBooleanProperty("falseProp", false);
       return message;
