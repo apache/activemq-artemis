@@ -280,7 +280,7 @@ public class JournalFilesRepository {
             ActiveMQJournalLogger.LOGGER.checkFiles();
             ActiveMQJournalLogger.LOGGER.info(debugFiles());
             ActiveMQJournalLogger.LOGGER.seqOutOfOrder();
-            System.exit(-1);
+            throw new IllegalStateException("Sequence out of order");
          }
 
          if (journal.getCurrentFile() != null && journal.getCurrentFile().getFileID() <= file.getFileID()) {
@@ -356,9 +356,7 @@ public class JournalFilesRepository {
          calculatedSize = file.getFile().size();
       }
       catch (Exception e) {
-         e.printStackTrace();
-         System.out.println("Can't get file size on " + file);
-         System.exit(-1);
+         throw new IllegalStateException(e.getMessage() + " file: " + file);
       }
       if (calculatedSize != fileSize) {
          ActiveMQJournalLogger.LOGGER.deletingFile(file);
