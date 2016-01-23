@@ -86,8 +86,6 @@ public abstract class MessageImpl implements MessageInternal {
 
    private boolean copied = true;
 
-   private boolean bufferUsed;
-
    private UUID userID;
 
    // Constructors --------------------------------------------------
@@ -157,8 +155,6 @@ public abstract class MessageImpl implements MessageInternal {
          copied = other.copied;
 
          if (other.buffer != null) {
-            other.bufferUsed = true;
-
             // We need to copy the underlying buffer too, since the different messsages thereafter might have different
             // properties set on them, making their encoding different
             buffer = other.buffer.copy(0, other.buffer.writerIndex());
@@ -507,21 +503,7 @@ public abstract class MessageImpl implements MessageInternal {
    @Override
    public synchronized ActiveMQBuffer getEncodedBuffer() {
       ActiveMQBuffer buff = encodeToBuffer();
-
-      if (bufferUsed) {
-         ActiveMQBuffer copied = buff.copy(0, buff.capacity());
-
-         copied.setIndex(0, endOfMessagePosition);
-
-         return copied;
-      }
-      else {
-         buffer.setIndex(0, endOfMessagePosition);
-
-         bufferUsed = true;
-
-         return buffer;
-      }
+      return buff.duplicate();
    }
 
    @Override
@@ -935,9 +917,12 @@ public abstract class MessageImpl implements MessageInternal {
          buffer2 = new byte[bodyBuffer.writerIndex() - bodyBuffer.readerIndex()];
          bodyBuffer.readBytes(buffer2);
          bodyBuffer.readerIndex(readerIndex2);
+         return "ServerMessage@" + Integer.toHexString(System.identityHashCode(this)) + "[writerIndex=" + buffer.writerIndex() + ",capacity=" + buffer.capacity() + ",bodyStart=" + getEndOfBodyPosition() + " buffer=" + ByteUtil.bytesToHex(buffer1, 1) + ", bodyBuffer=" + ByteUtil.bytesToHex(buffer2, 1);
+      }
+      else {
+         return "ServerMessage@" + Integer.toHexString(System.identityHashCode(this)) + "[writerIndex=" + buffer.writerIndex() + ",capacity=" + buffer.capacity() + ",bodyStart=" + getEndOfBodyPosition() + " buffer=" + ByteUtil.bytesToHex(buffer1, 1);
       }
 
-      return "ServerMessage@" + Integer.toHexString(System.identityHashCode(this)) + "[" + ",bodyStart=" + getEndOfBodyPosition() + " buffer=" + ByteUtil.bytesToHex(buffer1, 1) + ", bodyBuffer=" + ByteUtil.bytesToHex(buffer2, 1);
    }
 
    @Override
@@ -962,17 +947,7 @@ public abstract class MessageImpl implements MessageInternal {
    // many queues - the first caller in this case will actually encode it
    private synchronized ActiveMQBuffer encodeToBuffer() {
       if (!bufferValid) {
-         if (bufferUsed) {
-            // Cannot use same buffer - must copy
-
-            forceCopy();
-         }
-
          int bodySize = getEndOfBodyPosition();
-
-         // Clebert: I've started sending this on encoding due to conversions between protocols
-         //          and making sure we are not losing the buffer start position between protocols
-         this.endOfBodyPosition = bodySize;
 
          // write it
          buffer.setInt(BUFFER_HEADER_SPACE, bodySize);
@@ -1032,8 +1007,6 @@ public abstract class MessageImpl implements MessageInternal {
       if (bodyBuffer != null) {
          bodyBuffer.setBuffer(buffer);
       }
-
-      bufferUsed = false;
    }
 
    // Inner classes -------------------------------------------------

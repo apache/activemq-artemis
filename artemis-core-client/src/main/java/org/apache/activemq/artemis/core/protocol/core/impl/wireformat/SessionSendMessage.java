@@ -63,28 +63,39 @@ public class SessionSendMessage extends MessagePacket {
    public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = message.getEncodedBuffer();
 
+      ActiveMQBuffer bufferWrite;
+      if (connection == null) {
+         // this is for unit tests only
+         bufferWrite = buffer.copy(0, buffer.capacity());
+      }
+      else {
+         bufferWrite = connection.createTransportBuffer(buffer.writerIndex() + 1); // 1 for the requireResponse
+      }
+      bufferWrite.writeBytes(buffer, 0, buffer.writerIndex());
+      bufferWrite.setIndex(buffer.readerIndex(), buffer.writerIndex());
+
       // Sanity check
-      if (buffer.writerIndex() != message.getEndOfMessagePosition()) {
+      if (bufferWrite.writerIndex() != message.getEndOfMessagePosition()) {
          throw new IllegalStateException("Wrong encode position");
       }
 
-      buffer.writeBoolean(requiresResponse);
+      bufferWrite.writeBoolean(requiresResponse);
 
-      size = buffer.writerIndex();
+      size = bufferWrite.writerIndex();
 
       // Write standard headers
 
       int len = size - DataConstants.SIZE_INT;
-      buffer.setInt(0, len);
-      buffer.setByte(DataConstants.SIZE_INT, getType());
-      buffer.setLong(DataConstants.SIZE_INT + DataConstants.SIZE_BYTE, channelID);
+      bufferWrite.setInt(0, len);
+      bufferWrite.setByte(DataConstants.SIZE_INT, getType());
+      bufferWrite.setLong(DataConstants.SIZE_INT + DataConstants.SIZE_BYTE, channelID);
 
       // Position reader for reading by Netty
-      buffer.readerIndex(0);
+      bufferWrite.readerIndex(0);
 
       message.resetCopied();
 
-      return buffer;
+      return bufferWrite;
    }
 
    @Override
