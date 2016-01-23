@@ -33,11 +33,7 @@ public interface MessageInternal extends Message {
 
    int getEndOfBodyPosition();
 
-   void checkCopy();
-
    void bodyChanged();
-
-   void resetCopied();
 
    boolean isServerMessage();
 

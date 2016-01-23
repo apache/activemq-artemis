@@ -430,17 +430,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void checkCopy() {
-
-      }
-
-      @Override
       public void bodyChanged() {
-
-      }
-
-      @Override
-      public void resetCopied() {
 
       }
 
