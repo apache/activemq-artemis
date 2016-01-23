@@ -93,8 +93,6 @@ public class SessionSendMessage extends MessagePacket {
       // Position reader for reading by Netty
       bufferWrite.readerIndex(0);
 
-      message.resetCopied();
-
       return bufferWrite;
    }
 

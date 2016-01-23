@@ -84,8 +84,6 @@ public abstract class MessageImpl implements MessageInternal {
 
    private int endOfMessagePosition;
 
-   private boolean copied = true;
-
    private UUID userID;
 
    // Constructors --------------------------------------------------
@@ -152,7 +150,6 @@ public abstract class MessageImpl implements MessageInternal {
          bufferValid = other.bufferValid;
          endOfBodyPosition = other.endOfBodyPosition;
          endOfMessagePosition = other.endOfMessagePosition;
-         copied = other.copied;
 
          if (other.buffer != null) {
             // We need to copy the underlying buffer too, since the different messsages thereafter might have different
@@ -438,27 +435,9 @@ public abstract class MessageImpl implements MessageInternal {
 
    @Override
    public void bodyChanged() {
-      // If the body is changed we must copy the buffer otherwise can affect the previously sent message
-      // which might be in the Netty write queue
-      checkCopy();
-
       bufferValid = false;
 
       endOfBodyPosition = -1;
-   }
-
-   @Override
-   public synchronized void checkCopy() {
-      if (!copied) {
-         forceCopy();
-
-         copied = true;
-      }
-   }
-
-   @Override
-   public synchronized void resetCopied() {
-      copied = false;
    }
 
    @Override
