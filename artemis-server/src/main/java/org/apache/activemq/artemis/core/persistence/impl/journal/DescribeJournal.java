@@ -564,7 +564,7 @@ public final class DescribeJournal {
          }
 
          case QUEUE_BINDING_RECORD:
-            return JournalStorageManager.newBindingEncoding(id, buffer);
+            return AbstractJournalStorageManager.newBindingEncoding(id, buffer);
 
          case ID_COUNTER_RECORD:
             EncodingSupport idReturn = new IDCounterEncoding();
@@ -573,13 +573,13 @@ public final class DescribeJournal {
             return idReturn;
 
          case JournalRecordIds.GROUP_RECORD:
-            return JournalStorageManager.newGroupEncoding(id, buffer);
+            return AbstractJournalStorageManager.newGroupEncoding(id, buffer);
 
          case ADDRESS_SETTING_RECORD:
-            return JournalStorageManager.newAddressEncoding(id, buffer);
+            return AbstractJournalStorageManager.newAddressEncoding(id, buffer);
 
          case SECURITY_RECORD:
-            return JournalStorageManager.newSecurityRecord(id, buffer);
+            return AbstractJournalStorageManager.newSecurityRecord(id, buffer);
 
          default:
             return null;
