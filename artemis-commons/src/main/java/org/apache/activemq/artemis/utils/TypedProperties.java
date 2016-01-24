@@ -161,9 +161,7 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Boolean.valueOf(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Byte getByteProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -177,23 +175,19 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Byte.parseByte(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Character getCharProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
       Object value = doGetProperty(key);
       if (value == null) {
-         throw new NullPointerException("Invalid conversion");
+         throw new NullPointerException("Invalid conversion: " + key);
       }
 
       if (value instanceof Character) {
          return ((Character) value);
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public byte[] getBytesProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -204,9 +198,7 @@ public final class TypedProperties {
       else if (value instanceof byte[]) {
          return (byte[]) value;
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Double getDoubleProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -223,9 +215,7 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Double.parseDouble(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Integer getIntProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -245,9 +235,7 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Integer.parseInt(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Long getLongProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -270,9 +258,7 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Long.parseLong(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid conversion");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Short getShortProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -289,9 +275,7 @@ public final class TypedProperties {
       else if (value instanceof SimpleString) {
          return Short.parseShort(((SimpleString) value).toString());
       }
-      else {
-         throw new ActiveMQPropertyConversionException("Invalid Conversion.");
-      }
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Float getFloatProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
@@ -341,7 +325,7 @@ public final class TypedProperties {
       else if (value instanceof Double) {
          return new SimpleString(value.toString());
       }
-      throw new ActiveMQPropertyConversionException("Invalid conversion");
+      throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
 
    public Object removeProperty(final SimpleString key) {
