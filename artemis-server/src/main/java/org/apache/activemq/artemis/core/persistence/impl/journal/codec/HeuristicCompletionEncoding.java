@@ -42,16 +42,19 @@ public class HeuristicCompletionEncoding implements EncodingSupport {
    public HeuristicCompletionEncoding() {
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       xid = XidCodecSupport.decodeXid(buffer);
       isCommit = buffer.readBoolean();
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
       buffer.writeBoolean(isCommit);
    }
 
+   @Override
    public int getEncodeSize() {
       return XidCodecSupport.getXidEncodeLength(xid) + DataConstants.SIZE_BOOLEAN;
    }

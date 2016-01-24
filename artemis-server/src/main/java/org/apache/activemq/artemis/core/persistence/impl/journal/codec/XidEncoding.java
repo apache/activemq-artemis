@@ -38,14 +38,17 @@ public class XidEncoding implements EncodingSupport {
       xid = XidCodecSupport.decodeXid(ActiveMQBuffers.wrappedBuffer(data));
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       throw new IllegalStateException("Non Supported Operation");
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
    }
 
+   @Override
    public int getEncodeSize() {
       return XidCodecSupport.getXidEncodeLength(xid);
    }

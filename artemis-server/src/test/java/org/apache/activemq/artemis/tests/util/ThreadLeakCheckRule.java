@@ -40,6 +40,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
     *
     * @throws if setup fails (which will disable {@code after}
     */
+   @Override
    protected void before() throws Throwable {
       // do nothing
 
@@ -50,6 +51,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
    /**
     * Override to tear down your specific external resource.
     */
+   @Override
    protected void after() {
       try {
          if (enabled) {

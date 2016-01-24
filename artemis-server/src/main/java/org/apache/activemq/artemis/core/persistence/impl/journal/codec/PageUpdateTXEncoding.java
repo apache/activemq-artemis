@@ -42,6 +42,7 @@ public class PageUpdateTXEncoding implements EncodingSupport {
       this.recods = records;
    }
 
+   @Override
    public void decode(ActiveMQBuffer buffer) {
       this.pageTX = buffer.readLong();
       this.recods = buffer.readInt();

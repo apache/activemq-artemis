@@ -35,16 +35,19 @@ public class DeliveryCountUpdateEncoding implements EncodingSupport {
       this.count = count;
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       queueID = buffer.readLong();
       count = buffer.readInt();
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(queueID);
       buffer.writeInt(count);
    }
 
+   @Override
    public int getEncodeSize() {
       return 8 + 4;
    }

@@ -42,16 +42,19 @@ public class CursorAckRecordEncoding implements EncodingSupport {
 
    public PagePosition position;
 
+   @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
    }
 
+   @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeLong(queueID);
       buffer.writeLong(position.getPageNr());
       buffer.writeInt(position.getMessageNr());
    }
 
+   @Override
    public void decode(ActiveMQBuffer buffer) {
       queueID = buffer.readLong();
       long pageNR = buffer.readLong();
