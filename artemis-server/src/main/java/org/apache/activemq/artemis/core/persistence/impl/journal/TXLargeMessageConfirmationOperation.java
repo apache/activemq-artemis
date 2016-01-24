@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 public final class TXLargeMessageConfirmationOperation extends TransactionOperationAbstract {
 
    private AbstractJournalStorageManager journalStorageManager;
-   public List<Long> confirmedMessages = new LinkedList<Long>();
+   public List<Long> confirmedMessages = new LinkedList<>();
 
    public TXLargeMessageConfirmationOperation(AbstractJournalStorageManager journalStorageManager) {
       this.journalStorageManager = journalStorageManager;

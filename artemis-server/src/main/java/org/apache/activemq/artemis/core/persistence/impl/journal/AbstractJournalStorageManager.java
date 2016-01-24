@@ -1310,9 +1310,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos) throws Exception {
-      List<RecordInfo> records = new ArrayList<RecordInfo>();
+      List<RecordInfo> records = new ArrayList<>();
 
-      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
@@ -1521,9 +1521,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
          Transaction tx = new TransactionImpl(preparedTransaction.getId(), xid, this);
 
-         List<MessageReference> referencesToAck = new ArrayList<MessageReference>();
+         List<MessageReference> referencesToAck = new ArrayList<>();
 
-         Map<Long, ServerMessage> messages = new HashMap<Long, ServerMessage>();
+         Map<Long, ServerMessage> messages = new HashMap<>();
 
          // Use same method as load message journal to prune out acks, so they don't get added.
          // Then have reacknowledge(tx) methods on queue, which needs to add the page size
@@ -1677,7 +1677,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                switch (b) {
                   case ADD_LARGE_MESSAGE_PENDING: {
                      long messageID = buff.readLong();
-                     if (!pendingLargeMessages.remove(new Pair<Long, Long>(recordDeleted.id, messageID))) {
+                     if (!pendingLargeMessages.remove(new Pair<>(recordDeleted.id, messageID))) {
                         ActiveMQServerLogger.LOGGER.largeMessageNotFound(recordDeleted.id);
                      }
                      installLargeMessageConfirmationOnTX(tx, recordDeleted.id);
