@@ -56,6 +56,7 @@ public final class JMSOpenTypeSupport {
       private final List<String> itemDescriptionsList = new ArrayList<>();
       private final List<OpenType> itemTypesList = new ArrayList<>();
 
+      @Override
       public CompositeType getCompositeType() throws OpenDataException {
          if (compositeType == null) {
             init();
@@ -86,6 +87,7 @@ public final class JMSOpenTypeSupport {
          return getTypeName();
       }
 
+      @Override
       public Map<String, Object> getFields(CompositeDataSupport data) throws OpenDataException {
          Map<String, Object> rc = new HashMap<>();
          return rc;

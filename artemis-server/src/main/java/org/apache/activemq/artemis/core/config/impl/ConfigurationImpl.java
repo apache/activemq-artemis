@@ -495,6 +495,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public ClusterConnectionConfiguration addClusterConfiguration(String name, String uri) throws Exception {
       ClusterConnectionConfiguration newConfig = new ClusterConnectionConfiguration(new URI(uri)).setName(name);
       clusterConfigurations.add(newConfig);
@@ -1289,10 +1290,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   @Override
    public TransportConfiguration[] getTransportConfigurations(String... connectorNames) {
       return getTransportConfigurations(Arrays.asList(connectorNames));
    }
 
+   @Override
    public TransportConfiguration[] getTransportConfigurations(final List<String> connectorNames) {
       TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
       int count = 0;

@@ -384,6 +384,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       }
    }
 
+   @Override
    public SecuritySettingPlugin stop() {
       try {
          eventContext.close();

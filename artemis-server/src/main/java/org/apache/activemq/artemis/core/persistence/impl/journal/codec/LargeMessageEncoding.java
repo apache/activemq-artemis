@@ -31,6 +31,7 @@ public class LargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       message.decodeHeadersAndProperties(buffer);
    }
@@ -38,6 +39,7 @@ public class LargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       message.encode(buffer);
    }
@@ -45,6 +47,7 @@ public class LargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
     */
+   @Override
    public int getEncodeSize() {
       return message.getEncodeSize();
    }

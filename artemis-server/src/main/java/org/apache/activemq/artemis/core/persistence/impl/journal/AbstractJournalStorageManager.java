@@ -263,10 +263,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       return getContext().waitCompletion(timeout);
    }
 
+   @Override
    public OperationContext getContext() {
       return OperationContextImpl.getContext(executorFactory);
    }
 
+   @Override
    public void setContext(final OperationContext context) {
       OperationContextImpl.setContext(context);
    }
@@ -275,22 +277,27 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       return singleThreadExecutor;
    }
 
+   @Override
    public OperationContext newSingleThreadContext() {
       return newContext(singleThreadExecutor);
    }
 
+   @Override
    public OperationContext newContext(final Executor executor1) {
       return new OperationContextImpl(executor1);
    }
 
+   @Override
    public void afterCompleteOperations(final IOCallback run) {
       getContext().executeOnCompletion(run);
    }
 
+   @Override
    public long generateID() {
       return idGenerator.generateID();
    }
 
+   @Override
    public long getCurrentID() {
       return idGenerator.getCurrentID();
    }
@@ -298,6 +305,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    // Non transactional operations
 
 
+   @Override
    public void confirmPendingLargeMessageTX(final Transaction tx, long messageID, long recordID) throws Exception {
       readLock();
       try {
@@ -312,6 +320,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    /**
     * We don't need messageID now but we are likely to need it we ever decide to support a database
     */
+   @Override
    public void confirmPendingLargeMessage(long recordID) throws Exception {
       readLock();
       try {
@@ -322,6 +331,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeMessage(final ServerMessage message) throws Exception {
       if (message.getMessageID() <= 0) {
          // Sanity check only... this shouldn't happen unless there is a bug
@@ -345,6 +355,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeReference(final long queueID, final long messageID, final boolean last) throws Exception {
       readLock();
       try {
@@ -365,6 +376,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       storageManagerLock.readLock().unlock();
    }
 
+   @Override
    public void storeAcknowledge(final long queueID, final long messageID) throws Exception {
       readLock();
       try {
@@ -375,6 +387,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeCursorAcknowledge(long queueID, PagePosition position) throws Exception {
       readLock();
       try {
@@ -387,6 +400,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteMessage(final long messageID) throws Exception {
       readLock();
       try {
@@ -401,6 +415,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       readLock();
@@ -412,6 +427,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeDuplicateID(final SimpleString address, final byte[] duplID, final long recordID) throws Exception {
       readLock();
       try {
@@ -424,6 +440,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteDuplicateID(final long recordID) throws Exception {
       readLock();
       try {
@@ -436,6 +453,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    // Transactional operations
 
+   @Override
    public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
       if (message.getMessageID() <= 0) {
          throw ActiveMQMessageBundle.BUNDLE.messageIdNotAssigned();
@@ -456,6 +474,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storePageTransaction(final long txID, final PageTransactionInfo pageTransaction) throws Exception {
       readLock();
       try {
@@ -467,6 +486,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updatePageTransaction(final long txID,
                                      final PageTransactionInfo pageTransaction,
                                      final int depages) throws Exception {
@@ -479,6 +499,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depages) throws Exception {
       readLock();
       try {
@@ -489,6 +510,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeReferenceTransactional(final long txID, final long queueID, final long messageID) throws Exception {
       readLock();
       try {
@@ -499,6 +521,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeAcknowledgeTransactional(final long txID,
                                              final long queueID,
                                              final long messageID) throws Exception {
@@ -511,6 +534,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeCursorAcknowledgeTransactional(long txID, long queueID, PagePosition position) throws Exception {
       readLock();
       try {
@@ -523,16 +547,19 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storePageCompleteTransactional(long txID, long queueID, PagePosition position) throws Exception {
       long recordID = idGenerator.generateID();
       position.setRecordID(recordID);
       messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COMPLETE, new CursorAckRecordEncoding(queueID, position));
    }
 
+   @Override
    public void deletePageComplete(long ackID) throws Exception {
       messageJournal.appendDeleteRecord(ackID, false);
    }
 
+   @Override
    public void deleteCursorAcknowledgeTransactional(long txID, long ackID) throws Exception {
       readLock();
       try {
@@ -543,10 +570,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteCursorAcknowledge(long ackID) throws Exception {
       messageJournal.appendDeleteRecord(ackID, false);
    }
 
+   @Override
    public long storeHeuristicCompletion(final Xid xid, final boolean isCommit) throws Exception {
       readLock();
       try {
@@ -560,6 +589,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteHeuristicCompletion(final long id) throws Exception {
       readLock();
       try {
@@ -571,6 +601,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePageTransactional(final long recordID) throws Exception {
       readLock();
       try {
@@ -581,6 +612,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateScheduledDeliveryTimeTransactional(final long txID, final MessageReference ref) throws Exception {
       ScheduledDeliveryEncoding encoding = new ScheduledDeliveryEncoding(ref.getScheduledDeliveryTime(), ref.getQueue().getID());
       readLock();
@@ -593,6 +625,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void prepare(final long txID, final Xid xid) throws Exception {
       readLock();
       try {
@@ -603,19 +636,23 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void commit(final long txID) throws Exception {
       commit(txID, true);
    }
 
+   @Override
    public void commitBindings(final long txID) throws Exception {
       bindingsJournal.appendCommitRecord(txID, true);
    }
 
+   @Override
    public void rollbackBindings(final long txID) throws Exception {
       // no need to sync, it's going away anyways
       bindingsJournal.appendRollbackRecord(txID, false);
    }
 
+   @Override
    public void commit(final long txID, final boolean lineUpContext) throws Exception {
       readLock();
       try {
@@ -636,6 +673,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void rollback(final long txID) throws Exception {
       readLock();
       try {
@@ -646,6 +684,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeDuplicateIDTransactional(final long txID,
                                              final SimpleString address,
                                              final byte[] duplID,
@@ -661,6 +700,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void updateDuplicateIDTransactional(final long txID,
                                               final SimpleString address,
                                               final byte[] duplID,
@@ -676,6 +716,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteDuplicateIDTransactional(final long txID, final long recordID) throws Exception {
       readLock();
       try {
@@ -688,6 +729,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    // Other operations
 
+   @Override
    public void updateDeliveryCount(final MessageReference ref) throws Exception {
       // no need to store if it's the same value
       // otherwise the journal will get OME in case of lots of redeliveries
@@ -707,6 +749,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void storeAddressSetting(PersistedAddressSetting addressSetting) throws Exception {
       deleteAddressSetting(addressSetting.getAddressMatch());
       readLock();
@@ -721,14 +764,17 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public List<PersistedAddressSetting> recoverAddressSettings() throws Exception {
       return new ArrayList<>(mapPersistedAddressSettings.values());
    }
 
+   @Override
    public List<PersistedRoles> recoverPersistedRoles() throws Exception {
       return new ArrayList<>(mapPersistedRoles.values());
    }
 
+   @Override
    public void storeSecurityRoles(PersistedRoles persistedRoles) throws Exception {
 
       deleteSecurityRoles(persistedRoles.getAddressMatch());
@@ -766,6 +812,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteAddressSetting(SimpleString addressMatch) throws Exception {
       PersistedAddressSetting oldSetting = mapPersistedAddressSettings.remove(addressMatch);
       if (oldSetting != null) {
@@ -779,6 +826,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteSecurityRoles(SimpleString addressMatch) throws Exception {
       PersistedRoles oldRoles = mapPersistedRoles.remove(addressMatch);
       if (oldRoles != null) {
@@ -1174,6 +1222,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    }
 
    // grouping handler operations
+   @Override
    public void addGrouping(final GroupBinding groupBinding) throws Exception {
       GroupingEncoding groupingEncoding = new GroupingEncoding(groupBinding.getId(), groupBinding.getGroupId(), groupBinding.getClusterName());
       readLock();
@@ -1185,6 +1234,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteGrouping(long tx, final GroupBinding groupBinding) throws Exception {
       readLock();
       try {
@@ -1197,6 +1247,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    // BindingsImpl operations
 
+   @Override
    public void addQueueBinding(final long tx, final Binding binding) throws Exception {
       Queue queue = (Queue) binding.getBindable();
 
@@ -1215,6 +1266,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteQueueBinding(long tx, final long queueBindingID) throws Exception {
       readLock();
       try {
@@ -1225,6 +1277,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public long storePageCounterInc(long txID, long queueID, int value) throws Exception {
       readLock();
       try {
@@ -1237,6 +1290,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public long storePageCounterInc(long queueID, int value) throws Exception {
       readLock();
       try {
@@ -1278,6 +1332,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deleteIncrementRecord(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1288,6 +1343,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePageCounter(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1298,6 +1354,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void deletePendingPageCounter(long txID, long recordID) throws Exception {
       readLock();
       try {
@@ -1308,6 +1365,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
                                                     final List<GroupingInfo> groupingInfos) throws Exception {
       List<RecordInfo> records = new ArrayList<>();
@@ -1354,6 +1412,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       return bindingsInfo;
    }
 
+   @Override
    public void lineUpContext() {
       readLock();
       try {
@@ -1369,6 +1428,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected abstract void beforeStart() throws Exception;
 
+   @Override
    public synchronized void start() throws Exception {
       if (started) {
          return;
@@ -1390,6 +1450,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       started = true;
    }
 
+   @Override
    public void stop() throws Exception {
       stop(false);
    }
@@ -1407,6 +1468,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
     */
    protected abstract void performCachedLargeMessageDeletes();
 
+   @Override
    public synchronized void stop(boolean ioCriticalError) throws Exception {
       if (!started) {
          return;
@@ -1444,6 +1506,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected abstract void beforeStop() throws Exception;
 
+   @Override
    public synchronized boolean isStarted() {
       return started;
    }
@@ -1465,12 +1528,14 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       }
    }
 
+   @Override
    public void beforePageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.acquire();
       }
    }
 
+   @Override
    public void afterPageRead() throws Exception {
       if (pageMaxConcurrentIO != null) {
          pageMaxConcurrentIO.release();
@@ -1479,10 +1544,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    // Public -----------------------------------------------------------------------------------
 
+   @Override
    public Journal getMessageJournal() {
       return messageJournal;
    }
 
+   @Override
    public Journal getBindingsJournal() {
       return bindingsJournal;
    }
@@ -1714,37 +1781,47 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          return DummyOperationContext.instance;
       }
 
+      @Override
       public void executeOnCompletion(final IOCallback runnable) {
          // There are no executeOnCompletion calls while using the DummyOperationContext
          // However we keep the code here for correctness
          runnable.done();
       }
 
+      @Override
       public void replicationDone() {
       }
 
+      @Override
       public void replicationLineUp() {
       }
 
+      @Override
       public void storeLineUp() {
       }
 
+      @Override
       public void done() {
       }
 
+      @Override
       public void onError(final int errorCode, final String errorMessage) {
       }
 
+      @Override
       public void waitCompletion() {
       }
 
+      @Override
       public boolean waitCompletion(final long timeout) {
          return true;
       }
 
+      @Override
       public void pageSyncLineUp() {
       }
 
+      @Override
       public void pageSyncDone() {
       }
    }

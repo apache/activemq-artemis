@@ -67,6 +67,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.autoCreated = autoCreated;
    }
 
+   @Override
    public long getId() {
       return id;
    }
@@ -75,30 +76,37 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.id = id;
    }
 
+   @Override
    public SimpleString getAddress() {
       return address;
    }
 
+   @Override
    public void replaceQueueName(SimpleString newName) {
       this.name = newName;
    }
 
+   @Override
    public SimpleString getFilterString() {
       return filterString;
    }
 
+   @Override
    public SimpleString getQueueName() {
       return name;
    }
 
+   @Override
    public SimpleString getUser() {
       return user;
    }
 
+   @Override
    public boolean isAutoCreated() {
       return autoCreated;
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -120,6 +128,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       autoCreated = buffer.readBoolean();
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(name);
       buffer.writeSimpleString(address);
@@ -128,6 +137,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeBoolean(autoCreated);
    }
 
+   @Override
    public int getEncodeSize() {
       return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
          SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +

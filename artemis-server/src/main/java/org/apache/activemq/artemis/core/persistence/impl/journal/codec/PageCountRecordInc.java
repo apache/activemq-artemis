@@ -47,15 +47,18 @@ public class PageCountRecordInc implements EncodingSupport {
       return value;
    }
 
+   @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
    }
 
+   @Override
    public void encode(ActiveMQBuffer buffer) {
       buffer.writeLong(queueID);
       buffer.writeInt(value);
    }
 
+   @Override
    public void decode(ActiveMQBuffer buffer) {
       queueID = buffer.readLong();
       value = buffer.readInt();

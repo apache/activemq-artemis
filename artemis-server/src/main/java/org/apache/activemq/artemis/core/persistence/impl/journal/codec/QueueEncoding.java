@@ -32,14 +32,17 @@ public class QueueEncoding implements EncodingSupport {
       super();
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       queueID = buffer.readLong();
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(queueID);
    }
 
+   @Override
    public int getEncodeSize() {
       return 8;
    }
