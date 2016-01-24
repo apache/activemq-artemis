@@ -52,9 +52,9 @@ public final class JMSOpenTypeSupport {
    public abstract static class AbstractOpenTypeFactory implements OpenTypeFactory {
 
       private CompositeType compositeType;
-      private final List<String> itemNamesList = new ArrayList<String>();
-      private final List<String> itemDescriptionsList = new ArrayList<String>();
-      private final List<OpenType> itemTypesList = new ArrayList<OpenType>();
+      private final List<String> itemNamesList = new ArrayList<>();
+      private final List<String> itemDescriptionsList = new ArrayList<>();
+      private final List<OpenType> itemTypesList = new ArrayList<>();
 
       public CompositeType getCompositeType() throws OpenDataException {
          if (compositeType == null) {
@@ -87,7 +87,7 @@ public final class JMSOpenTypeSupport {
       }
 
       public Map<String, Object> getFields(CompositeDataSupport data) throws OpenDataException {
-         Map<String, Object> rc = new HashMap<String, Object>();
+         Map<String, Object> rc = new HashMap<>();
          return rc;
       }
    }

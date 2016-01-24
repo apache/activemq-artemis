@@ -304,7 +304,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    @Override
    public String sendTextMessageWithProperties(String properties) throws Exception {
       String[] kvs = properties.split(",");
-      Map<String, String> props = new HashMap<String, String>();
+      Map<String, String> props = new HashMap<>();
       for (String kv : kvs) {
          String[] it = kv.split("=");
          if (it.length == 2) {
