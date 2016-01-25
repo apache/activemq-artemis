@@ -40,6 +40,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
    public DuplicateIDEncoding() {
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       address = buffer.readSimpleString();
 
@@ -50,6 +51,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
       buffer.readBytes(duplID);
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(address);
 
@@ -58,6 +60,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
       buffer.writeBytes(duplID);
    }
 
+   @Override
    public int getEncodeSize() {
       return SimpleString.sizeofString(address) + DataConstants.SIZE_INT + duplID.length;
    }

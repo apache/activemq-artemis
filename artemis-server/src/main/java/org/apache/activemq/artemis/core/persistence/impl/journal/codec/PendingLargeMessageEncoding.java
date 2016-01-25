@@ -34,6 +34,7 @@ public class PendingLargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       largeMessageID = buffer.readLong();
    }
@@ -41,6 +42,7 @@ public class PendingLargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
     */
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(largeMessageID);
    }
@@ -48,6 +50,7 @@ public class PendingLargeMessageEncoding implements EncodingSupport {
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
     */
+   @Override
    public int getEncodeSize() {
       return DataConstants.SIZE_LONG;
    }

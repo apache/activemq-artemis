@@ -121,7 +121,7 @@ public class URISupport {
    public static Map<String, String> parseQuery(String uri) throws URISyntaxException {
       try {
          uri = uri.substring(uri.lastIndexOf("?") + 1); // get only the relevant part of the query
-         Map<String, String> rc = new HashMap<String, String>();
+         Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
             parseParameters(rc, uri.split("&"));
             parseParameters(rc, uri.split(";"));
@@ -164,7 +164,7 @@ public class URISupport {
       }
       else {
          CompositeData data = URISupport.parseComposite(uri);
-         Map<String, String> parameters = new HashMap<String, String>();
+         Map<String, String> parameters = new HashMap<>();
          parameters.putAll(data.getParameters());
          if (parameters.isEmpty()) {
             parameters = emptyMap();
@@ -402,7 +402,7 @@ public class URISupport {
     * @return an array containing each inner URI from the composite one.
     */
    private static String[] splitComponents(String str) {
-      List<String> l = new ArrayList<String>();
+      List<String> l = new ArrayList<>();
 
       int last = 0;
       int depth = 0;

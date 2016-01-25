@@ -52,9 +52,9 @@ public final class OpenTypeSupport {
 
    static class MessageOpenTypeFactory {
       private CompositeType compositeType;
-      private final List<String> itemNamesList = new ArrayList<String>();
-      private final List<String> itemDescriptionsList = new ArrayList<String>();
-      private final List<OpenType> itemTypesList = new ArrayList<OpenType>();
+      private final List<String> itemNamesList = new ArrayList<>();
+      private final List<String> itemDescriptionsList = new ArrayList<>();
+      private final List<OpenType> itemTypesList = new ArrayList<>();
 
       protected TabularType stringPropertyTabularType;
       protected TabularType booleanPropertyTabularType;
@@ -239,7 +239,7 @@ public final class OpenTypeSupport {
       }
 
       protected CompositeDataSupport createTabularRowValue(TabularType type, String key, Object value) throws OpenDataException {
-         Map<String, Object> fields = new HashMap<String, Object>();
+         Map<String, Object> fields = new HashMap<>();
          fields.put("key", key);
          fields.put("value", value);
          return new CompositeDataSupport(type.getRowType(), fields);

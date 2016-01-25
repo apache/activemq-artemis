@@ -38,20 +38,24 @@ public class GroupingEncoding implements EncodingSupport, GroupingInfo {
    public GroupingEncoding() {
    }
 
+   @Override
    public int getEncodeSize() {
       return SimpleString.sizeofString(groupId) + SimpleString.sizeofString(clusterName);
    }
 
+   @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(groupId);
       buffer.writeSimpleString(clusterName);
    }
 
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       groupId = buffer.readSimpleString();
       clusterName = buffer.readSimpleString();
    }
 
+   @Override
    public long getId() {
       return id;
    }
@@ -60,10 +64,12 @@ public class GroupingEncoding implements EncodingSupport, GroupingInfo {
       this.id = id;
    }
 
+   @Override
    public SimpleString getGroupId() {
       return groupId;
    }
 
+   @Override
    public SimpleString getClusterName() {
       return clusterName;
    }

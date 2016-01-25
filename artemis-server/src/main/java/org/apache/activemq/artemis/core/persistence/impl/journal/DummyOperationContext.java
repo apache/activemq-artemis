@@ -27,37 +27,47 @@ final class DummyOperationContext implements OperationContext {
       return DummyOperationContext.instance;
    }
 
+   @Override
    public void executeOnCompletion(final IOCallback runnable) {
       // There are no executeOnCompletion calls while using the DummyOperationContext
       // However we keep the code here for correctness
       runnable.done();
    }
 
+   @Override
    public void replicationDone() {
    }
 
+   @Override
    public void replicationLineUp() {
    }
 
+   @Override
    public void storeLineUp() {
    }
 
+   @Override
    public void done() {
    }
 
+   @Override
    public void onError(final int errorCode, final String errorMessage) {
    }
 
+   @Override
    public void waitCompletion() {
    }
 
+   @Override
    public boolean waitCompletion(final long timeout) {
       return true;
    }
 
+   @Override
    public void pageSyncLineUp() {
    }
 
+   @Override
    public void pageSyncDone() {
    }
 }
