@@ -32,7 +32,7 @@ public class ActiveMQStompException extends Exception {
    private final List<Header> headers = new ArrayList<>(10);
    private String body;
    private VersionedStompFrameHandler handler;
-   private boolean disconnect;
+   private Boolean disconnect;
 
    public ActiveMQStompException(StompConnection connection, String msg) {
       super(msg);
@@ -86,7 +86,9 @@ public class ActiveMQStompException extends Exception {
       else {
          frame.setByteBody(new byte[0]);
       }
-      frame.setNeedsDisconnect(disconnect);
+      if (disconnect != null) {
+         frame.setNeedsDisconnect(disconnect);
+      }
       return frame;
    }
 

@@ -264,7 +264,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
    @Override
    public boolean isConnected() {
-      return connected;
+      return connected && socketChannel.isConnected();
    }
 
    @Override
