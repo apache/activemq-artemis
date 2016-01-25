@@ -1069,7 +1069,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected void waitForNotPaging(PagingStore store) throws InterruptedException {
-      long timeout = System.currentTimeMillis() + 10000;
+      long timeout = System.currentTimeMillis() + 20000;
       while (timeout > System.currentTimeMillis() && store.isPaging()) {
          Thread.sleep(100);
       }
