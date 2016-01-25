@@ -102,19 +102,30 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
       return params.get("host") != null ? (String) params.get("host") : "localhost";
    }
 
-   private static String createQuery(Map<String, Object> params, String query) {
+   private static String createQuery(Map<String, Object> params, String query) throws Exception {
       StringBuilder cb;
+      boolean empty;
       if (query == null) {
          cb = new StringBuilder();
+         empty = true;
       }
       else {
          cb = new StringBuilder(query);
+         empty = false;
       }
-      for (String param : params.keySet()) {
-         if (cb.length() > 0) {
-            cb.append("&");
+
+      for (Map.Entry<String, Object> entry : params.entrySet()) {
+         if (entry.getValue() != null) {
+            if (!empty) {
+               cb.append("&");
+            }
+            else {
+               empty = false;
+            }
+            cb.append(encodeURI(entry.getKey()));
+            cb.append("=");
+            cb.append(encodeURI(entry.getValue().toString()));
          }
-         cb.append(param).append("=").append(params.get(param));
       }
       return cb.toString();
    }

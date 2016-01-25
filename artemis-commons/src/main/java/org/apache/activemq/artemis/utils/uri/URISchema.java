@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,16 @@ public abstract class URISchema<T, P> {
 
    protected abstract T internalNewObject(URI uri, Map<String, String> query, P param) throws Exception;
 
-   protected abstract URI internalNewURI(T bean) throws Exception;
+   /** This is the default implementation.
+    *  Sub classes are should provide a proper implementation for their schemas. */
+   protected URI internalNewURI(T bean) throws Exception {
+      String query = URISchema.getData(null, bean);
+
+      return new URI(getSchemaName(),
+          null,
+          "//", query, null);
+
+   }
 
    private static final BeanUtilsBean beanUtils = new BeanUtilsBean();
 
@@ -104,6 +114,14 @@ public abstract class URISchema<T, P> {
       synchronized (beanUtils) {
          beanUtils.getConvertUtils().register(converter, type);
       }
+   }
+
+   public static String decodeURI(String value) throws UnsupportedEncodingException {
+      return URLDecoder.decode(value, "UTF-8");
+   }
+
+   public static String encodeURI(String value) throws UnsupportedEncodingException {
+      return URLEncoder.encode(value, "UTF-8");
    }
 
    static {
@@ -120,8 +138,8 @@ public abstract class URISchema<T, P> {
             for (int i = 0; i < parameters.length; i++) {
                int p = parameters[i].indexOf("=");
                if (p >= 0) {
-                  String name = URLDecoder.decode(parameters[i].substring(0, p), "UTF-8");
-                  String value = URLDecoder.decode(parameters[i].substring(p + 1), "UTF-8");
+                  String name = decodeURI(parameters[i].substring(0, p));
+                  String value = decodeURI(parameters[i].substring(p + 1));
                   rc.put(name, value);
                }
                else {
@@ -193,6 +211,7 @@ public abstract class URISchema<T, P> {
 
    public static String getData(List<String> ignored, Object... beans) throws Exception {
       StringBuilder sb = new StringBuilder();
+      boolean empty = true;
       synchronized (beanUtils) {
          for (Object bean : beans) {
             if (bean != null) {
@@ -201,7 +220,11 @@ public abstract class URISchema<T, P> {
                   if (descriptor.getReadMethod() != null && isWriteable(descriptor, ignored)) {
                      String value = beanUtils.getProperty(bean, descriptor.getName());
                      if (value != null) {
-                        sb.append("&").append(descriptor.getName()).append("=").append(value);
+                        if (!empty) {
+                           sb.append("&");
+                        }
+                        empty = false;
+                        sb.append(descriptor.getName()).append("=").append(encodeURI(value));
                      }
                   }
                }

@@ -1630,6 +1630,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       topology.removeClusterTopologyListener(listener);
    }
 
+   /**
+    * for tests only and not part of the public interface. Do not use it.
+    * @return
+    */
+   public TransportConfiguration[] getInitialConnectors() {
+      return initialConnectors;
+   }
+
    private void addFactory(ClientSessionFactoryInternal factory) {
       if (factory == null) {
          return;
