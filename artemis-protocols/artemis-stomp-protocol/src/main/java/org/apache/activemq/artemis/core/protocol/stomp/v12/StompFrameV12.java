@@ -18,15 +18,25 @@ package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
 import java.util.Map;
 
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 
 public class StompFrameV12 extends StompFrameV11 {
 
    public StompFrameV12(String command, Map<String, String> headers, byte[] content) {
       super(command, headers, content);
+      initV12();
    }
 
    public StompFrameV12(String command) {
       super(command);
+      initV12();
+   }
+
+   private void initV12() {
+      // STOMP 1.2 requires disconnect after sending ERROR
+      if (Stomp.Responses.ERROR.equals(command)) {
+         setNeedsDisconnect(true);
+      }
    }
 }
