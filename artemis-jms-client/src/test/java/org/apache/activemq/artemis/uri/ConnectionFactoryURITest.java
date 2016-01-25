@@ -38,6 +38,8 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -76,6 +78,32 @@ public class ConnectionFactoryURITest {
 
          persistIP6(IPV6, factory);
       }
+   }
+
+   @Test
+   public void testWeirdEncodingsOnIP() throws Exception {
+      // This is to make things worse. Having & and = on the property shouldn't break it
+      final String BROKEN_PROPERTY = "e80::56ee:75ff:fe53:e6a7%25enp0s25&host=[fe80::56ee:75ff:fe53:e6a7]#";
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.LOCAL_ADDRESS_PROP_NAME, BROKEN_PROPERTY);
+
+      TransportConfiguration configuration = new TransportConfiguration(NettyConnector.class.getName(), params);
+
+
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, configuration);
+
+      URI uri = factory.toURI();
+
+      ActiveMQConnectionFactory newFactory = ActiveMQJMSClient.createConnectionFactory(uri.toString(), "somefactory");
+
+
+      TransportConfiguration[] initialConnectors = ((ServerLocatorImpl)newFactory.getServerLocator()).getInitialConnectors();
+
+      Assert.assertEquals(1, initialConnectors.length);
+
+
+      Assert.assertEquals(BROKEN_PROPERTY, initialConnectors[0].getParams().get(TransportConstants.LOCAL_ADDRESS_PROP_NAME).toString());
    }
 
    @Test
