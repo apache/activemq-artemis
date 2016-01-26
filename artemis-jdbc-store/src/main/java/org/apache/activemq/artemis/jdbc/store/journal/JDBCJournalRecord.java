@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 
 public class JDBCJournalRecord {
@@ -85,10 +86,14 @@ public class JDBCJournalRecord {
 
    private boolean isUpdate;
 
+   private boolean isTransactional;
+
    public JDBCJournalRecord(long id, byte recordType) {
       this.id = id;
       this.recordType = recordType;
-      this.isUpdate = recordType == UPDATE_RECORD || recordType == UPDATE_RECORD_TX;
+
+      isUpdate = recordType == UPDATE_RECORD || recordType == UPDATE_RECORD_TX;
+      isTransactional = recordType == UPDATE_RECORD_TX || recordType == ADD_RECORD_TX || recordType == DELETE_RECORD_TX;
 
       // set defaults
       compactCount = 0;
@@ -102,11 +107,12 @@ public class JDBCJournalRecord {
    }
 
    public static String createTableSQL(String tableName) {
-      return "CREATE TABLE " + tableName + "(id BIGINT, " + "recordType SMALLINT, " + "compactCount SMALLINT, " + "txId BIGINT, " + "userRecordType SMALLINT, " + "variableSize INTEGER, " + "record BLOB, " + "txDataSize INTEGER, " + "txData BLOB, " + "txCheckNoRecords INTEGER)";
+      return "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,timestamp BIGINT)";
    }
 
    public static String insertRecordsSQL(String tableName) {
-      return "INSERT INTO " + tableName + "(id," + "recordType," + "compactCount," + "txId," + "userRecordType," + "variableSize," + "record," + "txDataSize," + "txData," + "txCheckNoRecords) " + "VALUES (?,?,?,?,?,?,?,?,?,?)";
+      return "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,timestamp) "
+         + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
    }
 
    public static String selectRecordsSQL(String tableName) {
@@ -117,8 +123,20 @@ public class JDBCJournalRecord {
       return "DELETE FROM " + tableName + " WHERE id = ?";
    }
 
-   public static String deleteTxRecordsSQL(String tableName) {
-      return "DELETE FROM " + tableName + " WHERE txId = ?";
+   public static String deleteCommittedDeleteRecordsForTxSQL(String tableName) {
+      return "DELETE FROM " + tableName + " WHERE id IN (SELECT id FROM " + tableName + " WHERE txID=?)";
+   }
+
+   public static String deleteCommittedTxRecordsSQL(String tableName) {
+      return "DELETE FROM " + tableName + " WHERE txId=? AND (recordType=" + PREPARE_RECORD + " OR recordType=" + COMMIT_RECORD + ")";
+   }
+
+   public static String deleteJournalTxRecordsSQL(String tableName) {
+      return "DELETE FROM " + tableName + " WHERE txId=?";
+   }
+
+   public static String deleteRolledBackTxSQL(String tableName) {
+      return "DELETE FROM " + tableName + " WHERE txId=?";
    }
 
    public void complete(boolean success) {
@@ -127,7 +145,7 @@ public class JDBCJournalRecord {
             ioCompletion.done();
          }
          else {
-            ioCompletion.onError(1, "DATABASE INSERT FAILED");
+            ioCompletion.onError(1, "DATABASE TRANSACTION FAILED");
          }
       }
    }
@@ -139,16 +157,29 @@ public class JDBCJournalRecord {
    }
 
    protected void writeRecord(PreparedStatement statement) throws SQLException {
+
+      byte[] recordBytes = new byte[variableSize];
+      byte[] txDataBytes = new byte[txDataSize];
+
+      try {
+         record.read(recordBytes);
+         txData.read(txDataBytes);
+      }
+      catch (IOException e) {
+         ActiveMQJournalLogger.LOGGER.error("Error occurred whilst reading Journal Record", e);
+      }
+
       statement.setLong(1, id);
       statement.setByte(2, recordType);
       statement.setByte(3, compactCount);
       statement.setLong(4, txId);
       statement.setByte(5, userRecordType);
       statement.setInt(6, variableSize);
-      statement.setBlob(7, record);
+      statement.setBytes(7, recordBytes);
       statement.setInt(8, txDataSize);
-      statement.setBlob(9, txData);
+      statement.setBytes(9, txDataBytes);
       statement.setInt(10, txCheckNoRecords);
+      statement.setLong(11, System.currentTimeMillis());
       statement.addBatch();
    }
 
@@ -240,8 +271,10 @@ public class JDBCJournalRecord {
    }
 
    public void setRecord(byte[] record) {
-      this.variableSize = record.length;
-      this.record = new ByteArrayInputStream(record);
+      if (record != null) {
+         this.variableSize = record.length;
+         this.record = new ByteArrayInputStream(record);
+      }
    }
 
    public void setRecord(InputStream record) {
@@ -287,14 +320,16 @@ public class JDBCJournalRecord {
    public void setTxData(EncodingSupport txData) {
       this.txDataSize = txData.getEncodeSize();
 
-      ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(variableSize);
+      ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(txDataSize);
       txData.encode(encodedBuffer);
       this.txData = new ActiveMQBufferInputStream(encodedBuffer);
    }
 
    public void setTxData(byte[] txData) {
-      this.txDataSize = txData.length;
-      this.txData = new ByteArrayInputStream(txData);
+      if (txData != null) {
+         this.txDataSize = txData.length;
+         this.txData = new ByteArrayInputStream(txData);
+      }
    }
 
    public boolean isUpdate() {
@@ -315,5 +350,9 @@ public class JDBCJournalRecord {
 
    public RecordInfo toRecordInfo() throws IOException {
       return new RecordInfo(getId(), getUserRecordType(), getRecordData(), isUpdate(), getCompactCount());
+   }
+
+   public boolean isTransactional() {
+      return isTransactional;
    }
 }

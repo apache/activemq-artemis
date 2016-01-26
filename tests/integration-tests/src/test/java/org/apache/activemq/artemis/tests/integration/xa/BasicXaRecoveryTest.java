@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
@@ -38,15 +39,19 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@RunWith(Parameterized.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -71,13 +76,32 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    private MBeanServer mbeanServer;
 
+   protected StoreConfiguration.StoreType storeType;
+
+   public BasicXaRecoveryTest(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
+
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         configuration = createDefaultJDBCConfig().setJMXManagementEnabled(true);
+      }
+      else {
+         configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
+      }
+
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
@@ -211,15 +235,18 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Test
    public void testPagingServerRestarted() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
       verifyPaging(true);
    }
 
    @Test
    public void testPaging() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
       verifyPaging(false);
    }
 
    public void verifyPaging(final boolean restartServer) throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       SimpleString pageQueue = new SimpleString("pagequeue");
@@ -285,11 +312,13 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Test
    public void testRollbackPaging() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
       testRollbackPaging(false);
    }
 
    @Test
    public void testRollbackPagingServerRestarted() throws Exception {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
       testRollbackPaging(true);
    }
 
