@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.jdbc.store.journal;
 
-import java.sql.SQLException;
 import java.util.TimerTask;
 
 public class JDBCJournalSync extends TimerTask {
@@ -30,11 +29,8 @@ public class JDBCJournalSync extends TimerTask {
 
    @Override
    public void run() {
-      try {
+      if (journal.isStarted()) {
          journal.sync();
-      }
-      catch (SQLException e) {
-         e.printStackTrace();
       }
    }
 }
