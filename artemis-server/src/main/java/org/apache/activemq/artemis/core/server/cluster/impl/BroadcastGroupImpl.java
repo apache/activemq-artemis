@@ -191,7 +191,9 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
          tcConfig.encode(buff);
       }
 
-      byte[] data = buff.toByteBuffer().array();
+      // Only send as many bytes as we need.
+      byte[] data = new byte[buff.readableBytes()];
+      buff.getBytes(buff.readerIndex(), data);
 
       endpoint.broadcast(data);
    }
