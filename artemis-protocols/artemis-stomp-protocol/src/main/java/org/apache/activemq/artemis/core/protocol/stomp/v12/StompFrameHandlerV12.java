@@ -230,6 +230,9 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
                   headerValueWhitespace = false;
 
+                  if (isEscaping) {
+                     throwUndefinedEscape(b);
+                  }
                   holder.append(b);
                }
             }

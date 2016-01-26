@@ -564,6 +564,42 @@ public class StompV12Test extends StompV11TestBase {
       newConn.disconnect();
    }
 
+   /**
+    * In 1.2, undefined escapes must cause a fatal protocol error.
+    */
+   @Test
+   public void testHeaderUndefinedEscape() throws Exception {
+      connV12.connect(defUser, defPass);
+      ClientStompFrame frame = connV12.createFrame("SEND");
+
+      String body = "Hello World 1!";
+      String cLen = String.valueOf(body.getBytes(StandardCharsets.UTF_8).length);
+
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.addHeader("content-length", cLen);
+      String hKey = "undefined-escape";
+      String hVal = "is\\ttab";
+      frame.addHeader(hKey, hVal);
+
+      System.out.println("key: |" + hKey + "| val: |" + hVal + "|");
+
+      frame.setBody(body);
+
+      connV12.sendFrame(frame);
+
+      ClientStompFrame error = connV12.receiveFrame();
+
+      System.out.println("received " + error);
+
+      String desc = "Should have received an ERROR for undefined escape sequence";
+      Assert.assertNotNull(desc, error);
+      Assert.assertEquals(desc, "ERROR", error.getCommand());
+
+      waitDisconnect(connV12);
+      Assert.assertFalse("Should be disconnected in STOMP 1.2 after ERROR", connV12.isConnected());
+   }
+
    @Test
    public void testHeartBeat() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
