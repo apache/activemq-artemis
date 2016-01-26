@@ -952,7 +952,7 @@ public class StompV12Test extends StompV11TestBase {
 
       Assert.assertEquals("ERROR", error.getCommand());
 
-      Thread.sleep(1000);
+      waitDisconnect(connV12);
       Assert.assertFalse("Should be disconnected in STOMP 1.2 after ERROR", connV12.isConnected());
 
       //message should be still there
@@ -981,7 +981,7 @@ public class StompV12Test extends StompV11TestBase {
 
       System.out.println("Receiver error: " + error);
 
-      Thread.sleep(1000);
+      waitDisconnect(connV12);
       Assert.assertFalse("Should be disconnected in STOMP 1.2 after ERROR", connV12.isConnected());
 
       //message should still there
@@ -1523,7 +1523,7 @@ public class StompV12Test extends StompV11TestBase {
       ClientStompFrame frame = connV12.receiveFrame();
       Assert.assertTrue(frame.getCommand().equals("ERROR"));
 
-      Thread.sleep(1000);
+      waitDisconnect(connV12);
       Assert.assertFalse("Should be disconnected in STOMP 1.2 after ERROR", connV12.isConnected());
    }
 
@@ -2516,7 +2516,7 @@ public class StompV12Test extends StompV11TestBase {
       Assert.assertEquals("1234", frame.getHeader("receipt-id"));
       System.out.println("message: " + frame.getHeader("message"));
 
-      Thread.sleep(1000);
+      waitDisconnect(connV12);
       Assert.assertFalse("Should be disconnected in STOMP 1.2 after ERROR", connV12.isConnected());
    }
 
