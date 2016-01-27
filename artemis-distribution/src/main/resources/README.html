@@ -51,11 +51,13 @@ admin
 --password: is mandatory with this configuration:
 Please provide the default password:
 
+--role: is mandatory with this configuration:
+Please provide the default role:
+admin
 
---allow-anonymous: is mandatory with this configuration:
+--allow-anonymous | --require-login: is mandatory with this configuration:
 Allow anonymous access? (Y/N):
-y
-
+Y
 </PRE>
 
 For a full list of available options for the create process you may use:
@@ -66,11 +68,17 @@ NAME
         artemis create - creates a new broker instance
 
 SYNOPSIS
-        artemis create [--allow-anonymous] [--cluster-password &lt;clusterPassword&gt;] [--cluster-user &lt;clusterUser&gt;]
-                       [--clustered] [--data &lt;data&gt;] [--encoding &lt;encoding&gt;] [--force]
-                       [--home &lt;home&gt;] [--host &lt;host&gt;] [--java-options &lt;javaOptions&gt;]
-                       [--password &lt;password&gt;] [--port-offset &lt;portOffset&gt;] [--replicated]
-                       [--role &lt;role&gt;] [--shared-store] [--silent] [--user &lt;user&gt;] [--] &lt;directory&gt;
+        artemis create [--aio] [--allow-anonymous]
+                [--cluster-password &lt;clusterPassword&gt;] [--cluster-user &lt;clusterUser&gt;]
+                [--clustered] [--data &lt;data&gt;] [--disable-persistence]
+                [--encoding &lt;encoding&gt;] [--failover-on-shutdown] [--force]
+                [--home &lt;home&gt;] [--host &lt;host&gt;] [--java-options &lt;javaOptions&gt;]
+                [--max-hops &lt;maxHops&gt;] [--message-load-balancing &lt;messageLoadBalancing&gt;]
+                [--name &lt;name&gt;] [--nio] [--no-autotune] [--no-web]
+                [--password &lt;password&gt;] [--port-offset &lt;portOffset&gt;] [--queues &lt;queues&gt;]
+                [--replicated] [--require-login] [--role &lt;role&gt;] [--shared-store]
+                [--silent] [--slave] [--topics &lt;topics&gt;] [--user &lt;user&gt;] [--verbose]
+                [--] &lt;directory&gt;
      ...
 </PRE>
 
