@@ -21,12 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -147,16 +149,20 @@ public abstract class MessageImpl implements MessageInternal {
       // with getEncodedBuffer(), otherwise can introduce race condition when delivering concurrently to
       // many subscriptions and bridging to other nodes in a cluster
       synchronized (other) {
-         bufferValid = other.bufferValid;
-         endOfBodyPosition = other.endOfBodyPosition;
+         bufferValid = false;
+         endOfBodyPosition = -1;
          endOfMessagePosition = other.endOfMessagePosition;
 
          if (other.buffer != null) {
             // We need to copy the underlying buffer too, since the different messsages thereafter might have different
             // properties set on them, making their encoding different
-            buffer = other.buffer.copy(0, other.buffer.writerIndex());
+            buffer = other.buffer.copy(0, other.buffer.capacity());
 
             buffer.setIndex(other.buffer.readerIndex(), buffer.capacity());
+
+            bodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, this);
+            bodyBuffer.readerIndex(BODY_OFFSET);
+            bodyBuffer.writerIndex(other.getBodyBuffer().writerIndex());
          }
       }
    }
@@ -267,14 +273,16 @@ public abstract class MessageImpl implements MessageInternal {
    }
 
    @Override
-   public synchronized ActiveMQBuffer getBodyBufferCopy() {
+   public synchronized ActiveMQBuffer getBodyBufferDuplicate() {
+
       // Must copy buffer before sending it
 
-      ActiveMQBuffer newBuffer = buffer.copy(0, buffer.capacity());
+      ByteBuf byteBuf = ChannelBufferWrapper.unwrap(getBodyBuffer().byteBuf());
+      byteBuf = byteBuf.duplicate();
+      byteBuf.writerIndex(getBodyBuffer().writerIndex());
+      byteBuf.readerIndex(getBodyBuffer().readerIndex());
 
-      newBuffer.setIndex(0, getEndOfBodyPosition());
-
-      return new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, newBuffer, null);
+      return new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, byteBuf, null);
    }
 
    @Override

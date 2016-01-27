@@ -216,8 +216,8 @@ public class MQTTPublishManager {
    private void sendServerMessage(int messageId, ServerMessageImpl message, int deliveryCount, int qos) {
       String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString()).toString();
 
-      //FIXME should we be copying the body buffer here?
-      ByteBuf payload = message.getBodyBufferCopy().byteBuf();
+      ByteBuf payload = message.getBodyBufferDuplicate().byteBuf();
+
       session.getProtocolHandler().send(messageId, address, qos, payload, deliveryCount);
    }
 
