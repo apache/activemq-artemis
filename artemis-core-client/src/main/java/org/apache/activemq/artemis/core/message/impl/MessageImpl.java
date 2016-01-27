@@ -448,7 +448,7 @@ public abstract class MessageImpl implements MessageInternal {
    @Override
    public int getEndOfBodyPosition() {
       if (endOfBodyPosition < 0) {
-         endOfBodyPosition = buffer.writerIndex();
+         endOfBodyPosition = getBodyBuffer().writerIndex();
       }
       return endOfBodyPosition;
    }

@@ -136,7 +136,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
 
    @Override
    public int getBodySize() {
-      return buffer.writerIndex() - buffer.readerIndex();
+      return getBodyBuffer().writerIndex() - getBodyBuffer().readerIndex();
    }
 
    @Override
