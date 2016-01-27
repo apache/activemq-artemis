@@ -483,9 +483,9 @@ public class QueueImpl implements Queue {
 
    /* Called when a message is cancelled back into the queue */
    @Override
-   public synchronized void addHead(final MessageReference ref) {
+   public synchronized void addHead(final MessageReference ref, boolean scheduling) {
       flushDeliveriesInTransit();
-      if (scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
+      if (!scheduling && scheduledDeliveryHandler.checkAndSchedule(ref, false)) {
          return;
       }
 
@@ -496,10 +496,10 @@ public class QueueImpl implements Queue {
 
    /* Called when a message is cancelled back into the queue */
    @Override
-   public synchronized void addHead(final List<MessageReference> refs) {
+   public synchronized void addHead(final List<MessageReference> refs, boolean scheduling) {
       flushDeliveriesInTransit();
       for (MessageReference ref : refs) {
-         addHead(ref);
+         addHead(ref, scheduling);
       }
 
       resetAllIterators();
@@ -526,11 +526,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public void addTail(final MessageReference ref, final boolean direct) {
-      if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
-         synchronized (this) {
-            messagesAdded++;
-         }
-
+      if (scheduleIfPossible(ref)) {
          return;
       }
 
@@ -570,6 +566,17 @@ public class QueueImpl implements Queue {
 
       // Delivery async will both poll for intermediate reference and deliver to clients
       deliverAsync();
+   }
+
+   protected boolean scheduleIfPossible(MessageReference ref) {
+      if (scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
+         synchronized (this) {
+            messagesAdded++;
+         }
+
+         return true;
+      }
+      return false;
    }
 
    /**
@@ -1110,7 +1117,7 @@ public class QueueImpl implements Queue {
             ref.getMessage().putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, ref.getScheduledDeliveryTime());
             ref.setScheduledDeliveryTime(0);
          }
-         this.addHead(scheduledMessages);
+         this.addHead(scheduledMessages, true);
       }
    }
 
@@ -2509,7 +2516,7 @@ public class QueueImpl implements Queue {
             }
 
             // The message failed to be delivered, hence we try again
-            addHead(reference);
+            addHead(reference, false);
          }
       }
    }
@@ -2634,7 +2641,7 @@ public class QueueImpl implements Queue {
    }
 
    void postRollback(final LinkedList<MessageReference> refs) {
-      addHead(refs);
+      addHead(refs, false);
    }
 
    private long calculateRedeliveryDelay(final AddressSettings addressSettings, final int deliveryCount) {

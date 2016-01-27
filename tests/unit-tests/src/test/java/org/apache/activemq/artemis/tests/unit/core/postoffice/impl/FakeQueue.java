@@ -102,13 +102,13 @@ public class FakeQueue implements Queue {
    }
 
    @Override
-   public void addHead(MessageReference ref) {
+   public void addHead(MessageReference ref, boolean scheduling) {
       // no-op
 
    }
 
    @Override
-   public void addHead(List<MessageReference> ref) {
+   public void addHead(List<MessageReference> ref, boolean scheduling) {
       // no-op
 
    }

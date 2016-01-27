@@ -236,7 +236,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       MessageReference messageReference = generateReference(queue, 1);
       queue.addConsumer(consumer);
       messageReference.setScheduledDeliveryTime(System.currentTimeMillis() + 2000);
-      queue.addHead(messageReference);
+      queue.addHead(messageReference, false);
 
       boolean gotLatch = countDownLatch.await(3000, TimeUnit.MILLISECONDS);
       Assert.assertTrue(gotLatch);

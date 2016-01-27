@@ -376,7 +376,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
          refs2.addFirst(ref);
 
-         queue.addHead(ref);
+         queue.addHead(ref, false);
       }
 
       List<MessageReference> refs3 = new ArrayList<>();
@@ -1039,9 +1039,9 @@ public class QueueImplTest extends ActiveMQTestBase {
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
       MessageReference messageReference3 = generateReference(queue, 3);
-      queue.addHead(messageReference);
+      queue.addHead(messageReference, false);
       queue.addTail(messageReference2);
-      queue.addHead(messageReference3);
+      queue.addHead(messageReference3, false);
 
       Assert.assertEquals(0, consumer.getReferences().size());
       queue.addConsumer(consumer);
@@ -1071,9 +1071,9 @@ public class QueueImplTest extends ActiveMQTestBase {
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
       MessageReference messageReference3 = generateReference(queue, 3);
-      queue.addHead(messageReference);
-      queue.addHead(messageReference2);
-      queue.addHead(messageReference3);
+      queue.addHead(messageReference, false);
+      queue.addHead(messageReference2, false);
+      queue.addHead(messageReference3, false);
       Assert.assertEquals(queue.getReference(2), messageReference2);
 
    }
@@ -1084,9 +1084,9 @@ public class QueueImplTest extends ActiveMQTestBase {
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
       MessageReference messageReference3 = generateReference(queue, 3);
-      queue.addHead(messageReference);
-      queue.addHead(messageReference2);
-      queue.addHead(messageReference3);
+      queue.addHead(messageReference, false);
+      queue.addHead(messageReference2, false);
+      queue.addHead(messageReference3, false);
       Assert.assertNull(queue.getReference(5));
 
    }
@@ -1231,7 +1231,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       @Override
       public void run() {
          if (first) {
-            queue.addHead(messageReference);
+            queue.addHead(messageReference, false);
          }
          else {
             queue.addTail(messageReference);

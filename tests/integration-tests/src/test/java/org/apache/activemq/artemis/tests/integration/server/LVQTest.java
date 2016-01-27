@@ -505,6 +505,43 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testScheduledMessages() throws Exception {
+      final long DELAY_TIME = 5000;
+      final int MESSAGE_COUNT = 5;
+      Queue queue = server.locateQueue(qName1);
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientConsumer consumer = clientSession.createConsumer(qName1);
+      SimpleString rh = new SimpleString("SMID1");
+      long timeSent = 0;
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         ClientMessage m = createTextMessage(clientSession, "m" + i);
+         m.setDurable(true);
+         m.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+         timeSent = System.currentTimeMillis();
+         m.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, timeSent + DELAY_TIME);
+         producer.send(m);
+         Thread.sleep(100);
+      }
+
+      // allow schedules to elapse so the messages will be delivered to the queue
+      long start = System.currentTimeMillis();
+      while (queue.getScheduledCount() > 0 && System.currentTimeMillis() - start <= DELAY_TIME) {
+         Thread.sleep(50);
+      }
+
+      assertTrue(queue.getScheduledCount() == 0);
+
+      clientSession.start();
+      ClientMessage m = consumer.receive(DELAY_TIME);
+      assertNotNull(m);
+      long actualDelay = System.currentTimeMillis() - timeSent + 50;
+      assertTrue(actualDelay >= DELAY_TIME);
+      m.acknowledge();
+      assertEquals(m.getBodyBuffer().readString(), "m" + (MESSAGE_COUNT - 1));
+      assertEquals(0, queue.getScheduledCount());
+   }
+
+   @Test
    public void testMultipleAcksPersistedCorrectly2() throws Exception {
 
       Queue queue = server.locateQueue(qName1);
