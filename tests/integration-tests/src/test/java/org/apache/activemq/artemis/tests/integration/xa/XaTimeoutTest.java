@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.xa;
 
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -27,7 +39,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -42,17 +55,10 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
+@RunWith(Parameterized.class)
 public class XaTimeoutTest extends ActiveMQTestBase {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
@@ -67,11 +73,23 @@ public class XaTimeoutTest extends ActiveMQTestBase {
 
    private ClientSessionFactory sessionFactory;
 
-   private ConfigurationImpl configuration;
+   private Configuration configuration;
 
    private final SimpleString atestq = new SimpleString("atestq");
 
    private ServerLocator locator;
+
+   private StoreConfiguration.StoreType storeType;
+
+   public XaTimeoutTest(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType")
+   public static Collection<Object[]> data() {
+      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      return Arrays.asList(params);
+   }
 
    @Override
    @Before
@@ -79,7 +97,15 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       super.setUp();
 
       addressSettings.clear();
-      configuration = createBasicConfig().setTransactionTimeoutScanPeriod(500).addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
+
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         configuration = createDefaultJDBCConfig();
+      }
+      else {
+         configuration = createBasicConfig();
+      }
+      configuration.setTransactionTimeoutScanPeriod(500).addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
+
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();

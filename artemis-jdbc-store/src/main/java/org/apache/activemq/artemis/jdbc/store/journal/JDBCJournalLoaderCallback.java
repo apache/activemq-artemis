@@ -81,7 +81,6 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
    public synchronized void updateRecord(final RecordInfo info) {
       int index = committedRecords.size();
       committedRecords.add(index, info);
-      deleteReferences.get(info.id).add(index);
    }
 
    public synchronized void deleteRecord(final long id) {
@@ -106,5 +105,4 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
    public long getMaxId() {
       return maxId;
    }
-
 }

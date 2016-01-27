@@ -171,6 +171,14 @@ public class ThreadLeakCheckRule extends ExternalResource {
          //another netty thread
          return true;
       }
+      else if (threadName.contains("derby")) {
+         // The derby engine is initialized once, and lasts the lifetime of the VM
+         return true;
+      }
+      else if (threadName.contains("Timer")) {
+         // The timer threads in Derby and JDBC use daemon and shutdown once user threads exit.
+         return true;
+      }
       else if (threadName.contains("hawtdispatch")) {
          // Static workers used by MQTT client.
          return true;

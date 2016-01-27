@@ -19,17 +19,16 @@ package org.apache.activemq.artemis.jdbc.store.journal;
 
 import java.sql.Connection;
 import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -43,7 +42,8 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
-import org.apache.derby.jdbc.AutoloadedDriver;
+import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalImpl implements Journal {
 
@@ -66,7 +66,7 @@ public class JDBCJournalImpl implements Journal {
 
    private PreparedStatement deleteJournalRecords;
 
-   private PreparedStatement deleteTxJournalRecords;
+   private PreparedStatement deleteJournalTxRecords;
 
    private boolean started;
 
@@ -78,61 +78,35 @@ public class JDBCJournalImpl implements Journal {
 
    private final ReadWriteLock journalLock = new ReentrantReadWriteLock();
 
-   private boolean isDerby = false;
+   private final String timerThread;
+
+   // Track Tx Records
+   private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
+
+   private boolean isLoaded = false;
 
    public JDBCJournalImpl(String jdbcUrl, String tableName) {
       this.tableName = tableName;
       this.jdbcUrl = jdbcUrl;
+      timerThread = "Timer JDBC Journal(" + tableName + ")";
 
       records = new ArrayList<JDBCJournalRecord>();
    }
 
    @Override
    public void start() throws Exception {
-      // Load Database driver, sets Derby Autoloaded Driver as lowest priority.
-      List<Driver> drivers = Collections.list(DriverManager.getDrivers());
-      if (drivers.size() <= 2 && drivers.size() > 0) {
-         dbDriver = drivers.get(0);
-         isDerby = dbDriver instanceof AutoloadedDriver;
-
-         if (drivers.size() > 1 && isDerby) {
-            dbDriver = drivers.get(1);
-         }
-
-         if (isDerby) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     DriverManager.getConnection("jdbc:derby:;shutdown=true");
-                  }
-                  catch (Exception e) {
-                  }
-               }
-            });
-         }
-      }
-      else {
-         String error = drivers.isEmpty() ? "No DB driver found on class path" : "Too many DB drivers on class path, not sure which to use";
-         throw new RuntimeException(error);
-      }
-
+      dbDriver = JDBCUtils.getDriver();
       connection = dbDriver.connect(jdbcUrl, new Properties());
 
-      // If JOURNAL table doesn't exist then create it
-      ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null);
-      if (!rs.next()) {
-         Statement statement = connection.createStatement();
-         statement.executeUpdate(JDBCJournalRecord.createTableSQL(tableName));
-      }
+      JDBCUtils.createTableIfNotExists(connection, tableName, JDBCJournalRecord.createTableSQL(tableName));
 
       insertJournalRecords = connection.prepareStatement(JDBCJournalRecord.insertRecordsSQL(tableName));
       selectJournalRecords = connection.prepareStatement(JDBCJournalRecord.selectRecordsSQL(tableName));
       countJournalRecords = connection.prepareStatement("SELECT COUNT(*) FROM " + tableName);
       deleteJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteRecordsSQL(tableName));
-      deleteTxJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteTxRecordsSQL(tableName));
+      deleteJournalTxRecords = connection.prepareStatement(JDBCJournalRecord.deleteJournalTxRecordsSQL(tableName));
 
-      syncTimer = new Timer();
+      syncTimer = new Timer(timerThread, true);
       syncTimer.scheduleAtFixedRate(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
 
       started = true;
@@ -145,12 +119,17 @@ public class JDBCJournalImpl implements Journal {
 
    public synchronized void stop(boolean shutdownConnection) throws Exception {
       if (started) {
+         journalLock.writeLock().lock();
+
          syncTimer.cancel();
+
          sync();
          if (shutdownConnection) {
             connection.close();
          }
+
          started = false;
+         journalLock.writeLock().unlock();
       }
    }
 
@@ -158,45 +137,132 @@ public class JDBCJournalImpl implements Journal {
       connection.setAutoCommit(false);
       Statement statement = connection.createStatement();
       statement.executeUpdate("DROP TABLE " + tableName);
+      statement.close();
       connection.commit();
       stop();
    }
 
-   public int sync() throws SQLException {
+   public synchronized int sync() {
+      if (!started)
+         return 0;
+
       List<JDBCJournalRecord> recordRef = records;
       records = new ArrayList<JDBCJournalRecord>();
 
-      for (JDBCJournalRecord record : recordRef) {
-         record.storeLineUp();
+      // We keep a list of deleted records (used for cleaning up old transaction data).
+      List<Long> deletedRecords = new ArrayList<>();
 
-         switch (record.getRecordType()) {
-            case JDBCJournalRecord.DELETE_RECORD:
-               record.writeDeleteRecord(deleteJournalRecords);
-               break;
-            case JDBCJournalRecord.DELETE_RECORD_TX:
-               record.writeDeleteTxRecord(deleteTxJournalRecords);
-               break;
-            default:
-               record.writeRecord(insertJournalRecords);
-               break;
-         }
-      }
+      TransactionHolder holder;
 
       boolean success = false;
       try {
+         for (JDBCJournalRecord record : recordRef) {
+            record.storeLineUp();
+
+            switch (record.getRecordType()) {
+               case JDBCJournalRecord.DELETE_RECORD:
+                  // Standard SQL Delete Record, Non transactional delete
+                  deletedRecords.add(record.getId());
+                  record.writeDeleteRecord(deleteJournalRecords);
+                  break;
+               case JDBCJournalRecord.ROLLBACK_RECORD:
+                  // Roll back we remove all records associated with this TX ID.  This query is always performed last.
+                  holder = transactions.get(record.getTxId());
+                  deleteJournalTxRecords.setLong(1, record.getTxId());
+                  deleteJournalTxRecords.addBatch();
+                  break;
+               case JDBCJournalRecord.COMMIT_RECORD:
+                  // We perform all the deletes and add the commit record in the same Database TX
+                  holder = transactions.get(record.getTxId());
+                  for (RecordInfo info : holder.recordsToDelete) {
+                     deletedRecords.add(record.getId());
+                     deleteJournalRecords.setLong(1, info.id);
+                     deleteJournalRecords.addBatch();
+                  }
+                  record.writeRecord(insertJournalRecords);
+                  break;
+               default:
+                  // Default we add a new record to the DB
+                  record.writeRecord(insertJournalRecords);
+                  break;
+            }
+         }
+      }
+      catch (SQLException e) {
+         executeCallbacks(recordRef, success);
+         return 0;
+      }
+
+      try {
          connection.setAutoCommit(false);
+
          insertJournalRecords.executeBatch();
          deleteJournalRecords.executeBatch();
-         deleteTxJournalRecords.executeBatch();
+         deleteJournalTxRecords.executeBatch();
+
          connection.commit();
+
+         cleanupTxRecords(deletedRecords);
          success = true;
       }
       catch (SQLException e) {
-         connection.rollback();
-         e.printStackTrace();
+         performRollback(connection, recordRef);
       }
+
       executeCallbacks(recordRef, success);
       return recordRef.size();
+   }
+
+   /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
+      we remove the Tx Records (i.e. PREPARE, COMMIT). */
+   private void cleanupTxRecords(List<Long> deletedRecords) throws SQLException {
+
+      List<RecordInfo> iterableCopy;
+      List<TransactionHolder> iterableCopyTx = new ArrayList<>();
+      iterableCopyTx.addAll(transactions.values());
+
+      // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
+      for (TransactionHolder h : iterableCopyTx) {
+
+         iterableCopy = new ArrayList<>();
+         iterableCopy.addAll(h.recordInfos);
+
+         for (RecordInfo info : iterableCopy) {
+            if (deletedRecords.contains(info.id)) {
+               h.recordInfos.remove(info);
+            }
+         }
+
+         if (h.recordInfos.isEmpty()) {
+            deleteJournalTxRecords.setLong(1, h.transactionID);
+            deleteJournalTxRecords.addBatch();
+            transactions.remove(h.transactionID);
+         }
+      }
+   }
+
+   private void performRollback(Connection connection, List<JDBCJournalRecord> records) {
+      try {
+         connection.rollback();
+         for (JDBCJournalRecord record : records) {
+            if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
+               removeTxRecord(record);
+            }
+         }
+
+         List<TransactionHolder> txHolders = new ArrayList<>();
+         txHolders.addAll(transactions.values());
+
+         // On rollback we must update the tx map to remove all the tx entries
+         for (TransactionHolder txH : txHolders) {
+            if (txH.prepared == false && txH.recordInfos.isEmpty() && txH.recordsToDelete.isEmpty()) {
+               transactions.remove(txH.transactionID);
+            }
+         }
+      }
+      catch (Exception sqlE) {
+         ActiveMQJournalLogger.LOGGER.error("Error performing rollback", sqlE);
+      }
    }
 
    // TODO Use an executor.
@@ -213,13 +279,56 @@ public class JDBCJournalImpl implements Journal {
       t.start();
    }
 
-   private void appendRecord(JDBCJournalRecord record) throws SQLException {
+   private synchronized void appendRecord(JDBCJournalRecord record) {
       try {
          journalLock.writeLock().lock();
+         if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
+            addTxRecord(record);
+         }
          records.add(record);
       }
       finally {
          journalLock.writeLock().unlock();
+      }
+   }
+
+   private void addTxRecord(JDBCJournalRecord record) {
+      TransactionHolder txHolder = transactions.get(record.getTxId());
+      if (txHolder == null) {
+         txHolder = new TransactionHolder(record.getTxId());
+         transactions.put(record.getTxId(), txHolder);
+      }
+
+      // We actually only need the record ID in this instance.
+      if (record.isTransactional()) {
+         RecordInfo info = new RecordInfo(record.getTxId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
+         if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
+            txHolder.recordsToDelete.add(info);
+         }
+         else {
+            txHolder.recordInfos.add(info);
+         }
+      }
+      else {
+         txHolder.prepared = true;
+      }
+   }
+
+   private void removeTxRecord(JDBCJournalRecord record) {
+      TransactionHolder txHolder = transactions.get(record.getTxId());
+
+      // We actually only need the record ID in this instance.
+      if (record.isTransactional()) {
+         RecordInfo info = new RecordInfo(record.getTxId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
+         if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
+            txHolder.recordsToDelete.remove(info);
+         }
+         else {
+            txHolder.recordInfos.remove(info);
+         }
+      }
+      else {
+         txHolder.prepared = false;
       }
    }
 
@@ -369,14 +478,14 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendCommitRecord(long txID, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
       r.setTxId(txID);
       appendRecord(r);
    }
 
    @Override
    public void appendCommitRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
       r.setTxId(txID);
       r.setIoCompletion(callback);
       appendRecord(r);
@@ -387,7 +496,7 @@ public class JDBCJournalImpl implements Journal {
                                   boolean sync,
                                   IOCompletion callback,
                                   boolean lineUpContext) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
       r.setTxId(txID);
       r.setStoreLineUp(lineUpContext);
       r.setIoCompletion(callback);
@@ -396,7 +505,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendPrepareRecord(long txID, EncodingSupport transactionData, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.PREPARE_RECORD);
       r.setTxId(txID);
       r.setTxData(transactionData);
       r.setSync(sync);
@@ -410,6 +519,7 @@ public class JDBCJournalImpl implements Journal {
                                    IOCompletion callback) throws Exception {
       JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD);
       r.setTxId(txID);
+      r.setTxData(transactionData);
       r.setTxData(transactionData);
       r.setSync(sync);
       r.setIoCompletion(callback);
@@ -435,7 +545,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.ROLLBACK_RECORD);
       r.setTxId(txID);
       r.setSync(sync);
       r.setIoCompletion(callback);
@@ -443,7 +553,7 @@ public class JDBCJournalImpl implements Journal {
    }
 
    @Override
-   public JournalLoadInformation load(LoaderCallback reloadManager) throws Exception {
+   public synchronized JournalLoadInformation load(LoaderCallback reloadManager) throws Exception {
       JournalLoadInformation jli = new JournalLoadInformation();
       JDBCJournalReaderCallback jrc = new JDBCJournalReaderCallback(reloadManager);
       JDBCJournalRecord r;
@@ -485,8 +595,12 @@ public class JDBCJournalImpl implements Journal {
             }
             noRecords++;
          }
+         jrc.checkPreparedTx();
+
          jli.setMaxID(((JDBCJournalLoaderCallback) reloadManager).getMaxId());
          jli.setNumberOfRecords(noRecords);
+         transactions = jrc.getTransactions();
+         isLoaded = true;
       }
       return jli;
    }

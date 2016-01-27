@@ -53,12 +53,11 @@ public class JDBCJournalTest {
    public void testInsertRecords() throws Exception {
       int noRecords = 10;
       for (int i = 0; i < noRecords; i++) {
-         journal.appendAddRecord(1, (byte) 1, new byte[0], true);
+         journal.appendAddRecord(i, (byte) 1, new byte[0], true);
       }
 
       Thread.sleep(3000);
       assertEquals(noRecords, journal.getNumberOfRecords());
-
    }
 
    @Test
