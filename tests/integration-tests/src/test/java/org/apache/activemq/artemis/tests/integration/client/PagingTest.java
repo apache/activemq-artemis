@@ -3530,7 +3530,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       addresses.put(PAGED_ADDRESS_A.toString(), pagedDestinationA);
 
-      AddressSettings pagedDestinationB = new AddressSettings().setPageSizeBytes(2024).setMaxSizeBytes(25 * 1024);
+      AddressSettings pagedDestinationB = new AddressSettings().setPageSizeBytes(2024).setMaxSizeBytes(20 * 1024);
 
       addresses.put(PAGED_ADDRESS_B.toString(), pagedDestinationB);
 
