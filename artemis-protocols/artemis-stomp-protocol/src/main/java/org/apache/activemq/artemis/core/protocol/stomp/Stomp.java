@@ -112,7 +112,7 @@ public interface Stomp {
 
          String REPLY_TO = "reply-to";
 
-         String PRORITY = "priority";
+         String PRIORITY = "priority";
 
          String REDELIVERED = "redelivered";
 

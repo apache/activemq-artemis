@@ -91,7 +91,7 @@ public class StompUtils {
       }
       command.addHeader(Stomp.Headers.Message.EXPIRATION_TIME, "" + message.getExpiration());
       command.addHeader(Stomp.Headers.Message.REDELIVERED, String.valueOf(deliveryCount > 1));
-      command.addHeader(Stomp.Headers.Message.PRORITY, "" + message.getPriority());
+      command.addHeader(Stomp.Headers.Message.PRIORITY, "" + message.getPriority());
       if (message.getStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME) != null) {
          command.addHeader(Stomp.Headers.Message.REPLY_TO, message.getStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME));
       }
