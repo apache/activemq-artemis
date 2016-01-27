@@ -52,7 +52,7 @@ public class ServerJMSMessage implements Message {
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
          // to avoid clashes between multiple threads
-         readBodyBuffer = message.getBodyBufferCopy();
+         readBodyBuffer = message.getBodyBufferDuplicate();
       }
       return readBodyBuffer;
    }

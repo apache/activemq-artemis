@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.buffers.impl;
 
 import java.nio.ByteBuffer;
 
+import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
@@ -45,7 +46,13 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper 
    public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message) {
       // a wrapped inside a wrapper will increase the stack size.
       // we fixed this here due to some profiling testing
-      super(unwrap(buffer.byteBuf()).duplicate());
+      this(limit, unwrap(buffer.byteBuf()).duplicate(), message);
+   }
+
+   public ResetLimitWrappedActiveMQBuffer(final int limit, final ByteBuf buffer, final MessageInternal message) {
+      // a wrapped inside a wrapper will increase the stack size.
+      // we fixed this here due to some profiling testing
+      super(buffer);
 
       this.limit = limit;
 

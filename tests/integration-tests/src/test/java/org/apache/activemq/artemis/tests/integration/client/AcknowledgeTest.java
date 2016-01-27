@@ -437,7 +437,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       @Override
-      public ActiveMQBuffer getBodyBufferCopy() {
+      public ActiveMQBuffer getBodyBufferDuplicate() {
          return null;
       }
 
