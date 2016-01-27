@@ -123,6 +123,8 @@ public interface Stomp {
          String SUBSCRIPTION = "subscription";
 
          String ACK = "ack";
+
+         String PERSISTENT = "persistent";
       }
 
       public interface Subscribe {
