@@ -112,7 +112,7 @@ public interface Stomp {
 
          String REPLY_TO = "reply-to";
 
-         String PRORITY = "priority";
+         String PRIORITY = "priority";
 
          String REDELIVERED = "redelivered";
 
@@ -123,6 +123,8 @@ public interface Stomp {
          String SUBSCRIPTION = "subscription";
 
          String ACK = "ack";
+
+         String PERSISTENT = "persistent";
       }
 
       public interface Subscribe {
