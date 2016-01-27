@@ -57,8 +57,7 @@ under the License.
       </security-settings>
 
       <address-settings>
-         <!--override the expiry address for the example-->
-         <address-setting match="jms.queue.lastValueQueue">
+         <address-setting match="jms.queue.exampleQueue">
             <last-value-queue>true</last-value-queue>
          </address-setting>
       </address-settings>
