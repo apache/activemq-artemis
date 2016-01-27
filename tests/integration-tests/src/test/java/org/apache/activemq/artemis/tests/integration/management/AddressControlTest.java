@@ -188,7 +188,7 @@ public class AddressControlTest extends ManagementTestBase {
       SimpleString address = RandomUtil.randomSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
-      final int NUMBER_MESSAGES_BEFORE_PAGING = 5;
+      final int NUMBER_MESSAGES_BEFORE_PAGING = 7;
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       server.start();
