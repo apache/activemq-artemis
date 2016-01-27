@@ -3133,7 +3133,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       session.start();
 
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 5; i++) {
          ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
 
          Assert.assertNotNull(message2);
@@ -3154,7 +3154,7 @@ public class PagingTest extends ActiveMQTestBase {
          producer.send(message);
       }
 
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 5; i++) {
          ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
 
          Assert.assertNotNull(message2);
@@ -3185,7 +3185,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       session.start();
 
-      for (int i = 0; i < 6; i++) {
+      for (int i = 0; i < 5; i++) {
          ClientMessage message2 = consumer.receive(PagingTest.RECEIVE_TIMEOUT);
 
          Assert.assertNotNull(message2);
