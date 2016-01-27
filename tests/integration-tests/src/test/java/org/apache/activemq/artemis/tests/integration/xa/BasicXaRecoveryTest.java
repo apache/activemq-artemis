@@ -93,6 +93,11 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+      }
+
+
       addressSettings.clear();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {

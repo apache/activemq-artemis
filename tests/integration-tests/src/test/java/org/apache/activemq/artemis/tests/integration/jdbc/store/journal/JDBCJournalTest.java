@@ -26,13 +26,18 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
+import org.apache.activemq.artemis.tests.util.ThreadLeakCheckRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class JDBCJournalTest {
+
+   @Rule
+   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
 
    private static final String JOURNAL_TABLE_NAME = "MESSAGE_JOURNAL";
 
