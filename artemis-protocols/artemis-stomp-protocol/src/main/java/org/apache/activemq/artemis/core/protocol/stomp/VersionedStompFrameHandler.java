@@ -293,7 +293,7 @@ public abstract class VersionedStompFrameHandler {
          frame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, subscription.getID());
       }
 
-      ActiveMQBuffer buffer = serverMessage.getBodyBufferCopy();
+      ActiveMQBuffer buffer = serverMessage.getBodyBufferDuplicate();
 
       int bodyPos = serverMessage.getEndOfBodyPosition() == -1 ? buffer.writerIndex() : serverMessage.getEndOfBodyPosition();
 

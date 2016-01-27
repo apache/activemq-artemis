@@ -248,7 +248,7 @@ public interface Message {
     * Returns a <em>copy</em> of the message body as an ActiveMQBuffer. Any modification
     * of this buffer should not impact the underlying buffer.
     */
-   ActiveMQBuffer getBodyBufferCopy();
+   ActiveMQBuffer getBodyBufferDuplicate();
 
    // Properties
    // -----------------------------------------------------------------

@@ -135,7 +135,7 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.PRIORITY, m.getPriority());
          rc.put(CompositeDataConstants.REDELIVERED, ref.getDeliveryCount() > 1);
 
-         ActiveMQBuffer bodyCopy = m.getBodyBufferCopy();
+         ActiveMQBuffer bodyCopy = m.getBodyBufferDuplicate();
          byte[] bytes = new byte[bodyCopy.readableBytes()];
          bodyCopy.readBytes(bytes);
          rc.put(CompositeDataConstants.BODY, bytes);
