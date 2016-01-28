@@ -279,8 +279,8 @@ public abstract class MessageImpl implements MessageInternal {
 
       ByteBuf byteBuf = ChannelBufferWrapper.unwrap(getBodyBuffer().byteBuf());
       byteBuf = byteBuf.duplicate();
-      byteBuf.writerIndex(getBodyBuffer().writerIndex());
       byteBuf.readerIndex(getBodyBuffer().readerIndex());
+      byteBuf.writerIndex(getBodyBuffer().writerIndex());
 
       return new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, byteBuf, null);
    }
@@ -439,6 +439,17 @@ public abstract class MessageImpl implements MessageInternal {
       this.buffer = buffer;
 
       decode();
+
+      // Setting up the BodyBuffer based on endOfBodyPosition set from decode
+      ResetLimitWrappedActiveMQBuffer tmpbodyBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer, null);
+      tmpbodyBuffer.readerIndex(BODY_OFFSET);
+      tmpbodyBuffer.writerIndex(endOfBodyPosition);
+      // only set this after the writer and reader is set,
+      // otherwise the buffer would be reset through the listener
+      tmpbodyBuffer.setMessage(this);
+      this.bodyBuffer = tmpbodyBuffer;
+
+
    }
 
    @Override
