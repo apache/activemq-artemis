@@ -570,7 +570,16 @@ public class TemporaryQueueTest extends SingleServerTestBase {
          Thread.sleep(100);
       }
 
-      while (t.isAlive() && errors.get() == 0 && !prod.getProducerCredits().isBlocked()) {
+      int blockedTime = 0;
+
+      // https://issues.apache.org/jira/browse/ARTEMIS-368
+      while (t.isAlive() && errors.get() == 0 && (!prod.getProducerCredits().isBlocked() || blockedTime < 60)) {
+         if (prod.getProducerCredits().isBlocked()) {
+            blockedTime++;
+         }
+         else {
+            blockedTime = 0;
+         }
          Thread.sleep(100);
       }
 
