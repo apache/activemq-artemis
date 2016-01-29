@@ -17,6 +17,8 @@
 # under the License.
 
 
+# Use this to simplify the rebasing of PRs. PRs will be rebased during the merge on this process.
+# use: ./rebase-PR <PRID> textual description
 
 # this script assumes the following remote entries on your config
 #
@@ -29,8 +31,9 @@
 
 git fetch origin
 git fetch apache
-git checkout apache/master -B master
 git fetch upstream 
+
+git checkout apache/master -B master
 git checkout upstream/pr/$1 -B $1
 git pull --rebase apache master
 git checkout master
