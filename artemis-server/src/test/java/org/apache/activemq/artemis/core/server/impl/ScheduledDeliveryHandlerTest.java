@@ -939,12 +939,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
-      public void addHead(MessageReference ref) {
+      public void addHead(MessageReference ref, boolean scheduling) {
 
       }
 
       @Override
-      public void addHead(List<MessageReference> refs) {
+      public void addHead(List<MessageReference> refs, boolean scheduling) {
          for (MessageReference ref : refs) {
             addFirst(ref);
          }

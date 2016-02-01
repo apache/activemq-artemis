@@ -235,7 +235,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             if (trace) {
                ActiveMQServerLogger.LOGGER.trace("Delivering " + list.size() + " elements on list to queue " + queue);
             }
-            queue.addHead(list);
+            queue.addHead(list, true);
          }
 
          // Just to speed up GC
