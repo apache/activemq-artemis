@@ -27,12 +27,14 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -41,11 +43,15 @@ import org.apache.activemq.artemis.api.jms.management.DestinationControl;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerLogger;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
@@ -470,6 +476,11 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       }
    }
 
+   @Override
+   public String getNodeID() {
+      return server.getActiveMQServer().getNodeID().toString();
+   }
+
    // NotificationEmitter implementation ----------------------------
 
    @Override
@@ -807,6 +818,42 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          blockOnIO();
       }
       return array.toString();
+   }
+
+   @Override
+   public String listNetworkTopology() throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         JSONArray brokers = new JSONArray();
+         ClusterManager clusterManager = server.getActiveMQServer().getClusterManager();
+         if (clusterManager != null) {
+            Set<ClusterConnection> clusterConnections = clusterManager.getClusterConnections();
+            for (ClusterConnection clusterConnection : clusterConnections) {
+               Topology topology = clusterConnection.getTopology();
+               Collection<TopologyMemberImpl> members = topology.getMembers();
+               for (TopologyMemberImpl member : members) {
+
+                  JSONObject obj = new JSONObject();
+                  TransportConfiguration live = member.getLive();
+                  if (live != null) {
+                     obj.put("nodeID", member.getNodeId());
+                     obj.put("live", live.getParams().get("host") + ":" + live.getParams().get("port"));
+                     TransportConfiguration backup = member.getBackup();
+                     if (backup != null) {
+                        obj.put("backup", backup.getParams().get("host") + ":" + backup.getParams().get("port"));
+                     }
+                  }
+                  brokers.put(obj);
+               }
+            }
+         }
+         return brokers.toString();
+      }
+      finally {
+         blockOnIO();
+      }
    }
 
    @Override

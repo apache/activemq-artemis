@@ -52,6 +52,11 @@ public interface JMSServerControl {
     */
    String[] getConnectionFactoryNames();
 
+   /**
+    * Returns the servers nodeId
+    */
+   String getNodeID();
+
    // Operations ----------------------------------------------------
 
    /**
@@ -342,6 +347,9 @@ public interface JMSServerControl {
     */
    @Operation(desc = "List the sessions for the given connectionID", impact = MBeanOperationInfo.INFO)
    String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
+
+   @Operation(desc = "List the Network Topology", impact = MBeanOperationInfo.INFO)
+   String listNetworkTopology() throws Exception;
 
    /**
     * List all the prepared transaction, sorted by date,

@@ -243,6 +243,11 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest {
          }
 
          @Override
+         public String getNodeID() {
+            return null;
+         }
+
+         @Override
          public String[] listConnectionIDs() throws Exception {
             return (String[]) proxy.invokeOperation("listConnectionIDs");
          }
@@ -307,6 +312,10 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsJSON");
          }
 
+         @Override
+         public String listNetworkTopology() throws Exception {
+            return null;
+         }
          @Override
          public String listPreparedTransactionDetailsAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");
