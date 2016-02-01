@@ -843,11 +843,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    private void checkCloseConnection() {
-      if (connection != null && sessions.size() == 0) {
+      RemotingConnection connectionInUse = connection;
+      Connector connectorInUse = connector;
+
+      if (connectionInUse != null && sessions.size() == 0) {
          cancelScheduledTasks();
 
          try {
-            connection.destroy();
+            connectionInUse.destroy();
          }
          catch (Throwable ignore) {
          }
@@ -855,8 +858,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          connection = null;
 
          try {
-            if (connector != null) {
-               connector.close();
+            if (connectorInUse != null) {
+               connectorInUse.close();
             }
          }
          catch (Throwable ignore) {
@@ -1207,8 +1210,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
          long now = System.currentTimeMillis();
 
-         if (clientFailureCheckPeriod != -1 && connectionTTL != -1 && now >= lastCheck + connectionTTL) {
-            if (!connection.checkDataReceived()) {
+         final RemotingConnection connectionInUse = connection;
+
+         if (connectionInUse != null && clientFailureCheckPeriod != -1 && connectionTTL != -1 && now >= lastCheck + connectionTTL) {
+            if (!connectionInUse.checkDataReceived()) {
 
                // We use a different thread to send the fail
                // but the exception has to be created here to preserve the stack trace
@@ -1220,7 +1225,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   // Must be executed on different thread
                   @Override
                   public void run() {
-                     connection.fail(me);
+                     connectionInUse.fail(me);
                   }
                });
 
