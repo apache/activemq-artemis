@@ -50,7 +50,7 @@ import org.junit.Test;
 
 public class BackupSyncJournalTest extends FailoverTestBase {
 
-   protected static final int BACKUP_WAIT_TIME = 20;
+   protected static final int BACKUP_WAIT_TIME = 60;
    private ServerLocatorInternal locator;
    protected ClientSessionFactoryInternal sessionFactory;
    protected ClientSession session;
