@@ -301,7 +301,7 @@ public class JDBCJournalImpl implements Journal {
 
       // We actually only need the record ID in this instance.
       if (record.isTransactional()) {
-         RecordInfo info = new RecordInfo(record.getTxId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
+         RecordInfo info = new RecordInfo(record.getId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
          if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
             txHolder.recordsToDelete.add(info);
          }
