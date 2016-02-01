@@ -57,4 +57,5 @@ grant {
         permission java.util.PropertyPermission "sun.nio.ch.bugLevel", "read";
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "accessDeclaredMembers";
+        permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 };

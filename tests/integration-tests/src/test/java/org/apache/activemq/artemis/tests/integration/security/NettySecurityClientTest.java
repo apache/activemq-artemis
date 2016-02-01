@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.security;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -60,7 +61,7 @@ public class NettySecurityClientTest extends ActiveMQTestBase {
       String[] vmargs = new String[0];
       if (withSecurityManager) {
          URL securityPolicyURL = Thread.currentThread().getContextClassLoader().getResource("restricted-security-client.policy");
-         vmargs = new String[]{"-Djava.security.manager", "-Djava.security.policy=" + securityPolicyURL.getPath()};
+         vmargs = new String[]{"-Djava.security.manager", "-Djava.security.policy=" + URLDecoder.decode(securityPolicyURL.getPath(), "UTF-8")};
       }
 
       // spawn a JVM that creates a client with a security manager which sends and receives a
