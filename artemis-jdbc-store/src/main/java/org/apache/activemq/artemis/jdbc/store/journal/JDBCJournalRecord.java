@@ -63,7 +63,7 @@ public class JDBCJournalRecord {
 
    // Callback and sync operations
    private IOCompletion ioCompletion = null;
-   private boolean storeLineUp = false;
+   private boolean storeLineUp = true;
    private boolean sync = false;
 
    // DB Fields for all records
