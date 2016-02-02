@@ -23,6 +23,12 @@ broken and code quality has not decreased.
 If the build does break then developer is expected to make their best effort to get the builds fixed in a reasonable
 amount of time. If it cannot be fixed in a reasonable amount of time the commit can be reverted and re-reviewed.
 
+# Using the dev profile.
+
+Developers are encouraged also to use the Dev profile, which will activate checkstyle during the build:
+
+    mvn -Pdev install
+
 ## Commit Messages
 
 Please ensure the commit messages follow the 50/72 format as described [here](code.md#commitMessageDetails).
@@ -68,38 +74,41 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
 
 1. Checkout the pull request you wish to review
 
-        $ git checkout pr/105
+        $ git checkout pr/105 -B 105
+
+1. Rebase the branch against master, so the merge would happen at the top of the current master
+
+        $ git pull --rebase apache master
 
 1. Once you've reviewed the change and are ready to merge checkout `master`.
 
         $ git checkout master
 
-1. Ensure you are up to date
+1. Ensure you are up to date on your master also.
 
-        $ git pull
+        $ git pull --rebase apache master
+
+1. We actually recommend checking out master again, to make sure you wouldn't add any extra commits by accident:
+        $ git fetch upstream apache
+        $ git checkout apache/master -B master
 
 1. Create a new merge commit from the pull-request. IMPORTANT: The commit message here should be something like: "This
    closes #105" where "105" is the pull request ID.  The "#105" shows up as a link in the GitHub UI for navigating to
-   the PR from the commit message.
+   the PR from the commit message. This will ensure the github pull request is closed even if the commit ID changed due
+   to eventual rebases.
 
-        $ git merge --no-ff pr/105
+        $ git merge --no-ff 105 -m "This closes #105"
 
 1. Push to the canonical Apache repo.
 
         $ git push apache master
 
-## Rebasing before you merge
+## Using the automated script
 
-If the pull request gets too behind master, it would be better to rebase the branch before merging it.
-You can do that by either asking the author of the pull request to do such rebase (what is not always possible) or you could do it yourself during merging.
+If you followed the naming conventions described here you can use the ```scripts/rebase-PR.sh``` script to automate
+the merging process. This will execute the exact steps described on this previous section.
 
-In case you rebase the pull request it is mandatory that write "This closes #105" Where 105 is the pull request ID.
-
-There is a script that helps doing such thing at <project root>/scripts/merge-PR.sh.
-
-The script is assuming you have defined remotes named at upstream, apache and origin like specified previously here.
-
-to execute such script simply use:
+- Simply use:
 
 ```
 $ <checkout-directory>/scripts/merge-pr.sh <PR number> Message on the PR
@@ -111,7 +120,7 @@ Example:
 $  pwd
 /checkouts/apache-activemq-artemis
 
-$  ./scripts/merge-pr.sh 175 ARTEMIS-229 address on Security Interface
+$  ./scripts/merge-PR.sh 175 ARTEMIS-229 address on Security Interface
 ```
 
 The previous example was taken from a real case that generated this [merge commit on #175](https://github.com/apache/activemq-artemis/commit/e85bb3ca4a75b0f1dfbe717ff90b34309e2de794).
@@ -120,6 +129,18 @@ The previous example was taken from a real case that generated this [merge commi
 ```
 $ git push apache master
 ```
+
+
+## Use a separate branch for your changes
+
+It is recommended that you work away from master for two reasons:
+
+1. When you send a PR, your PR branch could be rebased during the process and your commit ID changed. You might
+   get unexpected conflicts while rebasing your old branch.
+
+1. You could end up pushing things upstream that you didn't intend to. Minimize your risks by working on a branch
+   away from master.
+
 
 ## Notes:
 
