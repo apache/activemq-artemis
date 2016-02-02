@@ -89,7 +89,7 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
         $ git pull --rebase apache master
 
 1. We actually recommend checking out master again, to make sure you wouldn't add any extra commits by accident:
-        $ git fetch upstream apache
+        $ git fetch apache
         $ git checkout apache/master -B master
 
 1. Create a new merge commit from the pull-request. IMPORTANT: The commit message here should be something like: "This
