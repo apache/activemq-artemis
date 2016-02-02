@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
@@ -167,6 +168,8 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
    @Override
    protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       Configuration config = super.createConfigServer(source, destination);
+
+      config.getAddressesSettings().put("#", new AddressSettings().setRedistributionDelay(0));
 
       installHack(config);
 
