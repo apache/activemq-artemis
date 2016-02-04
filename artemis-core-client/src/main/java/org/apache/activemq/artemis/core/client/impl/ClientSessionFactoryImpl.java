@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -118,6 +119,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private final long retryInterval;
 
    private final double retryIntervalMultiplier; // For exponential backoff
+
+   private final CountDownLatch latchFinalTopology = new CountDownLatch(1);
 
    private final long maxRetryInterval;
 
@@ -471,6 +474,18 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       interruptConnectAndCloseAllSessions(false);
+   }
+
+   @Override
+   public boolean waitForTopology(long timeout, TimeUnit unit) {
+      try {
+         return latchFinalTopology.await(timeout, unit);
+      }
+      catch (InterruptedException e) {
+         Thread.currentThread().interrupt();
+         ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
+         return false;
+      }
    }
 
    @Override
@@ -881,7 +896,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             return connection;
          }
          else {
-            connection = establishNewConnection();
+            RemotingConnection connection = establishNewConnection();
+
+            this.connection = connection;
 
             //we check if we can actually connect.
             // we do it here as to receive the reply connection has to be not null
@@ -1083,7 +1100,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
             transportConnection = openTransportConnection(backupConnector);
 
-            if ((transportConnection = openTransportConnection(backupConnector)) != null) {
+            if (transportConnection != null) {
             /*looks like the backup is now live, let's use that*/
 
                if (ClientSessionFactoryImpl.isDebug) {
@@ -1319,6 +1336,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                String scaleDownGroupName,
                                Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                                boolean isLast) {
+
+         if (isLast) {
+            latchFinalTopology.countDown();
+         }
+
          // if it is our connector then set the live id used for failover
          if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), connectorConfig)) {
             liveNodeID = nodeID;

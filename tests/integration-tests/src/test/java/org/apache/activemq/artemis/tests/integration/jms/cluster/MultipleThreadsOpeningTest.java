@@ -29,12 +29,30 @@ import org.junit.Test;
 
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
+   /** created for https://issues.apache.org/jira/browse/ARTEMIS-385 */
+   @Test
+   public void testRepetitions() throws Exception {
+      // This test was eventually failing with way over more iterations.
+      // you might increase it for debugging
+      final int ITERATIONS = 50;
+
+
+      for (int i = 0; i < ITERATIONS; i++) {
+         System.out.println("#test " + i);
+         internalMultipleOpen(200, 1);
+         tearDown();
+         setUp();
+      }
+   }
+
    @Test
    public void testMultipleOpen() throws Exception {
-      cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(1)));
+      internalMultipleOpen(20, 500);
+   }
 
-      final int numberOfOpens = 500;
-      int numberOfThreads = 20;
+   protected void internalMultipleOpen(final int numberOfThreads, final int numberOfOpens) throws Exception {
+
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(1)));
       // I want all the threads aligned, just ready to start creating connections like in a car race
       final CountDownLatch flagAlignSemaphore = new CountDownLatch(numberOfThreads);
       final CountDownLatch flagStartRace = new CountDownLatch(1);
@@ -55,7 +73,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
                flagStartRace.await();
 
                for (int i = 0; i < numberOfOpens; i++) {
-                  if (i % 100 == 0)
+                  if (i > 0 && i % 100 == 0)
                      System.out.println("connections created on Thread " + Thread.currentThread() + " " + i);
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);

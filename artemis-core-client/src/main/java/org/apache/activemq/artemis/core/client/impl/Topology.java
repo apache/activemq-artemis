@@ -84,7 +84,7 @@ public final class Topology {
    /**
     * It will remove all elements as if it haven't received anyone from the server.
     */
-   public void clear() {
+   public synchronized void clear() {
       topology.clear();
    }
 
