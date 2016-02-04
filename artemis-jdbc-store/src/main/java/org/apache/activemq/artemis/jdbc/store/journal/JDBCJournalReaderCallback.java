@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalReaderCallback implements JournalReaderCallback {
 
-   private final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<Long, TransactionHolder>();
+   private final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<>();
 
    private final LoaderCallback loadManager;
 
@@ -90,8 +90,11 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
 
    public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
       // It is possible that the TX could be null, since deletes could have happened in the journal.
-      TransactionHolder tx = loadTransactions.remove(transactionID);
+      TransactionHolder tx = loadTransactions.get(transactionID);
+
+      // We can remove local Tx without associated records
       if (tx != null) {
+         tx.committed = true;
          for (RecordInfo txRecord : tx.recordInfos) {
             if (txRecord.isUpdate) {
                loadManager.updateRecord(txRecord);
@@ -117,11 +120,11 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
 
    public void checkPreparedTx() {
       for (TransactionHolder transaction : loadTransactions.values()) {
-         if (!transaction.prepared || transaction.invalid) {
+         if ((!transaction.prepared && !transaction.committed) || transaction.invalid) {
             ActiveMQJournalLogger.LOGGER.uncomittedTxFound(transaction.transactionID);
             loadManager.failedTransaction(transaction.transactionID, transaction.recordInfos, transaction.recordsToDelete);
          }
-         else {
+         else if (!transaction.committed) {
             PreparedTransactionInfo info = new PreparedTransactionInfo(transaction.transactionID, transaction.extraData);
             info.getRecords().addAll(transaction.recordInfos);
             info.getRecordsToDelete().addAll(transaction.recordsToDelete);

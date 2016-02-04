@@ -39,4 +39,6 @@ final class TransactionHolder {
    public boolean invalid;
 
    public byte[] extraData;
+
+   public boolean committed;
 }

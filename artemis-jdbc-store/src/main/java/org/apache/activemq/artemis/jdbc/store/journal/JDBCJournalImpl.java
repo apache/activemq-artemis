@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -42,13 +43,14 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalImpl implements Journal {
 
    // Sync Delay in ms
-   public static final int SYNC_DELAY = 500;
+   public static final int SYNC_DELAY = 5;
 
    private static int USER_VERSION = 1;
 
@@ -83,14 +85,15 @@ public class JDBCJournalImpl implements Journal {
    // Track Tx Records
    private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
 
-   private boolean isLoaded = false;
+   // Sequence ID for journal records
+   private AtomicLong seq = new AtomicLong(0);
 
    public JDBCJournalImpl(String jdbcUrl, String tableName) {
       this.tableName = tableName;
       this.jdbcUrl = jdbcUrl;
       timerThread = "Timer JDBC Journal(" + tableName + ")";
 
-      records = new ArrayList<JDBCJournalRecord>();
+      records = new ArrayList<>();
    }
 
    @Override
@@ -149,8 +152,9 @@ public class JDBCJournalImpl implements Journal {
       List<JDBCJournalRecord> recordRef = records;
       records = new ArrayList<JDBCJournalRecord>();
 
-      // We keep a list of deleted records (used for cleaning up old transaction data).
+      // We keep a list of deleted records and committed tx (used for cleaning up old transaction data).
       List<Long> deletedRecords = new ArrayList<>();
+      List<Long> committedTransactions = new ArrayList<>();
 
       TransactionHolder holder;
 
@@ -167,7 +171,6 @@ public class JDBCJournalImpl implements Journal {
                   break;
                case JDBCJournalRecord.ROLLBACK_RECORD:
                   // Roll back we remove all records associated with this TX ID.  This query is always performed last.
-                  holder = transactions.get(record.getTxId());
                   deleteJournalTxRecords.setLong(1, record.getTxId());
                   deleteJournalTxRecords.addBatch();
                   break;
@@ -180,6 +183,7 @@ public class JDBCJournalImpl implements Journal {
                      deleteJournalRecords.addBatch();
                   }
                   record.writeRecord(insertJournalRecords);
+                  committedTransactions.add(record.getTxId());
                   break;
                default:
                   // Default we add a new record to the DB
@@ -202,7 +206,7 @@ public class JDBCJournalImpl implements Journal {
 
          connection.commit();
 
-         cleanupTxRecords(deletedRecords);
+         cleanupTxRecords(deletedRecords, committedTransactions);
          success = true;
       }
       catch (SQLException e) {
@@ -215,11 +219,15 @@ public class JDBCJournalImpl implements Journal {
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
-   private void cleanupTxRecords(List<Long> deletedRecords) throws SQLException {
+   private void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
 
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
+
+      for (Long txId : committedTx) {
+         transactions.get(txId).committed = true;
+      }
 
       // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
       for (TransactionHolder h : iterableCopyTx) {
@@ -233,7 +241,7 @@ public class JDBCJournalImpl implements Journal {
             }
          }
 
-         if (h.recordInfos.isEmpty()) {
+         if (h.recordInfos.isEmpty() && h.committed) {
             deleteJournalTxRecords.setLong(1, h.transactionID);
             deleteJournalTxRecords.addBatch();
             transactions.remove(h.transactionID);
@@ -255,7 +263,7 @@ public class JDBCJournalImpl implements Journal {
 
          // On rollback we must update the tx map to remove all the tx entries
          for (TransactionHolder txH : txHolders) {
-            if (txH.prepared == false && txH.recordInfos.isEmpty() && txH.recordsToDelete.isEmpty()) {
+            if (!txH.prepared && txH.recordInfos.isEmpty() && txH.recordsToDelete.isEmpty()) {
                transactions.remove(txH.transactionID);
             }
          }
@@ -279,7 +287,14 @@ public class JDBCJournalImpl implements Journal {
       t.start();
    }
 
-   private synchronized void appendRecord(JDBCJournalRecord record) {
+   private void appendRecord(JDBCJournalRecord record) throws Exception {
+
+      SimpleWaitIOCallback callback = null;
+      if (record.isSync() && record.getIoCompletion() == null) {
+         callback = new SimpleWaitIOCallback();
+         record.setIoCompletion(callback);
+      }
+
       try {
          journalLock.writeLock().lock();
          if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
@@ -290,6 +305,8 @@ public class JDBCJournalImpl implements Journal {
       finally {
          journalLock.writeLock().unlock();
       }
+
+      if (callback != null) callback.waitCompletion();
    }
 
    private void addTxRecord(JDBCJournalRecord record) {
@@ -334,7 +351,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendAddRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -343,7 +360,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -356,7 +373,7 @@ public class JDBCJournalImpl implements Journal {
                                EncodingSupport record,
                                boolean sync,
                                IOCompletion completionCallback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -366,7 +383,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -375,7 +392,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendUpdateRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -388,7 +405,7 @@ public class JDBCJournalImpl implements Journal {
                                   EncodingSupport record,
                                   boolean sync,
                                   IOCompletion completionCallback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setSync(sync);
@@ -398,14 +415,14 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendDeleteRecord(long id, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD, seq.incrementAndGet());
       r.setSync(sync);
       appendRecord(r);
    }
 
    @Override
    public void appendDeleteRecord(long id, boolean sync, IOCompletion completionCallback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD, seq.incrementAndGet());
       r.setSync(sync);
       r.setIoCompletion(completionCallback);
       appendRecord(r);
@@ -413,7 +430,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendAddRecordTransactional(long txID, long id, byte recordType, byte[] record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setTxId(txID);
@@ -425,7 +442,7 @@ public class JDBCJournalImpl implements Journal {
                                             long id,
                                             byte recordType,
                                             EncodingSupport record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.ADD_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setTxId(txID);
@@ -434,7 +451,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendUpdateRecordTransactional(long txID, long id, byte recordType, byte[] record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setTxId(txID);
@@ -446,7 +463,7 @@ public class JDBCJournalImpl implements Journal {
                                                long id,
                                                byte recordType,
                                                EncodingSupport record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.UPDATE_RECORD_TX, seq.incrementAndGet());
       r.setUserRecordType(recordType);
       r.setRecord(record);
       r.setTxId(txID);
@@ -455,7 +472,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendDeleteRecordTransactional(long txID, long id, byte[] record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX, seq.incrementAndGet());
       r.setRecord(record);
       r.setTxId(txID);
       appendRecord(r);
@@ -463,7 +480,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendDeleteRecordTransactional(long txID, long id, EncodingSupport record) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX, seq.incrementAndGet());
       r.setRecord(record);
       r.setTxId(txID);
       appendRecord(r);
@@ -471,21 +488,21 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendDeleteRecordTransactional(long txID, long id) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX);
+      JDBCJournalRecord r = new JDBCJournalRecord(id, JDBCJournalRecord.DELETE_RECORD_TX, seq.incrementAndGet());
       r.setTxId(txID);
       appendRecord(r);
    }
 
    @Override
    public void appendCommitRecord(long txID, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       appendRecord(r);
    }
 
    @Override
    public void appendCommitRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setIoCompletion(callback);
       appendRecord(r);
@@ -496,7 +513,7 @@ public class JDBCJournalImpl implements Journal {
                                   boolean sync,
                                   IOCompletion callback,
                                   boolean lineUpContext) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.COMMIT_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setStoreLineUp(lineUpContext);
       r.setIoCompletion(callback);
@@ -505,7 +522,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendPrepareRecord(long txID, EncodingSupport transactionData, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.PREPARE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(-1, JDBCJournalRecord.PREPARE_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setTxData(transactionData);
       r.setSync(sync);
@@ -517,7 +534,7 @@ public class JDBCJournalImpl implements Journal {
                                    EncodingSupport transactionData,
                                    boolean sync,
                                    IOCompletion callback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setTxData(transactionData);
       r.setTxData(transactionData);
@@ -528,7 +545,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendPrepareRecord(long txID, byte[] transactionData, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.PREPARE_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setTxData(transactionData);
       r.setSync(sync);
@@ -537,7 +554,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendRollbackRecord(long txID, boolean sync) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.ROLLBACK_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.ROLLBACK_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setSync(sync);
       appendRecord(r);
@@ -545,7 +562,7 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
-      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.ROLLBACK_RECORD);
+      JDBCJournalRecord r = new JDBCJournalRecord(0, JDBCJournalRecord.ROLLBACK_RECORD, seq.incrementAndGet());
       r.setTxId(txID);
       r.setSync(sync);
       r.setIoCompletion(callback);
@@ -594,13 +611,15 @@ public class JDBCJournalImpl implements Journal {
                   throw new Exception("Error Reading Journal, Unknown Record Type: " + r.getRecordType());
             }
             noRecords++;
+            if (r.getSeq() > seq.longValue()) {
+               seq.set(r.getSeq());
+            }
          }
          jrc.checkPreparedTx();
 
          jli.setMaxID(((JDBCJournalLoaderCallback) reloadManager).getMaxId());
          jli.setNumberOfRecords(noRecords);
          transactions = jrc.getTransactions();
-         isLoaded = true;
       }
       return jli;
    }
