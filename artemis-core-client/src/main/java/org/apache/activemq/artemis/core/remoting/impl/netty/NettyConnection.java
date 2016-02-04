@@ -17,8 +17,9 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.net.SocketAddress;
+import java.util.Deque;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
 import io.netty.buffer.ByteBuf;
@@ -70,7 +71,7 @@ public class NettyConnection implements Connection {
 
    /** if {@link #isWritable(ReadyListener)} returns false, we add a callback
     *  here for when the connection (or Netty Channel) becomes available again. */
-   private final ConcurrentLinkedDeque<ReadyListener> readyListeners = new ConcurrentLinkedDeque<>();
+   private final Deque<ReadyListener> readyListeners = new LinkedBlockingDeque<>();
 
    // Static --------------------------------------------------------
 
