@@ -73,9 +73,9 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
       ServerLocator locator = createNonHALocator(true).setCallTimeout(3000);
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = addClientSession(clientSessionFactory.createSession());
-      ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
 
       try {
+         ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = addClientSession(extraClientSessionFactory.createSession());
          fail("creating a session here should fail");
       }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -31,6 +32,8 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
    void addFailureListener(SessionFailureListener listener);
 
    boolean removeFailureListener(SessionFailureListener listener);
+
+   boolean waitForTopology(long timeout, TimeUnit unit);
 
    void disableFinalizeCheck();
 
