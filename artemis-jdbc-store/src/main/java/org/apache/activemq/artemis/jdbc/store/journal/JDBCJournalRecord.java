@@ -88,7 +88,9 @@ public class JDBCJournalRecord {
 
    private boolean isTransactional;
 
-   public JDBCJournalRecord(long id, byte recordType) {
+   private long seq;
+
+   public JDBCJournalRecord(long id, byte recordType, long seq) {
       this.id = id;
       this.recordType = recordType;
 
@@ -104,20 +106,22 @@ public class JDBCJournalRecord {
       txDataSize = 0;
       txData = new ByteArrayInputStream(new byte[0]);
       txCheckNoRecords = 0;
+
+      this.seq = seq;
    }
 
    public static String createTableSQL(String tableName) {
-      return "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,timestamp BIGINT)";
+      return "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT)";
    }
 
    public static String insertRecordsSQL(String tableName) {
-      return "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,timestamp) "
+      return "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) "
          + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
    }
 
    public static String selectRecordsSQL(String tableName) {
-      return "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords "
-         + "FROM " + tableName;
+      return "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq "
+         + "FROM " + tableName + " ORDER BY seq ASC";
    }
 
    public static String deleteRecordsSQL(String tableName) {
@@ -168,7 +172,7 @@ public class JDBCJournalRecord {
       statement.setInt(8, txDataSize);
       statement.setBytes(9, txDataBytes);
       statement.setInt(10, txCheckNoRecords);
-      statement.setLong(11, System.currentTimeMillis());
+      statement.setLong(11, seq);
       statement.addBatch();
    }
 
@@ -178,7 +182,7 @@ public class JDBCJournalRecord {
    }
 
    public static JDBCJournalRecord readRecord(ResultSet rs) throws SQLException {
-      JDBCJournalRecord record = new JDBCJournalRecord(rs.getLong(1), (byte) rs.getShort(2));
+      JDBCJournalRecord record = new JDBCJournalRecord(rs.getLong(1), (byte) rs.getShort(2), rs.getLong(11));
       record.setCompactCount((byte) rs.getShort(3));
       record.setTxId(rs.getLong(4));
       record.setUserRecordType((byte) rs.getShort(5));
@@ -338,5 +342,9 @@ public class JDBCJournalRecord {
 
    public boolean isTransactional() {
       return isTransactional;
+   }
+
+   public long getSeq() {
+      return seq;
    }
 }
