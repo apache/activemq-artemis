@@ -42,13 +42,14 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalImpl implements Journal {
 
    // Sync Delay in ms
-   public static final int SYNC_DELAY = 500;
+   public static final int SYNC_DELAY = 5;
 
    private static int USER_VERSION = 1;
 
@@ -285,7 +286,14 @@ public class JDBCJournalImpl implements Journal {
       t.start();
    }
 
-   private synchronized void appendRecord(JDBCJournalRecord record) {
+   private void appendRecord(JDBCJournalRecord record) throws Exception {
+
+      SimpleWaitIOCallback callback = null;
+      if (record.isSync() && record.getIoCompletion() == null) {
+         callback = new SimpleWaitIOCallback();
+         record.setIoCompletion(callback);
+      }
+
       try {
          journalLock.writeLock().lock();
          if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
@@ -296,6 +304,8 @@ public class JDBCJournalImpl implements Journal {
       finally {
          journalLock.writeLock().unlock();
       }
+
+      if (callback != null) callback.waitCompletion();
    }
 
    private void addTxRecord(JDBCJournalRecord record) {
