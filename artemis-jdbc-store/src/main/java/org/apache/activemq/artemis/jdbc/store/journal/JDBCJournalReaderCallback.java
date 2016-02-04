@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalReaderCallback implements JournalReaderCallback {
 
-   private final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<Long, TransactionHolder>();
+   private final Map<Long, TransactionHolder> loadTransactions = new LinkedHashMap<>();
 
    private final LoaderCallback loadManager;
 
@@ -90,12 +90,11 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
 
    public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
       // It is possible that the TX could be null, since deletes could have happened in the journal.
-
       TransactionHolder tx = loadTransactions.get(transactionID);
-      tx.committed = true;
 
       // We can remove local Tx without associated records
       if (tx != null) {
+         tx.committed = true;
          for (RecordInfo txRecord : tx.recordInfos) {
             if (txRecord.isUpdate) {
                loadManager.updateRecord(txRecord);

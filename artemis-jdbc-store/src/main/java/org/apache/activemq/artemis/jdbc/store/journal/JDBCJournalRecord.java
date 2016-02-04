@@ -116,26 +116,15 @@ public class JDBCJournalRecord {
    }
 
    public static String selectRecordsSQL(String tableName) {
-      return "SELECT id," + "recordType," + "compactCount," + "txId," + "userRecordType," + "variableSize," + "record," + "txDataSize," + "txData," + "txCheckNoRecords " + "FROM " + tableName;
+      return "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords "
+         + "FROM " + tableName;
    }
 
    public static String deleteRecordsSQL(String tableName) {
       return "DELETE FROM " + tableName + " WHERE id = ?";
    }
 
-   public static String deleteCommittedDeleteRecordsForTxSQL(String tableName) {
-      return "DELETE FROM " + tableName + " WHERE id IN (SELECT id FROM " + tableName + " WHERE txID=?)";
-   }
-
-   public static String deleteCommittedTxRecordsSQL(String tableName) {
-      return "DELETE FROM " + tableName + " WHERE txId=? AND (recordType=" + PREPARE_RECORD + " OR recordType=" + COMMIT_RECORD + ")";
-   }
-
    public static String deleteJournalTxRecordsSQL(String tableName) {
-      return "DELETE FROM " + tableName + " WHERE txId=?";
-   }
-
-   public static String deleteRolledBackTxSQL(String tableName) {
       return "DELETE FROM " + tableName + " WHERE txId=?";
    }
 
@@ -181,11 +170,6 @@ public class JDBCJournalRecord {
       statement.setInt(10, txCheckNoRecords);
       statement.setLong(11, System.currentTimeMillis());
       statement.addBatch();
-   }
-
-   protected void writeDeleteTxRecord(PreparedStatement deleteTxStatement) throws SQLException {
-      deleteTxStatement.setLong(1, txId);
-      deleteTxStatement.addBatch();
    }
 
    protected void writeDeleteRecord(PreparedStatement deleteStatement) throws SQLException {

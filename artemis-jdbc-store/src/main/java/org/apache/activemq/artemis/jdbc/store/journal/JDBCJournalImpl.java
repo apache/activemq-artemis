@@ -84,14 +84,12 @@ public class JDBCJournalImpl implements Journal {
    // Track Tx Records
    private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
 
-   private boolean isLoaded = false;
-
    public JDBCJournalImpl(String jdbcUrl, String tableName) {
       this.tableName = tableName;
       this.jdbcUrl = jdbcUrl;
       timerThread = "Timer JDBC Journal(" + tableName + ")";
 
-      records = new ArrayList<JDBCJournalRecord>();
+      records = new ArrayList<>();
    }
 
    @Override
@@ -169,7 +167,6 @@ public class JDBCJournalImpl implements Journal {
                   break;
                case JDBCJournalRecord.ROLLBACK_RECORD:
                   // Roll back we remove all records associated with this TX ID.  This query is always performed last.
-                  holder = transactions.get(record.getTxId());
                   deleteJournalTxRecords.setLong(1, record.getTxId());
                   deleteJournalTxRecords.addBatch();
                   break;
@@ -262,7 +259,7 @@ public class JDBCJournalImpl implements Journal {
 
          // On rollback we must update the tx map to remove all the tx entries
          for (TransactionHolder txH : txHolders) {
-            if (txH.prepared == false && txH.recordInfos.isEmpty() && txH.recordsToDelete.isEmpty()) {
+            if (!txH.prepared && txH.recordInfos.isEmpty() && txH.recordsToDelete.isEmpty()) {
                transactions.remove(txH.transactionID);
             }
          }
@@ -616,7 +613,6 @@ public class JDBCJournalImpl implements Journal {
          jli.setMaxID(((JDBCJournalLoaderCallback) reloadManager).getMaxId());
          jli.setNumberOfRecords(noRecords);
          transactions = jrc.getTransactions();
-         isLoaded = true;
       }
       return jli;
    }
