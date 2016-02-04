@@ -1337,15 +1337,20 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                                boolean isLast) {
 
-         if (isLast) {
-            latchFinalTopology.countDown();
+         try {
+            // if it is our connector then set the live id used for failover
+            if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), connectorConfig)) {
+               liveNodeID = nodeID;
+            }
+
+            serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);
+         }
+         finally {
+            if (isLast) {
+               latchFinalTopology.countDown();
+            }
          }
 
-         // if it is our connector then set the live id used for failover
-         if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), connectorConfig)) {
-            liveNodeID = nodeID;
-         }
-         serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);
       }
 
       @Override
