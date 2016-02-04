@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SharedNothingLiveActivation extends LiveActivation {
@@ -229,17 +230,20 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
       @Override
       public void connectionClosed() {
-         activeMQServer.getThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-               synchronized (replicationLock) {
-                  if (replicationManager != null) {
-                     activeMQServer.getStorageManager().stopReplication();
-                     replicationManager = null;
+         ExecutorService executorService = activeMQServer.getThreadPool();
+         if (executorService != null) {
+            executorService.execute(new Runnable() {
+               @Override
+               public void run() {
+                  synchronized (replicationLock) {
+                     if (replicationManager != null) {
+                        activeMQServer.getStorageManager().stopReplication();
+                        replicationManager = null;
+                     }
                   }
                }
-            }
-         });
+            });
+         }
       }
    }
 
