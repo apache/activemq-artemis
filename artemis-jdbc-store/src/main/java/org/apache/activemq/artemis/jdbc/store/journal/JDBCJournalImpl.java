@@ -149,8 +149,9 @@ public class JDBCJournalImpl implements Journal {
       List<JDBCJournalRecord> recordRef = records;
       records = new ArrayList<JDBCJournalRecord>();
 
-      // We keep a list of deleted records (used for cleaning up old transaction data).
+      // We keep a list of deleted records and committed tx (used for cleaning up old transaction data).
       List<Long> deletedRecords = new ArrayList<>();
+      List<Long> committedTransactions = new ArrayList<>();
 
       TransactionHolder holder;
 
@@ -180,6 +181,7 @@ public class JDBCJournalImpl implements Journal {
                      deleteJournalRecords.addBatch();
                   }
                   record.writeRecord(insertJournalRecords);
+                  committedTransactions.add(record.getTxId());
                   break;
                default:
                   // Default we add a new record to the DB
@@ -202,7 +204,7 @@ public class JDBCJournalImpl implements Journal {
 
          connection.commit();
 
-         cleanupTxRecords(deletedRecords);
+         cleanupTxRecords(deletedRecords, committedTransactions);
          success = true;
       }
       catch (SQLException e) {
@@ -215,11 +217,15 @@ public class JDBCJournalImpl implements Journal {
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
-   private void cleanupTxRecords(List<Long> deletedRecords) throws SQLException {
+   private void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
 
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
+
+      for (Long txId : committedTx) {
+         transactions.get(txId).committed = true;
+      }
 
       // TODO (mtaylor) perhaps we could store a reverse mapping of IDs to prevent this O(n) loop
       for (TransactionHolder h : iterableCopyTx) {
@@ -233,7 +239,7 @@ public class JDBCJournalImpl implements Journal {
             }
          }
 
-         if (h.recordInfos.isEmpty()) {
+         if (h.recordInfos.isEmpty() && h.committed) {
             deleteJournalTxRecords.setLong(1, h.transactionID);
             deleteJournalTxRecords.addBatch();
             transactions.remove(h.transactionID);
