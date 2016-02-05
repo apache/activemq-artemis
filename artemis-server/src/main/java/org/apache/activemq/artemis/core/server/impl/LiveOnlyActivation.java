@@ -71,6 +71,7 @@ public class LiveOnlyActivation extends Activation {
       }
       catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
+         activeMQServer.callActivationFailureListeners(e);
       }
    }
 
