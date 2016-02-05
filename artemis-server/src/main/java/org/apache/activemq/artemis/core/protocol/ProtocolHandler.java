@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.HttpKeepAliveRunnabl
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.PartialPooledByteBufAllocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.protocol.stomp.WebSocketServerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -172,6 +173,11 @@ public class ProtocolHandler {
          NettyServerConnection connection = channelHandler.createConnection(ctx, protocolToUse, httpEnabled);
          protocolManagerToUse.handshake(connection, new ChannelBufferWrapper(in));
          pipeline.remove(this);
+
+         // https://issues.apache.org/jira/browse/ARTEMIS-392
+         // Application servers or other components may upgrade a regular socket to Netty
+         // We need to be able to work normally as with anything else on Artemis
+         ctx.channel().config().setAllocator(PartialPooledByteBufAllocator.INSTANCE);
          ctx.flush();
       }
 
