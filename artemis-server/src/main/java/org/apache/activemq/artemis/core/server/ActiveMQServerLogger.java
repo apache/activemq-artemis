@@ -191,7 +191,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(
       id = 221026,
-      value = "Bridge {0} connected to fowardingAddress={1}. {2} does not have any bindings what means messages will be ignored until a binding is created.",
+      value = "Bridge {0} connected to fowardingAddress={1}. {2} does not have any bindings. Messages will be ignored until a binding is created.",
       format = Message.Format.MESSAGE_FORMAT)
    void bridgeNoBindings(SimpleString name, SimpleString forwardingAddress, SimpleString address);
 
