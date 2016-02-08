@@ -22,26 +22,16 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.derby.jdbc.AutoloadedDriver;
 
 public class JDBCUtils {
 
-   public static Driver getDriver() throws Exception {
-      Driver dbDriver = null;
-      // Load Database driver, sets Derby Autoloaded Driver as lowest priority.
-      List<Driver> drivers = Collections.list(DriverManager.getDrivers());
-      if (drivers.size() <= 2 && drivers.size() > 0) {
-         dbDriver = drivers.get(0);
-         boolean isDerby = dbDriver instanceof AutoloadedDriver;
+   public static Driver getDriver(String className) throws Exception {
 
-         if (drivers.size() > 1 && isDerby) {
-            dbDriver = drivers.get(1);
-         }
+      try {
+         Driver driver = (Driver) Class.forName(className).newInstance();
 
-         if (isDerby) {
+         // Shutdown the derby if using the derby embedded driver.
+         if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                @Override
                public void run() {
@@ -53,12 +43,14 @@ public class JDBCUtils {
                }
             });
          }
+         return driver;
       }
-      else {
-         String error = drivers.isEmpty() ? "No DB driver found on class path" : "Too many DB drivers on class path, not sure which to use";
-         throw new RuntimeException(error);
+      catch (ClassNotFoundException cnfe) {
+         throw new RuntimeException("Could not find class: " + className);
       }
-      return dbDriver;
+      catch (Exception e) {
+         throw new RuntimeException("Unable to instantiate driver class: ", e);
+      }
    }
 
    public static void createTableIfNotExists(Connection connection, String tableName, String sql) throws SQLException {
