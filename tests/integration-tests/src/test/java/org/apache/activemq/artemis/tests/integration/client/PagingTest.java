@@ -3552,7 +3552,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_MESSAGES_BEFORE_PAGING; i++) {
          ClientMessage msg = session.createMessage(true);
-         msg.getBodyBuffer().writeBytes(new byte[512]);
+         msg.getBodyBuffer().writeBytes(new byte[896]);
 
          producerA.send(msg);
          producerB.send(msg);
@@ -3565,7 +3565,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       for (int i = 0; i < NUMBER_MESSAGES_BEFORE_PAGING; i++) {
          ClientMessage msg = session.createMessage(true);
-         msg.getBodyBuffer().writeBytes(new byte[512]);
+         msg.getBodyBuffer().writeBytes(new byte[896]);
 
          producerA.send(msg);
          producerB.send(msg);
@@ -3578,7 +3578,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       for (int i = NUMBER_MESSAGES_BEFORE_PAGING * 2; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
-         msg.getBodyBuffer().writeBytes(new byte[512]);
+         msg.getBodyBuffer().writeBytes(new byte[896]);
 
          producerA.send(msg);
          producerB.send(msg);
