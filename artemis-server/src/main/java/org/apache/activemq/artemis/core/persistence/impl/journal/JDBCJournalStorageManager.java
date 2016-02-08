@@ -42,10 +42,10 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
    protected void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
       DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
 
-      Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName());
+      Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName());
       bindingsJournal = localBindings;
 
-      Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName());
+      Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName());
       messageJournal = localMessage;
    }
 

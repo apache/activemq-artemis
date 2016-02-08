@@ -27,6 +27,7 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
+   private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -54,5 +55,13 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public String getJdbcConnectionUrl() {
       return jdbcConnectionUrl;
+   }
+
+   public void setJdbcDriverClassName(String jdbcDriverClassName) {
+      this.jdbcDriverClassName = jdbcDriverClassName;
+   }
+
+   public String getJdbcDriverClassName() {
+      return jdbcDriverClassName;
    }
 }

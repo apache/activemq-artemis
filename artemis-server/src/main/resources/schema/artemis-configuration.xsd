@@ -1516,6 +1516,13 @@
 
    <xsd:complexType name="databaseStoreType">
       <xsd:all>
+         <xsd:element name="jdbc-driver-class-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The JDBC Driver class name
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
          <xsd:element name="jdbc-connection-url" type="xsd:string" minOccurs="1" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>

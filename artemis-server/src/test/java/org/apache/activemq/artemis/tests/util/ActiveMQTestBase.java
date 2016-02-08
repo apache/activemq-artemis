@@ -395,6 +395,7 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
       dbStorageConfiguration.setBindingsTableName("BINDINGS");
       dbStorageConfiguration.setMessageTableName("MESSAGES");
+      dbStorageConfiguration.setJdbcDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
 
       configuration.setStoreConfiguration(dbStorageConfiguration);
 
