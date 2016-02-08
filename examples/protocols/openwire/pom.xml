@@ -34,7 +34,6 @@ under the License.
 
    <properties>
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
-      <activemq5-version>5.11.0</activemq5-version>
       <slf4j-version>1.7.10</slf4j-version>
    </properties>
 
