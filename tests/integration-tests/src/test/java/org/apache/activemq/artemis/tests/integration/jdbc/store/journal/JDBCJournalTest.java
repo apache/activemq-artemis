@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,16 +40,16 @@ public class JDBCJournalTest {
 
    private static final String JOURNAL_TABLE_NAME = "MESSAGE_JOURNAL";
 
+   private static final String DRIVER_CLASS = "org.apache.derby.jdbc.EmbeddedDriver";
+
    private JDBCJournalImpl journal;
 
    private String jdbcUrl;
 
-   private Properties jdbcConnectionProperties;
-
    @Before
    public void setup() throws Exception {
       jdbcUrl = "jdbc:derby:target/data;create=true";
-      journal = new JDBCJournalImpl(jdbcUrl, JOURNAL_TABLE_NAME);
+      journal = new JDBCJournalImpl(jdbcUrl, JOURNAL_TABLE_NAME, DRIVER_CLASS);
       journal.start();
    }
 

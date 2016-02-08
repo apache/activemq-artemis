@@ -56,6 +56,8 @@ public class JDBCJournalImpl implements Journal {
 
    private final String tableName;
 
+   private final String jdbcDriverClass;
+
    private Connection connection;
 
    private List<JDBCJournalRecord> records;
@@ -88,9 +90,10 @@ public class JDBCJournalImpl implements Journal {
    // Sequence ID for journal records
    private AtomicLong seq = new AtomicLong(0);
 
-   public JDBCJournalImpl(String jdbcUrl, String tableName) {
+   public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass) {
       this.tableName = tableName;
       this.jdbcUrl = jdbcUrl;
+      this.jdbcDriverClass = jdbcDriverClass;
       timerThread = "Timer JDBC Journal(" + tableName + ")";
 
       records = new ArrayList<>();
@@ -98,8 +101,15 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public void start() throws Exception {
-      dbDriver = JDBCUtils.getDriver();
-      connection = dbDriver.connect(jdbcUrl, new Properties());
+      dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
+
+      try {
+         connection = dbDriver.connect(jdbcUrl, new Properties());
+      }
+      catch (SQLException e) {
+         ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcUrl);
+         throw new RuntimeException("Error connecting to database", e);
+      }
 
       JDBCUtils.createTableIfNotExists(connection, tableName, JDBCJournalRecord.createTableSQL(tableName));
 
@@ -109,8 +119,8 @@ public class JDBCJournalImpl implements Journal {
       deleteJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteRecordsSQL(tableName));
       deleteJournalTxRecords = connection.prepareStatement(JDBCJournalRecord.deleteJournalTxRecordsSQL(tableName));
 
-      syncTimer = new Timer(timerThread, true);
-      syncTimer.scheduleAtFixedRate(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
+
+      syncTimer.schedule(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
 
       started = true;
    }
