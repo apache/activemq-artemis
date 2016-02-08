@@ -82,6 +82,7 @@
       </ActiveMQ-Version>
       <resteasy.version>3.0.13.Final</resteasy.version>
       <proton.version>0.10</proton.version>
+      <activemq5-version>5.12.0</activemq5-version>
       <fuse.mqtt.client.version>1.10</fuse.mqtt.client.version>
       <apache.derby.version>10.11.1.1</apache.derby.version>
       <skipUnitTests>true</skipUnitTests>
@@ -399,7 +400,7 @@
          <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
-            <version>5.12.0</version>
+            <version>${activemq5-version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
