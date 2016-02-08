@@ -305,6 +305,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221051, value = "Populating security roles from LDAP at: {0}", format = Message.Format.MESSAGE_FORMAT)
    void populatingSecurityRolesFromLDAP(String url);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221052, value = "trying to deploy topic {0}", format = Message.Format.MESSAGE_FORMAT)
+   void deployTopic(SimpleString topicName);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
