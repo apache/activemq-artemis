@@ -37,16 +37,21 @@ public class ActivationFailureListenerTest extends ActiveMQTestBase {
    @Test
    public void simpleTest() throws Exception {
       Socket s = new Socket();
-      s.bind(new InetSocketAddress("127.0.0.1", 61616));
-      server = createServer(false, createDefaultNettyConfig());
-      final CountDownLatch latch = new CountDownLatch(1);
-      server.registerActivationFailureListener(new ActivationFailureListener() {
-         @Override
-         public void activationFailed(Exception exception) {
-            latch.countDown();
-         }
-      });
-      server.start();
-      assertTrue(latch.await(3000, TimeUnit.MILLISECONDS));
+      try {
+         s.bind(new InetSocketAddress("127.0.0.1", 61616));
+         server = createServer(false, createDefaultNettyConfig());
+         final CountDownLatch latch = new CountDownLatch(1);
+         server.registerActivationFailureListener(new ActivationFailureListener() {
+            @Override
+            public void activationFailed(Exception exception) {
+               latch.countDown();
+            }
+         });
+         server.start();
+         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS));
+      }
+      finally {
+         s.close();
+      }
    }
 }
