@@ -25,6 +25,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
@@ -74,5 +75,50 @@ public class AutoDeleteJmsQueueTest extends JMSTestBase {
 
       // ensure the queue was removed
       Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("jms.queue.test")));
+   }
+
+   @Test
+   public void testAutoDeleteNegative() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteJmsQueues(false));
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue("test");
+
+      MessageProducer producer = session.createProducer(queue);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(mess);
+      }
+
+      producer.close();
+
+      MessageConsumer messageConsumer = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < numMessages - 1; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      session.close();
+
+      // ensure the queue is still there
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString("jms.queue.test")).getBindable();
+      Assert.assertEquals(1, q.getMessageCount());
+      Assert.assertEquals(numMessages, q.getMessagesAdded());
+
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      messageConsumer = session.createConsumer(queue);
+      Message m = messageConsumer.receive(5000);
+      Assert.assertNotNull(m);
+
+      connection.close();
+
+      // ensure the queue was not removed
+      Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("jms.queue.test")));
    }
 }
