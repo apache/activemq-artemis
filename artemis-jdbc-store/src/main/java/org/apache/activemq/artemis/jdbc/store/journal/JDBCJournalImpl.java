@@ -119,7 +119,7 @@ public class JDBCJournalImpl implements Journal {
       deleteJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteRecordsSQL(tableName));
       deleteJournalTxRecords = connection.prepareStatement(JDBCJournalRecord.deleteJournalTxRecordsSQL(tableName));
 
-
+      syncTimer = new Timer(timerThread, true);
       syncTimer.schedule(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
 
       started = true;
