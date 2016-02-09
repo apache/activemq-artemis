@@ -218,7 +218,11 @@
          <artifactId>jboss-javaee</artifactId>
          <version>5.0.0.GA</version>
       </dependency>
-
+      <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derby</artifactId>
+         <version>${apache.derby.version}</version>
+      </dependency>
       <!--Vertx provided dependencies-->
       <dependency>
          <groupId>io.vertx</groupId>
