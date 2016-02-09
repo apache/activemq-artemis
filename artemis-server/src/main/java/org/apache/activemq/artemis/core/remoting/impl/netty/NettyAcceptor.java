@@ -642,10 +642,9 @@ public class NettyAcceptor extends AbstractAcceptor {
             return nc;
          }
          else {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(connectionsAllowed).append(" reached. Refusing connection from ").append(ctx.channel().remoteAddress()));
-            }
-            throw new Exception();
+            ActiveMQServerLogger.LOGGER.connectionLimitReached(connectionsAllowed, ctx.channel().remoteAddress().toString());
+            ctx.channel().close();
+            return null;
          }
       }
    }

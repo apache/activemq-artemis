@@ -1204,6 +1204,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222205, value = "OutOfMemoryError possible! There are currently {0} addresses with a total max-size-bytes of {1} bytes, but the maximum memory available is {2} bytes.", format = Message.Format.MESSAGE_FORMAT)
    void potentialOOME(long addressCount, long totalMaxSizeBytes, long maxMemory);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222206, value = "Connection limit of {0} reached. Refusing connection from {1}.", format = Message.Format.MESSAGE_FORMAT)
+   void connectionLimitReached(long connectionsAllowed, String address);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
