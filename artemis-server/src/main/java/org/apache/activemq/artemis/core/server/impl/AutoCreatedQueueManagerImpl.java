@@ -36,16 +36,17 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
             Queue queue = server.locateQueue(queueName);
             long consumerCount = queue.getConsumerCount();
             long messageCount = queue.getMessageCount();
+            boolean isAutoDeleteJmsQueues = server.getAddressSettingsRepository().getMatch(queueName.toString()).isAutoDeleteJmsQueues();
 
-            if (server.locateQueue(queueName).getMessageCount() == 0) {
+            if (server.locateQueue(queueName).getMessageCount() == 0 && isAutoDeleteJmsQueues) {
                if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + "\" because consumerCount = " + consumerCount + " and messageCount = " + messageCount);
+                  ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
                }
 
                server.destroyQueue(queueName, null, false);
             }
             else if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("NOT deleting auto-created queue \"" + queueName + "\" because consumerCount = " + consumerCount + " and messageCount = " + messageCount);
+               ActiveMQServerLogger.LOGGER.debug("NOT deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
             }
          }
          catch (Exception e) {
