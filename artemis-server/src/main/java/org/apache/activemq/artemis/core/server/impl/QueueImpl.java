@@ -2603,7 +2603,9 @@ public class QueueImpl implements Queue {
          message = null;
       }
 
-      boolean durableRef = message != null && message.isDurable() && queue.durable;
+      if (message == null) return;
+
+      boolean durableRef = message.isDurable() && queue.durable;
 
       try {
          message.decrementRefCount();
