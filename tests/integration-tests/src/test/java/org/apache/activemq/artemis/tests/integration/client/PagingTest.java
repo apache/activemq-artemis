@@ -790,10 +790,10 @@ public class PagingTest extends ActiveMQTestBase {
       producer.close();
       session.start();
 
-      long timeout = System.currentTimeMillis() + 10000;
+      long timeout = System.currentTimeMillis() + 30000;
 
       // I want the buffer full to make sure there are pending messages on the server's side
-      while (System.currentTimeMillis() < timeout && cons.getBufferSize() < 1000 && cons2.getBufferSize() < 1000) {
+      while (System.currentTimeMillis() < timeout && (cons.getBufferSize() < 1000 || cons2.getBufferSize() < 1000)) {
          System.out.println("cons1 buffer = " + cons.getBufferSize() + ", cons2 buffer = " + cons2.getBufferSize());
          Thread.sleep(100);
       }
