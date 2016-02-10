@@ -29,7 +29,6 @@ import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.MessageError;
-import org.apache.qpid.proton.message.MessageFormat;
 import org.apache.qpid.proton.message.ProtonJMessage;
 
 /**
@@ -452,36 +451,6 @@ public class ProtonServerMessage implements ProtonJMessage {
    @Override
    public int encode(byte[] data, int offset, int length) {
       return 0;
-   }
-
-   @Override
-   public void load(Object data) {
-
-   }
-
-   @Override
-   public Object save() {
-      return null;
-   }
-
-   @Override
-   public String toAMQPFormat(Object value) {
-      return null;
-   }
-
-   @Override
-   public Object parseAMQPFormat(String value) {
-      return null;
-   }
-
-   @Override
-   public void setMessageFormat(MessageFormat format) {
-
-   }
-
-   @Override
-   public MessageFormat getMessageFormat() {
-      return null;
    }
 
    @Override
