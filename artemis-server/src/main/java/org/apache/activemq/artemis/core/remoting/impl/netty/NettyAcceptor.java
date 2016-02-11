@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -121,7 +120,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String keyStoreProvider;
 
-   private final String keyStorePath;
+   // non-final for testing purposes
+   private String keyStorePath;
 
    private final String keyStorePassword;
 
@@ -282,87 +282,13 @@ public class NettyAcceptor extends AbstractAcceptor {
       bootstrap = new ServerBootstrap();
       bootstrap.group(eventLoopGroup);
       bootstrap.channel(channelClazz);
-      final SSLContext context;
-      if (sslEnabled) {
-         try {
-            if (keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
-               throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
-                                                     "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
-                                                     "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
-            context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
-         }
-         catch (Exception e) {
-            IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host +
-                                                                     ":" + port);
-            ise.initCause(e);
-            throw ise;
-         }
-      }
-      else {
-         context = null; // Unused
-      }
-
-      final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
       ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>() {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled) {
-               SSLEngine engine = context.createSSLEngine();
-
-               engine.setUseClientMode(false);
-
-               if (needClientAuth)
-                  engine.setNeedClientAuth(true);
-
-               // setting the enabled cipher suites resets the enabled protocols so we need
-               // to save the enabled protocols so that after the customer cipher suite is enabled
-               // we can reset the enabled protocols if a customer protocol isn't specified
-               String[] originalProtocols = engine.getEnabledProtocols();
-
-               if (enabledCipherSuites != null) {
-                  try {
-                     engine.setEnabledCipherSuites(SSLSupport.parseCommaSeparatedListIntoArray(enabledCipherSuites));
-                  }
-                  catch (IllegalArgumentException e) {
-                     ActiveMQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
-                     throw e;
-                  }
-               }
-
-               if (enabledProtocols != null) {
-                  try {
-                     engine.setEnabledProtocols(SSLSupport.parseCommaSeparatedListIntoArray(enabledProtocols));
-                  }
-                  catch (IllegalArgumentException e) {
-                     ActiveMQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
-                     throw e;
-                  }
-               }
-               else {
-                  engine.setEnabledProtocols(originalProtocols);
-               }
-
-               // Strip "SSLv3" from the current enabled protocols to address the POODLE exploit.
-               // This recommendation came from http://www.oracle.com/technetwork/java/javase/documentation/cve-2014-3566-2342133.html
-               String[] protocols = engine.getEnabledProtocols();
-               Set<String> set = new HashSet<>();
-               for (String s : protocols) {
-                  if (s.equals("SSLv3") || s.equals("SSLv2Hello")) {
-                     if (!warningPrinted.get()) {
-                        ActiveMQServerLogger.LOGGER.disallowedProtocol(s);
-                     }
-                     continue;
-                  }
-                  set.add(s);
-               }
-               warningPrinted.set(true);
-               engine.setEnabledProtocols(set.toArray(new String[set.size()]));
-
-               SslHandler handler = new SslHandler(engine);
-
-               pipeline.addLast("ssl", handler);
+               pipeline.addLast("ssl", getSslHandler());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
          }
@@ -421,6 +347,11 @@ public class NettyAcceptor extends AbstractAcceptor {
       return name;
    }
 
+   // only for testing purposes
+   public void setKeyStorePath(String keyStorePath) {
+      this.keyStorePath = keyStorePath;
+   }
+
    /**
     * Transfers the Netty channel that has been created outside of this NettyAcceptor
     * to control it and configure it according to this NettyAcceptor setting.
@@ -432,6 +363,77 @@ public class NettyAcceptor extends AbstractAcceptor {
          throw ActiveMQMessageBundle.BUNDLE.acceptorUnavailable();
       }
       channel.pipeline().addLast(protocolHandler.getProtocolDecoder());
+   }
+
+   public void reload() {
+      serverChannelGroup.disconnect();
+      serverChannelGroup.clear();
+      startServerChannels();
+   }
+
+   public synchronized SslHandler getSslHandler() throws Exception {
+      final SSLContext context;
+      try {
+         if (keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
+            throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
+               "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
+               "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
+         context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
+      }
+      catch (Exception e) {
+         IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host + ":" + port);
+         ise.initCause(e);
+         throw ise;
+      }
+      SSLEngine engine = context.createSSLEngine();
+
+      engine.setUseClientMode(false);
+
+      if (needClientAuth)
+         engine.setNeedClientAuth(true);
+
+      // setting the enabled cipher suites resets the enabled protocols so we need
+      // to save the enabled protocols so that after the customer cipher suite is enabled
+      // we can reset the enabled protocols if a customer protocol isn't specified
+      String[] originalProtocols = engine.getEnabledProtocols();
+
+      if (enabledCipherSuites != null) {
+         try {
+            engine.setEnabledCipherSuites(SSLSupport.parseCommaSeparatedListIntoArray(enabledCipherSuites));
+         }
+         catch (IllegalArgumentException e) {
+            ActiveMQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
+            throw e;
+         }
+      }
+
+      if (enabledProtocols != null) {
+         try {
+            engine.setEnabledProtocols(SSLSupport.parseCommaSeparatedListIntoArray(enabledProtocols));
+         }
+         catch (IllegalArgumentException e) {
+            ActiveMQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
+            throw e;
+         }
+      }
+      else {
+         engine.setEnabledProtocols(originalProtocols);
+      }
+
+      // Strip "SSLv3" from the current enabled protocols to address the POODLE exploit.
+      // This recommendation came from http://www.oracle.com/technetwork/java/javase/documentation/cve-2014-3566-2342133.html
+      String[] protocols = engine.getEnabledProtocols();
+      Set<String> set = new HashSet<>();
+      for (String s : protocols) {
+         if (s.equalsIgnoreCase("SSLv3") || s.equals("SSLv2Hello")) {
+            ActiveMQServerLogger.LOGGER.disallowedProtocol(s);
+            continue;
+         }
+         set.add(s);
+      }
+
+      engine.setEnabledProtocols(set.toArray(new String[set.size()]));
+      return new SslHandler(engine);
    }
 
    private void startServerChannels() {

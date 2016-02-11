@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -73,10 +74,18 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
     * keytool -export -keystore server-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore client-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
+    * keytool -genkey -keystore other-server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=Other ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -export -keystore other-server-side-keystore.jks -file activemq-jks.cer -storepass secureexample
+    * keytool -import -keystore other-client-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
     * Commands to create the JCEKS artifacts:
     * keytool -genkey -keystore server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * keytool -genkey -keystore other-server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=Other ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
+    * keytool -export -keystore other-server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore other-client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
    private String storeType;
    private String SERVER_SIDE_KEYSTORE;
@@ -110,6 +119,67 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       session.start();
 
       Message m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testOneWaySSLReloaded() throws Exception {
+      createCustomSslServer();
+      server.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, null, false, false);
+      String text = RandomUtil.randomString();
+
+      // create a valid SSL connection and keep it for use later
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      ServerLocator existingLocator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      existingLocator.setCallTimeout(3000);
+      ClientSessionFactory existingSessionFactory = addSessionFactory(createSessionFactory(existingLocator));
+      ClientSession existingSession = addClientSession(existingSessionFactory.createSession(false, true, true));
+      ClientConsumer existingConsumer = addClientConsumer(existingSession.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      // create an invalid SSL connection
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "other-client-side-truststore." + storeType.toLowerCase());
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc)).setCallTimeout(3000);
+      try {
+         addSessionFactory(createSessionFactory(locator));
+         fail("Creating session here should fail due to SSL handshake problems.");
+      }
+      catch (Exception e) {
+         // ignore
+      }
+
+      // reload the acceptor to reload the SSL stores
+      NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
+      acceptor.setKeyStorePath("other-server-side-keystore." + storeType.toLowerCase());
+      acceptor.reload();
+
+      // create a session with the locator which failed previously proving that the SSL stores have been reloaded
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+      Message m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+      consumer.close();
+
+      // use the existing connection to prove it wasn't lost when the acceptor was reloaded
+      existingSession.start();
+      m = existingConsumer.receive(1000);
       Assert.assertNotNull(m);
       Assert.assertEquals(text, m.getBodyBuffer().readString());
    }
@@ -533,7 +603,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
          params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, protocols);
       }
 
-      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "nettySSL"));
       server = createServer(false, config);
       server.start();
       waitForServerToStart(server);

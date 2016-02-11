@@ -38,4 +38,10 @@ public interface AcceptorControl extends ActiveMQComponentControl {
     * Returns the parameters used to configure this acceptor
     */
    Map<String, Object> getParameters();
+
+   /**
+    * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust
+    * stores on acceptors which support SSL.
+    */
+   void reload();
 }
