@@ -70,4 +70,10 @@ public interface Acceptor extends ActiveMQComponent {
     * @throws java.lang.IllegalStateException if false @setDefaultActiveMQPrincipal
     */
    boolean isUnsecurable();
+
+   /**
+    * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust
+    * stores on acceptors which support SSL.
+    */
+   void reload();
 }

@@ -69,6 +69,16 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
          }
 
          @Override
+         public void reload() {
+            try {
+               proxy.invokeOperation("reload");
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+
+         @Override
          public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
