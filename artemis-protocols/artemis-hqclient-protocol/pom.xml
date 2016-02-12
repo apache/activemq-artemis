@@ -24,6 +24,7 @@
 
    <artifactId>artemis-hqclient-protocol</artifactId>
    <packaging>bundle</packaging>
+   <name>ActiveMQ Artemis HQClient Protocol</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

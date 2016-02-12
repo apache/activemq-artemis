@@ -25,6 +25,8 @@
 
    <artifactId>artemis-protocols</artifactId>
    <packaging>pom</packaging>
+   <name>ActiveMQ Artemis Protocols</name>
+
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
