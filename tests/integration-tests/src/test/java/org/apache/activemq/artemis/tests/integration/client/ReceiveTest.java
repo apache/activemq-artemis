@@ -146,6 +146,7 @@ public class ReceiveTest extends ActiveMQTestBase {
       cp.send(sendSession.createMessage(false));
       cp.send(sendSession.createMessage(false));
       cp.send(sendSession.createMessage(false));
+      sendSession.commit();
 
       Assert.assertNotNull(cc2.receive(5000));
       Assert.assertNotNull(cc.receive(5000));
