@@ -23,6 +23,8 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>artemis-stomp-protocol</artifactId>
+   <name>ActiveMQ Artemis STOMP Protocol</name>
+
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

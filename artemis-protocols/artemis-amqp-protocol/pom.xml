@@ -23,6 +23,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>artemis-amqp-protocol</artifactId>
+   <name>ActiveMQ Artemis AMQP Protocol</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
