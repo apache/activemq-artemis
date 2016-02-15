@@ -48,7 +48,7 @@ public class AbstractConnectionContextTest {
    private class TestConnectionContext extends AbstractConnectionContext {
 
       public TestConnectionContext(AMQPConnectionCallback connectionCallback) {
-         super(connectionCallback);
+         super(connectionCallback, null);
       }
 
       @Override

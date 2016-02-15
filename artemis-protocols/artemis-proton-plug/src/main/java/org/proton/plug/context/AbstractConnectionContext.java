@@ -18,8 +18,11 @@ package org.proton.plug.context;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
@@ -40,28 +43,32 @@ import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME
 
 public abstract class AbstractConnectionContext extends ProtonInitializable implements AMQPConnectionContext {
 
+   public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
+
    protected ProtonHandler handler = ProtonHandler.Factory.create();
 
    protected AMQPConnectionCallback connectionCallback;
+   private final ScheduledExecutorService scheduledPool;
 
    private final Map<Session, AbstractProtonSessionContext> sessions = new ConcurrentHashMap<>();
 
    protected LocalListener listener = new LocalListener();
 
-   public AbstractConnectionContext(AMQPConnectionCallback connectionCallback) {
-      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
+   public AbstractConnectionContext(AMQPConnectionCallback connectionCallback, ScheduledExecutorService scheduledPool) {
+      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, scheduledPool);
    }
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback,
                                     int idleTimeout,
                                     int maxFrameSize,
-                                    int channelMax) {
+                                    int channelMax,
+                                    ScheduledExecutorService scheduledPool) {
       this.connectionCallback = connectionCallback;
+      this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
       Transport transport = handler.getTransport();
       if (idleTimeout > 0) {
          transport.setIdleTimeout(idleTimeout);
-         transport.tick(idleTimeout / 2);
       }
       transport.setChannelMax(channelMax);
       transport.setMaxFrameSize(maxFrameSize);
@@ -172,6 +179,22 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
             connection.open();
          }
          initialise();
+         if (!connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
+            long nextKeepAliveTime = handler.tick(true);
+            flushBytes();
+            if (nextKeepAliveTime > 0) {
+               scheduledPool.schedule(new Runnable() {
+                  @Override
+                  public void run() {
+                     long rescheduleAt = (handler.tick(false) - TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+                     flushBytes();
+                     if (rescheduleAt > 0) {
+                        scheduledPool.schedule(this, rescheduleAt, TimeUnit.MILLISECONDS);
+                     }
+                  }
+               }, (nextKeepAliveTime - TimeUnit.NANOSECONDS.toMillis(System.nanoTime())), TimeUnit.MILLISECONDS);
+            }
+         }
       }
 
       @Override

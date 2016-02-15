@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -27,6 +28,7 @@ import org.apache.qpid.proton.Proton;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Collector;
 import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Transport;
@@ -44,6 +46,7 @@ import org.proton.plug.util.DebugInfo;
  * Clebert Suconic
  */
 public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHandler {
+
 
    private final Transport transport = Proton.transport();
 
@@ -80,6 +83,27 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
       this.creationTime = System.currentTimeMillis();
       transport.bind(connection);
       connection.collect(collector);
+   }
+
+   @Override
+   public long tick(boolean firstTick) {
+      if (!firstTick) {
+         try {
+            if (connection.getLocalState() != EndpointState.CLOSED) {
+               long rescheduleAt = transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
+               if (transport.isClosed()) {
+                  throw new IllegalStateException("Channel was inactive for to long");
+               }
+               return rescheduleAt;
+            }
+         }
+         catch (Exception e) {
+            transport.close();
+            connection.setCondition(new ErrorCondition());
+         }
+         return 0;
+      }
+      return transport.tick(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()));
    }
 
    @Override

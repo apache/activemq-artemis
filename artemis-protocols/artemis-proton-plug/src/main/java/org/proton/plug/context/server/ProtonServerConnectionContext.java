@@ -28,17 +28,20 @@ import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 public class ProtonServerConnectionContext extends AbstractConnectionContext implements AMQPServerConnectionContext {
 
-   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP) {
-      super(connectionSP);
+   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP, ScheduledExecutorService scheduledPool) {
+      super(connectionSP, scheduledPool);
    }
 
    public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP,
                                         int idleTimeout,
                                         int maxFrameSize,
-                                        int channelMax) {
-      super(connectionSP, idleTimeout, maxFrameSize, channelMax);
+                                        int channelMax,
+                                        ScheduledExecutorService scheduledPool) {
+      super(connectionSP, idleTimeout, maxFrameSize, channelMax, scheduledPool);
    }
 
    @Override

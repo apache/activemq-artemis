@@ -29,6 +29,8 @@ import org.proton.plug.handler.impl.ProtonHandlerImpl;
  */
 public interface ProtonHandler {
 
+   long tick(boolean firstTick);
+
    public static final class Factory {
 
       public static ProtonHandler create() {
