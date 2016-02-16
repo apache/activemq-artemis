@@ -24,6 +24,7 @@
 
    <artifactId>artemis-hornetq-protocol</artifactId>
    <packaging>bundle</packaging>
+   <name>ActiveMQ Artemis HornetQ Protocol</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

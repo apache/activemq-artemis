@@ -23,6 +23,7 @@
 	</parent>
 	<artifactId>artemis-features</artifactId>
 	<packaging>pom</packaging>
+	<name>ActiveMQ Artemis Features</name>
 
 	<build>
 		<resources>
