@@ -32,6 +32,6 @@ public class InVMTestConnector implements Connector {
 
    @Override
    public AMQPClientConnectionContext connect(String host, int port) throws Exception {
-      return new ProtonClientConnectionContext(new ProtonINVMSPI());
+      return new ProtonClientConnectionContext(new ProtonINVMSPI(), null);
    }
 }

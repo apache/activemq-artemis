@@ -35,7 +35,7 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    AMQPConnectionContext returningConnection;
 
-   ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI());
+   ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI(), null);
 
    final ExecutorService mainExecutor = Executors.newSingleThreadExecutor();
 

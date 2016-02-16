@@ -100,7 +100,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
       }
 
       AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().
-         createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
+         createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, server.getScheduledPool());
 
       Executor executor = server.getExecutorFactory().getExecutor();
 

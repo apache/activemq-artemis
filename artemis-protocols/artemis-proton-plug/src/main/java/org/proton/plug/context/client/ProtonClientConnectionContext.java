@@ -29,17 +29,20 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.context.ProtonInitializable;
 import org.proton.plug.util.FutureRunnable;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 public class ProtonClientConnectionContext extends AbstractConnectionContext implements AMQPClientConnectionContext {
 
-   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback) {
-      super(connectionCallback);
+   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback, ScheduledExecutorService scheduledPool) {
+      super(connectionCallback, scheduledPool);
    }
 
    public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback,
                                         int idleTimeout,
                                         int maxFrameSize,
-                                        int channelMax) {
-      super(connectionCallback, idleTimeout, maxFrameSize, channelMax);
+                                        int channelMax,
+                                        ScheduledExecutorService scheduledPool) {
+      super(connectionCallback, idleTimeout, maxFrameSize, channelMax, scheduledPool);
    }
 
    // Maybe a client interface?

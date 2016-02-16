@@ -59,7 +59,7 @@ public class SimpleAMQPConnector implements Connector {
 
       AMQPClientSPI clientConnectionSPI = new AMQPClientSPI(future.channel());
 
-      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI);
+      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI, null);
 
       future.channel().pipeline().addLast(new ChannelDuplexHandler() {
             @Override

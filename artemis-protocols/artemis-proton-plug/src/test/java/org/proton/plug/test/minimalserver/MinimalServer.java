@@ -124,7 +124,7 @@ public class MinimalServer {
       @Override
       public void channelActive(ChannelHandlerContext ctx) throws Exception {
          super.channelActive(ctx);
-         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()));
+         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()), null);
          //ctx.read();
       }
 
