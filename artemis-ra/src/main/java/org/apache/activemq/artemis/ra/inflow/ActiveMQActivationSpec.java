@@ -680,6 +680,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       this.setupInterval = setupInterval;
    }
 
+   // ARTEMIS-399 - support both "clientId" and "clientID" activation config properties
+   public void setClientId(String clientId) {
+      setClientID(clientId);
+   }
+
    /**
     * Validate
     *
