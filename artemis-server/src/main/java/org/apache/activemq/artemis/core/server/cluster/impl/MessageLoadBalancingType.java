@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
-import org.apache.activemq.artemis.utils.uri.URISchema;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.Converter;
 
 public enum MessageLoadBalancingType {
@@ -24,7 +24,7 @@ public enum MessageLoadBalancingType {
 
    static {
       // for URI support on ClusterConnection
-      URISchema.registerConverter(new MessageLoadBalancingTypeConverter(), MessageLoadBalancingType.class);
+      BeanSupport.registerConverter(new MessageLoadBalancingTypeConverter(), MessageLoadBalancingType.class);
    }
 
    static class MessageLoadBalancingTypeConverter implements Converter {

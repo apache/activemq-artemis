@@ -29,7 +29,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
@@ -72,7 +74,7 @@ public class InVMConnector extends AbstractConnector {
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener listener;
 
    private final InVMAcceptor acceptor;
 
@@ -86,7 +88,7 @@ public class InVMConnector extends AbstractConnector {
 
    public InVMConnector(final Map<String, Object> configuration,
                         final BufferHandler handler,
-                        final ConnectionLifeCycleListener listener,
+                        final ClientConnectionLifeCycleListener listener,
                         final Executor closeExecutor,
                         final Executor threadPool,
                         ClientProtocolManager protocolManager) {
@@ -181,11 +183,11 @@ public class InVMConnector extends AbstractConnector {
 
    // This may be an injection point for mocks on tests
    protected Connection internalCreateConnection(final BufferHandler handler,
-                                                 final ConnectionLifeCycleListener listener,
+                                                 final ClientConnectionLifeCycleListener listener,
                                                  final Executor serverExecutor) {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
-      listener.connectionCreated(null, inVMConnection, protocolManager.getName());
+      listener.connectionCreated(null, inVMConnection, protocolManager);
       return inVMConnection;
    }
 
@@ -195,17 +197,23 @@ public class InVMConnector extends AbstractConnector {
       return id == serverId;
    }
 
-   private class Listener implements ConnectionLifeCycleListener {
+   private class Listener implements ClientConnectionLifeCycleListener {
 
       @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
-                                    final String protocol) {
+                                    final ClientProtocolManager protocol) {
          if (connections.putIfAbsent((String) connection.getID(), connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
-         listener.connectionCreated(component, connection, protocol);
+         if (listener instanceof ConnectionLifeCycleListener) {
+            listener.connectionCreated(component, connection, protocol.getName());
+         }
+         else {
+            listener.connectionCreated(component, connection, protocol);
+         }
+
       }
 
       @Override

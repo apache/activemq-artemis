@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
@@ -52,7 +53,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    @Override
    protected URI internalNewURI(ServerLocator bean) throws Exception {
-      String query = getData(null, bean);
+      String query = BeanSupport.getData(null, bean);
       TransportConfiguration[] staticConnectors = bean.getStaticTransportConfigurations();
       return getURI(query, staticConnectors);
    }
@@ -122,9 +123,9 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
             else {
                empty = false;
             }
-            cb.append(encodeURI(entry.getKey()));
+            cb.append(BeanSupport.encodeURI(entry.getKey()));
             cb.append("=");
-            cb.append(encodeURI(entry.getValue().toString()));
+            cb.append(BeanSupport.encodeURI(entry.getValue().toString()));
          }
       }
       return cb.toString();

@@ -16,19 +16,11 @@
  */
 package org.apache.activemq.artemis.utils.uri;
 
-import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.Converter;
 
 public abstract class URISchema<T, P> {
 
@@ -39,7 +31,7 @@ public abstract class URISchema<T, P> {
    }
 
    public void populateObject(URI uri, T bean) throws Exception {
-      setData(uri, bean, parseQuery(uri.getQuery(), null));
+      BeanSupport.setData(uri, bean, parseQuery(uri.getQuery(), null));
    }
 
    public URI newURI(T bean) throws Exception {
@@ -97,36 +89,15 @@ public abstract class URISchema<T, P> {
 
    protected abstract T internalNewObject(URI uri, Map<String, String> query, P param) throws Exception;
 
-   /** This is the default implementation.
-    *  Sub classes are should provide a proper implementation for their schemas. */
+   /**
+    * This is the default implementation.
+    * Sub classes are should provide a proper implementation for their schemas.
+    */
    protected URI internalNewURI(T bean) throws Exception {
-      String query = URISchema.getData(null, bean);
+      String query = BeanSupport.getData(null, bean);
 
-      return new URI(getSchemaName(),
-          null,
-          "//", query, null);
+      return new URI(getSchemaName(), null, "//", query, null);
 
-   }
-
-   private static final BeanUtilsBean beanUtils = new BeanUtilsBean();
-
-   public static void registerConverter(Converter converter, Class type) {
-      synchronized (beanUtils) {
-         beanUtils.getConvertUtils().register(converter, type);
-      }
-   }
-
-   public static String decodeURI(String value) throws UnsupportedEncodingException {
-      return URLDecoder.decode(value, "UTF-8");
-   }
-
-   public static String encodeURI(String value) throws UnsupportedEncodingException {
-      return URLEncoder.encode(value, "UTF-8");
-   }
-
-   static {
-      // This is to customize the BeanUtils to use Fluent Proeprties as well
-      beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
    }
 
    public static Map<String, String> parseQuery(String uri,
@@ -138,8 +109,8 @@ public abstract class URISchema<T, P> {
             for (int i = 0; i < parameters.length; i++) {
                int p = parameters[i].indexOf("=");
                if (p >= 0) {
-                  String name = decodeURI(parameters[i].substring(0, p));
-                  String value = decodeURI(parameters[i].substring(p + 1));
+                  String name = BeanSupport.decodeURI(parameters[i].substring(0, p));
+                  String value = BeanSupport.decodeURI(parameters[i].substring(p + 1));
                   rc.put(name, value);
                }
                else {
@@ -170,85 +141,5 @@ public abstract class URISchema<T, P> {
       }
 
       return buffer.toString();
-   }
-
-   protected static <P> P copyData(P source, P target) throws Exception {
-      synchronized (beanUtils) {
-         beanUtils.copyProperties(source, target);
-      }
-      return target;
-   }
-
-   protected static <P> P setData(URI uri, P obj, Map<String, String> query) throws Exception {
-      synchronized (beanUtils) {
-         beanUtils.setProperty(obj, "host", uri.getHost());
-         beanUtils.setProperty(obj, "port", uri.getPort());
-         beanUtils.setProperty(obj, "userInfo", uri.getUserInfo());
-         beanUtils.populate(obj, query);
-      }
-      return obj;
-   }
-
-   public static void setData(URI uri,
-                              HashMap<String, Object> properties,
-                              Set<String> allowableProperties,
-                              Map<String, String> query) {
-      if (allowableProperties.contains("host")) {
-         properties.put("host", "" + uri.getHost());
-      }
-      if (allowableProperties.contains("port")) {
-         properties.put("port", "" + uri.getPort());
-      }
-      if (allowableProperties.contains("userInfo")) {
-         properties.put("userInfo", "" + uri.getUserInfo());
-      }
-      for (Map.Entry<String, String> entry : query.entrySet()) {
-         if (allowableProperties.contains(entry.getKey())) {
-            properties.put(entry.getKey(), entry.getValue());
-         }
-      }
-   }
-
-   public static String getData(List<String> ignored, Object... beans) throws Exception {
-      StringBuilder sb = new StringBuilder();
-      boolean empty = true;
-      synchronized (beanUtils) {
-         for (Object bean : beans) {
-            if (bean != null) {
-               PropertyDescriptor[] descriptors = beanUtils.getPropertyUtils().getPropertyDescriptors(bean);
-               for (PropertyDescriptor descriptor : descriptors) {
-                  if (descriptor.getReadMethod() != null && isWriteable(descriptor, ignored)) {
-                     String value = beanUtils.getProperty(bean, descriptor.getName());
-                     if (value != null) {
-                        if (!empty) {
-                           sb.append("&");
-                        }
-                        empty = false;
-                        sb.append(descriptor.getName()).append("=").append(encodeURI(value));
-                     }
-                  }
-               }
-            }
-         }
-      }
-      return sb.toString();
-   }
-
-   private static boolean isWriteable(PropertyDescriptor descriptor, List<String> ignored) {
-      if (ignored != null && ignored.contains(descriptor.getName())) {
-         return false;
-      }
-      Class<?> type = descriptor.getPropertyType();
-      return (type == Double.class) ||
-         (type == double.class) ||
-         (type == Long.class) ||
-         (type == long.class) ||
-         (type == Integer.class) ||
-         (type == int.class) ||
-         (type == Float.class) ||
-         (type == float.class) ||
-         (type == Boolean.class) ||
-         (type == boolean.class) ||
-         (type == String.class);
    }
 }

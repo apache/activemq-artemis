@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.uri.schema.serverLocator.UDPServerLocatorSchema;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class UDPSchema extends AbstractCFSchema {
 
@@ -50,14 +50,14 @@ public class UDPSchema extends AbstractCFSchema {
       else {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
       }
-      return URISchema.setData(uri, factory, query);
+      return BeanSupport.setData(uri, factory, query);
    }
 
    @Override
    protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory endpoint = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
-      String query = URISchema.getData(UDPServerLocatorSchema.IGNORED, bean, dgc, endpoint);
+      String query = BeanSupport.getData(UDPServerLocatorSchema.IGNORED, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
       return new URI(SchemaConstants.UDP, null, endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }

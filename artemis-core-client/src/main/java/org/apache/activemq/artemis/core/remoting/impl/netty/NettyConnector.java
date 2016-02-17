@@ -94,10 +94,11 @@ import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtoco
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
+import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
 
@@ -151,7 +152,7 @@ public class NettyConnector extends AbstractConnector {
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener listener;
 
    private boolean sslEnabled = TransportConstants.DEFAULT_SSL_ENABLED;
 
@@ -231,7 +232,7 @@ public class NettyConnector extends AbstractConnector {
    // Public --------------------------------------------------------
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
-                         final ConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener listener,
                          final Executor closeExecutor,
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool) {
@@ -240,7 +241,7 @@ public class NettyConnector extends AbstractConnector {
 
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
-                         final ConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener listener,
                          final Executor closeExecutor,
                          final Executor threadPool,
                          final ScheduledExecutorService scheduledThreadPool,
@@ -681,7 +682,7 @@ public class NettyConnector extends AbstractConnector {
          // No acceptor on a client connection
          Listener connectionListener = new Listener();
          NettyConnection conn = new NettyConnection(configuration, ch, connectionListener, !httpEnabled && batchDelay > 0, false);
-         connectionListener.connectionCreated(null, conn, protocolManager.getName());
+         connectionListener.connectionCreated(null, conn, protocolManager);
          return conn;
       }
       else {
@@ -709,7 +710,7 @@ public class NettyConnector extends AbstractConnector {
 
       ActiveMQClientChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ConnectionLifeCycleListener listener) {
+                                   final ClientConnectionLifeCycleListener listener) {
          super(group, handler, listener);
       }
    }
@@ -899,12 +900,12 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
-   private class Listener implements ConnectionLifeCycleListener {
+   private class Listener implements ClientConnectionLifeCycleListener {
 
       @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
-                                    final String protocol) {
+                                    final ClientProtocolManager protocol) {
          if (connections.putIfAbsent(connection.getID(), connection) != null) {
             throw ActiveMQClientMessageBundle.BUNDLE.connectionExists(connection.getID());
          }

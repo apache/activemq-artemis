@@ -18,14 +18,16 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = ProtocolManagerFactory.class)
-public class MQTTProtocolManagerFactory implements ProtocolManagerFactory {
+public class MQTTProtocolManagerFactory implements ProtocolManagerFactory<BaseInterceptor> {
 
    public static final String MQTT_PROTOCOL_NAME = "MQTT";
 
@@ -35,8 +37,9 @@ public class MQTTProtocolManagerFactory implements ProtocolManagerFactory {
 
    @Override
    public ProtocolManager createProtocolManager(ActiveMQServer server,
-                                                List incomingInterceptors,
-                                                List outgoingInterceptors) {
+                                                final Map<String, Object> parameters,
+                                                List<BaseInterceptor> incomingInterceptors,
+                                                List<BaseInterceptor> outgoingInterceptors) {
       return new MQTTProtocolManager(server);
    }
 

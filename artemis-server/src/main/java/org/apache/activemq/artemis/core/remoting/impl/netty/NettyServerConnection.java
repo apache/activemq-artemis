@@ -21,13 +21,13 @@ import java.util.Map;
 import io.netty.channel.Channel;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 
 public class NettyServerConnection extends NettyConnection {
 
    public NettyServerConnection(Map<String, Object> configuration,
                                 Channel channel,
-                                ConnectionLifeCycleListener listener,
+                                ServerConnectionLifeCycleListener listener,
                                 boolean batchingEnabled,
                                 boolean directDeliver) {
       super(configuration, channel, listener, batchingEnabled, directDeliver);

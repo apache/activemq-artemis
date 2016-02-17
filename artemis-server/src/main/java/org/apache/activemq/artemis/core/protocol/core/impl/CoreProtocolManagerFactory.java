@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -24,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 
 public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
 
@@ -41,9 +43,10 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
     */
    @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
-                                                final List<Interceptor> incomingInterceptors,
-                                                List<Interceptor> outgoingInterceptors) {
-      return new CoreProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
+                                                Map<String, Object> parameters,
+                                                final List<BaseInterceptor> incomingInterceptors,
+                                                List<BaseInterceptor> outgoingInterceptors) throws Exception {
+      return BeanSupport.setData(new CoreProtocolManager(this, server, filterInterceptors(incomingInterceptors), filterInterceptors(outgoingInterceptors)), parameters);
    }
 
    @Override
@@ -51,7 +54,7 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
       // This is using this tool method
       // it wouldn't be possible to write a generic method without this class parameter
       // and I didn't want to bloat the cllaers for this
-      return filterInterceptors(Interceptor.class, interceptors);
+      return internalFilterInterceptors(Interceptor.class, interceptors);
    }
 
    @Override

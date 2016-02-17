@@ -46,7 +46,7 @@ public interface AcceptorFactory {
                            ClusterConnection clusterConnection,
                            Map<String, Object> configuration,
                            BufferHandler handler,
-                           ConnectionLifeCycleListener listener,
+                           ServerConnectionLifeCycleListener listener,
                            Executor threadPool,
                            ScheduledExecutorService scheduledThreadPool,
                            Map<String, ProtocolManager> protocolMap);

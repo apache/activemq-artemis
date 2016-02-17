@@ -62,7 +62,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQSession implements SessionCallback {
-
    private AMQServerSession coreSession;
    private ConnectionInfo connInfo;
    private SessionInfo sessInfo;

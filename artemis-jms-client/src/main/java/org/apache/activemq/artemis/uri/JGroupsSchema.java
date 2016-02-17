@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFa
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.uri.schema.serverLocator.JGroupsServerLocatorSchema;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class JGroupsSchema extends AbstractCFSchema {
 
@@ -53,7 +53,7 @@ public class JGroupsSchema extends AbstractCFSchema {
       else {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
       }
-      return URISchema.setData(uri, factory, query);
+      return BeanSupport.setData(uri, factory, query);
    }
 
    @Override
@@ -70,7 +70,7 @@ public class JGroupsSchema extends AbstractCFSchema {
       else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
-      String query = URISchema.getData(null, bean, dgc, endpoint);
+      String query = BeanSupport.getData(null, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
       return new URI(SchemaConstants.JGROUPS, null, auth, -1, null, query, null);
    }

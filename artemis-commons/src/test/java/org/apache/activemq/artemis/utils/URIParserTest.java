@@ -18,10 +18,13 @@
 package org.apache.activemq.artemis.utils;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URIFactory;
 import org.apache.activemq.artemis.utils.uri.URISchema;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -99,6 +102,30 @@ public class URIParserTest {
       Assert.assertEquals("something", fruit.getFluentName());
    }
 
+   @Test
+   public void testQueryConversion() throws Exception {
+      Map<String, String> query = new HashMap<String, String>();
+      String queryString = URISupport.createQueryString(query);
+      System.out.println("queryString1: " + queryString);
+      Assert.assertTrue(queryString.isEmpty());
+
+      query.put("key1", "value1");
+      queryString = URISupport.createQueryString(query);
+      System.out.println("queryString2: " + queryString);
+      Assert.assertEquals("key1=value1", queryString);
+
+      query.put("key2", "value2");
+      queryString = URISupport.createQueryString(query);
+      System.out.println("queryString3: " + queryString);
+      Assert.assertEquals("key1=value1&key2=value2", queryString);
+
+      query.put("key3", "value3");
+      queryString = URISupport.createQueryString(query);
+      System.out.println("queryString4: " + queryString);
+      Assert.assertEquals("key1=value1&key2=value2&key3=value3", queryString);
+
+   }
+
    class FruitParser extends URIFactory<FruitBase, String> {
 
       FruitParser() {
@@ -116,7 +143,7 @@ public class URIParserTest {
 
       @Override
       public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception {
-         return setData(uri, new Fruit(getSchemaName()), query);
+         return BeanSupport.setData(uri, new Fruit(getSchemaName()), query);
       }
 
    }
@@ -130,7 +157,7 @@ public class URIParserTest {
 
       @Override
       public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception {
-         return setData(uri, new FruitBase(getSchemaName()), query);
+         return BeanSupport.setData(uri, new FruitBase(getSchemaName()), query);
       }
    }
 

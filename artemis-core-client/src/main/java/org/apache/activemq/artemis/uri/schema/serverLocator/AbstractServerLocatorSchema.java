@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.uri.schema.serverLocator;
 
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
 import java.net.URI;
@@ -25,6 +26,6 @@ import java.util.Map;
 public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String> {
 
    protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception {
-      return setData(uri, new ConnectionOptions(), query);
+      return BeanSupport.setData(uri, new ConnectionOptions(), query);
    }
 }
