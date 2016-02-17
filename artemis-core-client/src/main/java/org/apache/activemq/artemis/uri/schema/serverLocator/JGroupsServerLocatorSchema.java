@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 import java.io.NotSerializableException;
@@ -63,7 +64,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
       else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
-      String query = getData(null, bean, dgc, endpoint);
+      String query = BeanSupport.getData(null, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
       return new URI(SchemaConstants.JGROUPS, null, auth, -1, null, query, null);
    }
@@ -79,11 +80,11 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
          endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       }
 
-      setData(uri, endpointFactory, query);
+      BeanSupport.setData(uri, endpointFactory, query);
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName(name).setBroadcastEndpointFactory(endpointFactory);
 
-      setData(uri, dcConfig, query);
+      BeanSupport.setData(uri, dcConfig, query);
       return dcConfig;
    }
 }

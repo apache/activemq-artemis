@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -37,6 +39,11 @@ public interface Acceptor extends ActiveMQComponent {
     * Pause the acceptor and stop it from receiving client requests.
     */
    void pause();
+
+   /**
+    * This will update the list of interceptors for each ProtocolManager inside the acceptor.
+    * */
+   void updateInterceptors(List<BaseInterceptor> incomingInterceptors,  List<BaseInterceptor> outgoingInterceptors);
 
    /**
     * @return the cluster connection associated with this Acceptor

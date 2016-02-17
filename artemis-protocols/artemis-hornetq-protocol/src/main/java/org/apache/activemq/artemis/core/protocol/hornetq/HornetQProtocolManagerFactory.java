@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.core.protocol.hornetq;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -36,11 +38,17 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
 
    @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
-                                                final List<Interceptor> incomingInterceptors,
-                                                List<Interceptor> outgoingInterceptors) {
-      incomingInterceptors.add(new HQPropertiesConversionInterceptor(true));
-      outgoingInterceptors.add(new HQPropertiesConversionInterceptor(false));
-      return new HornetQProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
+                                                final Map<String, Object> parameters,
+                                                final List<BaseInterceptor> incomingInterceptors,
+                                                List<BaseInterceptor> outgoingInterceptors) {
+
+      List<Interceptor> hqIncoming = filterInterceptors(incomingInterceptors);
+      List<Interceptor> hqOutgoing = filterInterceptors(outgoingInterceptors);
+
+      hqIncoming.add(new HQPropertiesConversionInterceptor(true));
+      hqOutgoing.add(new HQPropertiesConversionInterceptor(false));
+
+      return new HornetQProtocolManager(this, server, hqIncoming, hqOutgoing);
    }
 
    @Override

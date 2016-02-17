@@ -31,9 +31,9 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -43,7 +43,7 @@ public class InVMConnection implements Connection {
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener listener;
 
    private final String id;
 
@@ -64,7 +64,7 @@ public class InVMConnection implements Connection {
 
    public InVMConnection(final int serverID,
                          final BufferHandler handler,
-                         final ConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener listener,
                          final Executor executor) {
       this(serverID, UUIDGenerator.getInstance().generateSimpleStringUUID().toString(), handler, listener, executor);
    }
@@ -72,7 +72,7 @@ public class InVMConnection implements Connection {
    public InVMConnection(final int serverID,
                          final String id,
                          final BufferHandler handler,
-                         final ConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener listener,
                          final Executor executor) {
       this(serverID, id, handler, listener, executor, null);
    }
@@ -80,7 +80,7 @@ public class InVMConnection implements Connection {
    public InVMConnection(final int serverID,
                          final String id,
                          final BufferHandler handler,
-                         final ConnectionLifeCycleListener listener,
+                         final BaseConnectionLifeCycleListener listener,
                          final Executor executor,
                          final ActiveMQPrincipal defaultActiveMQPrincipal) {
       this.serverID = serverID;

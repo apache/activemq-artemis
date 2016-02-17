@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.IPV6Util;
 
@@ -53,7 +53,7 @@ public class NettyConnection implements Connection {
 
    private boolean closed;
 
-   private final ConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener listener;
 
    private final boolean batchingEnabled;
 
@@ -79,7 +79,7 @@ public class NettyConnection implements Connection {
 
    public NettyConnection(final Map<String, Object> configuration,
                           final Channel channel,
-                          final ConnectionLifeCycleListener listener,
+                          final BaseConnectionLifeCycleListener listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
       this.configuration = configuration;

@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.uri.schema.serverLocator.TCPServerLocatorSchema;
 import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfigurationSchema;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
 
 import java.net.URI;
 import java.util.List;
@@ -58,12 +58,12 @@ public class TCPSchema extends AbstractCFSchema {
          factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
       }
 
-      return URISchema.setData(uri, factory, query);
+      return BeanSupport.setData(uri, factory, query);
    }
 
    @Override
    protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
-      String query = URISchema.getData(null, bean);
+      String query = BeanSupport.getData(null, bean);
       TransportConfiguration[] staticConnectors = bean.getStaticConnectors();
       return TCPServerLocatorSchema.getURI(query, staticConnectors);
    }

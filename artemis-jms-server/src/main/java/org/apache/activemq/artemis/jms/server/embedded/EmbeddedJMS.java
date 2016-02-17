@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.jms.server.embedded;
 
 import javax.naming.Context;
 
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.registry.MapBindingRegistry;
@@ -80,13 +81,19 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
       return this;
    }
 
-   /**
-    * Lookup in the registry for registered object, i.e. a ConnectionFactory.
-    * <p>
-    * This is a convenience method.
-    *
-    * @param name
-    */
+
+   public EmbeddedJMS setConfiguration(Configuration configuration) {
+      super.setConfiguration(configuration);
+      return this;
+   }
+
+      /**
+       * Lookup in the registry for registered object, i.e. a ConnectionFactory.
+       * <p>
+       * This is a convenience method.
+       *
+       * @param name
+       */
    public Object lookup(String name) {
       return serverManager.getRegistry().lookup(name);
    }

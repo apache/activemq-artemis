@@ -53,9 +53,9 @@ import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
@@ -67,7 +67,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ConnectionLifeCycleListener {
+public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
    // Constants
    // ------------------------------------------------------------------------------------
 
@@ -350,7 +350,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    @Override
    public void connectionCreated(final ActiveMQComponent component,
                                  final Connection connection,
-                                 final String protocol) {
+                                 final ClientProtocolManager protocol) {
    }
 
    @Override

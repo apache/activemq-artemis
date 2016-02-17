@@ -26,10 +26,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
          }
       };
 
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+      ServerConnectionLifeCycleListener listener = new ServerConnectionLifeCycleListener() {
 
          @Override
          public void connectionException(final Object connectionID, final ActiveMQException me) {
@@ -61,7 +62,7 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
          @Override
          public void connectionCreated(ActiveMQComponent component,
                                        final Connection connection,
-                                       final String protocol) {
+                                       final ProtocolManager protocol) {
          }
 
          @Override

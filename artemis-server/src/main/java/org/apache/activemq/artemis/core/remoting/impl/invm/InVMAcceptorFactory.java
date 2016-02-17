@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 
 public class InVMAcceptorFactory implements AcceptorFactory {
 
@@ -34,10 +34,10 @@ public class InVMAcceptorFactory implements AcceptorFactory {
                                   final ClusterConnection clusterConnection,
                                   final Map<String, Object> configuration,
                                   final BufferHandler handler,
-                                  final ConnectionLifeCycleListener listener,
+                                  final ServerConnectionLifeCycleListener listener,
                                   final Executor threadPool,
                                   final ScheduledExecutorService scheduledThreadPool,
-                                  final Map<String, ProtocolManager> protocolHandler) {
-      return new InVMAcceptor(name, clusterConnection, configuration, handler, listener, threadPool);
+                                  final Map<String, ProtocolManager> protocolMap) {
+      return new InVMAcceptor(name, clusterConnection, configuration, handler, listener, protocolMap, threadPool);
    }
 }

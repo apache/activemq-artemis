@@ -34,7 +34,7 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
     * @param listIn
     * @return
     */
-   protected List<P> filterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn) {
+   protected List<P> internalFilterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn) {
       if (listIn == null) {
          return Collections.emptyList();
       }

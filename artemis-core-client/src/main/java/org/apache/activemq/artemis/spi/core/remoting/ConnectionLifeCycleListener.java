@@ -16,45 +16,11 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-
 /**
  * A ConnectionLifeCycleListener is called by the remoting implementation to notify of connection events.
+ * @deprecated use {@link ClientConnectionLifeCycleListener} instead.
  */
-public interface ConnectionLifeCycleListener {
+@Deprecated
+public interface ConnectionLifeCycleListener extends BaseConnectionLifeCycleListener<String> {
 
-   /**
-    * This method is used both by client connector creation and server connection creation through
-    * acceptors. On the client side the {@code component} parameter is normally passed as
-    * {@code null}.
-    * <p>
-    * Leaving this method here and adding a different one at
-    * {@code ServerConnectionLifeCycleListener} is a compromise for a reasonable split between the
-    * activemq-server and activemq-client packages while avoiding to pull too much into activemq-core.
-    * The pivotal point keeping us from removing the method is {@link ConnectorFactory} and the
-    * usage of it.
-    *
-    * @param component  This will probably be an {@code Acceptor} and only used on the server side.
-    * @param connection the connection that has been created
-    * @param protocol   the messaging protocol type this connection uses
-    */
-   void connectionCreated(ActiveMQComponent component, Connection connection, String protocol);
-
-   /**
-    * Called when a connection is destroyed.
-    *
-    * @param connectionID the connection being destroyed.
-    */
-   void connectionDestroyed(Object connectionID);
-
-   /**
-    * Called when an error occurs on the connection.
-    *
-    * @param connectionID the id of the connection.
-    * @param me           the exception.
-    */
-   void connectionException(Object connectionID, ActiveMQException me);
-
-   void connectionReadyForWrites(Object connectionID, boolean ready);
 }

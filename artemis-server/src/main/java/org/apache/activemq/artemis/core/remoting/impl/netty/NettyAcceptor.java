@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
+import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -71,18 +72,17 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
- * A Netty TCP Acceptor that supports SSL
+ * A Netty TCP Acceptor that is embedding Netty.
  */
-public class NettyAcceptor implements Acceptor {
+public class NettyAcceptor extends AbstractAcceptor {
 
    static {
       // Disable resource leak detection for performance reasons by default
@@ -107,7 +107,7 @@ public class NettyAcceptor implements Acceptor {
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final ServerConnectionLifeCycleListener listener;
 
    private final boolean sslEnabled;
 
@@ -173,9 +173,11 @@ public class NettyAcceptor implements Acceptor {
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
                         final BufferHandler handler,
-                        final ConnectionLifeCycleListener listener,
+                        final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
                         final Map<String, ProtocolManager> protocolMap) {
+      super(protocolMap);
+
       this.name = name;
 
       this.clusterConnection = clusterConnection;
@@ -604,7 +606,7 @@ public class NettyAcceptor implements Acceptor {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ConnectionLifeCycleListener listener) {
+                                   final ServerConnectionLifeCycleListener listener) {
          super(group, handler, listener);
       }
 
@@ -618,7 +620,7 @@ public class NettyAcceptor implements Acceptor {
 
             NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver);
 
-            connectionListener.connectionCreated(NettyAcceptor.this, nc, protocol);
+            connectionListener.connectionCreated(NettyAcceptor.this, nc, protocolHandler.getProtocol(protocol));
 
             SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
             if (sslHandler != null) {
@@ -648,12 +650,12 @@ public class NettyAcceptor implements Acceptor {
       }
    }
 
-   private class Listener implements ConnectionLifeCycleListener {
+   private class Listener implements ServerConnectionLifeCycleListener {
 
       @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
-                                    final String protocol) {
+                                    final ProtocolManager protocol) {
          if (connections.putIfAbsent(connection.getID(), (NettyServerConnection) connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }

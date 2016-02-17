@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
@@ -60,7 +61,7 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory endpoint = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       dgc.setBroadcastEndpointFactory(endpoint);
-      String query = getData(IGNORED, bean, dgc, endpoint);
+      String query = BeanSupport.getData(IGNORED, bean, dgc, endpoint);
       return new URI(SchemaConstants.UDP, null, endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }
 
@@ -71,11 +72,11 @@ public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
                                                                             String name) throws Exception {
       UDPBroadcastEndpointFactory endpointFactoryConfiguration = new UDPBroadcastEndpointFactory().setGroupAddress(host).setGroupPort(port);
 
-      setData(uri, endpointFactoryConfiguration, query);
+      BeanSupport.setData(uri, endpointFactoryConfiguration, query);
 
-      DiscoveryGroupConfiguration dgc = setData(uri, new DiscoveryGroupConfiguration(), query).setName(name).setBroadcastEndpointFactory(endpointFactoryConfiguration);
+      DiscoveryGroupConfiguration dgc = BeanSupport.setData(uri, new DiscoveryGroupConfiguration(), query).setName(name).setBroadcastEndpointFactory(endpointFactoryConfiguration);
 
-      setData(uri, dgc, query);
+      BeanSupport.setData(uri, dgc, query);
       return dgc;
    }
 }
