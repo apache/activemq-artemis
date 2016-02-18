@@ -585,9 +585,9 @@ public class Create extends InputAbstract {
       }
 
       if (!IS_WINDOWS || IS_CYGWIN) {
-         write(BIN_ARTEMIS, null, true);
+         write(BIN_ARTEMIS, filters, true);
          makeExec(BIN_ARTEMIS);
-         write(BIN_ARTEMIS_SERVICE, null, true);
+         write(BIN_ARTEMIS_SERVICE, filters, true);
          makeExec(BIN_ARTEMIS_SERVICE);
          write(ETC_ARTEMIS_PROFILE, filters, true);
       }

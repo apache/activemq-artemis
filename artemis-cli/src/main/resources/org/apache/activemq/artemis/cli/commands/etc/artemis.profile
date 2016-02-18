@@ -23,7 +23,7 @@ ARTEMIS_INSTANCE='${artemis.instance}'
 
 
 # Java Opts
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Xbootclasspath/a:$ARTEMIS_HOME/lib/${logmanager} -Djava.security.auth.login.config=$ARTEMIS_INSTANCE/etc/login.config ${java-opts} -Dartemis.instance=$ARTEMIS_INSTANCE"
+JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
 
 #
 # There might be options that you only want to enable on specifc commands, like setting a JMX port

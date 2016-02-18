@@ -105,7 +105,10 @@ if $cygwin ; then
   CLASSPATH=`cygpath --windows "$CLASSPATH"`
 fi
 
-exec "$JAVACMD" $JAVA_ARGS $ARTEMIS_CLUSTER_PROPS \
+exec "$JAVACMD" $JAVA_ARGS \
+    -Xbootclasspath/a:"$ARTEMIS_HOME/lib/${logmanager}" \
+    -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
+    $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
     -Dartemis.home="$ARTEMIS_HOME" \
     -Dartemis.instance="$ARTEMIS_INSTANCE" \
