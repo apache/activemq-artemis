@@ -183,7 +183,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                AsynchronousFailoverTest.log.info("Fail complete");
 
-               t.join(TimeUnit.SECONDS.toMillis(20));
+               t.join(TimeUnit.SECONDS.toMillis(60));
                if (t.isAlive()) {
                   System.out.println(threadDump("Thread still running from the test"));
                   t.interrupt();
