@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
 public class ClusterConnectionMulticastSchema extends ClusterConnectionStaticSchema {
@@ -40,7 +41,7 @@ public class ClusterConnectionMulticastSchema extends ClusterConnectionStaticSch
       else {
          bean.setDiscoveryGroupName(uri.getHost());
          Map<String, String> parameters = URISupport.parseParameters(uri);
-         setData(uri, bean, parameters);
+         BeanSupport.setData(uri, bean, parameters);
 
       }
    }

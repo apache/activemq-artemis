@@ -22,10 +22,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Component(service = ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
@@ -38,9 +40,10 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
 
    @Override
    public ProtocolManager createProtocolManager(ActiveMQServer server,
-                                                List<Interceptor> incomingInterceptors,
-                                                List<Interceptor> outgoingInterceptors) {
-      return new ProtonProtocolManager(this, server);
+                                                final Map<String, Object> parameters,
+                                                List<BaseInterceptor> incomingInterceptors,
+                                                List<BaseInterceptor> outgoingInterceptors) throws Exception {
+      return BeanSupport.setData(new ProtonProtocolManager(this, server), parameters);
    }
 
    @Override

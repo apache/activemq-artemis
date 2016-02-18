@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -34,8 +35,9 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor> {
     * @return
     */
    ProtocolManager createProtocolManager(ActiveMQServer server,
-                                         List<P> incomingInterceptors,
-                                         List<P> outgoingInterceptors);
+                                         Map<String, Object> parameters,
+                                         List<BaseInterceptor> incomingInterceptors,
+                                         List<BaseInterceptor> outgoingInterceptors) throws Exception;
 
    /**
     * This should get the entire list and only return the ones this factory can deal with *

@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.uri.schema.connector.InVMTransportConfigurationSchema;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 import java.net.URI;
@@ -37,7 +38,7 @@ public class InVMServerLocatorSchema extends AbstractServerLocatorSchema {
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
       TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator factory = ActiveMQClient.createServerLocatorWithoutHA(tc);
-      return setData(uri, factory, query);
+      return BeanSupport.setData(uri, factory, query);
    }
 
    @Override

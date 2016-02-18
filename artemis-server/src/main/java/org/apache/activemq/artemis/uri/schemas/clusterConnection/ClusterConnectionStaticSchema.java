@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
@@ -50,7 +51,7 @@ public class ClusterConnectionStaticSchema extends URISchema<ClusterConnectionCo
       URISupport.CompositeData compositeData = URISupport.parseComposite(uri);
       bean.setCompositeMembers(compositeData);
 
-      setData(uri, bean, compositeData.getParameters());
+      BeanSupport.setData(uri, bean, compositeData.getParameters());
    }
 
 

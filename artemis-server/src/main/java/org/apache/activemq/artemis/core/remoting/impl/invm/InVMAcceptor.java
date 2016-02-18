@@ -25,28 +25,29 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
-import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
-public final class InVMAcceptor implements Acceptor {
+public final class InVMAcceptor extends AbstractAcceptor {
 
    private final int id;
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final ServerConnectionLifeCycleListener listener;
 
    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
@@ -72,8 +73,10 @@ public final class InVMAcceptor implements Acceptor {
                        final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
                        final BufferHandler handler,
-                       final ConnectionLifeCycleListener listener,
+                       final ServerConnectionLifeCycleListener listener,
+                       final Map<String, ProtocolManager> protocolMap,
                        final Executor threadPool) {
+      super(protocolMap);
 
       this.name = name;
 
@@ -219,7 +222,7 @@ public final class InVMAcceptor implements Acceptor {
 
       InVMConnection inVMConnection = new InVMConnection(id, connectionID, remoteHandler, connectionListener, clientExecutor, defaultActiveMQPrincipal);
 
-      connectionListener.connectionCreated(this, inVMConnection, ActiveMQClient.DEFAULT_CORE_PROTOCOL);
+      connectionListener.connectionCreated(this, inVMConnection, protocolMap.get(ActiveMQClient.DEFAULT_CORE_PROTOCOL));
    }
 
    public void disconnect(final String connectionID) {
@@ -249,7 +252,7 @@ public final class InVMAcceptor implements Acceptor {
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
-   private class Listener implements ConnectionLifeCycleListener {
+   private class Listener implements ServerConnectionLifeCycleListener {
       //private static Listener instance = new Listener();
 
       private final InVMConnector connector;
@@ -261,7 +264,7 @@ public final class InVMAcceptor implements Acceptor {
       @Override
       public void connectionCreated(final ActiveMQComponent component,
                                     final Connection connection,
-                                    final String protocol) {
+                                    final ProtocolManager protocol) {
          if (connections.putIfAbsent((String) connection.getID(), connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }

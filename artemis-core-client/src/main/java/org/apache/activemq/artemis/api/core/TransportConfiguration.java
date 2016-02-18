@@ -51,6 +51,8 @@ public class TransportConfiguration implements Serializable {
 
    private Map<String, Object> params;
 
+   private Map<String, Object> extraProps;
+
    private static final byte TYPE_BOOLEAN = 0;
 
    private static final byte TYPE_INT = 1;
@@ -93,6 +95,19 @@ public class TransportConfiguration implements Serializable {
     * @param name      The name of this TransportConfiguration
     */
    public TransportConfiguration(final String className, final Map<String, Object> params, final String name) {
+      this(className, params, name, null);
+   }
+
+   /**
+    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
+    * and any parameters needed.
+    *
+    * @param className   The class name of the ConnectorFactory
+    * @param params      The parameters needed by the ConnectorFactory
+    * @param name        The name of this TransportConfiguration
+    * @param extraProps  The extra properties that specific to protocols
+    */
+   public TransportConfiguration(final String className, final Map<String, Object> params, final String name, final Map<String, Object> extraProps) {
       factoryClassName = className;
 
       if (params == null || params.isEmpty()) {
@@ -103,6 +118,7 @@ public class TransportConfiguration implements Serializable {
       }
 
       this.name = name;
+      this.extraProps = extraProps;
    }
 
    public TransportConfiguration newTransportConfig(String newName) {
@@ -156,6 +172,9 @@ public class TransportConfiguration implements Serializable {
       return params;
    }
 
+   public Map<String, Object> getExtraParams() {
+      return extraProps;
+   }
 
    @Override
    public int hashCode() {
@@ -249,8 +268,50 @@ public class TransportConfiguration implements Serializable {
 
             first = false;
          }
+         if (extraProps != null) {
+            for (Map.Entry<String, Object> entry : extraProps.entrySet()) {
+               if (!first) {
+                  str.append("&");
+               }
+
+               String key = entry.getKey();
+               String val = entry.getValue() == null ? "null" : entry.getValue().toString();
+
+               str.append(replaceWildcardChars(key)).append('=').append(replaceWildcardChars(val));
+
+               first = false;
+            }
+         }
       }
       return str.toString();
+   }
+
+   private void encodeMap(final ActiveMQBuffer buffer, final Map<String, Object> map) {
+      for (Map.Entry<String, Object> entry : map.entrySet()) {
+         buffer.writeString(entry.getKey());
+
+         Object val = entry.getValue();
+
+         if (val instanceof Boolean) {
+            buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
+            buffer.writeBoolean((Boolean) val);
+         }
+         else if (val instanceof Integer) {
+            buffer.writeByte(TransportConfiguration.TYPE_INT);
+            buffer.writeInt((Integer) val);
+         }
+         else if (val instanceof Long) {
+            buffer.writeByte(TransportConfiguration.TYPE_LONG);
+            buffer.writeLong((Long) val);
+         }
+         else if (val instanceof String) {
+            buffer.writeByte(TransportConfiguration.TYPE_STRING);
+            buffer.writeString((String) val);
+         }
+         else {
+            throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
+         }
+      }
    }
 
    /**
@@ -267,31 +328,10 @@ public class TransportConfiguration implements Serializable {
       buffer.writeInt(params == null ? 0 : params.size());
 
       if (params != null) {
-         for (Map.Entry<String, Object> entry : params.entrySet()) {
-            buffer.writeString(entry.getKey());
-
-            Object val = entry.getValue();
-
-            if (val instanceof Boolean) {
-               buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
-               buffer.writeBoolean((Boolean) val);
-            }
-            else if (val instanceof Integer) {
-               buffer.writeByte(TransportConfiguration.TYPE_INT);
-               buffer.writeInt((Integer) val);
-            }
-            else if (val instanceof Long) {
-               buffer.writeByte(TransportConfiguration.TYPE_LONG);
-               buffer.writeLong((Long) val);
-            }
-            else if (val instanceof String) {
-               buffer.writeByte(TransportConfiguration.TYPE_STRING);
-               buffer.writeString((String) val);
-            }
-            else {
-               throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
-            }
-         }
+         encodeMap(buffer, params);
+      }
+      if (extraProps != null) {
+         encodeMap(buffer, extraProps);
       }
    }
 

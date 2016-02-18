@@ -17,12 +17,14 @@
 package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = ProtocolManagerFactory.class)
@@ -36,14 +38,15 @@ public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<
 
    @Override
    public ProtocolManager createProtocolManager(final ActiveMQServer server,
-                                                final List<StompFrameInterceptor> incomingInterceptors,
-                                                List<StompFrameInterceptor> outgoingInterceptors) {
-      return new StompProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
+                                                final Map<String, Object> parameters,
+                                                final List<BaseInterceptor> incomingInterceptors,
+                                                List<BaseInterceptor> outgoingInterceptors) throws Exception {
+      return BeanSupport.setData(new StompProtocolManager(this, server, filterInterceptors(incomingInterceptors), filterInterceptors(outgoingInterceptors)), parameters);
    }
 
    @Override
    public List<StompFrameInterceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
-      return filterInterceptors(StompFrameInterceptor.class, interceptors);
+      return internalFilterInterceptors(StompFrameInterceptor.class, interceptors);
    }
 
    @Override

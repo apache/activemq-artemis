@@ -65,12 +65,12 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener {
+public class RemotingServiceImpl implements RemotingService, ServerConnectionLifeCycleListener {
    // Constants -----------------------------------------------------
 
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -107,7 +107,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final ClusterManager clusterManager;
 
-   private final Map<String, ProtocolManager> protocolMap = new ConcurrentHashMap();
+   private final Map<String, ProtocolManagerFactory> protocolMap = new ConcurrentHashMap();
 
    private ActiveMQPrincipal defaultInvmSecurityPrincipal;
 
@@ -144,7 +144,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       this.flushExecutor = flushExecutor;
 
       ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
-      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
+//      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
+      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory);
 
       if (config.isResolveProtocols()) {
          resolveProtocols(server, this.getClass().getClassLoader());
@@ -157,9 +158,10 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       if (protocolManagerFactories != null) {
          for (ProtocolManagerFactory protocolManagerFactory : protocolManagerFactories) {
             String[] protocols = protocolManagerFactory.getProtocols();
-            for (String protocol : protocols) {
-               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, protocolManagerFactory.getModuleName());
-               protocolMap.put(protocol, protocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
+            for (String protocolName : protocols) {
+               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocolName, protocolManagerFactory.getModuleName());
+               //               protocolMap.put(protocol, protocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
+               protocolMap.put(protocolName, protocolManagerFactory);
             }
          }
       }
@@ -172,7 +174,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             String[] protocols = next.getProtocols();
             for (String protocol : protocols) {
                ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
-               protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors), next.filterInterceptors(outgoingInterceptors)));
+               //               protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors), next.filterInterceptors(outgoingInterceptors)));
+               protocolMap.put(protocol, next);
             }
          }
       }
@@ -210,45 +213,35 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          try {
             AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
-            Map<String, ProtocolManager> supportedProtocols = new ConcurrentHashMap();
+            Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap();
 
             @SuppressWarnings("deprecation")
             String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
-
             if (protocol != null) {
                ActiveMQServerLogger.LOGGER.warnDeprecatedProtocol();
-               ProtocolManager protocolManager = protocolMap.get(protocol);
-
-               if (protocolManager == null) {
-                  ActiveMQServerLogger.LOGGER.noProtocolManagerFound(protocol, info.toString());
-               }
-               else {
-                  supportedProtocols.put(protocol, protocolManager);
-               }
+               locateProtocols(protocol, info, selectedProtocolFactories);
             }
 
             String protocols = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOLS_PROP_NAME, null, info.getParams());
 
             if (protocols != null) {
-               String[] actualProtocols = protocols.split(",");
-
-               if (actualProtocols != null) {
-                  for (String actualProtocol : actualProtocols) {
-                     ProtocolManager protocolManager = protocolMap.get(actualProtocol);
-
-                     if (protocolManager == null) {
-                        ActiveMQServerLogger.LOGGER.noProtocolManagerFound(actualProtocol, info.toString());
-                     }
-                     else {
-                        supportedProtocols.put(actualProtocol, protocolManager);
-                     }
-                  }
-               }
+               locateProtocols(protocols, info, selectedProtocolFactories);
             }
 
             ClusterConnection clusterConnection = lookupClusterConnection(info);
 
-            Acceptor acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, supportedProtocols.isEmpty() ? protocolMap : supportedProtocols);
+            // If empty: we get the default list
+            if (selectedProtocolFactories.isEmpty()) {
+               selectedProtocolFactories = protocolMap;
+            }
+
+            Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap();
+            for (Map.Entry<String, ProtocolManagerFactory> entry: selectedProtocolFactories.entrySet()) {
+               selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
+            }
+
+
+            Acceptor acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
 
             if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
                acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
@@ -278,6 +271,25 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       failureCheckAndFlushThread.start();
 
       started = true;
+   }
+
+   private void locateProtocols(String protocolList,
+                                Object transportConfig,
+                                Map<String, ProtocolManagerFactory> protocolMap) {
+      String[] protocolsSplit = protocolList.split(",");
+
+      if (protocolsSplit != null) {
+         for (String protocolItem : protocolsSplit) {
+            ProtocolManagerFactory protocolManagerFactory = protocolMap.get(protocolItem);
+
+            if (protocolManagerFactory == null) {
+               ActiveMQServerLogger.LOGGER.noProtocolManagerFound(protocolItem, transportConfig.toString());
+            }
+            else {
+               protocolMap.put(protocolItem, protocolManagerFactory);
+            }
+         }
+      }
    }
 
    @Override
@@ -469,25 +481,19 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    // ConnectionLifeCycleListener implementation -----------------------------------
 
-   private ProtocolManager getProtocolManager(String protocol) {
+   private ProtocolManagerFactory getProtocolManager(String protocol) {
       return protocolMap.get(protocol);
    }
 
    @Override
    public void connectionCreated(final ActiveMQComponent component,
                                  final Connection connection,
-                                 final String protocol) {
+                                 final ProtocolManager protocol) {
       if (server == null) {
          throw new IllegalStateException("Unable to create connection, server hasn't finished starting up");
       }
 
-      ProtocolManager pmgr = this.getProtocolManager(protocol.toString());
-
-      if (pmgr == null) {
-         throw ActiveMQMessageBundle.BUNDLE.unknownProtocol(protocol);
-      }
-
-      ConnectionEntry entry = pmgr.createConnectionEntry((Acceptor) component, connection);
+      ConnectionEntry entry = protocol.createConnectionEntry((Acceptor) component, connection);
 
       if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Connection created " + connection);
@@ -720,10 +726,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    protected void updateProtocols() {
-      for (ProtocolManager<?> protocolManager : this.protocolMap.values()) {
-         protocolManager.updateInterceptors(incomingInterceptors, outgoingInterceptors);
+      for (Acceptor acceptor : this.acceptors.values()) {
+         acceptor.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       }
-
    }
 
 }

@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
@@ -27,7 +29,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 
 public class FakeAcceptorFactory implements AcceptorFactory {
 
@@ -38,7 +40,7 @@ public class FakeAcceptorFactory implements AcceptorFactory {
                                   ClusterConnection clusterConnection,
                                   Map<String, Object> configuration,
                                   BufferHandler handler,
-                                  ConnectionLifeCycleListener listener,
+                                  ServerConnectionLifeCycleListener listener,
                                   Executor threadPool,
                                   ScheduledExecutorService scheduledThreadPool,
                                   Map<String, ProtocolManager> protocolMap) {
@@ -55,6 +57,11 @@ public class FakeAcceptorFactory implements AcceptorFactory {
       @Override
       public void pause() {
 
+      }
+
+      @Override
+      public void updateInterceptors(List<BaseInterceptor> incomingInterceptors,
+                                     List<BaseInterceptor> outgoingInterceptors) {
       }
 
       @Override

@@ -84,6 +84,10 @@ public class ProtocolHandler {
       }
    }
 
+   public ProtocolManager getProtocol(String name) {
+      return this.protocolMap.get(name);
+   }
+
    class ProtocolDecoder extends ByteToMessageDecoder {
 
       private final boolean http;

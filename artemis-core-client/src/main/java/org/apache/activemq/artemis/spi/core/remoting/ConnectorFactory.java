@@ -42,7 +42,7 @@ public interface ConnectorFactory extends TransportConfigurationHelper {
     */
    Connector createConnector(Map<String, Object> configuration,
                              BufferHandler handler,
-                             ConnectionLifeCycleListener listener,
+                             ClientConnectionLifeCycleListener listener,
                              Executor closeExecutor,
                              Executor threadPool,
                              ScheduledExecutorService scheduledThreadPool,

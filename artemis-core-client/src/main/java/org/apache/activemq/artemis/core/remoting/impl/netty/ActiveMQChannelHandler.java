@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
-import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
 /**
  * Common handler implementation for client and server side handler.
@@ -37,13 +37,13 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
 
    private final BufferHandler handler;
 
-   private final ConnectionLifeCycleListener listener;
+   private final BaseConnectionLifeCycleListener listener;
 
    volatile boolean active;
 
    protected ActiveMQChannelHandler(final ChannelGroup group,
                                     final BufferHandler handler,
-                                    final ConnectionLifeCycleListener listener) {
+                                    final BaseConnectionLifeCycleListener listener) {
       this.group = group;
       this.handler = handler;
       this.listener = listener;

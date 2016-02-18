@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String> {
@@ -32,7 +33,7 @@ public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFacto
       if (JMSConnectionOptions.convertCFType(type) == null) {
          ActiveMQClientLogger.LOGGER.invalidCFType(type, uri.toString());
       }
-      return setData(uri, new JMSConnectionOptions(), query);
+      return BeanSupport.setData(uri, new JMSConnectionOptions(), query);
    }
 
 }
