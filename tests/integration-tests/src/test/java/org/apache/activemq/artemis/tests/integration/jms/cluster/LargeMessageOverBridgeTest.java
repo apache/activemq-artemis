@@ -169,8 +169,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
    protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       Configuration config = super.createConfigServer(source, destination);
 
-      config.getAddressesSettings().put("#", new AddressSettings().setRedistributionDelay(0));
-
       installHack(config);
 
       return config;
