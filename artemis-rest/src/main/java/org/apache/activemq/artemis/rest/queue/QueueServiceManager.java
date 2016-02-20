@@ -76,12 +76,12 @@ public class QueueServiceManager extends DestinationServiceManager {
          throw new Exception("You must start() this class instance before deploying");
       }
       String queueName = queueDeployment.getName();
-      ClientSession session = sessionFactory.createSession(false, false, false);
-      ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
-      if (!query.isExists()) {
-         session.createQueue(queueName, queueName, queueDeployment.isDurableSend());
+      try (ClientSession session = sessionFactory.createSession(false, false, false)) {
+         ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
+         if (!query.isExists()) {
+            session.createQueue(queueName, queueName, queueDeployment.isDurableSend());
+         }
       }
-      session.close();
 
       destination.createQueueResource(queueName, queueDeployment.isDurableSend(), queueDeployment.getConsumerSessionTimeoutSeconds(), queueDeployment.isDuplicatesAllowed());
 

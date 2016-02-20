@@ -85,25 +85,25 @@ public class MessagePropertyTest extends ActiveMQTestBase {
    private void receiveMessages() throws Exception {
       ClientSession session = sf.createSession(true, true);
       session.start();
-      ClientConsumer consumer = session.createConsumer(ADDRESS);
-      for (int i = 0; i < numMessages; i++) {
-         ClientMessage message = consumer.receive(100);
-         assertNotNull("Expecting a message " + i, message);
-         assertMessageBody(i, message);
-         assertEquals(i, message.getIntProperty("int").intValue());
-         assertEquals((short) i, message.getShortProperty("short").shortValue());
-         assertEquals((byte) i, message.getByteProperty("byte").byteValue());
-         assertEquals(floatValue(i), message.getFloatProperty("float").floatValue(), 0.001);
-         assertEquals(new SimpleString(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
-         assertEqualsByteArrays(byteArray(i), message.getBytesProperty("byte[]"));
+      try (ClientConsumer consumer = session.createConsumer(ADDRESS)) {
+         for (int i = 0; i < numMessages; i++) {
+            ClientMessage message = consumer.receive(100);
+            assertNotNull("Expecting a message " + i, message);
+            assertMessageBody(i, message);
+            assertEquals(i, message.getIntProperty("int").intValue());
+            assertEquals((short) i, message.getShortProperty("short").shortValue());
+            assertEquals((byte) i, message.getByteProperty("byte").byteValue());
+            assertEquals(floatValue(i), message.getFloatProperty("float").floatValue(), 0.001);
+            assertEquals(new SimpleString(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
+            assertEqualsByteArrays(byteArray(i), message.getBytesProperty("byte[]"));
 
-         assertTrue(message.containsProperty("null-value"));
-         assertEquals(message.getObjectProperty("null-value"), null);
+            assertTrue(message.containsProperty("null-value"));
+            assertEquals(message.getObjectProperty("null-value"), null);
 
-         message.acknowledge();
+            message.acknowledge();
+         }
+         assertNull("no more messages", consumer.receive(50));
       }
-      assertNull("no more messages", consumer.receive(50));
-      consumer.close();
       session.commit();
    }
 

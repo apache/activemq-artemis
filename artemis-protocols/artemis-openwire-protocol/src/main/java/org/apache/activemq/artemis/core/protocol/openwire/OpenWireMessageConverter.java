@@ -159,9 +159,8 @@ public class OpenWireMessageConverter implements MessageConverter {
                if (messageCompressed) {
                   InputStream ois = new ByteArrayInputStream(contents);
                   ois = new InflaterInputStream(ois);
-                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
 
-                  try {
+                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
                      byte[] buf = new byte[1024];
                      int n = ois.read(buf);
                      while (n != -1) {
@@ -170,9 +169,6 @@ public class OpenWireMessageConverter implements MessageConverter {
                      }
                      //read done
                      contents = decompressed.toByteSequence();
-                  }
-                  finally {
-                     decompressed.close();
                   }
                }
                body.writeInt(contents.length);
@@ -279,18 +275,13 @@ public class OpenWireMessageConverter implements MessageConverter {
                break;
             default:
                if (messageCompressed) {
-                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
-                  OutputStream os = new InflaterOutputStream(decompressed);
-                  try {
+                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
+                       OutputStream os = new InflaterOutputStream(decompressed)) {
                      os.write(contents.data, contents.offset, contents.getLength());
                      contents = decompressed.toByteSequence();
                   }
                   catch (Exception e) {
                      throw new IOException(e);
-                  }
-                  finally {
-                     os.close();
-                     decompressed.close();
                   }
                }
                body.writeBytes(contents.data, contents.offset, contents.length);
@@ -536,9 +527,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                buffer.readBytes(bytes);
                if (isCompressed) {
                   ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                  DeflaterOutputStream out = new DeflaterOutputStream(bytesOut);
-                  out.write(bytes);
-                  out.close();
+                  try (DeflaterOutputStream out = new DeflaterOutputStream(bytesOut)) {
+                     out.write(bytes);
+                  }
                   bytes = bytesOut.toByteArray();
                }
             }
@@ -637,15 +628,10 @@ public class OpenWireMessageConverter implements MessageConverter {
                bytes = new byte[n];
                buffer.readBytes(bytes);
                if (isCompressed) {
-                  ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-                  DeflaterOutputStream out = new DeflaterOutputStream(bytesOut);
-                  try {
+                  try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+                       DeflaterOutputStream out = new DeflaterOutputStream(bytesOut)) {
                      out.write(bytes);
                      bytes = bytesOut.toByteArray();
-                  }
-                  finally {
-                     out.close();
-                     bytesOut.close();
                   }
                }
             }

@@ -30,8 +30,7 @@ public class JmsSend {
       ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
       Destination destination = ActiveMQDestination.fromAddress("jms.queue.orders");
 
-      Connection conn = factory.createConnection();
-      try {
+      try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(destination);
          ObjectMessage message = session.createObjectMessage();
@@ -39,9 +38,6 @@ public class JmsSend {
          Order order = new Order("Bill", "$199.99", "iPhone4");
          message.setObject(order);
          producer.send(message);
-      }
-      finally {
-         conn.close();
       }
    }
 }

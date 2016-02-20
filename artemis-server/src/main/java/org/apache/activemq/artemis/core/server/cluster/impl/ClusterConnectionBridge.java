@@ -255,14 +255,13 @@ public class ClusterConnectionBridge extends BridgeImpl {
          }
          ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
-         ClientProducer prod = sessionConsumer.createProducer(managementAddress);
+         try (ClientProducer prod = sessionConsumer.createProducer(managementAddress)) {
+            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQClientLogger.LOGGER.debug("Cluster connection bridge on " + clusterConnection + " requesting information on queues");
+            }
 
-         if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQClientLogger.LOGGER.debug("Cluster connection bridge on " + clusterConnection + " requesting information on queues");
+            prod.send(message);
          }
-
-         prod.send(message);
-         prod.close();
       }
    }
 

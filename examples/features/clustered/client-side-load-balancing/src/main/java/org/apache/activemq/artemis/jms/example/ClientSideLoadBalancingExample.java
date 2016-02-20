@@ -56,13 +56,13 @@ public class ClientSideLoadBalancingExample {
 
          // Step 4. We create 3 JMS connections from the same connection factory. Since we are using round-robin
          // load-balancing this should result in each sessions being connected to a different node of the cluster
-         Connection conn = connectionFactory.createConnection();
-         // Wait a little while to make sure broadcasts from all nodes have reached the client
-         Thread.sleep(5000);
-         connectionA = connectionFactory.createConnection();
-         connectionB = connectionFactory.createConnection();
-         connectionC = connectionFactory.createConnection();
-         conn.close();
+         try (Connection conn = connectionFactory.createConnection()) {
+            // Wait a little while to make sure broadcasts from all nodes have reached the client
+            Thread.sleep(5000);
+            connectionA = connectionFactory.createConnection();
+            connectionB = connectionFactory.createConnection();
+            connectionC = connectionFactory.createConnection();
+         }
 
          // Step 5. We create JMS Sessions
          Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);

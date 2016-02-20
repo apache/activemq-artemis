@@ -351,9 +351,9 @@ public final class XmlDataImporter extends ActionAbstract {
       ActiveMQServerLogger.LOGGER.debug(logMessage);
 
       message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
-      ClientProducer producer = session.createProducer(destination);
-      producer.send(message);
-      producer.close();
+      try (ClientProducer producer = session.createProducer(destination)) {
+         producer.send(message);
+      }
 
       if (tempFileName.length() > 0) {
          File tempFile = new File(tempFileName);

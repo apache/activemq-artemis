@@ -62,9 +62,7 @@ public class EmbeddedExample {
       Queue queue = (Queue) jmsServer.lookup("queue/exampleQueue");
 
       // Step 10. Send and receive a message using JMS API
-      Connection connection = null;
-      try {
-         connection = cf.createConnection();
+      try (Connection connection = cf.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
          TextMessage message = session.createTextMessage("Hello sent at " + new Date());
@@ -76,10 +74,6 @@ public class EmbeddedExample {
          System.out.println("Received message:" + messageReceived.getText());
       }
       finally {
-         if (connection != null) {
-            connection.close();
-         }
-
          // Step 11. Stop the JMS server
          jmsServer.stop();
          System.out.println("Stopped the JMS Server");

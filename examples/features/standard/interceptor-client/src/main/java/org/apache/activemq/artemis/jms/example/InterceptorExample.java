@@ -32,11 +32,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 public class InterceptorExample {
 
    public static void main(final String[] args) throws Exception {
-      Connection connection = null;
-      try {
-         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616?incomingInterceptorList=" + SimpleInterceptor.class.getName());
-         connection = cf.createConnection();
-
+      ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616?incomingInterceptorList=" + SimpleInterceptor.class.getName());
+      try (Connection connection = cf.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          Queue queue = session.createQueue("exampleQueue");
@@ -63,11 +60,6 @@ public class InterceptorExample {
 
          if (messageReceived.getStringProperty("newproperty") == null) {
             throw new IllegalStateException("Check your configuration as the example interceptor wasn't actually called!");
-         }
-      }
-      finally {
-         if (connection != null) {
-            connection.close();
          }
       }
    }

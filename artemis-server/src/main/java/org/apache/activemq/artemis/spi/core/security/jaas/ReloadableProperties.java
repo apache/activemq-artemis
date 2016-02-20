@@ -73,8 +73,7 @@ public class ReloadableProperties {
 
    private void load(final File source,
                      Properties props) throws IOException {
-      FileInputStream in = new FileInputStream(source);
-      try {
+      try (FileInputStream in = new FileInputStream(source)) {
          props.load(in);
          //            if (key.isDecrypt()) {
          //                try {
@@ -86,9 +85,6 @@ public class ReloadableProperties {
          //                }
          //            }
 
-      }
-      finally {
-         in.close();
       }
    }
 

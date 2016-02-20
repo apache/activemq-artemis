@@ -110,14 +110,9 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
          File.separatorChar +
          PagingStoreFactoryNIO.ADDRESS_FILE);
 
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileWithID)));
-
-      try {
+      try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileWithID)))) {
          writer.write(address.toString());
          writer.newLine();
-      }
-      finally {
-         writer.close();
       }
 
       return factory;
@@ -149,15 +144,10 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                continue;
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(addressFile)));
-
             String addressString;
 
-            try {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(addressFile)))) {
                addressString = reader.readLine();
-            }
-            finally {
-               reader.close();
             }
 
             SimpleString address = new SimpleString(addressString);

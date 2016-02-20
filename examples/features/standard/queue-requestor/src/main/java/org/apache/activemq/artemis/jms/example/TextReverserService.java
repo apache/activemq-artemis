@@ -78,11 +78,10 @@ public class TextReverserService implements MessageListener {
          // retrieve the destination to reply to
          Destination replyTo = request.getJMSReplyTo();
          // create a producer to send the reply
-         MessageProducer producer = session.createProducer(replyTo);
-         // send the reply
-         producer.send(reply);
-         // close the producer
-         producer.close();
+         try (MessageProducer producer = session.createProducer(replyTo)) {
+            // send the reply
+            producer.send(reply);
+         }
       }
       catch (JMSException e) {
          e.printStackTrace();

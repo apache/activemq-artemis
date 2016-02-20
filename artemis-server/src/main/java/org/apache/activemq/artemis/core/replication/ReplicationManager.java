@@ -508,42 +508,33 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
          file.open();
       }
       try {
-         final FileInputStream fis = new FileInputStream(file.getJavaFile());
-         try {
-            final FileChannel channel = fis.getChannel();
-            try {
-               // We can afford having a single buffer here for this entire loop
-               // because sendReplicatePacket will encode the packet as a NettyBuffer
-               // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy
-               final ByteBuffer buffer = ByteBuffer.allocate(1 << 17); // 1 << 17 == 131072 == 128 * 1024
-               while (true) {
-                  buffer.clear();
-                  final int bytesRead = channel.read(buffer);
-                  int toSend = bytesRead;
-                  if (bytesRead > 0) {
-                     if (bytesRead >= maxBytesToSend) {
-                        toSend = (int) maxBytesToSend;
-                        maxBytesToSend = 0;
-                     }
-                     else {
-                        maxBytesToSend = maxBytesToSend - bytesRead;
-                     }
-                     buffer.limit(toSend);
+         try (final FileInputStream fis = new FileInputStream(file.getJavaFile());
+              final FileChannel channel = fis.getChannel()) {
+            // We can afford having a single buffer here for this entire loop
+            // because sendReplicatePacket will encode the packet as a NettyBuffer
+            // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy
+            final ByteBuffer buffer = ByteBuffer.allocate(1 << 17); // 1 << 17 == 131072 == 128 * 1024
+            while (true) {
+               buffer.clear();
+               final int bytesRead = channel.read(buffer);
+               int toSend = bytesRead;
+               if (bytesRead > 0) {
+                  if (bytesRead >= maxBytesToSend) {
+                     toSend = (int) maxBytesToSend;
+                     maxBytesToSend = 0;
                   }
-                  buffer.rewind();
-
-                  // sending -1 or 0 bytes will close the file at the backup
-                  sendReplicatePacket(new ReplicationSyncFileMessage(content, pageStore, id, toSend, buffer));
-                  if (bytesRead == -1 || bytesRead == 0 || maxBytesToSend == 0)
-                     break;
+                  else {
+                     maxBytesToSend = maxBytesToSend - bytesRead;
+                  }
+                  buffer.limit(toSend);
                }
+               buffer.rewind();
+
+               // sending -1 or 0 bytes will close the file at the backup
+               sendReplicatePacket(new ReplicationSyncFileMessage(content, pageStore, id, toSend, buffer));
+               if (bytesRead == -1 || bytesRead == 0 || maxBytesToSend == 0)
+                  break;
             }
-            finally {
-               channel.close();
-            }
-         }
-         finally {
-            fis.close();
          }
       }
       finally {

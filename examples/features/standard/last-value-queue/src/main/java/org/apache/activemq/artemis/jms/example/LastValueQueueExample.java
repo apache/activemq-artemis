@@ -67,13 +67,13 @@ public class LastValueQueueExample {
          System.out.format("Sent message: %s%n", message.getText());
 
          // Step 8. Browse the queue. There is only 1 message in it, the last sent
-         QueueBrowser browser = session.createBrowser(queue);
-         Enumeration enumeration = browser.getEnumeration();
-         while (enumeration.hasMoreElements()) {
-            TextMessage messageInTheQueue = (TextMessage) enumeration.nextElement();
-            System.out.format("Message in the queue: %s%n", messageInTheQueue.getText());
+         try (QueueBrowser browser = session.createBrowser(queue)) {
+            Enumeration enumeration = browser.getEnumeration();
+            while (enumeration.hasMoreElements()) {
+               TextMessage messageInTheQueue = (TextMessage) enumeration.nextElement();
+               System.out.format("Message in the queue: %s%n", messageInTheQueue.getText());
+            }
          }
-         browser.close();
 
          // Step 9. Create a JMS Message Consumer for the queue
          MessageConsumer messageConsumer = session.createConsumer(queue);
