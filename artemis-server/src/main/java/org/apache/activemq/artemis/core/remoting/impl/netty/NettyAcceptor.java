@@ -426,6 +426,9 @@ public class NettyAcceptor extends AbstractAcceptor {
     * @param channel A Netty channel created outside this NettyAcceptor.
     */
    public void transfer(Channel channel) {
+      if (paused || eventLoopGroup == null) {
+         throw ActiveMQMessageBundle.BUNDLE.acceptorUnavailable();
+      }
       channel.pipeline().addLast(protocolHandler.getProtocolDecoder());
    }
 
