@@ -233,6 +233,9 @@ public class PagingSendTest extends ActiveMQTestBase {
 
       Queue queue = server.locateQueue(queueAddr);
 
+      // Give time Queue.deliverAsync to deliver messages
+      Assert.assertTrue("Messages were not propagated to internal structures.", waitForMessages(queue, batchSize, 3000));
+
       checkBatchMessagesAreNotPagedTwice(queue);
 
       for (int i = 0; i < 10; i++) {
@@ -322,6 +325,18 @@ public class PagingSendTest extends ActiveMQTestBase {
          }
       }
       assertTrue(duplicates == 0);
+   }
+
+   public boolean waitForMessages(Queue queue, int count, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (queue.getMessageCount() >= count) {
+            return true;
+         }
+         Thread.sleep(100);
+      }
+      return false;
    }
 
    /**
