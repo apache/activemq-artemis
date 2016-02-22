@@ -406,8 +406,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          Filter filter = FilterImpl.createFilter(filterStr);
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
-         LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-         try {
+         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
             while (iterator.hasNext()) {
                MessageReference ref = iterator.next();
                if (filter == null || filter.match(ref.getMessage())) {
@@ -416,9 +415,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                }
             }
             return messages.toArray(new Map[messages.size()]);
-         }
-         finally {
-            iterator.close();
          }
       }
       catch (ActiveMQException e) {
@@ -449,8 +445,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          List<Map<String, Object>> messages = new ArrayList<>();
          queue.flushExecutor();
-         LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-         try {
+         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
             // returns just the first, as it's the first only
             if (iterator.hasNext()) {
                MessageReference ref = iterator.next();
@@ -458,9 +453,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                messages.add(message.toMap());
             }
             return messages.toArray(new Map[1]);
-         }
-         finally {
-            iterator.close();
          }
       }
       finally {
@@ -508,8 +500,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             return getMessageCount();
          }
          else {
-            LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-            try {
+            try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
                int count = 0;
                while (iterator.hasNext()) {
                   MessageReference ref = iterator.next();
@@ -518,9 +509,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                   }
                }
                return count;
-            }
-            finally {
-               iterator.close();
             }
          }
       }
@@ -919,8 +907,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter filter = FilterImpl.createFilter(filterStr);
          queue.flushExecutor();
-         LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-         try {
+         try (LinkedListIterator<MessageReference> iterator = queue.totalIterator()) {
             while (iterator.hasNext() && currentPageSize++ < pageSize) {
                MessageReference ref = iterator.next();
                if (filter == null || filter.match(ref.getMessage())) {
@@ -931,9 +918,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             CompositeData[] rc = new CompositeData[c.size()];
             c.toArray(rc);
             return rc;
-         }
-         finally {
-            iterator.close();
          }
       }
       catch (ActiveMQException e) {

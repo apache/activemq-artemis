@@ -274,22 +274,15 @@ public class SharedNothingLiveActivation extends LiveActivation {
          nodeId0 = null;
       }
 
-      ServerLocatorInternal locator;
-
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(activeMQServer.getConfiguration(), replicatedPolicy.getClusterName());
-
-      locator = getLocator(config);
-
-      ClientSessionFactoryInternal factory = null;
 
       NodeIdListener listener = new NodeIdListener(nodeId0);
 
-      locator.addClusterTopologyListener(listener);
-      try {
+      try (ServerLocatorInternal locator = getLocator(config)) {
+         locator.addClusterTopologyListener(listener);
          locator.setReconnectAttempts(0);
-         try {
-            locator.addClusterTopologyListener(listener);
-            factory = locator.connectNoWarnings();
+         try (ClientSessionFactoryInternal factory = locator.connectNoWarnings()) {
+            // Just try connecting
          }
          catch (Exception notConnected) {
             return false;
@@ -298,12 +291,6 @@ public class SharedNothingLiveActivation extends LiveActivation {
          listener.latch.await(5, TimeUnit.SECONDS);
 
          return listener.isNodePresent;
-      }
-      finally {
-         if (factory != null)
-            factory.close();
-         if (locator != null)
-            locator.close();
       }
    }
 

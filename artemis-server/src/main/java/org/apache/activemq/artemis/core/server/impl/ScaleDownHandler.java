@@ -403,21 +403,21 @@ public class ScaleDownHandler {
                                      SimpleString managementAddress,
                                      String user,
                                      String password) throws Exception {
-      ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
-      ClientProducer producer = session.createProducer(managementAddress);
-      //todo - https://issues.jboss.org/browse/HORNETQ-1336
-      for (SimpleString address : duplicateIDMap.keySet()) {
-         ClientMessage message = session.createMessage(false);
-         List<Pair<byte[], Long>> list = duplicateIDMap.get(address);
-         String[] array = new String[list.size()];
-         for (int i = 0; i < list.size(); i++) {
-            Pair<byte[], Long> pair = list.get(i);
-            array[i] = new String(pair.getA());
+      try (ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
+           ClientProducer producer = session.createProducer(managementAddress)) {
+         //todo - https://issues.jboss.org/browse/HORNETQ-1336
+         for (SimpleString address : duplicateIDMap.keySet()) {
+            ClientMessage message = session.createMessage(false);
+            List<Pair<byte[], Long>> list = duplicateIDMap.get(address);
+            String[] array = new String[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+               Pair<byte[], Long> pair = list.get(i);
+               array[i] = new String(pair.getA());
+            }
+            ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "updateDuplicateIdCache", address.toString(), array);
+            producer.send(message);
          }
-         ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "updateDuplicateIdCache", address.toString(), array);
-         producer.send(message);
       }
-      session.close();
    }
 
    /**

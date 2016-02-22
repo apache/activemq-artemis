@@ -226,14 +226,14 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          byte[] buffer = new byte[1 << 4];
          MessageDigest md = MessageDigest.getInstance("MD5");
 
-         FileInputStream is = new FileInputStream(file);
-         DigestInputStream is2 = new DigestInputStream(is, md);
-         while (is2.read(buffer) > 0) {
-            continue;
+         byte[] digest;
+         try (FileInputStream is = new FileInputStream(file);
+              DigestInputStream is2 = new DigestInputStream(is, md)) {
+            while (is2.read(buffer) > 0) {
+               continue;
+            }
+            digest = md.digest();
          }
-         byte[] digest = md.digest();
-         is.close();
-         is2.close();
          return Base64.encodeBytes(digest);
       }
       catch (Exception e) {

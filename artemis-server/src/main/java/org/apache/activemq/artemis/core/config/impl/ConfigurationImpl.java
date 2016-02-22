@@ -1666,8 +1666,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
             os.writeObject(ConfigurationImpl.this);
-            ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()));
-            Configuration config = (Configuration) ois.readObject();
+            Configuration config;
+            try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()))) {
+               config = (Configuration) ois.readObject();
+            }
 
             // this is transient because of possible jgroups integration, we need to copy it manually
             config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());

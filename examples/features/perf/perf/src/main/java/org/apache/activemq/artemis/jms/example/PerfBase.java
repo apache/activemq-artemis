@@ -73,19 +73,10 @@ public abstract class PerfBase {
    protected static PerfParams getParams(final String fileName) throws Exception {
       Properties props = null;
 
-      InputStream is = null;
-
-      try {
-         is = new FileInputStream(fileName);
-
+      try (InputStream is = new FileInputStream(fileName)) {
          props = new Properties();
 
          props.load(is);
-      }
-      finally {
-         if (is != null) {
-            is.close();
-         }
       }
 
       int noOfMessages = Integer.valueOf(props.getProperty("num-messages"));

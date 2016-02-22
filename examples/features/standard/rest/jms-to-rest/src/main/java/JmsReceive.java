@@ -33,8 +33,7 @@ public class JmsReceive {
       ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
       Destination destination = ActiveMQDestination.fromAddress("jms.queue.orders");
 
-      Connection conn = factory.createConnection();
-      try {
+      try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer consumer = session.createConsumer(destination);
          consumer.setMessageListener(new MessageListener() {
@@ -47,9 +46,6 @@ public class JmsReceive {
             });
          conn.start();
          Thread.sleep(1000000);
-      }
-      finally {
-         conn.close();
       }
    }
 }

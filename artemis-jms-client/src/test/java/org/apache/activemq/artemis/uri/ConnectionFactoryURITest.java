@@ -115,15 +115,16 @@ public class ConnectionFactoryURITest {
 
    private void persistIP6(String ipv6, ActiveMQConnectionFactory factory) throws IOException, ClassNotFoundException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ObjectOutputStream outStream = new ObjectOutputStream(baos);
-      outStream.writeObject(factory);
-      outStream.close();
-      baos.close();
-      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-      ObjectInputStream in = new ObjectInputStream(bais);
-      factory = (ActiveMQConnectionFactory) in.readObject();
-      in.close();
-      bais.close();
+      try (ObjectOutputStream outStream = new ObjectOutputStream(baos)) {
+         outStream.writeObject(factory);
+      }
+      finally {
+         baos.close();
+      }
+      try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+           ObjectInputStream in = new ObjectInputStream(bais)) {
+         factory = (ActiveMQConnectionFactory) in.readObject();
+      }
       Assert.assertEquals("[" + ipv6 + "]", factory.getStaticConnectors()[0].getParams().get("host"));
    }
 

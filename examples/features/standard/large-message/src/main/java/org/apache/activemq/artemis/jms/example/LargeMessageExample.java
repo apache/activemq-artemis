@@ -155,14 +155,12 @@ public class LargeMessageExample {
 
          File outputFile = new File("huge_message_received.dat");
 
-         FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+         try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
+            BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
 
-         BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
-
-         // Step 14. This will save the stream and wait until the entire message is written before continuing.
-         messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
-
-         fileOutputStream.close();
+            // Step 14. This will save the stream and wait until the entire message is written before continuing.
+            messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
+         }
 
          System.out.println("File streamed to disk. Size of received file on disk is " + outputFile.length());
       }
@@ -182,12 +180,12 @@ public class LargeMessageExample {
 
    private static void createFile(final File file, final long fileSize) throws IOException {
       FileOutputStream fileOut = new FileOutputStream(file);
-      BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
-      byte[] outBuffer = new byte[1024 * 1024];
-      for (long i = 0; i < fileSize; i += outBuffer.length) {
-         buffOut.write(outBuffer);
+      try (BufferedOutputStream buffOut = new BufferedOutputStream(fileOut)) {
+         byte[] outBuffer = new byte[1024 * 1024];
+         for (long i = 0; i < fileSize; i += outBuffer.length) {
+            buffOut.write(outBuffer);
+         }
       }
-      buffOut.close();
    }
 
 }

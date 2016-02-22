@@ -77,16 +77,17 @@ public class TopicServiceManager extends DestinationServiceManager {
          throw new Exception("You must start() this class instance before deploying");
       }
       String queueName = topicDeployment.getName();
-      ClientSession session = sessionFactory.createSession(false, false, false);
-      ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
-      boolean defaultDurable = topicDeployment.isDurableSend();
-      if (query.isExists()) {
-         defaultDurable = query.isDurable();
+      boolean defaultDurable;
+      try (ClientSession session = sessionFactory.createSession(false, false, false)) {
+         ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
+         defaultDurable = topicDeployment.isDurableSend();
+         if (query.isExists()) {
+            defaultDurable = query.isDurable();
+         }
+         else {
+            session.createQueue(queueName, queueName, topicDeployment.isDurableSend());
+         }
       }
-      else {
-         session.createQueue(queueName, queueName, topicDeployment.isDurableSend());
-      }
-      session.close();
 
       destination.createTopicResource(queueName, defaultDurable, topicDeployment.getConsumerSessionTimeoutSeconds(), topicDeployment.isDuplicatesAllowed());
    }

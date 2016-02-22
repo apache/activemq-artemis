@@ -80,17 +80,11 @@ public class EncodeJournal extends LockAbstract {
                                     final int minFiles,
                                     final int fileSize,
                                     final String fileName) throws Exception {
-      FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-      BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-      PrintStream out = new PrintStream(bufferedOutputStream);
-      try {
+      try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+           PrintStream out = new PrintStream(bufferedOutputStream)) {
          exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, out);
       }
-      finally {
-         out.close();
-         fileOutputStream.close();
-      }
-
    }
 
    public static void exportJournal(final String directory,

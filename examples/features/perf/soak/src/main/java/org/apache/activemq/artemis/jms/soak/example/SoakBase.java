@@ -53,19 +53,10 @@ public class SoakBase {
    protected static SoakParams getParams(final String fileName) throws Exception {
       Properties props = null;
 
-      InputStream is = null;
-
-      try {
-         is = new FileInputStream(fileName);
-
+      try (InputStream is = new FileInputStream(fileName)) {
          props = new Properties();
 
          props.load(is);
-      }
-      finally {
-         if (is != null) {
-            is.close();
-         }
       }
 
       int durationInMinutes = Integer.valueOf(props.getProperty("duration-in-minutes"));

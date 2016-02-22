@@ -41,14 +41,15 @@ public class CompressionUtilTest extends Assert {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 
       AtomicLong counter = new AtomicLong(0);
-      DeflaterReader reader = new DeflaterReader(inputStream, counter);
-
       ArrayList<Integer> zipHolder = new ArrayList<>();
-      int b = reader.read();
 
-      while (b != -1) {
-         zipHolder.add(b);
-         b = reader.read();
+      try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
+         int b = reader.read();
+
+         while (b != -1) {
+            zipHolder.add(b);
+            b = reader.read();
+         }
       }
 
       assertEquals(input.length, counter.get());
@@ -65,7 +66,6 @@ public class CompressionUtilTest extends Assert {
       int compressedDataLength = compresser.deflate(output);
 
       compareByteArray(allCompressed, output, compressedDataLength);
-      reader.close();
    }
 
    @Test
@@ -76,17 +76,17 @@ public class CompressionUtilTest extends Assert {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
       AtomicLong counter = new AtomicLong(0);
 
-      DeflaterReader reader = new DeflaterReader(inputStream, counter);
-
       byte[] buffer = new byte[7];
       ArrayList<Integer> zipHolder = new ArrayList<>();
 
-      int n = reader.read(buffer);
-      while (n != -1) {
-         for (int i = 0; i < n; i++) {
-            zipHolder.add((int) buffer[i]);
+      try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
+         int n = reader.read(buffer);
+         while (n != -1) {
+            for (int i = 0; i < n; i++) {
+               zipHolder.add((int) buffer[i]);
+            }
+            n = reader.read(buffer);
          }
-         n = reader.read(buffer);
       }
 
       assertEquals(input.length, counter.get());
@@ -103,7 +103,6 @@ public class CompressionUtilTest extends Assert {
       int compressedDataLength = compresser.deflate(output);
 
       compareByteArray(allCompressed, output, compressedDataLength);
-      reader.close();
    }
 
    @Test
@@ -121,13 +120,14 @@ public class CompressionUtilTest extends Assert {
       System.arraycopy(output, 0, zipBytes, 0, compressedDataLength);
       ByteArrayInputStream byteInput = new ByteArrayInputStream(zipBytes);
 
-      InflaterReader inflater = new InflaterReader(byteInput);
       ArrayList<Integer> holder = new ArrayList<>();
-      int read = inflater.read();
+      try (InflaterReader inflater = new InflaterReader(byteInput)) {
+         int read = inflater.read();
 
-      while (read != -1) {
-         holder.add(read);
-         read = inflater.read();
+         while (read != -1) {
+            holder.add(read);
+            read = inflater.read();
+         }
       }
 
       byte[] result = new byte[holder.size()];
@@ -139,7 +139,6 @@ public class CompressionUtilTest extends Assert {
       String txt = new String(result);
 
       assertEquals(inputString, txt);
-      inflater.close();
    }
 
    @Test
@@ -158,17 +157,15 @@ public class CompressionUtilTest extends Assert {
       ByteArrayInputStream byteInput = new ByteArrayInputStream(zipBytes);
 
       ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-      InflaterWriter writer = new InflaterWriter(byteOutput);
-
       byte[] zipBuffer = new byte[12];
 
-      int n = byteInput.read(zipBuffer);
-      while (n > 0) {
-         writer.write(zipBuffer, 0, n);
-         n = byteInput.read(zipBuffer);
+      try (InflaterWriter writer = new InflaterWriter(byteOutput)) {
+         int n = byteInput.read(zipBuffer);
+         while (n > 0) {
+            writer.write(zipBuffer, 0, n);
+            n = byteInput.read(zipBuffer);
+         }
       }
-
-      writer.close();
 
       byte[] outcome = byteOutput.toByteArray();
       String outStr = new String(outcome);

@@ -182,8 +182,7 @@ public class ProducerThread extends Thread {
    }
 
    private String readInputStream(InputStream is, int size, int messageNumber) throws IOException {
-      InputStreamReader reader = new InputStreamReader(is);
-      try {
+      try (InputStreamReader reader = new InputStreamReader(is)) {
          char[] buffer;
          if (size > 0) {
             buffer = new char[size];
@@ -202,9 +201,6 @@ public class ProducerThread extends Thread {
       }
       catch (IOException ioe) {
          return createDefaultMessage(messageNumber);
-      }
-      finally {
-         reader.close();
       }
    }
 

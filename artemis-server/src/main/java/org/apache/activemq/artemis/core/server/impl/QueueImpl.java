@@ -869,9 +869,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized MessageReference removeReferenceWithID(final long id1) throws Exception {
-      LinkedListIterator<MessageReference> iterator = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iterator = iterator()) {
 
          MessageReference removed = null;
 
@@ -895,16 +893,11 @@ public class QueueImpl implements Queue {
 
          return removed;
       }
-      finally {
-         iterator.close();
-      }
    }
 
    @Override
    public synchronized MessageReference getReference(final long id1) throws ActiveMQException {
-      LinkedListIterator<MessageReference> iterator = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iterator = iterator()) {
 
          while (iterator.hasNext()) {
             MessageReference ref = iterator.next();
@@ -915,9 +908,6 @@ public class QueueImpl implements Queue {
          }
 
          return null;
-      }
-      finally {
-         iterator.close();
       }
    }
 
@@ -1181,8 +1171,7 @@ public class QueueImpl implements Queue {
 
       Transaction tx = new TransactionImpl(storageManager);
 
-      LinkedListIterator<MessageReference> iter = iterator();
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1256,9 +1245,6 @@ public class QueueImpl implements Queue {
 
          return count;
       }
-      finally {
-         iter.close();
-      }
    }
 
    @Override
@@ -1276,8 +1262,7 @@ public class QueueImpl implements Queue {
 
       Transaction tx = new TransactionImpl(storageManager);
 
-      LinkedListIterator<MessageReference> iter = iterator();
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1299,9 +1284,6 @@ public class QueueImpl implements Queue {
          tx.commit();
 
          return deleted;
-      }
-      finally {
-         iter.close();
       }
    }
 
@@ -1358,8 +1340,7 @@ public class QueueImpl implements Queue {
          return false;
       }
 
-      LinkedListIterator<MessageReference> iter = iterator();
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1372,9 +1353,6 @@ public class QueueImpl implements Queue {
             }
          }
          return false;
-      }
-      finally {
-         iter.close();
       }
    }
 
@@ -1390,9 +1368,8 @@ public class QueueImpl implements Queue {
       Transaction tx = new TransactionImpl(storageManager);
 
       int count = 0;
-      LinkedListIterator<MessageReference> iter = iterator();
 
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1408,9 +1385,6 @@ public class QueueImpl implements Queue {
          tx.commit();
 
          return count;
-      }
-      finally {
-         iter.close();
       }
    }
 
@@ -1482,9 +1456,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
-      LinkedListIterator<MessageReference> iter = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
@@ -1497,17 +1469,13 @@ public class QueueImpl implements Queue {
          }
          return false;
       }
-      finally {
-         iter.close();
-      }
    }
 
    @Override
    public synchronized int sendMessagesToDeadLetterAddress(Filter filter) throws Exception {
       int count = 0;
-      LinkedListIterator<MessageReference> iter = iterator();
 
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
@@ -1520,9 +1488,6 @@ public class QueueImpl implements Queue {
          }
          return count;
       }
-      finally {
-         iter.close();
-      }
    }
 
    @Override
@@ -1534,9 +1499,7 @@ public class QueueImpl implements Queue {
    public synchronized boolean moveReference(final long messageID,
                                              final SimpleString toAddress,
                                              final boolean rejectDuplicate) throws Exception {
-      LinkedListIterator<MessageReference> iter = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
@@ -1554,9 +1517,6 @@ public class QueueImpl implements Queue {
             }
          }
          return false;
-      }
-      finally {
-         iter.close();
       }
    }
 
@@ -1651,9 +1611,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception {
-      LinkedListIterator<MessageReference> iter = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1668,16 +1626,11 @@ public class QueueImpl implements Queue {
 
          return false;
       }
-      finally {
-         iter.close();
-      }
    }
 
    @Override
    public synchronized int changeReferencesPriority(final Filter filter, final byte newPriority) throws Exception {
-      LinkedListIterator<MessageReference> iter = iterator();
-
-      try {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
          int count = 0;
          while (iter.hasNext()) {
             MessageReference ref = iter.next();
@@ -1690,9 +1643,6 @@ public class QueueImpl implements Queue {
             }
          }
          return count;
-      }
-      finally {
-         iter.close();
       }
    }
 
