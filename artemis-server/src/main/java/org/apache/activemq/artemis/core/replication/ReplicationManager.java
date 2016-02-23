@@ -110,7 +110,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
 
    private volatile boolean enabled;
 
-   private final AtomicBoolean writable = new AtomicBoolean(false);
+   private final AtomicBoolean writable = new AtomicBoolean(true);
 
    private final Object replicationLock = new Object();
 
@@ -345,6 +345,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             pendingTokens.add(repliToken);
             if (!replicatingChannel.getConnection().isWritable(this)) {
                try {
+                  writable.set(false);
                   //don't wait for ever as this may hang tests etc, we've probably been closed anyway
                   long now = System.currentTimeMillis();
                   long deadline = now + 5000;
@@ -352,7 +353,6 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                      replicationLock.wait(deadline - now);
                      now = System.currentTimeMillis();
                   }
-                  writable.set(false);
                }
                catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
