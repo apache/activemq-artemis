@@ -283,12 +283,11 @@ public class SharedNothingLiveActivation extends LiveActivation {
          locator.setReconnectAttempts(0);
          try (ClientSessionFactoryInternal factory = locator.connectNoWarnings()) {
             // Just try connecting
+            listener.latch.await(5, TimeUnit.SECONDS);
          }
          catch (Exception notConnected) {
             return false;
          }
-
-         listener.latch.await(5, TimeUnit.SECONDS);
 
          return listener.isNodePresent;
       }
