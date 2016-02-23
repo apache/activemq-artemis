@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -110,9 +110,10 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
 
    private volatile boolean enabled;
 
+   private final AtomicBoolean writable = new AtomicBoolean(false);
+
    private final Object replicationLock = new Object();
 
-   private final ReusableLatch latch = new ReusableLatch();
    private final Queue<OperationContext> pendingTokens = new ConcurrentLinkedQueue<>();
 
    private final ExecutorFactory executorFactory;
@@ -271,10 +272,11 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       if (replicatingChannel != null) {
          replicatingChannel.close();
          replicatingChannel.getConnection().getTransportConnection().fireReady(true);
-         latch.setCount(0);
       }
 
       synchronized (replicationLock) {
+         writable.set(true);
+         replicationLock.notifyAll();
          clearReplicationTokens();
       }
 
@@ -342,10 +344,15 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
          if (enabled) {
             pendingTokens.add(repliToken);
             if (!replicatingChannel.getConnection().isWritable(this)) {
-               latch.countUp();
                try {
                   //don't wait for ever as this may hang tests etc, we've probably been closed anyway
-                  latch.await(5, TimeUnit.SECONDS);
+                  long now = System.currentTimeMillis();
+                  long deadline = now + 5000;
+                  while (!writable.get() && now < deadline)  {
+                     replicationLock.wait(deadline - now);
+                     now = System.currentTimeMillis();
+                  }
+                  writable.set(false);
                }
                catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
@@ -370,7 +377,10 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
 
    @Override
    public void readyForWriting() {
-      latch.countDown();
+      synchronized (replicationLock) {
+         writable.set(true);
+         replicationLock.notifyAll();
+      }
    }
 
    /**

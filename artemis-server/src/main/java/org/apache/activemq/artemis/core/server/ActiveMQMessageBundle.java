@@ -368,4 +368,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119116, value = "Netty Acceptor unavailable", format = Message.Format.MESSAGE_FORMAT)
    IllegalStateException acceptorUnavailable();
+
+   @Message(id = 119117, value = "Replicator is null. Replication was likely terminated.")
+   ActiveMQIllegalStateException replicatorIsNull();
 }
