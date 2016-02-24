@@ -115,7 +115,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void commitAfterFailover();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212012, value = "failover occurred during commit throwing XAException.XA_RETRY", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 212012, value = "failure occurred during commit throwing XAException", format = Message.Format.MESSAGE_FORMAT)
    void failoverDuringCommit();
 
    @LogMessage(level = Logger.Level.WARN)

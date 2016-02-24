@@ -1157,9 +1157,17 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.failoverDuringCommit();
 
-         // Any error on commit -> RETRY
-         // We can't rollback a Prepared TX for definition
-         XAException xaException = new XAException(XAException.XA_RETRY);
+         XAException xaException = null;
+         if (onePhase) {
+            //we must return XA_RMFAIL
+            xaException = new XAException(XAException.XAER_RMFAIL);
+         }
+         else {
+            // Any error on commit -> RETRY
+            // We can't rollback a Prepared TX for definition
+            xaException = new XAException(XAException.XA_RETRY);
+         }
+
          xaException.initCause(t);
          throw xaException;
       }
