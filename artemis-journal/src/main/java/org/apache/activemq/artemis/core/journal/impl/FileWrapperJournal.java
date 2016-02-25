@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalCompleteR
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalDeleteRecordTX;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackRecordTX;
 
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'
@@ -208,12 +209,17 @@ public final class FileWrapperJournal extends JournalBase {
       return FileWrapperJournal.class.getName() + "(currentFile=[" + currentFile + "], hash=" + super.toString() + ")";
    }
 
-   // UNSUPPORTED STUFF
-
    @Override
    public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
-      throw new ActiveMQUnsupportedPacketException();
+      JournalInternalRecord rollbackRecord = new JournalRollbackRecordTX(txID);
+      AtomicInteger value = transactions.remove(Long.valueOf(txID));
+      if (value != null) {
+         rollbackRecord.setNumberOfRecords(value.get());
+      }
+      writeRecord(rollbackRecord, sync, callback);
    }
+
+   // UNSUPPORTED STUFF
 
    @Override
    public JournalLoadInformation load(LoaderCallback reloadManager) throws Exception {
