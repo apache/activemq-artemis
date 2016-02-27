@@ -23,7 +23,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,11 +47,10 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
    private String topicPrefix = "topic.";
 
    @Override
-   public Context getInitialContext(Hashtable environment) throws NamingException {
+   public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
       // lets create a factory
       Map<String, Object> data = new ConcurrentHashMap<>();
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
-         Map.Entry entry = (Map.Entry) iter.next();
+      for (Map.Entry<?, ?> entry : environment.entrySet()) {
          String key = entry.getKey().toString();
          if (key.startsWith(connectionFactoryPrefix)) {
             String jndiName = key.substring(connectionFactoryPrefix.length());
@@ -111,13 +109,12 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
    // Implementation methods
    // -------------------------------------------------------------------------
 
-   protected ReadOnlyContext createContext(Hashtable environment, Map<String, Object> data) {
+   protected ReadOnlyContext createContext(Hashtable<?, ?> environment, Map<String, Object> data) {
       return new ReadOnlyContext(environment, data);
    }
 
-   protected void createQueues(Map<String, Object> data, Hashtable environment) {
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
-         Map.Entry entry = (Map.Entry) iter.next();
+   protected void createQueues(Map<String, Object> data, Hashtable<?, ?> environment) {
+      for (Map.Entry<?, ?> entry : environment.entrySet()) {
          String key = entry.getKey().toString();
          if (key.startsWith(queuePrefix)) {
             String jndiName = key.substring(queuePrefix.length());
@@ -126,9 +123,8 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory {
       }
    }
 
-   protected void createTopics(Map<String, Object> data, Hashtable environment) {
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
-         Map.Entry entry = (Map.Entry) iter.next();
+   protected void createTopics(Map<String, Object> data, Hashtable<?, ?> environment) {
+      for (Map.Entry<?, ?> entry : environment.entrySet()) {
          String key = entry.getKey().toString();
          if (key.startsWith(topicPrefix)) {
             String jndiName = key.substring(topicPrefix.length());

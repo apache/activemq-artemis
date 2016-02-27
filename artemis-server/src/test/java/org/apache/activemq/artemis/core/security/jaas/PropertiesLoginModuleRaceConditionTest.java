@@ -93,7 +93,7 @@ public class PropertiesLoginModuleRaceConditionTest {
 
             Subject subject = new Subject();
             PropertiesLoginModule module = new PropertiesLoginModule();
-            module.initialize(subject, callback, new HashMap<>(), options);
+            module.initialize(subject, callback, new HashMap<String, Object>(), options);
             module.login();
             module.commit();
          }

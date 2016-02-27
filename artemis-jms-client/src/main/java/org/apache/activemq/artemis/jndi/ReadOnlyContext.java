@@ -112,7 +112,7 @@ public class ReadOnlyContext implements Context, Serializable {
       frozen = true;
    }
 
-   public ReadOnlyContext(Hashtable environment, Map bindings, String nameInNamespace) {
+   public ReadOnlyContext(Hashtable environment, Map<String, Object> bindings, String nameInNamespace) {
       this(environment, bindings);
       this.nameInNamespace = nameInNamespace;
    }
@@ -181,9 +181,8 @@ public class ReadOnlyContext implements Context, Serializable {
          ReadOnlyContext readOnlyContext = (ReadOnlyContext) o;
          String remainder = name.substring(pos + 1);
          Map<String, Object> subBindings = readOnlyContext.internalBind(remainder, value);
-         for (Iterator iterator = subBindings.entrySet().iterator(); iterator.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String subName = segment + "/" + (String) entry.getKey();
+         for (Map.Entry<String, Object> entry : subBindings.entrySet()) {
+            String subName = segment + "/" + entry.getKey();
             Object bound = entry.getValue();
             treeBindings.put(subName, bound);
             newBindings.put(subName, bound);
@@ -302,7 +301,7 @@ public class ReadOnlyContext implements Context, Serializable {
    }
 
    @Override
-   public NamingEnumeration list(String name) throws NamingException {
+   public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
       Object o = lookup(name);
       if (o == this) {
          return new ListEnumeration();
@@ -316,7 +315,7 @@ public class ReadOnlyContext implements Context, Serializable {
    }
 
    @Override
-   public NamingEnumeration listBindings(String name) throws NamingException {
+   public NamingEnumeration<Binding> listBindings(String name) throws NamingException {
       Object o = lookup(name);
       if (o == this) {
          return new ListBindingEnumeration();
@@ -335,12 +334,12 @@ public class ReadOnlyContext implements Context, Serializable {
    }
 
    @Override
-   public NamingEnumeration list(Name name) throws NamingException {
+   public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
       return list(name.toString());
    }
 
    @Override
-   public NamingEnumeration listBindings(Name name) throws NamingException {
+   public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
       return listBindings(name.toString());
    }
 
@@ -426,7 +425,7 @@ public class ReadOnlyContext implements Context, Serializable {
 
    private abstract class LocalNamingEnumeration implements NamingEnumeration {
 
-      private final Iterator i = bindings.entrySet().iterator();
+      private final Iterator<Map.Entry<String, Object>> i = bindings.entrySet().iterator();
 
       @Override
       public boolean hasMore() throws NamingException {
@@ -438,8 +437,8 @@ public class ReadOnlyContext implements Context, Serializable {
          return i.hasNext();
       }
 
-      protected Map.Entry getNext() {
-         return (Map.Entry) i.next();
+      protected Map.Entry<String, Object> getNext() {
+         return i.next();
       }
 
       @Override
@@ -459,8 +458,8 @@ public class ReadOnlyContext implements Context, Serializable {
 
       @Override
       public Object nextElement() {
-         Map.Entry entry = getNext();
-         return new NameClassPair((String) entry.getKey(), entry.getValue().getClass().getName());
+         Map.Entry<String, Object> entry = getNext();
+         return new NameClassPair(entry.getKey(), entry.getValue().getClass().getName());
       }
    }
 
@@ -476,8 +475,8 @@ public class ReadOnlyContext implements Context, Serializable {
 
       @Override
       public Object nextElement() {
-         Map.Entry entry = getNext();
-         return new Binding((String) entry.getKey(), entry.getValue());
+         Map.Entry<String, Object> entry = getNext();
+         return new Binding(entry.getKey(), entry.getValue());
       }
    }
 }

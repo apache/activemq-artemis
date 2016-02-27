@@ -427,14 +427,14 @@ public class PostOfficeJournalLoader implements JournalLoader {
          Map<Long, Map<Long, List<PageCountPending>>> perPageMap = perAddressMap.get(address);
 
          if (perPageMap == null) {
-            perPageMap = new HashMap();
+            perPageMap = new HashMap<>();
             perAddressMap.put(address, perPageMap);
          }
 
          Map<Long, List<PageCountPending>> perQueueMap = perPageMap.get(pageID);
 
          if (perQueueMap == null) {
-            perQueueMap = new HashMap();
+            perQueueMap = new HashMap<>();
             perPageMap.put(pageID, perQueueMap);
          }
 

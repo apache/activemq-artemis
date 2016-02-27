@@ -104,8 +104,8 @@ public class ReliableTransportTest extends TestCase {
          transport.onCommand(info);
       }
 
-      Queue exceptions = listener.getExceptions();
-      Queue commands = listener.getCommands();
+      Queue<Object> exceptions = listener.getExceptions();
+      Queue<Object> commands = listener.getCommands();
       if (expected) {
          if (!exceptions.isEmpty()) {
             Exception e = (Exception) exceptions.remove();

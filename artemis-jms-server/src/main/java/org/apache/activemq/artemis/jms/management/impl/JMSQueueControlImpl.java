@@ -320,7 +320,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    @Override
-   public String sendTextMessage(Map headers, String body) throws Exception {
+   public String sendTextMessage(Map<String, String> headers, String body) throws Exception {
       return sendTextMessage(headers, body, null, null);
    }
 

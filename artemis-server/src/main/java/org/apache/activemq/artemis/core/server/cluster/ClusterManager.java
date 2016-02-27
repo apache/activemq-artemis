@@ -79,9 +79,9 @@ public final class ClusterManager implements ActiveMQComponent {
 
    private HAManager haManager;
 
-   private final Map<String, BroadcastGroup> broadcastGroups = new HashMap();
+   private final Map<String, BroadcastGroup> broadcastGroups = new HashMap<>();
 
-   private final Map<String, Bridge> bridges = new HashMap();
+   private final Map<String, Bridge> bridges = new HashMap<>();
 
    private final ExecutorFactory executorFactory;
 

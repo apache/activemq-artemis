@@ -53,7 +53,7 @@ public class AMQ5450Test {
    private final static String[] DESTS = new String[]{DESTINATION_NAME, DESTINATION_NAME_2, DESTINATION_NAME_3, DESTINATION_NAME, DESTINATION_NAME};
 
    BrokerService broker;
-   private HashMap<Object, PersistenceAdapter> adapters = new HashMap();
+   private HashMap<Object, PersistenceAdapter> adapters = new HashMap<>();
 
    @After
    public void tearDown() throws Exception {
@@ -98,7 +98,7 @@ public class AMQ5450Test {
          assertEquals(1, destination2.getMessageStore().getMessageCount());
       }
 
-      HashMap numDests = new HashMap();
+      HashMap<Integer, PersistenceAdapter> numDests = new HashMap<>();
       for (PersistenceAdapter pa : adapters.values()) {
          numDests.put(pa.getDestinations().size(), pa);
       }

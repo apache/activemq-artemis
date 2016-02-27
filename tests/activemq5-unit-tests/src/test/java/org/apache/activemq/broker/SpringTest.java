@@ -18,8 +18,9 @@
 package org.apache.activemq.broker;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
+
+import javax.jms.Message;
 
 import junit.framework.TestCase;
 
@@ -67,10 +68,9 @@ public class SpringTest extends TestCase {
       consumer.waitForMessagesToArrive(producer.getMessageCount());
 
       // now lets check that the consumer has received some messages
-      List messages = consumer.flushMessages();
+      List<Message> messages = consumer.flushMessages();
       LOG.info("Consumer has received messages....");
-      for (Iterator iter = messages.iterator(); iter.hasNext(); ) {
-         Object message = iter.next();
+      for (Message message : messages) {
          LOG.info("Received: " + message);
       }
 

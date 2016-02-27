@@ -102,17 +102,16 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       testDir = temporaryFolder.getRoot().getAbsolutePath();
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    public void testRunning() throws Exception {
       DirContext ctx = getContext();
 
-      HashSet set = new HashSet();
+      HashSet<String> set = new HashSet<>();
 
-      NamingEnumeration list = ctx.list("ou=system");
+      NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 
       while (list.hasMore()) {
-         NameClassPair ncp = (NameClassPair) list.next();
+         NameClassPair ncp = list.next();
          set.add(ncp.getName());
       }
 
@@ -124,7 +123,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
    }
 
    private DirContext getContext() throws NamingException {
-      Hashtable env = new Hashtable();
+      Hashtable<String, String> env = new Hashtable<>();
       env.put(Context.PROVIDER_URL, "ldap://localhost:1024");
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       env.put(Context.SECURITY_AUTHENTICATION, "simple");

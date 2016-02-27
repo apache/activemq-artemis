@@ -22,7 +22,7 @@ import java.util.Hashtable;
 
 public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory {
 
-   public JNDIConnectionFactoryFactory(final Hashtable jndiProperties, final String lookup) {
+   public JNDIConnectionFactoryFactory(final Hashtable<?, ?> jndiProperties, final String lookup) {
       super(jndiProperties, lookup);
    }
 

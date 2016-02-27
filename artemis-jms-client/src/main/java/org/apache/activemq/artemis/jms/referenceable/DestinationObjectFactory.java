@@ -34,7 +34,7 @@ public class DestinationObjectFactory implements ObjectFactory {
    public Object getObjectInstance(final Object ref,
                                    final Name name,
                                    final Context ctx,
-                                   final Hashtable props) throws Exception {
+                                   final Hashtable<?, ?> props) throws Exception {
       Reference r = (Reference) ref;
 
       byte[] bytes = (byte[]) r.get("ActiveMQ-DEST").getContent();

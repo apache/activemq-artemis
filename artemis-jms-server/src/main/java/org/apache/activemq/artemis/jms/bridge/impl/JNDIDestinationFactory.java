@@ -24,7 +24,7 @@ import javax.jms.Destination;
 
 public class JNDIDestinationFactory extends JNDIFactorySupport implements DestinationFactory {
 
-   public JNDIDestinationFactory(final Hashtable jndiProperties, final String lookup) {
+   public JNDIDestinationFactory(final Hashtable<?, ?> jndiProperties, final String lookup) {
       super(jndiProperties, lookup);
    }
 

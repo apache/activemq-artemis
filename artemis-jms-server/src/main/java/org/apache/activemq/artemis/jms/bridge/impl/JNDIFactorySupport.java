@@ -22,11 +22,11 @@ import javax.naming.InitialContext;
 
 public abstract class JNDIFactorySupport {
 
-   protected Hashtable jndiProperties;
+   protected Hashtable<?, ?> jndiProperties;
 
    protected String lookup;
 
-   protected JNDIFactorySupport(final Hashtable jndiProperties, final String lookup) {
+   protected JNDIFactorySupport(final Hashtable<?, ?> jndiProperties, final String lookup) {
       this.jndiProperties = jndiProperties;
 
       this.lookup = lookup;

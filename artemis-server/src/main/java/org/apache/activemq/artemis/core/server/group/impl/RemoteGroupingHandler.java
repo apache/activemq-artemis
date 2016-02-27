@@ -60,7 +60,7 @@ public final class RemoteGroupingHandler extends GroupHandlingAbstract {
 
    private final ConcurrentMap<SimpleString, List<SimpleString>> groupMap = new ConcurrentHashMap<>();
 
-   private final ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet();
+   private final ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<>();
 
    private boolean started = false;
 

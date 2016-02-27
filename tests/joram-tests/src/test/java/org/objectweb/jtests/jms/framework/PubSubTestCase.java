@@ -115,7 +115,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          admin.createTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.createTopic(PubSubTestCase.TOPIC_NAME);
 
-         Hashtable props = new Hashtable<>();
+         Hashtable<String, String> props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
          props.put("connectionFactory." + PubSubTestCase.TCF_NAME, "tcp://127.0.0.1:61616?type=TOPIC_CF");
          props.put("topic." + PubSubTestCase.TOPIC_NAME, PubSubTestCase.TOPIC_NAME);

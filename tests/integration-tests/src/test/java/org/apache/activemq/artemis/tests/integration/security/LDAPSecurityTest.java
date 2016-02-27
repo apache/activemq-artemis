@@ -97,10 +97,9 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       testDir = temporaryFolder.getRoot().getAbsolutePath();
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    public void testRunning() throws Exception {
-      Hashtable env = new Hashtable();
+      Hashtable<String, String> env = new Hashtable<>();
       env.put(Context.PROVIDER_URL, "ldap://localhost:1024");
       env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -108,12 +107,12 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       env.put(Context.SECURITY_CREDENTIALS, CREDENTIALS);
       DirContext ctx = new InitialDirContext(env);
 
-      HashSet set = new HashSet();
+      HashSet<String> set = new HashSet<>();
 
-      NamingEnumeration list = ctx.list("ou=system");
+      NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 
       while (list.hasMore()) {
-         NameClassPair ncp = (NameClassPair) list.next();
+         NameClassPair ncp = list.next();
          set.add(ncp.getName());
       }
 

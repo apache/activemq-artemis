@@ -31,7 +31,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    // Attributes ----------------------------------------------------
 
-   protected Map content;
+   protected Map<String, Object> content;
 
    protected boolean bodyReadOnly = false;
 
@@ -40,7 +40,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
    // Constructors --------------------------------------------------
 
    public SimpleJMSMapMessage() {
-      content = new HashMap();
+      content = new HashMap<>();
    }
 
    // MapMessage implementation -------------------------------------
@@ -472,7 +472,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
    @Override
    public Enumeration getMapNames() throws JMSException {
 
-      return Collections.enumeration(new HashMap(content).keySet());
+      return Collections.enumeration(new HashMap<>(content).keySet());
 
    }
 

@@ -42,10 +42,10 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      Map nettyParams = new HashMap();
+      Map<String, Object> nettyParams = new HashMap<>();
       nettyParams.put(TransportConstants.CONNECTIONS_ALLOWED, 1);
 
-      Map invmParams = new HashMap();
+      Map<String, Object> invmParams = new HashMap<>();
       invmParams.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED, 1);
 
       Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyParams)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmParams));

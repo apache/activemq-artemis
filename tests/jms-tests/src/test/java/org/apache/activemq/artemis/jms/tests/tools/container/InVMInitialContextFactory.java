@@ -32,7 +32,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
 
    // Static --------------------------------------------------------
 
-   private static Map initialContexts;
+   private static Map<Integer, Context> initialContexts;
 
    static {
       InVMInitialContextFactory.reset();
@@ -59,7 +59,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
    // Public --------------------------------------------------------
 
    @Override
-   public Context getInitialContext(final Hashtable environment) throws NamingException {
+   public Context getInitialContext(final Hashtable<?, ?> environment) throws NamingException {
       // try first in the environment passed as argument ...
       String s = (String) environment.get(Constants.SERVER_INDEX_PROPERTY_NAME);
 
@@ -107,7 +107,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
    }
 
    public static void reset() {
-      InVMInitialContextFactory.initialContexts = new HashMap();
+      InVMInitialContextFactory.initialContexts = new HashMap<>();
    }
 
    // Package protected ---------------------------------------------

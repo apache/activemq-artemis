@@ -71,7 +71,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
       connector0.setHost("localhost");
       jetty.addConnector(connector0);
       jetty.start();
-      HashMap<String, Object> params = new HashMap();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(AeroGearConstants.QUEUE_NAME, "testQueue");
       params.put(AeroGearConstants.ENDPOINT_NAME, "http://localhost:8080");
       params.put(AeroGearConstants.APPLICATION_ID_NAME, "9d646a12-e601-4452-9e05-efb0fccdfd08");

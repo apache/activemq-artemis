@@ -66,7 +66,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
    @Test
    public void listFilesOnNonExistentFolder() throws Exception {
       SequentialFileFactory fileFactory = createFactory("./target/dontexist");
-      List list = fileFactory.listFiles("tmp");
+      List<String> list = fileFactory.listFiles("tmp");
       Assert.assertNotNull(list);
       Assert.assertEquals(0, list.size());
    }

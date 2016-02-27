@@ -98,7 +98,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    private Channel channel;
 
-   private BlockingQueue priorityQueue;
+   private BlockingQueue<String> priorityQueue;
 
    private EventLoopGroup group;
 
@@ -108,7 +108,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      priorityQueue = new ArrayBlockingQueue(1000);
+      priorityQueue = new ArrayBlockingQueue<>(1000);
       if (autoCreateServer) {
          server = createServer();
          addServer(server.getActiveMQServer());
@@ -271,7 +271,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    public String receiveFrame(long timeOut) throws Exception {
-      String msg = (String) priorityQueue.poll(timeOut, TimeUnit.MILLISECONDS);
+      String msg = priorityQueue.poll(timeOut, TimeUnit.MILLISECONDS);
       return msg;
    }
 

@@ -29,6 +29,7 @@ import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -152,17 +153,17 @@ public class InVMContext implements Context, Serializable {
    }
 
    @Override
-   public NamingEnumeration list(final Name name) throws NamingException {
+   public NamingEnumeration<NameClassPair> list(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public NamingEnumeration list(final String name) throws NamingException {
+   public NamingEnumeration<NameClassPair> list(final String name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public NamingEnumeration listBindings(final Name name) throws NamingException {
+   public NamingEnumeration<Binding> listBindings(final Name name) throws NamingException {
       throw new UnsupportedOperationException();
    }
 

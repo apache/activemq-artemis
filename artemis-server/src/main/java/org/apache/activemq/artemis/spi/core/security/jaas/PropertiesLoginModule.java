@@ -51,8 +51,8 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    @Override
    public void initialize(Subject subject,
                           CallbackHandler callbackHandler,
-                          Map sharedState,
-                          Map options) {
+                          Map<String, ?> sharedState,
+                          Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       loginSucceeded = false;

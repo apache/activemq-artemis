@@ -1630,7 +1630,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       if (!knownConnectionFactories.keySet().contains(overrideProperties)) {
          cf = newConnectionFactory(overrideProperties);
-         knownConnectionFactories.put(overrideProperties, new Pair(cf, new AtomicInteger(1)));
+         knownConnectionFactories.put(overrideProperties, new Pair<>(cf, new AtomicInteger(1)));
       }
       else {
          Pair<ActiveMQConnectionFactory, AtomicInteger> pair = knownConnectionFactories.get(overrideProperties);
@@ -1642,7 +1642,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (known && cf.getServerLocator().isClosed()) {
          knownConnectionFactories.remove(overrideProperties);
          cf = newConnectionFactory(overrideProperties);
-         knownConnectionFactories.put(overrideProperties, new Pair(cf, new AtomicInteger(1)));
+         knownConnectionFactories.put(overrideProperties, new Pair<>(cf, new AtomicInteger(1)));
       }
 
       return cf;

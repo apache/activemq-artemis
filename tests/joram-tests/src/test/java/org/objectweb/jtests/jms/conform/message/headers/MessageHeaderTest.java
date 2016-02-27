@@ -171,7 +171,7 @@ public class MessageHeaderTest extends PTPTestCase {
       try {
          admin.createQueue("anotherQueue");
 
-         Hashtable props = new Hashtable<>();
+         Hashtable<String, String> props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
          props.put("queue.anotherQueue", "anotherQueue");
 

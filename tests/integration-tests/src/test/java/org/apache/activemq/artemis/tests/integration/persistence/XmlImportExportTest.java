@@ -380,7 +380,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       final String jndi_binding2 = name + "Binding2";
       final JMSFactoryType type = JMSFactoryType.CF;
       final boolean ha = true;
-      final List connectors = Arrays.asList("in-vm1", "in-vm2");
+      final List<String> connectors = Arrays.asList("in-vm1", "in-vm2");
 
       ClientSession session = basicSetUp();
 

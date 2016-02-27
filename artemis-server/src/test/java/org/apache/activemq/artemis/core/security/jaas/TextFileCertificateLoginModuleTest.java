@@ -75,7 +75,7 @@ public class TextFileCertificateLoginModuleTest {
 
    private void loginTest(String usersFiles, String groupsFile) throws LoginException {
 
-      HashMap options = new HashMap<String, String>();
+      HashMap<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", usersFiles);
       options.put("org.apache.activemq.jaas.textfiledn.role", groupsFile);
       options.put("reload", "true");
@@ -113,7 +113,7 @@ public class TextFileCertificateLoginModuleTest {
       return new JaasCallbackHandler(null, null, new X509Certificate[]{cert});
    }
 
-   private Subject doAuthenticate(HashMap options, JaasCallbackHandler callbackHandler) throws LoginException {
+   private Subject doAuthenticate(HashMap<String, ?> options, JaasCallbackHandler callbackHandler) throws LoginException {
       Subject mySubject = new Subject();
       loginModule.initialize(mySubject, callbackHandler, null, options);
       loginModule.login();

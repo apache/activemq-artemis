@@ -107,7 +107,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private final ClusterManager clusterManager;
 
-   private final Map<String, ProtocolManagerFactory> protocolMap = new ConcurrentHashMap();
+   private final Map<String, ProtocolManagerFactory> protocolMap = new ConcurrentHashMap<>();
 
    private ActiveMQPrincipal defaultInvmSecurityPrincipal;
 
@@ -213,7 +213,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          try {
             AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
-            Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap();
+            Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap<>();
 
             @SuppressWarnings("deprecation")
             String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
@@ -235,7 +235,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                selectedProtocolFactories = protocolMap;
             }
 
-            Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap();
+            Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
             for (Map.Entry<String, ProtocolManagerFactory> entry: selectedProtocolFactories.entrySet()) {
                selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
             }
