@@ -20,6 +20,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -196,7 +197,8 @@ public final class SharedStoreBackupActivation extends Activation {
       BackupTopologyListener backupListener;
 
       FailbackChecker() {
-         backupListener = new BackupTopologyListener(activeMQServer.getNodeID().toString());
+         TransportConfiguration connector = activeMQServer.getClusterManager().getDefaultConnection(null).getConnector();
+         backupListener = new BackupTopologyListener(activeMQServer.getNodeID().toString(), connector);
          activeMQServer.getClusterManager().getDefaultConnection(null).addClusterTopologyListener(backupListener);
       }
 
