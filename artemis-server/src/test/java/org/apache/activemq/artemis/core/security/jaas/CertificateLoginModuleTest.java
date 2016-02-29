@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -59,7 +58,7 @@ public class CertificateLoginModuleTest extends Assert {
       loginModule = new StubCertificateLoginModule(userName, new HashSet<>(rolesNames));
       JaasCallbackHandler callbackHandler = new JaasCallbackHandler(null, null, null);
 
-      loginModule.initialize(subject, callbackHandler, null, new HashMap());
+      loginModule.initialize(subject, callbackHandler, null, new HashMap<String, Object>());
 
       loginModule.login();
       loginModule.commit();
@@ -72,9 +71,7 @@ public class CertificateLoginModuleTest extends Assert {
          rolesFound[i] = false;
       }
 
-      for (Iterator iter = subject.getPrincipals().iterator(); iter.hasNext(); ) {
-         Principal currentPrincipal = (Principal) iter.next();
-
+      for (Principal currentPrincipal : subject.getPrincipals()) {
          if (currentPrincipal instanceof UserPrincipal) {
             if (currentPrincipal.getName().equals(USER_NAME)) {
                if (!nameFound) {

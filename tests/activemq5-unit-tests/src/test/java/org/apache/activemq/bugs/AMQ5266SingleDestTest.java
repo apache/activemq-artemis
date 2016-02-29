@@ -175,8 +175,8 @@ public class AMQ5266SingleDestTest {
 
       publisher.waitForCompletion();
 
-      List publishedIds = publisher.getIDs();
-      distinctPublishedCount = new TreeSet(publishedIds).size();
+      List<String> publishedIds = publisher.getIDs();
+      distinctPublishedCount = new TreeSet<>(publishedIds).size();
 
       LOG.info("Publisher Complete. Published: " + publishedIds.size() + ", Distinct IDs Published: " + distinctPublishedCount);
       LOG.info("Publisher duration: {}", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - totalStart));

@@ -34,7 +34,7 @@ public class mLevelDBXARecoveryBrokerTest extends XARecoveryBrokerTest {
       super.configureBroker(broker);
 
       MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
-      List adapters = new LinkedList<FilteredKahaDBPersistenceAdapter>();
+      List<FilteredKahaDBPersistenceAdapter> adapters = new LinkedList<>();
       FilteredKahaDBPersistenceAdapter defaultEntry = new FilteredKahaDBPersistenceAdapter();
       defaultEntry.setPersistenceAdapter(new LevelDBPersistenceAdapter());
       adapters.add(defaultEntry);

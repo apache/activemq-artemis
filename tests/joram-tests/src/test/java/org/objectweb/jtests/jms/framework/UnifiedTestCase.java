@@ -165,7 +165,7 @@ public abstract class UnifiedTestCase extends JMSTestCase {
          admin.createQueue(UnifiedTestCase.QUEUE_NAME);
          admin.createTopic(UnifiedTestCase.TOPIC_NAME);
 
-         Hashtable props = new Hashtable<>();
+         Hashtable<String, String> props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
          props.put("connectionFactory." + UnifiedTestCase.CF_NAME, "tcp://127.0.0.1:61616");
          props.put("connectionFactory." + UnifiedTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");

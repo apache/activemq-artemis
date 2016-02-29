@@ -54,7 +54,7 @@ public class InvalidDestinationTest extends JMSTestBase {
       Topic invalidTopic = null;
       String message = "hello world";
       byte[] bytesMsgSend = message.getBytes();
-      Map<String, Object> mapMsgSend = new HashMap();
+      Map<String, Object> mapMsgSend = new HashMap<>();
       mapMsgSend.put("s", "foo");
       mapMsgSend.put("b", true);
       mapMsgSend.put("i", 1);

@@ -41,7 +41,7 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
       master.setDeleteAllMessagesOnStartup(true);
 
       MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
-      List adapters = new LinkedList<FilteredKahaDBPersistenceAdapter>();
+      List<FilteredKahaDBPersistenceAdapter> adapters = new LinkedList<>();
       FilteredKahaDBPersistenceAdapter defaultEntry = new FilteredKahaDBPersistenceAdapter();
       defaultEntry.setPersistenceAdapter(new KahaDBPersistenceAdapter());
       defaultEntry.setPerDestination(true);
@@ -72,7 +72,7 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
                broker.setPersistent(true);
 
                MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
-               List adapters = new LinkedList<FilteredKahaDBPersistenceAdapter>();
+               List<FilteredKahaDBPersistenceAdapter> adapters = new LinkedList<>();
                FilteredKahaDBPersistenceAdapter defaultEntry = new FilteredKahaDBPersistenceAdapter();
                defaultEntry.setPersistenceAdapter(new KahaDBPersistenceAdapter());
                defaultEntry.setPerDestination(true);

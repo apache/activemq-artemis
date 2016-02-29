@@ -51,7 +51,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     * Overriding to allow for proper initialization. Standard JAAS.
     */
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
 

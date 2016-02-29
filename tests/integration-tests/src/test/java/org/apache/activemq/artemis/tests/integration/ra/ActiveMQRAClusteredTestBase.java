@@ -41,7 +41,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
       super.setUp();
 
       primaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      HashMap<String, Object> params = new HashMap();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
       secondaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
 
@@ -59,8 +59,8 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
    }
 
    protected Configuration createSecondaryDefaultConfig(boolean secondary) throws Exception {
-      HashMap invmMap = new HashMap();
-      HashMap nettyMap = new HashMap();
+      HashMap<String, Object> invmMap = new HashMap<>();
+      HashMap<String, Object> nettyMap = new HashMap<>();
       String primaryConnectorName = "invm2";
       String secondaryConnectorName = "invm";
       int index = 0;

@@ -53,7 +53,7 @@ public class GuestLoginModule implements LoginModule {
    private boolean loginSucceeded;
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       debug = "true".equalsIgnoreCase((String) options.get("debug"));

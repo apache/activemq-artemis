@@ -61,7 +61,7 @@ public abstract class MessageTestSupport extends BaseCommandTestSupport {
          info.setContent(baos.toByteSequence());
       }
       {
-         Map map = new HashMap();
+         Map<String, Object> map = new HashMap<>();
          map.put("MarshalledProperties", 12);
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
          DataOutputStream os = new DataOutputStream(baos);

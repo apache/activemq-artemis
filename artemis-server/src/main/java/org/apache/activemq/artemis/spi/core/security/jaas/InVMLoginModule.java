@@ -46,7 +46,7 @@ public class InVMLoginModule implements LoginModule {
    private boolean loginSucceeded;
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       this.configuration = (SecurityConfiguration) options.get(CONFIG_PROP_NAME);

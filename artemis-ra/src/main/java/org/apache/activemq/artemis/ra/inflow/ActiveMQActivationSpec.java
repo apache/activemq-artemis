@@ -124,7 +124,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    private String jndiParams = null;
 
-   private Hashtable parsedJndiParams;
+   private Hashtable<String, String> parsedJndiParams;
 
    /* use local tx instead of XA*/
    private Boolean localTx;

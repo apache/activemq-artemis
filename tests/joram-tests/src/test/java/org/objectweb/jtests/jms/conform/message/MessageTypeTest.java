@@ -235,7 +235,7 @@ public class MessageTypeTest extends PTPTestCase {
    @Test
    public void testObjectMessage_2() {
       try {
-         Vector vector = new Vector();
+         Vector<Object> vector = new Vector<>();
          vector.add("pi");
          vector.add(new Double(3.14159));
 

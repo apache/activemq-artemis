@@ -115,7 +115,7 @@ public abstract class PTPTestCase extends JMSTestCase {
          admin.createQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.createQueue(PTPTestCase.QUEUE_NAME);
 
-         Hashtable props = new Hashtable<>();
+         Hashtable<String, String> props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
          props.put("connectionFactory." + PTPTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");
          props.put("queue." + PTPTestCase.QUEUE_NAME, PTPTestCase.QUEUE_NAME);

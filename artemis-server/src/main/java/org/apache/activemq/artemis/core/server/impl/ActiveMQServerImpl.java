@@ -1807,15 +1807,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       JournalLoadInformation[] journalInfo = new JournalLoadInformation[2];
 
-      List<QueueBindingInfo> queueBindingInfos = new ArrayList();
+      List<QueueBindingInfo> queueBindingInfos = new ArrayList<>();
 
-      List<GroupingInfo> groupingInfos = new ArrayList();
+      List<GroupingInfo> groupingInfos = new ArrayList<>();
 
       journalInfo[0] = storageManager.loadBindingJournal(queueBindingInfos, groupingInfos);
 
       recoverStoredConfigs();
 
-      Map<Long, QueueBindingInfo> queueBindingInfosMap = new HashMap();
+      Map<Long, QueueBindingInfo> queueBindingInfosMap = new HashMap<>();
 
       journalLoader.initQueues(queueBindingInfosMap, queueBindingInfos);
 

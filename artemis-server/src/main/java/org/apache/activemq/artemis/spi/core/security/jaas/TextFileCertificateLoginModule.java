@@ -49,7 +49,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
     * Performs initialization of file paths. A standard JAAS override.
     */
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
       usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
       roles = load(ROLE_FILE_PROP_NAME, "", options).getProps();

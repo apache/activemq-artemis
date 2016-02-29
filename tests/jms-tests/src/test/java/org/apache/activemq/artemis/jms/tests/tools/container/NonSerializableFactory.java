@@ -89,7 +89,7 @@ public final class NonSerializableFactory implements ObjectFactory {
    public Object getObjectInstance(final Object obj,
                                    final Name name,
                                    final Context nameCtx,
-                                   final Hashtable env) throws Exception {
+                                   final Hashtable<?, ?> env) throws Exception {
       Reference ref = (Reference) obj;
       RefAddr addr = ref.get("nns");
       String key = (String) addr.getContent();

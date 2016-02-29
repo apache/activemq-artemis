@@ -178,7 +178,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       return UnaryExpression.createNOT(createLike(left, right, escape));
    }
 
-   public static BooleanExpression createInFilter(Expression left, List elements) {
+   public static BooleanExpression createInFilter(Expression left, List<Object> elements) {
 
       if (!(left instanceof PropertyExpression)) {
          throw new RuntimeException("Expected a property for In expression, got: " + left);
@@ -187,7 +187,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    }
 
-   public static BooleanExpression createNotInFilter(Expression left, List elements) {
+   public static BooleanExpression createNotInFilter(Expression left, List<Object> elements) {
 
       if (!(left instanceof PropertyExpression)) {
          throw new RuntimeException("Expected a property for In expression, got: " + left);

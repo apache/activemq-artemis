@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.selector.strict.StrictParser;
  */
 public class SelectorParser {
 
-   private static final LRUCache cache = new LRUCache(100);
+   private static final LRUCache<String, Object> cache = new LRUCache<>(100);
    private static final String CONVERT_STRING_EXPRESSIONS_PREFIX = "convert_string_expressions:";
    private static final String HYPHENATED_PROPS_PREFIX = "hyphenated_props:";
    private static final String NO_CONVERT_STRING_EXPRESSIONS_PREFIX = "no_convert_string_expressions:";

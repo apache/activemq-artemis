@@ -25,11 +25,11 @@ public class DumbServer {
 
    static ConcurrentMap<String, BlockingDeque<Object>> maps = new ConcurrentHashMap<>();
 
-   public static BlockingDeque getQueue(String name) {
-      BlockingDeque q = maps.get(name);
+   public static BlockingDeque<Object> getQueue(String name) {
+      BlockingDeque<Object> q = maps.get(name);
       if (q == null) {
-         q = new LinkedBlockingDeque();
-         BlockingDeque oldValue = maps.putIfAbsent(name, q);
+         q = new LinkedBlockingDeque<>();
+         BlockingDeque<Object> oldValue = maps.putIfAbsent(name, q);
          if (oldValue != null) {
             q = oldValue;
          }

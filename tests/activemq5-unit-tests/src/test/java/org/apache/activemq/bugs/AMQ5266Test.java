@@ -166,8 +166,8 @@ public class AMQ5266Test {
 
       publisher.waitForCompletion();
 
-      List publishedIds = publisher.getIDs();
-      distinctPublishedCount = new TreeSet(publishedIds).size();
+      List<String> publishedIds = publisher.getIDs();
+      distinctPublishedCount = new TreeSet<>(publishedIds).size();
 
       LOG.info("Publisher Complete. Published: " + publishedIds.size() + ", Distinct IDs Published: " + distinctPublishedCount);
 

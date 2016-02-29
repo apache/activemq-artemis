@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.Set;
 
 import org.apache.activemq.EmbeddedBrokerTestSupport;
+import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -48,7 +49,7 @@ public class CreateDestinationsOnStartupViaXBeanTest extends EmbeddedBrokerTestS
    }
 
    protected void assertDestinationCreated(ActiveMQDestination destination, boolean expected) throws Exception {
-      Set answer = broker.getBroker().getDestinations(destination);
+      Set<Destination> answer = broker.getBroker().getDestinations(destination);
       int size = expected ? 1 : 0;
       assertEquals("Could not find destination: " + destination + ". Size of found destinations: " + answer, size, answer.size());
    }

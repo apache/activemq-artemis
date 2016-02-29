@@ -1432,7 +1432,7 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
       ObjectName brokerName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
       BrokerViewMBean brokerView = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerName, BrokerViewMBean.class, true);
 
-      Map connectors = brokerView.getTransportConnectors();
+      Map<String, String> connectors = brokerView.getTransportConnectors();
       LOG.info("Connectors: " + connectors);
       assertEquals("one connector", 1, connectors.size());
 
