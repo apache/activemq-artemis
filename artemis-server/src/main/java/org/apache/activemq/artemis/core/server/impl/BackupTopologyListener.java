@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 
@@ -28,12 +29,22 @@ final class BackupTopologyListener implements ClusterTopologyListener {
    private final String ownId;
    private static final int WAIT_TIMEOUT = 60;
 
-   public BackupTopologyListener(String ownId) {
+   // Transport configuration of this node
+   private final TransportConfiguration myTc;
+
+   public BackupTopologyListener(String ownId, TransportConfiguration nodeTransportConfig) {
       this.ownId = ownId;
+      this.myTc = nodeTransportConfig;
    }
 
    @Override
    public void nodeUP(TopologyMember topologyMember, boolean last) {
+
+      // If the backup is this node then ignore.
+      if (myTc.equals(topologyMember.getBackup())) {
+         return;
+      }
+
       final String nodeID = topologyMember.getNodeId();
 
       if (ownId.equals(nodeID) && topologyMember.getBackup() != null)

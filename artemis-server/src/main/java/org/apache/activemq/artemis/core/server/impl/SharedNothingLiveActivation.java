@@ -168,7 +168,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                   //backupUpToDate = false;
 
                   if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack()) {
-                     BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString());
+                     BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString(), clusterConnection.getConnector());
                      clusterConnection.addClusterTopologyListener(listener1);
                      if (listener1.waitForBackup()) {
                         //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
