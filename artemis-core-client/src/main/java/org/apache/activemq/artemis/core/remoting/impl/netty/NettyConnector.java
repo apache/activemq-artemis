@@ -665,6 +665,7 @@ public class NettyConnector extends AbstractConnector {
                ch.writeAndFlush(request);
 
                if (!httpUpgradeHandler.awaitHandshake()) {
+                  ch.close().awaitUninterruptibly();
                   return null;
                }
             }

@@ -77,6 +77,11 @@ public interface RemotingService {
    void pauseAcceptors();
 
    /**
+    * Pauses the acceptors so that no more connections can be made to the server
+    */
+   boolean isPaused();
+
+   /**
     * Freezes and then disconnects all connections except the given one and tells the client where else
     * it might connect (only applicable if server is in a cluster and uses scaleDown-on-failover=true).
     *
