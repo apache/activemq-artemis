@@ -60,7 +60,6 @@ public class SecurityExample {
          }
 
          // Step 5. bill tries to make a connection using wrong password
-         billConnection = null;
          try {
             billConnection = createConnection("bill", "activemq1", cf);
             result = false;
