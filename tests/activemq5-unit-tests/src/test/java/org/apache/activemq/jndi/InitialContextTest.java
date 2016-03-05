@@ -37,7 +37,6 @@ public class InitialContextTest extends TestCase {
 
    public void testInitialContext() throws Exception {
       InitialContext context = new InitialContext();
-      assertTrue("Created context", context != null);
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 
@@ -49,7 +48,6 @@ public class InitialContextTest extends TestCase {
 
    public void testInitialContextHasXA() throws Exception {
       InitialContext context = new InitialContext();
-      assertTrue("Created context", context != null);
 
       ActiveMQXAConnectionFactory connectionFactory = (ActiveMQXAConnectionFactory) context.lookup("XAConnectionFactory");
 
@@ -66,7 +64,6 @@ public class InitialContextTest extends TestCase {
       properties.put(Context.PROVIDER_URL, expected);
 
       InitialContext context = new InitialContext(properties);
-      assertTrue("Created context", context != null);
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 
@@ -85,7 +82,6 @@ public class InitialContextTest extends TestCase {
       properties.put("redeliveryPolicy.backOffMultiplier", "32");
 
       InitialContext context = new InitialContext(properties);
-      assertTrue("Created context", context != null);
 
       ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 

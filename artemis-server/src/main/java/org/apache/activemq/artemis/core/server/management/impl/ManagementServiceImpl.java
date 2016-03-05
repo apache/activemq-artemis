@@ -392,13 +392,14 @@ public class ManagementServiceImpl implements ManagementService {
          catch (Exception e) {
             ActiveMQServerLogger.LOGGER.managementOperationError(e, operation, resourceName);
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
-            String exceptionMessage = e.getMessage();
+            String exceptionMessage;
             if (e instanceof InvocationTargetException) {
                exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
             }
-            if (e != null) {
-               ManagementHelper.storeResult(reply, exceptionMessage);
+            else {
+               exceptionMessage = e.getMessage();
             }
+            ManagementHelper.storeResult(reply, exceptionMessage);
          }
       }
       else {
@@ -415,13 +416,14 @@ public class ManagementServiceImpl implements ManagementService {
             catch (Exception e) {
                ActiveMQServerLogger.LOGGER.managementAttributeError(e, attribute, resourceName);
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
-               String exceptionMessage = e.getMessage();
+               String exceptionMessage;
                if (e instanceof InvocationTargetException) {
                   exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
                }
-               if (e != null) {
-                  ManagementHelper.storeResult(reply, exceptionMessage);
+               else {
+                  exceptionMessage = e.getMessage();
                }
+               ManagementHelper.storeResult(reply, exceptionMessage);
             }
          }
       }

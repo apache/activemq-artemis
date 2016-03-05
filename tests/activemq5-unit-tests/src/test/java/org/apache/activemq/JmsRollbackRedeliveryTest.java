@@ -118,7 +118,7 @@ public class JmsRollbackRedeliveryTest {
             MessageConsumer consumer = session.createConsumer(destination);
             TextMessage msg = (TextMessage) consumer.receive(6000000);
             if (msg != null) {
-               if (msg != null && rolledback.put(msg.getText(), Boolean.TRUE) != null) {
+               if (rolledback.put(msg.getText(), Boolean.TRUE) != null) {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());
                   assertTrue(msg.getJMSRedelivered());
                   assertEquals(2, msg.getLongProperty("JMSXDeliveryCount"));
@@ -155,7 +155,7 @@ public class JmsRollbackRedeliveryTest {
          while (received.get() < nbMessages) {
             TextMessage msg = (TextMessage) consumer.receive(6000000);
             if (msg != null) {
-               if (msg != null && rolledback.put(msg.getText(), Boolean.TRUE) != null) {
+               if (rolledback.put(msg.getText(), Boolean.TRUE) != null) {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());
                   assertTrue(msg.getJMSRedelivered());
                   session.commit();
@@ -190,7 +190,7 @@ public class JmsRollbackRedeliveryTest {
             MessageConsumer consumer = session.createConsumer(destination);
             TextMessage msg = (TextMessage) consumer.receive(6000000);
             if (msg != null) {
-               if (msg != null && rolledback.put(msg.getText(), Boolean.TRUE) != null) {
+               if (rolledback.put(msg.getText(), Boolean.TRUE) != null) {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());
                   assertTrue(msg.getJMSRedelivered());
                   session.commit();

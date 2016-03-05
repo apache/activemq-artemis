@@ -121,9 +121,7 @@ public class RedeliveryPluginHeaderTest extends TestCase {
       }
       finally {
 
-         if (connection != null) {
-            connection.close();
-         }
+         connection.close();
 
          if (broker != null) {
             broker.stop();

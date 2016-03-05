@@ -75,9 +75,7 @@ public class AMQ4671Test {
          }
       }
       finally {
-         if (connection != null) {
-            connection.close();
-         }
+         connection.close();
       }
    }
 }
