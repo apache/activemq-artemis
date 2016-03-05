@@ -23,7 +23,10 @@ diverted the message, the non-exclusive ones are not processed.
 
 Diverts can also be configured to apply a `Transformer`. If specified,
 all diverted messages will have the opportunity of being transformed by
-the `Transformer`.
+the `Transformer`. When an address has multiple diverts configured, all
+of them receive the same, original message. This means that the results
+of a transformer on a message are not directly available for other
+diverts or their filters on the same address.
 
 A divert will only divert a message to an address on the *same server*,
 however, if you want to divert to an address on a different server, a
