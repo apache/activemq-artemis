@@ -17,6 +17,10 @@ may be a requirement to monitor every order sent to an order queue.
 Diverts can also be configured to have an optional message filter. If
 specified then only messages that match the filter will be diverted.
 
+When an address has both exclusive and non-exclusive diverts configured,
+the exclusive ones are processed first. If any of the exclusive diverts
+diverted the message, the non-exclusive ones are not processed.
+
 Diverts can also be configured to apply a `Transformer`. If specified,
 all diverted messages will have the opportunity of being transformed by
 the `Transformer`.
