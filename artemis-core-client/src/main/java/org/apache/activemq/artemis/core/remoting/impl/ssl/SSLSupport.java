@@ -81,7 +81,7 @@ public class SSLSupport {
    private static TrustManager[] loadTrustManager(final String trustStoreProvider,
                                                   final String trustStorePath,
                                                   final String trustStorePassword) throws Exception {
-      if (trustStorePath == null && (trustStoreProvider == null || (trustStoreProvider != null && !"PKCS11".equals(trustStoreProvider.toUpperCase())))) {
+      if (trustStorePath == null && (trustStoreProvider == null || !"PKCS11".equals(trustStoreProvider.toUpperCase()))) {
          return null;
       }
       else {
@@ -120,7 +120,7 @@ public class SSLSupport {
    private static KeyManager[] loadKeyManagers(final String keyStoreProvider,
                                                final String keystorePath,
                                                final String keystorePassword) throws Exception {
-      if (keystorePath == null && (keyStoreProvider == null || (keyStoreProvider != null && !"PKCS11".equals(keyStoreProvider.toUpperCase())))) {
+      if (keystorePath == null && (keyStoreProvider == null || !"PKCS11".equals(keyStoreProvider.toUpperCase()))) {
          return null;
       }
       else {
