@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.net.SocketAddress;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
 import io.netty.buffer.ByteBuf;
@@ -71,7 +71,7 @@ public class NettyConnection implements Connection {
 
    /** if {@link #isWritable(ReadyListener)} returns false, we add a callback
     *  here for when the connection (or Netty Channel) becomes available again. */
-   private final Deque<ReadyListener> readyListeners = new LinkedBlockingDeque<>();
+   private final Deque<ReadyListener> readyListeners = new LinkedList<>();
 
    // Static --------------------------------------------------------
 
@@ -102,34 +102,30 @@ public class NettyConnection implements Connection {
 
 
    @Override
-   public boolean isWritable(ReadyListener callback) {
-      synchronized (readyListeners) {
-         if (!ready) {
-            readyListeners.push(callback);
-         }
-
-         return ready;
+   public synchronized boolean isWritable(ReadyListener callback) {
+      if (!ready) {
+         readyListeners.push(callback);
       }
+
+      return ready;
    }
 
    @Override
-   public void fireReady(final boolean ready) {
-      synchronized (readyListeners) {
-         this.ready = ready;
+   public synchronized void fireReady(final boolean ready) {
+      this.ready = ready;
 
-         if (ready) {
-            for (;;) {
-               ReadyListener readyListener = readyListeners.poll();
-               if (readyListener == null) {
-                  return;
-               }
+      if (ready) {
+         for (;;) {
+            ReadyListener readyListener = readyListeners.poll();
+            if (readyListener == null) {
+               return;
+            }
 
-               try {
-                  readyListener.readyForWriting();
-               }
-               catch (Throwable logOnly) {
-                  ActiveMQClientLogger.LOGGER.warn(logOnly.getMessage(), logOnly);
-               }
+            try {
+               readyListener.readyForWriting();
+            }
+            catch (Throwable logOnly) {
+               ActiveMQClientLogger.LOGGER.warn(logOnly.getMessage(), logOnly);
             }
          }
       }
