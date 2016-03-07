@@ -398,9 +398,7 @@ public class ConfigTest {
          LOG.info("Success");
       }
       finally {
-         if (broker != null) {
-            broker.stop();
-         }
+         broker.stop();
       }
    }
 

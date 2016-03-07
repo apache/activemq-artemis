@@ -102,9 +102,7 @@ public class JMSBridgeExample {
       }
       finally {
          // Step 12. Be sure to close the resources!
-         if (jmsBridge != null) {
-            jmsBridge.stop();
-         }
+         jmsBridge.stop();
          if (sourceContext != null) {
             sourceContext.close();
          }

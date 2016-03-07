@@ -187,7 +187,6 @@ public class DivertTest extends ActiveMQTestBase {
          }
 
          int count2 = 0;
-         message = null;
          while ((message = consumer2.receiveImmediate()) != null) {
             message.acknowledge();
             count2++;

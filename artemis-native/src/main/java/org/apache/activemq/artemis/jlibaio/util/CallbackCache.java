@@ -49,12 +49,10 @@ public class CallbackCache<Callback extends SubmitInfo> {
             if (retValue == null) {
                throw new NullPointerException("You should initialize the pool before using it");
             }
-            if (retValue != null) {
-               available--;
-               get++;
-               if (get >= size) {
-                  get = 0;
-               }
+            available--;
+            get++;
+            if (get >= size) {
+               get = 0;
             }
             return retValue;
          }

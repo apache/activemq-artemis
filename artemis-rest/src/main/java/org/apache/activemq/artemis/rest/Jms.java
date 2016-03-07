@@ -109,8 +109,7 @@ public class Jms {
 
    public static boolean isHttpMessage(Message message) {
       try {
-         Boolean aBoolean = message.getBooleanProperty(HttpMessageHelper.POSTED_AS_HTTP_MESSAGE);
-         return aBoolean != null && aBoolean.booleanValue() == true;
+         return message.getBooleanProperty(HttpMessageHelper.POSTED_AS_HTTP_MESSAGE);
       }
       catch (JMSException e) {
          return false;

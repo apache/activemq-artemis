@@ -370,9 +370,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          Assert.assertNotNull(cons.receive(5000));
       }
       finally {
-         if (connection != null) {
-            connection.close();
-         }
+         connection.close();
       }
    }
 
@@ -415,9 +413,7 @@ public class JMSServerControlTest extends ManagementTestBase {
          Assert.assertNotNull(cons.receive(5000));
       }
       finally {
-         if (connection != null) {
-            connection.close();
-         }
+         connection.close();
       }
    }
 
