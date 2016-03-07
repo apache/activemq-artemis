@@ -31,15 +31,15 @@ under the License.
 
 <h1>Getting Started</h1>
 
-<b>Note (Windows users):</b> The broker currently does not support spaces in path names.  For this reason the broker should be placed in a directory with no spaces in it's absolute path.</br></br>
+<b>Note (Windows users):</b> The broker currently does not support spaces in path names.  For this reason the broker should be placed in a directory with no spaces in it's absolute path.<br><br>
 
-<b>Note (Windows users):</b> Examples below use the shell script `artemis` for use with linux, Windows users should use the `artemis.cmd` script with the same parameters.</br></br>
+<b>Note (Windows users):</b> Examples below use the shell script `artemis` for use with linux, Windows users should use the `artemis.cmd` script with the same parameters.<br><br>
 
 <h2>Creating a broker</h2>
 
-To create a broker, navigate to the distribution 'bin/' directory and run: </br></br>
+To create a broker, navigate to the distribution 'bin/' directory and run: <br><br>
 
-$ ./artemis create $directory </br></br>Where $directory is the folder that you'd like the broker to be created.
+$ ./artemis create $directory <br><br>Where $directory is the folder that you'd like the broker to be created.
 
 The create process will input for any required property not specified. Example:
 
@@ -87,32 +87,32 @@ SYNOPSIS
 
 Once the broker has been created, use the artemis (or artemis.cmd on windows) script found under the bin directory of the newly created broker to manage the life cycle of the broker.
 
-To run the Apache ActiveMQ Artemis broker with the default configuration, run the command shown below from the "bin" directory of the created broker.</br></br>
+To run the Apache ActiveMQ Artemis broker with the default configuration, run the command shown below from the "bin" directory of the created broker.<br><br>
 
-$ ./artemis run</br></br>
+$ ./artemis run<br><br>
 
-To specify a broker configuration file:</br></br>
+To specify a broker configuration file:<br><br>
 
-$ ./artemis run --config scheme:location</br></br>
+$ ./artemis run --config scheme:location<br><br>
 
-e.g.</br></br>
+e.g.<br><br>
 
-$ ./artemis run --config xml:/home/artemis/bootstrap.xml</br></br>
+$ ./artemis run --config xml:/home/artemis/bootstrap.xml<br><br>
 
 It is possible to configure run time paramters in the artemis.conf (artemis.conf.bat for windows) file under the "bin" directory of the broker directory.
 
 <h2>Stopping the Broker</h2>
 
-To stop the broker please use the artemis script from the broker's bin directory:</br></br>
+To stop the broker please use the artemis script from the broker's bin directory:<br><br>
 
-$ ./artemis stop</br></br>
+$ ./artemis stop<br><br>
 
 <h2>Documentation</h2>
 
-The broker comes shipped with an in depth user manual and a bunch of examples to help you get started.  The manual is shipped with the broker and can be accessed from the brokers website.  Start the broker then navigate to the <a href="http://localhost:8161">Apache ActiveMQ Artemis</a>.  Alternatively, you can browse all of the documentation online on the <a href="http://activemq.apache.org/artemis/">Apache ActiveMQ Artemis Website</a>.</br></br>
+The broker comes shipped with an in depth user manual and a bunch of examples to help you get started.  The manual is shipped with the broker and can be accessed from the brokers website.  Start the broker then navigate to the <a href="http://localhost:8161">Apache ActiveMQ Artemis</a>.  Alternatively, you can browse all of the documentation online on the <a href="http://activemq.apache.org/artemis/">Apache ActiveMQ Artemis Website</a>.<br><br>
 
-The examples are shipped inside the distribution folder under "examples"</br></br>
+The examples are shipped inside the distribution folder under "examples"<br><br>
 
-Release Notes for all version can be found at <a href="https://issues.apache.org/jira/browse/ARTEMIS/?selectedTab=com.atlassian.jira.jira-projects-plugin:versions-panel">here</a></a>
+Release Notes for all version can be found <a href="https://issues.apache.org/jira/browse/ARTEMIS/?selectedTab=com.atlassian.jira.jira-projects-plugin:versions-panel">here</a>
 
 </body>
