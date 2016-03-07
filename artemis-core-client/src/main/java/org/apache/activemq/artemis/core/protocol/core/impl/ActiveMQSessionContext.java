@@ -24,7 +24,9 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -99,6 +101,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
@@ -647,9 +650,28 @@ public class ActiveMQSessionContext extends SessionContext {
          sendPacketWithoutLock(sessionChannel, createQueueRequest);
       }
 
-      SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(getConsumerID(consumerInternal), consumerInternal.getQueueName(), consumerInternal.getFilterString(), consumerInternal.isBrowseOnly(), false);
+      ChannelHandler originalHandler = sessionChannel.getHandler();
+      FailoverHandler failoverHandler = new FailoverHandler();
 
-      sendPacketWithoutLock(sessionChannel, createConsumerRequest);
+      failoverHandler.latch.countUp();
+
+      sessionChannel.setHandler(failoverHandler);
+
+      try {
+
+         SessionCreateConsumerMessage createConsumerRequest = new SessionCreateConsumerMessage(getConsumerID(consumerInternal), consumerInternal.getQueueName(), consumerInternal.getFilterString(), consumerInternal.isBrowseOnly(), true);
+
+         sendPacketWithoutLock(sessionChannel, createConsumerRequest);
+
+         failoverHandler.latch.await(1, TimeUnit.SECONDS);
+      }
+      catch (Exception e) {
+         // Remove me.. just to compile the idea
+         e.printStackTrace();
+      }
+      finally {
+         sessionChannel.setHandler(originalHandler);
+      }
 
       int clientWindowSize = consumerInternal.getClientWindowSize();
 
@@ -734,6 +756,14 @@ public class ActiveMQSessionContext extends SessionContext {
       handleReceiveProducerFailCredits(message.getAddress(), message.getCredits());
    }
 
+   class FailoverHandler implements ChannelHandler {
+
+      public ReusableLatch latch = new ReusableLatch(0);
+      @Override
+      public void handlePacket(Packet packet) {
+         new Exception("Handler here " + packet).printStackTrace();
+      }
+   }
    class ClientSessionPacketHandler implements ChannelHandler {
 
       @Override
