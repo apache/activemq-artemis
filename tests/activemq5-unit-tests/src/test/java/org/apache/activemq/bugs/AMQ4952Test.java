@@ -319,12 +319,10 @@ public class AMQ4952Test {
 
       // network to consumerBroker
 
-      if (networkToPorts != null && networkToPorts.length > 0) {
+      if (networkToPorts.length > 0) {
          StringBuilder builder = new StringBuilder("static:(failover:(tcp://localhost:2006)?maxReconnectAttempts=0)?useExponentialBackOff=false");
          NetworkConnector nc = broker.addNetworkConnector(builder.toString());
-         if (networkProps != null) {
-            IntrospectionSupport.setProperties(nc, networkProps);
-         }
+         IntrospectionSupport.setProperties(nc, networkProps);
          nc.setStaticallyIncludedDestinations(Arrays.<ActiveMQDestination>asList(new ActiveMQQueue[]{QUEUE_NAME}));
       }
 
