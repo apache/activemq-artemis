@@ -124,9 +124,9 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
 
       JMSUtil.sendMessages(topic, 2);
 
-      Assert.assertEquals(3 * 2, proxy.retrieveAttributeValue("messageCount"));
-      Assert.assertEquals(1 * 2, proxy.retrieveAttributeValue("nonDurableMessageCount"));
-      Assert.assertEquals(2 * 2, proxy.retrieveAttributeValue("durableMessageCount"));
+      waitForAttributeEqualsValue("messageCount", 3 * 2, 3000);
+      waitForAttributeEqualsValue("nonDurableMessageCount", 1 * 2, 3000);
+      waitForAttributeEqualsValue("durableMessageCount", 2 * 2, 3000);
 
       connection_1.close();
       connection_2.close();
@@ -167,7 +167,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
       JMSUtil.sendMessageWithProperty(session, topic, key, unmatchingValue);
       JMSUtil.sendMessageWithProperty(session, topic, key, matchingValue);
 
-      Assert.assertEquals(3, proxy.retrieveAttributeValue("messageCount"));
+      waitForAttributeEqualsValue("messageCount", 3, 3000);
 
       Assert.assertEquals(2, proxy.invokeOperation("countMessagesForSubscription", clientID, subscriptionName, key + " =" +
                              matchingValue));
@@ -267,7 +267,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
 
       JMSUtil.sendMessages(topic, 3);
 
-      Assert.assertEquals(3 * 2, proxy.retrieveAttributeValue("messageCount"));
+      waitForAttributeEqualsValue("messageCount", 3 * 2, 3000);
 
       int removedCount = (Integer) proxy.invokeOperation("removeMessages", "");
       Assert.assertEquals(3 * 2, removedCount);
@@ -328,7 +328,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
 
       JMSUtil.sendMessages(topic, 2);
 
-      assertEquals(3 * 2, proxy.retrieveAttributeValue("messagesAdded"));
+      waitForAttributeEqualsValue("messagesAdded", 3 * 2, 3000);
 
       connection_1.close();
       connection_2.close();
@@ -415,6 +415,20 @@ public class TopicControlUsingJMSTest extends ManagementTestBase {
    }
 
    // Private -------------------------------------------------------
+
+   private void waitForAttributeEqualsValue(String attribute, Object expected, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+      Object actual = null;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         actual = proxy.retrieveAttributeValue(attribute);
+         if (expected.equals(actual)) {
+            return;
+         }
+         Thread.sleep(100);
+      }
+      Assert.assertEquals(expected, actual);
+   }
 
    // Inner classes -------------------------------------------------
 
