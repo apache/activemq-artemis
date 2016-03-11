@@ -23,14 +23,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
@@ -286,20 +284,15 @@ public class ClientProducerImpl implements ClientProducerInternal {
                                    final boolean sendBlocking,
                                    final ClientProducerCredits theCredits,
                                    final SendAcknowledgementHandler handler) throws ActiveMQException {
-      try {
-         // This will block if credits are not available
+      // This will block if credits are not available
 
-         // Note, that for a large message, the encode size only includes the properties + headers
-         // Not the continuations, but this is ok since we are only interested in limiting the amount of
-         // data in *memory* and continuations go straight to the disk
+      // Note, that for a large message, the encode size only includes the properties + headers
+      // Not the continuations, but this is ok since we are only interested in limiting the amount of
+      // data in *memory* and continuations go straight to the disk
 
-         int creditSize = sessionContext.getCreditsOnSendingFull(msgI);
+      int creditSize = sessionContext.getCreditsOnSendingFull(msgI);
 
-         theCredits.acquireCredits(creditSize);
-      }
-      catch (InterruptedException e) {
-         throw new ActiveMQInterruptedException(e);
-      }
+      theCredits.acquireCredits(creditSize);
 
       sessionContext.sendFullMessage(msgI, sendBlocking, handler, address);
    }
@@ -352,12 +345,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       // On the case of large messages we tried to send credits before but we would starve otherwise
       // we may find a way to improve the logic and always acquire the credits before
       // but that's the way it's been tested and been working ATM
-      try {
-         credits.acquireCredits(creditsUsed);
-      }
-      catch (InterruptedException e) {
-         throw new ActiveMQInterruptedException(e);
-      }
+      credits.acquireCredits(creditsUsed);
    }
 
    /**
@@ -379,6 +367,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       final long bodySize = context.getLargeBodySize();
 
+      final int reconnectID = sessionContext.getReconnectID();
+
       context.open();
       try {
 
@@ -396,14 +386,9 @@ public class ClientProducerImpl implements ClientProducerInternal {
             lastChunk = pos >= bodySize;
             SendAcknowledgementHandler messageHandler = lastChunk ? handler : null;
 
-            int creditsUsed = sessionContext.sendLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
+            int creditsUsed = sessionContext.sendLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), reconnectID, messageHandler);
 
-            try {
-               credits.acquireCredits(creditsUsed);
-            }
-            catch (InterruptedException e) {
-               throw new ActiveMQInterruptedException(e);
-            }
+            credits.acquireCredits(creditsUsed);
          }
       }
       finally {
@@ -457,6 +442,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       boolean headerSent = false;
 
+
+      int reconnectID = sessionContext.getReconnectID();
       while (!lastPacket) {
          byte[] buff = new byte[minLargeMessageSize];
 
@@ -485,8 +472,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
          totalSize += pos;
 
-         final SessionSendContinuationMessage chunk;
-
          if (lastPacket) {
             if (!session.isCompressLargeMessages()) {
                messageSize.set(totalSize);
@@ -514,13 +499,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
                   headerSent = true;
                   sendInitialLargeMessageHeader(msgI, credits);
                }
-               int creditsSent = sessionContext.sendLargeMessageChunk(msgI, messageSize.get(), sendBlocking, true, buff, handler);
-               try {
-                  credits.acquireCredits(creditsSent);
-               }
-               catch (InterruptedException e) {
-                  throw new ActiveMQInterruptedException(e);
-               }
+               int creditsSent = sessionContext.sendLargeMessageChunk(msgI, messageSize.get(), sendBlocking, true, buff, reconnectID, handler);
+               credits.acquireCredits(creditsSent);
             }
          }
          else {
@@ -529,13 +509,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
                sendInitialLargeMessageHeader(msgI, credits);
             }
 
-            int creditsSent = sessionContext.sendLargeMessageChunk(msgI, messageSize.get(), sendBlocking, false, buff, handler);
-            try {
-               credits.acquireCredits(creditsSent);
-            }
-            catch (InterruptedException e) {
-               throw new ActiveMQInterruptedException(e);
-            }
+            int creditsSent = sessionContext.sendLargeMessageChunk(msgI, messageSize.get(), sendBlocking, false, buff, reconnectID, handler);
+            credits.acquireCredits(creditsSent);
          }
       }
 

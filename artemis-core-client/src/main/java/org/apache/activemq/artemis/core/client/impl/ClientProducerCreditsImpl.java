@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -75,7 +76,7 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits {
    }
 
    @Override
-   public void acquireCredits(final int credits) throws InterruptedException, ActiveMQException {
+   public void acquireCredits(final int credits) throws ActiveMQException {
       checkCredits(credits);
 
       boolean tryAcquire;
@@ -93,6 +94,10 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits {
                   // better getting a "null" string than a NPE
                   ActiveMQClientLogger.LOGGER.outOfCreditOnFlowControl("" + address);
                }
+            }
+            catch (InterruptedException interrupted) {
+               Thread.currentThread().interrupt();
+               throw new ActiveMQInterruptedException(interrupted);
             }
             finally {
                this.blocked = false;
