@@ -136,7 +136,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
 
       readyToKill = true;
       try {
-         for (int i = 0; i < 8; i++) {
+         for (int i = 0; i < 10; i++) {
             producer.send(message);
          }
          fail("Sending message here should result in failure.");
