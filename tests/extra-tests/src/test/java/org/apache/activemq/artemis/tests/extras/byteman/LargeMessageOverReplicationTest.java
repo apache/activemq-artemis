@@ -211,7 +211,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
    public static void messageChunkReceived() {
       messageChunkCount++;
 
-      if (messageChunkCount == 1000) {
+      if (messageChunkCount == 100) {
          final CountDownLatch latch = new CountDownLatch(1);
          new Thread() {
             public void run() {
