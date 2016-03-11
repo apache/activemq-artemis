@@ -40,6 +40,13 @@ public interface Channel {
    long getID();
 
    /**
+    * This number increases every time the channel reconnects succesfully.
+    * This is used to guarantee the integrity of the channel on sequential commands such as large messages.
+    * @return
+    */
+   int getReconnectID();
+
+   /**
     * For protocol check
     */
    boolean supports(byte packetID);
@@ -52,6 +59,15 @@ public interface Channel {
     * successful
     */
    boolean send(Packet packet);
+
+   /**
+    * Sends a packet on this channel.
+    *
+    * @param packet the packet to send
+    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
+    * successful
+    */
+   boolean send(Packet packet, final int reconnectID);
 
    /**
     * Sends a packet on this channel using batching algorithm if appropriate
@@ -81,6 +97,17 @@ public interface Channel {
     * @throws ActiveMQException if an error occurs during the send
     */
    Packet sendBlocking(Packet packet, byte expectedPacket) throws ActiveMQException;
+
+   /**
+    * Sends a packet on this channel and then blocks until a response is received or a timeout
+    * occurs.
+    *
+    * @param packet         the packet to send
+    * @param expectedPacket the packet being expected.
+    * @return the response
+    * @throws ActiveMQException if an error occurs during the send
+    */
+   Packet sendBlocking(Packet packet, int reconnectID, byte expectedPacket) throws ActiveMQException;
 
    /**
     * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should

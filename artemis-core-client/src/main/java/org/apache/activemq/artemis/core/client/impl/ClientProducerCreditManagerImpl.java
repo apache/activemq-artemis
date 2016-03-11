@@ -171,7 +171,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       static ClientProducerCreditsNoFlowControl instance = new ClientProducerCreditsNoFlowControl();
 
       @Override
-      public void acquireCredits(int credits) throws InterruptedException {
+      public void acquireCredits(int credits)  {
       }
 
       @Override

@@ -251,6 +251,21 @@ public class BackupSyncDelay implements Interceptor {
       }
 
       @Override
+      public int getReconnectID() {
+         return 0;
+      }
+
+      @Override
+      public boolean send(Packet packet, int reconnectID) {
+         return false;
+      }
+
+      @Override
+      public Packet sendBlocking(Packet packet, int reconnectID, byte expectedPacket) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
       public void replayCommands(int lastConfirmedCommandID) {
          throw new UnsupportedOperationException();
       }

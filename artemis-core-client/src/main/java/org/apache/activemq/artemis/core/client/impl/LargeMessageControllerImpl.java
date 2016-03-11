@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -336,7 +337,19 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       // once the exception is set, the controller is pretty much useless
       if (handledException != null) {
          if (handledException instanceof ActiveMQException) {
-            throw (ActiveMQException) handledException;
+            ActiveMQException nestedException;
+
+            // This is just to be user friendly and give the user a proper exception trace,
+            // instead to just where it was canceled.
+            if (handledException instanceof ActiveMQLargeMessageInterruptedException) {
+               nestedException = new ActiveMQLargeMessageInterruptedException(handledException.getMessage());
+            }
+            else {
+               nestedException = new ActiveMQException(((ActiveMQException) handledException).getType(), handledException.getMessage());
+            }
+            nestedException.initCause(handledException);
+
+            throw nestedException;
          }
          else {
             throw new ActiveMQException(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY, "Error on saving LargeMessageBufferImpl", handledException);

@@ -83,6 +83,9 @@ public final class ChannelImpl implements Channel {
 
    private volatile long id;
 
+   /** This is used in */
+   private final AtomicInteger reconnectID = new AtomicInteger(0);
+
    private ChannelHandler handler;
 
    private Packet response;
@@ -137,6 +140,10 @@ public final class ChannelImpl implements Channel {
       }
 
       this.interceptors = interceptors;
+   }
+
+   public int getReconnectID() {
+      return reconnectID.get();
    }
 
    @Override
@@ -202,17 +209,21 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean sendAndFlush(final Packet packet) {
-      return send(packet, true, false);
+      return send(packet, -1, true, false);
    }
 
    @Override
    public boolean send(final Packet packet) {
-      return send(packet, false, false);
+      return send(packet, -1, false, false);
+   }
+
+   public boolean send(Packet packet, final int reconnectID) {
+      return send(packet, reconnectID, false, false);
    }
 
    @Override
    public boolean sendBatched(final Packet packet) {
-      return send(packet, false, true);
+      return send(packet, -1, false, true);
    }
 
    @Override
@@ -221,7 +232,7 @@ public final class ChannelImpl implements Channel {
    }
 
    // This must never called by more than one thread concurrently
-   public boolean send(final Packet packet, final boolean flush, final boolean batch) {
+   private boolean send(final Packet packet, final int reconnectID, final boolean flush, final boolean batch) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
          return false;
       }
@@ -271,6 +282,8 @@ public final class ChannelImpl implements Channel {
             ActiveMQClientLogger.LOGGER.trace("Writing buffer for channelID=" + id);
          }
 
+         checkReconnectID(reconnectID);
+
          // The actual send must be outside the lock, or with OIO transport, the write can block if the tcp
          // buffer is full, preventing any incoming buffers being handled and blocking failover
          connection.getTransportConnection().write(buffer, flush, batch);
@@ -279,13 +292,24 @@ public final class ChannelImpl implements Channel {
       }
    }
 
+   private void checkReconnectID(int reconnectID) {
+      if (reconnectID >= 0 && reconnectID != this.reconnectID.get()) {
+         throw ActiveMQClientMessageBundle.BUNDLE.packetTransmissionInterrupted();
+      }
+   }
+
+   @Override
+   public Packet sendBlocking(final Packet packet, byte expectedPacket) throws ActiveMQException {
+      return sendBlocking(packet, -1, expectedPacket);
+   }
+
    /**
     * Due to networking issues or server issues the server may take longer to answer than expected.. the client may timeout the call throwing an exception
     * and the client could eventually retry another call, but the server could then answer a previous command issuing a class-cast-exception.
     * The expectedPacket will be used to filter out undesirable packets that would belong to previous calls.
     */
    @Override
-   public Packet sendBlocking(final Packet packet, byte expectedPacket) throws ActiveMQException {
+   public Packet sendBlocking(final Packet packet, final int reconnectID, byte expectedPacket) throws ActiveMQException {
       String interceptionResult = invokeInterceptors(packet, interceptors, connection);
 
       if (interceptionResult != null) {
@@ -334,6 +358,8 @@ public final class ChannelImpl implements Channel {
             if (resendCache != null && packet.isRequiresConfirmations()) {
                addResendPacket(packet);
             }
+
+            checkReconnectID(reconnectID);
 
             connection.getTransportConnection().write(buffer, false, false);
 
@@ -491,6 +517,8 @@ public final class ChannelImpl implements Channel {
    @Override
    public void lock() {
       lock.lock();
+
+      reconnectID.incrementAndGet();
 
       failingOver = true;
 

@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterceptorRejectedPacketException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageException;
 import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
@@ -230,4 +231,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 119061, value = "Cannot send a packet while channel is failing over.")
    IllegalStateException cannotSendPacketDuringFailover();
+
+   @Message(id = 119062, value = "Multi-packet transmission (e.g. Large Messages) interrupted because of a reconnection.")
+   ActiveMQInterruptedException packetTransmissionInterrupted();
 }

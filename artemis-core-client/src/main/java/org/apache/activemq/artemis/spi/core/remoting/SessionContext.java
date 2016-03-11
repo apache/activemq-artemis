@@ -61,6 +61,8 @@ public abstract class SessionContext {
 
    public abstract void resetName(String name);
 
+   public abstract int getReconnectID();
+
    /**
     * it will eather reattach or reconnect, preferably reattaching it.
     *
@@ -145,6 +147,7 @@ public abstract class SessionContext {
                                              boolean sendBlocking,
                                              boolean lastChunk,
                                              byte[] chunk,
+                                             int reconnectID,
                                              SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
