@@ -118,7 +118,7 @@ public final class ActiveMQClient {
 
    public static final int DEFAULT_THREAD_POOL_MAX_SIZE = -1;
 
-   public static final int DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE = 500;
+   public static final int DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE = 8 * Runtime.getRuntime().availableProcessors();
 
    public static final int DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE = 5;
 
