@@ -16,6 +16,8 @@
  */
 package org.proton.plug.context;
 
+import java.util.concurrent.Executors;
+
 import io.netty.buffer.ByteBuf;
 
 import org.apache.qpid.proton.engine.Connection;
@@ -48,7 +50,7 @@ public class AbstractConnectionContextTest {
    private class TestConnectionContext extends AbstractConnectionContext {
 
       public TestConnectionContext(AMQPConnectionCallback connectionCallback) {
-         super(connectionCallback, null);
+         super(connectionCallback, Executors.newSingleThreadExecutor(), null);
       }
 
       @Override

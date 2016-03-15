@@ -18,6 +18,7 @@ package org.proton.plug.test.minimalclient;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.Executors;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -59,7 +60,7 @@ public class SimpleAMQPConnector implements Connector {
 
       AMQPClientSPI clientConnectionSPI = new AMQPClientSPI(future.channel());
 
-      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI, null);
+      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI, Executors.newSingleThreadExecutor(), null);
 
       future.channel().pipeline().addLast(new ChannelDuplexHandler() {
             @Override

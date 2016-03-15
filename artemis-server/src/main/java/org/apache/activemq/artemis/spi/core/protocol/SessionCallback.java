@@ -28,6 +28,10 @@ public interface SessionCallback {
     */
    boolean hasCredits(ServerConsumer consumerID);
 
+   /** This can be used to complete certain operations outside of the lock,
+    *  like acks or other operations. */
+   void afterDelivery() throws Exception;
+
    void sendProducerCreditsMessage(int credits, SimpleString address);
 
    void sendProducerCreditsFailMessage(int credits, SimpleString address);

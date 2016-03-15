@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -54,6 +55,14 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
    private final Collector collector = Proton.collector();
 
+   private final Executor dispatchExecutor;
+
+   private final Runnable dispatchRunnable = new Runnable() {
+      public void run() {
+         dispatch();
+      }
+   };
+
    private ArrayList<EventHandler> handlers = new ArrayList<>();
 
    private Sasl serverSasl;
@@ -68,18 +77,14 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
    private SASLResult saslResult;
 
-   /**
-    * If dispatching a dispatch call is ignored to avoid infinite stack loop
-    */
-   private boolean dispatching = false;
-
    protected volatile boolean dataReceived;
 
    protected boolean receivedFirstPacket = false;
 
    private int offset = 0;
 
-   public ProtonHandlerImpl() {
+   public ProtonHandlerImpl(Executor dispatchExecutor) {
+      this.dispatchExecutor = dispatchExecutor;
       this.creationTime = System.currentTimeMillis();
       transport.bind(connection);
       connection.collect(collector);
@@ -271,20 +276,9 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
          checkServerSASL();
 
-         if (dispatching) {
-            return;
-         }
-
-         dispatching = true;
-
       }
 
-      try {
-         dispatch();
-      }
-      finally {
-         dispatching = false;
-      }
+      dispatchExecutor.execute(dispatchRunnable);
    }
 
    @Override

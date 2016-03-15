@@ -19,6 +19,7 @@ package org.proton.plug.test.minimalserver;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -124,7 +125,7 @@ public class MinimalServer {
       @Override
       public void channelActive(ChannelHandlerContext ctx) throws Exception {
          super.channelActive(ctx);
-         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()), null);
+         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()), Executors.newSingleThreadExecutor(), null);
          //ctx.read();
       }
 

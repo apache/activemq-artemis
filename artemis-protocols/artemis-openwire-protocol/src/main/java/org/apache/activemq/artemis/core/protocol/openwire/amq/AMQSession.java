@@ -147,6 +147,11 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
+   public void afterDelivery() throws Exception {
+
+   }
+
+   @Override
    public boolean isWritable(ReadyListener callback) {
       return connection.isWritable(callback);
    }

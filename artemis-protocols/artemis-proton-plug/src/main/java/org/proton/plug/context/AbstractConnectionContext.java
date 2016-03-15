@@ -18,6 +18,7 @@ package org.proton.plug.context;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +46,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
 
-   protected ProtonHandler handler = ProtonHandler.Factory.create();
+   protected final ProtonHandler handler;
 
    protected AMQPConnectionCallback connectionCallback;
    private final ScheduledExecutorService scheduledPool;
@@ -54,18 +55,20 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    protected LocalListener listener = new LocalListener();
 
-   public AbstractConnectionContext(AMQPConnectionCallback connectionCallback, ScheduledExecutorService scheduledPool) {
-      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, scheduledPool);
+   public AbstractConnectionContext(AMQPConnectionCallback connectionCallback, Executor dispatchExecutor, ScheduledExecutorService scheduledPool) {
+      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
    }
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback,
                                     int idleTimeout,
                                     int maxFrameSize,
                                     int channelMax,
+                                    Executor dispatchExecutor,
                                     ScheduledExecutorService scheduledPool) {
       this.connectionCallback = connectionCallback;
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
+      this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
       Transport transport = handler.getTransport();
       if (idleTimeout > 0) {
          transport.setIdleTimeout(idleTimeout);
@@ -182,7 +185,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
          if (!connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
             long nextKeepAliveTime = handler.tick(true);
             flushBytes();
-            if (nextKeepAliveTime > 0) {
+            if (nextKeepAliveTime > 0 && scheduledPool != null) {
                scheduledPool.schedule(new Runnable() {
                   @Override
                   public void run() {

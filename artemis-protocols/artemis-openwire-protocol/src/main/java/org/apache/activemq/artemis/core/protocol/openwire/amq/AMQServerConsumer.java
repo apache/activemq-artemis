@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -45,8 +46,9 @@ public class AMQServerConsumer extends ServerConsumerImpl {
                             boolean strictUpdateDeliveryCount,
                             ManagementService managementService,
                             boolean supportLargeMessage,
-                            Integer credits) throws Exception {
-      super(consumerID, serverSession, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
+                            Integer credits,
+                            final ActiveMQServer server) throws Exception {
+      super(consumerID, serverSession, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
    }
 
    public void setBrowserListener(BrowserListener listener) {
