@@ -77,6 +77,12 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
+   public void afterDelivery() throws Exception {
+
+   }
+
+
+   @Override
    public boolean hasCredits(ServerConsumer consumerID) {
       return true;
    }

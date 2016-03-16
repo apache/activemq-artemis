@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.zip.Inflater;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -43,6 +45,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -56,6 +59,8 @@ public class StompSession implements SessionCallback {
    private ServerSession session;
 
    private final OperationContext sessionContext;
+
+   private final BlockingDeque<PendingTask> afterDeliveryTasks = new LinkedBlockingDeque<>();
 
    private final Map<Long, StompSubscription> subscriptions = new ConcurrentHashMap<>();
 
@@ -100,7 +105,15 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(ServerMessage serverMessage, ServerConsumer consumer, int deliveryCount) {
+   public void afterDelivery() throws Exception {
+      PendingTask task;
+      while ((task = afterDeliveryTasks.poll()) != null) {
+         task.run();
+      }
+   }
+
+   @Override
+   public int sendMessage(ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;
       try {
@@ -144,9 +157,20 @@ public class StompSession implements SessionCallback {
 
          if (subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
             if (manager.send(connection, frame)) {
-               //we ack and commit only if the send is successful
-               session.acknowledge(consumer.getID(), newServerMessage.getMessageID());
-               session.commit();
+               final long messageID = newServerMessage.getMessageID();
+               final long consumerID = consumer.getID();
+
+               // this will be called after the delivery is complete
+               // we can't call sesison.ack within the delivery
+               // as it could dead lock.
+               afterDeliveryTasks.offer(new PendingTask() {
+                  @Override
+                  public void run() throws Exception {
+                     //we ack and commit only if the send is successful
+                     session.acknowledge(consumerID, messageID);
+                     session.commit();
+                  }
+               });
             }
          }
          else {

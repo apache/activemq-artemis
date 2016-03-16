@@ -16,6 +16,7 @@
  */
 package org.proton.plug;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 public abstract class AMQPConnectionContextFactory {
@@ -27,10 +28,11 @@ public abstract class AMQPConnectionContextFactory {
                                                           int idleTimeout,
                                                           int maxFrameSize,
                                                           int channelMax,
+                                                          Executor dispatchExecutor,
                                                           ScheduledExecutorService scheduledPool);
 
    /**
     * @return
     */
-   public abstract AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback, ScheduledExecutorService scheduledPool);
+   public abstract AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback, Executor dispatchExecutor, ScheduledExecutorService scheduledPool);
 }

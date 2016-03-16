@@ -20,6 +20,7 @@ import org.proton.plug.AMQPConnectionContextFactory;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPServerConnectionContext;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
@@ -35,8 +36,8 @@ public class ProtonServerConnectionContextFactory extends AMQPConnectionContextF
    }
 
    @Override
-   public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback, ScheduledExecutorService scheduledPool) {
-      return createConnection(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, scheduledPool);
+   public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback, Executor dispatchExecutor, ScheduledExecutorService scheduledPool) {
+      return createConnection(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
    }
 
    @Override
@@ -44,7 +45,8 @@ public class ProtonServerConnectionContextFactory extends AMQPConnectionContextF
                                                        int idleTimeout,
                                                        int maxFrameSize,
                                                        int channelMax,
+                                                       Executor dispatchExecutor,
                                                        ScheduledExecutorService scheduledPool) {
-      return new ProtonServerConnectionContext(connectionCallback, idleTimeout, maxFrameSize, channelMax, scheduledPool);
+      return new ProtonServerConnectionContext(connectionCallback, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
    }
 }

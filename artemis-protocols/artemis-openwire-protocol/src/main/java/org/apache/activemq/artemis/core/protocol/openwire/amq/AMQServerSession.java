@@ -355,7 +355,7 @@ public class AMQServerSession extends ServerSessionImpl {
                                         ManagementService managementService2,
                                         boolean supportLargeMessage,
                                         Integer credits) throws Exception {
-      return new AMQServerConsumer(consumerID, this, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
+      return new AMQServerConsumer(consumerID, this, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, this.server);
    }
 
    public AMQServerConsumer getConsumer(long nativeId) {

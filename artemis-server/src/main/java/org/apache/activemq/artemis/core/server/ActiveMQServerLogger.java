@@ -756,9 +756,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void broadcastGroupClosed(@Cause Exception e);
 
+
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222109, value = "NodeID={0} is not available on the topology. Retrying the connection to that node now", format = Message.Format.MESSAGE_FORMAT)
-   void nodeNotAvailable(String targetNodeID);
+   @Message(id = 222109, value = "Timed out waiting for write lock on consumer. Check the Thread dump", format = Message.Format.MESSAGE_FORMAT)
+   void timeoutLockingConsumer();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222110, value = "no queue IDs defined!,  originalMessage  = {0}, copiedMessage = {1}, props={2}",

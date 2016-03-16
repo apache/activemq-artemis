@@ -136,11 +136,6 @@ public class ProtonTest extends ActiveMQTestBase {
             connection.close();
          }
 
-         for (long timeout = System.currentTimeMillis() + 1000; timeout > System.currentTimeMillis() && server.getRemotingService().getConnections().size() != 0; ) {
-            Thread.sleep(1);
-         }
-
-         Assert.assertEquals("The remoting connection wasn't removed after connection.close()", 0, server.getRemotingService().getConnections().size());
          server.stop();
       }
       finally {
@@ -633,6 +628,7 @@ public class ProtonTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          TextMessage message = session.createTextMessage("text" + i);
+         message.setStringProperty("text", "text" + i);
          p.send(message);
       }
 

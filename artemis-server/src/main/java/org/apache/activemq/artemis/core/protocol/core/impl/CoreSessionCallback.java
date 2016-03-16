@@ -98,6 +98,12 @@ public final class CoreSessionCallback implements SessionCallback {
       channel.send(packet);
    }
 
+
+   @Override
+   public void afterDelivery() throws Exception {
+
+   }
+
    @Override
    public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
       Packet packet = new SessionProducerCreditsFailMessage(credits, address);
