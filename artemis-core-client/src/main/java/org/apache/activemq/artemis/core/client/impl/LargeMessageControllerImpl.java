@@ -1089,7 +1089,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          }
 
          int sizeToAdd = currentPacket != null ? currentPacket.chunk.length : 1;
-         currentPacket = largeMessageData.poll(readTimeout, TimeUnit.SECONDS);
+         currentPacket = largeMessageData.poll(readTimeout, TimeUnit.MILLISECONDS);
          if (currentPacket == null) {
             throw new IndexOutOfBoundsException();
          }
