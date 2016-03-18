@@ -246,12 +246,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
             }
          }
 
-         if (failed) {
-            System.err.println("Failed");
-            System.exit(-1);
-         }
-
-         Assert.assertFalse("test failed, look at the system.out of the test for more infomration", failed);
+         Assert.assertFalse("test failed, look at the system.out of the test for more information", failed);
       }
       finally {
          connection.close();
