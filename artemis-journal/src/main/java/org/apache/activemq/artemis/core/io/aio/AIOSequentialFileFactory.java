@@ -50,6 +50,8 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private final AtomicBoolean running = new AtomicBoolean(false);
 
+   private static final String AIO_TEST_FILE = ".aio-test";
+
    // This method exists just to make debug easier.
    // I could replace log.trace by log.info temporarily while I was debugging
    // Journal
@@ -112,6 +114,36 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    public static boolean isSupported() {
       return LibaioContext.isLoaded();
+   }
+
+   public static boolean isSupported(File journalPath) {
+      if (!isSupported()) {
+         return false;
+      }
+
+      File aioTestFile = new File(journalPath, AIO_TEST_FILE);
+      try {
+         int fd = LibaioContext.open(aioTestFile.getAbsolutePath(), true);
+         LibaioContext.close(fd);
+         aioTestFile.delete();
+      }
+      catch (Exception e) {
+         // try to handle the file using plain Java
+         // return false if and only if we can create/remove the file using
+         // plain Java but not using AIO
+         try {
+            if (!aioTestFile.exists()) {
+               if (!aioTestFile.createNewFile()) return true;
+            }
+            if (!aioTestFile.delete()) return true;
+         }
+         catch (Exception ie) {
+            // we can not even create the test file using plain java
+            return true;
+         }
+         return false;
+      }
+      return true;
    }
 
    @Override
