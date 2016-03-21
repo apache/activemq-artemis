@@ -138,6 +138,17 @@ public class SSLSupportTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testContextWithNullKeyStorePassword() throws Exception {
+      try {
+         SSLSupport.createContext(storeType, keyStorePath, null, storeType, trustStorePath, trustStorePassword);
+         Assert.fail();
+      }
+      catch (Exception e) {
+         assertFalse(e instanceof NullPointerException);
+      }
+   }
+
+   @Test
    public void testContextWithBadTrustStorePath() throws Exception {
       try {
          SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, "not a trust store", trustStorePassword);

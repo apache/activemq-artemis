@@ -103,7 +103,7 @@ public class SSLSupport {
             URL keystoreURL = SSLSupport.validateStoreURL(keystorePath);
             in = keystoreURL.openStream();
          }
-         ks.load(in, keystorePassword.toCharArray());
+         ks.load(in, keystorePassword == null ? null : keystorePassword.toCharArray());
       }
       finally {
          if (in != null) {
@@ -126,7 +126,7 @@ public class SSLSupport {
       else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
          KeyStore ks = SSLSupport.loadKeystore(keyStoreProvider, keystorePath, keystorePassword);
-         kmf.init(ks, keystorePassword.toCharArray());
+         kmf.init(ks, keystorePassword == null ? null : keystorePassword.toCharArray());
 
          return kmf.getKeyManagers();
       }
