@@ -390,7 +390,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
     */
    public static native int open(String path, boolean direct);
 
-   static native void close(int fd);
+   public static native void close(int fd);
 
    /**
     */
