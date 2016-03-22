@@ -43,7 +43,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    private CallbackHandler callbackHandler;
 
    private Properties users;
-   private Properties roles;
+   private Map<String,Set<String>> roles;
    private String user;
    private final Set<Principal> principals = new HashSet<>();
    private boolean loginSucceeded;
@@ -59,7 +59,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
 
       init(options);
       users = load(USER_FILE_PROP_NAME, "user", options).getProps();
-      roles = load(ROLE_FILE_PROP_NAME, "role", options).getProps();
+      roles = load(ROLE_FILE_PROP_NAME, "role", options).invertedPropertiesValuesMap();
    }
 
    @Override
@@ -107,17 +107,10 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       if (result) {
          principals.add(new UserPrincipal(user));
 
-         for (Map.Entry<Object, Object> entry : roles.entrySet()) {
-            String name = (String) entry.getKey();
-            String[] userList = ((String) entry.getValue()).split(",");
-            if (debug) {
-               ActiveMQServerLogger.LOGGER.debug("Inspecting role '" + name + "' with user(s): " + entry.getValue());
-            }
-            for (int i = 0; i < userList.length; i++) {
-               if (user.equals(userList[i])) {
-                  principals.add(new RolePrincipal(name));
-                  break;
-               }
+         Set<String> matchedRoles = roles.get(user);
+         if (matchedRoles != null) {
+            for (String entry : matchedRoles) {
+               principals.add(new RolePrincipal(entry));
             }
          }
 
