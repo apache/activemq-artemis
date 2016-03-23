@@ -44,7 +44,6 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
 
    private X509Certificate[] certificates;
    private String username;
-   private Set<String> roles;
    private Set<Principal> principals = new HashSet<>();
 
    /**
@@ -82,8 +81,6 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
          throw new FailedLoginException("No user for client certificate: " + getDistinguishedName(certificates));
       }
 
-      roles = getUserRoles(username);
-
       if (debug) {
          ActiveMQServerLogger.LOGGER.debug("Certificate for user: " + username);
       }
@@ -97,7 +94,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
    public boolean commit() throws LoginException {
       principals.add(new UserPrincipal(username));
 
-      for (String role : roles) {
+      for (String role : getUserRoles(username)) {
          principals.add(new RolePrincipal(role));
       }
 
@@ -142,8 +139,8 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     * Helper method.
     */
    private void clear() {
-      roles.clear();
       certificates = null;
+      username = null;
    }
 
    /**

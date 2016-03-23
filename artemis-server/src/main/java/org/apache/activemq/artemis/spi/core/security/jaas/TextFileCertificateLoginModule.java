@@ -20,10 +20,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
-import java.util.Enumeration;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -42,7 +40,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.user";
    private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.textfiledn.role";
 
-   private Properties roles;
+   private Map<String, Set<String>> rolesByUser;
    private Map<String, String> usersByDn;
 
    /**
@@ -52,7 +50,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
       usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
-      roles = load(ROLE_FILE_PROP_NAME, "", options).getProps();
+      rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
    }
 
    /**
@@ -84,16 +82,9 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
     */
    @Override
    protected Set<String> getUserRoles(String username) throws LoginException {
-      Set<String> userRoles = new HashSet<>();
-      for (Enumeration<Object> enumeration = roles.keys(); enumeration.hasMoreElements(); ) {
-         String groupName = (String) enumeration.nextElement();
-         String[] userList = (roles.getProperty(groupName) + "").split(",");
-         for (int i = 0; i < userList.length; i++) {
-            if (username.equals(userList[i])) {
-               userRoles.add(groupName);
-               break;
-            }
-         }
+      Set<String> userRoles = rolesByUser.get(username);
+      if (userRoles == null) {
+         userRoles = Collections.emptySet();
       }
 
       return userRoles;
