@@ -330,7 +330,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       return sendReplicatePacket(packet, true);
    }
 
-   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
+   private synchronized OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
       if (!enabled)
          return null;
       boolean runItNow = false;
