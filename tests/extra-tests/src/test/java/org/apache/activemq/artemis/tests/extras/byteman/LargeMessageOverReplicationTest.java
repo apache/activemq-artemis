@@ -62,6 +62,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
    MessageProducer producer;
 
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
@@ -214,6 +215,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       if (messageChunkCount == 100) {
          final CountDownLatch latch = new CountDownLatch(1);
          new Thread() {
+            @Override
             public void run() {
                try {
                   latch.countDown();

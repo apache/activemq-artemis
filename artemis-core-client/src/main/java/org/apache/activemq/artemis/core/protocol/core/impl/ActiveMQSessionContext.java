@@ -154,6 +154,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
    }
 
+   @Override
    public int getReconnectID() {
       return sessionChannel.getReconnectID();
    }

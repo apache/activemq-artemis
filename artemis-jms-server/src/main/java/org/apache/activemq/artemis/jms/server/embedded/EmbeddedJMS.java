@@ -82,6 +82,7 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
    }
 
 
+   @Override
    public EmbeddedJMS setConfiguration(Configuration configuration) {
       super.setConfiguration(configuration);
       return this;

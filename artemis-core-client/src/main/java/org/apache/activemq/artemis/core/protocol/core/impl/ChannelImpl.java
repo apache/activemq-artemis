@@ -142,6 +142,7 @@ public final class ChannelImpl implements Channel {
       this.interceptors = interceptors;
    }
 
+   @Override
    public int getReconnectID() {
       return reconnectID.get();
    }
@@ -217,6 +218,7 @@ public final class ChannelImpl implements Channel {
       return send(packet, -1, false, false);
    }
 
+   @Override
    public boolean send(Packet packet, final int reconnectID) {
       return send(packet, reconnectID, false, false);
    }

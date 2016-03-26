@@ -700,10 +700,12 @@ public class JDBCJournalImpl implements Journal {
       return null;
    }
 
+   @Override
    public final void synchronizationLock() {
       journalLock.writeLock().lock();
    }
 
+   @Override
    public final void synchronizationUnlock() {
       journalLock.writeLock().unlock();
    }
