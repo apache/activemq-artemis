@@ -473,7 +473,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
-      return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.NON_DURABLE, true);
+      return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.NON_DURABLE);
    }
 
    @Override
@@ -523,7 +523,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
-      return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.DURABLE, true);
+      return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.DURABLE);
    }
 
    enum ConsumerDurability {
@@ -536,8 +536,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    private ActiveMQMessageConsumer internalCreateSharedConsumer(final ActiveMQDestination dest,
                                                                 final String subscriptionName,
                                                                 String selectorString,
-                                                                ConsumerDurability durability,
-                                                                final boolean shared) throws JMSException {
+                                                                ConsumerDurability durability) throws JMSException {
       try {
 
          if (dest.isQueue()) {

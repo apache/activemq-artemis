@@ -77,7 +77,7 @@ public final class XPathExpression implements BooleanExpression {
    @Override
    public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
-      return object != null && object == Boolean.TRUE;
+      return object == Boolean.TRUE;
    }
 
 }

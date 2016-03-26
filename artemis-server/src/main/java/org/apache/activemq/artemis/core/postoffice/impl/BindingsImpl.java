@@ -265,13 +265,11 @@ public final class BindingsImpl implements Bindings {
 
       boolean routed = false;
 
-      if (!exclusiveBindings.isEmpty()) {
-         for (Binding binding : exclusiveBindings) {
-            if (binding.getFilter() == null || binding.getFilter().match(message)) {
-               binding.getBindable().route(message, context);
+      for (Binding binding : exclusiveBindings) {
+         if (binding.getFilter() == null || binding.getFilter().match(message)) {
+            binding.getBindable().route(message, context);
 
-               routed = true;
-            }
+            routed = true;
          }
       }
 
