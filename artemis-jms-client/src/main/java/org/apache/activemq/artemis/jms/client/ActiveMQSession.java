@@ -542,7 +542,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          if (dest.isQueue()) {
             // This is not really possible unless someone makes a mistake on code
-            // createSharedConsumer only accpets Topics by declaration
+            // createSharedConsumer only accepts Topics by declaration
             throw new RuntimeException("Internal error: createSharedConsumer is only meant for Topics");
          }
 
