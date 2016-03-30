@@ -656,8 +656,8 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void setStringProperty(final String name, final String value) throws JMSException {
       checkProperty(name);
 
-      if (MessageUtil.JMSXGROUPID.equals(name)) {
-         message.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString(value));
+      if (handleGroupID(name, value)) {
+         return;
       }
       else {
          message.putStringProperty(new SimpleString(name), SimpleString.toSimpleString(value));
@@ -666,6 +666,10 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
+      if (handleGroupID(name, value)) {
+         return;
+      }
+
       if (ActiveMQJMSConstants.JMS_ACTIVEMQ_OUTPUT_STREAM.equals(name)) {
          setOutputStream((OutputStream) value);
 
@@ -948,6 +952,18 @@ public class ActiveMQMessage implements javax.jms.Message {
       if (priority < 0 || priority > 9) {
          throw new JMSException(priority + " is not valid: priority must be between 0 and 9");
       }
+   }
+
+   private boolean handleGroupID(final String name, final Object value) {
+      boolean result = false;
+
+      if (MessageUtil.JMSXGROUPID.equals(name)) {
+         message.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString(value.toString()));
+
+         result = true;
+      }
+
+      return result;
    }
 
    // Inner classes -------------------------------------------------
