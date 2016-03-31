@@ -114,12 +114,12 @@ public class URIParserTest {
       System.out.println("queryString2: " + queryString);
       Assert.assertEquals("key1=value1", queryString);
 
-      query.put("key2", "value2");
+      query.put("key3", "value3");
       queryString = URISupport.createQueryString(query);
       System.out.println("queryString3: " + queryString);
-      Assert.assertEquals("key1=value1&key2=value2", queryString);
+      Assert.assertEquals("key1=value1&key3=value3", queryString);
 
-      query.put("key3", "value3");
+      query.put("key2", "value2");
       queryString = URISupport.createQueryString(query);
       System.out.println("queryString4: " + queryString);
       Assert.assertEquals("key1=value1&key2=value2&key3=value3", queryString);
