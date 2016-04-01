@@ -434,6 +434,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
          LargeServerMessageImpl largeMessage = (LargeServerMessageImpl) createLargeMessage();
 
+         // We do this here to avoid a case where the replication gets a list without this file
+         // to avoid a race
+         largeMessage.validateFile();
+
          largeMessage.copyHeadersAndProperties(message);
 
          largeMessage.setMessageID(id);
