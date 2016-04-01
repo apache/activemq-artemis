@@ -105,6 +105,16 @@ public class BindingsImplTest extends ActiveMQTestBase {
    private final class FakeTransaction implements Transaction {
 
       @Override
+      public Object getProtocolData() {
+         return null;
+      }
+
+      @Override
+      public void setProtocolData(Object data) {
+
+      }
+
+      @Override
       public void addOperation(final TransactionOperation sync) {
 
       }

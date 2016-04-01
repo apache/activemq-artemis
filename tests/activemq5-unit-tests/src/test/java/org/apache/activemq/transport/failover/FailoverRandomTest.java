@@ -17,47 +17,67 @@
 
 package org.apache.activemq.transport.failover;
 
-import junit.framework.TestCase;
-
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FailoverRandomTest extends TestCase {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-   BrokerService brokerA, brokerB;
+public class FailoverRandomTest extends OpenwireArtemisBaseTest {
 
-   @Override
+   private EmbeddedJMS server0, server1;
+
+   @Before
    public void setUp() throws Exception {
-      brokerA = createBroker("A");
-      brokerB = createBroker("B");
+      Map<String, String> params = new HashMap<String, String>();
+
+      params.put("rebalanceClusterClients", "true");
+      params.put("updateClusterClients", "true");
+      params.put("updateClusterClientsOnRemove", "true");
+      params.put("brokerName", "A");
+
+      Configuration config0 = createConfig("127.0.0.1", 0, params);
+
+      params.put("brokerName", "B");
+      Configuration config1 = createConfig("127.0.0.2", 1, params);
+
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      server0 = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+
+      server0.start();
+      server1.start();
+
+      Assert.assertTrue(server0.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
    }
 
-   @Override
+   @After
    public void tearDown() throws Exception {
-      brokerA.stop();
-      brokerB.stop();
+      server0.stop();
+      server1.stop();
    }
 
-   private BrokerService createBroker(String name) throws Exception {
-      BrokerService broker = new BrokerService();
-      broker.setBrokerName("Broker" + name);
-      broker.addConnector("tcp://localhost:0");
-      broker.getManagementContext().setCreateConnector(false);
-      broker.setPersistent(false);
-      broker.setUseJmx(false);
-      broker.start();
-      return broker;
-   }
-
+   @Test
    public void testRandomConnections() throws Exception {
-      String failoverUrl = "failover:(" + brokerA.getTransportConnectors().get(0).getConnectUri() + "," + brokerB.getTransportConnectors().get(0).getConnectUri() + ")";
+      String failoverUrl = "failover:(" + newURI(0) + "," + newURI(1) + ")";
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(failoverUrl);
 
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
-      String brokerName1 = connection.getBrokerName();
-      assertNotNull(brokerName1);
+      final String brokerName1 = connection.getBrokerName();
+      Assert.assertNotNull(brokerName1);
       connection.close();
 
       String brokerName2 = brokerName1;
@@ -66,9 +86,9 @@ public class FailoverRandomTest extends TestCase {
          connection = (ActiveMQConnection) cf.createConnection();
          connection.start();
          brokerName2 = connection.getBrokerName();
-         assertNotNull(brokerName2);
+         Assert.assertNotNull(brokerName2);
          connection.close();
       }
-      assertTrue(brokerName1 + "!=" + brokerName2, !brokerName1.equals(brokerName2));
+      Assert.assertTrue(brokerName1 + "!=" + brokerName2, !brokerName1.equals(brokerName2));
    }
 }

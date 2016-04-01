@@ -22,56 +22,57 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.util.Wait;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Ensures connections aren't leaked when when we use backup=true and randomize=false
  */
-public class FailoverBackupLeakTest {
+public class FailoverBackupLeakTest extends OpenwireArtemisBaseTest {
 
-   private static BrokerService s1, s2;
+   private EmbeddedJMS s1, s2;
 
-   @BeforeClass
-   public static void setUp() throws Exception {
-      s1 = buildBroker("broker1");
-      s2 = buildBroker("broker2");
+   @Before
+   public void setUp() throws Exception {
 
+      Configuration config0 = createConfig("127.0.0.1", 0);
+      Configuration config1 = createConfig("127.0.0.1", 1);
+
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      s1 = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      s2 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
       s1.start();
-      s1.waitUntilStarted();
       s2.start();
-      s2.waitUntilStarted();
+
+      Assert.assertTrue(s1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(s2.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
    }
 
-   @AfterClass
-   public static void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
       if (s2 != null) {
          s2.stop();
-         s2.waitUntilStopped();
       }
       if (s1 != null) {
          s1.stop();
-         s1.waitUntilStopped();
       }
-   }
-
-   private static String getConnectString(BrokerService service) throws Exception {
-      return service.getTransportConnectors().get(0).getPublishableConnectString();
-   }
-
-   private static BrokerService buildBroker(String brokerName) throws Exception {
-      BrokerService service = new BrokerService();
-      service.setBrokerName(brokerName);
-      service.setUseJmx(false);
-      service.setPersistent(false);
-      service.setUseShutdownHook(false);
-      service.addConnector("tcp://0.0.0.0:0?transport.closeAsync=false");
-      return service;
    }
 
    @Test
@@ -85,9 +86,12 @@ public class FailoverBackupLeakTest {
    }
 
    private void check(String connectionProperties) throws Exception {
-      String s1URL = getConnectString(s1), s2URL = getConnectString(s2);
+      String s1URL = newURI(0), s2URL = newURI(1);
       String uri = "failover://(" + s1URL + "," + s2URL + ")?" + connectionProperties;
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+      final int initCount1 = getConnectionCount(s1);
+      final int initCount2 = getConnectionCount(s2);
+
       for (int i = 0; i < 10; i++) {
          buildConnection(factory);
       }
@@ -96,7 +100,7 @@ public class FailoverBackupLeakTest {
 
          @Override
          public boolean isSatisified() throws Exception {
-            return getConnectionCount(s1) == 0;
+            return getConnectionCount(s1) == initCount1;
          }
       }));
 
@@ -104,16 +108,22 @@ public class FailoverBackupLeakTest {
 
          @Override
          public boolean isSatisified() throws Exception {
-            return getConnectionCount(s2) == 0;
+            return getConnectionCount(s2) == initCount2;
          }
       }));
    }
 
-   private int getConnectionCount(BrokerService service) {
-      return service.getTransportConnectors().get(0).getConnections().size();
+   private int getConnectionCount(EmbeddedJMS server) throws Exception {
+      ManagementService managementService = server.getActiveMQServer().getManagementService();
+      JMSServerControl jmsControl = (JMSServerControl) managementService.getResource("jms.server");
+      String[] ids = jmsControl.listConnectionIDs();
+      if (ids != null) {
+         return ids.length;
+      }
+      return 0;
    }
 
-   private void buildConnection(ConnectionFactory local) throws JMSException {
+   private void buildConnection(ConnectionFactory local) throws Exception {
       Connection conn = null;
       Session sess = null;
       try {

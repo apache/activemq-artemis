@@ -23,8 +23,11 @@ import java.net.URI;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArtemisBrokerHelper {
+   private static final Logger LOG = LoggerFactory.getLogger(ArtemisBrokerHelper.class);
 
    private static volatile Object service = null;
    private static Class<?> serviceClass;
@@ -42,6 +45,7 @@ public class ArtemisBrokerHelper {
    // start a tcp transport artemis broker, the broker need to
    // be invm with client.
    public static void startArtemisBroker(URI location) throws IOException {
+      LOG.info("---starting broker, service is there? " + service);
       if (service != null) {
          return;
       }
@@ -49,6 +53,7 @@ public class ArtemisBrokerHelper {
          service = serviceClass.newInstance();
          Method startMethod = serviceClass.getMethod("start");
          startMethod.invoke(service, (Object[]) null);
+         LOG.info("started a service instance: " + service);
       }
       catch (InstantiationException e) {
          throw new IOException("Inst exception", e);
@@ -75,22 +80,20 @@ public class ArtemisBrokerHelper {
       startMethod.invoke(service, activemqDestination);
    }
 
-   //some tests run broker in setUp(). This need be called
-   //to prevent auto broker creation.
-   public static void setBroker(Object startedBroker) {
-      service = startedBroker;
-   }
-
    public static BrokerService getBroker() {
       return (BrokerService) service;
    }
 
-   public static void stopArtemisBroker() throws Exception {
+   public static void stopArtemisBroker() {
       try {
          if (service != null) {
             Method startMethod = serviceClass.getMethod("stop");
             startMethod.invoke(service, (Object[]) null);
+            System.out.println("stopped the service instance: " + service);
          }
+      }
+      catch (Exception e) {
+         e.printStackTrace();
       }
       finally {
          service = null;

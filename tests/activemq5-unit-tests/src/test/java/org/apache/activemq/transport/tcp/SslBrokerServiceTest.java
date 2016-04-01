@@ -124,6 +124,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
    private void makeSSLConnection(SSLContext context,
                                   String enabledSuites[],
                                   TransportConnector connector) throws Exception, UnknownHostException, SocketException {
+      System.out.println("-----connector: " + connector);
       SSLSocket sslSocket = (SSLSocket) context.getSocketFactory().createSocket("localhost", connector.getUri().getPort());
 
       if (enabledSuites != null) {

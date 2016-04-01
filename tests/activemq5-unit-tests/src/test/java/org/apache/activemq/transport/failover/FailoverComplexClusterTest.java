@@ -16,7 +16,29 @@
  */
 package org.apache.activemq.transport.failover;
 
-import org.apache.activemq.broker.TransportConnector;
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Complex cluster test that will exercise the dynamic failover capabilities of
@@ -25,35 +47,76 @@ import org.apache.activemq.broker.TransportConnector;
  * connections on the client should start with 3, then have two after the 3rd
  * broker is removed and then show 3 after the 3rd broker is reintroduced.
  */
-public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
+public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
-   private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
-   private static final String BROKER_A_NOB_TC_ADDRESS = "tcp://127.0.0.1:61626";
-   private static final String BROKER_B_NOB_TC_ADDRESS = "tcp://127.0.0.1:61627";
-   private static final String BROKER_C_NOB_TC_ADDRESS = "tcp://127.0.0.1:61628";
-   private static final String BROKER_A_NAME = "BROKERA";
-   private static final String BROKER_B_NAME = "BROKERB";
-   private static final String BROKER_C_NAME = "BROKERC";
+
+   private String clientUrl;
+   private EmbeddedJMS[] servers = new EmbeddedJMS[3];
+
+   private static final int NUMBER_OF_CLIENTS = 30;
+   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+
+
+   @Before
+   public void setUp() throws Exception {
+   }
+
+   //default setup for most tests
+   private void commonSetup() throws Exception {
+      Map<String, String> params = new HashMap<String, String>();
+
+      params.put("rebalanceClusterClients", "true");
+      params.put("updateClusterClients", "true");
+      params.put("updateClusterClientsOnRemove", "true");
+
+      Configuration config0 = createConfig("localhost", 0, params);
+      Configuration config1 = createConfig("localhost", 1, params);
+      Configuration config2 = createConfig("localhost", 2, params);
+
+      deployClusterConfiguration(config0, 1, 2);
+      deployClusterConfiguration(config1, 0, 2);
+      deployClusterConfiguration(config2, 0, 1);
+
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[2] = new EmbeddedJMS().setConfiguration(config2).setJmsConfiguration(new JMSConfigurationImpl());
+
+      servers[0].start();
+      servers[1].start();
+      servers[2].start();
+
+      Assert.assertTrue(servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
+      Assert.assertTrue(servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
+      Assert.assertTrue(servers[2].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      shutdownClients();
+      for (EmbeddedJMS server : servers) {
+         if (server != null) {
+            server.stop();
+         }
+      }
+   }
 
    /**
     * Basic dynamic failover 3 broker test
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterSingleConnectorBasic() throws Exception {
-
-      initSingleTcBroker("", null, null);
-
-      Thread.sleep(2000);
-
+      commonSetup();
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
       createClients();
-      Thread.sleep(2000);
 
+      Thread.sleep(3000);
       runTests(false, null, null, null);
    }
+
 
    /**
     * Tests a 3 broker configuration to ensure that the backup is random and
@@ -63,10 +126,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterSingleConnectorBackupFailoverConfig() throws Exception {
-
-      initSingleTcBroker("", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
 
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?backup=true&backupPoolSize=2&useExponentialBackOff=false&initialReconnectDelay=500");
@@ -84,10 +146,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterSingleConnectorWithParams() throws Exception {
-
-      initSingleTcBroker("?transport.closeAsync=false", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
       createClients();
@@ -101,10 +162,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterWithClusterFilter() throws Exception {
-
-      initSingleTcBroker("?transport.closeAsync=false", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
       createClients();
@@ -118,10 +178,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterMultipleConnectorBasic() throws Exception {
-
-      initMultiTcCluster("", null);
-
+      commonSetup();
       Thread.sleep(2000);
 
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
@@ -136,9 +195,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testOriginalBrokerRestart() throws Exception {
-      initSingleTcBroker("", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
 
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
@@ -147,16 +206,13 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
 
       assertClientsConnectedToThreeBrokers();
 
-      getBroker(BROKER_A_NAME).stop();
-      getBroker(BROKER_A_NAME).waitUntilStopped();
-      removeBroker(BROKER_A_NAME);
+      stopServer(0);
 
       Thread.sleep(5000);
 
       assertClientsConnectedToTwoBrokers();
 
-      createBrokerA(false, null, null, null);
-      getBroker(BROKER_A_NAME).waitUntilStarted();
+      restartServer(0);
       Thread.sleep(5000);
 
       assertClientsConnectedToThreeBrokers();
@@ -168,10 +224,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterClientDistributions() throws Exception {
-
-      initSingleTcBroker("", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false&initialReconnectDelay=500");
       createClients(100);
@@ -186,10 +241,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
     *
     * @throws Exception
     */
+   @Test
    public void testThreeBrokerClusterDestinationFilter() throws Exception {
-
-      initSingleTcBroker("", null, null);
-
+      commonSetup();
       Thread.sleep(2000);
       setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
       createClients();
@@ -197,28 +251,25 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
       runTests(false, null, null, "Queue.TEST.FOO.>");
    }
 
+   @Test
    public void testFailOverWithUpdateClientsOnRemove() throws Exception {
       // Broker A
-      addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-      TransportConnector connectorA = getBroker(BROKER_A_NAME).addConnector(BROKER_A_CLIENT_TC_ADDRESS);
-      connectorA.setName("openwire");
-      connectorA.setRebalanceClusterClients(true);
-      connectorA.setUpdateClusterClients(true);
-      connectorA.setUpdateClusterClientsOnRemove(true); //If set to false the test succeeds.
-      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_A_NAME).start();
-
+      Configuration config0 = createConfig(0, "?rebalanceClusterClients=true&updateClusterClients=true&updateClusterClientsOnRemove=true");
       // Broker B
-      addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-      TransportConnector connectorB = getBroker(BROKER_B_NAME).addConnector(BROKER_B_CLIENT_TC_ADDRESS);
-      connectorB.setName("openwire");
-      connectorB.setRebalanceClusterClients(true);
-      connectorB.setUpdateClusterClients(true);
-      connectorB.setUpdateClusterClientsOnRemove(true); //If set to false the test succeeds.
-      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_B_NAME).start();
+      Configuration config1 = createConfig(1, "?rebalanceClusterClients=true&updateClusterClients=true&updateClusterClientsOnRemove=true");
 
-      getBroker(BROKER_B_NAME).waitUntilStarted();
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[0].start();
+
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1].start();
+
+      servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2);
+      servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2);
+
       Thread.sleep(1000);
 
       // create client connecting only to A. It should receive broker B address whet it connects to A.
@@ -227,9 +278,9 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
       Thread.sleep(5000);
 
       // We stop broker A.
-      logger.info("Stopping broker A whose address is: {}", BROKER_A_CLIENT_TC_ADDRESS);
-      getBroker(BROKER_A_NAME).stop();
-      getBroker(BROKER_A_NAME).waitUntilStopped();
+      servers[0].stop();
+      servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 1);
+
       Thread.sleep(5000);
 
       // Client should failover to B.
@@ -258,138 +309,150 @@ public class FailoverComplexClusterTest extends FailoverClusterTestSupport {
                          String destinationFilter) throws Exception, InterruptedException {
       assertClientsConnectedToThreeBrokers();
 
-      getBroker(BROKER_C_NAME).stop();
-      getBroker(BROKER_C_NAME).waitUntilStopped();
-      removeBroker(BROKER_C_NAME);
+      stopServer(2);
 
       Thread.sleep(5000);
 
       assertClientsConnectedToTwoBrokers();
 
-      createBrokerC(multi, tcParams, clusterFilter, destinationFilter);
-      getBroker(BROKER_C_NAME).waitUntilStarted();
+      restartServer(2);
+
       Thread.sleep(5000);
 
       assertClientsConnectedToThreeBrokers();
    }
 
-   /**
-    * @param multi
-    * @param tcParams
-    * @param clusterFilter
-    * @param destinationFilter
-    * @throws Exception
-    * @throws InterruptedException
-    */
+   public void setClientUrl(String clientUrl) {
+      this.clientUrl = clientUrl;
+   }
+
+   protected void createClients() throws Exception {
+      createClients(NUMBER_OF_CLIENTS);
+   }
+
+   protected void createClients(int numOfClients) throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
+      for (int i = 0; i < numOfClients; i++) {
+         ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
+         c.start();
+         Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = s.createQueue(getClass().getName());
+         MessageConsumer consumer = s.createConsumer(queue);
+         connections.add(c);
+      }
+   }
+
+   protected void shutdownClients() throws JMSException {
+      for (Connection c : connections) {
+         c.close();
+      }
+   }
+
+   protected void assertClientsConnectedToThreeBrokers() {
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         if (c.getTransportChannel().getRemoteAddress() != null) {
+            set.add(c.getTransportChannel().getRemoteAddress());
+         }
+      }
+      Assert.assertTrue("Only 3 connections should be found: " + set, set.size() == 3);
+   }
+
+   protected void assertClientsConnectedToTwoBrokers() {
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         if (c.getTransportChannel().getRemoteAddress() != null) {
+            set.add(c.getTransportChannel().getRemoteAddress());
+         }
+      }
+      Assert.assertTrue("Only 2 connections should be found: " + set, set.size() == 2);
+   }
+
+   private void stopServer(int serverID) throws Exception {
+      servers[serverID].stop();
+      for (int i = 0; i < servers.length; i++) {
+         if (i != serverID) {
+            Assert.assertTrue(servers[i].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, servers.length - 1));
+         }
+      }
+   }
+
+   private void restartServer(int serverID) throws Exception {
+      servers[serverID].start();
+
+      for (int i = 0; i < servers.length; i++) {
+         Assert.assertTrue(servers[i].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, servers.length));
+      }
+   }
+
    private void runClientDistributionTests(boolean multi,
                                            String tcParams,
                                            String clusterFilter,
                                            String destinationFilter) throws Exception, InterruptedException {
       assertClientsConnectedToThreeBrokers();
-      assertClientsConnectionsEvenlyDistributed(.25);
+      //if 2/3 or more of total connections connect to one node, we consider it wrong
+      //if 1/4 or less of total connects to one node, we consider it wrong
+      assertClientsConnectionsEvenlyDistributed(.25, .67);
 
-      getBroker(BROKER_C_NAME).stop();
-      getBroker(BROKER_C_NAME).waitUntilStopped();
-      removeBroker(BROKER_C_NAME);
+      stopServer(2);
 
       Thread.sleep(5000);
 
       assertClientsConnectedToTwoBrokers();
-      assertClientsConnectionsEvenlyDistributed(.35);
+      //now there are only 2 nodes
+      //if 2/3 or more of total connections go to either node, we consider it wrong
+      //if 1/3 or less of total connections go to either node, we consider it wrong
+      assertClientsConnectionsEvenlyDistributed(.34, .67);
 
-      createBrokerC(multi, tcParams, clusterFilter, destinationFilter);
-      getBroker(BROKER_C_NAME).waitUntilStarted();
+      restartServer(2);
       Thread.sleep(5000);
 
       assertClientsConnectedToThreeBrokers();
-      assertClientsConnectionsEvenlyDistributed(.20);
+      //now back to 3 nodes. We assume at least the new node will
+      //have 1/10 of the total connections, and any node's connections
+      //won't exceed 50%
+      assertClientsConnectionsEvenlyDistributed(.10, .50);
    }
 
-   @Override
-   protected void setUp() throws Exception {
-   }
-
-   @Override
-   protected void tearDown() throws Exception {
-      shutdownClients();
-      Thread.sleep(2000);
-      destroyBrokerCluster();
-   }
-
-   private void initSingleTcBroker(String params, String clusterFilter, String destinationFilter) throws Exception {
-      createBrokerA(false, params, clusterFilter, null);
-      createBrokerB(false, params, clusterFilter, null);
-      createBrokerC(false, params, clusterFilter, null);
-      getBroker(BROKER_C_NAME).waitUntilStarted();
-   }
-
-   private void initMultiTcCluster(String params, String clusterFilter) throws Exception {
-      createBrokerA(true, params, clusterFilter, null);
-      createBrokerB(true, params, clusterFilter, null);
-      createBrokerC(true, params, clusterFilter, null);
-      getBroker(BROKER_C_NAME).waitUntilStarted();
-   }
-
-   private void createBrokerA(boolean multi,
-                              String params,
-                              String clusterFilter,
-                              String destinationFilter) throws Exception {
-      final String tcParams = (params == null) ? "" : params;
-      if (getBroker(BROKER_A_NAME) == null) {
-         addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-         addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS + tcParams, true);
-         if (multi) {
-            addTransportConnector(getBroker(BROKER_A_NAME), "network", BROKER_A_NOB_TC_ADDRESS + tcParams, false);
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_C_Bridge", "static://(" + BROKER_C_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+   protected void assertClientsConnectionsEvenlyDistributed(double minimumPercentage, double maximumPercentage) {
+      Map<String, Double> clientConnectionCounts = new HashMap<String, Double>();
+      int total = 0;
+      for (ActiveMQConnection c : connections) {
+         String key = c.getTransportChannel().getRemoteAddress();
+         if (key != null) {
+            total++;
+            if (clientConnectionCounts.containsKey(key)) {
+               double count = clientConnectionCounts.get(key);
+               count += 1.0;
+               clientConnectionCounts.put(key, count);
+            }
+            else {
+               clientConnectionCounts.put(key, 1.0);
+            }
          }
-         else {
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      }
+      Set<String> keys = clientConnectionCounts.keySet();
+      List<String> errorMsgs = new ArrayList<String>();
+      for (String key : keys) {
+         double count = clientConnectionCounts.get(key);
+         double percentage = count / total;
+         if (percentage < minimumPercentage || percentage > maximumPercentage) {
+            errorMsgs.add("Connections distribution expected to be within range [ " + minimumPercentage
+                    + ", " + maximumPercentage + "].  Actuall distribution was " + percentage + " for connection " + key);
          }
-         getBroker(BROKER_A_NAME).start();
+         if (errorMsgs.size() > 0) {
+            for (String err : errorMsgs) {
+               System.err.println(err);
+            }
+            Assert.fail("Test failed. Please see the log message for details");
+         }
       }
    }
 
-   private void createBrokerB(boolean multi,
-                              String params,
-                              String clusterFilter,
-                              String destinationFilter) throws Exception {
-      final String tcParams = (params == null) ? "" : params;
-      if (getBroker(BROKER_B_NAME) == null) {
-         addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-         addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS + tcParams, true);
-         if (multi) {
-            addTransportConnector(getBroker(BROKER_B_NAME), "network", BROKER_B_NOB_TC_ADDRESS + tcParams, false);
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_C_Bridge", "static://(" + BROKER_C_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         }
-         else {
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         }
-         getBroker(BROKER_B_NAME).start();
+   protected void assertAllConnectedTo(String url) throws Exception {
+      for (ActiveMQConnection c : connections) {
+         Assert.assertEquals(url, c.getTransportChannel().getRemoteAddress());
       }
    }
 
-   private void createBrokerC(boolean multi,
-                              String params,
-                              String clusterFilter,
-                              String destinationFilter) throws Exception {
-      final String tcParams = (params == null) ? "" : params;
-      if (getBroker(BROKER_C_NAME) == null) {
-         addBroker(BROKER_C_NAME, createBroker(BROKER_C_NAME));
-         addTransportConnector(getBroker(BROKER_C_NAME), "openwire", BROKER_C_CLIENT_TC_ADDRESS + tcParams, true);
-         if (multi) {
-            addTransportConnector(getBroker(BROKER_C_NAME), "network", BROKER_C_NOB_TC_ADDRESS + tcParams, false);
-            addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_A_Bridge", "static://(" + BROKER_A_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_B_Bridge", "static://(" + BROKER_B_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         }
-         else {
-            addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         }
-         getBroker(BROKER_C_NAME).start();
-      }
-   }
 }

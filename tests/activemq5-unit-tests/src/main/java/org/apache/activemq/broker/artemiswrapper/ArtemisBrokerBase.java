@@ -17,7 +17,6 @@
 package org.apache.activemq.broker.artemiswrapper;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +64,6 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.store.PListStore;
 import org.apache.activemq.thread.Scheduler;
 import org.apache.activemq.usage.Usage;
-import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,20 +81,19 @@ public abstract class ArtemisBrokerBase implements Broker {
    protected volatile boolean stopped;
    protected BrokerId brokerId = new BrokerId("Artemis Broker");
    protected BrokerService bservice;
-   protected TemporaryFolder temporaryFolder = new TemporaryFolder();
-   protected String testDir;
+
+   protected final File temporaryFolder;
+   protected final String testDir;
    protected boolean realStore = false;
 
    protected ActiveMQServer server;
 
    protected boolean enableSecurity = false;
 
-   public ArtemisBrokerBase() {
-      try {
-         this.temporaryFolder.create();
-      }
-      catch (IOException e) {
-      }
+   public ArtemisBrokerBase(File temporaryFolder) {
+      this.temporaryFolder = temporaryFolder;
+      this.testDir = temporaryFolder.getAbsolutePath();
+
    }
 
    @Override

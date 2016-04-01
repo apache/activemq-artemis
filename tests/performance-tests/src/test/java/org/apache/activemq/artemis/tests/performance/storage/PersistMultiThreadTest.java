@@ -301,6 +301,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
          return 0;
       }
 
+      public boolean isFull() {
+         return false;
+      }
+
       @Override
       public void applySetting(AddressSettings addressSettings) {
 

@@ -18,6 +18,8 @@ package org.apache.activemq.transport.failover;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -30,38 +32,46 @@ import javax.jms.Session;
 import junit.framework.TestCase;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.network.NetworkConnector;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class FailoverUpdateURIsTest extends TestCase {
+public class FailoverUpdateURIsTest extends OpenwireArtemisBaseTest {
 
    private static final String QUEUE_NAME = "test.failoverupdateuris";
    private static final Logger LOG = Logger.getLogger(FailoverUpdateURIsTest.class);
 
-   String firstTcpUri = "tcp://localhost:61616";
-   String secondTcpUri = "tcp://localhost:61626";
+   String firstTcpUri = newURI(0);
+   String secondTcpUri = newURI(10);
    Connection connection = null;
-   BrokerService bs1 = null;
-   BrokerService bs2 = null;
+   EmbeddedJMS server0 = null;
+   EmbeddedJMS server1 = null;
 
-   @Override
+   @After
    public void tearDown() throws Exception {
       if (connection != null) {
          connection.close();
       }
-      if (bs1 != null) {
-         bs1.stop();
+      if (server0 != null) {
+         server0.stop();
       }
-      if (bs2 != null) {
-         bs2.stop();
+      if (server1 != null) {
+         server1.stop();
       }
    }
 
+   @Test
    public void testUpdateURIsViaFile() throws Exception {
 
-      String targetDir = "target/" + getName();
+      String targetDir = "target/testUpdateURIsViaFile";
       new File(targetDir).mkdir();
       File updateFile = new File(targetDir + "/updateURIsFile.txt");
       LOG.info(updateFile);
@@ -72,8 +82,9 @@ public class FailoverUpdateURIsTest extends TestCase {
       out.write(firstTcpUri.getBytes());
       out.close();
 
-      bs1 = createBroker("bs1", firstTcpUri);
-      bs1.start();
+      Configuration config0 = createConfig(0);
+      server0 = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      server0.start();
 
       // no failover uri's to start with, must be read from file...
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:()?updateURIsURL=file:///" + updateFile.getAbsoluteFile());
@@ -86,14 +97,14 @@ public class FailoverUpdateURIsTest extends TestCase {
       Message message = session.createTextMessage("Test message");
       producer.send(message);
       Message msg = consumer.receive(2000);
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
 
-      bs1.stop();
-      bs1.waitUntilStopped();
-      bs1 = null;
+      server0.stop();
+      server0 = null;
 
-      bs2 = createBroker("bs2", secondTcpUri);
-      bs2.start();
+      Configuration config1 = createConfig(10);
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      server1.start();
 
       // add the transport uri for broker number 2
       out = new FileOutputStream(updateFile, true);
@@ -103,25 +114,18 @@ public class FailoverUpdateURIsTest extends TestCase {
 
       producer.send(message);
       msg = consumer.receive(2000);
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
    }
 
-   private BrokerService createBroker(String name, String tcpUri) throws Exception {
-      BrokerService bs = new BrokerService();
-      bs.setBrokerName(name);
-      bs.setUseJmx(false);
-      bs.setPersistent(false);
-      bs.addConnector(tcpUri);
-      return bs;
-   }
-
+   @Test
    public void testAutoUpdateURIs() throws Exception {
-
-      bs1 = new BrokerService();
-      bs1.setUseJmx(false);
-      TransportConnector transportConnector = bs1.addConnector(firstTcpUri);
-      transportConnector.setUpdateClusterClients(true);
-      bs1.start();
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("updateClusterClients", "true");
+      Configuration config0 = createConfig("localhost", 0, params);
+      deployClusterConfiguration(config0, 10);
+      server0 = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      server0.start();
+      Assert.assertTrue(server0.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 1));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + firstTcpUri + ")");
       connection = cf.createConnection();
@@ -133,24 +137,23 @@ public class FailoverUpdateURIsTest extends TestCase {
       Message message = session.createTextMessage("Test message");
       producer.send(message);
       Message msg = consumer.receive(4000);
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
 
-      bs2 = createBroker("bs2", secondTcpUri);
-      NetworkConnector networkConnector = bs2.addNetworkConnector("static:(" + firstTcpUri + ")");
-      networkConnector.setDuplex(true);
-      bs2.start();
-      LOG.info("started brokerService 2");
-      bs2.waitUntilStarted();
+      Configuration config1 = createConfig(10);
+      deployClusterConfiguration(config1, 0);
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      server1.start();
+      Assert.assertTrue(server0.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
 
       TimeUnit.SECONDS.sleep(4);
 
       LOG.info("stopping brokerService 1");
-      bs1.stop();
-      bs1.waitUntilStopped();
-      bs1 = null;
+      server0.stop();
+      server0 = null;
 
       producer.send(message);
       msg = consumer.receive(4000);
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
    }
 }

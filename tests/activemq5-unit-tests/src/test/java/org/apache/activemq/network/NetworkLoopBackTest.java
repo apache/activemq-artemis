@@ -33,7 +33,8 @@ public class NetworkLoopBackTest {
 
       TransportConnector transportConnector = brokerServce.addConnector("nio://0.0.0.0:0");
       // connection filter is bypassed when scheme is different
-      final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://" + transportConnector.getConnectUri().getHost() + ":" + transportConnector.getConnectUri().getPort() + ")");
+      final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://"
+              + transportConnector.getConnectUri().getHost() + ":" +  transportConnector.getConnectUri().getPort() + ")");
 
       brokerServce.start();
       brokerServce.waitUntilStarted();
@@ -46,7 +47,7 @@ public class NetworkLoopBackTest {
             }
          });
 
-         final DemandForwardingBridgeSupport loopbackBridge = (DemandForwardingBridgeSupport) networkConnector.bridges.elements().nextElement();
+         final DemandForwardingBridgeSupport loopbackBridge = (DemandForwardingBridgeSupport) networkConnector.bridges.values().iterator().next();
          assertTrue("nc started", networkConnector.isStarted());
 
          assertTrue("It should get disposed", Wait.waitFor(new Wait.Condition() {

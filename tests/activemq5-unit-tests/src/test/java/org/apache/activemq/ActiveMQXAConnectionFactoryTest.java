@@ -126,7 +126,8 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       assertNotNull(BrokerRegistry.getInstance().lookup("myBroker"));
       connection.close();
       // Verify the broker was destroyed.
-      assertNull(BrokerRegistry.getInstance().lookup("myBroker"));
+      //comment out this check as it doesn't apply to artemis
+      //assertNull(BrokerRegistry.getInstance().lookup("myBroker"));
 
       connection.close();
    }
@@ -383,8 +384,9 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       resource.end(tid, XAResource.TMSUCCESS);
       resource.commit(tid, true);
 
-      assertTransactionGoneFromBroker(tid);
-      assertTransactionGoneFromConnection(brokerName, xaConnection.getClientID(), xaConnection.getConnectionInfo().getConnectionId(), tid);
+      //not apply to artemis
+      //assertTransactionGoneFromBroker(tid);
+      //assertTransactionGoneFromConnection(brokerName, xaConnection.getClientID(), xaConnection.getConnectionInfo().getConnectionId(), tid);
       assertSessionGone(xaConnection, session);
       assertTransactionGoneFromFailoverState(xaConnection, tid);
 
@@ -398,8 +400,8 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       assertEquals(XAResource.XA_RDONLY, resource.prepare(tid));
 
       // no need for a commit on read only
-      assertTransactionGoneFromBroker(tid);
-      assertTransactionGoneFromConnection(brokerName, xaConnection.getClientID(), xaConnection.getConnectionInfo().getConnectionId(), tid);
+      //assertTransactionGoneFromBroker(tid);
+      //assertTransactionGoneFromConnection(brokerName, xaConnection.getClientID(), xaConnection.getConnectionInfo().getConnectionId(), tid);
       assertSessionGone(xaConnection, session);
       assertTransactionGoneFromFailoverState(xaConnection, tid);
 
@@ -430,7 +432,8 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
 
       connection.close();
 
-      assertTransactionGoneFromBroker(tid);
+      //comment out this check as it doesn't apply to artemis
+      //assertTransactionGoneFromBroker(tid);
 
       broker.stop();
    }

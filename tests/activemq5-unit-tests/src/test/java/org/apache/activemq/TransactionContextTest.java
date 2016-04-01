@@ -23,9 +23,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.TransactionRolledBackException;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
+import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.transaction.Synchronization;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TransactionContextTest {
@@ -36,13 +41,22 @@ public class TransactionContextTest {
 
    @Before
    public void setup() throws Exception {
-      connection = factory.createActiveMQConnection();
-      underTest = new TransactionContext(connection);
+      try {
+         connection = factory.createActiveMQConnection();
+         underTest = new TransactionContext(connection);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         throw e;
+      }
    }
 
    @After
    public void tearDown() throws Exception {
-      connection.close();
+      if (connection != null) {
+         connection.close();
+      }
+      TcpTransportFactory.clearService();
    }
 
    @Test
@@ -104,6 +118,7 @@ public class TransactionContextTest {
 
    @Test
    public void testSyncIndexCleared() throws Exception {
+      System.out.println("================================= test testSyncIndexCleared ===========");
       final AtomicInteger beforeEndCountA = new AtomicInteger(0);
       final AtomicInteger rollbackCountA = new AtomicInteger(0);
       Synchronization sync = new Synchronization() {

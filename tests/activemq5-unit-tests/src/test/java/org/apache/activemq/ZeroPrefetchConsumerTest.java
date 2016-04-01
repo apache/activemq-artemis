@@ -26,10 +26,11 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.region.Subscription;
-import org.apache.activemq.broker.region.policy.PolicyEntry;
-import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ConsumerControl;
@@ -349,8 +350,10 @@ public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
       assertEquals("broker config prefetch in effect", 0, consumer.info.getCurrentPrefetchSize());
 
       // verify sub view broker
-      Subscription sub = broker.getRegionBroker().getDestinationMap().get(ActiveMQDestination.transform(brokerZeroQueue)).getConsumers().get(0);
-      assertEquals("broker sub prefetch is correct", 0, sub.getConsumerInfo().getCurrentPrefetchSize());
+      // I comment out this because it checks broker internal
+      // which doesn't apply to artemis broker.
+      //Subscription sub = broker.getRegionBroker().getDestinationMap().get(ActiveMQDestination.transform(brokerZeroQueue)).getConsumers().get(0);
+      //assertEquals("broker sub prefetch is correct", 0, sub.getConsumerInfo().getCurrentPrefetchSize());
 
       // manipulate Prefetch (like failover and stomp)
       ConsumerControl consumerControl = new ConsumerControl();
@@ -361,22 +364,22 @@ public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
       Object reply = ((ActiveMQConnection) connection).getTransport().request(consumerControl);
       assertTrue("good request", !(reply instanceof ExceptionResponse));
       assertEquals("broker config prefetch in effect", 0, consumer.info.getCurrentPrefetchSize());
-      assertEquals("broker sub prefetch is correct", 0, sub.getConsumerInfo().getCurrentPrefetchSize());
    }
 
    @Override
-   protected BrokerService createBroker() throws Exception {
-      BrokerService brokerService = super.createBroker();
-      PolicyMap policyMap = new PolicyMap();
-      PolicyEntry zeroPrefetchPolicy = new PolicyEntry();
-      zeroPrefetchPolicy.setQueuePrefetch(0);
-      policyMap.put(ActiveMQDestination.transform(brokerZeroQueue), zeroPrefetchPolicy);
-      brokerService.setDestinationPolicy(policyMap);
-      return brokerService;
+   public EmbeddedJMS createArtemisBroker() throws Exception {
+      Configuration config0 = createConfig("localhost", 0);
+      String coreQueueAddress = "jms.queue." + brokerZeroQueue.getQueueName();
+      AddressSettings addrSettings = new AddressSettings();
+      addrSettings.setQueuePrefetch(0);
+      config0.getAddressesSettings().put(coreQueueAddress, addrSettings);
+      EmbeddedJMS newbroker = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      return newbroker;
    }
 
    @Override
    protected void setUp() throws Exception {
+      disableWrapper = true;
       bindAddress = "tcp://localhost:0";
       super.setUp();
 
@@ -388,11 +391,12 @@ public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
    @Override
    protected void startBroker() throws Exception {
       super.startBroker();
-      bindAddress = broker.getTransportConnectors().get(0).getConnectUri().toString();
+      bindAddress = newURI("localhost", 0);
    }
 
    @Override
    protected void tearDown() throws Exception {
+      BrokerService.disableWrapper = false;
       connection.close();
       super.tearDown();
    }

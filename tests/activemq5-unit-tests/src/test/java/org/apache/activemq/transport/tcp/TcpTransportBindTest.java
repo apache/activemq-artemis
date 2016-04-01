@@ -37,10 +37,11 @@ public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
     */
    @Override
    protected void setUp() throws Exception {
+      disableWrapper = true;
       bindAddress = addr + "?transport.reuseAddress=true&transport.soTimeout=1000";
       super.setUp();
 
-      addr = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      addr = newURI("localhost", 0);
    }
 
    public void testConnect() throws Exception {
@@ -58,7 +59,7 @@ public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
          @Override
          public void run() {
             try {
-               broker.stop();
+               artemisBroker.stop();
             }
             catch (Exception e) {
                e.printStackTrace();

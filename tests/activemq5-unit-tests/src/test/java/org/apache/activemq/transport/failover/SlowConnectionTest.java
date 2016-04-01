@@ -24,15 +24,16 @@ import java.util.concurrent.CountDownLatch;
 import javax.jms.Connection;
 import javax.net.ServerSocketFactory;
 
-import junit.framework.TestCase;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.util.Wait;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SlowConnectionTest extends TestCase {
+public class SlowConnectionTest {
 
    private CountDownLatch socketReadyLatch = new CountDownLatch(1);
 
+   @Test
    public void testSlowConnection() throws Exception {
 
       MockBroker broker = new MockBroker();
@@ -57,7 +58,7 @@ public class SlowConnectionTest extends TestCase {
       }).start();
 
       int count = 0;
-      assertTrue("Transport count: " + count + ", expected <= 1", Wait.waitFor(new Wait.Condition() {
+      Assert.assertTrue("Transport count: " + count + ", expected <= 1", Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisified() throws Exception {
             int count = 0;

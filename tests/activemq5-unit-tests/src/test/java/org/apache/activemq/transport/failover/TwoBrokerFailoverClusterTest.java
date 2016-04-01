@@ -16,22 +16,40 @@
  */
 package org.apache.activemq.transport.failover;
 
-public class TwoBrokerFailoverClusterTest extends FailoverClusterTestSupport {
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-   private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
-   private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
-   private static final String BROKER_A_NOB_TC_ADDRESS = "tcp://127.0.0.1:61626";
-   private static final String BROKER_B_NOB_TC_ADDRESS = "tcp://127.0.0.1:61627";
-   private static final String BROKER_A_NAME = "BROKERA";
-   private static final String BROKER_B_NAME = "BROKERB";
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
+
+   private static final int NUMBER_OF_CLIENTS = 30;
+   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private EmbeddedJMS server0;
+   private EmbeddedJMS server1;
+   private String clientUrl;
+
+   @Test
    public void testTwoBrokersRestart() throws Exception {
-      createBrokerA(false, "", null, null);
-      createBrokerB(false, "", null, null);
-      getBroker(BROKER_B_NAME).waitUntilStarted();
 
       Thread.sleep(2000);
-      setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
       createClients();
 
       Thread.sleep(5000);
@@ -39,59 +57,113 @@ public class TwoBrokerFailoverClusterTest extends FailoverClusterTestSupport {
       assertClientsConnectedToTwoBrokers();
       assertClientsConnectionsEvenlyDistributed(.35);
 
-      getBroker(BROKER_A_NAME).stop();
-      getBroker(BROKER_A_NAME).waitUntilStopped();
-      removeBroker(BROKER_A_NAME);
+      server0.stop();
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 1));
 
       Thread.sleep(1000);
 
-      assertAllConnectedTo(BROKER_B_CLIENT_TC_ADDRESS);
+      assertAllConnectedTo(newURI("127.0.0.1", 1));
 
       Thread.sleep(5000);
 
-      createBrokerA(false, "", null, null);
-      getBroker(BROKER_A_NAME).waitUntilStarted();
+      server0.start();
+      Assert.assertTrue(server0.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
       Thread.sleep(5000);
 
+      //need update-cluster-clients, -on-remove and rebalance set to true.
       assertClientsConnectedToTwoBrokers();
       assertClientsConnectionsEvenlyDistributed(.35);
    }
 
-   private void createBrokerA(boolean multi,
-                              String params,
-                              String clusterFilter,
-                              String destinationFilter) throws Exception {
-      final String tcParams = (params == null) ? "" : params;
-      if (getBroker(BROKER_A_NAME) == null) {
-         addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-         addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS + tcParams, true);
-         if (multi) {
-            addTransportConnector(getBroker(BROKER_A_NAME), "network", BROKER_A_NOB_TC_ADDRESS + tcParams, false);
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-         }
-         else {
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-         }
-         getBroker(BROKER_A_NAME).start();
+
+   @Before
+   public void setUp() throws Exception {
+      HashMap<String, String> map = new HashMap<>();
+      map.put("rebalanceClusterClients", "true");
+      map.put("updateClusterClients", "true");
+      map.put("updateClusterClientsOnRemove", "true");
+      Configuration config0 = createConfig("127.0.0.1", 0, map);
+      Configuration config1 = createConfig("127.0.0.1", 1, map);
+
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      server0 = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+
+      clientUrl = "failover://(" + newURI("127.0.0.1", 0) + "," + newURI("127.0.0.1", 1) + ")";
+
+      server0.start();
+      server1.start();
+      Assert.assertTrue(server0.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      for (ActiveMQConnection conn : connections) {
+         conn.close();
+      }
+      server0.stop();
+      server1.stop();
+   }
+
+   protected void createClients() throws Exception {
+      createClients(NUMBER_OF_CLIENTS);
+   }
+
+   protected void createClients(int numOfClients) throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
+      for (int i = 0; i < numOfClients; i++) {
+         ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
+         c.start();
+         Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = s.createQueue(getClass().getName());
+         MessageConsumer consumer = s.createConsumer(queue);
+         connections.add(c);
       }
    }
 
-   private void createBrokerB(boolean multi,
-                              String params,
-                              String clusterFilter,
-                              String destinationFilter) throws Exception {
-      final String tcParams = (params == null) ? "" : params;
-      if (getBroker(BROKER_B_NAME) == null) {
-         addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-         addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS + tcParams, true);
-         if (multi) {
-            addTransportConnector(getBroker(BROKER_B_NAME), "network", BROKER_B_NOB_TC_ADDRESS + tcParams, false);
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+   protected void assertClientsConnectedToTwoBrokers() {
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         if (c.getTransportChannel().getRemoteAddress() != null) {
+            set.add(c.getTransportChannel().getRemoteAddress());
          }
-         else {
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+      }
+      Assert.assertTrue("Only 2 connections should be found: " + set, set.size() == 2);
+   }
+
+   protected void assertClientsConnectionsEvenlyDistributed(double minimumPercentage) {
+      Map<String, Double> clientConnectionCounts = new HashMap<String, Double>();
+      int total = 0;
+      for (ActiveMQConnection c : connections) {
+         String key = c.getTransportChannel().getRemoteAddress();
+         if (key != null) {
+            total++;
+            if (clientConnectionCounts.containsKey(key)) {
+               double count = clientConnectionCounts.get(key);
+               count += 1.0;
+               clientConnectionCounts.put(key, count);
+            }
+            else {
+               clientConnectionCounts.put(key, 1.0);
+            }
          }
-         getBroker(BROKER_B_NAME).start();
+      }
+      Set<String> keys = clientConnectionCounts.keySet();
+      for (String key : keys) {
+         double count = clientConnectionCounts.get(key);
+         double percentage = count / total;
+         System.out.println(count + " of " + total + " connections for " + key + " = " + percentage);
+         Assert.assertTrue("Connections distribution expected to be >= than " + minimumPercentage + ".  Actuall distribution was " + percentage + " for connection " + key, percentage >= minimumPercentage);
+      }
+   }
+
+   protected void assertAllConnectedTo(String url) throws Exception {
+      for (ActiveMQConnection c : connections) {
+         Assert.assertEquals(url, c.getTransportChannel().getRemoteAddress());
       }
    }
 

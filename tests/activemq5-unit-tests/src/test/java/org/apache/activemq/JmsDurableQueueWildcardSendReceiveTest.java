@@ -21,7 +21,7 @@ import javax.jms.DeliveryMode;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
 /**
- *
+ * https://issues.apache.org/jira/browse/ARTEMIS-189
  */
 public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
 

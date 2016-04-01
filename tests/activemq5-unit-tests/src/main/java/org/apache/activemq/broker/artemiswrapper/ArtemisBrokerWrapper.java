@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.broker.artemiswrapper;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,40 +29,47 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
    protected final Map<String, SimpleString> testQueues = new HashMap<>();
    protected JMSServerManagerImpl jmsServer;
+   protected MBeanServer mbeanServer;
 
-   public ArtemisBrokerWrapper(BrokerService brokerService) {
+   public ArtemisBrokerWrapper(BrokerService brokerService, File temporaryFolder) {
+      super(temporaryFolder);
       this.bservice = brokerService;
    }
 
    @Override
    public void start() throws Exception {
-      testDir = temporaryFolder.getRoot().getAbsolutePath();
       clearDataRecreateServerDirs();
+
+      mbeanServer = MBeanServerFactory.createMBeanServer();
+
       server = createServer(realStore, true);
+      server.setMBeanServer(mbeanServer);
+
       server.getConfiguration().getAcceptorConfigurations().clear();
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "61616");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE,CORE");
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       Configuration serverConfig = server.getConfiguration();
+      serverConfig.setJMXManagementEnabled(true);
 
       Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressesSettings();
 
@@ -82,34 +90,16 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       commonSettings.setDeadLetterAddress(dla);
       commonSettings.setAutoCreateJmsQueues(true);
 
-      serverConfig.getAcceptorConfigurations().add(transportConfiguration);
+      if (bservice.extraConnectors.size() == 0) {
+         serverConfig.addAcceptorConfiguration("home", "tcp://localhost:61616?protocols=OPENWIRE,CORE");
+      }
       if (this.bservice.enableSsl()) {
-         params = new HashMap<>();
-         params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-         params.put(TransportConstants.PORT_PROP_NAME, 61611);
-         params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
-         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_KEYSTORE);
-         params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, bservice.KEYSTORE_PASSWORD);
-         params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, bservice.storeType);
-         if (bservice.SERVER_SIDE_TRUSTSTORE != null) {
-            params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
-            params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_TRUSTSTORE);
-            params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, bservice.TRUSTSTORE_PASSWORD);
-            params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, bservice.storeType);
-         }
-         TransportConfiguration sslTransportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-         serverConfig.getAcceptorConfigurations().add(sslTransportConfig);
+         //default
+         addServerAcceptor(serverConfig, new BrokerService.ConnectorInfo(61611, true));
       }
 
-      for (Integer port : bservice.extraConnectors) {
-         if (port.intValue() != 61616) {
-            //extra port
-            params = new HashMap<>();
-            params.put(TransportConstants.PORT_PROP_NAME, port.intValue());
-            params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
-            TransportConfiguration extraTransportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-            serverConfig.getAcceptorConfigurations().add(extraTransportConfiguration);
-         }
+      for (BrokerService.ConnectorInfo info : bservice.extraConnectors) {
+         addServerAcceptor(serverConfig, info);
       }
 
       serverConfig.setSecurityEnabled(enableSecurity);
@@ -117,7 +107,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       //extraServerConfig(serverConfig);
 
       if (enableSecurity) {
-         ActiveMQSecurityManagerImpl sm = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
+         ActiveMQJAASSecurityManager sm = (ActiveMQJAASSecurityManager) server.getSecurityManager();
          SecurityConfiguration securityConfig = sm.getConfiguration();
          securityConfig.addRole("openwireSender", "sender");
          securityConfig.addUser("openwireSender", "SeNdEr");
@@ -170,14 +160,30 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
 
       server.start();
 
-/*
-         registerConnectionFactory();
-	      mbeanServer = MBeanServerFactory.createMBeanServer();
-*/
-
-      ArtemisBrokerHelper.setBroker(this.bservice);
       stopped = false;
 
+   }
+
+   private void addServerAcceptor(Configuration serverConfig, BrokerService.ConnectorInfo info) throws Exception {
+      if (info.ssl) {
+         HashMap<String, Object> params = new HashMap<String, Object>();
+         params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+         params.put(TransportConstants.PORT_PROP_NAME, info.port);
+         params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
+         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_KEYSTORE);
+         params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, bservice.KEYSTORE_PASSWORD);
+         params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, bservice.storeType);
+         if (bservice.SERVER_SIDE_TRUSTSTORE != null) {
+            params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_TRUSTSTORE);
+            params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, bservice.TRUSTSTORE_PASSWORD);
+            params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, bservice.storeType);
+         }
+         TransportConfiguration sslTransportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
+         serverConfig.getAcceptorConfigurations().add(sslTransportConfig);
+      }
+      else {
+         serverConfig.addAcceptorConfiguration("homePort" + info.port, "tcp://localhost:" + info.port + "?protocols=OPENWIRE,CORE");
+      }
    }
 
    private void translatePolicyMap(Configuration serverConfig, PolicyMap policyMap) {
@@ -204,6 +210,8 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
                settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
             }
          }
+         int queuePrefetch = entry.getQueuePrefetch();
+         settings.setQueuePrefetch(queuePrefetch);
       }
 
       PolicyEntry defaultEntry = policyMap.getDefaultEntry();
@@ -264,5 +272,20 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
             }
          }
       }
+   }
+
+   public long getAMQueueMessageCount(String physicalName) {
+      long count = 0;
+      String qname = "jms.queue." + physicalName;
+      Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));
+      if (binding != null) {
+         QueueImpl q = (QueueImpl) binding.getBindable();
+         count = q.getMessageCount();
+      }
+      return count;
+   }
+
+   public MBeanServer getMbeanServer() {
+      return this.mbeanServer;
    }
 }

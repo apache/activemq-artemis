@@ -16,146 +16,134 @@
  */
 package org.apache.activemq.transport.failover;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
-import junit.framework.TestCase;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
-import org.apache.activemq.network.NetworkConnector;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FailoverClusterTest extends TestCase {
+public class FailoverClusterTest extends OpenwireArtemisBaseTest {
 
    private static final int NUMBER = 10;
-   private static final String BROKER_BIND_ADDRESS = "tcp://0.0.0.0:0";
-   private static final String BROKER_A_NAME = "BROKERA";
-   private static final String BROKER_B_NAME = "BROKERB";
-   private BrokerService brokerA;
-   private BrokerService brokerB;
    private String clientUrl;
 
    private final List<ActiveMQConnection> connections = new ArrayList<>();
+   EmbeddedJMS server1;
+   EmbeddedJMS server2;
 
-   public void testClusterConnectedAfterClients() throws Exception {
-      createClients();
-      if (brokerB == null) {
-         brokerB = createBrokerB(BROKER_BIND_ADDRESS);
-      }
-      Thread.sleep(3000);
-      Set<String> set = new HashSet<>();
-      for (ActiveMQConnection c : connections) {
-         set.add(c.getTransportChannel().getRemoteAddress());
-      }
-      assertTrue(set.size() > 1);
+
+   @Before
+   public void setUp() throws Exception {
+      Map<String, String> params = new HashMap<String, String>();
+
+      params.put("rebalanceClusterClients", "true");
+      params.put("updateClusterClients", "true");
+
+      Configuration config1 = createConfig("localhost", 1, params);
+      Configuration config2 = createConfig("localhost", 2, params);
+
+      deployClusterConfiguration(config1, 2);
+      deployClusterConfiguration(config2, 1);
+
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      server2 = new EmbeddedJMS().setConfiguration(config2).setJmsConfiguration(new JMSConfigurationImpl());
+
+      clientUrl = "failover://(" + newURI(1) + "," + newURI(2) + ")";
    }
 
-   public void testClusterURIOptionsStrip() throws Exception {
-      createClients();
-      if (brokerB == null) {
-         // add in server side only url param, should not be propagated
-         brokerB = createBrokerB(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
-      }
-      Thread.sleep(3000);
-      Set<String> set = new HashSet<>();
-      for (ActiveMQConnection c : connections) {
-         set.add(c.getTransportChannel().getRemoteAddress());
-      }
-      assertTrue(set.size() > 1);
-   }
-
-   public void testClusterConnectedBeforeClients() throws Exception {
-
-      if (brokerB == null) {
-         brokerB = createBrokerB(BROKER_BIND_ADDRESS);
-      }
-      Thread.sleep(5000);
-      createClients();
-      Thread.sleep(2000);
-      brokerA.stop();
-      Thread.sleep(2000);
-
-      URI brokerBURI = new URI(brokerB.getTransportConnectors().get(0).getPublishableConnectString());
-      for (ActiveMQConnection c : connections) {
-         String addr = c.getTransportChannel().getRemoteAddress();
-         assertTrue(addr.indexOf("" + brokerBURI.getPort()) > 0);
-      }
-   }
-
-   @Override
-   protected void setUp() throws Exception {
-      if (brokerA == null) {
-         brokerA = createBrokerA(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
-         clientUrl = "failover://(" + brokerA.getTransportConnectors().get(0).getPublishableConnectString() + ")";
-      }
-   }
-
-   @Override
-   protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
       for (Connection c : connections) {
          c.close();
       }
-      if (brokerB != null) {
-         brokerB.stop();
-         brokerB = null;
+      server1.stop();
+      server2.stop();
+   }
+
+   @Test
+   public void testClusterConnectedAfterClients() throws Exception {
+      server1.start();
+      createClients();
+      Set<String> set = new HashSet<>();
+      server2.start();
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server2.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+
+      Thread.sleep(3000);
+
+      for (ActiveMQConnection c : connections) {
+         System.out.println("======> adding address: " + c.getTransportChannel().getRemoteAddress());
+         set.add(c.getTransportChannel().getRemoteAddress());
       }
-      if (brokerA != null) {
-         brokerA.stop();
-         brokerA = null;
+      System.out.println("============final size: " + set.size());
+      Assert.assertTrue(set.size() > 1);
+   }
+
+   //this test seems the same as the above one as long as artemis broker
+   //is concerned.
+   @Test
+   public void testClusterURIOptionsStrip() throws Exception {
+      server1.start();
+
+      createClients();
+      server2.start();
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server2.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+
+      Thread.sleep(3000);
+
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         set.add(c.getTransportChannel().getRemoteAddress());
+      }
+      Assert.assertTrue(set.size() > 1);
+   }
+
+   @Test
+   public void testClusterConnectedBeforeClients() throws Exception {
+
+      server1.start();
+      server2.start();
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server2.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+
+      createClients();
+      server1.stop();
+      Thread.sleep(1000);
+
+      URI brokerBURI = new URI(newURI(2));
+      for (ActiveMQConnection c : connections) {
+         String addr = c.getTransportChannel().getRemoteAddress();
+         Assert.assertTrue(addr.indexOf("" + brokerBURI.getPort()) > 0);
       }
    }
 
-   protected BrokerService createBrokerA(String uri) throws Exception {
-      BrokerService answer = new BrokerService();
-      answer.setUseJmx(false);
-      configureConsumerBroker(answer, uri);
-      answer.start();
-      return answer;
-   }
-
-   protected void configureConsumerBroker(BrokerService answer, String uri) throws Exception {
-      answer.setBrokerName(BROKER_A_NAME);
-      answer.setPersistent(false);
-      TransportConnector connector = answer.addConnector(uri);
-      connector.setRebalanceClusterClients(true);
-      connector.setUpdateClusterClients(true);
-      answer.setUseShutdownHook(false);
-   }
-
-   protected BrokerService createBrokerB(String uri) throws Exception {
-      BrokerService answer = new BrokerService();
-      answer.setUseJmx(false);
-      configureNetwork(answer, uri);
-      answer.start();
-      return answer;
-   }
-
-   protected void configureNetwork(BrokerService answer, String uri) throws Exception {
-      answer.setBrokerName(BROKER_B_NAME);
-      answer.setPersistent(false);
-      NetworkConnector network = answer.addNetworkConnector("static://" + brokerA.getTransportConnectors().get(0).getPublishableConnectString());
-      network.setDuplex(true);
-      TransportConnector connector = answer.addConnector(uri);
-      connector.setRebalanceClusterClients(true);
-      connector.setUpdateClusterClients(true);
-      answer.setUseShutdownHook(false);
-   }
-
-   @SuppressWarnings("unused")
    protected void createClients() throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
       for (int i = 0; i < NUMBER; i++) {
+         System.out.println("*****create connection using url: " + clientUrl);
          ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
+         System.out.println("got connection, starting it ...");
          c.start();
+         System.out.println("******Started");
          Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = s.createQueue(getClass().getName());
          MessageConsumer consumer = s.createConsumer(queue);
