@@ -27,7 +27,15 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.command.ConsumerControl;
 import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.MessageAck;
@@ -36,23 +44,15 @@ import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-public class AMQConsumer implements BrowserListener {
-
+public class AMQConsumer {
    private AMQSession session;
-   private org.apache.activemq.command.ActiveMQDestination actualDest;
+   private org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private ConsumerInfo info;
    private final ScheduledExecutorService scheduledPool;
    private long nativeId = -1;
-   private SimpleString subQueueName = null;
 
-   private final int prefetchSize;
+   private int prefetchSize;
    private AtomicInteger windowAvailable;
    private final java.util.Queue<MessageInfo> deliveringRefs = new ConcurrentLinkedQueue<>();
    private long messagePullSequence = 0;
@@ -63,7 +63,7 @@ public class AMQConsumer implements BrowserListener {
                       ConsumerInfo info,
                       ScheduledExecutorService scheduledPool) {
       this.session = amqSession;
-      this.actualDest = d;
+      this.openwireDestination = d;
       this.info = info;
       this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
@@ -73,74 +73,101 @@ public class AMQConsumer implements BrowserListener {
       }
    }
 
-   public void init() throws Exception {
-      AMQServerSession coreSession = session.getCoreSession();
+   public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
+      this.nativeId = nativeId;
+      AMQServerConsumer serverConsumer = createServerConsumer(info, slowConsumerDetectionListener);
+      serverConsumer.setAmqConsumer(this);
+   }
+
+
+   private AMQServerConsumer createServerConsumer(ConsumerInfo info, SlowConsumerDetectionListener slowConsumerDetectionListener) throws Exception {
 
       SimpleString selector = info.getSelector() == null ? null : new SimpleString(info.getSelector());
 
-      nativeId = session.getCoreServer().getStorageManager().generateID();
+      String physicalName = OpenWireUtil.convertWildcard(openwireDestination.getPhysicalName());
 
-      SimpleString address = new SimpleString(this.actualDest.getPhysicalName());
+      SimpleString address;
 
-      if (this.actualDest.isTopic()) {
-         String physicalName = this.actualDest.getPhysicalName();
-         if (physicalName.contains(".>")) {
-            //wildcard
-            physicalName = OpenWireUtil.convertWildcard(physicalName);
-         }
-
-         // on recreate we don't need to create queues
+      if (openwireDestination.isTopic()) {
          address = new SimpleString("jms.topic." + physicalName);
-         if (info.isDurable()) {
-            subQueueName = new SimpleString(ActiveMQDestination.createQueueNameForDurableSubscription(true, info.getClientId(), info.getSubscriptionName()));
 
-            QueueQueryResult result = coreSession.executeQueueQuery(subQueueName);
-            if (result.isExists()) {
-               // Already exists
-               if (result.getConsumerCount() > 0) {
-                  throw new IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
-               }
+         SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), physicalName, info.getSubscriptionName(), selector, address);
 
-               SimpleString oldFilterString = result.getFilterString();
-
-               boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || oldFilterString != null && selector != null && !oldFilterString.equals(selector);
-
-               SimpleString oldTopicName = result.getAddress();
-
-               boolean topicChanged = !oldTopicName.equals(address);
-
-               if (selectorChanged || topicChanged) {
-                  // Delete the old durable sub
-                  coreSession.deleteQueue(subQueueName);
-
-                  // Create the new one
-                  coreSession.createQueue(address, subQueueName, selector, false, true);
-               }
-
-            }
-            else {
-               coreSession.createQueue(address, subQueueName, selector, false, true);
-            }
-         }
-         else {
-            subQueueName = new SimpleString(UUID.randomUUID().toString());
-
-            coreSession.createQueue(address, subQueueName, selector, true, false);
-         }
-
-         coreSession.createConsumer(nativeId, subQueueName, null, info.isBrowser(), false, -1);
+         AMQServerConsumer serverConsumer = (AMQServerConsumer) session.getCoreSession().createConsumer(nativeId, queueName, null, info.isBrowser(), false, -1);
+         serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
+         return serverConsumer;
       }
       else {
-         SimpleString queueName = new SimpleString("jms.queue." + this.actualDest.getPhysicalName());
-         coreSession.createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
-      }
+         SimpleString queueName = new SimpleString("jms.queue." + physicalName);
+         AMQServerConsumer serverConsumer = (AMQServerConsumer) session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
+         serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
+         AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(queueName.toString());
+         if (addrSettings != null) {
+            //see PolicyEntry
+            if (info.getPrefetchSize() != 0 && addrSettings.getQueuePrefetch() == 0) {
+               //sends back a ConsumerControl
+               ConsumerControl cc = new ConsumerControl();
+               cc.setConsumerId(info.getConsumerId());
+               cc.setPrefetch(0);
+               session.getConnection().dispatch(cc);
+            }
+         }
 
-      if (info.isBrowser()) {
-         AMQServerConsumer coreConsumer = coreSession.getConsumer(nativeId);
-         coreConsumer.setBrowserListener(this);
+         return serverConsumer;
+
       }
 
    }
+
+   private SimpleString createTopicSubscription(boolean isDurable,
+                                                String clientID,
+                                                String physicalName,
+                                                String subscriptionName,
+                                                SimpleString selector,
+                                                SimpleString address) throws Exception {
+
+      SimpleString queueName;
+
+      if (isDurable) {
+         queueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName));
+         QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
+         if (result.isExists()) {
+            // Already exists
+            if (result.getConsumerCount() > 0) {
+               throw new IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
+            }
+
+            SimpleString oldFilterString = result.getFilterString();
+
+            boolean selectorChanged = selector == null && oldFilterString != null || oldFilterString == null && selector != null || oldFilterString != null && selector != null && !oldFilterString.equals(selector);
+
+            SimpleString oldTopicName = result.getAddress();
+
+            boolean topicChanged = !oldTopicName.equals(address);
+
+            if (selectorChanged || topicChanged) {
+               // Delete the old durable sub
+               session.getCoreSession().deleteQueue(queueName);
+
+               // Create the new one
+               session.getCoreSession().createQueue(address, queueName, selector, false, true);
+            }
+         }
+         else {
+            session.getCoreSession().createQueue(address, queueName, selector, false, true);
+         }
+      }
+      else {
+         queueName = new SimpleString(UUID.randomUUID().toString());
+
+         session.getCoreSession().createQueue(address, queueName, selector, true, false);
+
+      }
+
+      return queueName;
+   }
+
+
 
    public long getNativeId() {
       return this.nativeId;
@@ -189,7 +216,7 @@ public class AMQConsumer implements BrowserListener {
    public void handleDeliverNullDispatch() {
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(getId());
-      md.setDestination(actualDest);
+      md.setDestination(openwireDestination);
       session.deliverMessage(md);
       windowAvailable.decrementAndGet();
    }
@@ -210,9 +237,16 @@ public class AMQConsumer implements BrowserListener {
             mi = iter.next();
             if (mi.amqId.equals(lastm)) {
                n++;
-               iter.remove();
-               session.getCoreSession().individualAcknowledge(nativeId, mi.nativeId);
-               session.getCoreSession().commit();
+               if (!isLocalTx) {
+                  iter.remove();
+                  session.getCoreSession().individualAcknowledge(nativeId, mi.nativeId);
+               }
+               else {
+                  mi.setLocalAcked(true);
+               }
+               if (tid == null) {
+                  session.getCoreSession().commit();
+               }
                break;
             }
          }
@@ -220,7 +254,7 @@ public class AMQConsumer implements BrowserListener {
       else if (ack.isRedeliveredAck()) {
          //client tells that this message is for redlivery.
          //do nothing until poisoned.
-         n = 1;
+         n = ack.getMessageCount();
       }
       else if (ack.isPoisonAck()) {
          //send to dlq
@@ -251,7 +285,7 @@ public class AMQConsumer implements BrowserListener {
       }
       else if (ack.isDeliveredAck() || ack.isExpiredAck()) {
          //ToDo: implement with tests
-         n = 1;
+         n = ack.getMessageCount();
       }
       else {
          Iterator<MessageInfo> iter = deliveringRefs.iterator();
@@ -294,7 +328,6 @@ public class AMQConsumer implements BrowserListener {
       acquireCredit(n);
    }
 
-   @Override
    public void browseFinished() {
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(info.getConsumerId());
@@ -302,11 +335,6 @@ public class AMQConsumer implements BrowserListener {
       md.setDestination(null);
 
       session.deliverMessage(md);
-   }
-
-   public boolean handledTransactionalMsg() {
-      // TODO Auto-generated method stub
-      return false;
    }
 
    //this is called before session commit a local tx
@@ -346,10 +374,6 @@ public class AMQConsumer implements BrowserListener {
       }
    }
 
-   public org.apache.activemq.command.ActiveMQDestination getDestination() {
-      return actualDest;
-   }
-
    public ConsumerInfo getInfo() {
       return info;
    }
@@ -370,10 +394,22 @@ public class AMQConsumer implements BrowserListener {
       session.removeConsumer(nativeId);
    }
 
-   public org.apache.activemq.command.ActiveMQDestination getActualDestination() {
-      return actualDest;
+   public org.apache.activemq.command.ActiveMQDestination getOpenwireDestination() {
+      return openwireDestination;
    }
 
+   public void setPrefetchSize(int prefetchSize) {
+      this.prefetchSize = prefetchSize;
+      this.windowAvailable.set(prefetchSize);
+      this.info.setPrefetchSize(prefetchSize);
+      if (this.prefetchSize > 0) {
+         session.getCoreSession().promptDelivery(nativeId);
+      }
+   }
+
+   /**
+    * The MessagePullHandler is used with slow consumer policies.
+    * */
    private class MessagePullHandler {
 
       private long next = -1;

@@ -25,6 +25,12 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  */
 public interface ServerConsumer extends Consumer {
 
+   void setlowConsumerDetection(SlowConsumerDetectionListener listener);
+
+   SlowConsumerDetectionListener getSlowConsumerDetecion();
+
+   void fireSlowConsumer();
+
    /**
     * @param protocolContext
     * @see #getProtocolContext()

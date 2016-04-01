@@ -98,6 +98,10 @@ public final class CoreSessionCallback implements SessionCallback {
       channel.send(packet);
    }
 
+   @Override
+   public void browserFinished(ServerConsumer consumer) {
+
+   }
 
    @Override
    public void afterDelivery() throws Exception {

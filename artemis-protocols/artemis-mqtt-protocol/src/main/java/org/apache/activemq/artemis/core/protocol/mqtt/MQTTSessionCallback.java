@@ -83,6 +83,11 @@ public class MQTTSessionCallback implements SessionCallback {
 
 
    @Override
+   public void browserFinished(ServerConsumer consumer) {
+
+   }
+
+   @Override
    public boolean hasCredits(ServerConsumer consumerID) {
       return true;
    }

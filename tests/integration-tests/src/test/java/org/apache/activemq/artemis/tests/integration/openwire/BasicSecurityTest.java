@@ -26,7 +26,6 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQQueue;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -119,7 +118,7 @@ public class BasicSecurityTest extends BasicOpenWireTest {
    }
 
    @Test
-      public void testSendnReceiveAuthorization() throws Exception {
+   public void testSendnReceiveAuthorization() throws Exception {
       Connection sendingConn = null;
       Connection receivingConn = null;
 
@@ -153,18 +152,16 @@ public class BasicSecurityTest extends BasicOpenWireTest {
          producer = sendingSession.createProducer(dest);
          producer.send(message);
 
-         MessageConsumer consumer;
+         MessageConsumer consumer = null;
          try {
             consumer = sendingSession.createConsumer(dest);
-            Assert.fail("exception expected");
          }
          catch (JMSSecurityException e) {
-            e.printStackTrace();
             //expected
          }
 
          consumer = receivingSession.createConsumer(dest);
-         TextMessage received = (TextMessage) consumer.receive(5000);
+         TextMessage received = (TextMessage) consumer.receive();
 
          assertNotNull(received);
          assertEquals("Hello World", received.getText());

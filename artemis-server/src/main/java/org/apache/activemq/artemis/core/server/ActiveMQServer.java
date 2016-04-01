@@ -243,6 +243,10 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    Queue locateQueue(SimpleString queueName);
 
+   BindingQueryResult bindingQuery(SimpleString address) throws Exception;
+
+   QueueQueryResult queueQuery(SimpleString name) throws Exception;
+
    void destroyQueue(SimpleString queueName) throws Exception;
 
    void destroyQueue(SimpleString queueName, SecurityAuth session) throws Exception;

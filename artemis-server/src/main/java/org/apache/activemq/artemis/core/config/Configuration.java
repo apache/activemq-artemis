@@ -947,4 +947,8 @@ public interface Configuration {
    StoreConfiguration getStoreConfiguration();
 
    Configuration setStoreConfiguration(StoreConfiguration storeConfiguration);
+
+   /** It will return all the connectors in a toString manner for debug purposes. */
+   String debugConnectors();
+
 }

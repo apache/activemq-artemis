@@ -2930,6 +2930,8 @@ public class QueueImpl implements Queue {
                      }
                   }
 
+                  serverConsumer.fireSlowConsumer();
+
                   if (connection != null) {
                      ActiveMQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(), threshold, consumerRate);
                      if (policy.equals(SlowConsumerPolicy.KILL)) {

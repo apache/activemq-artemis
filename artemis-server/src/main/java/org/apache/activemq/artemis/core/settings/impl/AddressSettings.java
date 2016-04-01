@@ -70,6 +70,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final SlowConsumerPolicy DEFAULT_SLOW_CONSUMER_POLICY = SlowConsumerPolicy.NOTIFY;
 
+   public static final int DEFAULT_QUEUE_PREFETCH = 1000;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -114,6 +116,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
+   //from amq5
+   //make it transient
+   private transient Integer queuePrefetch = null;
+
    public AddressSettings(AddressSettings other) {
       this.addressFullMessagePolicy = other.addressFullMessagePolicy;
       this.maxSizeBytes = other.maxSizeBytes;
@@ -137,6 +143,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.autoCreateJmsQueues = other.autoCreateJmsQueues;
       this.autoDeleteJmsQueues = other.autoDeleteJmsQueues;
       this.managementBrowsePageSize = other.managementBrowsePageSize;
+      this.queuePrefetch = other.queuePrefetch;
    }
 
    public AddressSettings() {
@@ -333,6 +340,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public int getQueuePrefetch() {
+      return queuePrefetch != null ? queuePrefetch : AddressSettings.DEFAULT_QUEUE_PREFETCH;
+   }
+
+   public AddressSettings setQueuePrefetch(int queuePrefetch) {
+      this.queuePrefetch = queuePrefetch;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -402,6 +418,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (managementBrowsePageSize == null) {
          managementBrowsePageSize = merged.managementBrowsePageSize;
+      }
+      if (queuePrefetch == null) {
+         queuePrefetch = merged.queuePrefetch;
       }
    }
 
@@ -569,6 +588,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoCreateJmsQueues == null) ? 0 : autoCreateJmsQueues.hashCode());
       result = prime * result + ((autoDeleteJmsQueues == null) ? 0 : autoDeleteJmsQueues.hashCode());
       result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
+      result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
       return result;
    }
 
@@ -717,6 +737,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             return false;
       }
       else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
+         return false;
+      if (queuePrefetch == null) {
+         if (other.queuePrefetch != null)
+            return false;
+      }
+      else if (!queuePrefetch.equals(other.queuePrefetch))
          return false;
       return true;
    }

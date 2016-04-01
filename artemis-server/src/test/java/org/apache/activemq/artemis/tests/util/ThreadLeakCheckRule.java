@@ -17,7 +17,9 @@
 
 package org.apache.activemq.artemis.tests.util;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.rules.ExternalResource;
@@ -26,6 +28,7 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
+   private static Set<String> extraThreads = new HashSet<String>();
 
    boolean enabled = true;
 
@@ -94,6 +97,11 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
    }
 
+   public static void addExtraThreads(String... threads) {
+      for (String th : threads) {
+         extraThreads.add(th);
+      }
+   }
 
    private boolean checkThread() {
       boolean failedThread = false;
@@ -183,6 +191,9 @@ public class ThreadLeakCheckRule extends ExternalResource {
          // Static workers used by MQTT client.
          return true;
       }
+      else if (extraThreads.contains(threadName)) {
+         return true;
+      }
       else {
          for (StackTraceElement element : thread.getStackTrace()) {
             if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
@@ -194,4 +205,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
    }
 
 
+   public static void clearExtraThreads() {
+      extraThreads.clear();
+   }
 }

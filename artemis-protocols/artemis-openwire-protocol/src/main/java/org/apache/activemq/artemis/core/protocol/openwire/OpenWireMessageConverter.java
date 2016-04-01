@@ -96,10 +96,11 @@ public class OpenWireMessageConverter implements MessageConverter {
    private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
    private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
 
-   @Override
-   public ServerMessage inbound(Object message) {
-      // TODO: implement this
-      return null;
+
+   private final WireFormat marshaller;
+
+   public OpenWireMessageConverter(WireFormat marshaller) {
+      this.marshaller = marshaller;
    }
 
    @Override
@@ -108,10 +109,13 @@ public class OpenWireMessageConverter implements MessageConverter {
       return null;
    }
 
-   //convert an ActiveMQ Artemis message to coreMessage
-   public static void toCoreMessage(ServerMessageImpl coreMessage,
-                                    Message messageSend,
-                                    WireFormat marshaller) throws IOException {
+
+   @Override
+   public ServerMessage inbound(Object message) throws Exception {
+
+      Message messageSend = (Message)message;
+      ServerMessageImpl coreMessage = new ServerMessageImpl(-1, messageSend.getSize());
+
       String type = messageSend.getType();
       if (type != null) {
          coreMessage.putStringProperty(new SimpleString("JMSType"), new SimpleString(type));
@@ -391,6 +395,15 @@ public class OpenWireMessageConverter implements MessageConverter {
          coreMessage.putStringProperty(AMQ_MSG_USER_ID, userId);
       }
       coreMessage.putBooleanProperty(AMQ_MSG_DROPPABLE, messageSend.isDroppable());
+
+      ActiveMQDestination origDest = messageSend.getOriginalDestination();
+      if (origDest != null) {
+         ByteSequence origDestBytes = marshaller.marshal(origDest);
+         origDestBytes.compact();
+         coreMessage.putBytesProperty(AMQ_MSG_ORIG_DESTINATION, origDestBytes.data);
+      }
+
+      return coreMessage;
    }
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
@@ -430,7 +443,7 @@ public class OpenWireMessageConverter implements MessageConverter {
    public static MessageDispatch createMessageDispatch(ServerMessage message,
                                                        int deliveryCount,
                                                        AMQConsumer consumer) throws IOException, JMSException {
-      ActiveMQMessage amqMessage = toAMQMessage(message, consumer.getMarshaller(), consumer.getActualDestination());
+      ActiveMQMessage amqMessage = toAMQMessage(message, consumer.getMarshaller(), consumer.getOpenwireDestination());
 
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(consumer.getId());

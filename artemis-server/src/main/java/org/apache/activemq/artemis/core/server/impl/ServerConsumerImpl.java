@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -89,6 +90,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    private Object protocolContext;
 
    private final ActiveMQServer server;
+
+   private SlowConsumerDetectionListener slowConsumerListener;
 
    /**
     * We get a readLock when a message is handled, and return the readLock when the message is finally delivered
@@ -226,6 +229,23 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    // ServerConsumer implementation
    // ----------------------------------------------------------------------
+
+   @Override
+   public void setlowConsumerDetection(SlowConsumerDetectionListener listener) {
+      this.slowConsumerListener = listener;
+   }
+
+   @Override
+   public SlowConsumerDetectionListener getSlowConsumerDetecion() {
+      return slowConsumerListener;
+   }
+
+   @Override
+   public void fireSlowConsumer() {
+      if (slowConsumerListener != null) {
+         slowConsumerListener.onSlowConsumer(this);
+      }
+   }
 
    @Override
    public Object getProtocolContext() {
@@ -546,12 +566,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                }
                else {
                   refs.add(ref);
-                  if (!failed) {
-                     // We don't decrement delivery count if the client failed, since there's a possibility that refs
-                     // were actually delivered but we just didn't get any acks for them
-                     // before failure
-                     ref.decrementDeliveryCount();
-                  }
+                  updateDeliveryCountForCanceledRef(ref, failed);
                }
 
                if (isTrace) {
@@ -564,6 +579,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       return refs;
+   }
+
+   protected void updateDeliveryCountForCanceledRef(MessageReference ref, boolean failed) {
+      if (!failed) {
+         // We don't decrement delivery count if the client failed, since there's a possibility that refs
+         // were actually delivered but we just didn't get any acks for them
+         // before failure
+         ref.decrementDeliveryCount();
+      }
    }
 
    @Override
@@ -1191,6 +1215,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                ref = null;
                synchronized (messageQueue) {
                   if (!iterator.hasNext()) {
+                     callback.browserFinished(ServerConsumerImpl.this);
                      break;
                   }
 

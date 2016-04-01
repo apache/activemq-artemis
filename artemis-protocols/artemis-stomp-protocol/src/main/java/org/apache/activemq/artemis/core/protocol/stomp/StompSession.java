@@ -113,6 +113,11 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
+   public void browserFinished(ServerConsumer consumer) {
+
+   }
+
+   @Override
    public int sendMessage(ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;

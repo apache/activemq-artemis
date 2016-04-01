@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -76,6 +77,8 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
@@ -97,6 +100,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Bindable;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
@@ -105,6 +109,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServerSessionFactory;
@@ -542,6 +547,72 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean isAddressBound(String address) throws Exception {
       return postOffice.isAddressBound(SimpleString.toSimpleString(address));
+   }
+
+   @Override
+   public BindingQueryResult bindingQuery(SimpleString address) throws Exception {
+      if (address == null) {
+         throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
+      }
+
+      boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
+
+      List<SimpleString> names = new ArrayList<>();
+
+      // make an exception for the management address (see HORNETQ-29)
+      ManagementService managementService = getManagementService();
+      if (managementService != null) {
+         if (address.equals(managementService.getManagementAddress())) {
+            return new BindingQueryResult(true, names, autoCreateJmsQueues);
+         }
+      }
+
+      Bindings bindings = getPostOffice().getMatchingBindings(address);
+
+      for (Binding binding : bindings.getBindings()) {
+         if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
+            names.add(binding.getUniqueName());
+         }
+      }
+
+      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
+   }
+
+   @Override
+   public QueueQueryResult queueQuery(SimpleString name) {
+      if (name == null) {
+         throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
+      }
+
+      boolean autoCreateJmsQueues = name.toString().startsWith(ResourceNames.JMS_QUEUE) && getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
+
+      QueueQueryResult response;
+
+      Binding binding = getPostOffice().getBinding(name);
+
+      SimpleString managementAddress = getManagementService() != null ? getManagementService().getManagementAddress() : null;
+
+      if (binding != null && binding.getType() == BindingType.LOCAL_QUEUE) {
+         Queue queue = (Queue) binding.getBindable();
+
+         Filter filter = queue.getFilter();
+
+         SimpleString filterString = filter == null ? null : filter.getFilterString();
+
+         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateJmsQueues);
+      }
+      // make an exception for the management address (see HORNETQ-29)
+      else if (name.equals(managementAddress)) {
+         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateJmsQueues);
+      }
+      else if (autoCreateJmsQueues) {
+         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false);
+      }
+      else {
+         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false);
+      }
+
+      return response;
    }
 
    @Override

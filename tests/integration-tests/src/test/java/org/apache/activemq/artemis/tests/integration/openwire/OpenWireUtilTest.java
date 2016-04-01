@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
 import org.junit.Test;
 
 public class OpenWireUtilTest {
