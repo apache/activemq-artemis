@@ -129,9 +129,13 @@ public class OpenWireMessageConverter implements MessageConverter {
       byte coreType = toCoreType(messageSend.getDataStructureType());
       coreMessage.setType(coreType);
 
+      ActiveMQBuffer body = coreMessage.getBodyBuffer();
+
       ByteSequence contents = messageSend.getContent();
-      if (contents != null) {
-         ActiveMQBuffer body = coreMessage.getBodyBuffer();
+      if (contents == null && coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
+         body.writeNullableString(null);
+      }
+      else if (contents != null) {
          boolean messageCompressed = messageSend.isCompressed();
          if (messageCompressed) {
             coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageCompressed);
