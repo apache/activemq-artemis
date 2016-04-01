@@ -193,9 +193,11 @@ public class AMQConsumer {
          return size;
       }
       catch (IOException e) {
+         e.printStackTrace();
          return 0;
       }
       catch (Throwable t) {
+         t.printStackTrace();
          return 0;
       }
    }

@@ -93,6 +93,28 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    }
 
    @Test
+   public void testSendEmpty() throws Exception {
+      try (Connection connection = factory.createConnection()) {
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         System.out.println("Queue:" + queue);
+         MessageProducer producer = session.createProducer(queue);
+         MessageConsumer consumer = session.createConsumer(queue);
+         producer.send(session.createTextMessage());
+
+         Assert.assertNull(consumer.receive(100));
+         connection.start();
+
+         TextMessage message = (TextMessage) consumer.receive(5000);
+
+         Assert.assertNotNull(message);
+
+         message.acknowledge();
+      }
+   }
+
+   @Test
    public void testXASimple() throws Exception {
       XAConnection connection = xaFactory.createXAConnection();
 
