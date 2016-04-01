@@ -1074,7 +1074,7 @@ public class QueueImpl implements Queue {
          if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("moving expired reference " + ref + " to address = " + expiryAddress + " from queue=" + this.getName());
          }
-         move(expiryAddress, ref, true, false);
+         move(null, expiryAddress, ref, true, false);
       }
       else {
          if (isTrace) {
@@ -1461,7 +1461,7 @@ public class QueueImpl implements Queue {
             MessageReference ref = iter.next();
             if (ref.getMessage().getMessageID() == messageID) {
                incDelivering();
-               sendToDeadLetterAddress(ref);
+               sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
                return true;
@@ -1480,7 +1480,7 @@ public class QueueImpl implements Queue {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
                incDelivering();
-               sendToDeadLetterAddress(ref);
+               sendToDeadLetterAddress(null, ref);
                iter.remove();
                refRemoved(ref);
                count++;
@@ -1507,7 +1507,7 @@ public class QueueImpl implements Queue {
                refRemoved(ref);
                incDelivering();
                try {
-                  move(toAddress, ref, false, rejectDuplicate);
+                  move(null, toAddress, ref, false, rejectDuplicate);
                }
                catch (Exception e) {
                   decDelivering();
@@ -2120,7 +2120,7 @@ public class QueueImpl implements Queue {
          if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("Sending reference " + reference + " to DLA = " + addressSettings.getDeadLetterAddress() + " since ref.getDeliveryCount=" + reference.getDeliveryCount() + "and maxDeliveries=" + maxDeliveries + " from queue=" + this.getName());
          }
-         sendToDeadLetterAddress(reference, addressSettings.getDeadLetterAddress());
+         sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
 
          return false;
       }
@@ -2337,36 +2337,45 @@ public class QueueImpl implements Queue {
       }
    }
 
-   public void sendToDeadLetterAddress(final MessageReference ref) throws Exception {
-      sendToDeadLetterAddress(ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
+   public void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
+      sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
    }
 
-   private void sendToDeadLetterAddress(final MessageReference ref,
+   private void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref,
                                         final SimpleString deadLetterAddress) throws Exception {
       if (deadLetterAddress != null) {
          Bindings bindingList = postOffice.getBindingsForAddress(deadLetterAddress);
 
          if (bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
-            acknowledge(ref);
+            ref.acknowledge(tx);
          }
          else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(deadLetterAddress, ref, false, false);
+            move(tx, deadLetterAddress, ref, false, false);
          }
       }
       else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(name);
 
-         acknowledge(ref);
+         ref.acknowledge(tx);
       }
    }
 
-   private void move(final SimpleString address,
+   private void move(final Transaction originalTX,
+                     final SimpleString address,
                      final MessageReference ref,
                      final boolean expiry,
                      final boolean rejectDuplicate) throws Exception {
-      Transaction tx = new TransactionImpl(storageManager);
+      Transaction tx;
+
+      if (originalTX != null) {
+         tx = originalTX;
+      }
+      else {
+         // if no TX we create a new one to commit at the end
+         tx = new TransactionImpl(storageManager);
+      }
 
       ServerMessage copyMessage = makeCopy(ref, expiry);
 
@@ -2376,7 +2385,9 @@ public class QueueImpl implements Queue {
 
       acknowledge(tx, ref);
 
-      tx.commit();
+      if (originalTX == null) {
+         tx.commit();
+      }
    }
 
    /*

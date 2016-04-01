@@ -45,4 +45,7 @@ public interface ResourceManager extends ActiveMQComponent {
 
    List<Xid> getHeuristicRolledbackTransactions();
 
+   List<Xid> getInDoubtTransactions();
+
+
 }

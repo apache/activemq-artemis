@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.MemorySize;
 
 /**
@@ -41,6 +42,8 @@ public class MessageReferenceImpl implements MessageReference {
    private Long consumerID;
 
    private boolean alreadyAcked;
+
+   private Object protocolData;
 
    // Static --------------------------------------------------------
 
@@ -85,6 +88,16 @@ public class MessageReferenceImpl implements MessageReference {
    }
 
    // MessageReference implementation -------------------------------
+
+   @Override
+   public Object getProtocolData() {
+      return protocolData;
+   }
+
+   @Override
+   public void setProtocolData(Object protocolData) {
+      this.protocolData = protocolData;
+   }
 
    /**
     * @return the persistedCount
@@ -174,7 +187,16 @@ public class MessageReferenceImpl implements MessageReference {
 
    @Override
    public void acknowledge() throws Exception {
-      queue.acknowledge(this);
+      this.acknowledge(null);
+   }
+
+   public void acknowledge(Transaction tx) throws Exception {
+      if (tx == null) {
+         getQueue().acknowledge(this);
+      }
+      else {
+         getQueue().acknowledge(tx, this);
+      }
    }
 
    @Override

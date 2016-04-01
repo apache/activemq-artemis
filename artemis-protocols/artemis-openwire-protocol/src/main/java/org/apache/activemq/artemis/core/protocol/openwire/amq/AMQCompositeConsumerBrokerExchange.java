@@ -48,7 +48,7 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
    public void acknowledge(MessageAck ack) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(ack.getDestination());
       if (amqConsumer != null) {
-         amqSession.acknowledge(ack, amqConsumer);
+         amqConsumer.acknowledge(ack);
       }
    }
 
@@ -56,6 +56,13 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
    public void removeConsumer() throws Exception {
       for (AMQConsumer amqConsumer : consumerMap.values()) {
          amqConsumer.removeConsumer();
+      }
+   }
+
+   @Override
+   public void updateConsumerPrefetchSize(int prefetch) {
+      for (AMQConsumer amqConsumer : consumerMap.values()) {
+         amqConsumer.setPrefetchSize(prefetch);
       }
    }
 }

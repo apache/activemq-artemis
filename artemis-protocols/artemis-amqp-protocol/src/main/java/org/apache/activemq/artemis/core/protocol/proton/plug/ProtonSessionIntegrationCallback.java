@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.qpid.proton.amqp.Binary;
@@ -117,7 +119,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
                                                         false, // boolean autoCommitAcks,
                                                         false, // boolean preAcknowledge,
                                                         true, //boolean xa,
-                                                        (String) null, this, null, true);
+                                                        (String) null, this, true);
    }
 
    @Override
@@ -214,7 +216,12 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public Binary getCurrentTXID() {
-      return new Binary(ByteUtil.longToBytes(serverSession.getCurrentTransaction().getID()));
+      Transaction tx = serverSession.getCurrentTransaction();
+      if (tx == null) {
+         tx = serverSession.newTransaction();
+         serverSession.resetTX(tx);
+      }
+      return new Binary(ByteUtil.longToBytes(tx.getID()));
    }
 
    @Override
@@ -341,7 +348,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
 
       ProtonPlugSender plugSender = (ProtonPlugSender) consumer.getProtocolContext();
 
@@ -359,7 +366,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
       return 0;
    }
 

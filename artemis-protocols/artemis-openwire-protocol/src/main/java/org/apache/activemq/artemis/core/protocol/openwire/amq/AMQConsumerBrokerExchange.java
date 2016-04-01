@@ -32,4 +32,6 @@ public abstract class AMQConsumerBrokerExchange {
    public abstract void processMessagePull(MessagePull messagePull) throws Exception;
 
    public abstract void removeConsumer() throws Exception;
+
+   public abstract void updateConsumerPrefetchSize(int prefetch);
 }

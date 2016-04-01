@@ -59,6 +59,18 @@ public class TransactionImpl implements Transaction {
 
    private int timeoutSeconds = -1;
 
+   private Object protocolData;
+
+   @Override
+   public Object getProtocolData() {
+      return protocolData;
+   }
+
+   @Override
+   public void setProtocolData(Object protocolData) {
+      this.protocolData = protocolData;
+   }
+
    public TransactionImpl(final StorageManager storageManager, final int timeoutSeconds) {
       this.storageManager = storageManager;
 

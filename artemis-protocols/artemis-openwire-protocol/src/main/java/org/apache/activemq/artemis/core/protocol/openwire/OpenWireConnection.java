@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
+import javax.jms.IllegalStateException;
 import javax.jms.InvalidClientIDException;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSSecurityException;
+import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,22 +48,30 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionConte
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -96,6 +107,7 @@ import org.apache.activemq.command.ShutdownInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
+import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.state.CommandVisitor;
 import org.apache.activemq.state.ConnectionState;
@@ -130,29 +142,42 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    // Clebert: Artemis session has meta-data support, perhaps we could reuse it here
    private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
 
-
-   private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new HashMap<>();
-   private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new HashMap<>();
+   private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new ConcurrentHashMap<>();
+   private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new ConcurrentHashMap<>();
 
    // Clebert TODO: Artemis already stores the Session. Why do we need a different one here
    private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
-
-
 
    private ConnectionState state;
 
    private final Set<ActiveMQDestination> tempQueues = new ConcurrentHashSet<>();
 
-   private Map<TransactionId, TransactionInfo> txMap = new ConcurrentHashMap<>();
+   /**
+    * Openwire doesn't sen transactions associated with any sessions.
+    * It will however send beingTX / endTX as it would be doing it with XA Transactions.
+    * But always without any association with Sessions.
+    * This collection will hold nonXA transactions. Hopefully while they are in transit only.
+    */
+   private Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
 
    private volatile AMQSession advisorySession;
 
+   private final ActiveMQServer server;
+
+   /**
+    * This is to be used with connection operations that don't have  a session.
+    * Such as TM operations.
+    */
+   private ServerSession internalSession;
+
    // TODO-NOW: check on why there are two connections created for every createConnection on the client.
    public OpenWireConnection(Connection connection,
+                             ActiveMQServer server,
                              Executor executor,
                              OpenWireProtocolManager openWireProtocolManager,
                              OpenWireFormat wf) {
       super(connection, executor);
+      this.server = server;
       this.protocolManager = openWireProtocolManager;
       this.wireFormat = wf;
    }
@@ -206,7 +231,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          boolean responseRequired = command.isResponseRequired();
          int commandId = command.getCommandId();
 
-
          // TODO-NOW: the server should send packets to the client based on the requested times
          //           need to look at what Andy did on AMQP
 
@@ -227,8 +251,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                response = command.visit(commandProcessorInstance);
             }
             catch (Exception e) {
+               // TODO: logging
+               e.printStackTrace();
                if (responseRequired) {
-                  response = new ExceptionResponse(e);
+                  response = convertException(e);
                }
             }
             finally {
@@ -276,6 +302,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void sendException(Exception e) {
+      Response resp = convertException(e);
+      try {
+         dispatch(resp);
+      }
+      catch (IOException e2) {
+         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e2);
+      }
+   }
+
+   private Response convertException(Exception e) {
       Response resp;
       if (e instanceof ActiveMQSecurityException) {
          resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
@@ -286,12 +322,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       else {
          resp = new ExceptionResponse(e);
       }
-      try {
-         dispatch(resp);
-      }
-      catch (IOException e2) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e2);
-      }
+      return resp;
    }
 
    private void setLastCommand(Command command) {
@@ -426,9 +457,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   private void addConsumerBrokerExchange(ConsumerId id,
-                                         AMQSession amqSession,
-                                         List<AMQConsumer> consumerList) {
+   private void addConsumerBrokerExchange(ConsumerId id, AMQSession amqSession, List<AMQConsumer> consumerList) {
       AMQConsumerBrokerExchange result = consumerExchanges.get(id);
       if (result == null) {
          if (consumerList.size() == 1) {
@@ -471,12 +500,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return result;
    }
 
-   private void removeConsumerBrokerExchange(ConsumerId id) {
-      synchronized (consumerExchanges) {
-         consumerExchanges.remove(id);
-      }
-   }
-
    public void deliverMessage(MessageDispatch dispatch) {
       Message m = dispatch.getMessage();
       if (m != null) {
@@ -504,7 +527,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   private void disconnect(ActiveMQException me, String reason, boolean fail)  {
+   private void disconnect(ActiveMQException me, String reason, boolean fail) {
 
       if (context == null || destroyed) {
          return;
@@ -576,7 +599,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   public AMQConnectionContext initContext(ConnectionInfo info) {
+   public AMQConnectionContext initContext(ConnectionInfo info) throws Exception {
       WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
@@ -608,7 +631,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          info.setClientIp(getRemoteAddress());
       }
 
+      createInternalSession(info);
+
       return context;
+   }
+
+   private void createInternalSession(ConnectionInfo info) throws Exception {
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true);
    }
 
    //raise the refCount of context
@@ -663,17 +692,17 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       ActiveMQDestination dest = info.getDestination();
       if (dest.isQueue()) {
          SimpleString qName = OpenWireUtil.toCoreAddress(dest);
-         QueueBinding binding = (QueueBinding) protocolManager.getServer().getPostOffice().getBinding(qName);
+         QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
             if (getState().getInfo() != null) {
 
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-               protocolManager.getServer().getSecurityStore().check(qName, checkType, this);
+               server.getSecurityStore().check(qName, checkType, this);
 
-               protocolManager.getServer().checkQueueCreationLimit(getUsername());
+               server.checkQueueCreationLimit(getUsername());
             }
             ConnectionInfo connInfo = getState().getInfo();
-            protocolManager.getServer().createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
+            server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
          }
 
          if (dest.isTemporary()) {
@@ -690,11 +719,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-
    public void updateConsumer(ConsumerControl consumerControl) {
-      SessionId sessionId = consumerControl.getConsumerId().getParentId();
-      AMQSession amqSession = sessions.get(sessionId);
-      amqSession.updateConsumerPrefetchSize(consumerControl.getConsumerId(), consumerControl.getPrefetch());
+      ConsumerId consumerId = consumerControl.getConsumerId();
+      AMQConsumerBrokerExchange exchange = this.consumerExchanges.get(consumerId);
+      if (exchange != null) {
+         exchange.updateConsumerPrefetchSize(consumerControl.getPrefetch());
+      }
    }
 
    public void addConsumer(ConsumerInfo info) throws Exception {
@@ -707,7 +737,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
       SessionState ss = cs.getSessionState(sessionId);
       if (ss == null) {
-         throw new IllegalStateException(protocolManager.getServer() + " Cannot add a consumer to a session that had not been registered: " + sessionId);
+         throw new IllegalStateException(server + " Cannot add a consumer to a session that had not been registered: " + sessionId);
       }
       // Avoid replaying dup commands
       if (!ss.getConsumerIds().contains(info.getConsumerId())) {
@@ -729,13 +759,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public void onSlowConsumer(ServerConsumer consumer) {
-         if (consumer instanceof AMQServerConsumer) {
-            AMQServerConsumer serverConsumer = (AMQServerConsumer)consumer;
-            ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(serverConsumer.getAmqConsumer().getOpenwireDestination());
+         if (consumer.getProtocolData() != null && consumer.getProtocolData() instanceof AMQConsumer) {
+            AMQConsumer amqConsumer = (AMQConsumer) consumer.getProtocolData();
+            ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(amqConsumer.getOpenwireDestination());
             ActiveMQMessage advisoryMessage = new ActiveMQMessage();
             try {
-               advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, serverConsumer.getAmqConsumer().getId().toString());
-               protocolManager.fireAdvisory(context, topic, advisoryMessage, serverConsumer.getAmqConsumer().getId());
+               advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, amqConsumer.getId().toString());
+               protocolManager.fireAdvisory(context, topic, advisoryMessage, amqConsumer.getId());
             }
             catch (Exception e) {
                // TODO-NOW: LOGGING
@@ -758,9 +788,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public AMQSession addSession(SessionInfo ss, boolean internal) {
-      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, protocolManager.getServer(), this, protocolManager.getScheduledPool(), protocolManager);
+      AMQSession amqSession = new AMQSession(getState().getInfo(), ss, server, this, protocolManager.getScheduledPool());
       amqSession.initialize();
-      amqSession.setInternal(internal);
+
+      if (internal) {
+         amqSession.disableSecurity();
+      }
+
       sessions.put(ss.getSessionId(), amqSession);
       sessionIdMap.put(amqSession.getCoreSession().getName(), ss.getSessionId());
       return amqSession;
@@ -780,10 +814,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
          SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
-         protocolManager.getServer().destroyQueue(qName);
+         server.destroyQueue(qName);
       }
       else {
-         Bindings bindings = protocolManager.getServer().getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("jms.topic." + dest.getPhysicalName()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("jms.topic." + dest.getPhysicalName()));
          Iterator<Binding> iterator = bindings.getBindings().iterator();
 
          while (iterator.hasNext()) {
@@ -815,16 +849,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private void validateDestination(ActiveMQDestination destination) throws Exception {
       if (destination.isQueue()) {
          SimpleString physicalName = OpenWireUtil.toCoreAddress(destination);
-         BindingQueryResult result = protocolManager.getServer().bindingQuery(physicalName);
+         BindingQueryResult result = server.bindingQuery(physicalName);
          if (!result.isExists() && !result.isAutoCreateJmsQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
          }
       }
    }
 
-
    CommandProcessor commandProcessorInstance = new CommandProcessor();
-
 
    // This will listen for commands throught the protocolmanager
    public class CommandProcessor implements CommandVisitor {
@@ -934,16 +966,69 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRemoveSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
-         protocolManager.removeSubscription(subInfo);
+         SimpleString subQueueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
+         server.destroyQueue(subQueueName);
+
          return null;
       }
 
       @Override
       public Response processRollbackTransaction(TransactionInfo info) throws Exception {
-         protocolManager.rollbackTransaction(info);
-         TransactionId txId = info.getTransactionId();
-         txMap.remove(txId);
+         Transaction tx = lookupTX(info.getTransactionId(), null);
+         if (info.getTransactionId().isXATransaction() && tx == null) {
+            throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
+         }
+         else if (tx != null) {
+
+            AMQSession amqSession = (AMQSession) tx.getProtocolData();
+
+            if (amqSession != null) {
+               amqSession.getCoreSession().resetTX(tx);
+
+               try {
+                  returnReferences(tx, amqSession);
+               }
+               finally {
+                  amqSession.getCoreSession().resetTX(null);
+               }
+            }
+            tx.rollback();
+         }
+
          return null;
+      }
+
+      /**
+       * Openwire will redeliver rolled back references.
+       * We need to return those here.
+       */
+      private void returnReferences(Transaction tx, AMQSession session) throws Exception {
+         if (session == null || session.isClosed()) {
+            return;
+         }
+
+         RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
+
+         if (oper != null) {
+            List<MessageReference> ackRefs = oper.getReferencesToAcknowledge();
+
+            for (ListIterator<MessageReference> referenceIterator = ackRefs.listIterator(ackRefs.size()); referenceIterator.hasPrevious(); ) {
+               MessageReference ref = referenceIterator.previous();
+
+               Long consumerID = ref.getConsumerId();
+
+               ServerConsumer consumer = null;
+               if (consumerID != null) {
+                  consumer = session.getCoreSession().locateConsumer(consumerID);
+               }
+
+               if (consumer != null) {
+                  referenceIterator.remove();
+                  ref.incrementDeliveryCount();
+                  consumer.backToDelivering(ref);
+               }
+            }
+         }
       }
 
       @Override
@@ -989,41 +1074,132 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processBeginTransaction(TransactionInfo info) throws Exception {
-         TransactionId txId = info.getTransactionId();
+         final TransactionId txID = info.getTransactionId();
 
-         if (!txMap.containsKey(txId)) {
-            txMap.put(txId, info);
+         try {
+            internalSession.resetTX(null);
+            if (txID.isXATransaction()) {
+               Xid xid = OpenWireUtil.toXID(txID);
+               internalSession.xaStart(xid);
+            }
+            else {
+               Transaction transaction = internalSession.newTransaction();
+               txMap.put(txID, transaction);
+               transaction.addOperation(new TransactionOperationAbstract() {
+                  @Override
+                  public void afterCommit(Transaction tx) {
+                     txMap.remove(txID);
+                  }
+               });
+            }
+         }
+         finally {
+            internalSession.resetTX(null);
          }
          return null;
       }
 
       @Override
-      public Response processBrokerInfo(BrokerInfo arg0) throws Exception {
-         throw new IllegalStateException("not implemented! ");
+      public Response processCommitTransactionOnePhase(TransactionInfo info) throws Exception {
+         return processCommit(info, true);
       }
 
-      @Override
-      public Response processCommitTransactionOnePhase(TransactionInfo info) throws Exception {
-         try {
-            protocolManager.commitTransactionOnePhase(info);
-            TransactionId txId = info.getTransactionId();
-            txMap.remove(txId);
-         }
-         catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-         }
+      private Response processCommit(TransactionInfo info, boolean onePhase) throws Exception {
+         TransactionId txID = info.getTransactionId();
+
+         Transaction tx = lookupTX(txID, null);
+
+         AMQSession session = (AMQSession) tx.getProtocolData();
+
+         tx.commit(onePhase);
 
          return null;
       }
 
       @Override
       public Response processCommitTransactionTwoPhase(TransactionInfo info) throws Exception {
-         protocolManager.commitTransactionTwoPhase(info);
-         TransactionId txId = info.getTransactionId();
-         txMap.remove(txId);
+         return processCommit(info, false);
+      }
+
+      @Override
+      public Response processForgetTransaction(TransactionInfo info) throws Exception {
+         TransactionId txID = info.getTransactionId();
+
+         if (txID.isXATransaction()) {
+            try {
+               Xid xid = OpenWireUtil.toXID(info.getTransactionId());
+               internalSession.xaForget(xid);
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+               throw e;
+            }
+         }
+         else {
+            txMap.remove(txID);
+         }
 
          return null;
+      }
+
+      @Override
+      public Response processPrepareTransaction(TransactionInfo info) throws Exception {
+         TransactionId txID = info.getTransactionId();
+
+         try {
+            if (txID.isXATransaction()) {
+               try {
+                  Xid xid = OpenWireUtil.toXID(info.getTransactionId());
+                  internalSession.xaPrepare(xid);
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+                  throw e;
+               }
+            }
+            else {
+               Transaction tx = lookupTX(txID, null);
+               tx.prepare();
+            }
+         }
+         finally {
+            internalSession.resetTX(null);
+         }
+
+         return new IntegerResponse(XAResource.XA_RDONLY);
+      }
+
+      @Override
+      public Response processEndTransaction(TransactionInfo info) throws Exception {
+         TransactionId txID = info.getTransactionId();
+
+         if (txID.isXATransaction()) {
+            try {
+               Transaction tx = lookupTX(txID, null);
+               internalSession.resetTX(tx);
+               try {
+                  Xid xid = OpenWireUtil.toXID(info.getTransactionId());
+                  internalSession.xaEnd(xid);
+               }
+               finally {
+                  internalSession.resetTX(null);
+               }
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+               throw e;
+            }
+         }
+         else {
+            txMap.remove(info);
+         }
+
+         return null;
+      }
+
+      @Override
+      public Response processBrokerInfo(BrokerInfo arg0) throws Exception {
+         throw new IllegalStateException("not implemented! ");
       }
 
       @Override
@@ -1058,28 +1234,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       @Override
-      public Response processEndTransaction(TransactionInfo info) throws Exception {
-         protocolManager.endTransaction(info);
-         TransactionId txId = info.getTransactionId();
-
-         if (!txMap.containsKey(txId)) {
-            txMap.put(txId, info);
-         }
-         return null;
-      }
-
-      @Override
       public Response processFlush(FlushCommand arg0) throws Exception {
          throw new IllegalStateException("not implemented! ");
-      }
-
-      @Override
-      public Response processForgetTransaction(TransactionInfo info) throws Exception {
-         TransactionId txId = info.getTransactionId();
-         txMap.remove(txId);
-
-         protocolManager.forgetTransaction(info.getTransactionId());
-         return null;
       }
 
       @Override
@@ -1097,15 +1253,32 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          AMQSession session = getSession(producerId.getParentId());
 
-         session.send(producerInfo, messageSend, sendProducerAck);
+         Transaction tx = lookupTX(messageSend.getTransactionId(), session);
+
+         session.getCoreSession().resetTX(tx);
+         try {
+            session.send(producerInfo, messageSend, sendProducerAck);
+         }
+         finally {
+            session.getCoreSession().resetTX(null);
+         }
+
          return null;
       }
 
-
       @Override
       public Response processMessageAck(MessageAck ack) throws Exception {
-         AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
-         consumerBrokerExchange.acknowledge(ack);
+         AMQSession session = getSession(ack.getConsumerId().getParentId());
+         Transaction tx = lookupTX(ack.getTransactionId(), session);
+         session.getCoreSession().resetTX(tx);
+
+         try {
+            AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
+            consumerBrokerExchange.acknowledge(ack);
+         }
+         finally {
+            session.getCoreSession().resetTX(null);
+         }
          return null;
       }
 
@@ -1130,13 +1303,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       @Override
-      public Response processPrepareTransaction(TransactionInfo info) throws Exception {
-         protocolManager.prepareTransaction(info);
-         //activemq needs a rdonly response
-         return new IntegerResponse(XAResource.XA_RDONLY);
-      }
-
-      @Override
       public Response processProducerAck(ProducerAck arg0) throws Exception {
          // a broker doesn't do producers.. this shouldn't happen
          return null;
@@ -1144,20 +1310,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public Response processRecoverTransactions(TransactionInfo info) throws Exception {
-         Set<SessionId> sIds = state.getSessionIds();
-
-
+         List<Xid> xids = server.getResourceManager().getInDoubtTransactions();
          List<TransactionId> recovered = new ArrayList<>();
-         if (sIds != null) {
-            for (SessionId sid : sIds) {
-               AMQSession s = sessions.get(sid);
-               if (s != null) {
-                  s.recover(recovered);
-               }
-            }
+         for (Xid xid : xids) {
+            XATransactionId amqXid = new XATransactionId(xid);
+            recovered.add(amqXid);
          }
-
-         return new DataArrayResponse(recovered.toArray(new TransactionId[0]));
+         return new DataArrayResponse(recovered.toArray(new TransactionId[recovered.size()]));
       }
 
       @Override
@@ -1186,15 +1345,45 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          ConsumerInfo info = consumerState.getInfo();
          info.setLastDeliveredSequenceId(lastDeliveredSequenceId);
 
-         AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(id);
+         AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.remove(id);
 
          consumerBrokerExchange.removeConsumer();
-
-         removeConsumerBrokerExchange(id);
 
          return null;
       }
 
+   }
+
+   private Transaction lookupTX(TransactionId txID, AMQSession session) throws IllegalStateException {
+      if (txID == null) {
+         return null;
+      }
+
+      Xid xid = null;
+      Transaction transaction;
+      if (txID.isXATransaction()) {
+         xid = OpenWireUtil.toXID(txID);
+         transaction = server.getResourceManager().getTransaction(xid);
+      }
+      else {
+         transaction = txMap.get(txID);
+      }
+
+      if (transaction == null) {
+         throw new IllegalStateException("cannot find transactionInfo::" + txID + " xid=" + xid);
+      }
+
+      if (session != null && transaction.getProtocolData() != session) {
+         transaction.setProtocolData(session);
+      }
+
+      return transaction;
+   }
+
+   public static XAException newXAException(String s, int errorCode) {
+      XAException xaException = new XAException(s + " " + "xaErrorCode:" + errorCode);
+      xaException.errorCode = errorCode;
+      return xaException;
    }
 
 }

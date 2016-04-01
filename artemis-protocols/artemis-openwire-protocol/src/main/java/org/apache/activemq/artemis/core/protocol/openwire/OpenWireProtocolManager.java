@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
-import javax.transaction.xa.XAException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
@@ -65,11 +63,7 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.ProducerInfo;
-import org.apache.activemq.command.RemoveSubscriptionInfo;
-import org.apache.activemq.command.TransactionId;
-import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
-import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
 import org.apache.activemq.state.ProducerState;
@@ -96,14 +90,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   // TODO-NOW: this can probably go away
    private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<String, AMQConnectionContext>();
 
    private String brokerName;
-
-   // Clebert: Artemis already has a Resource Manager. Need to remove this..
-   //          The TransactionID extends XATransactionID, so all we need is to convert the XID here
-   private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<>();
 
    private final Map<String, TopologyMember> topologyMap = new ConcurrentHashMap<>();
 
@@ -140,7 +129,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    }
 
    public OpenWireFormat getNewWireFormat() {
-      return (OpenWireFormat)wireFactory.createWireFormat();
+      return (OpenWireFormat) wireFactory.createWireFormat();
    }
 
    @Override
@@ -156,9 +145,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       }
    }
 
-
-   public void removeConnection(ConnectionInfo info,
-                                Throwable error) throws InvalidClientIDException {
+   public void removeConnection(ConnectionInfo info, Throwable error) throws InvalidClientIDException {
       synchronized (clientIdSet) {
          String clientId = info.getClientId();
          if (clientId != null) {
@@ -175,7 +162,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          }
       }
    }
-
 
    public ScheduledExecutorService getScheduledPool() {
       return scheduledPool;
@@ -223,7 +209,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
       OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
-      OpenWireConnection owConn = new OpenWireConnection(connection, server.getExecutorFactory().getExecutor(), this, wf);
+      OpenWireConnection owConn = new OpenWireConnection(connection, server, server.getExecutorFactory().getExecutor(), this, wf);
       owConn.sendHandshake();
 
       // TODO CLEBERT What is this constant here? we should get it from TTL initial pings
@@ -323,7 +309,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
          fireAdvisory(context, topic, copy);
 
          // init the conn
-         context.getConnection().addSessions( context.getConnectionState().getSessionIds());
+         context.getConnection().addSessions(context.getConnectionState().getSessionIds());
       }
    }
 
@@ -343,9 +329,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
     * See AdvisoryBroker.fireAdvisory()
     */
    public void fireAdvisory(AMQConnectionContext context,
-                             ActiveMQTopic topic,
-                             Command command,
-                             ConsumerId targetConsumerId) throws Exception {
+                            ActiveMQTopic topic,
+                            Command command,
+                            ConsumerId targetConsumerId) throws Exception {
       ActiveMQMessage advisoryMessage = new ActiveMQMessage();
       advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_NAME, getBrokerName());
       String id = getBrokerId() != null ? getBrokerId().getValue() : "NOT_SET";
@@ -448,55 +434,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    public boolean isStopping() {
       return false;
    }
-   public void endTransaction(TransactionInfo info) throws Exception {
-      AMQSession txSession = transactions.get(info.getTransactionId());
-
-      if (txSession != null) {
-         txSession.endTransaction(info);
-      }
-   }
-
-   public void commitTransactionOnePhase(TransactionInfo info) throws Exception {
-      AMQSession txSession = transactions.get(info.getTransactionId());
-
-      if (txSession != null) {
-         txSession.commitOnePhase(info);
-      }
-      transactions.remove(info.getTransactionId());
-   }
-
-   public void prepareTransaction(TransactionInfo info) throws Exception {
-      XATransactionId xid = (XATransactionId) info.getTransactionId();
-      AMQSession txSession = transactions.get(xid);
-      if (txSession != null) {
-         txSession.prepareTransaction(xid);
-      }
-   }
-
-   public void commitTransactionTwoPhase(TransactionInfo info) throws Exception {
-      XATransactionId xid = (XATransactionId) info.getTransactionId();
-      AMQSession txSession = transactions.get(xid);
-      if (txSession != null) {
-         txSession.commitTwoPhase(xid);
-      }
-      transactions.remove(xid);
-   }
-
-   public void rollbackTransaction(TransactionInfo info) throws Exception {
-      AMQSession txSession = transactions.get(info.getTransactionId());
-      if (txSession != null) {
-         txSession.rollback(info);
-      }
-      else if (info.getTransactionId().isLocalTransaction()) {
-         //during a broker restart, recovered local transaction may not be registered
-         //in that case we ignore and let the tx removed silently by connection.
-         //see AMQ1925Test.testAMQ1925_TXBegin
-      }
-      else {
-         throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
-      }
-      transactions.remove(info.getTransactionId());
-   }
 
    public boolean validateUser(String login, String passcode) {
       boolean validated = true;
@@ -508,26 +445,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       }
 
       return validated;
-   }
-
-   public void forgetTransaction(TransactionId xid) throws Exception {
-      AMQSession txSession = transactions.get(xid);
-      if (txSession != null) {
-         txSession.forget(xid);
-      }
-      transactions.remove(xid);
-   }
-
-   /**
-    * TODO: remove this, use the regular ResourceManager from the Server's
-    */
-   public void registerTx(TransactionId txId, AMQSession amqSession) {
-      transactions.put(txId, amqSession);
-   }
-
-   public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
-      SimpleString subQueueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
-      server.destroyQueue(subQueueName);
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) throws Exception {
@@ -543,14 +460,26 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       connection.dispatch(brokerInfo);
    }
 
+   /**
+    * URI property
+    */
+   @SuppressWarnings("unused")
    public void setRebalanceClusterClients(boolean rebalance) {
       this.rebalanceClusterClients = rebalance;
    }
 
+   /**
+    * URI property
+    */
+   @SuppressWarnings("unused")
    public boolean isRebalanceClusterClients() {
       return this.rebalanceClusterClients;
    }
 
+   /**
+    * URI property
+    */
+   @SuppressWarnings("unused")
    public void setUpdateClusterClients(boolean updateClusterClients) {
       this.updateClusterClients = updateClusterClients;
    }
@@ -559,22 +488,24 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       return this.updateClusterClients;
    }
 
+   /**
+    * URI property
+    */
+   @SuppressWarnings("unused")
    public void setUpdateClusterClientsOnRemove(boolean updateClusterClientsOnRemove) {
       this.updateClusterClientsOnRemove = updateClusterClientsOnRemove;
    }
 
+   /**
+    * URI property
+    */
+   @SuppressWarnings("unused")
    public boolean isUpdateClusterClientsOnRemove() {
       return this.updateClusterClientsOnRemove;
    }
 
    public void setBrokerName(String name) {
       this.brokerName = name;
-   }
-
-   public static XAException newXAException(String s, int errorCode) {
-      XAException xaException = new XAException(s + " " + "xaErrorCode:" + errorCode);
-      xaException.errorCode = errorCode;
-      return xaException;
    }
 
 }

@@ -28,7 +28,7 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
-   private static Set<String> extraThreads = new HashSet<String>();
+   private static Set<String> knownThreads = new HashSet<String>();
 
    boolean enabled = true;
 
@@ -97,10 +97,12 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
    }
 
-   public static void addExtraThreads(String... threads) {
-      for (String th : threads) {
-         extraThreads.add(th);
-      }
+   public static void removeKownThread(String name) {
+      knownThreads.remove(name);
+   }
+
+   public static void addKownThread(String name) {
+      knownThreads.add(name);
    }
 
    private boolean checkThread() {
@@ -191,21 +193,20 @@ public class ThreadLeakCheckRule extends ExternalResource {
          // Static workers used by MQTT client.
          return true;
       }
-      else if (extraThreads.contains(threadName)) {
-         return true;
-      }
       else {
          for (StackTraceElement element : thread.getStackTrace()) {
             if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
                return true;
             }
          }
+
+         for (String known: knownThreads) {
+            if (threadName.contains(known)) {
+               return true;
+            }
+         }
+
          return false;
       }
-   }
-
-
-   public static void clearExtraThreads() {
-      extraThreads.clear();
    }
 }
