@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.spi.core.protocol;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -36,9 +37,15 @@ public interface SessionCallback {
 
    void sendProducerCreditsFailMessage(int credits, SimpleString address);
 
-   int sendMessage(ServerMessage message, ServerConsumer consumerID, int deliveryCount);
+   // Note: don't be tempted to remove the parameter message
+   //       Even though ref will contain the message in certain cases
+   //       such as paging the message could be a SoftReference or WeakReference
+   //       and I wanted to avoid re-fetching paged data in case of GCs on this specific case.
+   //
+   //       Future developments may change this, but beware why I have chosen to keep the parameter separated here
+   int sendMessage(MessageReference ref, ServerMessage message, ServerConsumer consumerID, int deliveryCount);
 
-   int sendLargeMessage(ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount);
+   int sendLargeMessage(MessageReference reference, ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount);
 
    int sendLargeMessageContinuation(ServerConsumer consumerID,
                                     byte[] body,

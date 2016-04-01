@@ -139,7 +139,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
                                boolean xa,
                                String defaultAddress,
                                SessionCallback callback,
-                               ServerSessionFactory sessionFactory,
                                boolean autoCreateQueues) throws Exception;
 
    SecurityStore getSecurityStore();

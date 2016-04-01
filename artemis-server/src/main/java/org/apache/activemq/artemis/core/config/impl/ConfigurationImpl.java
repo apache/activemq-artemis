@@ -1301,7 +1301,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public TransportConfiguration[] getTransportConfigurations(final List<String> connectorNames) {
       TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
       int count = 0;
-      System.out.println(debugConnectors());
 
       for (String connectorName : connectorNames) {
          TransportConfiguration connector = getConnectorConfigurations().get(connectorName);

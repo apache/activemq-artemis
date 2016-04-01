@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,6 +162,17 @@ public class ResourceManagerImpl implements ResourceManager {
       return -1;
    }
 
+   @Override
+   public List<Xid> getInDoubtTransactions() {
+      List<Xid> xids = new LinkedList<>();
+
+      xids.addAll(getPreparedTransactions());
+      xids.addAll(getHeuristicCommittedTransactions());
+      xids.addAll(getHeuristicRolledbackTransactions());
+
+      return xids;
+   }
+
    private List<Xid> getHeuristicCompletedTransactions(final boolean isCommit) {
       List<Xid> xids = new ArrayList<>();
       for (HeuristicCompletionHolder holder : heuristicCompletions) {
@@ -207,6 +219,7 @@ public class ResourceManagerImpl implements ResourceManager {
             }
          }
       }
+
       synchronized void setFuture(final Future<?> future) {
          this.future = future;
       }
@@ -220,7 +233,6 @@ public class ResourceManagerImpl implements ResourceManager {
       }
 
    }
-
 
    private static final class HeuristicCompletionHolder {
 

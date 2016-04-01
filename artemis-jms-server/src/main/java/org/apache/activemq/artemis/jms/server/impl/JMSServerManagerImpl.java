@@ -1044,35 +1044,31 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
    }
 
-   private boolean internalCreateQueue(final String queueName,
+   private synchronized boolean internalCreateQueue(final String queueName,
                                        final String selectorString,
                                        final boolean durable) throws Exception {
-      // TODO: there was an openwire test failng because of this
-      //       is this really needed for FailoverClusterTest ?
-      synchronized (queues) {
-         if (queues.get(queueName) != null) {
-            return false;
+      if (queues.get(queueName) != null) {
+         return false;
+      }
+      else {
+         ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queueName);
+
+         // Convert from JMS selector to core filter
+         String coreFilterString = null;
+
+         if (selectorString != null) {
+            coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
-         else {
-            ActiveMQQueue activeMQQueue = ActiveMQDestination.createQueue(queueName);
 
-            // Convert from JMS selector to core filter
-            String coreFilterString = null;
+         Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false);
 
-            if (selectorString != null) {
-               coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
-            }
+         queues.put(queueName, activeMQQueue);
 
-            Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false);
+         this.recoverregistryBindings(queueName, PersistedType.Queue);
 
-            queues.put(queueName, activeMQQueue);
+         jmsManagementService.registerQueue(activeMQQueue, queue);
 
-            this.recoverregistryBindings(queueName, PersistedType.Queue);
-
-            jmsManagementService.registerQueue(activeMQQueue, queue);
-
-            return true;
-         }
+         return true;
       }
    }
 
@@ -1084,7 +1080,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * @return
     * @throws Exception
     */
-   private boolean internalCreateTopic(final String topicName) throws Exception {
+   private synchronized boolean internalCreateTopic(final String topicName) throws Exception {
 
       if (topics.get(topicName) != null) {
          return false;

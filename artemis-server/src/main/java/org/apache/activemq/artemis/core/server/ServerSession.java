@@ -36,8 +36,18 @@ public interface ServerSession extends SecurityAuth {
 
    Object getConnectionID();
 
+   /**
+    * Certain protocols may create an internal session that shouldn't go through security checks.
+    * make sure you don't expose this property through any protocol layer as that would be a security breach
+    */
+   void enableSecurity();
+
+   void disableSecurity();
+
    @Override
    RemotingConnection getRemotingConnection();
+
+   Transaction newTransaction();
 
    boolean removeConsumer(long consumerID) throws Exception;
 
@@ -87,6 +97,11 @@ public interface ServerSession extends SecurityAuth {
 
    void stop();
 
+   /**
+    * To be used by protocol heads that needs to control the transaction outside the session context.
+    */
+   void resetTX(Transaction transaction);
+
    Queue createQueue(SimpleString address,
                      SimpleString name,
                      SimpleString filterString,
@@ -99,6 +114,13 @@ public interface ServerSession extends SecurityAuth {
                                  SimpleString queueName,
                                  SimpleString filterString,
                                  boolean browseOnly) throws Exception;
+
+   ServerConsumer createConsumer(final long consumerID,
+                                 final SimpleString queueName,
+                                 final SimpleString filterString,
+                                 final boolean browseOnly,
+                                 final boolean supportLargeMessage,
+                                 final Integer credits) throws Exception;
 
    QueueQueryResult executeQueueQuery(SimpleString name) throws Exception;
 
@@ -150,6 +172,10 @@ public interface ServerSession extends SecurityAuth {
    OperationContext getSessionContext();
 
    Transaction getCurrentTransaction();
+
+   ServerConsumer locateConsumer(long consumerID) throws Exception;
+
+   boolean isClosed();
 
    void createSharedQueue(SimpleString address,
                           SimpleString name,

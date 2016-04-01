@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -83,9 +83,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final ServerSession session;
 
-   private final Object lock = new Object();
+   protected final Object lock = new Object();
 
    private final boolean supportLargeMessage;
+
+   private Object protocolData;
 
    private Object protocolContext;
 
@@ -123,7 +125,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private final StorageManager storageManager;
 
-   protected final java.util.Queue<MessageReference> deliveringRefs = new ConcurrentLinkedQueue<>();
+   protected final java.util.Deque<MessageReference> deliveringRefs = new ConcurrentLinkedDeque<>();
 
    private final SessionCallback callback;
 
@@ -229,6 +231,16 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    // ServerConsumer implementation
    // ----------------------------------------------------------------------
+
+   @Override
+   public Object getProtocolData() {
+      return protocolData;
+   }
+
+   @Override
+   public void setProtocolData(Object protocolData) {
+      this.protocolData = protocolData;
+   }
 
    @Override
    public void setlowConsumerDetection(SlowConsumerDetectionListener listener) {
@@ -524,7 +536,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                      forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
                      forcedDeliveryMessage.setAddress(messageQueue.getName());
 
-                     callback.sendMessage(forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+                     callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
                   }
                }
             }
@@ -560,7 +572,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          if (!deliveringRefs.isEmpty()) {
             for (MessageReference ref : deliveringRefs) {
                if (performACK) {
-                  ackReference(tx, ref);
+                  ref.acknowledge(tx);
 
                   performACK = false;
                }
@@ -713,6 +725,44 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return messageQueue;
    }
 
+
+   /** Remove references based on the protocolData.
+    *  there will be an interval defined between protocolDataStart and protocolDataEnd.
+    *  This method will fetch the delivering references, remove them from the delivering list and return a list.
+    *
+    *  This will be useful for other protocols that will need this such as openWire or MQTT. */
+   public List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove, Object protocolDataStart, Object protocolDataEnd) {
+      LinkedList<MessageReference> retReferences = new LinkedList<>();
+      boolean hit = false;
+      synchronized (lock) {
+         Iterator<MessageReference> referenceIterator = deliveringRefs.iterator();
+
+         while (referenceIterator.hasNext()) {
+            MessageReference reference = referenceIterator.next();
+
+            if (!hit) {
+               hit = reference.getProtocolData() != null && reference.getProtocolData().equals(protocolDataStart);
+            }
+
+            // notice: this is not an else clause, this is also valid for the first hit
+            if (hit) {
+               if (remove) {
+                  referenceIterator.remove();
+               }
+               retReferences.add(reference);
+
+               // Whenever this is met we interrupt the loop
+               // even on the first hit
+               if (reference.getProtocolData() != null && reference.getProtocolData().equals(protocolDataEnd)) {
+                  break;
+               }
+            }
+         }
+      }
+
+      return retReferences;
+   }
+
    @Override
    public void acknowledge(Transaction tx, final long messageID) throws Exception {
       if (browseOnly) {
@@ -750,7 +800,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                throw ils;
             }
 
-            ackReference(tx, ref);
+            ref.acknowledge(tx);
+
             acks++;
          } while (ref.getMessage().getMessageID() != messageID);
 
@@ -777,15 +828,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             tx.markAsRollbackOnly(activeMQIllegalStateException);
          }
          throw activeMQIllegalStateException;
-      }
-   }
-
-   private void ackReference(Transaction tx, MessageReference ref) throws Exception {
-      if (tx == null) {
-         ref.getQueue().acknowledge(ref);
-      }
-      else {
-         ref.getQueue().acknowledge(tx, ref);
       }
    }
 
@@ -818,7 +860,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             throw ils;
          }
 
-         ackReference(tx, ref);
+         ref.acknowledge(tx);
 
          if (startedTransaction) {
             tx.commit();
@@ -864,6 +906,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
 
       ref.getQueue().cancel(ref, System.currentTimeMillis());
+   }
+
+
+   @Override
+   public void backToDelivering(MessageReference reference) {
+      deliveringRefs.addFirst(reference);
    }
 
    @Override
@@ -965,7 +1013,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * @param message
     */
    private void deliverStandardMessage(final MessageReference ref, final ServerMessage message) {
-      int packetSize = callback.sendMessage(message, ServerConsumerImpl.this, ref.getDeliveryCount());
+      int packetSize = callback.sendMessage(ref, message, ServerConsumerImpl.this, ref.getDeliveryCount());
 
       if (availableCredits != null) {
          availableCredits.addAndGet(-packetSize);
@@ -1057,7 +1105,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                sentInitialPacket = true;
 
-               int packetSize = callback.sendLargeMessage(currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
+               int packetSize = callback.sendLargeMessage(ref, currentLargeMessage, ServerConsumerImpl.this, context.getLargeBodySize(), ref.getDeliveryCount());
 
                if (availableCredits != null) {
                   availableCredits.addAndGet(-packetSize);

@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -118,7 +119,7 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference ref, ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;
       try {
@@ -207,7 +208,7 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(ServerMessage msg, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference ref, ServerMessage msg, ServerConsumer consumer, long bodySize, int deliveryCount) {
       return 0;
    }
 

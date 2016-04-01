@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * A queue that will discard messages if a newer message with the same
@@ -188,6 +189,16 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
+      public Object getProtocolData() {
+         return ref.getProtocolData();
+      }
+
+      @Override
+      public void setProtocolData(Object data) {
+         ref.setProtocolData(data);
+      }
+
+      @Override
       public void setAlreadyAcked() {
          ref.setAlreadyAcked();
       }
@@ -244,6 +255,11 @@ public class LastValueQueue extends QueueImpl {
       @Override
       public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
          ref.setScheduledDeliveryTime(scheduledDeliveryTime);
+      }
+
+      @Override
+      public void acknowledge(Transaction tx) throws Exception {
+         ref.acknowledge(tx);
       }
 
       @Override

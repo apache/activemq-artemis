@@ -226,7 +226,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor> {
       if (stompSession == null) {
          stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
          String name = UUIDGenerator.getInstance().generateStringUUID();
-         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, true, false, false, false, null, stompSession, null, true);
+         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, true, false, false, false, null, stompSession, true);
          stompSession.setServerSession(session);
          sessions.put(connection.getID(), stompSession);
       }
@@ -239,7 +239,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor> {
       if (stompSession == null) {
          stompSession = new StompSession(connection, this, server.getStorageManager().newContext(executor));
          String name = UUIDGenerator.getInstance().generateStringUUID();
-         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, false, false, false, false, null, stompSession, null, true);
+         ServerSession session = server.createSession(name, connection.getLogin(), connection.getPasscode(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, connection, false, false, false, false, null, stompSession, true);
          stompSession.setServerSession(session);
          transactedSessions.put(txID, stompSession);
       }

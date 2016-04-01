@@ -33,6 +33,12 @@ public interface Transaction {
       ACTIVE, PREPARED, COMMITTED, ROLLEDBACK, SUSPENDED, ROLLBACK_ONLY
    }
 
+   Object getProtocolData();
+
+   /** Protocol managers can use this field to store any object needed.
+    *  An example would be the Session used by the transaction on openwire */
+   void setProtocolData(Object data);
+
    boolean isEffective();
 
    void prepare() throws Exception;

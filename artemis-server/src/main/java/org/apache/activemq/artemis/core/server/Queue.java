@@ -150,6 +150,8 @@ public interface Queue extends Bindable {
 
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
 
+   void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception;
+
    boolean changeReferencePriority(long messageID, byte newPriority) throws Exception;
 
    int changeReferencesPriority(Filter filter, byte newPriority) throws Exception;

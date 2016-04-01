@@ -40,6 +40,12 @@ public class AMQSingleConsumerBrokerExchange extends AMQConsumerBrokerExchange {
 
    @Override
    public void acknowledge(MessageAck ack) throws Exception {
-      amqSession.acknowledge(ack, consumer);
+      consumer.acknowledge(ack);
    }
+
+   @Override
+   public void updateConsumerPrefetchSize(int prefetch) {
+      consumer.setPrefetchSize(prefetch);
+   }
+
 }

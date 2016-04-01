@@ -17,13 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import javax.jms.ResourceAllocationException;
-import javax.transaction.xa.Xid;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,15 +26,15 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
+import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -48,42 +42,29 @@ import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
-import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.Message;
-import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.ProducerAck;
 import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.SessionInfo;
-import org.apache.activemq.command.TransactionId;
-import org.apache.activemq.command.TransactionInfo;
-import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQSession implements SessionCallback {
 
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
-   protected final IDGenerator idGenerator = new SimpleIDGenerator(0);
+   protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
 
    private ConnectionInfo connInfo;
-   private AMQServerSession coreSession;
+   private ServerSession coreSession;
    private SessionInfo sessInfo;
    private ActiveMQServer server;
    private OpenWireConnection connection;
 
-   private Map<Long, AMQConsumer> consumers = new ConcurrentHashMap<>();
-
    private AtomicBoolean started = new AtomicBoolean(false);
 
-   private TransactionId txId = null;
-
-   private boolean isTx;
-
    private final ScheduledExecutorService scheduledPool;
-
-   private OpenWireProtocolManager manager;
 
    // The sessionWireformat used by the session
    // this object is meant to be used per thread / session
@@ -94,18 +75,20 @@ public class AMQSession implements SessionCallback {
                      SessionInfo sessInfo,
                      ActiveMQServer server,
                      OpenWireConnection connection,
-                     ScheduledExecutorService scheduledPool,
-                     OpenWireProtocolManager manager) {
+                     ScheduledExecutorService scheduledPool) {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
 
       this.server = server;
       this.connection = connection;
       this.scheduledPool = scheduledPool;
-      this.manager = manager;
       OpenWireFormat marshaller = (OpenWireFormat) connection.getMarshaller();
 
       this.converter = new OpenWireMessageConverter(marshaller.copy());
+   }
+
+   public boolean isClosed() {
+      return coreSession.isClosed();
    }
 
    public OpenWireMessageConverter getConverter() {
@@ -122,7 +105,7 @@ public class AMQSession implements SessionCallback {
       // now
 
       try {
-         coreSession = (AMQServerSession) server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, AMQServerSessionFactory.getInstance(), true);
+         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true);
 
          long sessionId = sessInfo.getSessionId().getValue();
          if (sessionId == -1) {
@@ -136,8 +119,8 @@ public class AMQSession implements SessionCallback {
    }
 
    public List<AMQConsumer> createConsumer(ConsumerInfo info,
-                              AMQSession amqSession,
-                              SlowConsumerDetectionListener slowConsumerDetectionListener) throws Exception {
+                                           AMQSession amqSession,
+                                           SlowConsumerDetectionListener slowConsumerDetectionListener) throws Exception {
       //check destination
       ActiveMQDestination dest = info.getDestination();
       ActiveMQDestination[] dests = null;
@@ -147,7 +130,7 @@ public class AMQSession implements SessionCallback {
       else {
          dests = new ActiveMQDestination[]{dest};
       }
-//      Map<ActiveMQDestination, AMQConsumer> consumerMap = new HashMap<>();
+
       List<AMQConsumer> consumersList = new java.util.LinkedList<>();
 
       for (ActiveMQDestination openWireDest : dests) {
@@ -157,9 +140,9 @@ public class AMQSession implements SessionCallback {
          }
          AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool);
 
-         consumer.init(slowConsumerDetectionListener, idGenerator.generateID());
+         long nativeID = consumerIDGenerator.generateID();
+         consumer.init(slowConsumerDetectionListener, nativeID);
          consumersList.add(consumer);
-         consumers.put(consumer.getNativeId(), consumer);
       }
 
       return consumersList;
@@ -180,7 +163,7 @@ public class AMQSession implements SessionCallback {
 
    @Override
    public void browserFinished(ServerConsumer consumer) {
-      AMQConsumer theConsumer = ((AMQServerConsumer) consumer).getAmqConsumer();
+      AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
       if (theConsumer != null) {
          theConsumer.browseFinished();
       }
@@ -204,13 +187,20 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(ServerMessage message, ServerConsumer consumerID, int deliveryCount) {
-      AMQConsumer consumer = consumers.get(consumerID.getID());
-      return consumer.handleDeliver(message, deliveryCount);
+   public int sendMessage(MessageReference reference,
+                          ServerMessage message,
+                          ServerConsumer consumer,
+                          int deliveryCount) {
+      AMQConsumer theConsumer = (AMQConsumer) consumer.getProtocolData();
+      return theConsumer.handleDeliver(reference, message, deliveryCount);
    }
 
    @Override
-   public int sendLargeMessage(ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference reference,
+                               ServerMessage message,
+                               ServerConsumer consumerID,
+                               long bodySize,
+                               int deliveryCount) {
       // TODO Auto-generated method stub
       return 0;
    }
@@ -231,16 +221,15 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
-   public boolean hasCredits(ServerConsumer consumerID) {
+   public boolean hasCredits(ServerConsumer consumer) {
 
-      AMQConsumer amqConsumer;
+      AMQConsumer amqConsumer = null;
 
-      amqConsumer = consumers.get(consumerID.getID());
-
-      if (amqConsumer != null) {
-         return amqConsumer.hasCredits();
+      if (consumer.getProtocolData() != null) {
+         amqConsumer = (AMQConsumer) consumer.getProtocolData();
       }
-      return false;
+
+      return amqConsumer != null && amqConsumer.hasCredits();
    }
 
    @Override
@@ -252,11 +241,6 @@ public class AMQSession implements SessionCallback {
    public void send(final ProducerInfo producerInfo,
                     final Message messageSend,
                     boolean sendProducerAck) throws Exception {
-      TransactionId tid = messageSend.getTransactionId();
-      if (tid != null) {
-         resetSessionTx(tid);
-      }
-
       messageSend.setBrokerInTime(System.currentTimeMillis());
 
       ActiveMQDestination destination = messageSend.getDestination();
@@ -376,7 +360,7 @@ public class AMQSession implements SessionCallback {
       }
    }
 
-   public AMQServerSession getCoreSession() {
+   public ServerSession getCoreSession() {
       return this.coreSession;
    }
 
@@ -384,160 +368,16 @@ public class AMQSession implements SessionCallback {
       return this.server;
    }
 
-   public void removeConsumer(long consumerId) throws Exception {
-      boolean failed = !(this.txId != null || this.isTx);
-
-      coreSession.amqCloseConsumer(consumerId, failed);
-      consumers.remove(consumerId);
-   }
-
    public WireFormat getMarshaller() {
       return this.connection.getMarshaller();
-   }
-
-   public void acknowledge(MessageAck ack, AMQConsumer consumer) throws Exception {
-      TransactionId tid = ack.getTransactionId();
-      if (tid != null) {
-         this.resetSessionTx(ack.getTransactionId());
-      }
-      consumer.acknowledge(ack);
-
-      if (tid == null && ack.getAckType() == MessageAck.STANDARD_ACK_TYPE) {
-         this.coreSession.commit();
-      }
-   }
-
-   //AMQ session and transactions are create separately. Whether a session
-   //is transactional or not is known only when a TransactionInfo command
-   //comes in.
-   public void resetSessionTx(TransactionId xid) throws Exception {
-      if ((this.txId != null) && (!this.txId.equals(xid))) {
-         throw new IllegalStateException("Session already associated with a tx");
-      }
-
-      this.isTx = true;
-      if (this.txId == null) {
-         //now reset session
-         this.txId = xid;
-
-         if (xid.isXATransaction()) {
-            XATransactionId xaXid = (XATransactionId) xid;
-            coreSession.enableXA();
-            XidImpl coreXid = new XidImpl(xaXid.getBranchQualifier(), xaXid.getFormatId(), xaXid.getGlobalTransactionId());
-            coreSession.xaStart(coreXid);
-         }
-         else {
-            coreSession.enableTx();
-         }
-
-         this.manager.registerTx(this.txId, this);
-      }
-   }
-
-   private void checkTx(TransactionId inId) {
-      if (this.txId == null) {
-         throw new IllegalStateException("Session has no transaction associated with it");
-      }
-
-      if (!this.txId.equals(inId)) {
-         throw new IllegalStateException("Session already associated with another tx");
-      }
-
-      this.isTx = true;
-   }
-
-   public void endTransaction(TransactionInfo info) throws Exception {
-      checkTx(info.getTransactionId());
-
-      if (txId.isXATransaction()) {
-         XATransactionId xid = (XATransactionId) txId;
-         XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-         this.coreSession.xaEnd(coreXid);
-      }
-   }
-
-   public void commitOnePhase(TransactionInfo info) throws Exception {
-      checkTx(info.getTransactionId());
-
-      if (txId.isXATransaction()) {
-         XATransactionId xid = (XATransactionId) txId;
-         XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-         this.coreSession.xaCommit(coreXid, true);
-      }
-      else {
-         Iterator<AMQConsumer> iter = consumers.values().iterator();
-         while (iter.hasNext()) {
-            AMQConsumer consumer = iter.next();
-            consumer.finishTx();
-         }
-         this.coreSession.commit();
-      }
-
-      this.txId = null;
-   }
-
-   public void prepareTransaction(XATransactionId xid) throws Exception {
-      checkTx(xid);
-      XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-      this.coreSession.xaPrepare(coreXid);
-   }
-
-   public void commitTwoPhase(XATransactionId xid) throws Exception {
-      checkTx(xid);
-      XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-      this.coreSession.xaCommit(coreXid, false);
-
-      this.txId = null;
-   }
-
-   public void rollback(TransactionInfo info) throws Exception {
-      checkTx(info.getTransactionId());
-      if (this.txId.isXATransaction()) {
-         XATransactionId xid = (XATransactionId) txId;
-         XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-         this.coreSession.xaRollback(coreXid);
-      }
-      else {
-         Iterator<AMQConsumer> iter = consumers.values().iterator();
-         Set<Long> acked = new HashSet<>();
-         while (iter.hasNext()) {
-            AMQConsumer consumer = iter.next();
-            consumer.rollbackTx(acked);
-         }
-         //on local rollback, amq broker doesn't do anything about the delivered
-         //messages, which stay at clients until next time
-         this.coreSession.amqRollback(acked);
-      }
-
-      this.txId = null;
-   }
-
-   public void recover(List<TransactionId> recovered) {
-      List<Xid> xids = this.coreSession.xaGetInDoubtXids();
-      for (Xid xid : xids) {
-         XATransactionId amqXid = new XATransactionId(xid);
-         recovered.add(amqXid);
-      }
-   }
-
-   public void forget(final TransactionId tid) throws Exception {
-      checkTx(tid);
-      XATransactionId xid = (XATransactionId) tid;
-      XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
-      this.coreSession.xaForget(coreXid);
-      this.txId = null;
    }
 
    public ConnectionInfo getConnectionInfo() {
       return this.connInfo;
    }
 
-   public void setInternal(boolean internal) {
-      this.coreSession.setInternal(internal);
-   }
-
-   public boolean isInternal() {
-      return this.coreSession.isInternal();
+   public void disableSecurity() {
+      this.coreSession.disableSecurity();
    }
 
    public void deliverMessage(MessageDispatch dispatch) {
@@ -546,20 +386,6 @@ public class AMQSession implements SessionCallback {
 
    public void close() throws Exception {
       this.coreSession.close(false);
-   }
-
-   public AMQConsumer getConsumer(Long coreConsumerId) {
-      return consumers.get(coreConsumerId);
-   }
-
-   public void updateConsumerPrefetchSize(ConsumerId consumerId, int prefetch) {
-      Iterator<AMQConsumer> iterator = consumers.values().iterator();
-      while (iterator.hasNext()) {
-         AMQConsumer consumer = iterator.next();
-         if (consumer.getId().equals(consumerId)) {
-            consumer.setPrefetchSize(prefetch);
-         }
-      }
    }
 
    public OpenWireConnection getConnection() {

@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class PagedReferenceImpl implements PagedReference {
 
@@ -47,6 +48,18 @@ public class PagedReferenceImpl implements PagedReference {
    private final PageSubscription subscription;
 
    private boolean alreadyAcked;
+
+   private Object protocolData;
+
+   @Override
+   public Object getProtocolData() {
+      return protocolData;
+   }
+
+   @Override
+   public void setProtocolData(Object protocolData) {
+      this.protocolData = protocolData;
+   }
 
    @Override
    public ServerMessage getMessage() {
@@ -199,9 +212,19 @@ public class PagedReferenceImpl implements PagedReference {
       subscription.ack(this);
    }
 
+   @Override
+   public void acknowledge(Transaction tx) throws Exception {
+      if (tx == null) {
+         getQueue().acknowledge(this);
+      }
+      else {
+         getQueue().acknowledge(tx, this);
+      }
+   }
+
    /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
+       * @see java.lang.Object#toString()
+       */
    @Override
    public String toString() {
       String msgToString;

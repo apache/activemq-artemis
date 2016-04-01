@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -74,7 +75,6 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.Transaction.State;
-import org.apache.activemq.artemis.core.transaction.TransactionFactory;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -96,6 +96,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // Static -------------------------------------------------------------------------------
 
    // Attributes ----------------------------------------------------------------------------
+
+   private boolean securityEnabled = true;
 
    protected final String username;
 
@@ -169,8 +171,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // concurrently.
    private volatile boolean closed = false;
 
-   private final TransactionFactory transactionFactory;
-
    public ServerSessionImpl(final String name,
                             final String username,
                             final String password,
@@ -191,31 +191,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final QueueCreator queueCreator) throws Exception {
-      this(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, strictUpdateDeliveryCount, xa, remotingConnection, storageManager, postOffice, resourceManager, securityStore, managementService, server, managementAddress, defaultAddress, callback, context, null, queueCreator);
-   }
-
-   public ServerSessionImpl(final String name,
-                            final String username,
-                            final String password,
-                            final int minLargeMessageSize,
-                            final boolean autoCommitSends,
-                            final boolean autoCommitAcks,
-                            final boolean preAcknowledge,
-                            final boolean strictUpdateDeliveryCount,
-                            final boolean xa,
-                            final RemotingConnection remotingConnection,
-                            final StorageManager storageManager,
-                            final PostOffice postOffice,
-                            final ResourceManager resourceManager,
-                            final SecurityStore securityStore,
-                            final ManagementService managementService,
-                            final ActiveMQServer server,
-                            final SimpleString managementAddress,
-                            final SimpleString defaultAddress,
-                            final SessionCallback callback,
-                            final OperationContext context,
-                            TransactionFactory transactionFactory,
                             final QueueCreator queueCreator) throws Exception {
       this.username = username;
 
@@ -261,13 +236,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       this.queueCreator = queueCreator;
 
-      if (transactionFactory == null) {
-         this.transactionFactory = new DefaultTransactionFactory();
-      }
-      else {
-         this.transactionFactory = transactionFactory;
-      }
-
       if (!xa) {
          tx = newTransaction();
       }
@@ -275,6 +243,19 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    // ServerSession implementation ----------------------------------------------------------------------------
 
+   @Override
+   public void enableSecurity() {
+      this.securityEnabled = true;
+   }
+
+   @Override
+   public void disableSecurity() {
+      this.securityEnabled = false;
+   }
+
+   public boolean isClosed() {
+      return closed;
+   }
    /**
     * @return the sessionContext
     */
@@ -386,7 +367,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          remotingConnection.removeFailureListener(this);
 
-         callback.closed();
+         if (callback != null) {
+            callback.closed();
+         }
 
          closed = true;
       }
@@ -395,6 +378,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public QueueCreator getQueueCreator() {
       return queueCreator;
+   }
+
+   protected void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
+      if (securityEnabled) {
+         securityStore.check(address, checkType, auth);
+      }
    }
 
    @Override
@@ -417,11 +406,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
-      securityStore.check(binding.getAddress(), CheckType.CONSUME, this);
+      securityCheck(binding.getAddress(), CheckType.CONSUME, this);
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      ServerConsumer consumer = newConsumer(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
+      ServerConsumer consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding)binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
       consumers.put(consumer.getID(), consumer);
 
       if (!browseOnly) {
@@ -465,20 +454,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return consumer;
    }
 
-   protected ServerConsumer newConsumer(long consumerID,
-                                        ServerSessionImpl serverSessionImpl,
-                                        QueueBinding binding,
-                                        Filter filter,
-                                        boolean started2,
-                                        boolean browseOnly,
-                                        StorageManager storageManager2,
-                                        SessionCallback callback2,
-                                        boolean preAcknowledge2,
-                                        boolean strictUpdateDeliveryCount2,
-                                        ManagementService managementService2,
-                                        boolean supportLargeMessage,
-                                        Integer credits) throws Exception {
-      return new ServerConsumerImpl(consumerID, this, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
+   /** Some protocols may chose to hold their transactions outside of the ServerSession.
+    *  This can be used to replace the transaction.
+    *  Notice that we set autoCommitACK and autoCommitSends to true if tx == null */
+   public void resetTX(Transaction transaction) {
+      this.tx = transaction;
+      this.autoCommitAcks = transaction == null;
+      this.autoCommitSends = transaction == null;
    }
 
    @Override
@@ -489,10 +471,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final boolean durable) throws Exception {
       if (durable) {
          // make sure the user has privileges to create this queue
-         securityStore.check(address, CheckType.CREATE_DURABLE_QUEUE, this);
+         securityCheck(address, CheckType.CREATE_DURABLE_QUEUE, this);
       }
       else {
-         securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+         securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
       server.checkQueueCreationLimit(getUsername());
@@ -537,7 +519,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  final SimpleString name,
                                  boolean durable,
                                  final SimpleString filterString) throws Exception {
-      securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
+      securityCheck(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
       server.checkQueueCreationLimit(getUsername());
 
@@ -632,20 +614,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void forceConsumerDelivery(final long consumerID, final long sequence) throws Exception {
-      ServerConsumer consumer = consumers.get(consumerID);
+      ServerConsumer consumer = locateConsumer(consumerID);
 
       // this would be possible if the server consumer was closed by pings/pongs.. etc
       if (consumer != null) {
          consumer.forceDelivery(sequence);
-      }
-   }
-
-   public void promptDelivery(long consumerID) {
-      ServerConsumer consumer = consumers.get(consumerID);
-
-      // this would be possible if the server consumer was closed by pings/pongs.. etc
-      if (consumer != null) {
-         consumer.promptDelivery();
       }
    }
 
@@ -674,8 +647,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   public ServerConsumer locateConsumer(long consumerID) {
+      return consumers.get(consumerID);
+   }
+
    private ServerConsumer findConsumer(long consumerID) throws Exception {
-      ServerConsumer consumer = consumers.get(consumerID);
+      ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer == null) {
          Transaction currentTX = tx;
@@ -710,7 +687,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void individualCancel(final long consumerID, final long messageID, boolean failed) throws Exception {
-      ServerConsumer consumer = consumers.get(consumerID);
+      ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer != null) {
          consumer.individualCancel(messageID, failed);
@@ -720,7 +697,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void expire(final long consumerID, final long messageID) throws Exception {
-      MessageReference ref = consumers.get(consumerID).removeReferenceByID(messageID);
+      MessageReference ref = locateConsumer(consumerID).removeReferenceByID(messageID);
 
       if (ref != null) {
          ref.getQueue().expire(ref);
@@ -778,8 +755,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    /**
     * @return
     */
-   protected Transaction newTransaction() {
-      return transactionFactory.newTransaction(null, storageManager, timeoutSeconds);
+   public Transaction newTransaction() {
+      return new TransactionImpl(null, storageManager, timeoutSeconds);
    }
 
    /**
@@ -787,7 +764,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
     * @return
     */
    private Transaction newTransaction(final Xid xid) {
-      return transactionFactory.newTransaction(xid, storageManager, timeoutSeconds);
+      return new TransactionImpl(xid, storageManager, timeoutSeconds);
    }
 
    @Override
@@ -1122,13 +1099,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public List<Xid> xaGetInDoubtXids() {
-      List<Xid> xids = new ArrayList<>();
-
-      xids.addAll(resourceManager.getPreparedTransactions());
-      xids.addAll(resourceManager.getHeuristicCommittedTransactions());
-      xids.addAll(resourceManager.getHeuristicRolledbackTransactions());
-
-      return xids;
+      return resourceManager.getInDoubtTransactions();
    }
 
    @Override
@@ -1189,7 +1160,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void closeConsumer(final long consumerID) throws Exception {
-      final ServerConsumer consumer = consumers.get(consumerID);
+      final ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer != null) {
          consumer.close(false);
@@ -1201,7 +1172,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void receiveConsumerCredits(final long consumerID, final int credits) throws Exception {
-      ServerConsumer consumer = consumers.get(consumerID);
+      ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer == null) {
          ActiveMQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
@@ -1214,9 +1185,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public Transaction getCurrentTransaction() {
-      if (tx == null) {
-         tx = newTransaction();
-      }
       return tx;
    }
 
@@ -1489,7 +1457,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private void handleManagementMessage(final ServerMessage message, final boolean direct) throws Exception {
       try {
-         securityStore.check(message.getAddress(), CheckType.MANAGE, this);
+         securityCheck(message.getAddress(), CheckType.MANAGE, this);
       }
       catch (ActiveMQException e) {
          if (!autoCommitSends) {
@@ -1564,7 +1532,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    protected void doSend(final ServerMessage msg, final boolean direct) throws Exception {
       // check the user has write access to this address.
       try {
-         securityStore.check(msg.getAddress(), CheckType.SEND, this);
+         securityCheck(msg.getAddress(), CheckType.SEND, this);
       }
       catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
@@ -1611,14 +1579,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       else {
          return Collections.emptyList();
-      }
-   }
-
-   private static class DefaultTransactionFactory implements TransactionFactory {
-
-      @Override
-      public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds) {
-         return new TransactionImpl(xid, storageManager, timeoutSeconds);
       }
    }
 }

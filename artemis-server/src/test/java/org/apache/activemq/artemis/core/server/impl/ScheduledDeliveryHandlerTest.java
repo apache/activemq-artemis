@@ -1106,6 +1106,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
+      }
+
+      @Override
       public boolean sendMessageToDeadLetterAddress(long messageID) throws Exception {
          return false;
       }
