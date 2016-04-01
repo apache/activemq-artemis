@@ -390,7 +390,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
             super.send(producerExchange, messageSend);
             if (first.compareAndSet(false, true)) {
                producerExchange.getConnectionContext().setDontSendReponse(true);
-               Executors.newSingleThreadExecutor().execute(new Runnable() {
+               new Thread() {
                   @Override
                   public void run() {
                      try {
@@ -403,7 +403,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
                         e.printStackTrace();
                      }
                   }
-               });
+               }.start();
             }
          }
       }});
@@ -465,7 +465,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
             super.send(producerExchange, messageSend);
             if (first.compareAndSet(false, true)) {
                producerExchange.getConnectionContext().setDontSendReponse(true);
-               Executors.newSingleThreadExecutor().execute(new Runnable() {
+               new Thread() {
                   @Override
                   public void run() {
                      try {
@@ -478,7 +478,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
                         e.printStackTrace();
                      }
                   }
-               });
+               }.start();
             }
          }
       }});

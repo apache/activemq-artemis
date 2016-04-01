@@ -23,6 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +92,8 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
       /** TODO we should be able to shut down properly */
       session.close();
       connection.close();
+      ArtemisBrokerHelper.stopArtemisBroker();
+      TcpTransportFactory.clearService();
    }
 
    /**

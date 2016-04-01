@@ -96,12 +96,13 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
 
    @Override
    protected ConnectionFactory createConnectionFactory() throws Exception {
-      return new ActiveMQConnectionFactory((useFailover ? "failover:" : "") + broker.getTransportConnectors().get(0).getPublishableConnectString());
+      return new ActiveMQConnectionFactory((useFailover ? "failover:" : "") + newURI("localhost", 0));
    }
 
    @Override
    protected void setUp() throws Exception {
       bindAddress = "tcp://localhost:0";
+      disableWrapper = true;
       super.setUp();
    }
 

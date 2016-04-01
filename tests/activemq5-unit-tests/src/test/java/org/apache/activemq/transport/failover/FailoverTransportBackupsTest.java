@@ -23,7 +23,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URI;
 
-import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFactory;
 import org.apache.activemq.transport.TransportListener;
@@ -34,7 +35,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FailoverTransportBackupsTest {
+public class FailoverTransportBackupsTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(FailoverTransportBackupsTest.class);
 
@@ -43,23 +44,11 @@ public class FailoverTransportBackupsTest {
    private int transportInterruptions;
    private int transportResumptions;
 
-   BrokerService broker1;
-   BrokerService broker2;
-   BrokerService broker3;
+   EmbeddedJMS[] servers = new EmbeddedJMS[3];
 
    @Before
    public void setUp() throws Exception {
-      broker1 = createBroker("1");
-      broker2 = createBroker("2");
-      broker3 = createBroker("3");
-
-      broker1.start();
-      broker2.start();
-      broker3.start();
-
-      broker1.waitUntilStarted();
-      broker2.waitUntilStarted();
-      broker3.waitUntilStarted();
+      setUpClusterServers(servers);
 
       // Reset stats
       transportInterruptions = 0;
@@ -71,13 +60,7 @@ public class FailoverTransportBackupsTest {
       if (transport != null) {
          transport.stop();
       }
-
-      broker1.stop();
-      broker1.waitUntilStopped();
-      broker2.stop();
-      broker2.waitUntilStopped();
-      broker3.stop();
-      broker3.waitUntilStopped();
+      shutDownClusterServers(servers);
    }
 
    @Test
@@ -111,7 +94,7 @@ public class FailoverTransportBackupsTest {
          }
       }));
 
-      broker1.stop();
+      servers[0].stop();
 
       assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
          @Override
@@ -124,7 +107,7 @@ public class FailoverTransportBackupsTest {
       assertTrue("Incorrect number of Transport interruptions", transportInterruptions >= 1);
       assertTrue("Incorrect number of Transport resumptions", transportResumptions >= 1);
 
-      broker2.stop();
+      servers[1].stop();
 
       assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
          @Override
@@ -153,7 +136,7 @@ public class FailoverTransportBackupsTest {
          }
       }));
 
-      broker1.stop();
+      servers[0].stop();
 
       assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
          @Override
@@ -163,7 +146,7 @@ public class FailoverTransportBackupsTest {
          }
       }));
 
-      broker2.stop();
+      servers[1].stop();
 
       assertTrue("Timed out waiting for Backups to connect.", Wait.waitFor(new Wait.Condition() {
          @Override
@@ -174,20 +157,11 @@ public class FailoverTransportBackupsTest {
       }));
    }
 
-   private BrokerService createBroker(String name) throws Exception {
-      BrokerService bs = new BrokerService();
-      bs.setBrokerName(name);
-      bs.setUseJmx(false);
-      bs.setPersistent(false);
-      bs.addConnector("tcp://localhost:0");
-      return bs;
-   }
-
    protected Transport createTransport(int backups) throws Exception {
       String connectionUri = "failover://(" +
-         broker1.getTransportConnectors().get(0).getPublishableConnectString() + "," +
-         broker2.getTransportConnectors().get(0).getPublishableConnectString() + "," +
-         broker3.getTransportConnectors().get(0).getPublishableConnectString() + ")";
+         newURI(0) + "," +
+         newURI(1) + "," +
+         newURI(2) + ")";
 
       if (backups > 0) {
          connectionUri += "?randomize=false&backup=true&backupPoolSize=" + backups;

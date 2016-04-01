@@ -26,45 +26,42 @@ import javax.jms.Session;
 import junit.framework.TestCase;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.util.MessageIdList;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FanoutTest extends TestCase {
+public class FanoutTest extends OpenwireArtemisBaseTest {
 
-   BrokerService broker1;
-   BrokerService broker2;
+   EmbeddedJMS[] servers = new EmbeddedJMS[2];
 
    ActiveMQConnectionFactory producerFactory = new ActiveMQConnectionFactory("fanout:(static:(tcp://localhost:61616,tcp://localhost:61617))?fanOutQueues=true");
    Connection producerConnection;
    Session producerSession;
    int messageCount = 100;
 
-   @Override
+   @Before
    public void setUp() throws Exception {
-      broker1 = BrokerFactory.createBroker("broker:(tcp://localhost:61616)/brokerA?persistent=false&useJmx=false");
-      broker2 = BrokerFactory.createBroker("broker:(tcp://localhost:61617)/brokerB?persistent=false&useJmx=false");
-
-      broker1.start();
-      broker2.start();
-
-      broker1.waitUntilStarted();
-      broker2.waitUntilStarted();
+      setUpNonClusterServers(servers);
 
       producerConnection = producerFactory.createConnection();
       producerConnection.start();
       producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
    }
 
-   @Override
+   @After
    public void tearDown() throws Exception {
       producerSession.close();
       producerConnection.close();
 
-      broker1.stop();
-      broker2.stop();
+      shutDownNonClusterServers(servers);
    }
 
+   @Test
    public void testSendReceive() throws Exception {
 
       MessageProducer prod = createProducer();
@@ -76,7 +73,6 @@ public class FanoutTest extends TestCase {
 
       assertMessagesReceived("tcp://localhost:61616");
       assertMessagesReceived("tcp://localhost:61617");
-
    }
 
    protected MessageProducer createProducer() throws Exception {
@@ -95,7 +91,7 @@ public class FanoutTest extends TestCase {
       listener.assertMessagesReceived(messageCount);
 
       consumer.close();
-      consumerConnection.close();
       consumerSession.close();
+      consumerConnection.close();
    }
 }

@@ -52,21 +52,49 @@ public class ConnectionCleanupTest extends TestCase {
 
       try {
          connection.setClientID("test");
-         // fail("Should have received JMSException");
+         fail("Should have received JMSException");
       }
       catch (JMSException e) {
       }
 
-      connection.cleanup();
+      connection.doCleanup(true);
       connection.setClientID("test");
 
       connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       try {
          connection.setClientID("test");
-         // fail("Should have received JMSException");
+         fail("Should have received JMSException");
       }
       catch (JMSException e) {
+      }
+   }
+
+   public void testChangeClientIDDenied() throws JMSException {
+
+      connection.setClientID("test");
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      try {
+         connection.setClientID("test");
+         fail("Should have received JMSException");
+      } catch (JMSException e) {
+      }
+
+      connection.cleanup();
+
+      try {
+         connection.setClientID("test");
+         fail("Should have received JMSException");
+      } catch (JMSException e) {
+      }
+
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      try {
+         connection.setClientID("test");
+         fail("Should have received JMSException");
+      } catch (JMSException e) {
       }
    }
 

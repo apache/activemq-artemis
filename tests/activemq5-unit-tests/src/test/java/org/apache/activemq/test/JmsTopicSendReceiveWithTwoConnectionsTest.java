@@ -23,6 +23,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +105,8 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       receiveSession.close();
       sendConnection.close();
       receiveConnection.close();
+      TcpTransportFactory.clearService();
+      ArtemisBrokerHelper.stopArtemisBroker();
    }
 
    /**

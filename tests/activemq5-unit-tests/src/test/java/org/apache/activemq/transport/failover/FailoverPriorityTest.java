@@ -16,58 +16,112 @@
  */
 package org.apache.activemq.transport.failover;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FailoverPriorityTest extends FailoverClusterTestSupport {
+import javax.jms.Connection;
+import javax.jms.JMSException;
+
+public class FailoverPriorityTest extends OpenwireArtemisBaseTest {
 
    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
    private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
-   private final HashMap<String, String> urls = new HashMap<>();
+   private final HashMap<Integer, String> urls = new HashMap<>();
 
-   @Override
+   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private EmbeddedJMS[] servers = new EmbeddedJMS[3];
+   private String clientUrl;
+   private Map<String, String> params = new HashMap<String, String>();
+
+   @Before
    public void setUp() throws Exception {
-      super.setUp();
-      urls.put(BROKER_A_NAME, BROKER_A_CLIENT_TC_ADDRESS);
-      urls.put(BROKER_B_NAME, BROKER_B_CLIENT_TC_ADDRESS);
+      urls.put(0, BROKER_A_CLIENT_TC_ADDRESS);
+      urls.put(1, BROKER_B_CLIENT_TC_ADDRESS);
+      params.clear();
+      params.put("rebalanceClusterClients", "true");
+      params.put("updateClusterClients", "true");
+      params.put("updateClusterClientsOnRemove", "true");
    }
 
-   private static final String BROKER_A_NAME = "BROKERA";
-   private static final String BROKER_B_NAME = "BROKERB";
-   private static final String BROKER_C_NAME = "BROKERC";
+   @After
+   public void tearDown() throws Exception {
+      shutdownClients();
+      for (EmbeddedJMS server : servers) {
+         if (server != null) {
+            server.stop();
+         }
+      }
+   }
 
+   @Test
    public void testPriorityBackup() throws Exception {
-      createBrokerA();
-      createBrokerB();
-      getBroker(BROKER_B_NAME).waitUntilStarted();
+      Configuration config0 = createConfig("127.0.0.1", 0);
+      Configuration config1 = createConfig("127.0.0.1", 1);
+
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[0].start();
+      servers[1].start();
+
+      Assert.assertTrue(servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+
       Thread.sleep(1000);
 
       setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
       createClients(5);
 
-      assertAllConnectedTo(urls.get(BROKER_A_NAME));
+      assertAllConnectedTo(urls.get(0));
 
-      restart(false, BROKER_A_NAME, BROKER_B_NAME);
+      restart(false, 0, 1);
 
       for (int i = 0; i < 3; i++) {
-         restart(true, BROKER_A_NAME, BROKER_B_NAME);
+         restart(true, 0, 1);
       }
 
       Thread.sleep(5000);
 
-      restart(false, BROKER_A_NAME, BROKER_B_NAME);
+      restart(false, 0, 1);
 
    }
 
+   @Test
    public void testPriorityBackupList() throws Exception {
-      createBrokerA();
-      createBrokerB();
-      getBroker(BROKER_B_NAME).waitUntilStarted();
+      Configuration config0 = createConfig("127.0.0.1", 0);
+      Configuration config1 = createConfig("127.0.0.1", 1);
+
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
+
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[0].start();
+      servers[1].start();
+
+      Assert.assertTrue(servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
       Thread.sleep(1000);
 
       setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&priorityURIs=tcp://127.0.0.1:61617&initialReconnectDelay=1000&useExponentialBackOff=false");
@@ -75,72 +129,50 @@ public class FailoverPriorityTest extends FailoverClusterTestSupport {
 
       Thread.sleep(3000);
 
-      assertAllConnectedTo(urls.get(BROKER_B_NAME));
+      assertAllConnectedTo(urls.get(1));
 
-      restart(false, BROKER_B_NAME, BROKER_A_NAME);
+      restart(false, 1, 0);
 
       for (int i = 0; i < 3; i++) {
-         restart(true, BROKER_B_NAME, BROKER_A_NAME);
+         restart(true, 1, 0);
       }
 
-      restart(false, BROKER_B_NAME, BROKER_A_NAME);
-
+      restart(false, 1, 0);
    }
 
+   @Test
    public void testThreeBrokers() throws Exception {
-      // Broker A
-      addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-      addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
-      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_A_NAME).start();
-
-      // Broker B
-      addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-      addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
-      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_B_NAME).start();
-
-      // Broker C
-      addBroker(BROKER_C_NAME, createBroker(BROKER_C_NAME));
-      addTransportConnector(getBroker(BROKER_C_NAME), "openwire", BROKER_C_CLIENT_TC_ADDRESS, false);
-      addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_C_NAME).start();
-
-      getBroker(BROKER_C_NAME).waitUntilStarted();
+      setupThreeBrokers();
       Thread.sleep(1000);
 
       setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + "," + BROKER_C_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
 
       createClients(5);
 
-      assertAllConnectedTo(urls.get(BROKER_A_NAME));
+      assertAllConnectedTo(urls.get(0));
 
-      restart(true, BROKER_A_NAME, BROKER_B_NAME);
-
+      restart(true, 0, 1, 3);
    }
 
+   @Test
    public void testPriorityBackupAndUpdateClients() throws Exception {
-      // Broker A
-      addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-      addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, true);
-      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_A_NAME).start();
+      Configuration config0 = createConfig("127.0.0.1", 0);
+      Configuration config1 = createConfig("127.0.0.1", 1);
 
-      // Broker B
-      addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-      addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, true);
-      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-      getBroker(BROKER_B_NAME).start();
+      deployClusterConfiguration(config0, 1);
+      deployClusterConfiguration(config1, 0);
 
-      getBroker(BROKER_B_NAME).waitUntilStarted();
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[0].start();
+      servers[1].start();
+
+      Assert.assertTrue(servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+
       Thread.sleep(1000);
 
       setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
-
-      LOG.info("Client URI will be: " + getClientUrl());
 
       createClients(5);
 
@@ -148,81 +180,119 @@ public class FailoverPriorityTest extends FailoverClusterTestSupport {
       // Broker A is the one with higher priority.
       Thread.sleep(5000);
 
-      assertAllConnectedTo(urls.get(BROKER_A_NAME));
+      assertAllConnectedTo(urls.get(0));
    }
 
-   private void restart(boolean primary, String primaryName, String secondaryName) throws Exception {
+   private void restart(boolean primary, int primaryID, int secondaryID) throws Exception {
+      restart(primary, primaryID, secondaryID, 2);
+   }
+
+   private void restart(boolean primary, int primaryID, int secondaryID, int total) throws Exception {
 
       Thread.sleep(1000);
 
       if (primary) {
-         LOG.info("Stopping " + primaryName);
-         stopBroker(primaryName);
+         LOG.info("Stopping " + primaryID);
+         stopBroker(primaryID);
+         Assert.assertTrue(servers[secondaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total - 1));
       }
       else {
-         LOG.info("Stopping " + secondaryName);
-         stopBroker(secondaryName);
+         LOG.info("Stopping " + secondaryID);
+         stopBroker(secondaryID);
+         Assert.assertTrue(servers[primaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total - 1));
       }
       Thread.sleep(5000);
 
       if (primary) {
-         assertAllConnectedTo(urls.get(secondaryName));
+         assertAllConnectedTo(urls.get(secondaryID));
       }
       else {
-         assertAllConnectedTo(urls.get(primaryName));
+         assertAllConnectedTo(urls.get(primaryID));
       }
 
       if (primary) {
-         LOG.info("Starting " + primaryName);
-         createBrokerByName(primaryName);
-         getBroker(primaryName).waitUntilStarted();
+         Configuration config = createConfig("127.0.0.1", primaryID);
+
+         deployClusterConfiguration(config, secondaryID);
+
+         servers[primaryID] = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
+         servers[primaryID].start();
+
+         Assert.assertTrue(servers[primaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total));
+         Assert.assertTrue(servers[secondaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total));
       }
       else {
-         LOG.info("Starting " + secondaryName);
-         createBrokerByName(secondaryName);
-         getBroker(secondaryName).waitUntilStarted();
+         Configuration config = createConfig("127.0.0.1", secondaryID);
+
+         deployClusterConfiguration(config, primaryID);
+
+         servers[secondaryID] = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
+         servers[secondaryID].start();
+
+         Assert.assertTrue(servers[primaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total));
+         Assert.assertTrue(servers[secondaryID].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, total));
       }
 
       Thread.sleep(5000);
 
-      assertAllConnectedTo(urls.get(primaryName));
+      assertAllConnectedTo(urls.get(primaryID));
 
    }
 
-   private void createBrokerByName(String name) throws Exception {
-      if (name.equals(BROKER_A_NAME)) {
-         createBrokerA();
-      }
-      else if (name.equals(BROKER_B_NAME)) {
-         createBrokerB();
-      }
-      else {
-         throw new Exception("Unknown broker " + name);
+   private void stopBroker(int serverID) throws Exception {
+      servers[serverID].stop();
+   }
+
+   public void setClientUrl(String clientUrl) {
+      this.clientUrl = clientUrl;
+   }
+
+   protected void createClients(int numOfClients) throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
+      for (int i = 0; i < numOfClients; i++) {
+         ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
+         c.start();
+         connections.add(c);
       }
    }
 
-   private void createBrokerA() throws Exception {
-      if (getBroker(BROKER_A_NAME) == null) {
-         addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-         addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
-         addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         getBroker(BROKER_A_NAME).start();
+   protected void shutdownClients() throws JMSException {
+      for (Connection c : connections) {
+         c.close();
       }
    }
 
-   private void createBrokerB() throws Exception {
-      if (getBroker(BROKER_B_NAME) == null) {
-         addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-         addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
-         addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-         getBroker(BROKER_B_NAME).start();
+   protected void assertAllConnectedTo(String url) throws Exception {
+      for (ActiveMQConnection c : connections) {
+         Assert.assertEquals(url, c.getTransportChannel().getRemoteAddress());
       }
    }
 
-   @Override
-   protected void tearDown() throws Exception {
-      shutdownClients();
-      destroyBrokerCluster();
+   private void setupThreeBrokers() throws Exception {
+
+      params.put("rebalanceClusterClients", "false");
+      params.put("updateClusterClients", "false");
+      params.put("updateClusterClientsOnRemove", "false");
+
+      Configuration config0 = createConfig("127.0.0.1", 0, params);
+      Configuration config1 = createConfig("127.0.0.1", 1, params);
+      Configuration config2 = createConfig("127.0.0.1", 2, params);
+
+      deployClusterConfiguration(config0, 1, 2);
+      deployClusterConfiguration(config1, 0, 2);
+      deployClusterConfiguration(config2, 0, 1);
+
+      servers[0] = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[1] = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      servers[2] = new EmbeddedJMS().setConfiguration(config2).setJmsConfiguration(new JMSConfigurationImpl());
+
+      servers[0].start();
+      servers[1].start();
+      servers[2].start();
+
+      Assert.assertTrue(servers[0].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
+      Assert.assertTrue(servers[1].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
+      Assert.assertTrue(servers[2].waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 3));
    }
 
 }

@@ -98,6 +98,7 @@ public class ExclusiveConsumerStartupDestinationTest extends EmbeddedBrokerTestS
       }
    }
 
+   //Exclusive consumer not implemented yet.
    public void testFailoverToAnotherExclusiveConsumerCreatedFirst() throws JMSException, InterruptedException {
       Connection conn = createConnection(true);
 

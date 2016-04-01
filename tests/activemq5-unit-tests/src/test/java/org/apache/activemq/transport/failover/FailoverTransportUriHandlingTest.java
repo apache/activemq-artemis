@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Collection;
 
-import org.apache.activemq.transport.failover.FailoverTransport;
 import org.junit.Test;
 
 public class FailoverTransportUriHandlingTest {

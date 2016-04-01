@@ -18,6 +18,7 @@ package org.apache.activemq.transport.failover;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -26,9 +27,13 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.transport.TransportListener;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,19 +41,20 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
-public class InitalReconnectDelayTest {
+public class InitalReconnectDelayTest extends OpenwireArtemisBaseTest {
 
    private static final transient Logger LOG = LoggerFactory.getLogger(InitalReconnectDelayTest.class);
-   protected BrokerService broker1;
-   protected BrokerService broker2;
+   protected EmbeddedJMS server1;
+   protected EmbeddedJMS server2;
+
+//   protected BrokerService broker1;
+//   protected BrokerService broker2;
 
    @Test
    public void testInitialReconnectDelay() throws Exception {
 
-      String uriString = "failover://(tcp://localhost:" +
-         broker1.getTransportConnectors().get(0).getConnectUri().getPort() +
-         ",tcp://localhost:" +
-         broker2.getTransportConnectors().get(0).getConnectUri().getPort() +
+      String uriString = "failover://(" + newURI(1) +
+         "," + newURI(2) +
          ")?randomize=false&initialReconnectDelay=15000";
 
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(uriString);
@@ -67,7 +73,7 @@ public class InitalReconnectDelayTest {
       //Halt the broker1...
       LOG.info("Stopping the Broker1...");
       start = (new Date()).getTime();
-      broker1.stop();
+      server1.stop();
 
       LOG.info("Attempting to send... failover should kick in...");
       producer.send(session.createTextMessage("TEST"));
@@ -81,10 +87,8 @@ public class InitalReconnectDelayTest {
    @Test
    public void testNoSuspendedCallbackOnNoReconnect() throws Exception {
 
-      String uriString = "failover://(tcp://localhost:" +
-         broker1.getTransportConnectors().get(0).getConnectUri().getPort() +
-         ",tcp://localhost:" +
-         broker2.getTransportConnectors().get(0).getConnectUri().getPort() +
+      String uriString = "failover://(" + newURI(1) +
+         "," + newURI(2) +
          ")?randomize=false&maxReconnectAttempts=0";
 
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(uriString);
@@ -124,7 +128,7 @@ public class InitalReconnectDelayTest {
       calls.set(0);
 
       LOG.info("Stopping the Broker1...");
-      broker1.stop();
+      server1.stop();
 
       LOG.info("Attempting to send... failover should throw on disconnect");
       try {
@@ -140,25 +144,19 @@ public class InitalReconnectDelayTest {
    @Before
    public void setUp() throws Exception {
 
-      final String dataDir = "target/data/shared";
+      Configuration config1 = createConfig(1);
+      Configuration config2 = createConfig(2);
 
-      broker1 = new BrokerService();
+      deployClusterConfiguration(config1, 2);
+      deployClusterConfiguration(config2, 1);
 
-      broker1.setBrokerName("broker1");
-      broker1.setDeleteAllMessagesOnStartup(true);
-      broker1.setDataDirectory(dataDir);
-      broker1.addConnector("tcp://localhost:0");
-      broker1.setUseJmx(false);
-      broker1.start();
-      broker1.waitUntilStarted();
+      server1 = new EmbeddedJMS().setConfiguration(config1).setJmsConfiguration(new JMSConfigurationImpl());
+      server2 = new EmbeddedJMS().setConfiguration(config2).setJmsConfiguration(new JMSConfigurationImpl());
 
-      broker2 = new BrokerService();
-      broker2.setBrokerName("broker2");
-      broker2.setDataDirectory(dataDir);
-      broker2.setUseJmx(false);
-      broker2.addConnector("tcp://localhost:0");
-      broker2.start();
-      broker2.waitUntilStarted();
+      server1.start();
+      server2.start();
+      Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
+      Assert.assertTrue(server2.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 2));
 
    }
 
@@ -172,16 +170,8 @@ public class InitalReconnectDelayTest {
 
    @After
    public void tearDown() throws Exception {
-
-      if (broker1.isStarted()) {
-         broker1.stop();
-         broker1.waitUntilStopped();
-      }
-
-      if (broker2.isStarted()) {
-         broker2.stop();
-         broker2.waitUntilStopped();
-      }
+      server1.stop();
+      server2.stop();
    }
 
 }

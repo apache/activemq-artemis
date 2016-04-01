@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -240,7 +241,8 @@ public class CompressionOverNetworkTest {
             if (bridges.length > 0) {
                LOG.info(brokerService + " bridges " + Arrays.toString(bridges));
                DemandForwardingBridgeSupport demandForwardingBridgeSupport = (DemandForwardingBridgeSupport) bridges[0];
-               ConcurrentHashMap<ConsumerId, DemandSubscription> forwardingBridges = demandForwardingBridgeSupport.getLocalSubscriptionMap();
+               ConcurrentMap<ConsumerId, DemandSubscription> forwardingBridges = demandForwardingBridgeSupport.getLocalSubscriptionMap();
+
                LOG.info(brokerService + " bridge " + demandForwardingBridgeSupport + ", localSubs: " + forwardingBridges);
                if (!forwardingBridges.isEmpty()) {
                   for (DemandSubscription demandSubscription : forwardingBridges.values()) {

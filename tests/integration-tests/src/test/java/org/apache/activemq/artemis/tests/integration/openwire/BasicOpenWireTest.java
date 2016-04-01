@@ -31,6 +31,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +45,9 @@ public class BasicOpenWireTest extends OpenWireTestBase {
 
    protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
    protected ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
+   protected ActiveMQXAConnectionFactory xaFactory = new ActiveMQXAConnectionFactory(urlString);
+
+
    protected ActiveMQConnection connection;
    protected String topicName = "amqTestTopic1";
    protected String queueName = "amqTestQueue1";

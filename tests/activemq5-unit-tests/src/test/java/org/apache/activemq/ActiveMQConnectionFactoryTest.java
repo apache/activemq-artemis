@@ -110,6 +110,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
       connection.close();
    }
 
+   //we don't support in-vm connector (will we?)
    public void testCreateVMConnectionWithEmbdeddBroker() throws URISyntaxException, JMSException {
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://myBroker2?broker.persistent=false");
       // Make sure the broker is not created until the connection is
@@ -124,7 +125,9 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
       connection.close();
 
       // Verify the broker was destroyed.
-      assertNull(BrokerRegistry.getInstance().lookup("myBroker2"));
+      //I comment out this because this is pure client behavior in
+      //amq5. there shouldn't be any use-case like that with Artemis.
+      //assertNull(BrokerRegistry.getInstance().lookup("myBroker2"));
    }
 
    public void testGetBrokerName() throws URISyntaxException, JMSException {

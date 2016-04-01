@@ -16,6 +16,8 @@
  */
 package org.apache.activemq;
 
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -109,5 +111,6 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       receiveSession.close();
       sendConnection.close();
       receiveConnection.close();
+      TcpTransportFactory.clearService();
    }
 }

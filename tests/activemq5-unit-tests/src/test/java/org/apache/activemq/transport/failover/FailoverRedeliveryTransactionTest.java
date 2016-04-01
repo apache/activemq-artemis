@@ -16,18 +16,14 @@
  */
 package org.apache.activemq.transport.failover;
 
-import junit.framework.Test;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.junit.Test;
 
 public class FailoverRedeliveryTransactionTest extends FailoverTransactionTest {
-
-   public static Test suite() {
-      return suite(FailoverRedeliveryTransactionTest.class);
-   }
 
    @Override
    public void configureConnectionFactory(ActiveMQConnectionFactory factory) {
@@ -36,23 +32,21 @@ public class FailoverRedeliveryTransactionTest extends FailoverTransactionTest {
    }
 
    @Override
-   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-      BrokerService brokerService = super.createBroker(deleteAllMessagesOnStartup, bindAddress);
+   public EmbeddedJMS createBroker() throws Exception {
+      EmbeddedJMS brokerService = super.createBroker();
       PolicyMap policyMap = new PolicyMap();
       PolicyEntry defaultEntry = new PolicyEntry();
       defaultEntry.setPersistJMSRedelivered(true);
       policyMap.setDefaultEntry(defaultEntry);
-      brokerService.setDestinationPolicy(policyMap);
+      //revisit: do we support sth like persistJMSRedelivered?
+      //brokerService.setDestinationPolicy(policyMap);
       return brokerService;
    }
 
    // no point rerunning these
    @Override
+   @Test
    public void testFailoverProducerCloseBeforeTransaction() throws Exception {
-   }
-
-   @Override
-   public void initCombosForTestFailoverCommitReplyLost() {
    }
 
    @Override
@@ -64,15 +58,7 @@ public class FailoverRedeliveryTransactionTest extends FailoverTransactionTest {
    }
 
    @Override
-   public void initCombosForTestFailoverSendReplyLost() {
-   }
-
-   @Override
    public void testFailoverSendReplyLost() throws Exception {
-   }
-
-   @Override
-   public void initCombosForTestFailoverConnectionSendReplyLost() {
    }
 
    @Override
