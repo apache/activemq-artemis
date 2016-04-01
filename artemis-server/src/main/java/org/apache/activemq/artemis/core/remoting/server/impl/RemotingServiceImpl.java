@@ -146,7 +146,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       this.flushExecutor = flushExecutor;
 
       ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
-//      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
+      //      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory);
 
       if (config.isResolveProtocols()) {
@@ -206,8 +206,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          @Override
          public ThreadFactory run() {
             return new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
-                                                                        "-" +
-                                                                        System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader());
+                                                "-" +
+                                                System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader());
          }
       });
 

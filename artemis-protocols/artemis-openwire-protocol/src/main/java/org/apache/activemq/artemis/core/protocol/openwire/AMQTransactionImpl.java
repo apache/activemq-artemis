@@ -28,20 +28,8 @@ public class AMQTransactionImpl extends TransactionImpl {
 
    private boolean rollbackForClose = false;
 
-   public AMQTransactionImpl(StorageManager storageManager, int timeoutSeconds) {
-      super(storageManager, timeoutSeconds);
-   }
-
-   public AMQTransactionImpl(StorageManager storageManager) {
-      super(storageManager);
-   }
-
    public AMQTransactionImpl(Xid xid, StorageManager storageManager, int timeoutSeconds) {
       super(xid, storageManager, timeoutSeconds);
-   }
-
-   public AMQTransactionImpl(long id, Xid xid, StorageManager storageManager) {
-      super(id, xid, storageManager);
    }
 
    @Override
@@ -55,6 +43,8 @@ public class AMQTransactionImpl extends TransactionImpl {
          super(queue, storageManager);
       }
 
+
+      // This is because the Rollbacks happen through the consumer, not through the server's
       @Override
       public void afterRollback(Transaction tx) {
          if (rollbackForClose) {

@@ -50,7 +50,6 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
@@ -623,63 +622,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception {
-      if (name == null) {
-         throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
-      }
-
-      boolean autoCreateJmsQueues = name.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
-
-      QueueQueryResult response;
-
-      Binding binding = postOffice.getBinding(name);
-
-      if (binding != null && binding.getType() == BindingType.LOCAL_QUEUE) {
-         Queue queue = (Queue) binding.getBindable();
-
-         Filter filter = queue.getFilter();
-
-         SimpleString filterString = filter == null ? null : filter.getFilterString();
-
-         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateJmsQueues);
-      }
-      // make an exception for the management address (see HORNETQ-29)
-      else if (name.equals(managementAddress)) {
-         response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateJmsQueues);
-      }
-      else if (autoCreateJmsQueues) {
-         response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false);
-      }
-      else {
-         response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false);
-      }
-
-      return response;
+      return server.queueQuery(name);
    }
 
    @Override
    public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception {
-      if (address == null) {
-         throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
-      }
-
-      boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
-
-      List<SimpleString> names = new ArrayList<>();
-
-      // make an exception for the management address (see HORNETQ-29)
-      if (address.equals(managementAddress)) {
-         return new BindingQueryResult(true, names, autoCreateJmsQueues);
-      }
-
-      Bindings bindings = postOffice.getMatchingBindings(address);
-
-      for (Binding binding : bindings.getBindings()) {
-         if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
-            names.add(binding.getUniqueName());
-         }
-      }
-
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
+      return server.bindingQuery(address);
    }
 
    @Override

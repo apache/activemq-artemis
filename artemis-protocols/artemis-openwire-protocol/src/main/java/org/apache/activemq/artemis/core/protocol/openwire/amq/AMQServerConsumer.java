@@ -23,8 +23,6 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
@@ -33,6 +31,18 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class AMQServerConsumer extends ServerConsumerImpl {
+
+   // TODO-NOW: remove this once unified
+   AMQConsumer amqConsumer;
+
+   public AMQConsumer getAmqConsumer() {
+      return amqConsumer;
+   }
+
+   /** TODO-NOW: remove this once unified */
+   public void setAmqConsumer(AMQConsumer amqConsumer) {
+      this.amqConsumer = amqConsumer;
+   }
 
    public AMQServerConsumer(long consumerID,
                             AMQServerSession serverSession,
@@ -49,81 +59,6 @@ public class AMQServerConsumer extends ServerConsumerImpl {
                             Integer credits,
                             final ActiveMQServer server) throws Exception {
       super(consumerID, serverSession, binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
-   }
-
-   public void setBrowserListener(BrowserListener listener) {
-      AMQBrowserDeliverer newBrowserDeliverer = new AMQBrowserDeliverer(this.browserDeliverer);
-      newBrowserDeliverer.listener = listener;
-      this.browserDeliverer = newBrowserDeliverer;
-   }
-
-   private class AMQBrowserDeliverer extends BrowserDeliverer {
-
-      private BrowserListener listener = null;
-
-      public AMQBrowserDeliverer(final BrowserDeliverer other) {
-         super(other.iterator);
-      }
-
-      @Override
-      public synchronized void run() {
-         // if the reference was busy during the previous iteration, handle it now
-         if (current != null) {
-            try {
-               HandleStatus status = handle(current);
-
-               if (status == HandleStatus.BUSY) {
-                  return;
-               }
-
-               if (status == HandleStatus.HANDLED) {
-                  proceedDeliver(current);
-               }
-
-               current = null;
-            }
-            catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, current);
-               return;
-            }
-         }
-
-         MessageReference ref = null;
-         HandleStatus status;
-
-         while (true) {
-            try {
-               ref = null;
-               synchronized (messageQueue) {
-                  if (!iterator.hasNext()) {
-                     //here we need to send a null for amq browsers
-                     if (listener != null) {
-                        listener.browseFinished();
-                     }
-                     break;
-                  }
-
-                  ref = iterator.next();
-
-                  status = handle(ref);
-               }
-
-               if (status == HandleStatus.HANDLED) {
-                  proceedDeliver(ref);
-               }
-               else if (status == HandleStatus.BUSY) {
-                  // keep a reference on the current message reference
-                  // to handle it next time the browser deliverer is executed
-                  current = ref;
-                  break;
-               }
-            }
-            catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorBrowserHandlingMessage(e, ref);
-               break;
-            }
-         }
-      }
    }
 
    public void amqPutBackToDeliveringList(final List<MessageReference> refs) {

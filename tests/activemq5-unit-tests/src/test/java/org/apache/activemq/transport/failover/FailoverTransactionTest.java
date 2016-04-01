@@ -519,31 +519,31 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       Assert.assertTrue("connectionconsumer did not get a message", connectionConsumerGotOne.await(10, TimeUnit.SECONDS));
    }
 
-//   @Test
-//   @BMRules(
-//           rules = {
-//                   @BMRule(
-//                           name = "set no return response and stop the broker",
-//                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-//                           targetMethod = "processMessageAck",
-//                           targetLocation = "ENTRY",
-//                           action = "org.apache.activemq.transport.failover.FailoverTransactionTest.holdResponseAndStopBroker($0)")
-//           }
-//   )
-//   public void testFailoverConsumerAckLost() throws Exception {
-//      LOG.info(this + " running test testFailoverConsumerAckLost");
-//      // as failure depends on hash order of state tracker recovery, do a few times
-//      for (int i = 0; i < 3; i++) {
-//         try {
-//            LOG.info("Iteration: " + i);
-//            doTestFailoverConsumerAckLost(i);
-//         }
-//         finally {
-//            stopBroker();
-//         }
-//      }
-//   }
-//
+   @Test
+   @BMRules(
+           rules = {
+                   @BMRule(
+                           name = "set no return response and stop the broker",
+                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+                           targetMethod = "processMessageAck",
+                           targetLocation = "ENTRY",
+                           action = "org.apache.activemq.transport.failover.FailoverTransactionTest.holdResponseAndStopBroker($0)")
+           }
+   )
+   public void testFailoverConsumerAckLost() throws Exception {
+      LOG.info(this + " running test testFailoverConsumerAckLost");
+      // as failure depends on hash order of state tracker recovery, do a few times
+      for (int i = 0; i < 3; i++) {
+         try {
+            LOG.info("Iteration: " + i);
+            doTestFailoverConsumerAckLost(i);
+         }
+         finally {
+            stopBroker();
+         }
+      }
+   }
+
    @SuppressWarnings("unchecked")
    public void doTestFailoverConsumerAckLost(final int pauseSeconds) throws Exception {
       broker = createBroker();
@@ -567,12 +567,12 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          connection = cf.createConnection();
          connection.start();
          connections.add(connection);
-         final Session consumerSession1 = connection.createSession(true, Session.SESSION_TRANSACTED);
+         final Session consumerSession1 = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
          connection = cf.createConnection();
          connection.start();
          connections.add(connection);
-         final Session consumerSession2 = connection.createSession(true, Session.SESSION_TRANSACTED);
+         final Session consumerSession2 = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
          final MessageConsumer consumer1 = consumerSession1.createConsumer(destination);
          final MessageConsumer consumer2 = consumerSession2.createConsumer(destination);
@@ -583,7 +583,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          final Vector<Message> receivedMessages = new Vector<>();
          final CountDownLatch commitDoneLatch = new CountDownLatch(1);
          final AtomicBoolean gotTransactionRolledBackException = new AtomicBoolean(false);
-         Thread t = new Thread("doTestFailoverConsumerAckLost(" + pauseSeconds + ")") {
+         new Thread() {
             public void run() {
                LOG.info("doing async commit after consume...");
                try {
@@ -630,16 +630,10 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
                   e.printStackTrace();
                }
             }
-         };
-         t.start();
+         }.start();
 
          // will be stopped by the plugin
          brokerStopLatch.await(60, TimeUnit.SECONDS);
-         t.join(30000);
-         if (t.isAlive()) {
-            t.interrupt();
-            Assert.fail("Thread " + t.getName() + " is still alive");
-         }
          broker = createBroker();
          broker.start();
          doByteman.set(false);
@@ -1062,10 +1056,8 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
             new Thread() {
                public void run() {
                   try {
-                     if (broker != null) {
-                        broker.stop();
-                        broker = null;
-                     }
+                     broker.stop();
+                     broker = null;
                      LOG.info("broker stopped.");
                   }
                   catch (Exception e) {

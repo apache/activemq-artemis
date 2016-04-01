@@ -32,6 +32,15 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class AMQServerSessionFactory implements ServerSessionFactory {
 
+   private static final AMQServerSessionFactory singleInstance = new AMQServerSessionFactory();
+
+   public static AMQServerSessionFactory getInstance() {
+      return singleInstance;
+   }
+
+   private AMQServerSessionFactory() {
+   }
+
    @Override
    public ServerSessionImpl createCoreSession(String name,
                                               String username,

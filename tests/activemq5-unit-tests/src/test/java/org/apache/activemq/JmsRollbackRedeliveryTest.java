@@ -116,7 +116,7 @@ public class JmsRollbackRedeliveryTest {
             Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue(destinationName);
             MessageConsumer consumer = session.createConsumer(destination);
-            TextMessage msg = (TextMessage) consumer.receive(5000);
+            TextMessage msg = (TextMessage) consumer.receive(6000000);
             if (msg != null) {
                if (rolledback.put(msg.getText(), Boolean.TRUE) != null) {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());

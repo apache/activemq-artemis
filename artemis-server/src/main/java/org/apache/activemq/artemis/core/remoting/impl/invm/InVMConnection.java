@@ -138,6 +138,12 @@ public class InVMConnection implements Connection {
    }
 
    @Override
+   public void setAutoRead(boolean autoRead) {
+      // nothing to be done on the INVM.
+      // maybe we could eventually implement something, but not needed now
+   }
+
+   @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
       return ActiveMQBuffers.dynamicBuffer(size);
    }

@@ -17,16 +17,13 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.transaction.xa.XAException;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -37,24 +34,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
-import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.management.ManagementService;
-import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -64,40 +53,31 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.DataConstants;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.BrokerId;
 import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.Command;
-import org.apache.activemq.command.CommandTypes;
-import org.apache.activemq.command.ConnectionId;
+import org.apache.activemq.command.ConnectionControl;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerId;
-import org.apache.activemq.command.ConsumerInfo;
-import org.apache.activemq.command.DestinationInfo;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
-import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.RemoveSubscriptionInfo;
-import org.apache.activemq.command.SessionId;
-import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.openwire.OpenWireFormatFactory;
-import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ProducerState;
-import org.apache.activemq.state.SessionState;
 import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 
-public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, NotificationListener {
+public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, ClusterTopologyListener {
 
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
@@ -109,31 +89,35 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private OpenWireFormatFactory wireFactory;
 
-   private boolean tightEncodingEnabled = true;
-
    private boolean prefixPacketSize = true;
 
    private BrokerId brokerId;
    protected final ProducerId advisoryProducerId = new ProducerId();
 
-   // from broker
-   protected final Map<ConnectionId, OpenWireConnection> brokerConnectionStates = Collections.synchronizedMap(new HashMap<ConnectionId, OpenWireConnection>());
-
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   protected final ConcurrentMap<ConnectionId, ConnectionInfo> connectionInfos = new ConcurrentHashMap<>();
-
-   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<>();
+   // TODO-NOW: this can probably go away
+   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<String, AMQConnectionContext>();
 
    private String brokerName;
 
-   private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
-
+   // Clebert: Artemis already has a Resource Manager. Need to remove this..
+   //          The TransactionID extends XATransactionID, so all we need is to convert the XID here
    private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<>();
 
-   private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
+   private final Map<String, TopologyMember> topologyMap = new ConcurrentHashMap<>();
+
+   private final LinkedList<TopologyMember> members = new LinkedList<>();
 
    private final ScheduledExecutorService scheduledPool;
+
+   //bean properties
+   //http://activemq.apache.org/failover-transport-reference.html
+   private boolean rebalanceClusterClients = false;
+   private boolean updateClusterClients = false;
+   private boolean updateClusterClientsOnRemove = false;
+
+   private final OpenWireMessageConverter messageConverter;
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -142,12 +126,82 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       // preferred prop, should be done via config
       wireFactory.setCacheEnabled(false);
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
-      ManagementService service = server.getManagementService();
       scheduledPool = server.getScheduledPool();
-      if (service != null) {
-         service.addNotificationListener(this);
+      this.messageConverter = new OpenWireMessageConverter(wireFactory.createWireFormat());
+
+      final ClusterManager clusterManager = this.server.getClusterManager();
+
+      // TODO-NOW: use a property name for the cluster connection
+      ClusterConnection cc = clusterManager.getDefaultConnection(null);
+
+      if (cc != null) {
+         cc.addClusterTopologyListener(this);
+      }
+   }
+
+   public OpenWireFormat getNewWireFormat() {
+      return (OpenWireFormat)wireFactory.createWireFormat();
+   }
+
+   @Override
+   public void nodeUP(TopologyMember member, boolean last) {
+      if (topologyMap.put(member.getNodeId(), member) == null) {
+         updateClientClusterInfo();
+      }
+   }
+
+   public void nodeDown(long eventUID, String nodeID) {
+      if (topologyMap.remove(nodeID) != null) {
+         updateClientClusterInfo();
+      }
+   }
+
+
+   public void removeConnection(ConnectionInfo info,
+                                Throwable error) throws InvalidClientIDException {
+      synchronized (clientIdSet) {
+         String clientId = info.getClientId();
+         if (clientId != null) {
+            AMQConnectionContext context = this.clientIdSet.get(clientId);
+            if (context != null && context.decRefCount() == 0) {
+               //connection is still there and need to close
+               context.getConnection().disconnect(error != null);
+               this.connections.remove(this);//what's that for?
+               this.clientIdSet.remove(clientId);
+            }
+         }
+         else {
+            throw new InvalidClientIDException("No clientID specified for connection disconnect request");
+         }
+      }
+   }
+
+
+   public ScheduledExecutorService getScheduledPool() {
+      return scheduledPool;
+   }
+
+   public ActiveMQServer getServer() {
+      return server;
+   }
+
+   private void updateClientClusterInfo() {
+
+      synchronized (members) {
+         members.clear();
+         members.addAll(topologyMap.values());
       }
 
+      for (OpenWireConnection c : this.connections) {
+         ConnectionControl control = newConnectionControl();
+         try {
+            c.updateClient(control);
+         }
+         catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            c.sendException(e);
+         }
+      }
    }
 
    @Override
@@ -169,20 +223,20 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
       OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
-      OpenWireConnection owConn = new OpenWireConnection(acceptorUsed, connection, this, wf);
-      owConn.init();
+      OpenWireConnection owConn = new OpenWireConnection(connection, server.getExecutorFactory().getExecutor(), this, wf);
+      owConn.sendHandshake();
 
+      // TODO CLEBERT What is this constant here? we should get it from TTL initial pings
       return new ConnectionEntry(owConn, null, System.currentTimeMillis(), 1 * 60 * 1000);
    }
 
    @Override
    public MessageConverter getConverter() {
-      return new OpenWireMessageConverter();
+      return messageConverter;
    }
 
    @Override
    public void removeHandler(String name) {
-      // TODO Auto-generated method stub
    }
 
    @Override
@@ -225,119 +279,60 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
-      // TODO Auto-generated method stub
-
    }
 
-   public void handleCommand(OpenWireConnection openWireConnection, Object command) throws Exception {
-      Command amqCmd = (Command) command;
-      byte type = amqCmd.getDataStructureType();
-      switch (type) {
-         case CommandTypes.CONNECTION_INFO:
-            break;
-         case CommandTypes.CONNECTION_CONTROL:
-            /** The ConnectionControl packet sent from client informs the broker that is capable of supporting dynamic
-             * failover and load balancing.  These features are not yet implemented for Artemis OpenWire.  Instead we
-             * simply drop the packet.  See: ACTIVEMQ6-108 */
-            break;
-         case CommandTypes.MESSAGE_PULL:
-            MessagePull messagePull = (MessagePull) amqCmd;
-            openWireConnection.processMessagePull(messagePull);
-            break;
-         case CommandTypes.CONSUMER_CONTROL:
-            break;
-         default:
-            throw new IllegalStateException("Cannot handle command: " + command);
-      }
-   }
-
-   public void sendReply(final OpenWireConnection connection, final Command command) {
-      server.getStorageManager().afterCompleteOperations(new IOCallback() {
-         @Override
-         public void onError(final int errorCode, final String errorMessage) {
-            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
-         }
-
-         @Override
-         public void done() {
-            send(connection, command);
-         }
-      });
-   }
-
-   public boolean send(final OpenWireConnection connection, final Command command) {
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("sending " + command);
-      }
-      synchronized (connection) {
-         if (connection.isDestroyed()) {
-            return false;
-         }
-
-         try {
-            connection.physicalSend(command);
-         }
-         catch (Exception e) {
-            return false;
-         }
-         catch (Throwable t) {
-            return false;
-         }
-         return true;
-      }
-   }
-
-   public void addConnection(AMQConnectionContext context, ConnectionInfo info) throws Exception {
+   public void addConnection(OpenWireConnection connection, ConnectionInfo info) throws Exception {
       String username = info.getUserName();
       String password = info.getPassword();
 
       if (!this.validateUser(username, password)) {
          throw new SecurityException("User name [" + username + "] or password is invalid.");
       }
+
       String clientId = info.getClientId();
       if (clientId == null) {
          throw new InvalidClientIDException("No clientID specified for connection request");
       }
+
       synchronized (clientIdSet) {
-         AMQConnectionContext oldContext = clientIdSet.get(clientId);
-         if (oldContext != null) {
-            if (context.isAllowLinkStealing()) {
-               clientIdSet.remove(clientId);
-               if (oldContext.getConnection() != null) {
-                  OpenWireConnection connection = oldContext.getConnection();
-                  connection.disconnect(true);
-               }
-               else {
-                  // log error
-               }
+         AMQConnectionContext context;
+         context = clientIdSet.get(clientId);
+         if (context != null) {
+            if (info.isFailoverReconnect()) {
+               OpenWireConnection oldConnection = context.getConnection();
+               oldConnection.disconnect(true);
+               connections.remove(oldConnection);
+               connection.reconnect(context, info);
             }
             else {
-               throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + oldContext.getConnection().getRemoteAddress());
+               throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + context.getConnection().getRemoteAddress());
             }
          }
          else {
+            //new connection
+            context = connection.initContext(info);
             clientIdSet.put(clientId, context);
          }
+
+         connections.add(connection);
+
+         ActiveMQTopic topic = AdvisorySupport.getConnectionAdvisoryTopic();
+         // do not distribute passwords in advisory messages. usernames okay
+         ConnectionInfo copy = info.copy();
+         copy.setPassword("");
+         fireAdvisory(context, topic, copy);
+
+         // init the conn
+         context.getConnection().addSessions( context.getConnectionState().getSessionIds());
       }
-
-      connections.add(context.getConnection());
-
-      ActiveMQTopic topic = AdvisorySupport.getConnectionAdvisoryTopic();
-      // do not distribute passwords in advisory messages. usernames okay
-      ConnectionInfo copy = info.copy();
-      copy.setPassword("");
-      fireAdvisory(context, topic, copy);
-      connectionInfos.put(copy.getConnectionId(), copy);
-
-      // init the conn
-      addSessions(context.getConnection(), context.getConnectionState().getSessionIds());
    }
 
-   private void fireAdvisory(AMQConnectionContext context, ActiveMQTopic topic, Command copy) throws Exception {
+   public void fireAdvisory(AMQConnectionContext context, ActiveMQTopic topic, Command copy) throws Exception {
       this.fireAdvisory(context, topic, copy, null);
    }
 
    public BrokerId getBrokerId() {
+      // TODO: Use the Storage ID here...
       if (brokerId == null) {
          brokerId = new BrokerId(BROKER_ID_GENERATOR.generateId());
       }
@@ -347,7 +342,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    /*
     * See AdvisoryBroker.fireAdvisory()
     */
-   private void fireAdvisory(AMQConnectionContext context,
+   public void fireAdvisory(AMQConnectionContext context,
                              ActiveMQTopic topic,
                              Command command,
                              ConsumerId targetConsumerId) throws Exception {
@@ -372,13 +367,12 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       boolean originalFlowControl = context.isProducerFlowControl();
       final AMQProducerBrokerExchange producerExchange = new AMQProducerBrokerExchange();
       producerExchange.setConnectionContext(context);
-      producerExchange.setMutable(true);
       producerExchange.setProducerState(new ProducerState(new ProducerInfo()));
       try {
          context.setProducerFlowControl(false);
          AMQSession sess = context.getConnection().getAdvisorySession();
          if (sess != null) {
-            sess.send(producerExchange, advisoryMessage, false);
+            sess.send(producerExchange.getProducerState().getInfo(), advisoryMessage, false);
          }
       }
       finally {
@@ -392,10 +386,44 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
             brokerName = InetAddressUtil.getLocalHostName().toLowerCase(Locale.ENGLISH);
          }
          catch (Exception e) {
-            brokerName = "localhost";
+            brokerName = server.getNodeID().toString();
          }
       }
       return brokerName;
+   }
+
+   protected ConnectionControl newConnectionControl() {
+      ConnectionControl control = new ConnectionControl();
+
+      String uri = generateMembersURI(rebalanceClusterClients);
+      control.setConnectedBrokers(uri);
+
+      control.setRebalanceConnection(rebalanceClusterClients);
+      return control;
+   }
+
+   private String generateMembersURI(boolean flip) {
+      String uri;
+      StringBuffer connectedBrokers = new StringBuffer();
+      String separator = "";
+
+      synchronized (members) {
+         if (members.size() > 0) {
+            for (TopologyMember member : members) {
+               connectedBrokers.append(separator).append(member.toURI());
+               separator = ",";
+            }
+
+            // The flip exists to guarantee even distribution of URIs when sent to the client
+            // in case of failures you won't get all the connections failing to a single server.
+            if (flip && members.size() > 1) {
+               members.addLast(members.removeFirst());
+            }
+         }
+      }
+
+      uri = connectedBrokers.toString();
+      return uri;
    }
 
    public boolean isFaultTolerantConfiguration() {
@@ -420,192 +448,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    public boolean isStopping() {
       return false;
    }
-
-   public void addProducer(OpenWireConnection theConn, ProducerInfo info) throws Exception {
-      SessionId sessionId = info.getProducerId().getParentId();
-      ConnectionId connectionId = sessionId.getParentId();
-      ConnectionState cs = theConn.getState();
-      if (cs == null) {
-         throw new IllegalStateException("Cannot add a producer to a connection that had not been registered: " + connectionId);
-      }
-      SessionState ss = cs.getSessionState(sessionId);
-      if (ss == null) {
-         throw new IllegalStateException("Cannot add a producer to a session that had not been registered: " + sessionId);
-      }
-      // Avoid replaying dup commands
-      if (!ss.getProducerIds().contains(info.getProducerId())) {
-
-         AMQSession amqSession = sessions.get(sessionId);
-         if (amqSession == null) {
-            throw new IllegalStateException("Session not exist! : " + sessionId);
-         }
-
-         ActiveMQDestination destination = info.getDestination();
-         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
-            if (theConn.getProducerCount() >= theConn.getMaximumProducersAllowedPerConnection()) {
-               throw new IllegalStateException("Can't add producer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumProducersAllowedPerConnection());
-            }
-            if (destination.isQueue()) {
-               OpenWireUtil.validateDestination(destination, amqSession);
-            }
-            DestinationInfo destInfo = new DestinationInfo(theConn.getConext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination);
-            this.addDestination(theConn, destInfo);
-         }
-
-
-         amqSession.createProducer(info);
-
-         try {
-            ss.addProducer(info);
-         }
-         catch (IllegalStateException e) {
-            amqSession.removeProducer(info);
-         }
-
-      }
-
-   }
-
-   public void addConsumer(OpenWireConnection theConn, ConsumerInfo info) throws Exception {
-      // Todo: add a destination interceptors holder here (amq supports this)
-      SessionId sessionId = info.getConsumerId().getParentId();
-      ConnectionId connectionId = sessionId.getParentId();
-      ConnectionState cs = theConn.getState();
-      if (cs == null) {
-         throw new IllegalStateException("Cannot add a consumer to a connection that had not been registered: " + connectionId);
-      }
-      SessionState ss = cs.getSessionState(sessionId);
-      if (ss == null) {
-         throw new IllegalStateException(this.server + " Cannot add a consumer to a session that had not been registered: " + sessionId);
-      }
-      // Avoid replaying dup commands
-      if (!ss.getConsumerIds().contains(info.getConsumerId())) {
-         ActiveMQDestination destination = info.getDestination();
-         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
-            if (theConn.getConsumerCount() >= theConn.getMaximumConsumersAllowedPerConnection()) {
-               throw new IllegalStateException("Can't add consumer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumConsumersAllowedPerConnection());
-            }
-         }
-
-         AMQSession amqSession = sessions.get(sessionId);
-         if (amqSession == null) {
-            throw new IllegalStateException("Session not exist! : " + sessionId);
-         }
-
-         amqSession.createConsumer(info, amqSession);
-
-         ss.addConsumer(info);
-      }
-   }
-
-   public void addSessions(OpenWireConnection theConn, Set<SessionId> sessionSet) {
-      Iterator<SessionId> iter = sessionSet.iterator();
-      while (iter.hasNext()) {
-         SessionId sid = iter.next();
-         addSession(theConn, theConn.getState().getSessionState(sid).getInfo(), true);
-      }
-   }
-
-   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss) {
-      return addSession(theConn, ss, false);
-   }
-
-   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss, boolean internal) {
-      AMQSession amqSession = new AMQSession(theConn.getState().getInfo(), ss, server, theConn, scheduledPool, this);
-      amqSession.initialize();
-      amqSession.setInternal(internal);
-      sessions.put(ss.getSessionId(), amqSession);
-      sessionIdMap.put(amqSession.getCoreSession().getName(), ss.getSessionId());
-      return amqSession;
-   }
-
-   public void removeConnection(AMQConnectionContext context, ConnectionInfo info, Throwable error) {
-      // todo roll back tx
-      this.connections.remove(context.getConnection());
-      this.connectionInfos.remove(info.getConnectionId());
-      String clientId = info.getClientId();
-      if (clientId != null) {
-         this.clientIdSet.remove(clientId);
-      }
-   }
-
-   public void removeSession(AMQConnectionContext context, SessionInfo info) throws Exception {
-      AMQSession session = sessions.remove(info.getSessionId());
-      if (session != null) {
-         session.close();
-      }
-   }
-
-   public void removeProducer(ProducerId id) {
-      SessionId sessionId = id.getParentId();
-      AMQSession session = sessions.get(sessionId);
-      session.removeProducer(id);
-   }
-
-   public AMQSession getSession(SessionId sessionId) {
-      return sessions.get(sessionId);
-   }
-
-   public void removeDestination(OpenWireConnection connection, ActiveMQDestination dest) throws Exception {
-      if (dest.isQueue()) {
-         SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
-         this.server.destroyQueue(qName);
-      }
-      else {
-         Bindings bindings = this.server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("jms.topic." + dest.getPhysicalName()));
-         Iterator<Binding> iterator = bindings.getBindings().iterator();
-
-         while (iterator.hasNext()) {
-            Queue b = (Queue) iterator.next().getBindable();
-            if (b.getConsumerCount() > 0) {
-               throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
-            }
-            if (b.isDurable()) {
-               throw new Exception("Destination still has durable subscription: " + dest.getPhysicalName());
-            }
-            b.deleteQueue();
-         }
-      }
-
-      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
-         AMQConnectionContext context = connection.getConext();
-         DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.REMOVE_OPERATION_TYPE, dest);
-
-         ActiveMQTopic topic = AdvisorySupport.getDestinationAdvisoryTopic(dest);
-         fireAdvisory(context, topic, advInfo);
-      }
-   }
-
-   public void addDestination(OpenWireConnection connection, DestinationInfo info) throws Exception {
-      ActiveMQDestination dest = info.getDestination();
-      if (dest.isQueue()) {
-         SimpleString qName = OpenWireUtil.toCoreAddress(dest);
-         QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
-         if (binding == null) {
-            if (connection.getState().getInfo() != null) {
-
-               CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-               server.getSecurityStore().check(qName, checkType, connection);
-
-               server.checkQueueCreationLimit(connection.getUsername());
-            }
-            ConnectionInfo connInfo = connection.getState().getInfo();
-            this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
-         }
-         if (dest.isTemporary()) {
-            connection.registerTempQueue(dest);
-         }
-      }
-
-      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
-         AMQConnectionContext context = connection.getConext();
-         DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, dest);
-
-         ActiveMQTopic topic = AdvisorySupport.getDestinationAdvisoryTopic(dest);
-         fireAdvisory(context, topic, advInfo);
-      }
-   }
-
    public void endTransaction(TransactionInfo info) throws Exception {
       AMQSession txSession = transactions.get(info.getTransactionId());
 
@@ -645,20 +487,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       if (txSession != null) {
          txSession.rollback(info);
       }
-      transactions.remove(info.getTransactionId());
-   }
-
-   public TransactionId[] recoverTransactions(Set<SessionId> sIds) {
-      List<TransactionId> recovered = new ArrayList<>();
-      if (sIds != null) {
-         for (SessionId sid : sIds) {
-            AMQSession s = this.sessions.get(sid);
-            if (s != null) {
-               s.recover(recovered);
-            }
-         }
+      else if (info.getTransactionId().isLocalTransaction()) {
+         //during a broker restart, recovered local transaction may not be registered
+         //in that case we ignore and let the tx removed silently by connection.
+         //see AMQ1925Test.testAMQ1925_TXBegin
       }
-      return recovered.toArray(new TransactionId[0]);
+      else {
+         throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
+      }
+      transactions.remove(info.getTransactionId());
    }
 
    public boolean validateUser(String login, String passcode) {
@@ -681,47 +518,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       transactions.remove(xid);
    }
 
+   /**
+    * TODO: remove this, use the regular ResourceManager from the Server's
+    */
    public void registerTx(TransactionId txId, AMQSession amqSession) {
       transactions.put(txId, amqSession);
-   }
-
-   //advisory support
-   @Override
-   public void onNotification(Notification notif) {
-      try {
-         if (notif.getType() instanceof CoreNotificationType) {
-            CoreNotificationType type = (CoreNotificationType) notif.getType();
-            switch (type) {
-               case CONSUMER_SLOW:
-                  fireSlowConsumer(notif);
-                  break;
-               default:
-                  break;
-            }
-         }
-      }
-      catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.error("Failed to send notification " + notif, e);
-      }
-   }
-
-   private void fireSlowConsumer(Notification notif) throws Exception {
-      SimpleString coreSessionId = notif.getProperties().getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME);
-      Long coreConsumerId = notif.getProperties().getLongProperty(ManagementHelper.HDR_CONSUMER_NAME);
-      SessionId sessionId = sessionIdMap.get(coreSessionId.toString());
-      AMQSession session = sessions.get(sessionId);
-      AMQConsumer consumer = session.getConsumer(coreConsumerId);
-      ActiveMQDestination destination = consumer.getDestination();
-
-      if (!AdvisorySupport.isAdvisoryTopic(destination)) {
-         ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(destination);
-         ConnectionId connId = sessionId.getParentId();
-         OpenWireConnection cc = this.brokerConnectionStates.get(connId);
-         ActiveMQMessage advisoryMessage = new ActiveMQMessage();
-         advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, consumer.getId().toString());
-
-         fireAdvisory(cc.getConext(), topic, advisoryMessage, consumer.getId());
-      }
    }
 
    public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
@@ -729,16 +530,51 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       server.destroyQueue(subQueueName);
    }
 
-   public void sendBrokerInfo(OpenWireConnection connection) {
+   public void sendBrokerInfo(OpenWireConnection connection) throws Exception {
       BrokerInfo brokerInfo = new BrokerInfo();
-      brokerInfo.setBrokerName(server.getIdentity());
-      brokerInfo.setBrokerId(new BrokerId(server.getNodeID().toString()));
+      brokerInfo.setBrokerName(getBrokerName());
+      brokerInfo.setBrokerId(new BrokerId("" + server.getNodeID()));
       brokerInfo.setPeerBrokerInfos(null);
       brokerInfo.setFaultTolerantConfiguration(false);
       brokerInfo.setBrokerURL(connection.getLocalAddress());
 
       //cluster support yet to support
       brokerInfo.setPeerBrokerInfos(null);
-      connection.dispatchAsync(brokerInfo);
+      connection.dispatch(brokerInfo);
    }
+
+   public void setRebalanceClusterClients(boolean rebalance) {
+      this.rebalanceClusterClients = rebalance;
+   }
+
+   public boolean isRebalanceClusterClients() {
+      return this.rebalanceClusterClients;
+   }
+
+   public void setUpdateClusterClients(boolean updateClusterClients) {
+      this.updateClusterClients = updateClusterClients;
+   }
+
+   public boolean isUpdateClusterClients() {
+      return this.updateClusterClients;
+   }
+
+   public void setUpdateClusterClientsOnRemove(boolean updateClusterClientsOnRemove) {
+      this.updateClusterClientsOnRemove = updateClusterClientsOnRemove;
+   }
+
+   public boolean isUpdateClusterClientsOnRemove() {
+      return this.updateClusterClientsOnRemove;
+   }
+
+   public void setBrokerName(String name) {
+      this.brokerName = name;
+   }
+
+   public static XAException newXAException(String s, int errorCode) {
+      XAException xaException = new XAException(s + " " + "xaErrorCode:" + errorCode);
+      xaException.errorCode = errorCode;
+      return xaException;
+   }
+
 }

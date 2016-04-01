@@ -42,11 +42,6 @@ public class FakeQueue implements Queue {
    }
 
    @Override
-   public void sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception {
-
-   }
-
-   @Override
    public void deleteQueue(boolean removeConsumers) throws Exception {
    }
 

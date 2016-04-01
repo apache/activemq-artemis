@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,7 +39,10 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.jboss.byteman.contrib.bmunit.BMRule;
@@ -83,8 +87,8 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
          targetLocation = "ENTRY",
          action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"), @BMRule(
          name = "stop broker before commit",
-         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-         targetMethod = "processCommitTransactionOnePhase",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+         targetMethod = "commit",
          targetLocation = "ENTRY",
          action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction()"),})
    public void testFailoverConsumerDups() throws Exception {
@@ -177,10 +181,10 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
          @BMRule(
             name = "stop broker before commit",
-            targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-            targetMethod = "processCommitTransactionOnePhase",
+            targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+            targetMethod = "commit",
             targetLocation = "ENTRY",
-            action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction();return null")})
+            action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction();return")})
    public void TestFailoverConsumerOutstandingSendTxIncomplete() throws Exception {
       doTestFailoverConsumerOutstandingSendTx(false);
    }
@@ -194,8 +198,8 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
          targetLocation = "ENTRY",
          action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"), @BMRule(
          name = "stop broker after commit",
-         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-         targetMethod = "processCommitTransactionOnePhase",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+         targetMethod = "commit",
          targetLocation = "AT EXIT",
          action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction()")})
    public void TestFailoverConsumerOutstandingSendTxComplete() throws Exception {
@@ -232,13 +236,11 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       testConsumer.setMessageListener(new MessageListener() {
 
          public void onMessage(Message message) {
-            LOG.info("consume one: " + message);
+            LOG.info("consume one and commit: " + message);
             assertNotNull("got message", message);
             receivedMessages.add((TextMessage) message);
             try {
-               LOG.info("send one");
                produceMessage(consumerSession, signalDestination, 1);
-               LOG.info("commit session");
                consumerSession.commit();
             }
             catch (JMSException e) {
@@ -270,8 +272,8 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
       // will be stopped by the plugin
       brokerStopLatch.await();
-      doByteman.set(false);
       server.stop();
+      doByteman.set(false);
       server = createBroker();
       server.start();
 

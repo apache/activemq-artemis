@@ -17,9 +17,11 @@
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
+import org.apache.activemq.command.Command;
 import org.apache.activemq.command.ConnectionId;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.WireFormatInfo;
@@ -47,6 +49,8 @@ public class AMQConnectionContext {
    private boolean clientMaster = true;
    private ConnectionState connectionState;
    private XATransactionId xid;
+   private AtomicInteger refCount = new AtomicInteger(1);
+   private Command lastCommand;
 
    public AMQConnectionContext() {
       this.messageEvaluationContext = new MessageEvaluationContext();
@@ -248,4 +252,19 @@ public class AMQConnectionContext {
       return false;
    }
 
+   public void incRefCount() {
+      refCount.incrementAndGet();
+   }
+
+   public int decRefCount() {
+      return refCount.decrementAndGet();
+   }
+
+   public void setLastCommand(Command lastCommand) {
+      this.lastCommand = lastCommand;
+   }
+
+   public Command getLastCommand() {
+      return this.lastCommand;
+   }
 }

@@ -92,6 +92,11 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
+   public void browserFinished(ServerConsumer consumer) {
+
+   }
+
+   @Override
    public void init(AMQPSessionContext protonSession, SASLResult saslResult) throws Exception {
 
       this.protonSession = protonSession;

@@ -69,6 +69,11 @@ public class EmbeddedActiveMQ {
     * @return
     */
    public boolean waitClusterForming(long timeWait, TimeUnit unit, int iterations, int servers) throws Exception {
+      if (activeMQServer.getClusterManager().getClusterConnections() == null ||
+         activeMQServer.getClusterManager().getClusterConnections().size() == 0) {
+         return servers == 0;
+      }
+
       for (int i = 0; i < iterations; i++) {
          for (ClusterConnection connection : activeMQServer.getClusterManager().getClusterConnections()) {
             if (connection.getTopology().getMembers().size() == servers) {

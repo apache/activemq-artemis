@@ -54,12 +54,12 @@ public class SoWriteTimeoutClientTest extends OpenwireArtemisBaseTest {
    @BeforeClass
    public static void beforeTest() throws Exception {
       //this thread keeps alive in original test too. Exclude it.
-      ThreadLeakCheckRule.addKownThread("WriteTimeoutFilter-Timeout");
+      ThreadLeakCheckRule.addExtraThreads("WriteTimeoutFilter-Timeout-1");
    }
 
    @AfterClass
    public static void afterTest() throws Exception {
-      ThreadLeakCheckRule.removeKownThread("WriteTimeoutFilter-Timeout");
+      ThreadLeakCheckRule.clearExtraThreads();
    }
 
    @Before

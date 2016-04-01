@@ -14,15 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.command.TransactionId;
+import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.util.ByteSequence;
 
 public class OpenWireUtil {
@@ -70,4 +73,11 @@ public class OpenWireUtil {
       return physicalName.replaceAll("(\\.>)+", ".#");
    }
 
+   public static XidImpl toXID(TransactionId xaXid) {
+      return toXID((XATransactionId)xaXid);
+   }
+
+   public static XidImpl toXID(XATransactionId xaXid) {
+      return new XidImpl(xaXid.getBranchQualifier(), xaXid.getFormatId(), xaXid.getGlobalTransactionId());
+   }
 }

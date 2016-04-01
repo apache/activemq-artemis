@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,12 @@ public class AMQServerSession extends ServerSessionImpl {
 
    @Override
    protected void doClose(final boolean failed) throws Exception {
+      Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
+      for (ServerConsumer consumer : consumersClone) {
+         AMQServerConsumer amqConsumer = (AMQServerConsumer)consumer;
+         amqConsumer.setStarted(false);
+      }
+
       synchronized (this) {
          if (tx != null && tx.getXid() == null) {
             ((AMQTransactionImpl) tx).setRollbackForClose();
@@ -143,6 +150,8 @@ public class AMQServerSession extends ServerSessionImpl {
    }
 
    //amq specific behavior
+
+   // TODO: move this to AMQSession
    public void amqRollback(Set<Long> acked) throws Exception {
       if (tx == null) {
          // Might be null if XA
@@ -218,7 +227,9 @@ public class AMQServerSession extends ServerSessionImpl {
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
       if (this.internal) {
-         //internal sessions doesn't check security
+         // Clebert TODO: PQP!!!!!!!!!!!!!!!!!!!!
+
+         //internal sessions doesn't check security:: Why??? //// what's the reason for that? Where a link?
 
          Binding binding = postOffice.getBinding(queueName);
 
@@ -309,6 +320,8 @@ public class AMQServerSession extends ServerSessionImpl {
       return queue;
    }
 
+
+   // Clebert TODO: Get rid of these mthods
    @Override
    protected void doSend(final ServerMessage msg, final boolean direct) throws Exception {
       if (!this.internal) {
