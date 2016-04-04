@@ -164,7 +164,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    public static BooleanExpression createLike(Expression left, String right, String escape) {
       if (escape != null && escape.length() != 1) {
-         throw new RuntimeException("The ESCAPE string litteral is invalid.  It can only be one character.  Litteral used: " + escape);
+         throw new RuntimeException("The ESCAPE string literal is invalid.  It can only be one character.  Literal used: " + escape);
       }
       int c = -1;
       if (escape != null) {
