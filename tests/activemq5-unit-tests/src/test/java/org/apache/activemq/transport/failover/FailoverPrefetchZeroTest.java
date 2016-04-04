@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.transport.failover;
 
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -27,31 +23,43 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerPlugin;
-import org.apache.activemq.broker.BrokerPluginSupport;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.ConnectionContext;
-import org.apache.activemq.command.MessagePull;
-import org.apache.activemq.command.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
+import org.jboss.byteman.contrib.bmunit.BMRule;
+import org.jboss.byteman.contrib.bmunit.BMRules;
+import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
 
 // see: https://issues.apache.org/activemq/browse/AMQ-2877
-public class FailoverPrefetchZeroTest {
+@RunWith(BMUnitRunner.class)
+public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(FailoverPrefetchZeroTest.class);
    private static final String QUEUE_NAME = "FailoverPrefetchZero";
-   private static final String TRANSPORT_URI = "tcp://localhost:0";
-   private String url;
+
+   private static final AtomicBoolean doByteman = new AtomicBoolean(false);
+   private static final CountDownLatch pullDone = new CountDownLatch(1);
+   private static CountDownLatch brokerStopLatch = new CountDownLatch(1);
+
+   private String url = newURI(0);
    final int prefetch = 0;
-   BrokerService broker;
+   private static EmbeddedJMS broker;
 
    @After
    public void stopBroker() throws Exception {
@@ -60,52 +68,24 @@ public class FailoverPrefetchZeroTest {
       }
    }
 
-   public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-      broker = createBroker(deleteAllMessagesOnStartup);
+   public void startBroker() throws Exception {
+      broker = createBroker();
       broker.start();
-   }
-
-   public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-      return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
-   }
-
-   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-      broker = new BrokerService();
-      broker.addConnector(bindAddress);
-      broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
-
-      url = broker.getTransportConnectors().get(0).getConnectUri().toString();
-
-      return broker;
    }
 
    @SuppressWarnings("unchecked")
    @Test
+   @BMRules(
+      rules = {@BMRule(
+         name = "set no return response and stop the broker",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processMessagePull",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.transport.failover.FailoverPrefetchZeroTest.holdResponseAndStopBroker($0)")})
    public void testPrefetchZeroConsumerThroughRestart() throws Exception {
-      broker = createBroker(true);
-
-      final CountDownLatch pullDone = new CountDownLatch(1);
-      broker.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
-         @Override
-         public Response messagePull(ConnectionContext context, final MessagePull pull) throws Exception {
-            context.setDontSendReponse(true);
-            pullDone.countDown();
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-               @Override
-               public void run() {
-                  LOG.info("Stopping broker on pull: " + pull);
-                  try {
-                     broker.stop();
-                  }
-                  catch (Exception e) {
-                     e.printStackTrace();
-                  }
-               }
-            });
-            return null;
-         }
-      }});
+      broker = createBroker();
       broker.start();
+      doByteman.set(true);
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
       cf.setWatchTopicAdvisories(false);
@@ -121,8 +101,7 @@ public class FailoverPrefetchZeroTest {
 
       final CountDownLatch receiveDone = new CountDownLatch(1);
       final Vector<Message> received = new Vector<>();
-      Executors.newSingleThreadExecutor().execute(new Runnable() {
-         @Override
+      new Thread() {
          public void run() {
             try {
                LOG.info("receive one...");
@@ -137,12 +116,13 @@ public class FailoverPrefetchZeroTest {
                e.printStackTrace();
             }
          }
-      });
+      }.start();
 
       // will be stopped by the plugin
       assertTrue("pull completed on broker", pullDone.await(30, TimeUnit.SECONDS));
-      broker.waitUntilStopped();
-      broker = createBroker(false, url);
+      brokerStopLatch.await();
+      doByteman.set(false);
+      broker = createBroker();
       broker.start();
 
       assertTrue("receive completed through failover", receiveDone.await(30, TimeUnit.SECONDS));
@@ -160,4 +140,26 @@ public class FailoverPrefetchZeroTest {
       }
       producer.close();
    }
+
+   public static void holdResponseAndStopBroker(final OpenWireConnection.CommandProcessor context) {
+      new Exception("trace").printStackTrace();
+      if (doByteman.get()) {
+         context.getContext().setDontSendReponse(true);
+         pullDone.countDown();
+         new Thread() {
+            public void run() {
+               try {
+                  broker.stop();
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+               }
+               finally {
+                  brokerStopLatch.countDown();
+               }
+            }
+         }.start();
+      }
+   }
+
 }

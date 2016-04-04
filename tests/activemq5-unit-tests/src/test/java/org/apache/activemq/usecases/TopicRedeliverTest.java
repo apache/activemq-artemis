@@ -78,19 +78,24 @@ public class TopicRedeliverTest extends TestSupport {
 
       TextMessage sent1 = producerSession.createTextMessage();
       sent1.setText("msg1");
+      sent1.setStringProperty("str", "1");
       producer.send(sent1);
 
       TextMessage sent2 = producerSession.createTextMessage();
-      sent1.setText("msg2");
+      sent2.setText("msg2");
+      sent2.setStringProperty("str", "2");
       producer.send(sent2);
 
       TextMessage sent3 = producerSession.createTextMessage();
-      sent1.setText("msg3");
+      sent2.setText("msg3");
+      sent2.setStringProperty("str", "3");
       producer.send(sent3);
 
-      consumer.receive(RECEIVE_TIMEOUT);
-      Message rec2 = consumer.receive(RECEIVE_TIMEOUT);
-      consumer.receive(RECEIVE_TIMEOUT);
+      TextMessage msgTest = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      System.out.println("msgTest::" + msgTest + " // " + msgTest.getText());
+      TextMessage rec2 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      System.out.println("msgTest::" + rec2 + " // " + rec2.getText());
+      assertNull(consumer.receiveNoWait());
 
       // ack rec2
       rec2.acknowledge();
@@ -99,10 +104,10 @@ public class TopicRedeliverTest extends TestSupport {
       sent4.setText("msg4");
       producer.send(sent4);
 
-      Message rec4 = consumer.receive(RECEIVE_TIMEOUT);
+      TextMessage rec4 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
       assertTrue(rec4.equals(sent4));
       consumerSession.recover();
-      rec4 = consumer.receive(RECEIVE_TIMEOUT);
+      rec4 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
       assertTrue(rec4.equals(sent4));
       assertTrue(rec4.getJMSRedelivered());
       rec4.acknowledge();

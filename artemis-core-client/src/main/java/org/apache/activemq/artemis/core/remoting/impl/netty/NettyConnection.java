@@ -100,6 +100,10 @@ public class NettyConnection implements Connection {
    }
    // Connection implementation ----------------------------
 
+   @Override
+   public void setAutoRead(boolean autoRead) {
+      channel.config().setAutoRead(autoRead);
+   }
 
    @Override
    public synchronized boolean isWritable(ReadyListener callback) {

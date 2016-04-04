@@ -17,7 +17,9 @@
 
 package org.apache.activemq.artemis.tests.util;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.rules.ExternalResource;
@@ -26,6 +28,7 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
+   private static Set<String> knownThreads = new HashSet<String>();
 
    boolean enabled = true;
 
@@ -94,6 +97,13 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
    }
 
+   public static void removeKownThread(String name) {
+      knownThreads.remove(name);
+   }
+
+   public static void addKownThread(String name) {
+      knownThreads.add(name);
+   }
 
    private boolean checkThread() {
       boolean failedThread = false;
@@ -189,9 +199,14 @@ public class ThreadLeakCheckRule extends ExternalResource {
                return true;
             }
          }
+
+         for (String known: knownThreads) {
+            if (threadName.contains(known)) {
+               return true;
+            }
+         }
+
          return false;
       }
    }
-
-
 }

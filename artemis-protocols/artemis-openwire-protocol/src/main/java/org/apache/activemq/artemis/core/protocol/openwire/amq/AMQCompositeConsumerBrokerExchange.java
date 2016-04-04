@@ -20,15 +20,20 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessagePull;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchange {
 
    private final Map<ActiveMQDestination, AMQConsumer> consumerMap;
 
-   public AMQCompositeConsumerBrokerExchange(AMQSession amqSession, Map<ActiveMQDestination, AMQConsumer> consumerMap) {
+   public AMQCompositeConsumerBrokerExchange(AMQSession amqSession, List<AMQConsumer> consumerList) {
       super(amqSession);
-      this.consumerMap = consumerMap;
+      this.consumerMap = new HashMap<>();
+      for (AMQConsumer consumer : consumerList) {
+         consumerMap.put(consumer.getOpenwireDestination(), consumer);
+      }
    }
 
    @Override
@@ -43,7 +48,7 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
    public void acknowledge(MessageAck ack) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(ack.getDestination());
       if (amqConsumer != null) {
-         amqSession.acknowledge(ack, amqConsumer);
+         amqConsumer.acknowledge(ack);
       }
    }
 
@@ -51,6 +56,13 @@ public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchang
    public void removeConsumer() throws Exception {
       for (AMQConsumer amqConsumer : consumerMap.values()) {
          amqConsumer.removeConsumer();
+      }
+   }
+
+   @Override
+   public void updateConsumerPrefetchSize(int prefetch) {
+      for (AMQConsumer amqConsumer : consumerMap.values()) {
+         amqConsumer.setPrefetchSize(prefetch);
       }
    }
 }

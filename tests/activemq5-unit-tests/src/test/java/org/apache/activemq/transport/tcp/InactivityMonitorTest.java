@@ -173,11 +173,8 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
    }
 
    public void testClientHang() throws Exception {
-
-      //
       // Manually create a client transport so that it does not send KeepAlive
-      // packets.
-      // this should simulate a client hang.
+      // packets.  this should simulate a client hang.
       clientTransport = new TcpTransport(new OpenWireFormat(), SocketFactory.getDefault(), new URI("tcp://localhost:" + serverPort), null);
       clientTransport.setTransportListener(new TransportListener() {
          @Override
@@ -205,9 +202,10 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
          public void transportResumed() {
          }
       });
+
       clientTransport.start();
       WireFormatInfo info = new WireFormatInfo();
-      info.setVersion(OpenWireFormat.DEFAULT_VERSION);
+      info.setVersion(OpenWireFormat.DEFAULT_LEGACY_VERSION);
       info.setMaxInactivityDuration(1000);
       clientTransport.oneway(info);
 
@@ -242,19 +240,17 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
     * @throws URISyntaxException
     */
    public void initCombosForTestNoClientHangWithServerBlock() throws Exception {
-
       startClient();
 
-      addCombinationValues("clientInactivityLimit", new Object[]{Long.valueOf(1000)});
-      addCombinationValues("serverInactivityLimit", new Object[]{Long.valueOf(1000)});
-      addCombinationValues("serverRunOnCommand", new Object[]{new Runnable() {
+      addCombinationValues("clientInactivityLimit", new Object[] {Long.valueOf(1000)});
+      addCombinationValues("serverInactivityLimit", new Object[] {Long.valueOf(1000)});
+      addCombinationValues("serverRunOnCommand", new Object[] {new Runnable() {
          @Override
          public void run() {
             try {
                LOG.info("Sleeping");
                Thread.sleep(4000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
          }
       }});
@@ -272,5 +268,4 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       assertEquals(0, clientErrorCount.get());
       assertEquals(0, serverErrorCount.get());
    }
-
 }

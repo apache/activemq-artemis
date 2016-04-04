@@ -55,6 +55,7 @@ public class RemoveDestinationTest {
 
    @Before
    public void setUp() throws Exception {
+      BrokerService.disableWrapper = true;
       broker = BrokerFactory.createBroker(new URI(BROKER_URL));
       broker.start();
       broker.waitUntilStarted();
@@ -62,6 +63,7 @@ public class RemoveDestinationTest {
 
    @After
    public void tearDown() throws Exception {
+      BrokerService.disableWrapper = false;
       broker.stop();
       broker.waitUntilStopped();
       broker = null;

@@ -1044,7 +1044,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
    }
 
-   private boolean internalCreateQueue(final String queueName,
+   private synchronized boolean internalCreateQueue(final String queueName,
                                        final String selectorString,
                                        final boolean durable) throws Exception {
       if (queues.get(queueName) != null) {
@@ -1080,7 +1080,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
     * @return
     * @throws Exception
     */
-   private boolean internalCreateTopic(final String topicName) throws Exception {
+   private synchronized boolean internalCreateTopic(final String topicName) throws Exception {
 
       if (topics.get(topicName) != null) {
          return false;

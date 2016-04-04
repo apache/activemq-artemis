@@ -139,7 +139,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
                                boolean xa,
                                String defaultAddress,
                                SessionCallback callback,
-                               ServerSessionFactory sessionFactory,
                                boolean autoCreateQueues) throws Exception;
 
    SecurityStore getSecurityStore();
@@ -242,6 +241,10 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean temporary) throws Exception;
 
    Queue locateQueue(SimpleString queueName);
+
+   BindingQueryResult bindingQuery(SimpleString address) throws Exception;
+
+   QueueQueryResult queueQuery(SimpleString name) throws Exception;
 
    void destroyQueue(SimpleString queueName) throws Exception;
 

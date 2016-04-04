@@ -116,7 +116,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    public static void checkStopped() throws Exception {
       ArtemisBrokerHelper.stopArtemisBroker();
       boolean notStopped = BrokerService.checkStopped();
-      TcpTransportFactory.setBrokerName(null);
+      TcpTransportFactory.clearService();
       if (notStopped) {
          fail("brokers not stopped see exceptions above");
       }

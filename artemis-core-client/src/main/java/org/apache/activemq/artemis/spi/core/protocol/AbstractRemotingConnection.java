@@ -104,6 +104,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return transportConnection.getID();
    }
 
+
+   public String getLocalAddress() {
+      return transportConnection.getLocalAddress();
+   }
+
    @Override
    public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();

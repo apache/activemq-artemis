@@ -263,6 +263,7 @@ public class JmsQueueBrowserTest extends JmsTestSupport {
       consumer.close();
    }
 
+   //ref: https://issues.apache.org/jira/browse/ARTEMIS-384
    public void testBrowseReceive() throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("TEST");

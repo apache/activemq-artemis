@@ -33,25 +33,36 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.TestSupport;
-import org.apache.activemq.broker.BrokerPlugin;
-import org.apache.activemq.broker.BrokerPluginSupport;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.ProducerBrokerExchange;
-import org.apache.activemq.broker.region.RegionBroker;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.util.Wait;
+import org.jboss.byteman.contrib.bmunit.BMRule;
+import org.jboss.byteman.contrib.bmunit.BMRules;
+import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FailoverDuplicateTest extends TestSupport {
+@RunWith(BMUnitRunner.class)
+public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(FailoverDuplicateTest.class);
    private static final String QUEUE_NAME = "TestQueue";
-   private static final String TRANSPORT_URI = "tcp://localhost:0";
-   private String url;
-   BrokerService broker;
 
-   @Override
+   private static final AtomicBoolean doByteman = new AtomicBoolean(false);
+   private static final AtomicBoolean first = new AtomicBoolean(false);
+   private static final CountDownLatch gotMessageLatch = new CountDownLatch(1);
+   private static final CountDownLatch producersDone = new CountDownLatch(1);
+
+   private String url = newURI(0);
+   EmbeddedJMS broker;
+
+   @After
    public void tearDown() throws Exception {
       stopBroker();
    }
@@ -63,29 +74,13 @@ public class FailoverDuplicateTest extends TestSupport {
    }
 
    public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-      broker = createBroker(deleteAllMessagesOnStartup);
+      broker = createBroker();
       broker.start();
    }
 
-   public void startBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-      broker = createBroker(deleteAllMessagesOnStartup, bindAddress);
+   public void startBroker() throws Exception {
+      broker = createBroker();
       broker.start();
-   }
-
-   public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-      return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
-   }
-
-   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-      broker = new BrokerService();
-      broker.setUseJmx(false);
-      broker.setAdvisorySupport(false);
-      broker.addConnector(bindAddress);
-      broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
-
-      url = broker.getTransportConnectors().get(0).getConnectUri().toString();
-
-      return broker;
    }
 
    public void configureConnectionFactory(ActiveMQConnectionFactory factory) {
@@ -94,41 +89,22 @@ public class FailoverDuplicateTest extends TestSupport {
    }
 
    @SuppressWarnings("unchecked")
+   @Test
+   @BMRules(
+           rules = {
+                   @BMRule(
+                           name = "set no return response and stop the broker",
+                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+                           targetMethod = "processMessage",
+                           targetLocation = "EXIT",
+                           action = "org.apache.activemq.transport.failover.FailoverDuplicateTest.holdResponseAndStopConn($0)")
+           }
+   )
    public void testFailoverSendReplyLost() throws Exception {
 
-      broker = createBroker(true);
-      setDefaultPersistenceAdapter(broker);
-
-      final CountDownLatch gotMessageLatch = new CountDownLatch(1);
-      final CountDownLatch producersDone = new CountDownLatch(1);
-      final AtomicBoolean first = new AtomicBoolean(false);
-      broker.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
-         @Override
-         public void send(final ProducerBrokerExchange producerExchange,
-                          org.apache.activemq.command.Message messageSend) throws Exception {
-            // so send will hang as if reply is lost
-            super.send(producerExchange, messageSend);
-            if (first.compareAndSet(false, true)) {
-               producerExchange.getConnectionContext().setDontSendReponse(true);
-               Executors.newSingleThreadExecutor().execute(new Runnable() {
-                  @Override
-                  public void run() {
-                     try {
-                        LOG.info("Waiting for recepit");
-                        assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
-                        assertTrue("new producers done on time", producersDone.await(120, TimeUnit.SECONDS));
-                        LOG.info("Stopping connection post send and receive and multiple producers");
-                        producerExchange.getConnectionContext().getConnection().stop();
-                     }
-                     catch (Exception e) {
-                        e.printStackTrace();
-                     }
-                  }
-               });
-            }
-         }
-      }});
+      broker = createBroker();
       broker.start();
+      doByteman.set(true);
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")?jms.watchTopicAdvisories=false");
       configureConnectionFactory(cf);
@@ -155,7 +131,7 @@ public class FailoverDuplicateTest extends TestSupport {
 
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // broker will die on send reply so this will hang till restart
-      Executors.newSingleThreadExecutor().execute(new Runnable() {
+      new Thread() {
          @Override
          public void run() {
             LOG.info("doing async send...");
@@ -164,14 +140,14 @@ public class FailoverDuplicateTest extends TestSupport {
             }
             catch (JMSException e) {
                LOG.error("got send exception: ", e);
-               fail("got unexpected send exception" + e);
+               Assert.fail("got unexpected send exception" + e);
             }
             sendDoneLatch.countDown();
             LOG.info("done async send");
          }
-      });
+      }.start();
 
-      assertTrue("one message got through on time", gotMessageLatch.await(20, TimeUnit.SECONDS));
+      Assert.assertTrue("one message got through on time", gotMessageLatch.await(20, TimeUnit.SECONDS));
       // send more messages, blow producer audit
       final int numProducers = 1050;
       final int numPerProducer = 2;
@@ -186,7 +162,7 @@ public class FailoverDuplicateTest extends TestSupport {
          }
       }
 
-      assertTrue("message sent complete through failover", sendDoneLatch.await(30, TimeUnit.SECONDS));
+      Assert.assertTrue("message sent complete through failover", sendDoneLatch.await(30, TimeUnit.SECONDS));
 
       Wait.waitFor(new Wait.Condition() {
          @Override
@@ -195,29 +171,16 @@ public class FailoverDuplicateTest extends TestSupport {
             return totalSent <= receivedCount.get();
          }
       });
-      assertEquals("we got all produced messages", totalSent, receivedCount.get());
+      Assert.assertEquals("we got all produced messages", totalSent, receivedCount.get());
       sendConnection.close();
       receiveConnection.close();
 
-      // verify stats
-      assertEquals("expect all messages are dequeued with one duplicate to dlq", totalSent + 2, ((RegionBroker) broker.getRegionBroker()).getDestinationStatistics().getEnqueues().getCount());
-
-      Wait.waitFor(new Wait.Condition() {
-         @Override
-         public boolean isSatisified() throws Exception {
-            LOG.info("dequeues : " + ((RegionBroker) broker.getRegionBroker()).getDestinationStatistics().getDequeues().getCount());
-            return totalSent + 1 <= ((RegionBroker) broker.getRegionBroker()).getDestinationStatistics().getDequeues().getCount();
-         }
-      });
-      assertEquals("dequeue correct, including duplicate dispatch poisoned", totalSent + 1, ((RegionBroker) broker.getRegionBroker()).getDestinationStatistics().getDequeues().getCount());
-
       // ensure no dangling messages with fresh broker etc
       broker.stop();
-      broker.waitUntilStopped();
+      doByteman.set(false);
 
       LOG.info("Checking for remaining/hung messages with second restart..");
-      broker = createBroker(false, url);
-      setDefaultPersistenceAdapter(broker);
+      broker = createBroker();
       broker.start();
 
       // after restart, ensure no dangling messages
@@ -231,7 +194,7 @@ public class FailoverDuplicateTest extends TestSupport {
       if (msg == null) {
          msg = consumer.receive(5000);
       }
-      assertNull("no messges left dangling but got: " + msg, msg);
+      Assert.assertNull("no messges left dangling but got: " + msg, msg);
 
       sendConnection.close();
    }
@@ -247,4 +210,28 @@ public class FailoverDuplicateTest extends TestSupport {
       }
       producer.close();
    }
+
+   public static void holdResponseAndStopConn(final OpenWireConnection.CommandProcessor context) {
+      if (doByteman.get()) {
+         if (first.compareAndSet(false, true)) {
+            context.getContext().setDontSendReponse(true);
+            new Thread() {
+               @Override
+               public void run() {
+                  try {
+                     LOG.info("Waiting for recepit");
+                     Assert.assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
+                     Assert.assertTrue("new producers done on time", producersDone.await(120, TimeUnit.SECONDS));
+                     LOG.info("Stopping connection post send and receive and multiple producers");
+                     context.getContext().getConnection().fail(null, "test Failoverduplicatetest");
+                  }
+                  catch (Exception e) {
+                     e.printStackTrace();
+                  }
+               }
+            }.start();
+         }
+      }
+   }
+
 }

@@ -28,29 +28,33 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-
-import junit.framework.TestCase;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.transport.TransportListener;
 import org.apache.activemq.transport.mock.MockTransport;
-import org.apache.activemq.util.ServiceStopper;
 import org.apache.activemq.util.Wait;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReconnectTest extends TestCase {
+public class ReconnectTest extends OpenwireArtemisBaseTest {
 
    public static final int MESSAGES_PER_ITTERATION = 10;
    public static final int WORKER_COUNT = 10;
 
    private static final Logger LOG = LoggerFactory.getLogger(ReconnectTest.class);
 
-   private BrokerService bs;
+   private EmbeddedJMS bs;
    private URI tcpUri;
    private final AtomicInteger resumedCount = new AtomicInteger();
    private final AtomicInteger interruptedCount = new AtomicInteger();
@@ -102,7 +106,7 @@ public class ReconnectTest extends TestCase {
       }
 
       public void start() {
-         new Thread(this).start();
+         new Thread(this, name).start();
       }
 
       public void stop() {
@@ -129,13 +133,19 @@ public class ReconnectTest extends TestCase {
             MessageConsumer consumer = session.createConsumer(queue);
             MessageProducer producer = session.createProducer(queue);
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
             while (!stop.get()) {
+
                for (int i = 0; i < MESSAGES_PER_ITTERATION; i++) {
-                  producer.send(session.createTextMessage("TEST:" + i));
+                  TextMessage text = session.createTextMessage(name + " TEST:" + i);
+                  text.setStringProperty("myprop", name + " TEST:" + i);
+                  producer.send(text);
                }
+
                for (int i = 0; i < MESSAGES_PER_ITTERATION; i++) {
-                  consumer.receive();
+                  TextMessage m = (TextMessage) consumer.receive();
                }
+
                iterations.incrementAndGet();
             }
             session.close();
@@ -159,11 +169,12 @@ public class ReconnectTest extends TestCase {
       public synchronized void assertNoErrors() {
          if (error != null) {
             error.printStackTrace();
-            fail("Worker " + name + " got Exception: " + error);
+            Assert.fail("Worker " + name + " got Exception: " + error);
          }
       }
    }
 
+   @Test
    public void testReconnects() throws Exception {
 
       for (int k = 1; k < 10; k++) {
@@ -181,7 +192,7 @@ public class ReconnectTest extends TestCase {
                LOG.info("Test run " + k + ": Waiting for worker " + i + " to finish an iteration.");
                Thread.sleep(1000);
             }
-            assertTrue("Test run " + k + ": Worker " + i + " never completed an interation.", c != 0);
+            Assert.assertTrue("Test run " + k + ": Worker " + i + " never completed an interation.", c != 0);
             workers[i].assertNoErrors();
          }
 
@@ -192,7 +203,7 @@ public class ReconnectTest extends TestCase {
             workers[i].failConnection();
          }
 
-         assertTrue("Timed out waiting for all connections to be interrupted.", Wait.waitFor(new Wait.Condition() {
+         Assert.assertTrue("Timed out waiting for all connections to be interrupted.", Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisified() throws Exception {
                LOG.debug("Test run waiting for connections to get interrupted.. at: " + interruptedCount.get());
@@ -201,7 +212,7 @@ public class ReconnectTest extends TestCase {
          }, TimeUnit.SECONDS.toMillis(60)));
 
          // Wait for the connections to re-establish...
-         assertTrue("Timed out waiting for all connections to be resumed.", Wait.waitFor(new Wait.Condition() {
+         Assert.assertTrue("Timed out waiting for all connections to be resumed.", Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisified() throws Exception {
                LOG.debug("Test run waiting for connections to get resumed.. at: " + resumedCount.get());
@@ -220,26 +231,25 @@ public class ReconnectTest extends TestCase {
       }
    }
 
-   @Override
-   protected void setUp() throws Exception {
-      bs = new BrokerService();
-      bs.setPersistent(false);
-      bs.setUseJmx(true);
-      TransportConnector connector = bs.addConnector("tcp://localhost:0");
+   @Before
+   public void setUp() throws Exception {
+      Configuration config = createConfig(0);
+      bs = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
       bs.start();
-      tcpUri = connector.getConnectUri();
+      tcpUri = new URI(newURI(0));
+
       workers = new Worker[WORKER_COUNT];
       for (int i = 0; i < WORKER_COUNT; i++) {
-         workers[i] = new Worker("" + i);
+         workers[i] = new Worker("worker-" + i);
          workers[i].start();
       }
    }
 
-   @Override
-   protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
       for (int i = 0; i < WORKER_COUNT; i++) {
          workers[i].stop();
       }
-      new ServiceStopper().stop(bs);
+      bs.stop();
    }
 }

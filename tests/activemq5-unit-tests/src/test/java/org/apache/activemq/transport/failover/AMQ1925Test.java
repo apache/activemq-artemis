@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,21 +34,23 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TransactionRolledBackException;
 
-import junit.framework.TestCase;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
-import org.apache.activemq.broker.region.Destination;
-import org.apache.activemq.broker.region.Queue;
-import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.util.ServiceStopper;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * TestCase showing the message-destroying described in AMQ-1925
  */
-public class AMQ1925Test extends TestCase implements ExceptionListener {
+public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionListener {
 
    private static final Logger log = Logger.getLogger(AMQ1925Test.class);
 
@@ -57,7 +58,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
    private static final String PROPERTY_MSG_NUMBER = "NUMBER";
    private static final int MESSAGE_COUNT = 10000;
 
-   private BrokerService bs;
+   private EmbeddedJMS bs;
    private URI tcpUri;
    private ActiveMQConnectionFactory cf;
 
@@ -74,17 +75,13 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
-         @Override
          public void run() {
             try {
                starter.await();
 
                // Simulate broker failure & restart
                bs.stop();
-               bs = new BrokerService();
-               bs.setPersistent(true);
-               bs.setUseJmx(true);
-               bs.addConnector(tcpUri);
+               bs = createNewServer();
                bs.start();
 
                restarted.set(true);
@@ -97,21 +94,21 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          Message message = consumer.receive(500);
-         assertNotNull("No Message " + i + " found", message);
+         Assert.assertNotNull("No Message " + i + " found", message);
 
          if (i < 10)
-            assertFalse("Timing problem, restarted too soon", restarted.get());
+            Assert.assertFalse("Timing problem, restarted too soon", restarted.get());
          if (i == 10) {
             starter.countDown();
          }
          if (i > MESSAGE_COUNT - 100) {
-            assertTrue("Timing problem, restarted too late", restarted.get());
+            Assert.assertTrue("Timing problem, restarted too late", restarted.get());
          }
 
-         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+         Assert.assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
          session.commit();
       }
-      assertNull(consumer.receive(500));
+      Assert.assertNull(consumer.receive(500));
 
       consumer.close();
       session.close();
@@ -133,17 +130,13 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
-         @Override
          public void run() {
             try {
                starter.await();
 
                // Simulate broker failure & restart
                bs.stop();
-               bs = new BrokerService();
-               bs.setPersistent(true);
-               bs.setUseJmx(true);
-               bs.addConnector(tcpUri);
+               bs = createNewServer();
                bs.start();
 
                restarted.set(true);
@@ -172,12 +165,12 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
          }
 
          if (i < 10)
-            assertFalse("Timing problem, restarted too soon", restarted.get());
+            Assert.assertFalse("Timing problem, restarted too soon", restarted.get());
          if (i == 10) {
             starter.countDown();
          }
          if (i > MESSAGE_COUNT - 50) {
-            assertTrue("Timing problem, restarted too late", restarted.get());
+            Assert.assertTrue("Timing problem, restarted too late", restarted.get());
          }
 
          if (message1 != null) {
@@ -189,8 +182,8 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
             session2.commit();
          }
       }
-      assertNull(consumer1.receive(500));
-      assertNull(consumer2.receive(500));
+      Assert.assertNull(consumer1.receive(500));
+      Assert.assertNull(consumer2.receive(500));
 
       consumer1.close();
       session1.close();
@@ -203,7 +196,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
          foundMissingMessages = tryToFetchMissingMessages();
       }
       for (int i = 0; i < MESSAGE_COUNT; i++) {
-         assertTrue("Message-Nr " + i + " not found (" + results.size() + " total, " + foundMissingMessages + " have been found 'lingering' in the queue)", results.contains(i));
+         Assert.assertTrue("Message-Nr " + i + " not found (" + results.size() + " total, " + foundMissingMessages + " have been found 'lingering' in the queue)", results.contains(i));
       }
       assertQueueEmpty();
    }
@@ -231,6 +224,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       return count;
    }
 
+   @Test
    public void testAMQ1925_TXBegin() throws Exception {
       Connection connection = cf.createConnection();
       connection.start();
@@ -239,40 +233,45 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
       boolean restartDone = false;
-      for (int i = 0; i < MESSAGE_COUNT; i++) {
-         Message message = consumer.receive(5000);
-         assertNotNull(message);
+      try {
+         for (int i = 0; i < MESSAGE_COUNT; i++) {
+            Message message = consumer.receive(5000);
+            Assert.assertNotNull(message);
 
-         if (i == 222 && !restartDone) {
-            // Simulate broker failure & restart
-            bs.stop();
-            bs = new BrokerService();
-            bs.setPersistent(true);
-            bs.setUseJmx(true);
-            bs.addConnector(tcpUri);
-            bs.start();
-            restartDone = true;
-         }
+            if (i == 222 && !restartDone) {
+               // Simulate broker failure & restart
+               bs.stop();
+               bs = createNewServer();
+               bs.start();
+               restartDone = true;
+            }
 
-         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
-         try {
-            session.commit();
+            Assert.assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+            try {
+               session.commit();
+            }
+            catch (TransactionRolledBackException expectedOnOccasion) {
+               log.info("got rollback: " + expectedOnOccasion);
+               i--;
+            }
          }
-         catch (TransactionRolledBackException expectedOnOccasion) {
-            log.info("got rollback: " + expectedOnOccasion);
-            i--;
-         }
+         Assert.assertNull(consumer.receive(500));
       }
-      assertNull(consumer.receive(500));
-
-      consumer.close();
-      session.close();
-      connection.close();
+      catch (Exception eee) {
+         log.error("got exception", eee);
+         throw eee;
+      }
+      finally {
+         consumer.close();
+         session.close();
+         connection.close();
+      }
 
       assertQueueEmpty();
-      assertNull("no exception on connection listener: " + exception, exception);
+      Assert.assertNull("no exception on connection listener: " + exception, exception);
    }
 
+   @Test
    public void testAMQ1925_TXCommited() throws Exception {
       Connection connection = cf.createConnection();
       connection.start();
@@ -281,22 +280,19 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          Message message = consumer.receive(5000);
-         assertNotNull(message);
+         Assert.assertNotNull(message);
 
-         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+         Assert.assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
          session.commit();
 
          if (i == 222) {
             // Simulate broker failure & restart
             bs.stop();
-            bs = new BrokerService();
-            bs.setPersistent(true);
-            bs.setUseJmx(true);
-            bs.addConnector(tcpUri);
+            bs = createNewServer();
             bs.start();
          }
       }
-      assertNull(consumer.receive(500));
+      Assert.assertNull(consumer.receive(500));
 
       consumer.close();
       session.close();
@@ -313,7 +309,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 
       Message msg = consumer.receive(500);
       if (msg != null) {
-         fail(msg.toString());
+         Assert.fail(msg.toString());
       }
 
       consumer.close();
@@ -324,9 +320,12 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
    }
 
    private void assertQueueLength(int len) throws Exception, IOException {
-      Set<Destination> destinations = bs.getBroker().getDestinations(new ActiveMQQueue(QUEUE_NAME));
-      Queue queue = (Queue) destinations.iterator().next();
-      assertEquals(len, queue.getMessageStore().getMessageCount());
+      QueueImpl queue = (QueueImpl) bs.getActiveMQServer().getPostOffice().getBinding(new SimpleString("jms.queue." + QUEUE_NAME)).getBindable();
+      if (len > queue.getMessageCount()) {
+         //we wait for a moment as the tx might still in afterCommit stage (async op)
+         Thread.sleep(5000);
+      }
+      Assert.assertEquals(len, queue.getMessageCount());
    }
 
    private void sendMessagesToQueue() throws Exception {
@@ -349,30 +348,40 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
       assertQueueLength(MESSAGE_COUNT);
    }
 
-   @Override
-   protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
       exception = null;
-      bs = new BrokerService();
-      bs.setDeleteAllMessagesOnStartup(true);
-      bs.setPersistent(true);
-      bs.setUseJmx(true);
-      TransportConnector connector = bs.addConnector("tcp://localhost:0");
+      bs = createNewServer();
       bs.start();
-      tcpUri = connector.getConnectUri();
+      //auto created queue can't survive a restart, so we need this
+      bs.getJMSServerManager().createQueue(false, QUEUE_NAME, null, true, QUEUE_NAME);
+
+      tcpUri = new URI(newURI(0));
 
       cf = new ActiveMQConnectionFactory("failover://(" + tcpUri + ")");
 
       sendMessagesToQueue();
    }
 
-   @Override
-   protected void tearDown() throws Exception {
-      new ServiceStopper().stop(bs);
+   @After
+   public void tearDown() throws Exception {
+      try {
+         if (bs != null) {
+            bs.stop();
+            bs = null;
+         }
+      } catch (Exception e) {
+         log.error(e);
+      }
    }
 
-   @Override
    public void onException(JMSException exception) {
       this.exception = exception;
    }
 
+   private EmbeddedJMS createNewServer() throws Exception {
+      Configuration config = createConfig("localhost", 0);
+      EmbeddedJMS server = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
+      return server;
+   }
 }

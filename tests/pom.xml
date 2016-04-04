@@ -84,7 +84,17 @@
          </modules>
       </profile>
       <profile>
+         <!-- deprecated: use openwire-tests -->
          <id>activemq5-unit-tests</id>
+         <modules>
+            <module>activemq5-unit-tests</module>
+         </modules>
+         <properties>
+            <skipActiveMQ5Tests>false</skipActiveMQ5Tests>
+         </properties>
+      </profile>
+      <profile>
+         <id>openwire-tests</id>
          <modules>
             <module>activemq5-unit-tests</module>
          </modules>

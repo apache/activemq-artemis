@@ -17,9 +17,6 @@
 
 package org.apache.activemq.transport;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
@@ -33,22 +30,23 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import junit.framework.TestCase;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.activemq.util.ServiceStopper;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class TopicClusterTest extends TestCase implements MessageListener {
+public class TopicClusterTest extends OpenwireArtemisBaseTest implements MessageListener {
 
    protected static final int MESSAGE_COUNT = 50;
    protected static final int NUMBER_IN_CLUSTER = 3;
@@ -60,11 +58,11 @@ public class TopicClusterTest extends TestCase implements MessageListener {
    protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
    protected MessageProducer[] producers;
    protected Connection[] connections;
-   protected List<BrokerService> services = new ArrayList<>();
+   protected EmbeddedJMS[] servers = new EmbeddedJMS[NUMBER_IN_CLUSTER];
    protected String groupId;
 
-   @Override
-   protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
       groupId = "topic-cluster-test-" + System.currentTimeMillis();
       connections = new Connection[NUMBER_IN_CLUSTER];
       producers = new MessageProducer[NUMBER_IN_CLUSTER];
@@ -73,11 +71,13 @@ public class TopicClusterTest extends TestCase implements MessageListener {
       if (root == null) {
          root = "target/store";
       }
+
+      this.setUpClusterServers(servers);
       try {
          for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
 
             System.setProperty("activemq.store.dir", root + "_broker_" + i);
-            connections[i] = createConnection("broker-" + i);
+            connections[i] = createConnection(i);
             connections[i].setClientID("ClusterTest" + i);
             connections[i].start();
             Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -95,42 +95,35 @@ public class TopicClusterTest extends TestCase implements MessageListener {
       }
    }
 
-   @Override
-   protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
       if (connections != null) {
          for (int i = 0; i < connections.length; i++) {
-            connections[i].close();
+            try {
+               connections[i].close();
+            } catch (Exception e) {
+               //ignore.
+            }
          }
       }
-      ServiceStopper stopper = new ServiceStopper();
-      stopper.stopServices(services);
+      this.shutDownClusterServers(servers);
    }
 
    protected MessageConsumer createMessageConsumer(Session session, Destination destination) throws JMSException {
       return session.createConsumer(destination);
    }
 
-   protected ActiveMQConnectionFactory createGenericClusterFactory(String brokerName) throws Exception {
-      BrokerService container = new BrokerService();
-      container.setBrokerName(brokerName);
-
-      String url = "tcp://localhost:0";
-      TransportConnector connector = container.addConnector(url);
-      connector.setDiscoveryUri(new URI("multicast://default?group=" + groupId));
-      container.addNetworkConnector("multicast://default?group=" + groupId);
-      container.start();
-
-      services.add(container);
-
-      return new ActiveMQConnectionFactory("vm://" + brokerName);
+   protected ActiveMQConnectionFactory createGenericClusterFactory(int serverID) throws Exception {
+      String url = newURI(serverID);
+      return new ActiveMQConnectionFactory(url);
    }
 
    protected int expectedReceiveCount() {
       return MESSAGE_COUNT * NUMBER_IN_CLUSTER * NUMBER_IN_CLUSTER;
    }
 
-   protected Connection createConnection(String name) throws Exception {
-      return createGenericClusterFactory(name).createConnection();
+   protected Connection createConnection(int serverID) throws Exception {
+      return createGenericClusterFactory(serverID).createConnection();
    }
 
    protected Destination createDestination() {
@@ -146,10 +139,6 @@ public class TopicClusterTest extends TestCase implements MessageListener {
       }
    }
 
-   /**
-    * @param msg
-    */
-   @Override
    public void onMessage(Message msg) {
       // log.info("GOT: " + msg);
       receivedMessageCount.incrementAndGet();
@@ -160,9 +149,7 @@ public class TopicClusterTest extends TestCase implements MessageListener {
       }
    }
 
-   /**
-    * @throws Exception
-    */
+   @Test
    public void testSendReceive() throws Exception {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          TextMessage textMessage = new ActiveMQTextMessage();
@@ -178,8 +165,8 @@ public class TopicClusterTest extends TestCase implements MessageListener {
       }
       // sleep a little - to check we don't get too many messages
       Thread.sleep(2000);
-      LOG.info("GOT: " + receivedMessageCount.get());
-      assertEquals("Expected message count not correct", expectedReceiveCount(), receivedMessageCount.get());
+      LOG.info("GOT: " + receivedMessageCount.get() + " Expected: " + expectedReceiveCount());
+      Assert.assertEquals("Expected message count not correct", expectedReceiveCount(), receivedMessageCount.get());
    }
 
 }

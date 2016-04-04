@@ -169,6 +169,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final long connectionsAllowed;
 
+   private Map<String, Object> extraConfigs;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,

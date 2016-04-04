@@ -61,7 +61,6 @@ import org.apache.activemq.filter.MessageEvaluationContext;
 import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.store.MessageStore;
 import org.apache.activemq.thread.TaskRunnerFactory;
-
 import junit.framework.TestCase;
 
 public class SubscriptionAddRemoveQueueTest extends TestCase {
@@ -177,16 +176,20 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
 
    public class SimpleImmediateDispatchSubscription implements Subscription, LockOwner {
 
-      List<MessageReference> dispatched = Collections.synchronizedList(new ArrayList<MessageReference>());
+      private SubscriptionStatistics subscriptionStatistics = new SubscriptionStatistics();
+      List<MessageReference> dispatched =
+              Collections.synchronizedList(new ArrayList<MessageReference>());
+
 
       @Override
-      public void acknowledge(ConnectionContext context, MessageAck ack) throws Exception {
+      public void acknowledge(ConnectionContext context, MessageAck ack)
+              throws Exception {
       }
 
       @Override
       public void add(MessageReference node) throws Exception {
          // immediate dispatch
-         QueueMessageReference qmr = (QueueMessageReference) node;
+         QueueMessageReference  qmr = (QueueMessageReference)node;
          qmr.lock(this);
          dispatched.add(qmr);
       }
@@ -398,6 +401,16 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
       @Override
       public int countBeforeFull() {
          return 10;
+      }
+
+      @Override
+      public SubscriptionStatistics getSubscriptionStatistics() {
+         return subscriptionStatistics;
+      }
+
+      @Override
+      public long getInFlightMessageSize() {
+         return subscriptionStatistics.getInflightMessageSize().getTotalSize();
       }
 
    }

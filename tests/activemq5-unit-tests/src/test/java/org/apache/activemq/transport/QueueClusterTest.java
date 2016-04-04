@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.transport;
 
+import org.junit.Before;
+
 /**
  *
  */
 public class QueueClusterTest extends TopicClusterTest {
 
    @Override
-   protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
       topic = false;
       super.setUp();
    }

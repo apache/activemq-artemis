@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -176,8 +176,8 @@ public class SimpleNetworkTest {
             if (bridges.length > 0) {
                LOG.info(brokerService + " bridges " + Arrays.toString(bridges));
                DemandForwardingBridgeSupport demandForwardingBridgeSupport = (DemandForwardingBridgeSupport) bridges[0];
-               ConcurrentHashMap<ConsumerId, DemandSubscription> forwardingBridges = demandForwardingBridgeSupport.getLocalSubscriptionMap();
-               LOG.info(brokerService + " bridge " + demandForwardingBridgeSupport + ", localSubs: " + forwardingBridges);
+               ConcurrentMap<ConsumerId, DemandSubscription> forwardingBridges = demandForwardingBridgeSupport.getLocalSubscriptionMap();
+               LOG.info(brokerService + " bridge "  + demandForwardingBridgeSupport + ", localSubs: " + forwardingBridges);
                if (!forwardingBridges.isEmpty()) {
                   for (DemandSubscription demandSubscription : forwardingBridges.values()) {
                      if (demandSubscription.getLocalInfo().getDestination().equals(destination)) {

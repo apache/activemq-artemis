@@ -29,7 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <activemq5.project.version>5.11.1</activemq5.project.version>
+      <activemq5.project.version>5.12.0</activemq5.project.version>
       <jmdns-version>3.4.1</jmdns-version>
       <ftpserver-version>1.0.6</ftpserver-version>
       <jmock-version>2.5.1</jmock-version>
@@ -43,10 +43,19 @@
       <jasypt-version>1.9.2</jasypt-version>
       <directory-version>2.0.0-M6</directory-version>
       <activeio-core-version>3.1.4</activeio-core-version>
+      <byteman.version>2.2.0</byteman.version>
 
    </properties>
 
    <dependencies>
+
+      <!-- I imported this to get the ThreadLeakCheck -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+         <type>test-jar</type>
+      </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -58,13 +67,6 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jaas</artifactId>
          <version>${activemq5.project.version}</version>
-      </dependency>
-
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-broker</artifactId>
-         <version>${activemq5.project.version}</version>
-         <type>test-jar</type>
       </dependency>
 
       <dependency>
@@ -313,6 +315,47 @@
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman</artifactId>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-submit</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-install</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.byteman</groupId>
+         <artifactId>byteman-bmunit</artifactId>
+         <scope>test</scope>
+         <version>${byteman.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.testng</groupId>
+               <artifactId>testng</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
+       <!--
+           JBoss Logging
+       -->
+       <dependency>
+           <groupId>org.jboss.logging</groupId>
+           <artifactId>jboss-logging</artifactId>
+       </dependency>
+      <dependency>
+            <groupId>org.jboss.logmanager</groupId>
+            <artifactId>jboss-logmanager</artifactId>
+      </dependency>
 
    </dependencies>
 
@@ -382,11 +425,13 @@
             <configuration>
                <skipTests>${skipActiveMQ5Tests}</skipTests>
                <includes>
-                  <!-- include this first three packages -->
+                  <!-- included packages -->
                   <include>**/org/apache/activemq/*Test.java</include>
                   <include>**/org/apache/activemq/command/*Test.java</include>
                   <include>**/org/apache/activemq/openwire/*Test.java</include>
                   <include>**/org/apache/activemq/transport/tcp/*Test.java</include>
+                  <include>**/org/apache/activemq/transport/failover/*Test.java</include>
+                  <include>**/org/apache/activemq/transport/*Test.java</include>
                   <!-- tests that are known to pass-->
                   <include>**/org/apache/activemq/blob/BlobTransferPolicyUriTest.java</include>
                </includes>
@@ -396,7 +441,6 @@
                   <exclude>**/org/apache/activemq/ProducerFlowControlTest.java</exclude>
                   <!-- exclude tests that are on client side only -->
                   <exclude>**/org/apache/activemq/transport/tcp/TransportConnectorInvalidSocketOptionsTest.java</exclude>
-                  <exclude>**/org/apache/activemq/transport/tcp/TransportUriTest.java</exclude>
                </excludes>
             </configuration>
          </plugin>

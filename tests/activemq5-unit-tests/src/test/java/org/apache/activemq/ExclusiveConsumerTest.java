@@ -26,7 +26,9 @@ import javax.jms.Session;
 
 import junit.framework.TestCase;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 
 public class ExclusiveConsumerTest extends TestCase {
 
@@ -43,6 +45,7 @@ public class ExclusiveConsumerTest extends TestCase {
 
    @Override
    protected void tearDown() throws Exception {
+      TcpTransportFactory.clearService();
       super.tearDown();
    }
 

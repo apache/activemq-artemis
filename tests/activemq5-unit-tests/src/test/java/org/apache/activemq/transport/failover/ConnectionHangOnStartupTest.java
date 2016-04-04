@@ -22,18 +22,20 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.jms.Connection;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.xbean.BrokerFactoryBean;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * Tests for AMQ-3719
  */
-public class ConnectionHangOnStartupTest {
+public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(ConnectionHangOnStartupTest.class);
 
@@ -41,13 +43,13 @@ public class ConnectionHangOnStartupTest {
    // maxReconnectDelay so that the test runs faster (because it will retry
    // connection sooner)
    protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
-   protected BrokerService master = null;
-   protected AtomicReference<BrokerService> slave = new AtomicReference<>();
+   protected EmbeddedJMS master = null;
+   protected AtomicReference<EmbeddedJMS> slave = new AtomicReference<EmbeddedJMS>();
 
    @After
    public void tearDown() throws Exception {
 
-      BrokerService brokerService = slave.get();
+      EmbeddedJMS brokerService = slave.get();
       if (brokerService != null) {
          brokerService.stop();
       }
@@ -60,26 +62,16 @@ public class ConnectionHangOnStartupTest {
    }
 
    protected void createMaster() throws Exception {
-      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getMasterXml()));
-      brokerFactory.afterPropertiesSet();
-      master = brokerFactory.getBroker();
+      Configuration config = createConfig("localhost", 0, 62001);
+      master = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
       master.start();
    }
 
    protected void createSlave() throws Exception {
-      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getSlaveXml()));
-      brokerFactory.afterPropertiesSet();
-      BrokerService broker = brokerFactory.getBroker();
+      Configuration config = createConfig("localhost", 1, 62002);
+      EmbeddedJMS broker = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
       broker.start();
       slave.set(broker);
-   }
-
-   protected String getSlaveXml() {
-      return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
-   }
-
-   protected String getMasterXml() {
-      return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
    }
 
    @Test(timeout = 60000)
@@ -102,10 +94,10 @@ public class ConnectionHangOnStartupTest {
       };
       t.start();
       createMaster();
+
       // slave will never start unless the master dies!
       //createSlave();
 
-      conn.get().stop();
+      conn.get().close();
    }
-
 }

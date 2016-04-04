@@ -26,8 +26,11 @@ import javax.jms.Session;
 
 import junit.framework.TestCase;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 
+//https://issues.apache.org/jira/browse/ARTEMIS-196
 public class QueueConsumerPriorityTest extends TestCase {
 
    private static final String VM_BROKER_URL = "vm://localhost?broker.persistent=false&broker.useJmx=true";
@@ -43,6 +46,7 @@ public class QueueConsumerPriorityTest extends TestCase {
 
    @Override
    protected void tearDown() throws Exception {
+      TcpTransportFactory.clearService();
       super.tearDown();
    }
 

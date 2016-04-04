@@ -126,6 +126,8 @@ public interface PagingStore extends ActiveMQComponent {
 
    boolean checkMemory(Runnable runnable);
 
+   boolean isFull();
+
    /**
     * Write lock the PagingStore.
     *

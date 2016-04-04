@@ -43,4 +43,5 @@ public class FailoverUriTest extends TransportUriTest {
    public static Test suite() {
       return suite(FailoverUriTest.class);
    }
+
 }
