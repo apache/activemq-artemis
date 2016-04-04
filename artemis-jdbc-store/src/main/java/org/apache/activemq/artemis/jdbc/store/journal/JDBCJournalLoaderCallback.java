@@ -56,10 +56,12 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
       }
    }
 
+   @Override
    public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction) {
       preparedTransactions.add(preparedTransaction);
    }
 
+   @Override
    public synchronized void addRecord(final RecordInfo info) {
       int index = committedRecords.size();
       committedRecords.add(index, info);
@@ -71,11 +73,13 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
       checkMaxId(info.id);
    }
 
+   @Override
    public synchronized void updateRecord(final RecordInfo info) {
       int index = committedRecords.size();
       committedRecords.add(index, info);
    }
 
+   @Override
    public synchronized void deleteRecord(final long id) {
       for (Integer i : deleteReferences.get(id)) {
          committedRecords.remove(i);

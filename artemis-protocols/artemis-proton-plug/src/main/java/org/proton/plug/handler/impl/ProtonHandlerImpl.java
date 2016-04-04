@@ -58,6 +58,7 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
    private final Executor dispatchExecutor;
 
    private final Runnable dispatchRunnable = new Runnable() {
+      @Override
       public void run() {
          dispatch();
       }

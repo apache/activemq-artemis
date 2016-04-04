@@ -35,6 +35,7 @@ public abstract class AbstractAcceptor implements Acceptor {
    /**
     * This will update the list of interceptors for each ProtocolManager inside the acceptor.
     * */
+   @Override
    public void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
       for (ProtocolManager manager : protocolMap.values()) {
          manager.updateInterceptors(incomingInterceptors, outgoingInterceptors);
