@@ -29,13 +29,17 @@ import org.junit.Test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
+import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.UUID;
 
 /**
  * GroupingTest
@@ -111,6 +115,55 @@ public class GroupingTest extends JMSTestBase {
 
       connection.close();
 
+   }
+
+   @Test
+   public void testGroupingWithJMS2Producer() throws Exception {
+      final String groupID = UUID.randomUUID().toString();
+      JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
+
+      JMSProducer producer = ctx.createProducer().setProperty("JMSXGroupID", groupID);
+
+      JMSConsumer consumer1 = ctx.createConsumer(queue);
+      JMSConsumer consumer2 = ctx.createConsumer(queue);
+      JMSConsumer consumer3 = ctx.createConsumer(queue);
+
+      ctx.start();
+
+      for (int j = 0; j < 100; j++) {
+         TextMessage message = ctx.createTextMessage("Message" + j);
+
+         producer.send(queue, message);
+
+         String prop = message.getStringProperty("JMSXGroupID");
+
+         assertNotNull(prop);
+         assertEquals(groupID, prop);
+      }
+
+      ctx.commit();
+
+      //All msgs should go to the first consumer
+      for (int j = 0; j < 100; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
+
+         assertNotNull(tm);
+
+         tm.acknowledge();
+
+         assertEquals("Message" + j, tm.getText());
+
+         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID);
+
+         tm = (TextMessage) consumer2.receiveNoWait();
+         assertNull(tm);
+         tm = (TextMessage) consumer3.receiveNoWait();
+         assertNull(tm);
+      }
+
+      ctx.commit();
+
+      ctx.close();
    }
 
    @Test
