@@ -1682,9 +1682,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       // Create the pools - we have two pools - one for non scheduled - and another for scheduled
       initializeExecutorServices();
 
-      if (configuration.getJournalType() == JournalType.ASYNCIO && !AIOSequentialFileFactory.isSupported()) {
-         ActiveMQServerLogger.LOGGER.switchingNIO();
-         configuration.setJournalType(JournalType.NIO);
+      if (configuration.getJournalType() == JournalType.ASYNCIO) {
+         if (!AIOSequentialFileFactory.isSupported()) {
+            ActiveMQServerLogger.LOGGER.switchingNIO();
+            configuration.setJournalType(JournalType.NIO);
+         }
+         else if (!AIOSequentialFileFactory.isSupported(configuration.getJournalLocation())) {
+            ActiveMQServerLogger.LOGGER.switchingNIOonPath(configuration.getJournalLocation().getAbsolutePath());
+            configuration.setJournalType(JournalType.NIO);
+         }
       }
 
       managementService = new ManagementServiceImpl(mbeanServer, configuration);

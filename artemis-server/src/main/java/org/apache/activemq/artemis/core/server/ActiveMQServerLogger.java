@@ -1479,4 +1479,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 224070, value = "Received Interrupt Exception whilst waiting for component to shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
    void interruptWhilstStoppingComponent(String componentClassName);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224072, value = "libaio was found but the filesystem does not support AIO. Switching the configuration into NIO. Journal path: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void switchingNIOonPath(String journalPath);
+
 }
