@@ -463,7 +463,7 @@ public class URISupport {
 
    /**
     * Given a key / value mapping, create and return a URI formatted query string that is valid and
-    * can be appended to a URI.
+    * can be appended to a URI. Query parameters in the string are sorted by key.
     *
     * @param options The Mapping that will create the new Query string.
     * @return a URI formatted query string.
@@ -472,9 +472,12 @@ public class URISupport {
    public static String createQueryString(Map<String, ? extends Object> options) throws URISyntaxException {
       try {
          if (options.size() > 0) {
-            StringBuffer rc = new StringBuffer();
+            StringBuilder rc = new StringBuilder();
             boolean first = true;
-            for (String key : options.keySet()) {
+            List<String> keys = new ArrayList<String>();
+            keys.addAll(options.keySet());
+            Collections.sort(keys);
+            for (String key : keys) {
                if (first) {
                   first = false;
                }
