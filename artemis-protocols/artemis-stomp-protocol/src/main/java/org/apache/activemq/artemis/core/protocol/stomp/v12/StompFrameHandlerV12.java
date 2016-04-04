@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
-import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
@@ -30,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameEventListener {
+public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
    public StompFrameHandlerV12(StompConnection connection) {
       super(connection);

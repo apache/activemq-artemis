@@ -87,7 +87,7 @@ public abstract class LogicExpression extends BinaryExpression implements Boolea
    @Override
    public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
-      return object != null && object == Boolean.TRUE;
+      return object == Boolean.TRUE;
    }
 
 }

@@ -86,13 +86,7 @@ public abstract class UnaryExpression implements Expression {
                return null;
             }
 
-            if ((inList != null && inList.contains(rvalue)) ^ not) {
-               return Boolean.TRUE;
-            }
-            else {
-               return Boolean.FALSE;
-            }
-
+            return (inList != null && inList.contains(rvalue)) ^ not;
          }
 
          @Override
@@ -138,7 +132,7 @@ public abstract class UnaryExpression implements Expression {
       @Override
       public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
-         return object != null && object == Boolean.TRUE;
+         return object == Boolean.TRUE;
       }
    }
 
@@ -150,7 +144,7 @@ public abstract class UnaryExpression implements Expression {
             if (lvalue == null) {
                return null;
             }
-            return lvalue.booleanValue() ? Boolean.FALSE : Boolean.TRUE;
+            return !lvalue.booleanValue();
          }
 
          @Override
@@ -179,7 +173,7 @@ public abstract class UnaryExpression implements Expression {
             if (!rvalue.getClass().equals(Boolean.class)) {
                return Boolean.FALSE;
             }
-            return ((Boolean) rvalue).booleanValue() ? Boolean.TRUE : Boolean.FALSE;
+            return ((Boolean) rvalue).booleanValue();
          }
 
          @Override
@@ -197,16 +191,16 @@ public abstract class UnaryExpression implements Expression {
    private static Number negate(Number left) {
       Class clazz = left.getClass();
       if (clazz == Integer.class) {
-         return new Integer(-left.intValue());
+         return -left.intValue();
       }
       else if (clazz == Long.class) {
-         return new Long(-left.longValue());
+         return -left.longValue();
       }
       else if (clazz == Float.class) {
-         return new Float(-left.floatValue());
+         return -left.floatValue();
       }
       else if (clazz == Double.class) {
-         return new Double(-left.doubleValue());
+         return -left.doubleValue();
       }
       else if (clazz == BigDecimal.class) {
          // We ussually get a big deciamal when we have Long.MIN_VALUE
