@@ -1239,7 +1239,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       checkInitialised();
       List<String> registryBindings = connectionFactoryBindings.get(name);
 
-      if (registry != null) {
+      if (registry != null && registryBindings != null) {
          for (String registryBinding : registryBindings) {
             registry.unbind(registryBinding);
          }
