@@ -464,7 +464,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       for (JournalFile jf : journalFiles) {
          if (!started)
             return;
-         replicator.syncJournalFile(jf, type);
+         if (replicator != null) {
+            replicator.syncJournalFile(jf, type);
+         }
       }
    }
 
