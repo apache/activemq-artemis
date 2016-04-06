@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.ConsumerListener;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -43,9 +44,10 @@ import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
+import org.apache.activemq.command.RemoveInfo;
 import org.apache.activemq.wireformat.WireFormat;
 
-public class AMQConsumer {
+public class AMQConsumer implements ConsumerListener {
    private AMQSession session;
    private org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private ConsumerInfo info;
@@ -108,7 +110,6 @@ public class AMQConsumer {
       }
 
       serverConsumer.setProtocolData(this);
-
    }
 
    private SimpleString createTopicSubscription(boolean isDurable,
@@ -184,8 +185,8 @@ public class AMQConsumer {
          if (messagePullHandler != null && !messagePullHandler.checkForcedConsumer(message)) {
             return 0;
          }
-         //decrement deliveryCount as AMQ client tends to add 1.
-         dispatch = OpenWireMessageConverter.createMessageDispatch(message, deliveryCount - 1, this);
+
+         dispatch = OpenWireMessageConverter.createMessageDispatch(message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
@@ -214,7 +215,6 @@ public class AMQConsumer {
     *  and add those to the Transaction.
     *  Notice that we will start a new transaction on the cases where there is no transaction. */
    public void acknowledge(MessageAck ack) throws Exception {
-
 
       MessageId first = ack.getFirstMessageId();
       MessageId last = ack.getLastMessageId();
@@ -252,6 +252,10 @@ public class AMQConsumer {
          }
          else if (ack.isPoisonAck()) {
             for (MessageReference ref : ackList) {
+               Throwable poisonCause = ack.getPoisonCause();
+               if (poisonCause != null) {
+                  ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, poisonCause.toString());
+               }
                ref.getQueue().sendToDeadLetterAddress(transaction, ref);
             }
          }
@@ -300,6 +304,22 @@ public class AMQConsumer {
       this.info.setPrefetchSize(prefetchSize);
       if (this.prefetchSize > 0) {
          serverConsumer.promptDelivery();
+      }
+   }
+
+   @Override
+   public void updateForCanceledRef(MessageReference ref) {
+      long seqId = ref.getMessage().getMessageID();
+      long lastDelSeqId = info.getLastDeliveredSequenceId();
+      ServerMessage coreMessage = ref.getMessage();
+      int redeliveryCounter = coreMessage.getIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER);
+      if (openwireDestination.isTopic()) {
+         redeliveryCounter++;
+         coreMessage.putIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER, redeliveryCounter);
+      }
+      else if (lastDelSeqId == RemoveInfo.LAST_DELIVERED_UNKNOWN || seqId <= lastDelSeqId) {
+         redeliveryCounter++;
+         coreMessage.putIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER, redeliveryCounter);
       }
    }
 
