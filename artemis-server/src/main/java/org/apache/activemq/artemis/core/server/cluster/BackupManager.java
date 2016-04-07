@@ -259,7 +259,7 @@ public class BackupManager implements ActiveMQComponent {
                      return;
                   if (stopping)
                      return;
-                  ActiveMQServerLogger.LOGGER.errorAnnouncingBackup();
+                  ActiveMQServerLogger.LOGGER.errorAnnouncingBackup(e);
 
                   scheduledExecutor.schedule(new Runnable() {
                      @Override
