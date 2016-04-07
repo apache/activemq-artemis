@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
@@ -87,7 +88,6 @@ public class OpenWireMessageConverter implements MessageConverter {
    private static final String AMQ_MSG_ORIG_TXID = AMQ_PREFIX + "ORIG_TXID";
    private static final String AMQ_MSG_PRODUCER_ID = AMQ_PREFIX + "PRODUCER_ID";
    private static final String AMQ_MSG_MARSHALL_PROP = AMQ_PREFIX + "MARSHALL_PROP";
-   public static final String AMQ_MSG_REDELIVER_COUNTER = AMQ_PREFIX + "REDELIVER_COUNTER";
    private static final String AMQ_MSG_REPLY_TO = AMQ_PREFIX + "REPLY_TO";
 
    private static final String AMQ_MSG_CONSUMER_ID = AMQ_PREFIX + "CONSUMER_ID";
@@ -373,7 +373,6 @@ public class OpenWireMessageConverter implements MessageConverter {
          }
       }
 
-      coreMessage.putIntProperty(AMQ_MSG_REDELIVER_COUNTER, messageSend.getRedeliveryCounter());
       ActiveMQDestination replyTo = messageSend.getReplyTo();
       if (replyTo != null) {
          ByteSequence replyToBytes = marshaller.marshal(replyTo);
@@ -445,15 +444,15 @@ public class OpenWireMessageConverter implements MessageConverter {
       }
    }
 
-   public static MessageDispatch createMessageDispatch(ServerMessage message,
+   public static MessageDispatch createMessageDispatch(MessageReference reference, ServerMessage message,
                                                        AMQConsumer consumer) throws IOException, JMSException {
-      ActiveMQMessage amqMessage = toAMQMessage(message, consumer.getMarshaller(), consumer.getOpenwireDestination());
+      ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getMarshaller(), consumer.getOpenwireDestination());
 
       //we can use core message id for sequenceId
       amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(consumer.getId());
-      md.setRedeliveryCounter(amqMessage.getRedeliveryCounter());
+      md.setRedeliveryCounter(reference.getDeliveryCount() - 1);
       md.setDeliverySequenceId(amqMessage.getMessageId().getBrokerSequenceId());
       md.setMessage(amqMessage);
       ActiveMQDestination destination = amqMessage.getDestination();
@@ -462,7 +461,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       return md;
    }
 
-   private static ActiveMQMessage toAMQMessage(ServerMessage coreMessage, WireFormat marshaller, ActiveMQDestination actualDestination) throws IOException {
+   private static ActiveMQMessage toAMQMessage(MessageReference refernce, ServerMessage coreMessage, WireFormat marshaller, ActiveMQDestination actualDestination) throws IOException {
       ActiveMQMessage amqMsg = null;
       byte coreType = coreMessage.getType();
       switch (coreType) {
@@ -762,10 +761,7 @@ public class OpenWireMessageConverter implements MessageConverter {
          amqMsg.setMarshalledProperties(new ByteSequence(marshalledBytes));
       }
 
-      Integer redeliveryCounter = (Integer) coreMessage.getObjectProperty(AMQ_MSG_REDELIVER_COUNTER);
-      if (redeliveryCounter != null) {
-         amqMsg.setRedeliveryCounter(redeliveryCounter);
-      }
+      amqMsg.setRedeliveryCounter(refernce.getDeliveryCount() - 1);
 
       byte[] replyToBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_REPLY_TO);
       if (replyToBytes != null) {

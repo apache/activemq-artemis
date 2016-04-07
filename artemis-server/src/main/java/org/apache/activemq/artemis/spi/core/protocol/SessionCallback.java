@@ -33,6 +33,15 @@ public interface SessionCallback {
     *  like acks or other operations. */
    void afterDelivery() throws Exception;
 
+   /**
+    * Use this to updates specifics on the message after a redelivery happened.
+    * Return true if there was specific logic applied on the protocol, so the ServerConsumer won't make any adjustments.
+    * @param consumer
+    * @param ref
+    * @param failed
+    */
+   boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed);
+
    void sendProducerCreditsMessage(int credits, SimpleString address);
 
    void sendProducerCreditsFailMessage(int credits, SimpleString address);

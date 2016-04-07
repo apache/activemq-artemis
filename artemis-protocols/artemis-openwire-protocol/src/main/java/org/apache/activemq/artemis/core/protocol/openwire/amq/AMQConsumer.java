@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
-import org.apache.activemq.artemis.core.server.ConsumerListener;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -44,10 +43,9 @@ import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
-import org.apache.activemq.command.RemoveInfo;
 import org.apache.activemq.wireformat.WireFormat;
 
-public class AMQConsumer implements ConsumerListener {
+public class AMQConsumer {
    private AMQSession session;
    private org.apache.activemq.command.ActiveMQDestination openwireDestination;
    private ConsumerInfo info;
@@ -186,7 +184,7 @@ public class AMQConsumer implements ConsumerListener {
             return 0;
          }
 
-         dispatch = OpenWireMessageConverter.createMessageDispatch(message, this);
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
@@ -307,19 +305,13 @@ public class AMQConsumer implements ConsumerListener {
       }
    }
 
-   @Override
-   public void updateForCanceledRef(MessageReference ref) {
+   public void updateDeliveryCountAfterCancel(MessageReference ref) {
       long seqId = ref.getMessage().getMessageID();
       long lastDelSeqId = info.getLastDeliveredSequenceId();
-      ServerMessage coreMessage = ref.getMessage();
-      int redeliveryCounter = coreMessage.getIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER);
-      if (openwireDestination.isTopic()) {
-         redeliveryCounter++;
-         coreMessage.putIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER, redeliveryCounter);
-      }
-      else if (lastDelSeqId == RemoveInfo.LAST_DELIVERED_UNKNOWN || seqId <= lastDelSeqId) {
-         redeliveryCounter++;
-         coreMessage.putIntProperty(OpenWireMessageConverter.AMQ_MSG_REDELIVER_COUNTER, redeliveryCounter);
+
+      // This is a specific rule of the protocol
+      if (!(lastDelSeqId < 0 || seqId <= lastDelSeqId)) {
+         ref.decrementDeliveryCount();
       }
    }
 

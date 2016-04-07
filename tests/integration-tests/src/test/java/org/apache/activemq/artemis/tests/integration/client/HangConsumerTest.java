@@ -484,6 +484,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
+         return false;
+      }
+
+      @Override
       public void browserFinished(ServerConsumer consumer) {
 
       }

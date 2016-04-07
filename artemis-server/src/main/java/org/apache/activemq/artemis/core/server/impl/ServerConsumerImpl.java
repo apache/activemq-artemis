@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ConsumerListener;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -367,7 +366,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             ref.incrementDeliveryCount();
 
             // If updateDeliveries = false (set by strict-update),
-            // the updateDeliveryCount would still be updated after c
+            // the updateDeliveryCountAfterCancel would still be updated after c
             if (strictUpdateDeliveryCount && !ref.isPaged()) {
                if (ref.getMessage().isDurable() && ref.getQueue().isDurable() &&
                   !ref.getQueue().isInternalQueue() &&
@@ -596,15 +595,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    protected void updateDeliveryCountForCanceledRef(MessageReference ref, boolean failed) {
-      if (!failed) {
-         // We don't decrement delivery count if the client failed, since there's a possibility that refs
-         // were actually delivered but we just didn't get any acks for them
-         // before failure
-         ref.decrementDeliveryCount();
-      }
-
-      if (this.protocolData instanceof ConsumerListener) {
-         ((ConsumerListener)protocolData).updateForCanceledRef(ref);
+      // We first update the deliveryCount at the protocol callback...
+      // if that wasn't updated (if there is no specific logic, then we apply the default logic used on most protocols
+      if (!callback.updateDeliveryCountAfterCancel(this, ref, failed)) {
+         if (!failed) {
+            // We don't decrement delivery count if the client failed, since there's a possibility that refs
+            // were actually delivered but we just didn't get any acks for them
+            // before failure
+            ref.decrementDeliveryCount();
+         }
       }
    }
 
