@@ -174,7 +174,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       finally {
          try {
             if (page != null) {
-               page.close();
+               page.close(false);
             }
          }
          catch (Throwable ignored) {
@@ -448,14 +448,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                }
                finally {
                   try {
-                     depagedPage.close();
+                     depagedPage.close(false);
                   }
                   catch (Exception e) {
                   }
 
                   storageManager.afterPageRead();
                }
-               depagedPage.close();
+               depagedPage.close(false);
                pgdMessages = pgdMessagesList.toArray(new PagedMessage[pgdMessagesList.size()]);
             }
             else {
