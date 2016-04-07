@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ConsumerListener;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -65,6 +66,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
  * Concrete implementation of a ClientConsumer.
  */
 public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
+   //private static final DebugLogger logger = DebugLogger.getLogger("redelivery.log");
    // Constants ------------------------------------------------------------------------------------
 
    private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -599,6 +601,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          // were actually delivered but we just didn't get any acks for them
          // before failure
          ref.decrementDeliveryCount();
+      }
+
+      if (this.protocolData instanceof ConsumerListener) {
+         ((ConsumerListener)protocolData).updateForCanceledRef(ref);
       }
    }
 
