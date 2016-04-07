@@ -108,7 +108,6 @@ public class AMQConsumer {
       }
 
       serverConsumer.setProtocolData(this);
-
    }
 
    private SimpleString createTopicSubscription(boolean isDurable,
@@ -184,8 +183,8 @@ public class AMQConsumer {
          if (messagePullHandler != null && !messagePullHandler.checkForcedConsumer(message)) {
             return 0;
          }
-         //decrement deliveryCount as AMQ client tends to add 1.
-         dispatch = OpenWireMessageConverter.createMessageDispatch(message, deliveryCount - 1, this);
+
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, this);
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
@@ -214,7 +213,6 @@ public class AMQConsumer {
     *  and add those to the Transaction.
     *  Notice that we will start a new transaction on the cases where there is no transaction. */
    public void acknowledge(MessageAck ack) throws Exception {
-
 
       MessageId first = ack.getFirstMessageId();
       MessageId last = ack.getLastMessageId();
@@ -252,6 +250,10 @@ public class AMQConsumer {
          }
          else if (ack.isPoisonAck()) {
             for (MessageReference ref : ackList) {
+               Throwable poisonCause = ack.getPoisonCause();
+               if (poisonCause != null) {
+                  ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, poisonCause.toString());
+               }
                ref.getQueue().sendToDeadLetterAddress(transaction, ref);
             }
          }
@@ -300,6 +302,16 @@ public class AMQConsumer {
       this.info.setPrefetchSize(prefetchSize);
       if (this.prefetchSize > 0) {
          serverConsumer.promptDelivery();
+      }
+   }
+
+   public void updateDeliveryCountAfterCancel(MessageReference ref) {
+      long seqId = ref.getMessage().getMessageID();
+      long lastDelSeqId = info.getLastDeliveredSequenceId();
+
+      // This is a specific rule of the protocol
+      if (!(lastDelSeqId < 0 || seqId <= lastDelSeqId)) {
+         ref.decrementDeliveryCount();
       }
    }
 

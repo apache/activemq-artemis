@@ -57,6 +57,11 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
+   public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
+      return false;
+   }
+
+   @Override
    public int sendLargeMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
       Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
 

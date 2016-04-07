@@ -745,7 +745,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             throw new IllegalStateException("Session not exist! : " + sessionId);
          }
 
-         List<AMQConsumer> consumersList = amqSession.createConsumer(info, amqSession, new SlowConsumerDetection());
+         List<AMQConsumer> consumersList = amqSession.createConsumer(info, new SlowConsumerDetection());
 
          this.addConsumerBrokerExchange(info.getConsumerId(), amqSession, consumersList);
          ss.addConsumer(info);

@@ -54,6 +54,12 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
+   public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
+      return false;
+   }
+
+
+   @Override
    public int sendLargeMessageContinuation(ServerConsumer consumerID,
                                            byte[] body,
                                            boolean continues,

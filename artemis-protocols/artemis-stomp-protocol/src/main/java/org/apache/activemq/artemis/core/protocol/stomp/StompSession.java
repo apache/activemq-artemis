@@ -119,6 +119,11 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
+   public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
+      return false;
+   }
+
+   @Override
    public int sendMessage(MessageReference ref, ServerMessage serverMessage, final ServerConsumer consumer, int deliveryCount) {
       LargeServerMessageImpl largeMessage = null;
       ServerMessage newServerMessage = serverMessage;

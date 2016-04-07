@@ -344,6 +344,11 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
+   public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
+      return false;
+   }
+
+   @Override
    public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
    }
 
