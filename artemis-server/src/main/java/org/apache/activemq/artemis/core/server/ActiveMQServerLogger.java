@@ -886,7 +886,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222137, value = "Unable to announce backup, retrying", format = Message.Format.MESSAGE_FORMAT)
-   void errorAnnouncingBackup();
+   void errorAnnouncingBackup(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222138, value = "Local Member is not set at on ClusterConnection {0}", format = Message.Format.MESSAGE_FORMAT)
