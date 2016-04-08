@@ -29,13 +29,17 @@
 # Notice: you should add +refs/pull/*/head to your fetch config on upstream
 #        as specified on https://github.com/apache/activemq-artemis/blob/master/docs/hacking-guide/en/maintainers.md
 
-git fetch origin
-git fetch apache
-git fetch upstream 
+ARTEMIS_USER_REMOTE_NAME=${ARTEMIS_USER_REMOTE_NAME:-origin}
+ARTEMIS_APACHE_REMOTE_NAME=${ARTEMIS_APACHE_REMOTE_NAME:-apache}
+ARTEMIS_GITHUB_REMOTE_NAME=${ARTEMIS_GITHUB_REMOTE_NAME:-upstream}
 
-git checkout apache/master -B master
-git checkout upstream/pr/$1 -B $1
-git pull --rebase apache master
+git fetch $ARTEMIS_USER_REMOTE_NAME
+git fetch $ARTEMIS_APACHE_REMOTE_NAME
+git fetch $ARTEMIS_GITHUB_REMOTE_NAME
+
+git checkout $ARTEMIS_APACHE_REMOTE_NAME/master -B master
+git checkout $ARTEMIS_GITHUB_REMOTE_NAME/pr/$1 -B $1
+git pull --rebase $ARTEMIS_APACHE_REMOTE_NAME master
 git checkout master
 git merge --no-ff $1 -m "This closes #$*"
 git branch -D $1
