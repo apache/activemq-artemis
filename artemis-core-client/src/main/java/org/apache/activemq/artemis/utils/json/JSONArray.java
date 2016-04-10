@@ -606,7 +606,7 @@ public class JSONArray {
     * @throws JSONException if the value is not finite.
     */
    public JSONArray put(final double value) throws JSONException {
-      Double d = new Double(value);
+      Double d = Double.valueOf(value);
       JSONObject.testValidity(d);
       put(d);
       return this;
@@ -701,7 +701,7 @@ public class JSONArray {
     *                       not finite.
     */
    public JSONArray put(final int index, final double value) throws JSONException {
-      put(index, new Double(value));
+      put(index, Double.valueOf(value));
       return this;
    }
 
