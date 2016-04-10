@@ -358,7 +358,7 @@ public class NettyAcceptor extends AbstractAcceptor {
                   set.add(s);
                }
                warningPrinted.set(true);
-               engine.setEnabledProtocols(set.toArray(new String[0]));
+               engine.setEnabledProtocols(set.toArray(new String[set.size()]));
 
                SslHandler handler = new SslHandler(engine);
 
