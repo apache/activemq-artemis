@@ -41,7 +41,7 @@ public class URIFactory<T, P> {
       schemaFactory.setFactory(this);
    }
 
-   public void removeSchema(final SchemaConstants schemaName) {
+   public void removeSchema(final String schemaName) {
       schemas.remove(schemaName);
    }
 
