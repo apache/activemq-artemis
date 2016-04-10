@@ -179,8 +179,6 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          }
          else {
             if (localAddress != null) {
-               java.util.Random random = new java.util.Random(System.currentTimeMillis());
-
                for (int i = 0; i < 100; i++) {
                   int nextPort = RandomUtil.randomInterval(3000, 4000);
                   try {
