@@ -305,6 +305,7 @@ public class SocketProxy {
                 pause.get().countDown();
             }
 
+            @Override
             public void run() {
                 byte[] buf = new byte[1024];
                 try {
@@ -360,6 +361,7 @@ public class SocketProxy {
             pause.get().countDown();
         }
 
+        @Override
         public void run() {
             try {
                 while(!socket.isClosed()) {

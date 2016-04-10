@@ -1317,6 +1317,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return tcConfigs;
    }
 
+   @Override
    public String debugConnectors() {
       StringWriter stringWriter = new StringWriter();
       PrintWriter writer = new PrintWriter(stringWriter);

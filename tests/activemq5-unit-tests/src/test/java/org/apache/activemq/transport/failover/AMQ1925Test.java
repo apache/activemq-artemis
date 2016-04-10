@@ -75,6 +75,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                starter.await();
@@ -130,6 +131,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
       final CountDownLatch starter = new CountDownLatch(1);
       final AtomicBoolean restarted = new AtomicBoolean();
       new Thread(new Runnable() {
+         @Override
          public void run() {
             try {
                starter.await();
@@ -375,6 +377,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
       }
    }
 
+   @Override
    public void onException(JMSException exception) {
       this.exception = exception;
    }

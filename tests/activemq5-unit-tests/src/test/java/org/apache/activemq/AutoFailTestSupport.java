@@ -44,6 +44,7 @@ public abstract class AutoFailTestSupport extends TestCase {
     private boolean useAutoFail; // Disable auto fail by default
     private AtomicBoolean isTestSuccess;
 
+    @Override
     protected void setUp() throws Exception {
         // Runs the auto fail thread before performing any setup
         if (isAutoFail()) {
@@ -52,6 +53,7 @@ public abstract class AutoFailTestSupport extends TestCase {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
 
@@ -69,6 +71,7 @@ public abstract class AutoFailTestSupport extends TestCase {
         setAutoFail(true);
         isTestSuccess = new AtomicBoolean(false);
         autoFailThread = new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // Wait for test to finish succesfully

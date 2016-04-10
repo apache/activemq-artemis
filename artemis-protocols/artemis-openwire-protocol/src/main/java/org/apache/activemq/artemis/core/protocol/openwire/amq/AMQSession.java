@@ -278,6 +278,7 @@ public class AMQSession implements SessionCallback {
 
       if (sendProducerAck) {
          runnable = new Runnable() {
+            @Override
             public void run() {
                try {
                   ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
@@ -302,6 +303,7 @@ public class AMQSession implements SessionCallback {
          }
          else {
             runnable = new Runnable() {
+               @Override
                public void run() {
                   transportConnection.setAutoRead(true);
                }

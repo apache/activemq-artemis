@@ -736,6 +736,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     *  This method will fetch the delivering references, remove them from the delivering list and return a list.
     *
     *  This will be useful for other protocols that will need this such as openWire or MQTT. */
+   @Override
    public List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove, Object protocolDataStart, Object protocolDataEnd) {
       LinkedList<MessageReference> retReferences = new LinkedList<>();
       boolean hit = false;

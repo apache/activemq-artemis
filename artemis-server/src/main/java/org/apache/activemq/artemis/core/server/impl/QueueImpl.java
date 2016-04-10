@@ -2337,6 +2337,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
       sendToDeadLetterAddress(tx, ref, addressSettingsRepository.getMatch(address.toString()).getDeadLetterAddress());
    }

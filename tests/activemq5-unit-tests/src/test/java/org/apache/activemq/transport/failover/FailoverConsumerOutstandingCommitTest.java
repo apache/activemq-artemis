@@ -117,6 +117,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       doByteman.set(true);
       testConsumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message message) {
             LOG.info("consume one and commit");
 
@@ -136,6 +137,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
       // may block if broker shutodwn happens quickly
       new Thread() {
+         @Override
          public void run() {
             LOG.info("producer started");
             try {
@@ -231,6 +233,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       doByteman.set(true);
       testConsumer.setMessageListener(new MessageListener() {
 
+         @Override
          public void onMessage(Message message) {
             LOG.info("consume one: " + message);
             assertNotNull("got message", message);
@@ -253,6 +256,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
 
       // may block if broker shutdown happens quickly
       new Thread() {
+         @Override
          public void run() {
             LOG.info("producer started");
             try {
@@ -364,6 +368,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
    public static void stopServerInTransaction() {
       if (doByteman.get()) {
          new Thread() {
+            @Override
             public void run() {
                LOG.info("Stopping broker in transaction...");
                try {

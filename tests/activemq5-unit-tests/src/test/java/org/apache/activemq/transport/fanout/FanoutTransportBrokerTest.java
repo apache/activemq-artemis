@@ -219,6 +219,7 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
       // Slip in a new transport filter after the MockTransport
       MockTransport mt = (MockTransport) connection3.getTransport().narrow(MockTransport.class);
       mt.install(new TransportFilter(mt.getNext()) {
+         @Override
          public void oneway(Object command) throws IOException {
             LOG.info("Dropping: " + command);
             // just eat it! to simulate a recent failure.
@@ -227,6 +228,7 @@ public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
 
       // Send a message (async) as this will block
       new Thread() {
+         @Override
          public void run() {
             // Send the message using the fail over publisher.
             try {

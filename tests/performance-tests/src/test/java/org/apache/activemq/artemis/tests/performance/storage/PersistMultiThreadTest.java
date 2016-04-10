@@ -301,6 +301,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
          return 0;
       }
 
+      @Override
       public boolean isFull() {
          return false;
       }

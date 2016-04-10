@@ -40,6 +40,7 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
     /**
      * @see org.apache.activemq.JmsTransactionTestSupport#getJmsResourceProvider()
      */
+    @Override
     protected JmsResourceProvider getJmsResourceProvider() {
         JmsResourceProvider p = new JmsResourceProvider();
         p.setTopic(false);

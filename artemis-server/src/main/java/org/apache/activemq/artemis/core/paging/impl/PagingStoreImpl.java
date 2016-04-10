@@ -1063,6 +1063,7 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    // To be used on isDropMessagesWhenFull
+   @Override
    public boolean isFull() {
       return maxSize > 0 && getAddressSize() > maxSize;
    }
