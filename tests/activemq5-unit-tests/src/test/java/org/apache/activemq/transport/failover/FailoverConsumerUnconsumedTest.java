@@ -167,6 +167,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
       assertTrue("add messages are delivered", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalDelivered = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -181,6 +182,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
       new Thread() {
+         @Override
          public void run() {
             try {
                LOG.info("add last consumer...");
@@ -216,6 +218,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
       // each should again get prefetch messages - all unacked deliveries should be rolledback
       assertTrue("after restart all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalDelivered = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -259,6 +262,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
       assertTrue("add messages are dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -273,6 +277,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
       final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
 
       new Thread() {
+         @Override
          public void run() {
             try {
                LOG.info("add last consumer...");
@@ -288,6 +293,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
       // verify interrupt
       assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -309,6 +315,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
       // each should again get prefetch messages - all unconsumed deliveries should be rolledback
       assertTrue("after start all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         @Override
          public boolean isSatisified() throws Exception {
             int totalUnconsumed = 0;
             for (TestConsumer testConsumer : testConsumers) {
@@ -365,6 +372,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
          if (consumerCount.incrementAndGet() == maxConsumers) {
             context.getContext().setDontSendReponse(true);
             new Thread() {
+               @Override
                public void run() {
                   try {
                      broker.stop();
@@ -384,6 +392,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
          if (consumerCount.incrementAndGet() == maxConsumers + (watchTopicAdvisories.get() ? 1 : 0)) {
             context.getContext().setDontSendReponse(true);
             new Thread() {
+               @Override
                public void run() {
                   try {
                      broker.stop();

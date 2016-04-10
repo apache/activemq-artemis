@@ -170,6 +170,7 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
          final MapMessage message = createLargeMessage();
 
          t = new Thread() {
+            @Override
             public void run() {
                try {
                   producer.send(message);

@@ -52,6 +52,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
 
    public String CLUSTER_PASSWORD = "OPENWIRECLUSTER";
 
+   @Override
    protected void setUp() throws Exception {
       BrokerService.disableWrapper = disableWrapper;
       File tmpRoot = new File("./target/tmp");

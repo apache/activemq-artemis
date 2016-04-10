@@ -190,6 +190,7 @@ public class MessageReferenceImpl implements MessageReference {
       this.acknowledge(null);
    }
 
+   @Override
    public void acknowledge(Transaction tx) throws Exception {
       if (tx == null) {
          getQueue().acknowledge(this);

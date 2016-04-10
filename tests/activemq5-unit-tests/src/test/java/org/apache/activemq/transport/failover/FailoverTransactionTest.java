@@ -165,6 +165,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       final CountDownLatch commitDoneLatch = new CountDownLatch(1);
       // broker will die on commit reply so this will hang till restart
       new Thread() {
+         @Override
          public void run() {
             LOG.info("doing async commit...");
             try {
@@ -259,6 +260,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // broker will die on send reply so this will hang till restart
       new Thread() {
+         @Override
          public void run() {
             LOG.info("doing async send...");
             try {
@@ -348,6 +350,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       final CountDownLatch sendDoneLatch = new CountDownLatch(1);
       // proxy connection will die on send reply so this will hang on failover reconnect till open
       new Thread() {
+         @Override
          public void run() {
             LOG.info("doing async send...");
             try {
@@ -476,12 +479,15 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
 
          final Session poolSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          connection.createConnectionConsumer(destination, null, new ServerSessionPool() {
+            @Override
             public ServerSession getServerSession() throws JMSException {
                return new ServerSession() {
+                  @Override
                   public Session getSession() throws JMSException {
                      return poolSession;
                   }
 
+                  @Override
                   public void start() throws JMSException {
                      connectionConsumerGotOne.countDown();
                      poolSession.run();
@@ -584,6 +590,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          final CountDownLatch commitDoneLatch = new CountDownLatch(1);
          final AtomicBoolean gotTransactionRolledBackException = new AtomicBoolean(false);
          Thread t = new Thread("doTestFailoverConsumerAckLost(" + pauseSeconds + ")") {
+            @Override
             public void run() {
                LOG.info("doing async commit after consume...");
                try {
@@ -774,6 +781,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
                for (int i = 0; i < consumerCount && !consumers.isEmpty(); i++) {
 
                   executorService.execute(new Runnable() {
+                     @Override
                      public void run() {
                         MessageConsumer localConsumer = null;
                         try {
@@ -915,6 +923,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       final CountDownLatch commitDone = new CountDownLatch(1);
       // will block pending re-deliveries
       new Thread() {
+         @Override
          public void run() {
             LOG.info("doing async commit...");
             try {
@@ -970,6 +979,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
 
       // commit may fail if other consumer gets the message on restart
       new Thread() {
+         @Override
          public void run() {
             LOG.info("doing async commit...");
             try {
@@ -1017,6 +1027,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       if (doByteman.get()) {
          context.getContext().setDontSendReponse(true);
          new Thread() {
+            @Override
             public void run() {
                LOG.info("Stopping broker post commit...");
                try {
@@ -1040,6 +1051,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
             firstSend = false;
             context.getContext().setDontSendReponse(true);
             new Thread() {
+               @Override
                public void run() {
                   LOG.info("Stopping connection post send...");
                   try {
@@ -1060,6 +1072,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          if (count++ == 1) {
             LOG.info("ok stop broker...");
             new Thread() {
+               @Override
                public void run() {
                   try {
                      if (broker != null) {
