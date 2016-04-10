@@ -267,7 +267,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
          String subName = null;
 
          if (queue.isDurable()) {
-            Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName().toString());
+            Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName());
             clientID = pair.getA();
             subName = pair.getB();
          }
@@ -296,7 +296,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
             String subName = null;
 
             if (queue.isDurable() && !queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
-               Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName().toString());
+               Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName());
                clientID = pair.getA();
                subName = pair.getB();
             }
