@@ -214,7 +214,7 @@ public class MQTTPublishManager {
    }
 
    private void sendServerMessage(int messageId, ServerMessageImpl message, int deliveryCount, int qos) {
-      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString()).toString();
+      String address = MQTTUtil.convertCoreAddressFilterToMQTT(message.getAddress().toString());
 
       ByteBuf payload = message.getBodyBufferDuplicate().byteBuf();
 

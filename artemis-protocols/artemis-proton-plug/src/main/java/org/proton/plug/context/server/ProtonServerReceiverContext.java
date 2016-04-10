@@ -66,7 +66,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
             catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
-            target.setAddress(queue.toString());
+            target.setAddress(queue);
          }
          else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to

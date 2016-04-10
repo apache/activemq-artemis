@@ -71,10 +71,10 @@ public class MQTTUtil {
    }
 
    public static String convertCoreAddressFilterToMQTT(String filter) {
-      if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX.toString())) {
+      if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          filter = filter.substring(MQTT_RETAIN_ADDRESS_PREFIX.length(), filter.length());
       }
-      else if (filter.startsWith(MQTT_ADDRESS_PREFIX.toString())) {
+      else if (filter.startsWith(MQTT_ADDRESS_PREFIX)) {
          filter = filter.substring(MQTT_ADDRESS_PREFIX.length(), filter.length());
       }
       return swapMQTTAndCoreWildCards(filter);
