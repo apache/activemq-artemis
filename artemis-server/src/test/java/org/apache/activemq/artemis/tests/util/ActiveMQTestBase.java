@@ -1050,7 +1050,7 @@ public abstract class ActiveMQTestBase extends Assert {
          if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null) {
             System.out.println("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
          }
-         else if (value != null & prop.getWriteMethod() != null &&
+         else if (value != null && prop.getWriteMethod() != null &&
             prop.getReadMethod() != null &&
             !ignoreSet.contains(prop.getName())) {
             System.out.println("Validating " + prop.getName() + " type = " + prop.getPropertyType());
