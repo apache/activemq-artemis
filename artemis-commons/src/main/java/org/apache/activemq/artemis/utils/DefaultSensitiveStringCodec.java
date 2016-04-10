@@ -56,9 +56,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          int pad = newLength - length; // number of leading zeros
          byte[] old = encoding;
          encoding = new byte[newLength];
-         for (int i = old.length - 1; i >= 0; i--) {
-            encoding[i + pad] = old[i];
-         }
+         System.arraycopy(old, 0, encoding, pad, old.length);
       }
 
       Cipher cipher = Cipher.getInstance("Blowfish");
