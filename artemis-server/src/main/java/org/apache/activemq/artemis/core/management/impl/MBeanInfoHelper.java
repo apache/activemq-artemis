@@ -48,7 +48,7 @@ public class MBeanInfoHelper {
          }
       }
 
-      return operations.toArray(new MBeanOperationInfo[0]);
+      return operations.toArray(new MBeanOperationInfo[operations.size()]);
    }
 
    // Package protected ---------------------------------------------

@@ -777,7 +777,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             destinations.add(control.getAddress());
          }
       }
-      return destinations.toArray(new String[0]);
+      return destinations.toArray(new String[destinations.size()]);
    }
 
    @Override
