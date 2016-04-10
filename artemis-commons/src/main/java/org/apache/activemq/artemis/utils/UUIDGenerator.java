@@ -96,9 +96,7 @@ public final class UUIDGenerator {
    public UUID generateTimeBasedUUID(final byte[] byteAddr) {
       byte[] contents = new byte[16];
       int pos = 10;
-      for (int i = 0; i < 6; ++i) {
-         contents[pos + i] = byteAddr[i];
-      }
+      System.arraycopy(byteAddr, 0, contents, pos, 6);
 
       synchronized (mTimerLock) {
          if (mTimer == null) {
