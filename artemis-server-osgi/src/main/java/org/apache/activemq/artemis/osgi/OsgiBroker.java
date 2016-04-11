@@ -143,7 +143,7 @@ public class OsgiBroker {
             protocols.add(protoName);
          }
       }
-      return protocols.toArray(new String[]{});
+      return protocols.toArray(new String[protocols.size()]);
    }
 
    @Deactivate

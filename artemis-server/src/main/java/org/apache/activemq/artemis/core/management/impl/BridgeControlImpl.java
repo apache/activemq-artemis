@@ -23,6 +23,8 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 
+import java.util.List;
+
 public class BridgeControlImpl extends AbstractControl implements BridgeControl {
 
    // Constants -----------------------------------------------------
@@ -51,7 +53,8 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
    public String[] getStaticConnectors() throws Exception {
       clearIO();
       try {
-         return configuration.getStaticConnectors().toArray(new String[0]);
+         List<String> staticConnectors = configuration.getStaticConnectors();
+         return staticConnectors.toArray(new String[staticConnectors.size()]);
       }
       finally {
          blockOnIO();
