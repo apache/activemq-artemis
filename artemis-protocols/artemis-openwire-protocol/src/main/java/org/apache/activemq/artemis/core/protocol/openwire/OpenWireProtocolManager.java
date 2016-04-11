@@ -139,6 +139,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       }
    }
 
+   @Override
    public void nodeDown(long eventUID, String nodeID) {
       if (topologyMap.remove(nodeID) != null) {
          updateClientClusterInfo();

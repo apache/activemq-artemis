@@ -139,6 +139,7 @@ public class TopicClusterTest extends OpenwireArtemisBaseTest implements Message
       }
    }
 
+   @Override
    public void onMessage(Message msg) {
       // log.info("GOT: " + msg);
       receivedMessageCount.incrementAndGet();

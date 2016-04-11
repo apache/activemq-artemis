@@ -253,6 +253,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       this.securityEnabled = false;
    }
 
+   @Override
    public boolean isClosed() {
       return closed;
    }
@@ -395,6 +396,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return this.createConsumer(consumerID, queueName, filterString, browseOnly, true, null);
    }
 
+   @Override
    public ServerConsumer createConsumer(final long consumerID,
                                         final SimpleString queueName,
                                         final SimpleString filterString,
@@ -458,6 +460,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    /** Some protocols may chose to hold their transactions outside of the ServerSession.
     *  This can be used to replace the transaction.
     *  Notice that we set autoCommitACK and autoCommitSends to true if tx == null */
+   @Override
    public void resetTX(Transaction transaction) {
       this.tx = transaction;
       this.autoCommitAcks = transaction == null;
@@ -648,6 +651,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   @Override
    public ServerConsumer locateConsumer(long consumerID) {
       return consumers.get(consumerID);
    }
@@ -756,6 +760,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    /**
     * @return
     */
+   @Override
    public Transaction newTransaction() {
       return new TransactionImpl(null, storageManager, timeoutSeconds);
    }

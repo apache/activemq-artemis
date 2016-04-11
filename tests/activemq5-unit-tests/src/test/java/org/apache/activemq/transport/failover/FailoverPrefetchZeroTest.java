@@ -102,6 +102,7 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
       final CountDownLatch receiveDone = new CountDownLatch(1);
       final Vector<Message> received = new Vector<>();
       new Thread() {
+         @Override
          public void run() {
             try {
                LOG.info("receive one...");
@@ -147,6 +148,7 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
          context.getContext().setDontSendReponse(true);
          pullDone.countDown();
          new Thread() {
+            @Override
             public void run() {
                try {
                   broker.stop();
