@@ -367,6 +367,13 @@ public class BrokerService implements Service {
    }
 
    public URI getVmConnectorURI() {
+      try {
+         URI substituteUri = new URI("tcp://localhost:61616");
+         return substituteUri;
+      }
+      catch (URISyntaxException e) {
+         e.printStackTrace();
+      }
       return null;
    }
 
