@@ -409,9 +409,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          }
 
          if (obj.length - offset < value.length) {
-            for (int i = 0; i < obj.length; i++) {
-               value[i] = obj[i + offset];
-            }
+            System.arraycopy(obj, offset, value, 0, obj.length);
 
             position++;
             offset = 0;
@@ -419,9 +417,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
             return obj.length - offset;
          }
          else {
-            for (int i = 0; i < value.length; i++) {
-               value[i] = obj[i + offset];
-            }
+            System.arraycopy(obj, offset, value, 0, value.length);
             offset += value.length;
 
             return value.length;
@@ -545,9 +541,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          throw new JMSException("Array is too small");
       }
       byte[] temp = new byte[length];
-      for (int i = 0; i < length; i++) {
-         temp[i] = value[i + offset];
-      }
+      System.arraycopy(value, offset, temp, 0, length);
 
       content.add(temp);
    }

@@ -166,9 +166,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new JMSException("Array is too small");
       }
       byte[] temp = new byte[length];
-      for (int i = 0; i < length; i++) {
-         temp[i] = value[i + offset];
-      }
+      System.arraycopy(value, offset, temp, 0, length);
 
       content.put(name, temp);
 

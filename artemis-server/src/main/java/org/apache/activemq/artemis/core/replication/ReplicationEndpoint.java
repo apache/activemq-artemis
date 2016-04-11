@@ -144,9 +144,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          journals = new Journal[id + 1];
 
          if (oldJournals != null) {
-            for (int i = 0; i < oldJournals.length; i++) {
-               journals[i] = oldJournals[i];
-            }
+            System.arraycopy(oldJournals, 0, journals, 0, oldJournals.length);
          }
       }
 
