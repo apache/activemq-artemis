@@ -115,7 +115,7 @@ public final class ObjectNameBuilder {
     * @see DivertControl
     */
    public ObjectName getDivertObjectName(final String name) throws Exception {
-      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Divert", name.toString());
+      return createObjectName(ObjectNameBuilder.CORE_MODULE, "Divert", name);
    }
 
    /**

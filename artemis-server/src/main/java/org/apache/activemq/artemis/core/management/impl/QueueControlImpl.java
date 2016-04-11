@@ -463,7 +463,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String getFirstMessageAsJSON() throws Exception {
-      return toJSON(getFirstMessage()).toString();
+      return toJSON(getFirstMessage());
    }
 
    @Override

@@ -314,7 +314,7 @@ public class StompDecoder {
                headers.put(headerName, headerValue);
 
                if (headerName.equals(Stomp.Headers.CONTENT_LENGTH)) {
-                  contentLength = Integer.parseInt(headerValue.toString());
+                  contentLength = Integer.parseInt(headerValue);
                }
 
                whiteSpaceOnly = true;
