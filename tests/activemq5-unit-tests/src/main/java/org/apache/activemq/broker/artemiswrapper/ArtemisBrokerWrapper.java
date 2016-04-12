@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -165,25 +164,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
    }
 
    private void addServerAcceptor(Configuration serverConfig, BrokerService.ConnectorInfo info) throws Exception {
-      if (info.ssl) {
-         HashMap<String, Object> params = new HashMap<String, Object>();
-         params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
-         params.put(TransportConstants.PORT_PROP_NAME, info.port);
-         params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
-         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_KEYSTORE);
-         params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, bservice.KEYSTORE_PASSWORD);
-         params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, bservice.storeType);
-         if (bservice.SERVER_SIDE_TRUSTSTORE != null) {
-            params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, bservice.SERVER_SIDE_TRUSTSTORE);
-            params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, bservice.TRUSTSTORE_PASSWORD);
-            params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, bservice.storeType);
-         }
-         TransportConfiguration sslTransportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-         serverConfig.getAcceptorConfigurations().add(sslTransportConfig);
-      }
-      else {
-         serverConfig.addAcceptorConfiguration("homePort" + info.port, "tcp://localhost:" + info.port + "?protocols=OPENWIRE,CORE");
-      }
+      serverConfig.addAcceptorConfiguration("homePort" + info.uri.getPort(), info.uri.toString());
    }
 
    private void translatePolicyMap(Configuration serverConfig, PolicyMap policyMap) {
