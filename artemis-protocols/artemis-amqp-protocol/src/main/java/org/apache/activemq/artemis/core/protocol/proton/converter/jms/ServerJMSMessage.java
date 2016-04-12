@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
 public class ServerJMSMessage implements Message {
@@ -112,7 +111,7 @@ public class ServerJMSMessage implements Message {
    public final Destination getJMSReplyTo() throws JMSException {
       SimpleString reply = MessageUtil.getJMSReplyTo(message);
       if (reply != null) {
-         return ActiveMQDestination.fromAddress(reply.toString());
+         return new ServerDestination(reply.toString());
       }
       else {
          return null;
@@ -133,12 +132,7 @@ public class ServerJMSMessage implements Message {
          return null;
       }
       else {
-         if (!sdest.toString().startsWith("jms.")) {
-            return new ActiveMQQueue(sdest.toString(), sdest.toString());
-         }
-         else {
-            return ActiveMQDestination.fromAddress(sdest.toString());
-         }
+         return new ServerDestination(sdest.toString());
       }
    }
 

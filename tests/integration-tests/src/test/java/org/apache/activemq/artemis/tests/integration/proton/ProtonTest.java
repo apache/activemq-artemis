@@ -20,6 +20,7 @@ import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.Destination;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -159,6 +160,53 @@ public class ProtonTest extends ActiveMQTestBase {
       connection.start();
 
       message = (TextMessage) cons.receive(5000);
+      Assert.assertNotNull(message);
+
+   }
+
+
+   @Test
+   public void testReplyTo() throws Throwable {
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TemporaryQueue queue = session.createTemporaryQueue();
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+
+      TextMessage message = session.createTextMessage();
+      message.setText("Message temporary");
+      message.setJMSReplyTo(createQueue(address));
+      p.send(message);
+
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      message = (TextMessage) cons.receive(5000);
+      Destination jmsReplyTo = message.getJMSReplyTo();
+      Assert.assertNotNull(jmsReplyTo);
+      Assert.assertNotNull(message);
+
+   }
+
+   @Test
+      public void testReplyToNonJMS() throws Throwable {
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TemporaryQueue queue = session.createTemporaryQueue();
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+
+      TextMessage message = session.createTextMessage();
+      message.setText("Message temporary");
+      message.setJMSReplyTo(createQueue("someaddress"));
+      p.send(message);
+
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      message = (TextMessage) cons.receive(5000);
+      Destination jmsReplyTo = message.getJMSReplyTo();
+      Assert.assertNotNull(jmsReplyTo);
       Assert.assertNotNull(message);
 
    }

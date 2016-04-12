@@ -24,6 +24,8 @@ import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.qpid.proton.jms.JMSVendor;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
@@ -80,7 +82,7 @@ public class ActiveMQJMSVendor extends JMSVendor {
    @Override
    @SuppressWarnings("deprecation")
    public Destination createDestination(String name) {
-      return super.createDestination(name);
+      return new ServerDestination(name);
    }
 
    @Override
@@ -121,6 +123,9 @@ public class ActiveMQJMSVendor extends JMSVendor {
 
    @Override
    public String toAddress(Destination destination) {
+      if (destination instanceof ActiveMQDestination) {
+         return ((ActiveMQDestination) destination).getAddress();
+      }
       return null;
    }
 
