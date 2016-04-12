@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import junit.framework.Test;
 
 import junit.textui.TestRunner;
+import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.transport.TransportBrokerTestSupport;
 
 public class SslTransportBrokerTest extends TransportBrokerTestSupport {
@@ -43,6 +44,7 @@ public class SslTransportBrokerTest extends TransportBrokerTestSupport {
 
    @Override
    protected void setUp() throws Exception {
+      BrokerService.disableWrapper = true;
       System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
       System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);
       System.setProperty("javax.net.ssl.trustStoreType", KEYSTORE_TYPE);
