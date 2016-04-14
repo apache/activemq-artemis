@@ -16,24 +16,19 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * An ActiveMQComponentControl is used to manage the life cycle of an ActiveMQ Artemis component.
+ * Info for a MBean Attribute.
+ * <p>
+ * This annotation is used only for attributes which can be seen
+ * through a GUI.
  */
-public interface ActiveMQComponentControl {
-
-   /**
-    * Returns {@code true} if this component is started, {@code false} else.
-    */
-   @Attribute(desc = "whether this component is started")
-   boolean isStarted();
-
-   /**
-    * Starts this component.
-    */
-   void start() throws Exception;
-
-   /**
-    * Stops this component.
-    */
-   void stop() throws Exception;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Attribute {
+   String desc() default "";
 }

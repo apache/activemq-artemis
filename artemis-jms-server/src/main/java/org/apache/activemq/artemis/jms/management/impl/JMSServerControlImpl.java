@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.jms.JMSRuntimeException;
 import javax.management.ListenerNotFoundException;
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.Notification;
@@ -741,6 +742,11 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(JMSServerControl.class);
+   }
+
+   @Override
+   protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
+      return MBeanInfoHelper.getMBeanAttributesInfo(JMSServerControl.class);
    }
 
    // Private -------------------------------------------------------
