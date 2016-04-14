@@ -16,15 +16,20 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
+
 public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFactory {
 
    private String file;
 
    private String channelName;
 
+   private final JChannelManager manager = new JChannelManager();
+
    @Override
    public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
-      return new JGroupsFileBroadcastEndpoint(file, channelName).initChannel();
+      return new JGroupsFileBroadcastEndpoint(manager, file, channelName).initChannel();
    }
 
    public String getFile() {
