@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.util.List;
 import java.util.Map;
@@ -242,6 +243,11 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(ClusterConnectionControl.class);
+   }
+
+   @Override
+   protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
+      return MBeanInfoHelper.getMBeanAttributesInfo(ClusterConnectionControl.class);
    }
 
    // Public --------------------------------------------------------

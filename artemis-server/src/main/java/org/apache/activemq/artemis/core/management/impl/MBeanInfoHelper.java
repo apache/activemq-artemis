@@ -16,14 +16,15 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
@@ -49,6 +50,40 @@ public class MBeanInfoHelper {
       }
 
       return operations.toArray(new MBeanOperationInfo[operations.size()]);
+   }
+
+   public static MBeanAttributeInfo[] getMBeanAttributesInfo(final Class mbeanInterface) {
+      List<MBeanAttributeInfo> tempAttributes = new ArrayList<>();
+      List<MBeanAttributeInfo> finalAttributes = new ArrayList<>();
+      List<String> alreadyAdded = new ArrayList<>();
+
+      for (Method method : mbeanInterface.getMethods()) {
+         if (MBeanInfoHelper.isGetterMethod(method) || MBeanInfoHelper.isSetterMethod(method) ||
+            MBeanInfoHelper.isIsBooleanMethod(method)) {
+            tempAttributes.add(MBeanInfoHelper.getAttributeInfo(method));
+         }
+      }
+
+      // since getters and setters will each have an MBeanAttributeInfo we need to de-duplicate
+      for (MBeanAttributeInfo info1 : tempAttributes) {
+         MBeanAttributeInfo infoToCopy = info1;
+         for (MBeanAttributeInfo info2 : tempAttributes) {
+            if (info1.getName().equals(info2.getName()) && !info1.equals(info2)) {
+               infoToCopy = new MBeanAttributeInfo(info1.getName(),
+                  info1.getType().equals("void") ? info2.getType() : info1.getType(),
+                  info1.getDescription(),
+                  (info1.isReadable() || info2.isReadable()),
+                  (info1.isWritable() || info2.isWritable()),
+                  (info1.isIs() || info2.isIs()));
+            }
+         }
+         if (!alreadyAdded.contains(infoToCopy.getName())) {
+            finalAttributes.add(infoToCopy);
+            alreadyAdded.add(infoToCopy.getName());
+         }
+      }
+
+      return finalAttributes.toArray(new MBeanAttributeInfo[finalAttributes.size()]);
    }
 
    // Package protected ---------------------------------------------
@@ -105,6 +140,29 @@ public class MBeanInfoHelper {
       info = new MBeanOperationInfo(operation.getName(), description, paramsInfo, returnType.getName(), impact);
 
       return info;
+   }
+
+   private static MBeanAttributeInfo getAttributeInfo(final Method operation) {
+      String description = "N/A";
+
+      if (operation.getAnnotation(Attribute.class) != null) {
+         description = operation.getAnnotation(Attribute.class).desc();
+      }
+
+      MBeanAttributeInfo info  = new MBeanAttributeInfo(getAttributeName(operation), operation.getReturnType().getName(), description, (isGetterMethod(operation) || isIsBooleanMethod(operation)), isSetterMethod(operation), isIsBooleanMethod(operation));
+
+      return info;
+   }
+
+   private static String getAttributeName(Method operation) {
+      String name = operation.getName();
+
+      if (isGetterMethod(operation) || isSetterMethod(operation))
+         name = operation.getName().substring(3);
+      else if (isIsBooleanMethod(operation))
+         name = operation.getName().substring(2);
+
+      return name;
    }
 
    private static MBeanParameterInfo[] getParametersInfo(final Annotation[][] params, final Class<?>[] paramTypes) {

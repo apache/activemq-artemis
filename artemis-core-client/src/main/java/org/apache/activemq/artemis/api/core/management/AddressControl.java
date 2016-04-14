@@ -26,19 +26,22 @@ public interface AddressControl {
    /**
     * Returns the managed address.
     */
+   @Attribute(desc = "managed address")
    String getAddress();
 
    /**
-    * Returns the roles (name and permissions) associated to this address.
+    * Returns the roles (name and permissions) associated with this address.
     */
+   @Attribute(desc = "roles (name and permissions) associated with this address")
    Object[] getRoles() throws Exception;
 
    /**
-    * Returns the roles  (name and permissions) associated to this address
+    * Returns the roles  (name and permissions) associated with this address
     * using JSON serialization.
     * <br>
     * Java objects can be recreated from JSON serialization using {@link RoleInfo#from(String)}.
     */
+   @Attribute(desc = "roles  (name and permissions) associated with this address using JSON serialization")
    String getRolesAsJSON() throws Exception;
 
    @Operation(desc = "returns the number of estimated bytes being used by the queue, used to control paging and blocking",
@@ -52,11 +55,13 @@ public interface AddressControl {
    /**
     * Returns the names of the queues bound to this address.
     */
+   @Attribute(desc = "names of the queues bound to this address")
    String[] getQueueNames() throws Exception;
 
    /**
     * Returns the number of pages used by this address.
     */
+   @Attribute(desc = "number of pages used by this address")
    int getNumberOfPages() throws Exception;
 
    /**
@@ -64,15 +69,18 @@ public interface AddressControl {
     *
     * @throws Exception
     */
+   @Attribute(desc = "whether this address is paging")
    boolean isPaging() throws Exception;
 
    /**
     * Returns the number of bytes used by each page for this address.
     */
+   @Attribute(desc = "number of bytes used by each page for this address")
    long getNumberOfBytesPerPage() throws Exception;
 
    /**
     * Returns the names of all bindings (both queues and diverts) bound to this address
     */
+   @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
 }

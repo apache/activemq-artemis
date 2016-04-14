@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
 
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
@@ -31,43 +32,51 @@ public interface JMSQueueControl extends DestinationControl {
    // Attributes ----------------------------------------------------
 
    /**
-    * Returns the expiry address associated to this queue.
+    * Returns the expiry address associated with this queue.
     */
+   @Attribute(desc = "expiry address associated with this queue")
    String getExpiryAddress();
 
    /**
-    * Returns the dead-letter address associated to this queue.
+    * Returns the dead-letter address associated with this queue.
     */
+   @Attribute(desc = "dead-letter address associated with this queue")
    String getDeadLetterAddress();
 
    /**
     * Returns the number of scheduled messages in this queue.
     */
+   @Attribute(desc = "number of scheduled messages in this queue")
    long getScheduledCount();
 
    /**
     * Returns the number of consumers consuming messages from this queue.
     */
+   @Attribute(desc = "number of consumers consuming messages from this queue")
    int getConsumerCount();
 
    /**
     * returns the selector for the queue
     */
+   @Attribute(desc = "selector for the queue")
    String getSelector();
 
    /**
     * Returns the first message on the queue as JSON
     */
+   @Attribute(desc = "first message on the queue as JSON")
    String getFirstMessageAsJSON() throws Exception;
 
    /**
     * Returns the timestamp of the first message in milliseconds.
     */
+   @Attribute(desc = "timestamp of the first message in milliseconds")
    Long getFirstMessageTimestamp() throws Exception;
 
    /**
     * Returns the age of the first message in milliseconds.
     */
+   @Attribute(desc = "age of the first message in milliseconds")
    Long getFirstMessageAge() throws Exception;
 
    // Operations ----------------------------------------------------
