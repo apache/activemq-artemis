@@ -48,7 +48,7 @@ under the License.
    </bean>
 
    <bean id="EmbeddedJms" class="org.apache.activemq.artemis.integration.spring.SpringJmsBootstrap" init-method="start"
-         destroy-method="stop">
+         destroy-method="close">
        <property name="SecurityManager" ref="securityManager"/>
    </bean>
 
