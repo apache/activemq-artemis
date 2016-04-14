@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jboss.logging.Logger;
 
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
@@ -80,6 +81,10 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
  * @see ReplicationEndpoint
  */
 public final class ReplicationManager implements ActiveMQComponent, ReadyListener {
+
+
+   Logger logger = Logger.getLogger(ReplicationManager.class);
+   final boolean isTrace = logger.isTraceEnabled();
 
    public enum ADD_OPERATION_TYPE {
       UPDATE {
@@ -330,7 +335,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       return sendReplicatePacket(packet, true);
    }
 
-   private synchronized OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
+   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
       if (!enabled)
          return null;
       boolean runItNow = false;
@@ -578,6 +583,11 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
     */
    public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout) {
       if (enabled) {
+
+         if (isTrace) {
+            logger.trace("sendSynchronizationDone ::" + nodeID + ", " + initialReplicationSyncTimeout);
+         }
+
          synchronizationIsFinishedAcknowledgement.countUp();
          sendReplicatePacket(new ReplicationStartSyncMessage(nodeID));
          try {
