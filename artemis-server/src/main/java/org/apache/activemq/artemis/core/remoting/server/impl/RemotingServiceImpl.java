@@ -35,6 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -114,6 +115,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    private ServiceRegistry serviceRegistry;
 
    private boolean paused = false;
+
+   private AtomicLong totalConnectionCount = new AtomicLong(0);
 
    // Static --------------------------------------------------------
 
@@ -445,6 +448,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    }
 
    @Override
+   public long getTotalConnectionCount() {
+      return totalConnectionCount.get();
+   }
+
+   @Override
    public synchronized ReusableLatch getConnectionCountLatch() {
       return connectionCountLatch;
    }
@@ -471,6 +479,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       connections.put(connection.getID(), entry);
       connectionCountLatch.countUp();
+      totalConnectionCount.incrementAndGet();
    }
 
    @Override

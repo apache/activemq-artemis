@@ -880,6 +880,181 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertFalse(server.isStarted());
    }
 
+   @Test
+   public void testTotalMessageCount() throws Exception {
+      String random1 = RandomUtil.randomString();
+      String random2 = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      session.createQueue(random1, random1);
+      session.createQueue(random2, random2);
+
+      ClientProducer producer1 = session.createProducer(random1);
+      ClientProducer producer2 = session.createProducer(random2);
+      ClientMessage message = session.createMessage(false);
+      producer1.send(message);
+      producer2.send(message);
+
+      session.commit();
+
+      assertEquals(2, serverControl.getTotalMessageCount());
+
+      session.deleteQueue(random1);
+      session.deleteQueue(random2);
+
+      session.close();
+
+      locator.close();
+   }
+
+   @Test
+   public void testTotalConnectionCount() throws Exception {
+      final int CONNECTION_COUNT = 100;
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      for (int i = 0; i < CONNECTION_COUNT; i++) {
+         createSessionFactory(locator).close();
+      }
+
+      assertEquals(CONNECTION_COUNT, serverControl.getTotalConnectionCount());
+      assertEquals(0, serverControl.getConnectionCount());
+
+      locator.close();
+   }
+
+   @Test
+   public void testTotalMessagesAdded() throws Exception {
+      String random1 = RandomUtil.randomString();
+      String random2 = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      session.createQueue(random1, random1);
+      session.createQueue(random2, random2);
+
+      ClientProducer producer1 = session.createProducer(random1);
+      ClientProducer producer2 = session.createProducer(random2);
+      ClientMessage message = session.createMessage(false);
+      producer1.send(message);
+      producer2.send(message);
+
+      session.commit();
+
+      ClientConsumer consumer1 = session.createConsumer(random1);
+      ClientConsumer consumer2 = session.createConsumer(random2);
+
+      session.start();
+
+      assertNotNull(consumer1.receive().acknowledge());
+      assertNotNull(consumer2.receive().acknowledge());
+
+      session.commit();
+
+      assertEquals(2, serverControl.getTotalMessagesAdded());
+      assertEquals(0, serverControl.getTotalMessageCount());
+
+      consumer1.close();
+      consumer2.close();
+
+      session.deleteQueue(random1);
+      session.deleteQueue(random2);
+
+      session.close();
+
+      locator.close();
+   }
+
+   @Test
+   public void testTotalMessagesAcknowledged() throws Exception {
+      String random1 = RandomUtil.randomString();
+      String random2 = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      session.createQueue(random1, random1);
+      session.createQueue(random2, random2);
+
+      ClientProducer producer1 = session.createProducer(random1);
+      ClientProducer producer2 = session.createProducer(random2);
+      ClientMessage message = session.createMessage(false);
+      producer1.send(message);
+      producer2.send(message);
+
+      session.commit();
+
+      ClientConsumer consumer1 = session.createConsumer(random1);
+      ClientConsumer consumer2 = session.createConsumer(random2);
+
+      session.start();
+
+      assertNotNull(consumer1.receive().acknowledge());
+      assertNotNull(consumer2.receive().acknowledge());
+
+      session.commit();
+
+      assertEquals(2, serverControl.getTotalMessagesAcknowledged());
+      assertEquals(0, serverControl.getTotalMessageCount());
+
+      consumer1.close();
+      consumer2.close();
+
+      session.deleteQueue(random1);
+      session.deleteQueue(random2);
+
+      session.close();
+
+      locator.close();
+   }
+
+   @Test
+   public void testTotalConsumerCount() throws Exception {
+      String random1 = RandomUtil.randomString();
+      String random2 = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random1), SimpleString.toSimpleString(random1), mbeanServer);
+      QueueControl queueControl2 = ManagementControlHelper.createQueueControl(SimpleString.toSimpleString(random2), SimpleString.toSimpleString(random2), mbeanServer);
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+
+      session.createQueue(random1, random1);
+      session.createQueue(random2, random2);
+
+      ClientConsumer consumer1 = session.createConsumer(random1);
+      ClientConsumer consumer2 = session.createConsumer(random2);
+
+      assertEquals(2, serverControl.getTotalConsumerCount());
+      assertEquals(1, queueControl1.getConsumerCount());
+      assertEquals(1, queueControl2.getConsumerCount());
+
+      consumer1.close();
+      consumer2.close();
+
+      session.deleteQueue(random1);
+      session.deleteQueue(random2);
+
+      session.close();
+
+      locator.close();
+   }
+
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");
       HashMap<String, Object> params = new HashMap<>();

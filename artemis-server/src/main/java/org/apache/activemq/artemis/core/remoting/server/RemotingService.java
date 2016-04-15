@@ -40,6 +40,8 @@ public interface RemotingService {
 
    Set<RemotingConnection> getConnections();
 
+   long getTotalConnectionCount();
+
    ReusableLatch getConnectionCountLatch();
 
    void addIncomingInterceptor(BaseInterceptor interceptor);
