@@ -242,48 +242,38 @@ public final class ActiveMQClient {
 
 
    /**
-    * (Re)Initializes the global thread pools properties from System properties.  This method will update the global
-    * thread pool configuration based on defined System properties (or defaults if they are not set) notifying
-    * all globalThreadPoolListeners.  The System properties key names are as follow:
+    * Initializes the global thread pools properties from System properties.  This method will update the global
+    * thread pool configuration based on defined System properties (or defaults if they are not set).
+    * The System properties key names are as follow:
     *
     * ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY="activemq.artemis.client.global.thread.pool.max.size"
     * ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY="activemq.artemis.client.global.scheduled.thread.pool.core.size
     *
-    * The min value for max thread pool size is 2.  Providing a value lower than 2 will be ignored and will defaul to 2.
+    * The min value for max thread pool size is 2. If the value is not -1, but lower than 2, it will be ignored and will default to 2.
+    * A value of -1 configures an unbounded thread pool.
     *
-    * Note.  The ServerLocatorImpl registers a listener and uses it to configure it's global thread pools.  If global
-    * thread pools have already been created, they will be updated with these new values.
+    * Note: If global thread pools have already been created, they will not be updated with these new values.
     */
    public static void initializeGlobalThreadPoolProperties() {
 
-      setGlobalThreadPoolProperties(Integer.valueOf(Integer.valueOf(System.getProperty(ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE))), Integer.valueOf(System.getProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE)));
+      setGlobalThreadPoolProperties(Integer.valueOf(System.getProperty(ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE)), Integer.valueOf(System.getProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY, "" + ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE)));
    }
 
    /**
     * Allows programatically configuration of global thread pools properties.  This method will update the global
     * thread pool configuration based on the provided values notifying all globalThreadPoolListeners.
     *
-    * Note.  The ServerLocatorImpl registers a listener and uses it to configure it's global thread pools.  If global
-    * thread pools have already been created, they will be updated with these new values.
+    * Note: If global thread pools have already been created, they will not be updated with these new values.
     *
-    * The min value for max thread pool size is 2.  Providing a value lower than 2 will be ignored and will default to 2.
+    * The min value for globalThreadMaxPoolSize is 2. If the value is not -1, but lower than 2, it will be ignored and will default to 2.
+    * A value of -1 configures an unbounded thread pool.
     */
    public static void setGlobalThreadPoolProperties(int globalThreadMaxPoolSize, int globalScheduledThreadPoolSize) {
 
-      if (globalThreadMaxPoolSize < 2) globalThreadMaxPoolSize = 2;
+      if (globalThreadMaxPoolSize < 2 && globalThreadMaxPoolSize != -1) globalThreadMaxPoolSize = 2;
 
       ActiveMQClient.globalScheduledThreadPoolSize = globalScheduledThreadPoolSize;
       ActiveMQClient.globalThreadMaxPoolSize = globalThreadMaxPoolSize;
-
-      // if injected, we won't do anything with the pool as they're not ours
-      if (!injectedPools) {
-         // Right now I'm ignoring the corePool size on purpose as there's no way to have two values for the number of threads
-         // this is basically a fixed size thread pool (although the pool grows on demand)
-         getGlobalThreadPool().setCorePoolSize(globalThreadMaxPoolSize);
-         getGlobalThreadPool().setMaximumPoolSize(globalThreadMaxPoolSize);
-
-         getGlobalScheduledThreadPool().setCorePoolSize(globalScheduledThreadPoolSize);
-      }
    }
 
    /**
