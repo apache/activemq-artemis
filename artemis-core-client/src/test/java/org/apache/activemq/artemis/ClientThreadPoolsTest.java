@@ -54,7 +54,7 @@ public class ClientThreadPoolsTest {
       System.clearProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY);
       ActiveMQClient.initializeGlobalThreadPoolProperties();
       ActiveMQClient.clearThreadPools();
-      Assert.assertEquals(ActiveMQClient.DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE, ActiveMQClient.globalThreadMaxPoolSize);
+      Assert.assertEquals(ActiveMQClient.DEFAULT_GLOBAL_THREAD_POOL_MAX_SIZE, ActiveMQClient.getGlobalThreadPoolSize());
    }
 
    @Test
@@ -65,14 +65,15 @@ public class ClientThreadPoolsTest {
       System.setProperty(ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY, "" + threadPoolMaxSize);
       System.setProperty(ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY, "" + scheduledThreadPoolSize);
       ActiveMQClient.initializeGlobalThreadPoolProperties();
+      ActiveMQClient.clearThreadPools();
 
       testSystemPropertiesThreadPoolSettings(threadPoolMaxSize, scheduledThreadPoolSize);
    }
 
    @Test
    public void testShutdownPoolInUse() throws Exception {
-      ActiveMQClient.clearThreadPools();
       ActiveMQClient.setGlobalThreadPoolProperties(10, 1);
+      ActiveMQClient.clearThreadPools();
 
       final CountDownLatch inUse = new CountDownLatch(1);
       final CountDownLatch neverLeave = new CountDownLatch(1);
@@ -146,6 +147,7 @@ public class ClientThreadPoolsTest {
       int testScheduleSize = 9;
 
       ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize);
+      ActiveMQClient.clearThreadPools();
       testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize);
    }
 
@@ -156,6 +158,7 @@ public class ClientThreadPoolsTest {
       int testScheduleSize = 9;
 
       ActiveMQClient.setGlobalThreadPoolProperties(testMaxSize, testScheduleSize);
+      ActiveMQClient.clearThreadPools();
       testSystemPropertiesThreadPoolSettings(testMaxSize, testScheduleSize);
    }
 
@@ -255,6 +258,7 @@ public class ClientThreadPoolsTest {
       // Resets the global thread pool properties back to default.
       System.setProperties(systemProperties);
       ActiveMQClient.initializeGlobalThreadPoolProperties();
+      ActiveMQClient.clearThreadPools();
    }
 
 
