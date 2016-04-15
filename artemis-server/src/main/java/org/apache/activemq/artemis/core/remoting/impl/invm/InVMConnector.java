@@ -94,6 +94,13 @@ public class InVMConnector extends AbstractConnector {
 
    private static ExecutorService threadPoolExecutor;
 
+   public static void resetThreadPool() {
+      if (threadPoolExecutor != null) {
+         threadPoolExecutor.shutdown();
+         threadPoolExecutor = null;
+      }
+   }
+
    private static ExecutorService getInVMExecutor() {
       if (threadPoolExecutor == null) {
          if (ActiveMQClient.globalThreadMaxPoolSize <= -1) {
