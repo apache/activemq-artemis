@@ -418,28 +418,6 @@ The `stomp-websockets` example shows how to configure Apache ActiveMQ Artemis se
 have web browsers and Java applications exchanges messages on a JMS
 topic.
 
-### StompConnect
-
-[StompConnect](http://stomp.codehaus.org/StompConnect) is a server that
-can act as a Stomp broker and proxy the Stomp protocol to the standard
-JMS API. Consequently, using StompConnect it is possible to turn
-Apache ActiveMQ Artemis into a Stomp Broker and use any of the available stomp clients.
-These include clients written in C, C++, c\# and .net etc.
-
-To run StompConnect first start the Apache ActiveMQ Artemis server and make sure that
-it is using JNDI.
-
-Stomp requires the file `jndi.properties` to be available on the
-classpath. This should look something like:
-
-    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-
-Configure any required JNDI resources in this file according to the
-documentation.
-
-Make sure this file is in the classpath along with the StompConnect jar
-and the Apache ActiveMQ Artemis jars and simply run `java org.codehaus.stomp.jms.Main`.
-
 ## REST
 
 Please see [Rest Interface](rest.md)
