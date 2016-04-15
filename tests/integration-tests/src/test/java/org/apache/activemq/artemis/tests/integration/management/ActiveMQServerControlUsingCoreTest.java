@@ -179,6 +179,31 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getTotalConnectionCount() {
+            return (Long) proxy.retrieveAttributeValue("totalConnectionCount", Long.class);
+         }
+
+         @Override
+         public long getTotalMessageCount() {
+            return (Long) proxy.retrieveAttributeValue("totalMessageCount", Long.class);
+         }
+
+         @Override
+         public long getTotalMessagesAdded() {
+            return (Long) proxy.retrieveAttributeValue("totalMessagesAdded", Long.class);
+         }
+
+         @Override
+         public long getTotalMessagesAcknowledged() {
+            return (Long) proxy.retrieveAttributeValue("totalMessagesAcknowledged", Long.class);
+         }
+
+         @Override
+         public long getTotalConsumerCount() {
+            return (Long) proxy.retrieveAttributeValue("totalConsumerCount", Long.class);
+         }
+
+         @Override
          public long getConnectionTTLOverride() {
             return (Long) proxy.retrieveAttributeValue("connectionTTLOverride", Long.class);
          }
@@ -201,6 +226,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public String[] getQueueNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames"));
+         }
+
+         @Override
+         public String getUptime() {
+            return null;
+         }
+
+         @Override
+         public long getUptimeMillis() {
+            return 0;
          }
 
          @Override

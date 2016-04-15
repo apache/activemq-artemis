@@ -153,6 +153,16 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    int getConnectionCount();
 
+   long getTotalConnectionCount();
+
+   long getTotalMessageCount();
+
+   long getTotalMessagesAdded();
+
+   long getTotalMessagesAcknowledged();
+
+   long getTotalConsumerCount();
+
    PostOffice getPostOffice();
 
    QueueFactory getQueueFactory();
@@ -171,6 +181,10 @@ public interface ActiveMQServer extends ActiveMQComponent {
    SimpleString getNodeID();
 
    boolean isActive();
+
+   String getUptime();
+
+   long getUptimeMillis();
 
    /**
     * This is the queue creator responsible for JMS Queue creations*
