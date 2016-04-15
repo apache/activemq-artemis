@@ -96,6 +96,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
@@ -234,6 +235,8 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
+
+      InVMConnector.resetThreadPool();
 
       try {
          assertAllExecutorsFinished();

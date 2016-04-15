@@ -809,7 +809,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       // how the sendSubscription happens.
       // in case this ever changes.
       if (topology != null && !factory.waitForTopology(callTimeout, TimeUnit.MILLISECONDS)) {
-         factory.cleanup();
+         if (factory != null) {
+            factory.cleanup();
+         }
          throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
       }
 

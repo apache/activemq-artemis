@@ -16,15 +16,19 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
+
 public class JGroupsPropertiesBroadcastEndpointFactory implements BroadcastEndpointFactory {
 
    private String properties;
 
    private String channelName;
 
+   private final JChannelManager manager = new JChannelManager();
+
    @Override
    public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
-      return new JGroupsPropertiesBroadcastEndpoint(properties, channelName).initChannel();
+      return new JGroupsPropertiesBroadcastEndpoint(manager, properties, channelName).initChannel();
    }
 
    public String getProperties() {

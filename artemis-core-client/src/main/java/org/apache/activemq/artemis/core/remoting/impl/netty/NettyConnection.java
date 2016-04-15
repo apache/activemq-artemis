@@ -106,25 +106,41 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public synchronized boolean isWritable(ReadyListener callback) {
-      if (!ready) {
-         readyListeners.push(callback);
-      }
+   public boolean isWritable(ReadyListener callback) {
+      synchronized (readyListeners) {
+         if (!ready) {
+            readyListeners.push(callback);
+         }
 
-      return ready;
+         return ready;
+      }
    }
 
    @Override
-   public synchronized void fireReady(final boolean ready) {
-      this.ready = ready;
+   public void fireReady(final boolean ready) {
+      LinkedList<ReadyListener> readyToCall = null;
+      synchronized (readyListeners) {
+         this.ready = ready;
 
-      if (ready) {
-         for (;;) {
-            ReadyListener readyListener = readyListeners.poll();
-            if (readyListener == null) {
-               return;
+         if (ready) {
+            for (;;) {
+               ReadyListener readyListener = readyListeners.poll();
+               if (readyListener == null) {
+                  break;
+               }
+
+
+               if (readyToCall == null) {
+                  readyToCall = new LinkedList<>();
+               }
+
+               readyToCall.add(readyListener);
             }
+         }
+      }
 
+      if (readyToCall != null) {
+         for (ReadyListener readyListener : readyToCall) {
             try {
                readyListener.readyForWriting();
             }

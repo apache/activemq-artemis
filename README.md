@@ -29,16 +29,13 @@ To run an example firstly make sure you have run
 
 If the project version has already been released then this is unnecessary.
 
-then you will need to set the following maven options, on Linux by
-
-    $ export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
-
-and the finally run the examples by
+Each individual example can be run using this command from its corresponding directory:
 
     $ mvn verify
 
-You can also run individual examples by running the same command from the directory of which ever example you want to run.
-NB for this make sure you have installed examples/common.
+If you wish to run groups of examples then use this command from a parent directory (e.g. examples/features/standard):
+
+    $ mvn -Pexamples verify
 
 ### Recreating the examples
 

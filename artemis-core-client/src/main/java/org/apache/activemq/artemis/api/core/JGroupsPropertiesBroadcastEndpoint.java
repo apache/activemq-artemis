@@ -16,18 +16,19 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.jgroups.JChannel;
 import org.jgroups.conf.PlainConfigurator;
 
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
-public final class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEndpoint {
+public final  class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEndpoint {
 
    private String properties;
 
-   public JGroupsPropertiesBroadcastEndpoint(final String properties, final String channelName) throws Exception {
-      super(channelName);
+   public JGroupsPropertiesBroadcastEndpoint(final JChannelManager manager, final String properties, final String channelName) throws Exception {
+      super(manager, channelName);
       this.properties = properties;
    }
 
@@ -37,3 +38,4 @@ public final class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEn
       return new JChannel(configurator);
    }
 }
+

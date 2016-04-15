@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -140,7 +141,7 @@ public class XAHeuristicExample {
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
 
          // Step 27. List the prepared transactions
-         ObjectName serverObject = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
+         ObjectName serverObject = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "0.0.0.0", true).getActiveMQServerObjectName();
          String[] infos = (String[]) mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
 
          System.out.println("Prepared transactions: ");

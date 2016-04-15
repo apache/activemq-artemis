@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
+import org.apache.activemq.artemis.api.core.jgroups.JChannelWrapper;
 import org.jgroups.JChannel;
 
 /**
@@ -27,8 +29,8 @@ public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint {
 
    private final JChannel jChannel;
 
-   public JGroupsChannelBroadcastEndpoint(JChannel jChannel, final String channelName) throws Exception {
-      super(channelName);
+   public JGroupsChannelBroadcastEndpoint(JChannelManager manager, JChannel jChannel, final String channelName)  {
+      super(manager, channelName);
       this.jChannel = jChannel;
    }
 

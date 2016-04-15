@@ -408,8 +408,9 @@ public class ClusterController implements ActiveMQComponent {
             }
          }
          catch (ActiveMQException e) {
-            if (!started)
+            if (!started) {
                return;
+            }
             server.getScheduledPool().schedule(this, serverLocator.getRetryInterval(), TimeUnit.MILLISECONDS);
          }
       }

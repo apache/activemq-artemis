@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.io.DummyCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class AIOSequentialFile extends AbstractSequentialFile {
@@ -202,7 +203,14 @@ public class AIOSequentialFile extends AbstractSequentialFile {
     */
    @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
-      checkOpened();
+      try {
+         checkOpened();
+      }
+      catch (Exception e) {
+         ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+         callback.onError(-1, e.getMessage());
+         return;
+      }
 
       final int bytesToWrite = factory.calculateBlockSize(bytes.limit());
 
