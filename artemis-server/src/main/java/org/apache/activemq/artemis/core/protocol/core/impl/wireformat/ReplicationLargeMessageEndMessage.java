@@ -58,6 +58,13 @@ public class ReplicationLargeMessageEndMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      return "ReplicationLargeMessageEndMessage{" +
+         "messageId=" + messageId +
+         '}';
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

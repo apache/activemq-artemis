@@ -58,12 +58,12 @@ public interface ActiveMQJMSClientLogger extends BasicLogger {
    void errorCallingExcListener(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 124002, value = "Queue Browser failed to create message", format = Message.Format.MESSAGE_FORMAT)
-   void errorCreatingMessage(@Cause Throwable e);
+   @Message(id = 124002, value = "Queue Browser failed to create message {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorCreatingMessage(String messageToString, @Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 124003, value = "Message Listener failed to prepare message for receipt", format = Message.Format.MESSAGE_FORMAT)
-   void errorPreparingMessageForReceipt(@Cause Throwable e);
+   @Message(id = 124003, value = "Message Listener failed to prepare message for receipt, message={0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorPreparingMessageForReceipt(String messagetoString, @Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124004, value = "Message Listener failed to process message", format = Message.Format.MESSAGE_FORMAT)

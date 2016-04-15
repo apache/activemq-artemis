@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.jgroups.JChannel;
 
 import java.net.URL;
@@ -27,8 +28,8 @@ public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
 
    private String file;
 
-   public JGroupsFileBroadcastEndpoint(final String file, final String channelName) throws Exception {
-      super(channelName);
+   public JGroupsFileBroadcastEndpoint(final JChannelManager manager, final String file, final String channelName) throws Exception {
+      super(manager, channelName);
       this.file = file;
    }
 

@@ -16,15 +16,11 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
+import org.apache.activemq.artemis.api.core.jgroups.JChannelWrapper;
+import org.apache.activemq.artemis.api.core.jgroups.JGroupsReceiver;
+import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
-import org.jgroups.ReceiverAdapter;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,6 +28,9 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
+   private static final Logger logger = Logger.getLogger(JGroupsBroadcastEndpoint.class);
+
+   private static final boolean isTrace = logger.isTraceEnabled();
    private final String channelName;
 
    private boolean clientOpened;
@@ -42,12 +41,16 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    private JGroupsReceiver receiver;
 
-   public JGroupsBroadcastEndpoint(String channelName) {
+   private JChannelManager manager;
+
+   public JGroupsBroadcastEndpoint(JChannelManager manager, String channelName) {
+      this.manager = manager;
       this.channelName = channelName;
    }
 
    @Override
    public void broadcast(final byte[] data) throws Exception {
+      if (isTrace) logger.trace("Broadcasting: BroadCastOpened=" + broadcastOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (broadcastOpened) {
          org.jgroups.Message msg = new org.jgroups.Message();
 
@@ -59,6 +62,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public byte[] receiveBroadcast() throws Exception {
+      if (isTrace) logger.trace("Receiving Broadcast: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (clientOpened) {
          return receiver.receiveBroadcast();
       }
@@ -69,6 +73,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
+      if (isTrace) logger.trace("Receiving Broadcast2: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (clientOpened) {
          return receiver.receiveBroadcast(time, unit);
       }
@@ -99,7 +104,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
    public abstract JChannel createChannel() throws Exception;
 
    public JGroupsBroadcastEndpoint initChannel() throws Exception {
-      this.channel = JChannelManager.getJChannel(channelName, this);
+      this.channel = manager.getJChannel(channelName, this);
       return this;
    }
 
@@ -128,146 +133,4 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       channel.close(true);
    }
 
-   /**
-    * This class is used to receive messages from a JGroups channel.
-    * Incoming messages are put into a queue.
-    */
-   private static final class JGroupsReceiver extends ReceiverAdapter {
-
-      private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<>();
-
-      @Override
-      public void receive(org.jgroups.Message msg) {
-         dequeue.add(msg.getBuffer());
-      }
-
-      public byte[] receiveBroadcast() throws Exception {
-         return dequeue.take();
-      }
-
-      public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
-         return dequeue.poll(time, unit);
-      }
-   }
-
-   /**
-    * This class wraps a JChannel with a reference counter. The reference counter
-    * controls the life of the JChannel. When reference count is zero, the channel
-    * will be disconnected.
-    */
-   protected static class JChannelWrapper {
-
-      int refCount = 1;
-      JChannel channel;
-      String channelName;
-      final List<JGroupsReceiver> receivers = new ArrayList<>();
-
-      public JChannelWrapper(String channelName, JChannel channel) throws Exception {
-         this.refCount = 1;
-         this.channelName = channelName;
-         this.channel = channel;
-
-         //we always add this for the first ref count
-         channel.setReceiver(new ReceiverAdapter() {
-
-            @Override
-            public void receive(org.jgroups.Message msg) {
-               synchronized (receivers) {
-                  for (JGroupsReceiver r : receivers) {
-                     r.receive(msg);
-                  }
-               }
-            }
-         });
-      }
-
-      public synchronized void close(boolean closeWrappedChannel) {
-         refCount--;
-         if (refCount == 0) {
-            if (closeWrappedChannel) {
-               JChannelManager.closeChannel(this.channelName, channel);
-            }
-            else {
-               JChannelManager.removeChannel(this.channelName);
-            }
-            //we always remove the receiver as its no longer needed
-            channel.setReceiver(null);
-         }
-      }
-
-      public void removeReceiver(JGroupsReceiver receiver) {
-         synchronized (receivers) {
-            receivers.remove(receiver);
-         }
-      }
-
-      public synchronized void connect() throws Exception {
-         if (channel.isConnected())
-            return;
-         channel.connect(channelName);
-      }
-
-      public void addReceiver(JGroupsReceiver jGroupsReceiver) {
-         synchronized (receivers) {
-            receivers.add(jGroupsReceiver);
-         }
-      }
-
-      public void send(org.jgroups.Message msg) throws Exception {
-         channel.send(msg);
-      }
-
-      public JChannelWrapper addRef() {
-         this.refCount++;
-         return this;
-      }
-
-      @Override
-      public String toString() {
-         return "JChannelWrapper of [" + channel + "] " + refCount + " " + channelName;
-      }
-   }
-
-   /**
-    * This class maintain a global Map of JChannels wrapped in JChannelWrapper for
-    * the purpose of reference counting.
-    *
-    * Wherever a JChannel is needed it should only get it by calling the getChannel()
-    * method of this class. The real disconnect of channels are also done here only.
-    */
-   protected static class JChannelManager {
-
-      private static Map<String, JChannelWrapper> channels;
-
-      public static synchronized JChannelWrapper getJChannel(String channelName,
-                                                             JGroupsBroadcastEndpoint endpoint) throws Exception {
-         if (channels == null) {
-            channels = new HashMap<>();
-         }
-         JChannelWrapper wrapper = channels.get(channelName);
-         if (wrapper == null) {
-            wrapper = new JChannelWrapper(channelName, endpoint.createChannel());
-            channels.put(channelName, wrapper);
-            return wrapper;
-         }
-         return wrapper.addRef();
-      }
-
-      public static synchronized void closeChannel(String channelName, JChannel channel) {
-         channel.setReceiver(null);
-         channel.disconnect();
-         channel.close();
-         JChannelWrapper wrapper = channels.remove(channelName);
-         if (wrapper == null) {
-            throw new IllegalStateException("Did not find channel " + channelName);
-         }
-      }
-
-      public static void removeChannel(String channelName) {
-         JChannelWrapper wrapper = channels.remove(channelName);
-         if (wrapper == null) {
-            throw new IllegalStateException("Did not find channel " + channelName);
-         }
-      }
-   }
 }

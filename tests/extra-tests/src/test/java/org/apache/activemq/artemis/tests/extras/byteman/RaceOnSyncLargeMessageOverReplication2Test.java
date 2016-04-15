@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -53,7 +54,6 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
 
    public static int messageChunkCount = 0;
 
-   private static final ReusableLatch ruleFired = new ReusableLatch(1);
    private static ActiveMQServer backupServer;
    private static ActiveMQServer liveServer;
 
@@ -68,16 +68,12 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
    Configuration liveConfig;
 
    // To inform the main thread the condition is met
-   static final ReusableLatch flagArrived = new ReusableLatch(1);
+   static final ReusableLatch flagChunkEntered = new ReusableLatch(1);
    // To wait while the condition is worked out
-   static final ReusableLatch flagWait = new ReusableLatch(1);
-
-   static final ReusableLatch flag15Arrived = new ReusableLatch(1);
-   // To wait while the condition is worked out
-   static final ReusableLatch flag15Wait = new ReusableLatch(1);
+   static final ReusableLatch flagChunkWait = new ReusableLatch(1);
 
    // To inform the main thread the condition is met
-   static final ReusableLatch flagSyncArrived = new ReusableLatch(1);
+   static final ReusableLatch flagSyncEntered = new ReusableLatch(1);
    // To wait while the condition is worked out
    static final ReusableLatch flagSyncWait = new ReusableLatch(1);
 
@@ -88,13 +84,12 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
 
       System.out.println("Tmp::" + getTemporaryDir());
 
-      flagArrived.setCount(1);
-      flagWait.setCount(1);
+      flagChunkEntered.setCount(1);
+      flagChunkWait.setCount(1);
 
-      flag15Arrived.setCount(1);
-      flag15Wait.setCount(1);
+      flagSyncEntered.setCount(1);
+      flagSyncWait.setCount(1);
 
-      ruleFired.setCount(1);
       messageChunkCount = 0;
 
       TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
@@ -188,7 +183,6 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
          final MapMessage message = createLargeMessage();
 
          t = new Thread() {
-            @Override
             public void run() {
                try {
                   producer.send(message);
@@ -206,25 +200,23 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
       // I'm trying to simulate the following race here:
       // The message is syncing while the client is already sending the body of the message
 
-      Assert.assertTrue(flagArrived.await(10, TimeUnit.SECONDS));
+      Assert.assertTrue(flagChunkEntered.await(10, TimeUnit.SECONDS));
 
       startBackup();
 
-      Assert.assertTrue(flagSyncArrived.await(10, TimeUnit.SECONDS));
+      Assert.assertTrue(flagSyncEntered.await(10, TimeUnit.SECONDS));
 
-      flagWait.countDown();
-
-      Assert.assertTrue(flag15Arrived.await(10, TimeUnit.SECONDS));
-
-      flag15Wait.countDown();
+      flagChunkWait.countDown();
 
       t.join(5000);
-
-      flagSyncWait.countDown();
 
       System.out.println("Thread joined");
 
       Assert.assertFalse(t.isAlive());
+
+      flagSyncWait.countDown();
+
+      Assert.assertTrue(((SharedNothingBackupActivation)backupServer.getActivation()).waitForBackupSync(10, TimeUnit.SECONDS));
 
       waitForRemoteBackup(connection.getSessionFactory(), 30);
 
@@ -253,8 +245,8 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
    public static void syncLargeMessage() {
 
       try {
-         flagSyncArrived.countDown();
-         flagSyncWait.await(10, TimeUnit.SECONDS);
+         flagSyncEntered.countDown();
+         flagSyncWait.await(100, TimeUnit.SECONDS);
       }
       catch (Exception e) {
          e.printStackTrace();
@@ -266,13 +258,9 @@ public class RaceOnSyncLargeMessageOverReplication2Test extends ActiveMQTestBase
       messageChunkCount++;
 
       try {
-         if (messageChunkCount == 10) {
-            flagArrived.countDown();
-            flagWait.await(10, TimeUnit.SECONDS);
-         }
-         if (messageChunkCount == 15) {
-            flag15Arrived.countDown();
-            flag15Wait.await(10, TimeUnit.SECONDS);
+         if (messageChunkCount == 1) {
+            flagChunkEntered.countDown();
+            flagChunkWait.await(10, TimeUnit.SECONDS);
          }
       }
       catch (Exception e) {

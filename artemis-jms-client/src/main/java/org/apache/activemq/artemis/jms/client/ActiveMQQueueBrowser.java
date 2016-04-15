@@ -141,7 +141,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
                msg.doBeforeReceive();
             }
             catch (Exception e) {
-               ActiveMQJMSClientLogger.LOGGER.errorCreatingMessage(e);
+               ActiveMQJMSClientLogger.LOGGER.errorCreatingMessage(msg.getCoreMessage().toString(), e);
 
                return null;
             }

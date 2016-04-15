@@ -73,7 +73,7 @@ public class JMSMessageListenerWrapper implements MessageHandler {
          msg.doBeforeReceive();
       }
       catch (Exception e) {
-         ActiveMQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(e);
+         ActiveMQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(msg.getCoreMessage().toString(), e);
 
          return;
       }
