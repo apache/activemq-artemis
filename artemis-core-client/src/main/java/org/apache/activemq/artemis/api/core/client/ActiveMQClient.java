@@ -46,9 +46,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
  */
 public final class ActiveMQClient {
 
-   public static int globalThreadMaxPoolSize;
+   private static int globalThreadPoolSize;
 
-   public static int globalScheduledThreadPoolSize;
+   private static int globalScheduledThreadPoolSize;
 
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
@@ -195,13 +195,15 @@ public final class ActiveMQClient {
    }
 
    /** Warning: This method has to be called before any clients or servers is started on the JVM otherwise previous ServerLocator would be broken after this call. */
-   public static synchronized void injectPools(ThreadPoolExecutor globalThreadPool, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+   public static synchronized void injectPools(ThreadPoolExecutor globalThreadPool, ScheduledThreadPoolExecutor scheduledThreadPool) {
+      if (globalThreadPool == null || scheduledThreadPool == null)
+         throw new IllegalArgumentException("thread pools must not be null");
 
       // We call clearThreadPools as that will shutdown any previously used executor
       clearThreadPools();
 
       ActiveMQClient.globalThreadPool = globalThreadPool;
-      ActiveMQClient.globalScheduledThreadPool = scheduledThreadPoolExecutor;
+      ActiveMQClient.globalScheduledThreadPool = scheduledThreadPool;
       injectedPools = true;
    }
 
@@ -214,11 +216,11 @@ public final class ActiveMQClient {
             }
          });
 
-         if (globalThreadMaxPoolSize == -1) {
+         if (globalThreadPoolSize == -1) {
             globalThreadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), factory);
          }
          else {
-            globalThreadPool = new ThreadPoolExecutor(ActiveMQClient.globalThreadMaxPoolSize, ActiveMQClient.globalThreadMaxPoolSize, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), factory);
+            globalThreadPool = new ThreadPoolExecutor(ActiveMQClient.globalThreadPoolSize, ActiveMQClient.globalThreadPoolSize, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), factory);
          }
       }
       return globalThreadPool;
@@ -238,8 +240,13 @@ public final class ActiveMQClient {
       return globalScheduledThreadPool;
    }
 
+   public static int getGlobalThreadPoolSize() {
+      return globalThreadPoolSize;
+   }
 
-
+   public static int getGlobalScheduledThreadPoolSize() {
+      return globalScheduledThreadPoolSize;
+   }
 
    /**
     * Initializes the global thread pools properties from System properties.  This method will update the global
@@ -273,7 +280,7 @@ public final class ActiveMQClient {
       if (globalThreadMaxPoolSize < 2 && globalThreadMaxPoolSize != -1) globalThreadMaxPoolSize = 2;
 
       ActiveMQClient.globalScheduledThreadPoolSize = globalScheduledThreadPoolSize;
-      ActiveMQClient.globalThreadMaxPoolSize = globalThreadMaxPoolSize;
+      ActiveMQClient.globalThreadPoolSize = globalThreadMaxPoolSize;
    }
 
    /**
