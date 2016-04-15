@@ -47,12 +47,17 @@ public class JChannelWrapper {
       this.manager = manager;
 
 
-      if (channel.getReceiver() != null) {
-         logger.warn("The channel already had a receiver previously!!!!", new Exception("trace"));
+      if (isTrace && channel.getReceiver() != null) {
+         logger.trace(this + "The channel already had a receiver previously!!!! == " + channel.getReceiver(), new Exception("trace"));
       }
 
       //we always add this for the first ref count
       channel.setReceiver(new ReceiverAdapter() {
+
+         @Override
+         public String toString() {
+            return "ReceiverAdapter::" + JChannelWrapper.this;
+         }
 
          @Override
          public void receive(org.jgroups.Message msg) {
@@ -85,8 +90,8 @@ public class JChannelWrapper {
             channel.setReceiver(null);
             logger.trace(this + "::Closing Channel: " + channelName, new Exception("Trace"));
             channel.close();
+            manager.removeChannel(channelName);
          }
-         manager.removeChannel(channelName);
       }
    }
 

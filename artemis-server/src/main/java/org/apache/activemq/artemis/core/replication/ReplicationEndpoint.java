@@ -637,7 +637,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       Journal journalToUse = getJournal(packet.getJournalID());
       if (packet.getRecord() == ADD_OPERATION_TYPE.UPDATE) {
          if (isTrace) {
-           logger.trace("Endpoint appendUpdate id = " + packet.getId());
+            logger.trace("Endpoint appendUpdate id = " + packet.getId());
          }
          journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
       }
