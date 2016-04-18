@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.management.DivertControl;
@@ -127,6 +128,11 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(DivertControl.class);
+   }
+
+   @Override
+   protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
+      return MBeanInfoHelper.getMBeanAttributesInfo(DivertControl.class);
    }
 
    // Public --------------------------------------------------------

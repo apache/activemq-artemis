@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
@@ -69,10 +70,12 @@ public abstract class AbstractControl extends StandardMBean {
 
    protected abstract MBeanOperationInfo[] fillMBeanOperationInfo();
 
+   protected abstract MBeanAttributeInfo[] fillMBeanAttributeInfo();
+
    @Override
    public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), fillMBeanOperationInfo(), info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), fillMBeanAttributeInfo(), info.getConstructors(), fillMBeanOperationInfo(), info.getNotifications());
    }
 
    // Private -------------------------------------------------------

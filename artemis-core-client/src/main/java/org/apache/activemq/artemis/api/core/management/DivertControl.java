@@ -24,6 +24,7 @@ public interface DivertControl {
    /**
     * Returns the filter used by this divert.
     */
+   @Attribute(desc = "filter used by this divert")
    String getFilter();
 
    /**
@@ -32,30 +33,36 @@ public interface DivertControl {
     * if {@code true} messages will be exclusively diverted and will not be routed to the origin address,
     * else messages will be routed both to the origin address and the forwarding address.
     */
+   @Attribute(desc = "whether this divert is exclusive")
    boolean isExclusive();
 
    /**
     * Returns the cluster-wide unique name of this divert.
     */
+   @Attribute(desc = "cluster-wide unique name of this divert")
    String getUniqueName();
 
    /**
     * Returns the routing name of this divert.
     */
+   @Attribute(desc = "routing name of this divert")
    String getRoutingName();
 
    /**
     * Returns the origin address used by this divert.
     */
+   @Attribute(desc = "origin address used by this divert")
    String getAddress();
 
    /**
     * Returns the forwarding address used by this divert.
     */
+   @Attribute(desc = "forwarding address used by this divert")
    String getForwardingAddress();
 
    /**
-    * Return the name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated to this bridge.
+    * Return the name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert.
     */
+   @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert")
    String getTransformerClassName();
 }

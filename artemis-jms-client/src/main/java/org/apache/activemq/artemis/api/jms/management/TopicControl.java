@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.management.MBeanOperationInfo;
 
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
@@ -31,26 +32,31 @@ public interface TopicControl extends DestinationControl {
    /**
     * Returns the number of (durable and non-durable) subscribers for this topic.
     */
+   @Attribute(desc = "number of (durable and non-durable) subscribers for this topic")
    int getSubscriptionCount();
 
    /**
     * Returns the number of <em>durable</em> subscribers for this topic.
     */
+   @Attribute(desc = "number of durable subscribers for this topic")
    int getDurableSubscriptionCount();
 
    /**
     * Returns the number of <em>non-durable</em> subscribers for this topic.
     */
+   @Attribute(desc = "number of non-durable subscribers for this topic")
    int getNonDurableSubscriptionCount();
 
    /**
     * Returns the number of messages for all <em>durable</em> subscribers for this topic.
     */
+   @Attribute(desc = "number of messages for all durable subscribers for this topic")
    int getDurableMessageCount();
 
    /**
     * Returns the number of messages for all <em>non-durable</em> subscribers for this topic.
     */
+   @Attribute(desc = "number of messages for all non-durable subscribers for this topic")
    int getNonDurableMessageCount();
 
    /**

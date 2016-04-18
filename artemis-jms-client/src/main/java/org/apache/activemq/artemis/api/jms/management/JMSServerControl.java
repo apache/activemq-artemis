@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.jms.management;
 
 import javax.management.MBeanOperationInfo;
 
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
@@ -30,31 +31,37 @@ public interface JMSServerControl {
    /**
     * Returns whether this server is started.
     */
+   @Attribute(desc = "whether this server is started")
    boolean isStarted();
 
    /**
     * Returns this server's version
     */
+   @Attribute(desc = "server's version")
    String getVersion();
 
    /**
     * Returns the names of the JMS topics available on this server.
     */
+   @Attribute(desc = "names of the JMS topics available on this server")
    String[] getTopicNames();
 
    /**
     * Returns the names of the JMS queues available on this server.
     */
+   @Attribute(desc = "names of the JMS queues available on this server")
    String[] getQueueNames();
 
    /**
     * Returns the names of the JMS connection factories available on this server.
     */
+   @Attribute(desc = "names of the JMS connection factories available on this server")
    String[] getConnectionFactoryNames();
 
    /**
-    * Returns the servers nodeId
+    * Returns the server's nodeId
     */
+   @Attribute(desc = "server's nodeId")
    String getNodeID();
 
    // Operations ----------------------------------------------------
@@ -311,7 +318,7 @@ public interface JMSServerControl {
     *
     * @see JMSConsumerInfo#from(String)
     */
-   @Operation(desc = "List all JMS consumers associated to a JMS Connection")
+   @Operation(desc = "List all JMS consumers associated with a JMS Connection")
    String listConsumersAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
    /**
@@ -320,7 +327,7 @@ public interface JMSServerControl {
     *
     * @see JMSConsumerInfo#from(String)
     */
-   @Operation(desc = "List all JMS consumers associated to a JMS Connection")
+   @Operation(desc = "List all JMS consumers associated with a JMS Connection")
    String listAllConsumersAsJSON() throws Exception;
 
    /**

@@ -26,16 +26,19 @@ public interface ActiveMQServerControl {
    /**
     * Returns this server's version.
     */
+   @Attribute(desc = "server's version")
    String getVersion();
 
    /**
-    * Returns the number of connections connected to this server.
+    * Returns the number of clients connected to this server.
     */
+   @Attribute(desc = "number of clients connected to this server")
    int getConnectionCount();
 
    /**
     * Return whether this server is started.
     */
+   @Attribute(desc = "whether this server is started")
    boolean isStarted();
 
    /**
@@ -43,6 +46,7 @@ public interface ActiveMQServerControl {
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
+   @Attribute(desc = "list of interceptors used by this server for incoming messages")
    String[] getIncomingInterceptorClassNames();
 
    /**
@@ -50,126 +54,151 @@ public interface ActiveMQServerControl {
     *
     * @see org.apache.activemq.artemis.api.core.Interceptor
     */
+   @Attribute(desc = "list of interceptors used by this server for outgoing messages")
    String[] getOutgoingInterceptorClassNames();
 
    /**
     * Returns whether this server is clustered.
     */
+   @Attribute(desc = "whether this server is clustered")
    boolean isClustered();
 
    /**
     * Returns the maximum number of threads in the <em>scheduled</em> thread pool.
     */
+   @Attribute(desc = "maximum number of threads in the scheduled thread pool")
    int getScheduledThreadPoolMaxSize();
 
    /**
     * Returns the maximum number of threads in the thread pool.
     */
+   @Attribute(desc = "maximum number of threads in the thread pool")
    int getThreadPoolMaxSize();
 
    /**
     * Returns the interval time (in milliseconds) to invalidate security credentials.
     */
+   @Attribute(desc = "interval time (in milliseconds) to invalidate security credentials")
    long getSecurityInvalidationInterval();
 
    /**
     * Returns whether security is enabled for this server.
     */
+   @Attribute(desc = "whether security is enabled for this server")
    boolean isSecurityEnabled();
 
    /**
     * Returns the file system directory used to store bindings.
     */
+   @Attribute(desc = "file system directory used to store bindings")
    String getBindingsDirectory();
 
    /**
     * Returns the file system directory used to store journal log.
     */
+   @Attribute(desc = "file system directory used to store journal log")
    String getJournalDirectory();
 
    /**
     * Returns the type of journal used by this server (either {@code NIO} or {@code ASYNCIO}).
     */
+   @Attribute(desc = "type of journal used by this server")
    String getJournalType();
 
    /**
     * Returns whether the journal is synchronized when receiving transactional data.
     */
+   @Attribute(desc = "whether the journal is synchronized when receiving transactional data")
    boolean isJournalSyncTransactional();
 
    /**
     * Returns whether the journal is synchronized when receiving non-transactional data.
     */
+   @Attribute(desc = "whether the journal is synchronized when receiving non-transactional datar")
    boolean isJournalSyncNonTransactional();
 
    /**
     * Returns the size (in bytes) of each journal files.
     */
+   @Attribute(desc = "size (in bytes) of each journal files")
    int getJournalFileSize();
 
    /**
     * Returns the number of journal files to pre-create.
     */
+   @Attribute(desc = "number of journal files to pre-create")
    int getJournalMinFiles();
 
    /**
     * Returns the maximum number of write requests that can be in the AIO queue at any given time.
     */
+   @Attribute(desc = "maximum number of write requests that can be in the AIO queue at any given time")
    int getJournalMaxIO();
 
    /**
     * Returns the size of the internal buffer on the journal.
     */
+   @Attribute(desc = "size of the internal buffer on the journal")
    int getJournalBufferSize();
 
    /**
     * Returns the timeout (in nanoseconds) used to flush internal buffers on the journal.
     */
+   @Attribute(desc = "timeout (in nanoseconds) used to flush internal buffers on the journal")
    int getJournalBufferTimeout();
 
    /**
     * do any clients failover on a server shutdown
     */
+   @Attribute(desc = "if clients failover on a server shutdown")
    void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception;
 
    /**
     * returns if clients failover on a server shutdown
     */
+   @Attribute(desc = "if clients failover on a server shutdown")
    boolean isFailoverOnServerShutdown();
 
    /**
     * Returns the minimal number of journal files before compacting.
     */
+   @Attribute(desc = "minimal number of journal files before compacting")
    int getJournalCompactMinFiles();
 
    /**
     * Return the percentage of live data before compacting the journal.
     */
+   @Attribute(desc = "percentage of live data before compacting the journal")
    int getJournalCompactPercentage();
 
    /**
     * Returns whether this server is using persistence and store data.
     */
+   @Attribute(desc = "whether this server is using persistence and store data")
    boolean isPersistenceEnabled();
 
    /**
     * Returns whether the bindings directory is created on this server startup.
     */
+   @Attribute(desc = "whether the bindings directory is created on this server startu")
    boolean isCreateBindingsDir();
 
    /**
     * Returns whether the journal directory is created on this server startup.
     */
+   @Attribute(desc = "whether the journal directory is created on this server startup")
    boolean isCreateJournalDir();
 
    /**
     * Returns whether message counter is enabled for this server.
     */
+   @Attribute(desc = "whether message counter is enabled for this server")
    boolean isMessageCounterEnabled();
 
    /**
     * Returns the maximum number of days kept in memory for message counter.
     */
+   @Attribute(desc = "maximum number of days kept in memory for message counter")
    int getMessageCounterMaxDayCount();
 
    /**
@@ -177,11 +206,13 @@ public interface ActiveMQServerControl {
     *
     * @param count value must be greater than 0
     */
+   @Attribute(desc = "maximum number of days kept in memory for message counter")
    void setMessageCounterMaxDayCount(int count) throws Exception;
 
    /**
     * Returns the sample period (in milliseconds) to take message counter snapshot.
     */
+   @Attribute(desc = "sample period (in milliseconds) to take message counter snapshot")
    long getMessageCounterSamplePeriod();
 
    /**
@@ -189,6 +220,7 @@ public interface ActiveMQServerControl {
     *
     * @param newPeriod value must be greater than 1000ms
     */
+   @Attribute(desc = "sample period to take message counter snapshot")
    void setMessageCounterSamplePeriod(long newPeriod) throws Exception;
 
    /**
@@ -196,21 +228,25 @@ public interface ActiveMQServerControl {
     * <br>
     * If a backup server has been activated, returns {@code false}.
     */
+   @Attribute(desc = "whether this server is a backup")
    boolean isBackup();
 
    /**
     * Returns whether this server shares its data store with a corresponding live or backup server.
     */
+   @Attribute(desc = "whether this server shares its data store with a corresponding live or backup serve")
    boolean isSharedStore();
 
    /**
     * Returns the file system directory used to store paging files.
     */
+   @Attribute(desc = "file system directory used to store paging files")
    String getPagingDirectory();
 
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers.
     */
+   @Attribute(desc = "whether delivery count is persisted before messages are delivered to the consumers")
    boolean isPersistDeliveryCountBeforeDelivery();
 
    /**
@@ -218,6 +254,7 @@ public interface ActiveMQServerControl {
     * <br>
     * This value overrides the connection time to live <em>sent by the client</em>.
     */
+   @Attribute(desc = "connection time to live")
    long getConnectionTTLOverride();
 
    /**
@@ -225,6 +262,7 @@ public interface ActiveMQServerControl {
     * <br>
     * Clients can send management messages to this address to manage this server.
     */
+   @Attribute(desc = "management address of this server")
    String getManagementAddress();
 
    /**
@@ -232,74 +270,88 @@ public interface ActiveMQServerControl {
     * <br>
     * Clients can bind queues to this address to receive management notifications emitted by this server.
     */
+   @Attribute(desc = "management notification address of this server")
    String getManagementNotificationAddress();
 
    /**
     * Returns the size of the cache for pre-creating message IDs.
     */
+   @Attribute(desc = "size of the cache for pre-creating message IDs")
    int getIDCacheSize();
 
    /**
     * Returns whether message ID cache is persisted.
     */
+   @Attribute(desc = "whether message ID cache is persisted")
    boolean isPersistIDCache();
 
    /**
     * Returns the file system directory used to store large messages.
     */
+   @Attribute(desc = "file system directory used to store large messages")
    String getLargeMessagesDirectory();
 
    /**
     * Returns whether wildcard routing is supported by this server.
     */
+   @Attribute(desc = "whether wildcard routing is supported by this server")
    boolean isWildcardRoutingEnabled();
 
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed
     * from the resource manager after it was created.
     */
+   @Attribute(desc = "timeout (in milliseconds) after which transactions is removed from the resource manager after it was created")
    long getTransactionTimeout();
 
    /**
     * Returns the frequency (in milliseconds)  to scan transactions to detect which transactions
     * have timed out.
     */
+   @Attribute(desc = "frequency (in milliseconds)  to scan transactions to detect which transactions have timed out")
    long getTransactionTimeoutScanPeriod();
 
    /**
     * Returns the frequency (in milliseconds)  to scan messages to detect which messages
     * have expired.
     */
+   @Attribute(desc = "frequency (in milliseconds)  to scan messages to detect which messages have expired")
    long getMessageExpiryScanPeriod();
 
    /**
     * Returns the priority of the thread used to scan message expiration.
     */
+   @Attribute(desc = "priority of the thread used to scan message expiration")
    long getMessageExpiryThreadPriority();
 
    /**
     * Returns whether code coming from connection is executed asynchronously or not.
     */
+   @Attribute(desc = "whether code coming from connection is executed asynchronously or not")
    boolean isAsyncConnectionExecutionEnabled();
 
    /**
     * Returns the connectors configured for this server.
     */
+   @Attribute(desc = "connectors configured for this server")
    Object[] getConnectors() throws Exception;
 
    /**
     * Returns the connectors configured for this server using JSON serialization.
     */
+   @Attribute(desc = "connectors configured for this server using JSON serialization")
    String getConnectorsAsJSON() throws Exception;
 
    /**
     * Returns the addresses created on this server.
     */
+   @Attribute(desc = "addresses created on this server")
    String[] getAddressNames();
 
    /**
     * Returns the names of the queues created on this server.
     */
+   @Attribute(desc = "names of the queues created on this server")
    String[] getQueueNames();
 
    // Operations ----------------------------------------------------
@@ -435,11 +487,13 @@ public interface ActiveMQServerControl {
    /**
     * List transactions which have been heuristically committed.
     */
+   @Operation(desc = "List transactions which have been heuristically committed")
    String[] listHeuristicCommittedTransactions() throws Exception;
 
    /**
     * List transactions which have been heuristically rolled back.
     */
+   @Operation(desc = "List transactions which have been heuristically rolled back")
    String[] listHeuristicRolledBackTransactions() throws Exception;
 
    /**
@@ -563,6 +617,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "returns the address settings as a JSON string for an address match", impact = MBeanOperationInfo.INFO)
    String getAddressSettingsAsJSON(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
 
+   @Attribute(desc = "names of the diverts deployed on this server")
    String[] getDivertNames();
 
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
@@ -577,6 +632,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;
 
+   @Attribute(desc = "names of the bridges deployed on this server")
    String[] getBridgeNames();
 
    @Operation(desc = "Create a Bridge", impact = MBeanOperationInfo.ACTION)
