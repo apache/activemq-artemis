@@ -88,7 +88,6 @@ public class DivertImpl implements Divert {
       // Shouldn't copy if it's not routed anywhere else
       if (!forwardAddress.equals(message.getAddress())) {
          copy = message.copy(id);
-         copy.finishCopy();
 
          // This will set the original MessageId, and the original address
          copy.setOriginalHeaders(message, null, false);
