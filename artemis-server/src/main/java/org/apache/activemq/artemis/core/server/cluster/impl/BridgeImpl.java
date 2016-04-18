@@ -727,6 +727,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             // We remove this reference as we are returning busy which means the reference will never leave the Queue.
             // because of this we have to remove the reference here
             refs.remove(message.getMessageID());
+
+            // The delivering count should also be decreased as to avoid inconsistencies
+            ((QueueImpl) ref.getQueue()).decDelivering();
          }
 
          connectionFailed(e, false);

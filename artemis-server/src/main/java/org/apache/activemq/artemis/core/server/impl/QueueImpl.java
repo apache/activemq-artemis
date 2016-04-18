@@ -1911,7 +1911,6 @@ public class QueueImpl implements Queue {
                   handled++;
                }
                else if (status == HandleStatus.BUSY) {
-                  decDelivering();
                   holder.iter.repeat();
 
                   noDelivery++;
