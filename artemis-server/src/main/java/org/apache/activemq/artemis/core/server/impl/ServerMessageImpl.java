@@ -186,10 +186,6 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
    }
 
    @Override
-   public void finishCopy() throws Exception {
-   }
-
-   @Override
    public ServerMessage copy() {
       // This is a simple copy, used only to avoid changing original properties
       return new ServerMessageImpl(this);
@@ -216,7 +212,6 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
       */
 
       ServerMessage copy = copy(newID);
-      copy.finishCopy();
 
       if (copyOriginalHeaders) {
          copy.setOriginalHeaders(this, originalReference, expiry);
