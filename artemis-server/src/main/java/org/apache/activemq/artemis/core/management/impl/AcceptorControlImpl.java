@@ -84,6 +84,17 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
    }
 
    @Override
+   public void reload() {
+      clearIO();
+      try {
+         acceptor.reload();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public boolean isStarted() {
       clearIO();
       try {

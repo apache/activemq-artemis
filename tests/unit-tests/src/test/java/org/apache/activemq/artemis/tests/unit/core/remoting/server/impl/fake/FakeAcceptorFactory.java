@@ -90,6 +90,11 @@ public class FakeAcceptorFactory implements AcceptorFactory {
       }
 
       @Override
+      public void reload() {
+
+      }
+
+      @Override
       public void start() throws Exception {
          started = true;
       }
