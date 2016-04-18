@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.artemis.core.io.util.FileIOUtil;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
@@ -113,14 +114,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
          ByteBuffer buffer = ByteBuffer.allocate(10 * 1024);
 
-         for (;;) {
-            buffer.rewind();
-            int size = this.read(buffer);
-            newFileName.writeDirect(buffer, false);
-            if (size < 10 * 1024) {
-               break;
-            }
-         }
+         FileIOUtil.copyData(this, newFileName, buffer);
          newFileName.close();
          this.close();
       }

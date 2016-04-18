@@ -48,8 +48,6 @@ public interface ServerMessage extends MessageInternal, EncodingSupport {
 
    ServerMessage copy(long newID);
 
-   void finishCopy() throws Exception;
-
    ServerMessage copy();
 
    int getMemoryEstimate();
