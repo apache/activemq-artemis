@@ -177,7 +177,7 @@ public class ClientThreadPoolsTest {
       threadPoolField.setAccessible(true);
       scheduledThreadPoolField.setAccessible(true);
 
-      ThreadPoolExecutor threadPool = ActiveMQClient.getGlobalThreadPool();
+      ThreadPoolExecutor threadPool = (ThreadPoolExecutor) ActiveMQClient.getGlobalThreadPool();
 
       final CountDownLatch doneMax = new CountDownLatch(expectedMax);
       final CountDownLatch latch = new CountDownLatch(1);

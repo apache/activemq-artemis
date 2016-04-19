@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.api.core.client;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -136,11 +138,11 @@ public final class ActiveMQClient {
 
    public static final String SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY = "activemq.artemis.client.global.scheduled.thread.pool.core.size";
 
-   private static ThreadPoolExecutor globalThreadPool;
+   private static ExecutorService globalThreadPool;
 
    private static boolean injectedPools = false;
 
-   private static ScheduledThreadPoolExecutor globalScheduledThreadPool;
+   private static ScheduledExecutorService globalScheduledThreadPool;
 
 
    static {
@@ -195,7 +197,7 @@ public final class ActiveMQClient {
    }
 
    /** Warning: This method has to be called before any clients or servers is started on the JVM otherwise previous ServerLocator would be broken after this call. */
-   public static synchronized void injectPools(ThreadPoolExecutor globalThreadPool, ScheduledThreadPoolExecutor scheduledThreadPool) {
+   public static synchronized void injectPools(ExecutorService globalThreadPool, ScheduledExecutorService scheduledThreadPool) {
       if (globalThreadPool == null || scheduledThreadPool == null)
          throw new IllegalArgumentException("thread pools must not be null");
 
@@ -207,7 +209,7 @@ public final class ActiveMQClient {
       injectedPools = true;
    }
 
-   public static synchronized ThreadPoolExecutor getGlobalThreadPool() {
+   public static synchronized ExecutorService getGlobalThreadPool() {
       if (globalThreadPool == null) {
          ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
             @Override
@@ -226,7 +228,7 @@ public final class ActiveMQClient {
       return globalThreadPool;
    }
 
-   public static synchronized ScheduledThreadPoolExecutor getGlobalScheduledThreadPool() {
+   public static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
       if (globalScheduledThreadPool == null) {
          ThreadFactory factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
             @Override
