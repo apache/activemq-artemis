@@ -230,13 +230,8 @@ public abstract class ActiveMQTestBase extends Assert {
 
    @After
    public void tearDown() throws Exception {
-      for (ExecutorService s : executorSet) {
-         s.shutdown();
-      }
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
-
-      InVMConnector.resetThreadPool();
 
       try {
          assertAllExecutorsFinished();
@@ -275,6 +270,13 @@ public abstract class ActiveMQTestBase extends Assert {
          finally {
             cleanupPools();
          }
+
+         for (ExecutorService s : executorSet) {
+            s.shutdown();
+         }
+         InVMConnector.resetThreadPool();
+
+
          //clean up pools before failing
          if (!exceptions.isEmpty()) {
             for (Exception exception : exceptions) {
