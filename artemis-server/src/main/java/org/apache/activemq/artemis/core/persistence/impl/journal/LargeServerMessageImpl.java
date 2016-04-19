@@ -264,51 +264,63 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
    }
 
    @Override
-   public synchronized ServerMessage copy() {
+   public ServerMessage copy() {
       SequentialFile newfile = storageManager.createFileForLargeMessage(messageID, durable);
 
       ServerMessage newMessage = new LargeServerMessageImpl(this, properties, newfile, messageID);
       return newMessage;
    }
 
-   public void copyFrom(final SequentialFile fileSource) throws Exception {
-      this.bodySize = -1;
-      this.pendingCopy = fileSource;
-   }
-
    @Override
-   public void finishCopy() throws Exception {
-      if (pendingCopy != null) {
-         SequentialFile copyTo = createFile();
-         try {
-            this.pendingRecordID = storageManager.storePendingLargeMessage(this.messageID);
-            copyTo.open();
-            pendingCopy.open();
-            pendingCopy.copyTo(copyTo);
-         }
-         finally {
-            copyTo.close();
-            pendingCopy.close();
-            pendingCopy = null;
-         }
-
-         closeFile();
-         bodySize = -1;
-         file = null;
-      }
-   }
-
-   /**
-    * The copy of the file itself will be done later by {@link LargeServerMessageImpl#finishCopy()}
-    */
-   @Override
-   public synchronized ServerMessage copy(final long newID) {
+   public ServerMessage copy(final long newID) {
       try {
-         SequentialFile newfile = storageManager.createFileForLargeMessage(newID, durable);
+         LargeServerMessage newMessage = storageManager.createLargeMessage(newID, this);
 
-         LargeServerMessageImpl newMessage = new LargeServerMessageImpl(this, properties, newfile, newID);
-         newMessage.copyFrom(createFile());
+
+         byte[] bufferBytes = new byte[100 * 1024];
+
+         ByteBuffer buffer = ByteBuffer.wrap(bufferBytes);
+
+         long oldPosition = file.position();
+
+         boolean originallyOpen = file.isOpen();
+         file.open();
+         file.position(0);
+
+         for (;;) {
+            // The buffer is reused...
+            // We need to make sure we clear the limits and the buffer before reusing it
+            buffer.clear();
+            int bytesRead = file.read(buffer);
+
+            byte[] bufferToWrite;
+            if (bytesRead == 0) {
+               break;
+            }
+            else if (bytesRead == bufferBytes.length) {
+               bufferToWrite = bufferBytes;
+            }
+            else {
+               bufferToWrite = new byte[bytesRead];
+               System.arraycopy(bufferBytes, 0, bufferToWrite, 0, bytesRead);
+            }
+
+            newMessage.addBytes(bufferToWrite);
+
+            if (bytesRead < bufferBytes.length) {
+               break;
+            }
+         }
+
+         file.position(oldPosition);
+
+         if (!originallyOpen) {
+            file.close();
+         }
+
          return newMessage;
+
+
       }
       catch (Exception e) {
          ActiveMQServerLogger.LOGGER.lareMessageErrorCopying(e, this);
