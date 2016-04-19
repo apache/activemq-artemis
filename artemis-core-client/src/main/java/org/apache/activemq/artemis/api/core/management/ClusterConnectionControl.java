@@ -26,56 +26,67 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl {
    /**
     * Returns the configuration name of this cluster connection.
     */
+   @Attribute(desc = "name of this cluster connection")
    String getName();
 
    /**
     * Returns the address used by this cluster connection.
     */
+   @Attribute(desc = "address used by this cluster connection")
    String getAddress();
 
    /**
     * Returns the node ID used by this cluster connection.
     */
+   @Attribute(desc = "node ID used by this cluster connection")
    String getNodeID();
 
    /**
     * Return whether this cluster connection use duplicate detection.
     */
+   @Attribute(desc = "whether this cluster connection use duplicate detection")
    boolean isDuplicateDetection();
 
    /**
-    * Return whether this cluster connection forward messages when it has no local consumers.
+    * Return the type of message load balancing strategy this bridge will use.
     */
+   @Attribute(desc = "type of message load balancing strategy this bridge will use")
    String getMessageLoadBalancingType();
 
    /**
     * Return the Topology that this Cluster Connection knows about
     */
+   @Attribute(desc = "Topology that this Cluster Connection knows about")
    String getTopology();
 
    /**
     * Returns the maximum number of hops used by this cluster connection.
     */
+   @Attribute(desc = "maximum number of hops used by this cluster connection")
    int getMaxHops();
 
    /**
     * Returns the list of static connectors
     */
+   @Attribute(desc = "list of static connectors")
    Object[] getStaticConnectors();
 
    /**
     * Returns the list of static connectors as JSON
     */
+   @Attribute(desc = "list of static connectors as JSON")
    String getStaticConnectorsAsJSON() throws Exception;
 
    /**
     * Returns the name of the discovery group used by this cluster connection.
     */
+   @Attribute(desc = "name of the discovery group used by this cluster connection")
    String getDiscoveryGroupName();
 
    /**
     * Returns the connection retry interval used by this cluster connection.
     */
+   @Attribute(desc = "connection retry interval used by this cluster connection")
    long getRetryInterval();
 
    /**
@@ -83,5 +94,6 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl {
     * <br>
     * keys are node IDs, values are the addresses used to connect to the nodes.
     */
+   @Attribute(desc = "map of the nodes connected to this cluster connection (keys are node IDs, values are the addresses used to connect to the nodes)")
    Map<String, String> getNodes() throws Exception;
 }

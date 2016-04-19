@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -186,6 +187,11 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(BroadcastGroupControl.class);
+   }
+
+   @Override
+   protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
+      return MBeanInfoHelper.getMBeanAttributesInfo(BroadcastGroupControl.class);
    }
 
    // Public --------------------------------------------------------

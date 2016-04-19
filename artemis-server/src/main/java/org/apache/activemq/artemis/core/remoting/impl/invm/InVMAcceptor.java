@@ -248,6 +248,11 @@ public final class InVMAcceptor extends AbstractAcceptor {
    }
 
    @Override
+   public void reload() {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
    public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }

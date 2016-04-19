@@ -26,16 +26,25 @@ public interface AcceptorControl extends ActiveMQComponentControl {
    /**
     * Returns the name of the acceptor
     */
+   @Attribute(desc = "name of the acceptor")
    String getName();
 
    /**
     * Returns the class name of the AcceptorFactory implementation
     * used by this acceptor.
     */
+   @Attribute(desc = "class name of the AcceptorFactory implementation used by this acceptor")
    String getFactoryClassName();
 
    /**
     * Returns the parameters used to configure this acceptor
     */
+   @Attribute(desc = "parameters used to configure this acceptor")
    Map<String, Object> getParameters();
+
+   /**
+    * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust
+    * stores on acceptors which support SSL.
+    */
+   void reload();
 }

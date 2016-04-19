@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl;
 
 import java.util.Map;
 
+import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -83,6 +84,17 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
    }
 
    @Override
+   public void reload() {
+      clearIO();
+      try {
+         acceptor.reload();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public boolean isStarted() {
       clearIO();
       try {
@@ -118,6 +130,11 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(AcceptorControl.class);
+   }
+
+   @Override
+   protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
+      return MBeanInfoHelper.getMBeanAttributesInfo(AcceptorControl.class);
    }
 
    // Public --------------------------------------------------------

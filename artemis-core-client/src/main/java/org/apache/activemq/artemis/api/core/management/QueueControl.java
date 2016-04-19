@@ -29,86 +29,103 @@ public interface QueueControl {
    /**
     * Returns the name of this queue.
     */
+   @Attribute(desc = "name of this queue")
    String getName();
 
    /**
     * Returns the address this queue is bound to.
     */
+   @Attribute(desc = "address this queue is bound to")
    String getAddress();
 
    /**
     * Returns this queue ID.
     */
+   @Attribute(desc = "ID of this queue")
    long getID();
 
    /**
     * Returns whether this queue is temporary.
     */
+   @Attribute(desc = "whether this queue is temporary")
    boolean isTemporary();
 
    /**
     * Returns whether this queue is durable.
     */
+   @Attribute(desc = "whether this queue is durable")
    boolean isDurable();
 
    /**
-    * Returns the filter associated to this queue.
+    * Returns the filter associated with this queue.
     */
+   @Attribute(desc = "filter associated with this queue")
    String getFilter();
 
    /**
     * Returns the number of messages currently in this queue.
     */
+   @Attribute(desc = "number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)")
    long getMessageCount();
 
    /**
     * Returns the number of scheduled messages in this queue.
     */
+   @Attribute(desc = "number of scheduled messages in this queue")
    long getScheduledCount();
 
    /**
     * Returns the number of consumers consuming messages from this queue.
     */
+   @Attribute(desc = "number of consumers consuming messages from this queue")
    int getConsumerCount();
 
    /**
     * Returns the number of messages that this queue is currently delivering to its consumers.
     */
+   @Attribute(desc = "number of messages that this queue is currently delivering to its consumers")
    int getDeliveringCount();
 
    /**
     * Returns the number of messages added to this queue since it was created.
     */
+   @Attribute(desc = "number of messages added to this queue since it was created")
    long getMessagesAdded();
 
    /**
     * Returns the number of messages added to this queue since it was created.
     */
+   @Attribute(desc = "number of messages acknowledged from this queue since it was created")
    long getMessagesAcknowledged();
 
    /**
     * Returns the first message on the queue as JSON
     */
+   @Attribute(desc = "first message on the queue as JSON")
    String getFirstMessageAsJSON() throws Exception;
 
    /**
     * Returns the timestamp of the first message in milliseconds.
     */
+   @Attribute(desc = "timestamp of the first message in milliseconds")
    Long getFirstMessageTimestamp() throws Exception;
 
    /**
     * Returns the age of the first message in milliseconds.
     */
+   @Attribute(desc = "age of the first message in milliseconds")
    Long getFirstMessageAge() throws Exception;
 
    /**
-    * Returns the expiry address associated to this queue.
+    * Returns the expiry address associated with this queue.
     */
+   @Attribute(desc = "expiry address associated with this queue")
    String getExpiryAddress();
 
    /**
-    * Returns the dead-letter address associated to this queue.
+    * Returns the dead-letter address associated with this queue.
     */
+   @Attribute(desc = "dead-letter address associated with this queue")
    String getDeadLetterAddress();
 
    // Operations ----------------------------------------------------
@@ -396,7 +413,7 @@ public interface QueueControl {
    /**
     * Returns whether the queue is paused.
     */
-   @Operation(desc = "Inspects if the queue is paused", impact = MBeanOperationInfo.INFO)
+   @Attribute(desc = "whether the queue is paused")
    boolean isPaused() throws Exception;
 
    /**
