@@ -242,23 +242,29 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public void rollbackCurrentTX() throws Exception {
-      recoverContext();
-      try {
-         serverSession.rollback(false);
-      }
-      finally {
-         resetContext();
+      //need to check here as this can be called if init fails
+      if (serverSession != null) {
+         recoverContext();
+         try {
+            serverSession.rollback(false);
+         }
+         finally {
+            resetContext();
+         }
       }
    }
 
    @Override
    public void close() throws Exception {
-      recoverContext();
-      try {
-         serverSession.close(false);
-      }
-      finally {
-         resetContext();
+      //need to check here as this can be called if init fails
+      if (serverSession != null) {
+         recoverContext();
+         try {
+            serverSession.close(false);
+         }
+         finally {
+            resetContext();
+         }
       }
    }
 
