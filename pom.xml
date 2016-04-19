@@ -70,6 +70,7 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
       <netty.version>4.0.32.Final</netty.version>
       <jetty.version>9.2.11.v20150529</jetty.version>
+      <slf4j.version>1.7.12</slf4j.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -357,6 +358,21 @@
             <version>1.1.1</version>
             <!-- License: Apache 2.0 -->
          </dependency>
+         <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-simple</artifactId>
+             <version>${slf4j.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-nop</artifactId>
+             <version>${slf4j.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-log4j12</artifactId>
+             <version>${slf4j.version}</version>
+         </dependency>
          <!-- ## End Examples Dependencies ## -->
 
          <!--needed to compile the bootstrap jar-->
@@ -406,7 +422,7 @@
          <dependency>
            <groupId>org.slf4j</groupId>
            <artifactId>slf4j-api</artifactId>
-           <version>1.7.12</version>
+           <version>${slf4j.version}</version>
            <!-- License: MIT -->
          </dependency>
 
