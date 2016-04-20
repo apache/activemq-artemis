@@ -74,11 +74,12 @@ public class CoreClientTest extends ActiveMQTestBase {
    @Test
    public void testCoreClientWithGlobalThreadPoolParamtersChanged() throws Exception {
 
-      int originalScheduled = ActiveMQClient.globalScheduledThreadPoolSize;
-      int originalGlobal = ActiveMQClient.globalThreadMaxPoolSize;
+      int originalScheduled = ActiveMQClient.getGlobalScheduledThreadPoolSize();
+      int originalGlobal = ActiveMQClient.getGlobalThreadPoolSize();
 
       try {
          ActiveMQClient.setGlobalThreadPoolProperties(2, 1);
+         ActiveMQClient.clearThreadPools();
          ServerLocator locator = createNonHALocator(false);
          testCoreClient(true, locator);
       }
