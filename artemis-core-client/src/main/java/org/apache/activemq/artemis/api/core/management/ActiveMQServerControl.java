@@ -36,6 +36,36 @@ public interface ActiveMQServerControl {
    int getConnectionCount();
 
    /**
+    * Returns the number of clients which have connected to this server since it was started.
+    */
+   @Attribute(desc = "number of clients which have connected to this server since it was started")
+   long getTotalConnectionCount();
+
+   /**
+    * Returns the number of messages in all queues on the server.
+    */
+   @Attribute(desc = "number of messages in all queues on the server")
+   long getTotalMessageCount();
+
+   /**
+    * Returns the number of messages sent to this server since it was started.
+    */
+   @Attribute(desc = "number of messages sent to this server since it was started")
+   long getTotalMessagesAdded();
+
+   /**
+    * Returns the number of messages sent to this server since it was started.
+    */
+   @Attribute(desc = "number of messages acknowledged from all the queues on this server since it was started")
+   long getTotalMessagesAcknowledged();
+
+   /**
+    * Returns the number of messages sent to this server since it was started.
+    */
+   @Attribute(desc = "number of consumers consuming messages from all the queues on this server")
+   long getTotalConsumerCount();
+
+   /**
     * Return whether this server is started.
     */
    @Attribute(desc = "whether this server is started")
@@ -353,6 +383,18 @@ public interface ActiveMQServerControl {
     */
    @Attribute(desc = "names of the queues created on this server")
    String[] getQueueNames();
+
+   /**
+    * Returns the uptime of this server.
+    */
+   @Attribute(desc = "uptime of this server")
+   String getUptime();
+
+   /**
+    * Returns the uptime of this server.
+    */
+   @Attribute(desc = "uptime of this server in milliseconds")
+   long getUptimeMillis();
 
    // Operations ----------------------------------------------------
 
