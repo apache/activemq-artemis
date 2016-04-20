@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -138,34 +139,36 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public void route(ServerMessage message,
-                     QueueCreator creator,
-                     RoutingContext context,
-                     boolean direct) throws Exception {
+   public RoutingStatus route(ServerMessage message,
+                              QueueCreator creator,
+                              RoutingContext context,
+                              boolean direct) throws Exception {
+      return RoutingStatus.OK;
 
    }
 
    @Override
-   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct) throws Exception {
+   public RoutingStatus route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct) throws Exception {
+      return RoutingStatus.OK;
+   }
+
+   @Override
+   public RoutingStatus route(ServerMessage message,
+                           QueueCreator creator,
+                           RoutingContext context,
+                           boolean direct,
+                           boolean rejectDuplicates) throws Exception {
+      return RoutingStatus.OK;
 
    }
 
    @Override
-   public void route(ServerMessage message,
-                     QueueCreator creator,
-                     RoutingContext context,
-                     boolean direct,
-                     boolean rejectDuplicates) throws Exception {
-
-   }
-
-   @Override
-   public void route(ServerMessage message,
+   public RoutingStatus route(ServerMessage message,
                      QueueCreator creator,
                      Transaction tx,
                      boolean direct,
                      boolean rejectDuplicates) throws Exception {
-
+      return RoutingStatus.OK;
    }
 
    @Override
@@ -173,7 +176,7 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public void route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception {
-
+   public RoutingStatus route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception {
+      return RoutingStatus.OK;
    }
 }
