@@ -119,4 +119,9 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    public void close() throws ActiveMQAMQPException {
       //noop
    }
+
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+      //noop
+   }
 }

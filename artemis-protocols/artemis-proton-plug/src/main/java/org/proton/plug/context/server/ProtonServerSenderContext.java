@@ -18,13 +18,17 @@ package org.proton.plug.context.server;
 
 import java.util.Map;
 
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
@@ -38,6 +42,9 @@ import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
 import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.proton.plug.context.ProtonPlugSender;
 import org.apache.qpid.proton.amqp.messaging.Source;
+
+import static org.proton.plug.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
+import static org.proton.plug.AmqpSupport.findFilter;
 
 public class ProtonServerSenderContext extends AbstractProtonContextSender implements ProtonPlugSender {
 
@@ -94,13 +101,28 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       String queue;
 
       String selector = null;
-      Map filter = source == null ? null : source.getFilter();
+
+      /*
+      * even tho the filter is a map it will only return a single filter unless a nolocal is also provided
+      * */
+      Map.Entry<Symbol, DescribedType> filter = findFilter(source.getFilter(), JMS_SELECTOR_FILTER_IDS);
       if (filter != null) {
-         DescribedType value = (DescribedType) filter.get(SELECTOR);
-         if (value != null) {
-            selector = value.getDescribed().toString();
+         selector = filter.getValue().getDescribed().toString();
+         // Validate the Selector.
+         try {
+            SelectorParser.parse(selector);
+         }
+         catch (FilterException e) {
+            close(new ErrorCondition(AmqpError.INVALID_FIELD, e.getMessage()));
+            return;
          }
       }
+
+      //filter = findFilter(source.getFilter(), NO_LOCAL_FILTER_IDS);
+
+      //if (filter != null) {
+         //todo implement nolocal filter
+      //}
 
       if (source != null) {
          if (source.getDynamic()) {
@@ -141,6 +163,21 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          catch (Exception e) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
          }
+      }
+   }
+
+   /*
+   * close the session
+   * */
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+      super.close(condition);
+      try {
+         sessionSPI.closeSender(brokerConsumer);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
 
