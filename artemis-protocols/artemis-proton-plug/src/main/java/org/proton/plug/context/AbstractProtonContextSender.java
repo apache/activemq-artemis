@@ -18,6 +18,7 @@ package org.proton.plug.context;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
@@ -74,6 +75,16 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
       }
 
       connection.flush();
+   }
+
+   /*
+   * close the session
+   * */
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+      closed = true;
+      sender.setCondition(condition);
+      close();
    }
 
    @Override

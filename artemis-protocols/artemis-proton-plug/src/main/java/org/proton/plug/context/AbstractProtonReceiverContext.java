@@ -16,6 +16,7 @@
  */
 package org.proton.plug.context;
 
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Receiver;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
@@ -54,6 +55,12 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
    @Override
    public void close() throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
+   }
+
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+      receiver.setCondition(condition);
+      close();
    }
 
    public void flow(int credits) {
