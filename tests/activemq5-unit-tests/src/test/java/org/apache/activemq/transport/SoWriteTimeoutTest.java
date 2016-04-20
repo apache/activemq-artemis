@@ -31,6 +31,7 @@ import junit.framework.Test;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.JmsTestSupport;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
@@ -56,6 +57,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
       adapter.setConcurrentStoreAndDispatchQueues(false);
       broker.setPersistenceAdapter(adapter);
+      broker.addConnector("tcp://localhost:61616");
       broker.addConnector(brokerTransportScheme + "://localhost:0?wireFormat.maxInactivityDuration=0&transport.soWriteTimeout=1000&transport.sleep=1000");
       if ("nio".equals(brokerTransportScheme)) {
          broker.addConnector("stomp+" + brokerTransportScheme + "://localhost:0?transport.soWriteTimeout=1000&transport.sleep=1000&socketBufferSize=" + receiveBufferSize + "&trace=true");
@@ -73,7 +75,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       messageTextPrefix = initMessagePrefix(8 * 1024);
       sendMessages(dest, 500);
 
-      URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(0).getConnectUri());
+      URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(1).getConnectUri());
       LOG.info("consuming using uri: " + tcpBrokerUri);
 
       SocketProxy proxy = new SocketProxy();
@@ -104,7 +106,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       messageTextPrefix = initMessagePrefix(8 * 1024);
       sendMessages(dest, 500);
 
-      URI stompBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(1).getConnectUri());
+      URI stompBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(2).getConnectUri());
       LOG.info("consuming using uri: " + stompBrokerUri);
 
       SocketProxy proxy = new SocketProxy();
@@ -121,11 +123,12 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       frame = stompConnection.receiveFrame();
       assertTrue(frame.startsWith("CONNECTED"));
 
-      frame = "SUBSCRIBE\n" + "destination:/queue/" + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
+      frame = "SUBSCRIBE\n" + "destination:jms.queue." + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
       stompConnection.sendFrame(frame);
 
       // ensure dispatch has started before pause
       frame = stompConnection.receiveFrame();
+      System.out.println("frame: " + frame);
       assertTrue(frame.startsWith("MESSAGE"));
 
       proxy.pause();
@@ -148,7 +151,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       // verify connection is dead
       try {
          for (int i = 0; i < 200; i++) {
-            stompConnection.send("/queue/" + dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
+            stompConnection.send("jms.queue." + dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
          }
          fail("expected send to fail with timeout out connection");
       }
@@ -164,6 +167,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
 
    @Override
    protected void setUp() throws Exception {
+      BrokerService.disableWrapper = true;
       setAutoFail(true);
       super.setUp();
    }
