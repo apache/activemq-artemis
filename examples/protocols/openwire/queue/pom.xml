@@ -49,7 +49,6 @@ under the License.
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-nop</artifactId>
-         <version>${slf4j-version}</version>
       </dependency>
    </dependencies>
 
