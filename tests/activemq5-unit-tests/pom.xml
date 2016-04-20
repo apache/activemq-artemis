@@ -313,6 +313,19 @@
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-stomp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-stomp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
       <dependency>
          <groupId>org.jboss.byteman</groupId>
          <artifactId>byteman</artifactId>
@@ -422,6 +435,11 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipActiveMQ5Tests}</skipTests>
+<!--
+               <additionalClasspathElements>
+                  <additionalClasspathElement>src/main/resources/stomp</additionalClasspathElement>
+               </additionalClasspathElements>
+-->
                <includes>
                   <!-- included packages -->
                   <include>**/org/apache/activemq/*Test.java</include>

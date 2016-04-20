@@ -78,6 +78,7 @@ public class TcpTransportFactory extends TransportFactory {
       params.remove("broker.useJmx");
       params.remove("marshal");
       params.remove("create");
+      params.remove("asyncQueueDepth");
       URI location2 = URISupport.createRemainingURI(location, params);
       return super.doConnect(location2);
    }

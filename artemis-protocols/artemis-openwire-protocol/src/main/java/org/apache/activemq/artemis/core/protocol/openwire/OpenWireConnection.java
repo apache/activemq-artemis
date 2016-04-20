@@ -71,7 +71,6 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -150,8 +149,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
 
    private ConnectionState state;
-
-   private final Set<ActiveMQDestination> tempQueues = new ConcurrentHashSet<>();
 
    /**
     * Openwire doesn't sen transactions associated with any sessions.
@@ -289,7 +286,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                response.setCorrelationId(commandId);
                dispatchSync(response);
             }
-
          }
       }
       catch (Exception e) {
@@ -512,10 +508,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return this.wireFormat;
    }
 
-   public void registerTempQueue(ActiveMQDestination queue) {
-      tempQueues.add(queue);
-   }
-
    private void shutdown(boolean fail) {
       if (fail) {
          transportConnection.forceClose();
@@ -692,19 +684,17 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          SimpleString qName = OpenWireUtil.toCoreAddress(dest);
          QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
-            if (getState().getInfo() != null) {
-
+            if (dest.isTemporary()) {
+               internalSession.createQueue(qName, qName, null, dest.isTemporary(), false);
+            }
+            else {
+               ConnectionInfo connInfo = getState().getInfo();
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
                server.getSecurityStore().check(qName, checkType, this);
-
                server.checkQueueCreationLimit(getUsername());
-            }
-            ConnectionInfo connInfo = getState().getInfo();
-            server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
-         }
+               server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, false);
 
-         if (dest.isTemporary()) {
-            registerTempQueue(dest);
+            }
          }
       }
 
@@ -1407,7 +1397,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       if (transaction == null) {
-         throw new IllegalStateException("cannot find transactionInfo::" + txID + " xid=" + xid);
+         return null;
       }
 
       if (session != null && transaction.getProtocolData() != session) {

@@ -204,7 +204,7 @@ public class ActiveMQSslConnectionFactoryTest extends CombinationTestSupport {
       SslBrokerService service = new SslBrokerService();
       service.setPersistent(false);
 
-      service.setupSsl(KEYSTORE_TYPE, PASSWORD, SERVER_KEYSTORE);
+      service.addConnector(uri);
 
       service.start();
 
