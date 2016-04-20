@@ -90,11 +90,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       commonSettings.setAutoCreateJmsQueues(true);
 
       if (bservice.extraConnectors.size() == 0) {
-         serverConfig.addAcceptorConfiguration("home", "tcp://localhost:61616?protocols=OPENWIRE,CORE");
-      }
-      if (this.bservice.enableSsl()) {
-         //default
-         addServerAcceptor(serverConfig, new BrokerService.ConnectorInfo(61611, true));
+         serverConfig.addAcceptorConfiguration("home", "tcp://localhost:61616");
       }
 
       for (BrokerService.ConnectorInfo info : bservice.extraConnectors) {

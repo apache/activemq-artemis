@@ -84,12 +84,6 @@ public class BrokerService implements Service {
    public static final long DEFAULT_START_TIMEOUT = 600000L;
    public static boolean disableWrapper = false;
 
-   public String SERVER_SIDE_KEYSTORE;
-   public String KEYSTORE_PASSWORD;
-   public String SERVER_SIDE_TRUSTSTORE;
-   public String TRUSTSTORE_PASSWORD;
-   public String storeType;
-
    private SslContext sslContext;
 
    private static final Logger LOG = LoggerFactory.getLogger(BrokerService.class);
@@ -151,7 +145,6 @@ public class BrokerService implements Service {
       tmpfolder = new TemporaryFolder(targetTmp);
       tmpfolder.create();
       Exception e = new Exception();
-      e.fillInStackTrace();
       startBroker(startAsync);
       map.put(broker, e);
    }
@@ -259,10 +252,6 @@ public class BrokerService implements Service {
          System.out.println("physical name: " + qname);
          hqBroker.makeSureQueueExists(qname);
       }
-   }
-
-   public boolean enableSsl() {
-      return this.SERVER_SIDE_KEYSTORE != null;
    }
 
    //below are methods called directly by tests
@@ -500,23 +489,11 @@ public class BrokerService implements Service {
    public void setTransportConnectors(List<TransportConnector> transportConnectors) throws Exception {
       this.transportConnectors = transportConnectors;
       for (TransportConnector connector : transportConnectors) {
-         if (connector.getUri().getScheme().equals("ssl")) {
-            boolean added = this.extraConnectors.add(new ConnectorInfo(connector.getUri().getPort(), true));
-            if (added) {
-               System.out.println("added ssl connector " + connector);
-            }
-            else {
-               System.out.println("WARNing! failed to add ssl connector: " + connector);
-            }
+         if (sslContext instanceof SpringSslContext) {
+            this.extraConnectors.add(new ConnectorInfo(connector.getUri(), (SpringSslContext)sslContext));
          }
          else {
-            boolean added = this.extraConnectors.add(new ConnectorInfo(connector.getUri().getPort()));
-            if (added) {
-               System.out.println("added connector " + connector);
-            }
-            else {
-               System.out.println("WARNing! failed to add connector: " + connector);
-            }
+            this.extraConnectors.add(new ConnectorInfo(connector.getUri()));
          }
       }
    }
@@ -584,7 +561,12 @@ public class BrokerService implements Service {
 
       connector = new FakeTransportConnector(bindAddress);
       this.transportConnectors.add(connector);
-      this.extraConnectors.add(new ConnectorInfo(bindAddress));
+      if (sslContext instanceof SpringSslContext) {
+         this.extraConnectors.add(new ConnectorInfo(bindAddress, (SpringSslContext) sslContext));
+      }
+      else {
+         this.extraConnectors.add(new ConnectorInfo(bindAddress));
+      }
 
       return connector;
    }
@@ -738,14 +720,6 @@ public class BrokerService implements Service {
 
    public void setSslContext(SslContext sslContext) {
       this.sslContext = sslContext;
-      if (sslContext instanceof SpringSslContext) {
-         SpringSslContext springContext = (SpringSslContext)sslContext;
-         this.SERVER_SIDE_KEYSTORE = springContext.getKeyStore();
-         this.KEYSTORE_PASSWORD = springContext.getKeyStorePassword();
-         this.SERVER_SIDE_TRUSTSTORE = springContext.getTrustStore();
-         this.TRUSTSTORE_PASSWORD = springContext.getTrustStorePassword();
-         this.storeType = springContext.getKeyStoreType();
-      }
    }
 
    public void setPersistenceFactory(PersistenceAdapterFactory persistenceFactory) {
@@ -807,48 +781,15 @@ public class BrokerService implements Service {
       public URI uri;
       public boolean ssl;
 
-      public String keyStore;
-      public String keyStorePassword;
-      public String keyStoreType;
-
-      public String trustStore;
-      public String trustStorePassword;
-      public String trustStoreType;
-
       public boolean clientAuth;
 
-      public ConnectorInfo(int port) throws URISyntaxException {
-         this(port, false);
-      }
-
-      public ConnectorInfo(int port, boolean ssl) throws URISyntaxException {
-         this(port, ssl, false);
-      }
-
-      public ConnectorInfo(int port, boolean ssl, boolean clientAuth) throws URISyntaxException {
-         this.ssl = ssl;
-         if (port == 0) {
-            port = getPseudoRandomPort();
-         }
-
-         String baseUri = "tcp://localhost:" + port + "?protocols=OPENWIRE,CORE";
-         if (ssl) {
-            baseUri = baseUri + "&" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "=" + defaultKeyStore + "&"
-                    + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=" + defaultKeyStorePassword + "&"
-                    + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=" + defaultKeyStoreType;
-            if (clientAuth) {
-               baseUri = baseUri  + "&" + TransportConstants.NEED_CLIENT_AUTH_PROP_NAME + "=true" + "&"
-                       + TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + defaultTrustStore + "&"
-                       + TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + defaultTrustStorePassword + "&"
-                       + TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + defaultTrustStoreType;
-            }
-         }
-         this.uri = new URI(baseUri);
+      public ConnectorInfo(URI bindAddress) throws URISyntaxException {
+         this(bindAddress, null);
       }
 
       //bindAddress must be Artemis compliant, except
       //scheme
-      public ConnectorInfo(URI bindAddress) throws URISyntaxException {
+      public ConnectorInfo(URI bindAddress, SpringSslContext context) throws URISyntaxException {
 
          Integer port = bindAddress.getPort();
          String host = bindAddress.getHost();
@@ -870,16 +811,16 @@ public class BrokerService implements Service {
                     host, port, bindAddress.getPath(), bindAddress.getQuery(), bindAddress.getFragment());
          }
          else {
-            String baseUri = "tcp://" + host + ":" + port + "?protocols=OPENWIRE,CORE&"
+            String baseUri = "tcp://" + host + ":" + port + "?"
                     + TransportConstants.SSL_ENABLED_PROP_NAME + "=true&"
-                    + TransportConstants.KEYSTORE_PATH_PROP_NAME + "=" + defaultKeyStore + "&"
-                    + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=" + defaultKeyStorePassword + "&"
-                    + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=" + defaultKeyStoreType;
+                    + TransportConstants.KEYSTORE_PATH_PROP_NAME + "=" + (context == null ? defaultKeyStore : context.getKeyStore()) + "&"
+                    + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=" + (context == null ? defaultKeyStorePassword : context.getKeyStorePassword()) + "&"
+                    + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=" + (context == null ? defaultKeyStoreType : context.getKeyStoreType());
             if (clientAuth) {
                baseUri = baseUri + "&" + TransportConstants.NEED_CLIENT_AUTH_PROP_NAME + "=true" + "&"
-                       + TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + defaultTrustStore + "&"
-                       + TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + defaultTrustStorePassword + "&"
-                       + TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + defaultTrustStoreType;
+                       + TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + (context == null ? defaultTrustStore : context.getTrustStore()) + "&"
+                       + TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + (context == null ? defaultTrustStorePassword : context.getTrustStorePassword()) + "&"
+                       + TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + (context == null ? defaultTrustStoreType : context.getTrustStoreType());
             }
             uri = new URI(baseUri);
          }

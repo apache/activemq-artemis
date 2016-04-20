@@ -56,11 +56,4 @@ public class SslBrokerService extends BrokerService {
                                                       SecureRandom random) throws IOException, KeyManagementException {
       return null;
    }
-
-   //one way
-   public void setupSsl(String keystoreType, String password, String serverKeystore) {
-      this.SERVER_SIDE_KEYSTORE = serverKeystore;
-      this.KEYSTORE_PASSWORD = password;
-      this.storeType = keystoreType;
-   }
 }

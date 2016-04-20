@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -132,7 +133,9 @@ public interface ServerSession extends SecurityAuth {
 
    void sendContinuations(int packetSize, long totalBodySize, byte[] body, boolean continues) throws Exception;
 
-   void send(ServerMessage message, boolean direct) throws Exception;
+   RoutingStatus send(ServerMessage message, boolean direct, boolean noAutoCreateQueue) throws Exception;
+
+   RoutingStatus send(ServerMessage message, boolean direct) throws Exception;
 
    void sendLarge(MessageInternal msg) throws Exception;
 

@@ -16,15 +16,11 @@
  */
 package org.apache.activemq;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -39,27 +35,27 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 
-import junit.framework.TestCase;
-
-import org.apache.activemq.transport.TransportListener;
-import org.apache.activemq.transport.vm.VMTransport;
 import org.apache.activemq.util.Wait;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version
  */
-public class JmsTempDestinationTest extends TestCase {
+public class JmsTempDestinationTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTempDestinationTest.class);
    private Connection connection;
    private ActiveMQConnectionFactory factory;
    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
 
-   @Override
-   protected void setUp() throws Exception {
-      factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   @Before
+   public void setUp() throws Exception {
+      factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       factory.setAlwaysSyncSend(true);
       connection = factory.createConnection();
       connections.add(connection);
@@ -68,8 +64,8 @@ public class JmsTempDestinationTest extends TestCase {
    /**
     * @see junit.framework.TestCase#tearDown()
     */
-   @Override
-   protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
       for (Iterator<Connection> iter = connections.iterator(); iter.hasNext(); ) {
          Connection conn = iter.next();
          try {
@@ -86,6 +82,7 @@ public class JmsTempDestinationTest extends TestCase {
     *
     * @throws JMSException
     */
+   @Test
    public void testTempDestOnlyConsumedByLocalConn() throws JMSException {
       connection.start();
 
@@ -103,22 +100,22 @@ public class JmsTempDestinationTest extends TestCase {
       TemporaryQueue otherQueue = otherSession.createTemporaryQueue();
       MessageConsumer consumer = otherSession.createConsumer(otherQueue);
       Message msg = consumer.receive(3000);
-      assertNull(msg);
+      Assert.assertNull(msg);
 
       // should throw InvalidDestinationException when consuming a temp
       // destination from another connection
       try {
          consumer = otherSession.createConsumer(queue);
-         fail("Send should fail since temp destination should be used from another connection");
+         Assert.fail("Send should fail since temp destination should be used from another connection");
       }
       catch (InvalidDestinationException e) {
-         assertTrue("failed to throw an exception", true);
+         Assert.assertTrue("failed to throw an exception", true);
       }
 
       // should be able to consume temp destination from the same connection
       consumer = tempSession.createConsumer(queue);
       msg = consumer.receive(3000);
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
 
    }
 
@@ -128,6 +125,7 @@ public class JmsTempDestinationTest extends TestCase {
     *
     * @throws JMSException
     */
+   @Test
    public void testTempQueueHoldsMessagesWithConsumers() throws JMSException {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createTemporaryQueue();
@@ -140,9 +138,9 @@ public class JmsTempDestinationTest extends TestCase {
       producer.send(message);
 
       Message message2 = consumer.receive(1000);
-      assertNotNull(message2);
-      assertTrue("Expected message to be a TextMessage", message2 instanceof TextMessage);
-      assertTrue("Expected message to be a '" + message.getText() + "'", ((TextMessage) message2).getText().equals(message.getText()));
+      Assert.assertNotNull(message2);
+      Assert.assertTrue("Expected message to be a TextMessage", message2 instanceof TextMessage);
+      Assert.assertTrue("Expected message to be a '" + message.getText() + "'", ((TextMessage) message2).getText().equals(message.getText()));
    }
 
    /**
@@ -151,6 +149,7 @@ public class JmsTempDestinationTest extends TestCase {
     *
     * @throws JMSException
     */
+   @Test
    public void testTempQueueHoldsMessagesWithoutConsumers() throws JMSException {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -163,9 +162,9 @@ public class JmsTempDestinationTest extends TestCase {
       connection.start();
       MessageConsumer consumer = session.createConsumer(queue);
       Message message2 = consumer.receive(3000);
-      assertNotNull(message2);
-      assertTrue("Expected message to be a TextMessage", message2 instanceof TextMessage);
-      assertTrue("Expected message to be a '" + message.getText() + "'", ((TextMessage) message2).getText().equals(message.getText()));
+      Assert.assertNotNull(message2);
+      Assert.assertTrue("Expected message to be a TextMessage", message2 instanceof TextMessage);
+      Assert.assertTrue("Expected message to be a '" + message.getText() + "'", ((TextMessage) message2).getText().equals(message.getText()));
 
    }
 
@@ -174,6 +173,7 @@ public class JmsTempDestinationTest extends TestCase {
     *
     * @throws JMSException
     */
+   @Test
    public void testTmpQueueWorksUnderLoad() throws JMSException {
       int count = 500;
       int dataSize = 1024;
@@ -197,9 +197,9 @@ public class JmsTempDestinationTest extends TestCase {
       MessageConsumer consumer = session.createConsumer(queue);
       for (int i = 0; i < count; i++) {
          Message message2 = consumer.receive(2000);
-         assertTrue(message2 != null);
-         assertEquals(i, message2.getIntProperty("c"));
-         assertTrue(message2.equals(list.get(i)));
+         Assert.assertTrue(message2 != null);
+         Assert.assertEquals(i, message2.getIntProperty("c"));
+         Assert.assertTrue(message2.equals(list.get(i)));
       }
    }
 
@@ -211,18 +211,20 @@ public class JmsTempDestinationTest extends TestCase {
     * @throws InterruptedException
     * @throws URISyntaxException
     */
+   @Test
    public void testPublishFailsForClosedConnection() throws Exception {
 
       Connection tempConnection = factory.createConnection();
       connections.add(tempConnection);
-      Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      final TemporaryQueue queue = tempSession.createTemporaryQueue();
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
 
+      Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final TemporaryQueue queue = tempSession.createTemporaryQueue();
+
       final ActiveMQConnection activeMQConnection = (ActiveMQConnection) connection;
-      assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
+      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisified() throws Exception {
             return activeMQConnection.activeTempDestinations.containsKey(queue);
@@ -246,9 +248,10 @@ public class JmsTempDestinationTest extends TestCase {
       try {
          message = session.createTextMessage("Hello");
          producer.send(message);
-         fail("Send should fail since temp destination should not exist anymore.");
+         Assert.fail("Send should fail since temp destination should not exist anymore.");
       }
       catch (JMSException e) {
+         e.printStackTrace();
       }
    }
 
@@ -259,18 +262,23 @@ public class JmsTempDestinationTest extends TestCase {
     * @throws JMSException
     * @throws InterruptedException
     */
+   @Test
    public void testPublishFailsForDestroyedTempDestination() throws Exception {
 
       Connection tempConnection = factory.createConnection();
       connections.add(tempConnection);
-      Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      final TemporaryQueue queue = tempSession.createTemporaryQueue();
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
 
+      //In artemis, if you send a message to a topic where the consumer isn't there yet,
+      //message will get lost. So the create temp queue request has to happen
+      //after the connection is started (advisory consumer registered).
+      Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final TemporaryQueue queue = tempSession.createTemporaryQueue();
+
       final ActiveMQConnection activeMQConnection = (ActiveMQConnection) connection;
-      assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
+      Assert.assertTrue("creation advisory received in time with async dispatch", Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisified() throws Exception {
             return activeMQConnection.activeTempDestinations.containsKey(queue);
@@ -293,10 +301,10 @@ public class JmsTempDestinationTest extends TestCase {
       try {
          message = session.createTextMessage("Hello");
          producer.send(message);
-         fail("Send should fail since temp destination should not exist anymore.");
+         Assert.fail("Send should fail since temp destination should not exist anymore.");
       }
       catch (JMSException e) {
-         assertTrue("failed to throw an exception", true);
+         Assert.assertTrue("failed to throw an exception", true);
       }
    }
 
@@ -305,6 +313,7 @@ public class JmsTempDestinationTest extends TestCase {
     *
     * @throws JMSException
     */
+   @Test
    public void testDeleteDestinationWithSubscribersFails() throws JMSException {
       Connection connection = factory.createConnection();
       connections.add(connection);
@@ -319,65 +328,14 @@ public class JmsTempDestinationTest extends TestCase {
       // now closed.
       try {
          queue.delete();
-         fail("Should fail as Subscribers are active");
+         Assert.fail("Should fail as Subscribers are active");
       }
       catch (JMSException e) {
-         assertTrue("failed to throw an exception", true);
+         Assert.assertTrue("failed to throw an exception", true);
       }
    }
 
+   //removed. the original test is only for vm transport. tcp transport will block anyway.
    public void testSlowConsumerDoesNotBlockFastTempUsers() throws Exception {
-      ActiveMQConnectionFactory advisoryConnFactory = new ActiveMQConnectionFactory("vm://localhost?asyncQueueDepth=20");
-      Connection connection = advisoryConnFactory.createConnection();
-      connections.add(connection);
-      connection.start();
-
-      final CountDownLatch done = new CountDownLatch(1);
-      final AtomicBoolean ok = new AtomicBoolean(true);
-      final AtomicBoolean first = new AtomicBoolean(true);
-      VMTransport t = ((ActiveMQConnection) connection).getTransport().narrow(VMTransport.class);
-      t.setTransportListener(new TransportListener() {
-         @Override
-         public void onCommand(Object command) {
-            // block first dispatch for a while so broker backs up, but other connection should be able to proceed
-            if (first.compareAndSet(true, false)) {
-               try {
-                  ok.set(done.await(35, TimeUnit.SECONDS));
-                  LOG.info("Done waiting: " + ok.get());
-               }
-               catch (InterruptedException e) {
-                  e.printStackTrace();
-               }
-            }
-         }
-
-         @Override
-         public void onException(IOException error) {
-         }
-
-         @Override
-         public void transportInterupted() {
-         }
-
-         @Override
-         public void transportResumed() {
-         }
-      });
-
-      connection = factory.createConnection();
-      connections.add(connection);
-      ((ActiveMQConnection) connection).setWatchTopicAdvisories(false);
-      connection.start();
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-      for (int i = 0; i < 2500; i++) {
-         TemporaryQueue queue = session.createTemporaryQueue();
-         MessageConsumer consumer = session.createConsumer(queue);
-         consumer.close();
-         queue.delete();
-      }
-      LOG.info("Done with work: " + ok.get());
-      done.countDown();
-      assertTrue("ok", ok.get());
    }
 }
