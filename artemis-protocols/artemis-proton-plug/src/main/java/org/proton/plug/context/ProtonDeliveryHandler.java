@@ -16,6 +16,7 @@
  */
 package org.proton.plug.context;
 
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
@@ -29,4 +30,6 @@ public interface ProtonDeliveryHandler {
    void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 
    void close() throws ActiveMQAMQPException;
+
+   void close(ErrorCondition condition) throws ActiveMQAMQPException;
 }
