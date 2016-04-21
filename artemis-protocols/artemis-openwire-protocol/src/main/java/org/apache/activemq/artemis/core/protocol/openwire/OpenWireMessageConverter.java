@@ -90,8 +90,6 @@ public class OpenWireMessageConverter implements MessageConverter {
    private static final String AMQ_MSG_MARSHALL_PROP = AMQ_PREFIX + "MARSHALL_PROP";
    private static final String AMQ_MSG_REPLY_TO = AMQ_PREFIX + "REPLY_TO";
 
-   private static final String AMQ_MSG_CONSUMER_ID = AMQ_PREFIX + "CONSUMER_ID";
-   private static final String AMQ_MSG_TX_ID = AMQ_PREFIX + "TX_ID";
    private static final String AMQ_MSG_USER_ID = AMQ_PREFIX + "USER_ID";
 
    private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
@@ -382,17 +380,6 @@ public class OpenWireMessageConverter implements MessageConverter {
 
       ConsumerId consumerId = messageSend.getTargetConsumerId();
 
-      if (consumerId != null) {
-         ByteSequence consumerIdBytes = marshaller.marshal(consumerId);
-         consumerIdBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_CONSUMER_ID, consumerIdBytes.data);
-      }
-      TransactionId txId = messageSend.getTransactionId();
-      if (txId != null) {
-         ByteSequence txIdBytes = marshaller.marshal(txId);
-         txIdBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_TX_ID, txIdBytes.data);
-      }
 
       String userId = messageSend.getUserID();
       if (userId != null) {
@@ -769,17 +756,6 @@ public class OpenWireMessageConverter implements MessageConverter {
          amqMsg.setReplyTo(replyTo);
       }
 
-      byte[] consumerIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_CONSUMER_ID);
-      if (consumerIdBytes != null) {
-         ConsumerId consumerId = (ConsumerId) marshaller.unmarshal(new ByteSequence(consumerIdBytes));
-         amqMsg.setTargetConsumerId(consumerId);
-      }
-
-      byte[] txIdBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_TX_ID);
-      if (txIdBytes != null) {
-         TransactionId txId = (TransactionId) marshaller.unmarshal(new ByteSequence(txIdBytes));
-         amqMsg.setTransactionId(txId);
-      }
 
       String userId = (String) coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
       if (userId != null) {
