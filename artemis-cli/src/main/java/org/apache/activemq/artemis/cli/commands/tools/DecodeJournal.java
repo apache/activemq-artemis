@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.JournalRecord;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "decode", description = "Decode a journal's internal format into a new journal set of files")
@@ -125,8 +124,6 @@ public class DecodeJournal extends LockAbstract {
 
       long lineNumber = 0;
 
-      Map<Long, JournalRecord> journalRecords = journal.getRecords();
-
       while ((line = buffReader.readLine()) != null) {
          lineNumber++;
          String[] splitLine = line.split(",");
@@ -150,12 +147,6 @@ public class DecodeJournal extends LockAbstract {
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
-            } else if (operation.equals("AddRecordTX")) {
-               long txID = parseLong("txID", lineProperties);
-               AtomicInteger counter = getCounter(txID, txCounters);
-               counter.incrementAndGet();
-               RecordInfo info = parseRecord(lineProperties);
-               journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
             } else if (operation.equals("UpdateTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
@@ -168,20 +159,17 @@ public class DecodeJournal extends LockAbstract {
             } else if (operation.equals("DeleteRecord")) {
                long id = parseLong("id", lineProperties);
 
-               // If not found it means the append/update records were reclaimed already
-               if (journalRecords.get(id) != null) {
+               try {
                   journal.appendDeleteRecord(id, false);
+               } catch (IllegalStateException ignored) {
+                  // If not found it means the append/update records were reclaimed already
                }
             } else if (operation.equals("DeleteRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                long id = parseLong("id", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
-
-               // If not found it means the append/update records were reclaimed already
-               if (journalRecords.get(id) != null) {
-                  journal.appendDeleteRecordTransactional(txID, id);
-               }
+               journal.appendDeleteRecordTransactional(txID, id);
             } else if (operation.equals("Prepare")) {
                long txID = parseLong("txID", lineProperties);
                int numberOfRecords = parseInt("numberOfRecords", lineProperties);
