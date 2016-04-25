@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
@@ -236,7 +237,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             threadPool = Executors.newCachedThreadPool(factory);
          }
          else {
-            threadPool = Executors.newFixedThreadPool(threadPoolMaxSize, factory);
+            threadPool = new ActiveMQThreadPoolExecutor(0, threadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
          }
 
          factory = AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {

@@ -221,8 +221,6 @@ public class ClientThreadPoolsTest {
 
       ScheduledThreadPoolExecutor scheduledThreadPool = (ScheduledThreadPoolExecutor) scheduledThreadPoolField.get(serverLocator);
 
-      // TODO: We need to figure out what to do with getCorePoolSize
-      assertEquals(expectedMax, threadPool.getCorePoolSize());
       assertEquals(expectedMax, threadPool.getMaximumPoolSize());
       assertEquals(expectedScheduled, scheduledThreadPool.getCorePoolSize());
    }
