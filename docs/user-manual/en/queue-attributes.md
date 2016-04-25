@@ -169,7 +169,7 @@ application could receive and take action with. See [slow consumers](slow-consum
 on this notification.
 
 `slow-consumer-check-period`. How often to check for slow consumers on a
-particular queue. Measured in minutes. Default is 5. See [slow consumers](slow-consumers.md)
+particular queue. Measured in seconds. Default is 5. See [slow consumers](slow-consumers.md)
 for more information about slow consumer detection.
 
 `auto-create-jms-queues`. Whether or not the broker should automatically
