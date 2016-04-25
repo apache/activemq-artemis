@@ -20,7 +20,6 @@ import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
@@ -38,6 +37,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 
 /**
  * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
@@ -222,7 +222,7 @@ public final class ActiveMQClient {
             globalThreadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), factory);
          }
          else {
-            globalThreadPool = new ThreadPoolExecutor(ActiveMQClient.globalThreadPoolSize, ActiveMQClient.globalThreadPoolSize, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), factory);
+            globalThreadPool = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.globalThreadPoolSize, 60L, TimeUnit.SECONDS, factory);
          }
       }
       return globalThreadPool;
