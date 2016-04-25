@@ -42,6 +42,10 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-amqp</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
          <scope>provided</scope>
@@ -82,10 +86,6 @@
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.qpid</groupId>
-         <artifactId>proton-jms</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>

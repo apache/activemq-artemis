@@ -171,6 +171,10 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
                try {
                   if (buffer.getByte(4) == 0x03) {
                      dispatchSASL();
+                     /*
+                     * there is a chance that if SASL Handshake has been carried out that the capacity may change.
+                     * */
+                     capacity = transport.capacity();
                   }
                }
                catch (Throwable ignored) {

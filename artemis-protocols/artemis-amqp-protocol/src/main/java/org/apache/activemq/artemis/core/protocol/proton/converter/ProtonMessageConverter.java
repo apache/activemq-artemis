@@ -16,23 +16,30 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton.converter;
 
-import org.apache.qpid.proton.jms.EncodedMessage;
-import org.apache.qpid.proton.jms.InboundTransformer;
-import org.apache.qpid.proton.jms.JMSMappingInboundTransformer;
-import org.apache.qpid.proton.jms.JMSMappingOutboundTransformer;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.transport.amqp.message.EncodedMessage;
+import org.apache.activemq.transport.amqp.message.InboundTransformer;
+import org.apache.activemq.transport.amqp.message.JMSMappingInboundTransformer;
+import org.apache.activemq.transport.amqp.message.JMSMappingOutboundTransformer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
+import javax.jms.BytesMessage;
+import java.io.IOException;
+
 public class ProtonMessageConverter implements MessageConverter {
 
    ActiveMQJMSVendor activeMQJMSVendor;
+
+   private final String prefixVendor;
 
    public ProtonMessageConverter(IDGenerator idGenerator) {
       activeMQJMSVendor = new ActiveMQJMSVendor(idGenerator);
       inboundTransformer = new JMSMappingInboundTransformer(activeMQJMSVendor);
       outboundTransformer = new JMSMappingOutboundTransformer(activeMQJMSVendor);
+      prefixVendor = outboundTransformer.getPrefixVendor();
    }
 
    private final InboundTransformer inboundTransformer;
@@ -50,11 +57,30 @@ public class ProtonMessageConverter implements MessageConverter {
     *
     * @param messageSource
     * @return
-    * @throws Exception
+    * @throws Exception                    https://issues.jboss.org/browse/ENTMQ-1560
     */
    public ServerJMSMessage inboundJMSType(EncodedMessage messageSource) throws Exception {
       EncodedMessage encodedMessageSource = messageSource;
-      ServerJMSMessage transformedMessage = (ServerJMSMessage) inboundTransformer.transform(encodedMessageSource);
+      ServerJMSMessage transformedMessage = null;
+
+      InboundTransformer transformer = inboundTransformer;
+
+      while (transformer != null) {
+         try {
+            transformedMessage = (ServerJMSMessage) transformer.transform(encodedMessageSource);
+            break;
+         }
+         catch (Exception e) {
+            ActiveMQClientLogger.LOGGER.debug("Transform of message using [{}] transformer, failed" + inboundTransformer.getTransformerName());
+            ActiveMQClientLogger.LOGGER.trace("Transformation error:", e);
+
+            transformer = transformer.getFallbackTransformer();
+         }
+      }
+
+      if (transformedMessage == null) {
+         throw new IOException("Failed to transform incoming delivery, skipping.");
+      }
 
       transformedMessage.encode();
 
@@ -64,8 +90,19 @@ public class ProtonMessageConverter implements MessageConverter {
    @Override
    public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception {
       ServerJMSMessage jmsMessage = activeMQJMSVendor.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
+
       jmsMessage.decode();
 
-      return outboundTransformer.convert(jmsMessage);
+      if (jmsMessage.getBooleanProperty(prefixVendor + "NATIVE")) {
+         if (jmsMessage instanceof BytesMessage) {
+            return AMQPNativeOutboundTransformer.transform(outboundTransformer, (BytesMessage) jmsMessage);
+         }
+         else {
+            return null;
+         }
+      }
+      else {
+         return outboundTransformer.convert(jmsMessage);
+      }
    }
 }
