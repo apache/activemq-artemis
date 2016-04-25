@@ -26,7 +26,6 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.qpid.proton.jms.JMSVendor;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMapMessage;
@@ -36,8 +35,9 @@ import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMST
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.transport.amqp.message.JMSVendor;
 
-public class ActiveMQJMSVendor extends JMSVendor {
+public class ActiveMQJMSVendor implements JMSVendor {
 
    private final IDGenerator serverGenerator;
 
@@ -83,11 +83,6 @@ public class ActiveMQJMSVendor extends JMSVendor {
    @SuppressWarnings("deprecation")
    public Destination createDestination(String name) {
       return new ServerDestination(name);
-   }
-
-   @Override
-   public <T extends Destination> T createDestination(String name, Class<T> kind) {
-      return super.createDestination(name, kind);
    }
 
    @Override

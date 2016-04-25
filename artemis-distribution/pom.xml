@@ -147,10 +147,6 @@
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.apache.qpid</groupId>
-         <artifactId>proton-jms</artifactId>
-      </dependency>
        <dependency>
            <groupId>io.airlift</groupId>
            <artifactId>airline</artifactId>
@@ -189,6 +185,10 @@
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-codec-mqtt</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-amqp</artifactId>
       </dependency>
    </dependencies>
 
