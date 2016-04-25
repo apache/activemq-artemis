@@ -408,15 +408,21 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.apache.qpid</groupId>
-            <artifactId>proton-jms</artifactId>
-            <version>${proton.version}</version>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>${activemq5-version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
+            <artifactId>activemq-amqp</artifactId>
             <version>${activemq5-version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.apache.geronimo.specs</groupId>
+                  <artifactId>geronimo-jms_1.1_spec</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
