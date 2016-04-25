@@ -930,6 +930,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       synchronized (lock) {
          // This is an optimization, if the reference is the first one, we just poll it.
+         // But first we need to make sure deliveringRefs isn't empty
+         if (deliveringRefs.isEmpty()) {
+            return null;
+         }
+
          if (deliveringRefs.peek().getMessage().getMessageID() == messageID) {
             return deliveringRefs.poll();
          }
