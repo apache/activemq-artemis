@@ -1292,7 +1292,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       schedulePing();
 
       if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("returning " + connection);
+         ActiveMQClientLogger.LOGGER.trace("returning " + newConnection);
       }
 
       return newConnection;
