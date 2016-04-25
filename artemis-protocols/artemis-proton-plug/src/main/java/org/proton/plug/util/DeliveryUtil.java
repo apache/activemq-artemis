@@ -30,6 +30,7 @@ public class DeliveryUtil {
       while ((count = receiver.recv(buffer.array(), buffer.arrayOffset() + buffer.writerIndex(), buffer.writableBytes())) > 0) {
          // Increment the writer index by the number of bytes written into it while calling recv.
          buffer.writerIndex(buffer.writerIndex() + count);
+         buffer.ensureWritable(count);
       }
       return buffer.writerIndex() - initial;
    }
