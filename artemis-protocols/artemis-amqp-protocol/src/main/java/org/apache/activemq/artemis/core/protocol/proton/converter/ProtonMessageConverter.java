@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.protocol.proton.converter;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.transport.amqp.message.EncodedMessage;
 import org.apache.activemq.transport.amqp.message.InboundTransformer;
-import org.apache.activemq.transport.amqp.message.JMSMappingInboundTransformer;
-import org.apache.activemq.transport.amqp.message.JMSMappingOutboundTransformer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;

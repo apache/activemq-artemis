@@ -18,12 +18,20 @@ package org.apache.activemq.artemis.core.protocol.proton.converter.jms;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
+import javax.jms.JMSException;
+import javax.jms.Queue;
+
 /**
  * This is just here to avoid all the client checks we ned with valid JMS destinations, protocol convertors don't need to
  * adhere to the jms. semantics.
  */
-public class ServerDestination extends ActiveMQDestination {
+public class ServerDestination extends ActiveMQDestination implements Queue {
    public ServerDestination(String name) {
       super(name, name, false, false, null);
+   }
+
+   @Override
+   public String getQueueName() throws JMSException {
+      return getName();
    }
 }
