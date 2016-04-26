@@ -25,6 +25,7 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
@@ -67,7 +68,7 @@ public class ActiveMQJMSVendor implements JMSVendor {
 
    @Override
    public ObjectMessage createObjectMessage() {
-      return null;
+      return new ServerJMSObjectMessage(newMessage(org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE), 0);
    }
 
    @Override
@@ -110,6 +111,8 @@ public class ActiveMQJMSVendor implements JMSVendor {
             return new ServerJMSMapMessage(wrapped, deliveryCount);
          case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
             return new ServerJMSTextMessage(wrapped, deliveryCount);
+         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
+            return new ServerJMSObjectMessage(wrapped, deliveryCount);
          default:
             return new ServerJMSMessage(wrapped, deliveryCount);
       }
