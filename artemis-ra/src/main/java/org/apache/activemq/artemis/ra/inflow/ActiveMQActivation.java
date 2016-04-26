@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
@@ -360,6 +361,8 @@ public class ActiveMQActivation {
    protected synchronized void teardown() {
       ActiveMQRALogger.LOGGER.debug("Tearing down " + spec);
 
+      long timeout = factory == null ? ActiveMQClient.DEFAULT_CALL_TIMEOUT : factory.getCallTimeout();
+
       if (resourceRecovery != null) {
          ra.getRecoveryManager().unRegister(resourceRecovery);
       }
@@ -385,7 +388,7 @@ public class ActiveMQActivation {
       }
 
       //wait for all the consumers to complete any onmessage calls
-      boolean stuckThreads = !future.await(factory.getCallTimeout());
+      boolean stuckThreads = !future.await(timeout);
       //if any are stuck then we need to interrupt them
       if (stuckThreads) {
          for (Thread interruptThread : interruptThreads) {
@@ -413,7 +416,7 @@ public class ActiveMQActivation {
       threadTearDown.start();
 
       try {
-         threadTearDown.join(factory.getCallTimeout());
+         threadTearDown.join(timeout);
       }
       catch (InterruptedException e) {
          // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
