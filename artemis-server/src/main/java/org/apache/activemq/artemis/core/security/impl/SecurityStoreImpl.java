@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -38,18 +37,14 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 /**
  * The ActiveMQ Artemis SecurityStore implementation
  */
 public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(SecurityStoreImpl.class);
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
@@ -108,8 +103,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
-            if (trace) {
-               ActiveMQServerLogger.LOGGER.trace("Authenticating cluster admin user");
+            if (logger.isTraceEnabled()) {
+               logger.trace("Authenticating cluster admin user");
             }
 
             /*
@@ -152,8 +147,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
       if (securityEnabled) {
-         if (trace) {
-            ActiveMQServerLogger.LOGGER.trace("checking access permissions to " + address);
+         if (logger.isTraceEnabled()) {
+            logger.trace("checking access permissions to " + address);
          }
 
          String user = session.getUsername();

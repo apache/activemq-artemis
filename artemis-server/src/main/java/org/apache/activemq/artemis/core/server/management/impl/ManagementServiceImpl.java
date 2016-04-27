@@ -49,12 +49,12 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.management.impl.AcceptorControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
-import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
@@ -65,10 +65,10 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -85,11 +85,12 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 public class ManagementServiceImpl implements ManagementService {
    // Constants -----------------------------------------------------
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ManagementServiceImpl.class);
 
    private final MBeanServer mbeanServer;
 
@@ -217,8 +218,8 @@ public class ManagementServiceImpl implements ManagementService {
 
       registerInRegistry(ResourceNames.CORE_ADDRESS + address, addressControl);
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("registered address " + objectName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("registered address " + objectName);
       }
    }
 
@@ -244,8 +245,8 @@ public class ManagementServiceImpl implements ManagementService {
       registerInJMX(objectName, queueControl);
       registerInRegistry(ResourceNames.CORE_QUEUE + queue.getName(), queueControl);
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("registered queue " + objectName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("registered queue " + objectName);
       }
    }
 
@@ -264,8 +265,8 @@ public class ManagementServiceImpl implements ManagementService {
       registerInJMX(objectName, new StandardMBean(divertControl, DivertControl.class));
       registerInRegistry(ResourceNames.CORE_DIVERT + config.getName(), divertControl);
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("registered divert " + objectName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("registered divert " + objectName);
       }
    }
 
@@ -369,8 +370,8 @@ public class ManagementServiceImpl implements ManagementService {
       ServerMessage reply = new ServerMessageImpl(storageManager.generateID(), 512);
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("handling management message for " + resourceName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("handling management message for " + resourceName);
       }
 
       String operation = message.getStringProperty(ManagementHelper.HDR_OPERATION_NAME);
@@ -601,8 +602,8 @@ public class ManagementServiceImpl implements ManagementService {
 
    @Override
    public void sendNotification(final Notification notification) throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Sending Notification = " + notification +
+      if (logger.isTraceEnabled()) {
+         logger.trace("Sending Notification = " + notification +
                                               ", notificationEnabled=" + notificationsEnabled +
                                               " messagingServerControl=" + messagingServerControl);
       }
@@ -629,8 +630,8 @@ public class ManagementServiceImpl implements ManagementService {
                // Note at backup initialisation we don't want to send notifications either
                // https://jira.jboss.org/jira/browse/HORNETQ-317
                if (messagingServer == null || !messagingServer.isActive()) {
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.debug("ignoring message " + notification + " as the server is not initialized");
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("ignoring message " + notification + " as the server is not initialized");
                   }
                   return;
                }

@@ -144,11 +144,14 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jboss.logging.Logger;
 
 /**
  * The ActiveMQ Artemis server implementation
  */
 public class ActiveMQServerImpl implements ActiveMQServer {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQServerImpl.class);
 
    /**
     * JMS Topics (which are outside of the scope of the core API) will require a dumb subscription
@@ -378,7 +381,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public final synchronized void start() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
-         ActiveMQServerLogger.LOGGER.debug("Server already started!");
+         logger.debug("Server already started!");
          return;
       }
 
@@ -392,7 +395,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       activationLatch.setCount(1);
 
-      ActiveMQServerLogger.LOGGER.debug("Starting server " + this);
+      logger.debug("Starting server " + this);
 
       OperationContextImpl.clearContext();
 
@@ -780,7 +783,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             if (!threadPool.awaitTermination(10, TimeUnit.SECONDS)) {
                ActiveMQServerLogger.LOGGER.timedOutStoppingThreadpool(threadPool);
                for (Runnable r : threadPool.shutdownNow()) {
-                  ActiveMQServerLogger.LOGGER.debug("Cancelled the execution of " + r);
+                  logger.debug("Cancelled the execution of " + r);
                }
             }
          }
@@ -1373,8 +1376,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueSubscriptionBelongsToDifferentFilter(name);
       }
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Transient Queue " + name + " created on address " + name +
+      if (logger.isDebugEnabled()) {
+         logger.debug("Transient Queue " + name + " created on address " + name +
                                               " with filter=" + filterString);
       }
 
@@ -2066,7 +2069,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
          catch (Throwable ignored) {
-            ActiveMQServerLogger.LOGGER.debug(ignored.getMessage(), ignored);
+            logger.debug(ignored.getMessage(), ignored);
          }
          throw e;
       }

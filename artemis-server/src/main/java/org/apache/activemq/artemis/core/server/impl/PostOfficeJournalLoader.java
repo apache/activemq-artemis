@@ -59,8 +59,11 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.jboss.logging.Logger;
 
 public class PostOfficeJournalLoader implements JournalLoader {
+
+   private static final Logger logger = Logger.getLogger(PostOfficeJournalLoader.class);
 
    protected final PostOffice postOffice;
    protected final PagingManager pagingManager;
@@ -354,7 +357,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
                for (Map.Entry<Long, List<PageCountPending>> entry : perQueue.entrySet()) {
                   for (PageCountPending record : entry.getValue()) {
-                     ActiveMQServerLogger.LOGGER.debug("Deleting pg tempCount " + record.getID());
+                     logger.debug("Deleting pg tempCount " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                   }
 
@@ -363,20 +366,20 @@ public class PostOfficeJournalLoader implements JournalLoader {
                   AtomicInteger value = countsPerQueueOnPage.get(entry.getKey());
 
                   if (value == null) {
-                     ActiveMQServerLogger.LOGGER.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
+                     logger.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
                   }
                   else {
-                     ActiveMQServerLogger.LOGGER.debug("Replacing counter " + value.get());
+                     logger.debug("Replacing counter " + value.get());
                      counter.increment(txRecoverCounter, value.get());
                   }
                }
             }
             else {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
-               ActiveMQServerLogger.LOGGER.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
+               logger.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
                for (List<PageCountPending> records : perQueue.values()) {
                   for (PageCountPending record : records) {
-                     ActiveMQServerLogger.LOGGER.debug("Removing pending page counter " + record.getID());
+                     logger.debug("Removing pending page counter " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                      txRecoverCounter.setContainsPersistent();
                   }
@@ -414,7 +417,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
          Queue queue = queues.get(queueID);
 
          if (queue == null) {
-            ActiveMQServerLogger.LOGGER.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
+            logger.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
             // this means the queue doesn't exist any longer, we will remove it from the storage
             storageManager.deletePendingPageCounter(txRecoverCounter.getID(), pgCount.getID());
             txRecoverCounter.setContainsPersistent();

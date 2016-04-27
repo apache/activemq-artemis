@@ -62,8 +62,11 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.jboss.logging.Logger;
 
 public class ScaleDownHandler {
+
+   private static final Logger logger = Logger.getLogger(ScaleDownHandler.class);
 
    final PagingManager pagingManager;
    final PostOffice postOffice;
@@ -108,7 +111,7 @@ public class ScaleDownHandler {
 
          // perform a loop per address
          for (SimpleString address : postOffice.getAddresses()) {
-            ActiveMQServerLogger.LOGGER.debug("Scaling down address " + address);
+            logger.debug("Scaling down address " + address);
             Bindings bindings = postOffice.getBindingsForAddress(address);
 
             // It will get a list of queues on this address, ordered by the number of messages
@@ -139,7 +142,7 @@ public class ScaleDownHandler {
                                         final Set<Queue> queues,
                                         final ClientSession clientSession,
                                         final ClientProducer producer) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("Scaling down messages on address " + address);
+      logger.debug("Scaling down messages on address " + address);
       long messageCount = 0;
 
       final HashMap<Queue, QueuesXRefInnerManager> controls = new HashMap<>();
@@ -158,7 +161,7 @@ public class ScaleDownHandler {
 
          // compile a list of all the relevant queues and queue iterators for this address
          for (Queue loopQueue : queues) {
-            ActiveMQServerLogger.LOGGER.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
+            logger.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
 
             try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.totalIterator()) {
 
@@ -166,7 +169,7 @@ public class ScaleDownHandler {
                   MessageReference messageReference = messagesIterator.next();
                   Message message = messageReference.getMessage().copy();
 
-                  ActiveMQServerLogger.LOGGER.debug("Reading message " + message + " from queue " + loopQueue);
+                  logger.debug("Reading message " + message + " from queue " + loopQueue);
                   Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
 
                   for (Map.Entry<Queue, QueuesXRefInnerManager> controlEntry : controls.entrySet()) {
@@ -175,7 +178,7 @@ public class ScaleDownHandler {
                         queuesFound.add(controlEntry.getValue());
                      }
                      else if (controlEntry.getValue().lookup(messageReference)) {
-                        ActiveMQServerLogger.LOGGER.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
+                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
                         queuesFound.add(controlEntry.getValue());
                      }
                   }
@@ -190,12 +193,12 @@ public class ScaleDownHandler {
 
                   message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, buffer.array());
 
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                  if (logger.isDebugEnabled()) {
                      if (messageReference.isPaged()) {
-                        ActiveMQServerLogger.LOGGER.debug("*********************<<<<< Scaling down pdgmessage " + message);
+                        logger.debug("*********************<<<<< Scaling down pdgmessage " + message);
                      }
                      else {
-                        ActiveMQServerLogger.LOGGER.debug("*********************<<<<< Scaling down message " + message);
+                        logger.debug("*********************<<<<< Scaling down message " + message);
                      }
                   }
 
@@ -285,7 +288,7 @@ public class ScaleDownHandler {
                   message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
                }
 
-               ActiveMQServerLogger.LOGGER.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
+               logger.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
                producer.send(message.getAddress(), message);
 
                messageCount++;
@@ -315,7 +318,7 @@ public class ScaleDownHandler {
       List<Xid> preparedTransactions = resourceManager.getPreparedTransactions();
       Map<String, Long> queueIDs = new HashMap<>();
       for (Xid xid : preparedTransactions) {
-         ActiveMQServerLogger.LOGGER.debug("Scaling down transaction: " + xid);
+         logger.debug("Scaling down transaction: " + xid);
          Transaction transaction = resourceManager.getTransaction(xid);
          session.start(xid, XAResource.TMNOFLAGS);
          List<TransactionOperation> allOperations = transaction.getAllOperations();
@@ -431,11 +434,11 @@ public class ScaleDownHandler {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
          session.createQueue(addressName, queue.getName(), queue.getFilter() == null ? null : queue.getFilter().getFilterString(), queue.isDurable());
-         ActiveMQServerLogger.LOGGER.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
+         logger.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
          queueID = getQueueID(session, queue.getName());
       }
 
-      ActiveMQServerLogger.LOGGER.debug("ID for " + queue + " is: " + queueID);
+      logger.debug("ID for " + queue + " is: " + queueID);
       return queueID;
    }
 
@@ -445,7 +448,7 @@ public class ScaleDownHandler {
       ClientMessage managementMessage = session.createMessage(false);
       ManagementHelper.putAttribute(managementMessage, "core.queue." + queueName, "ID");
       session.start();
-      ActiveMQServerLogger.LOGGER.debug("Requesting ID for: " + queueName);
+      logger.debug("Requesting ID for: " + queueName);
       ClientMessage reply = requestor.request(managementMessage);
       Object result = ManagementHelper.getResult(reply);
       if (result != null && result instanceof Integer) {
@@ -560,13 +563,13 @@ public class ScaleDownHandler {
 
             MessageReference initialRef = null;
             for (int i = 0; i < numberOfScans; i++) {
-               ActiveMQServerLogger.LOGGER.debug("iterating on queue " + queue + " while looking for reference " + reference);
+               logger.debug("iterating on queue " + queue + " while looking for reference " + reference);
                memoryIterator = queue.iterator();
 
                while (memoryIterator.hasNext()) {
                   lastRef = memoryIterator.next();
 
-                  ActiveMQServerLogger.LOGGER.debug("Iterating on message " + lastRef);
+                  logger.debug("Iterating on message " + lastRef);
 
                   if (lastRef.getMessage().equals(reference.getMessage())) {
                      memoryIterator.remove();

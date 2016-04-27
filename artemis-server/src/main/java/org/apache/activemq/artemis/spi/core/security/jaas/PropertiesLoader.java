@@ -20,9 +20,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class PropertiesLoader {
+
+   private static final Logger logger = Logger.getLogger(PropertiesLoader.class);
 
    static Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;
@@ -30,7 +32,7 @@ public class PropertiesLoader {
    public void init(Map options) {
       debug = booleanOption("debug", options);
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("Initialized debug");
+         logger.debug("Initialized debug");
       }
    }
 
@@ -111,7 +113,7 @@ public class PropertiesLoader {
             }
          }
          if (debug) {
-            ActiveMQServerLogger.LOGGER.debug("Using basedir=" + baseDir.getAbsolutePath());
+            logger.debug("Using basedir=" + baseDir.getAbsolutePath());
          }
          return baseDir;
       }

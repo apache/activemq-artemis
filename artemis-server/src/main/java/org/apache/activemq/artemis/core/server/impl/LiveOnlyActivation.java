@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,13 +36,10 @@ import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+import org.jboss.logging.Logger;
 
 public class LiveOnlyActivation extends Activation {
+   private static final Logger logger = Logger.getLogger(LiveOnlyActivation.class);
 
    //this is how we act when we initially start as live
    private LiveOnlyPolicy liveOnlyPolicy;
@@ -136,7 +138,7 @@ public class LiveOnlyActivation extends Activation {
                clientSessionFactory = (ClientSessionFactoryInternal) scaleDownServerLocator.createSessionFactory(possibleLive.getA(), 0, false);
             }
             catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.trace("Failed to connect to " + possibleLive.getA());
+               logger.trace("Failed to connect to " + possibleLive.getA());
                nodeLocator.notifyRegistrationFailed(false);
                if (clientSessionFactory != null) {
                   clientSessionFactory.close();

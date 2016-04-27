@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -23,8 +28,8 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
@@ -48,13 +53,11 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.jboss.logging.Logger;
 
 public class SharedNothingLiveActivation extends LiveActivation {
+
+   private static final Logger logger = Logger.getLogger(SharedNothingLiveActivation.class);
 
    //this is how we act when we initially start as a live
    private ReplicatedPolicy replicatedPolicy;
@@ -126,7 +129,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
                }
                catch (ActiveMQException e) {
-                  ActiveMQServerLogger.LOGGER.debug("Failed to process backup registration packet", e);
+                  logger.debug("Failed to process backup registration packet", e);
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
                }
             }

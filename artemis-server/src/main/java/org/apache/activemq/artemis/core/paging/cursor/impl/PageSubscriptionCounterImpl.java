@@ -35,13 +35,14 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.jboss.logging.Logger;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
  */
 public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(PageSubscriptionCounterImpl.class);
 
    private static final int FLUSH_COUNTER = 1000;
 
@@ -327,8 +328,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
          newRecordID = storage.storePageCounter(txCleanup, subscriptionID, valueReplace);
 
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("Replacing page-counter record = " + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
+         if (logger.isTraceEnabled()) {
+            logger.trace("Replacing page-counter record = " + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
          }
 
          storage.commit(txCleanup);

@@ -43,13 +43,14 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.jboss.logging.Logger;
 
 public final class BindingsImpl implements Bindings {
 
+   private static final Logger logger = Logger.getLogger(BindingsImpl.class);
+
    // This is public as we use on test assertions
    public static final int MAX_GROUP_RETRY = 10;
-
-   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final ConcurrentMap<SimpleString, List<Binding>> routingNameBindingMap = new ConcurrentHashMap<>();
 
@@ -92,8 +93,8 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public void addBinding(final Binding binding) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("addBinding(" + binding + ") being called");
+      if (logger.isTraceEnabled()) {
+         logger.trace("addBinding(" + binding + ") being called");
       }
       if (binding.isExclusive()) {
          exclusiveBindings.add(binding);
@@ -120,8 +121,8 @@ public final class BindingsImpl implements Bindings {
 
       bindingsMap.put(binding.getID(), binding);
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
       }
 
    }
@@ -147,8 +148,8 @@ public final class BindingsImpl implements Bindings {
 
       bindingsMap.remove(binding.getID());
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
       }
    }
 
@@ -160,8 +161,8 @@ public final class BindingsImpl implements Bindings {
          return false;
       }
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Redistributing message " + message);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Redistributing message " + message);
       }
 
       SimpleString routingName = originatingQueue.getName();
@@ -287,8 +288,8 @@ public final class BindingsImpl implements Bindings {
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
          }
          else {
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("Routing message " + message + " on binding=" + this);
+            if (logger.isTraceEnabled()) {
+               logger.trace("Routing message " + message + " on binding=" + this);
             }
             for (Map.Entry<SimpleString, List<Binding>> entry : routingNameBindingMap.entrySet()) {
                SimpleString routingName = entry.getKey();
@@ -451,7 +452,7 @@ public final class BindingsImpl implements Bindings {
             resp = groupingGroupingHandler.propose(new Proposal(fullID, theBinding.getClusterName()));
 
             if (resp == null) {
-               ActiveMQServerLogger.LOGGER.debug("it got a timeout on propose, trying again, number of retries: " + tries);
+               logger.debug("it got a timeout on propose, trying again, number of retries: " + tries);
                // it timed out, so we will check it through routeAndcheckNull
                theBinding = null;
             }

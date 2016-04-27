@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.utils.SizeFormatterUtil;
+import org.jboss.logging.Logger;
 
 /**
  * A memory usage watcher.
@@ -25,6 +26,8 @@ import org.apache.activemq.artemis.utils.SizeFormatterUtil;
  * memory.
  */
 public class MemoryManager implements ActiveMQComponent {
+
+   private static final Logger logger = Logger.getLogger(MemoryManager.class);
 
    private final Runtime runtime;
 
@@ -57,7 +60,7 @@ public class MemoryManager implements ActiveMQComponent {
 
    @Override
    public synchronized void start() {
-      ActiveMQServerLogger.LOGGER.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
+      logger.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
                                            " FREE_MEMORY_PERCENT: " +
                                            memoryWarningThreshold);
 
@@ -127,8 +130,8 @@ public class MemoryManager implements ActiveMQComponent {
             info.append(String.format("total memory:     %s%n", SizeFormatterUtil.sizeof(totalMemory)));
             info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
 
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug(info);
+            if (logger.isDebugEnabled()) {
+               logger.debug(info);
             }
 
             if (availableMemoryPercent <= memoryWarningThreshold) {

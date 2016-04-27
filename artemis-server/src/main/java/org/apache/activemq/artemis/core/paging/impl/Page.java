@@ -36,12 +36,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.jboss.logging.Logger;
 
 public final class Page implements Comparable<Page> {
 
    // Constants -----------------------------------------------------
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
-   private static final boolean isDebug = ActiveMQServerLogger.LOGGER.isDebugEnabled();
+   private static final Logger logger = Logger.getLogger(Page.class);
 
    public static final int SIZE_RECORD = DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_BYTE;
 
@@ -98,8 +98,8 @@ public final class Page implements Comparable<Page> {
    }
 
    public synchronized List<PagedMessage> read(StorageManager storage) throws Exception {
-      if (isDebug) {
-         ActiveMQServerLogger.LOGGER.debug("reading page " + this.pageId + " on address = " + storeName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("reading page " + this.pageId + " on address = " + storeName);
       }
 
       if (!file.isOpen()) {
@@ -142,8 +142,8 @@ public final class Page implements Comparable<Page> {
                         throw new IllegalStateException("Internal error, it wasn't possible to locate END_BYTE " + b);
                      }
                      msg.initMessage(storage);
-                     if (isTrace) {
-                        ActiveMQServerLogger.LOGGER.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
                      }
                      messages.add(msg);
                   }
@@ -250,8 +250,8 @@ public final class Page implements Comparable<Page> {
          storageManager.pageDeleted(storeName, pageId);
       }
 
-      if (isDebug) {
-         ActiveMQServerLogger.LOGGER.debug("Deleting pageId=" + pageId + " on store " + storeName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Deleting pageId=" + pageId + " on store " + storeName);
       }
 
       if (messages != null) {

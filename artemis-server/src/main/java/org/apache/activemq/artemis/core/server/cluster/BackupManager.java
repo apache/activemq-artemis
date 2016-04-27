@@ -37,11 +37,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.jboss.logging.Logger;
 
 /*
 * takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
 * */
 public class BackupManager implements ActiveMQComponent {
+
+   private static final Logger logger = Logger.getLogger(BackupManager.class);
 
    private ActiveMQServer server;
    private Executor executor;
@@ -236,8 +239,8 @@ public class BackupManager implements ActiveMQComponent {
                         ActiveMQServerLogger.LOGGER.error("Error announcing backup: backupServerLocator is null. " + this);
                      return;
                   }
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.debug(BackupConnector.this + ":: announcing " + connector + " to " + backupServerLocator);
+                  if (logger.isDebugEnabled()) {
+                     logger.debug(BackupConnector.this + ":: announcing " + connector + " to " + backupServerLocator);
                   }
                   announcingBackup = true;
                   //connect to the cluster
@@ -337,8 +340,8 @@ public class BackupManager implements ActiveMQComponent {
       @Override
       public ServerLocatorInternal createServerLocator(Topology topology) {
          if (tcConfigs != null && tcConfigs.length > 0) {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug(BackupManager.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
+            if (logger.isDebugEnabled()) {
+               logger.debug(BackupManager.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);

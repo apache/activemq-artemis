@@ -44,8 +44,12 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.jboss.logging.Logger;
 
 public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
+
+   private static final Logger logger = Logger.getLogger(LegacyLDAPSecuritySettingPlugin.class);
+
    private static final long serialVersionUID = 4793109879399750045L;
 
    public static final String INITIAL_CONTEXT_FACTORY = "initialContextFactory";
@@ -326,17 +330,17 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          return;
       }
       LdapName searchResultLdapName = new LdapName(searchResult.getName());
-      ActiveMQServerLogger.LOGGER.debug("LDAP search result : " + searchResultLdapName);
+      logger.debug("LDAP search result : " + searchResultLdapName);
       String permissionType = null;
       String destination = null;
       String destinationType = "unknown";
       for (Rdn rdn : searchResultLdapName.getRdns()) {
          if (rdn.getType().equals("cn")) {
-            ActiveMQServerLogger.LOGGER.debug("\tPermission type: " + rdn.getValue());
+            logger.debug("\tPermission type: " + rdn.getValue());
             permissionType = rdn.getValue().toString();
          }
          if (rdn.getType().equals("uid")) {
-            ActiveMQServerLogger.LOGGER.debug("\tDestination name: " + rdn.getValue());
+            logger.debug("\tDestination name: " + rdn.getValue());
             destination = rdn.getValue().toString();
          }
          if (rdn.getType().equals("ou")) {
@@ -347,10 +351,10 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             else if (rawDestinationType.toLowerCase().contains("topic")) {
                destinationType = "topic";
             }
-            ActiveMQServerLogger.LOGGER.debug("\tDestination type: " + destinationType);
+            logger.debug("\tDestination type: " + destinationType);
          }
       }
-      ActiveMQServerLogger.LOGGER.debug("\tAttributes: " + attrs);
+      logger.debug("\tAttributes: " + attrs);
       Attribute attr = attrs.get(roleAttribute);
       NamingEnumeration<?> e = attr.getAll();
       Set<Role> roles = securityRoles.get(destination);
@@ -367,7 +371,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          LdapName ldapname = new LdapName(value);
          Rdn rdn = ldapname.getRdn(ldapname.size() - 1);
          String roleName = rdn.getValue().toString();
-         ActiveMQServerLogger.LOGGER.debug("\tRole name: " + roleName);
+         logger.debug("\tRole name: " + roleName);
          Role role = new Role(roleName,
                               permissionType.equalsIgnoreCase(writePermissionValue),
                               permissionType.equalsIgnoreCase(readPermissionValue),
@@ -448,7 +452,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
          for (Rdn rdn : ldapName.getRdns()) {
             if (rdn.getValue().equals(writePermissionValue)) {
-               ActiveMQServerLogger.LOGGER.debug("Removing write permission");
+               logger.debug("Removing write permission");
                for (Role role : roles) {
                   if (role.isSend()) {
                      rolesToRemove.add(role);
@@ -456,7 +460,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                }
             }
             else if (rdn.getValue().equals(readPermissionValue)) {
-               ActiveMQServerLogger.LOGGER.debug("Removing read permission");
+               logger.debug("Removing read permission");
                for (Role role : roles) {
                   if (role.isConsume()) {
                      rolesToRemove.add(role);
@@ -464,7 +468,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                }
             }
             else if (rdn.getValue().equals(adminPermissionValue)) {
-               ActiveMQServerLogger.LOGGER.debug("Removing admin permission");
+               logger.debug("Removing admin permission");
                for (Role role : roles) {
                   if (role.isCreateDurableQueue() || role.isCreateNonDurableQueue() || role.isDeleteDurableQueue() || role.isDeleteNonDurableQueue()) {
                      rolesToRemove.add(role);

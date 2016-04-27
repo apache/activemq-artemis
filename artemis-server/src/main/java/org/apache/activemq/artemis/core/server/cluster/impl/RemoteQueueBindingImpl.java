@@ -29,13 +29,15 @@ import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.Bindable;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.jboss.logging.Logger;
 
 public class RemoteQueueBindingImpl implements RemoteQueueBinding {
+
+   private static final Logger logger = Logger.getLogger(RemoteQueueBindingImpl.class);
 
    private final SimpleString address;
 
@@ -336,8 +338,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
       message.putBytesProperty(idsHeaderName, ids);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
       }
    }
 

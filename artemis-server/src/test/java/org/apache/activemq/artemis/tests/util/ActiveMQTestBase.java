@@ -130,6 +130,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -144,6 +145,8 @@ import org.junit.runner.Description;
  * Base class with basic utilities on starting up a basic server
  */
 public abstract class ActiveMQTestBase extends Assert {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
    @Rule
    public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
@@ -1096,7 +1099,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                       final int liveNodes,
                                       final int backupNodes,
                                       final long timeout) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("waiting for " + liveNodes + " on the topology for server = " + server);
+      logger.debug("waiting for " + liveNodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -1147,7 +1150,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                   String clusterConnectionName,
                                   final int nodes,
                                   final long timeout) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("waiting for " + nodes + " on the topology for server = " + server);
+      logger.debug("waiting for " + nodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 

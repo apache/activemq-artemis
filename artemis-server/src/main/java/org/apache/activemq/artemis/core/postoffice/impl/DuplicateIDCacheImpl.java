@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.jboss.logging.Logger;
 
 /**
  * A DuplicateIDCacheImpl
@@ -39,7 +40,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
  */
 public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
-   private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(DuplicateIDCacheImpl.class);
 
    // ByteHolder, position
    private final Map<ByteArrayHolder, Integer> cache = new ConcurrentHashMap<>();
@@ -88,8 +89,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             if (txID == -1) {
                txID = storageManager.generateID();
             }
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl::load deleting id=" + describeID(id.getA(), id.getB()));
+            if (logger.isTraceEnabled()) {
+               logger.trace("DuplicateIDCacheImpl::load deleting id=" + describeID(id.getA(), id.getB()));
             }
 
             storageManager.deleteDuplicateIDTransactional(txID, id.getB());
@@ -103,8 +104,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             cache.put(bah, ids.size());
 
             ids.add(pair);
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl::load loading id=" + describeID(id.getA(), id.getB()));
+            if (logger.isTraceEnabled()) {
+               logger.trace("DuplicateIDCacheImpl::load loading id=" + describeID(id.getA(), id.getB()));
             }
          }
 
@@ -124,8 +125,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    @Override
    public void deleteFromCache(byte[] duplicateID) throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl::deleteFromCache deleting id=" + describeID(duplicateID, 0));
+      if (logger.isTraceEnabled()) {
+         logger.trace("DuplicateIDCacheImpl::deleteFromCache deleting id=" + describeID(duplicateID, 0));
       }
 
       ByteArrayHolder bah = new ByteArrayHolder(duplicateID);
@@ -141,8 +142,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             if (id.getA().equals(bah)) {
                id.setA(null);
                storageManager.deleteDuplicateID(id.getB());
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::deleteFromCache deleting id=" + describeID(duplicateID, id.getB()));
+               if (logger.isTraceEnabled()) {
+                  logger.trace("DuplicateIDCacheImpl(" + this.address + ")::deleteFromCache deleting id=" + describeID(duplicateID, id.getB()));
                }
                id.setB(null);
             }
@@ -165,7 +166,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
       boolean contains = cache.get(new ByteArrayHolder(duplID)) != null;
 
       if (contains) {
-         ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::constains found a duplicate " + describeID(duplID, 0));
+         logger.trace("DuplicateIDCacheImpl(" + this.address + ")::constains found a duplicate " + describeID(duplID, 0));
       }
       return contains;
    }
@@ -220,8 +221,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             addToCacheInMemory(duplID, recordID);
          }
          else {
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCache Adding duplicateID TX operation for " + describeID(duplID, recordID));
+            if (logger.isTraceEnabled()) {
+               logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCache Adding duplicateID TX operation for " + describeID(duplID, recordID));
             }
             // For a tx, it's important that the entry is not added to the cache until commit
             // since if the client fails then resends them tx we don't want it to get rejected
@@ -236,8 +237,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
    }
 
    private synchronized void addToCacheInMemory(final byte[] duplID, final long recordID) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory Adding " + describeID(duplID, recordID));
+      if (logger.isTraceEnabled()) {
+         logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory Adding " + describeID(duplID, recordID));
       }
 
       ByteArrayHolder holder = new ByteArrayHolder(duplID);
@@ -252,8 +253,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
          // The id here might be null if it was explicit deleted
          if (id.getA() != null) {
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory removing excess duplicateDetection " + describeID(id.getA().bytes, id.getB()));
+            if (logger.isTraceEnabled()) {
+               logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory removing excess duplicateDetection " + describeID(id.getA().bytes, id.getB()));
             }
 
             cache.remove(id.getA());
@@ -278,8 +279,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
          // -1 would mean null on this case
          id.setB(recordID >= 0 ? recordID : null);
 
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory replacing old duplicateID by " + describeID(id.getA().bytes, id.getB()));
+         if (logger.isTraceEnabled()) {
+            logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory replacing old duplicateID by " + describeID(id.getA().bytes, id.getB()));
          }
 
          holder.pos = pos;
@@ -287,8 +288,8 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
       else {
          id = new Pair<>(holder, recordID >= 0 ? recordID : null);
 
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory Adding new duplicateID " + describeID(id.getA().bytes, id.getB()));
+         if (logger.isTraceEnabled()) {
+            logger.trace("DuplicateIDCacheImpl(" + this.address + ")::addToCacheInMemory Adding new duplicateID " + describeID(id.getA().bytes, id.getB()));
          }
 
          ids.add(id);
@@ -303,7 +304,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
 
    @Override
    public void clear() throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("DuplicateIDCacheImpl(" + this.address + ")::clear removing duplicate ID data");
+      logger.debug("DuplicateIDCacheImpl(" + this.address + ")::clear removing duplicate ID data");
       synchronized (this) {
          if (ids.size() > 0) {
             long tx = storageManager.generateID();
