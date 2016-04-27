@@ -47,9 +47,6 @@ public class InitalReconnectDelayTest extends OpenwireArtemisBaseTest {
    protected EmbeddedJMS server1;
    protected EmbeddedJMS server2;
 
-//   protected BrokerService broker1;
-//   protected BrokerService broker2;
-
    @Test
    public void testInitialReconnectDelay() throws Exception {
 
@@ -82,6 +79,7 @@ public class InitalReconnectDelayTest extends OpenwireArtemisBaseTest {
       //Inital reconnection should kick in and be darned close to what we expected
       LOG.info("Failover took " + (end - start) + " ms.");
       assertTrue("Failover took " + (end - start) + " ms and should be > 14000.", (end - start) > 14000);
+      connection.close();
    }
 
    @Test
