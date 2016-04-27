@@ -65,7 +65,6 @@ import org.apache.activemq.artemis.utils.TypedProperties;
  * Concrete implementation of a ClientConsumer.
  */
 public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
-   //private static final DebugLogger logger = DebugLogger.getLogger("redelivery.log");
    // Constants ------------------------------------------------------------------------------------
 
    private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
