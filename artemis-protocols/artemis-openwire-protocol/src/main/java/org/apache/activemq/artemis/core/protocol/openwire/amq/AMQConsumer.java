@@ -167,6 +167,10 @@ public class AMQConsumer {
    }
 
    public void acquireCredit(int n) throws Exception {
+      if (messagePullHandler != null) {
+         //don't acquire any credits when the pull handler controls it!!
+         return;
+      }
       int oldwindow = currentWindow.getAndAdd(n);
 
       boolean promptDelivery = oldwindow < prefetchSize;
