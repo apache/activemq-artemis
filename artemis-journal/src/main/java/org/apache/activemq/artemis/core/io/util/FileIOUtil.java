@@ -24,8 +24,7 @@ import org.jboss.logging.Logger;
 
 public class FileIOUtil {
 
-   private static final Logger logger = Logger.getLogger(Logger.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(FileIOUtil.class);
 
    public static void copyData(SequentialFile from, SequentialFile to, ByteBuffer buffer) throws Exception {
 
@@ -50,7 +49,7 @@ public class FileIOUtil {
             buffer.clear();
             int bytesRead = from.read(buffer);
 
-            if (isTrace) {
+            if (logger.isTraceEnabled()) {
                logger.trace("appending " + bytesRead + " bytes on " + to.getFileName());
             }
 

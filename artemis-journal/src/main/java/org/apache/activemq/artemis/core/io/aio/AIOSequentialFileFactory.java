@@ -33,10 +33,11 @@ import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
-   private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(AIOSequentialFileFactory.class);
 
    private final ReuseBuffersController buffersControl = new ReuseBuffersController();
 
@@ -51,13 +52,6 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private final AtomicBoolean running = new AtomicBoolean(false);
 
    private static final String AIO_TEST_FILE = ".aio-test";
-
-   // This method exists just to make debug easier.
-   // I could replace log.trace by log.info temporarily while I was debugging
-   // Journal
-   private static void trace(final String message) {
-      ActiveMQJournalLogger.LOGGER.trace(message);
-   }
 
    public AIOSequentialFileFactory(final File journalDir, int maxIO) {
       this(journalDir, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, maxIO, false, null);
@@ -398,8 +392,8 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          // This is being done this way as we don't need another Timeout Thread
          // just to cleanup this
          if (bufferSize > 0 && System.currentTimeMillis() - bufferReuseLastTime > 10000) {
-            if (AIOSequentialFileFactory.trace) {
-               AIOSequentialFileFactory.trace("Clearing reuse buffers queue with " + reuseBuffersQueue.size() +
+            if (logger.isTraceEnabled()) {
+               logger.trace("Clearing reuse buffers queue with " + reuseBuffersQueue.size() +
                                                  " elements");
             }
 
