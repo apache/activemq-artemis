@@ -900,10 +900,12 @@ public class PagingStoreImpl implements PagingStore {
             // null tx is treated through pending counters
             q.getPageSubscription().getCounter().increment(tx, 1);
          }
+         q.getPageSubscription().clearPageCompletion(page.getPageId());
       }
 
       for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues) {
          q.getPageSubscription().getCounter().increment(tx, 1);
+         q.getPageSubscription().clearPageCompletion(page.getPageId());
       }
 
    }

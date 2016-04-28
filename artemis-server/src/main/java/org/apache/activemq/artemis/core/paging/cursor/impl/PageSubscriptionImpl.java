@@ -198,6 +198,40 @@ final class PageSubscriptionImpl implements PageSubscription {
       }
    }
 
+   /**
+    * A page complete should be cleared if any when new <code>ServerMessage</code> is paged into this page.
+    * <p>
+    * In case of <code>PAGE_CURSOR_COMPLETE</code> record survives and new <code>ServerMessage</code>s are
+    * paged with same page number as the <code>PAGE_CURSOR_COMPLETE</code> record, the messages in this page
+    * will not be consumed as it is considered completed.
+    * <p>
+    * See: https://issues.apache.org/jira/browse/ARTEMIS-506
+    */
+   @Override
+   public void clearPageCompletion(final long pageNr) {
+      executor.execute(new Runnable() {
+
+         @Override
+         public void run() {
+            PageCursorInfo info = getPageInfo(pageNr, false);
+            if (info != null) {
+               PagePosition completeInfo = info.getCompleteInfo();
+               if (completeInfo != null) {
+                  if (isPersistent()) {
+                     try {
+                        store.deletePageComplete(completeInfo.getRecordID());
+                     }
+                     catch (Exception e) {
+                        ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
+                     }
+                  }
+                     info.setCompleteInfo(null);
+               }
+            }
+         }
+      });
+   }
+
    @Override
    public void scheduleCleanupCheck() {
       if (autoCleanup) {

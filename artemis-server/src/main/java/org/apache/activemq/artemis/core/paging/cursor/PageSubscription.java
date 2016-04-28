@@ -95,6 +95,8 @@ public interface PageSubscription {
 
    void reloadPageCompletion(PagePosition position);
 
+   void clearPageCompletion(long pageNr);
+
    void reloadPageInfo(long pageNr);
 
    /**
