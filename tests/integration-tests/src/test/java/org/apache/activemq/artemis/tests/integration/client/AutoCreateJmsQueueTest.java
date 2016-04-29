@@ -66,6 +66,9 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
       }
 
       connection.close();
+
+      // make sure the JMX control was created for the JMS queue
+      assertNotNull(server.getManagementService().getResource("jms.queue.test"));
    }
 
    @Test
@@ -110,10 +113,12 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue("test");
+      MessageProducer producer = session.createProducer(queue);
+      TextMessage mess = session.createTextMessage("msg");
 
       try {
-         MessageProducer producer = session.createProducer(queue);
-         Assert.fail("Creating a producer here should throw a JMSSecurityException");
+         producer.send(mess);
+         Assert.fail("Sending a message here should throw a JMSSecurityException");
       }
       catch (Exception e) {
          Assert.assertTrue(e instanceof JMSSecurityException);
