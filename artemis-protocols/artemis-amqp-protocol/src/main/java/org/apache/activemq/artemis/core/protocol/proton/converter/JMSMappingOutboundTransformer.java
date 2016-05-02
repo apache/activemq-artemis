@@ -34,19 +34,21 @@ class JMSMappingOutboundTransformer extends org.apache.activemq.transport.amqp.m
    public ProtonJMessage convert(Message msg) throws JMSException, UnsupportedEncodingException {
       ProtonJMessage protonJMessage = super.convert(msg);
 
-      Map properties = protonJMessage.getApplicationProperties().getValue();
+      if (protonJMessage.getApplicationProperties() != null) {
+         Map properties = protonJMessage.getApplicationProperties().getValue();
 
-      if (properties.containsKey(this.getPrefixVendor() + "NATIVE_LONG_MESSAGE_ID")) {
-         Long id = (Long) properties.remove(this.getPrefixVendor() + "NATIVE_LONG_MESSAGE_ID");
-         protonJMessage.setMessageId(id);
-      }
-      else if (properties.containsKey(this.getPrefixVendor() + "NATIVE_UNSIGNED_LONG_MESSAGE_ID")) {
-         Long id = (Long) properties.remove(this.getPrefixVendor() + "NATIVE_UNSIGNED_LONG_MESSAGE_ID");
-         protonJMessage.setMessageId(new UnsignedLong(id));
-      }
-      else if (properties.containsKey(this.getPrefixVendor() + "NATIVE_STRING_MESSAGE_ID")) {
-         String id = (String) properties.remove(this.getPrefixVendor() + "NATIVE_STRING_MESSAGE_ID");
-         protonJMessage.setMessageId(id);
+         if (properties.containsKey(this.getPrefixVendor() + "NATIVE_LONG_MESSAGE_ID")) {
+            Long id = (Long) properties.remove(this.getPrefixVendor() + "NATIVE_LONG_MESSAGE_ID");
+            protonJMessage.setMessageId(id);
+         }
+         else if (properties.containsKey(this.getPrefixVendor() + "NATIVE_UNSIGNED_LONG_MESSAGE_ID")) {
+            Long id = (Long) properties.remove(this.getPrefixVendor() + "NATIVE_UNSIGNED_LONG_MESSAGE_ID");
+            protonJMessage.setMessageId(new UnsignedLong(id));
+         }
+         else if (properties.containsKey(this.getPrefixVendor() + "NATIVE_STRING_MESSAGE_ID")) {
+            String id = (String) properties.remove(this.getPrefixVendor() + "NATIVE_STRING_MESSAGE_ID");
+            protonJMessage.setMessageId(id);
+         }
       }
       return protonJMessage;
    }
