@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -35,18 +37,23 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+@RunWith(Parameterized.class)
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
@@ -65,6 +72,20 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
+
+   protected StoreConfiguration.StoreType storeType;
+
+   public LargeMessageTestBase(StoreConfiguration.StoreType storeType) {
+      this.storeType = storeType;
+   }
+
+   @Parameterized.Parameters(name = "storeType={0}")
+   public static Collection<Object[]> data() {
+//      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.DATABASE}};
+      //Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}};
+      return Arrays.asList(params);
+   }
 
    protected void testChunks(final boolean isXA,
                              final boolean restartOnXA,
@@ -99,7 +120,15 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                              final int minSize) throws Exception {
       clearDataRecreateServerDirs();
 
-      ActiveMQServer server = createServer(realFiles);
+      Configuration configuration;
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         configuration = createDefaultJDBCConfig(true);
+      }
+      else {
+         configuration = createDefaultConfig(false);
+      }
+
+      ActiveMQServer server = createServer(realFiles, configuration);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -200,7 +229,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          if (realFiles) {
             server.stop();
 
-            server = createServer(realFiles);
+            server = createServer(realFiles, configuration);
             server.start();
 
             sf = locator.createSessionFactory();
@@ -352,13 +381,14 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
                         @Override
                         public void write(final byte[] b) throws IOException {
-                           if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
-                              bytesRead.addAndGet(b.length);
+                           if (b.length > 0) {
+                              if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
+                                 bytesRead.addAndGet(b.length);
+                              }
+                              else {
+                                 LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
+                              }
                            }
-                           else {
-                              LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
-                           }
-
                         }
 
                         @Override
@@ -426,12 +456,17 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          validateNoFilesOnLargeDir();
 
       }
+      catch (Throwable e) {
+         e.printStackTrace();
+         throw e;
+      }
       finally {
          locator.close();
          try {
             server.stop();
          }
          catch (Throwable ignored) {
+            ignored.printStackTrace();
          }
       }
    }
@@ -442,7 +477,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
     * @param delayDelivery
     * @param session
     * @param producer
-    * @throws FileNotFoundException
+    * @throws Exception
     * @throws IOException
     * @throws ActiveMQException
     */
@@ -523,7 +558,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
     * @param queueToRead
     * @param numberOfBytes
     * @throws ActiveMQException
-    * @throws FileNotFoundException
     * @throws IOException
     */
    protected void readMessage(final ClientSession session,

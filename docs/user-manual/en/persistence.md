@@ -376,6 +376,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
             <jdbc-connection-url>jdbc:derby:target/derby/database-store;create=true</jdbc-connection-url>
             <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
             <message-table-name>MESSAGE_TABLE</message-table-name>
+            <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
             <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
          </database-store>
       </store>
@@ -384,12 +385,16 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 -   `jdbc-connection-url`
 
     The full JDBC connection URL for your database server.  The connection url should include all configuration parameters and database name.
-    
+
 -   `bindings-table-name`
 
     The name of the table in which bindings data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
-    
+
 -   `message-table-name`
+
+    The name of the table in which bindings data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
+-   `large-message-table-name`
 
     The name of the table in which messages and related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
 

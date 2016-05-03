@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
-   /*
+      /*
     * <p> In order to avoid compile time in-lining of constants, all access is done through methods
     * and all fields are PRIVATE STATIC but not FINAL. This is done following the recommendation at
     * <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.4.9">13.4.9.
@@ -413,6 +413,9 @@ public final class ActiveMQDefaultConfiguration {
 
    // Default bindings table name, used with Database storage type
    private static String DEFAULT_BINDINGS_TABLE_NAME = "BINDINGS";
+
+   // Default large messages table name, used with Database storage type
+   private static final String DEFAULT_LARGE_MESSAGES_TABLE_NAME = "LARGE_MESSAGES";
 
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
@@ -1102,5 +1105,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultDriverClassName() {
       return DEFAULT_JDBC_DRIVER_CLASS_NAME;
+   }
+
+   public static String getDefaultLargeMessagesTableName() {
+      return DEFAULT_LARGE_MESSAGES_TABLE_NAME;
    }
 }

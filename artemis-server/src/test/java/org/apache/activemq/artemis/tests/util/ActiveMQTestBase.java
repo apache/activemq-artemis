@@ -78,6 +78,7 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
@@ -396,19 +397,12 @@ public abstract class ActiveMQTestBase extends Assert {
       return createDefaultConfig(0, netty);
    }
 
-   protected Configuration createDefaultJDBCConfig() throws Exception {
-      Configuration configuration = createDefaultConfig(true);
-
-      DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
-      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
-      dbStorageConfiguration.setBindingsTableName("BINDINGS");
-      dbStorageConfiguration.setMessageTableName("MESSAGES");
-      dbStorageConfiguration.setJdbcDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-
-      configuration.setStoreConfiguration(dbStorageConfiguration);
-
+   protected Configuration createDefaultJDBCConfig(boolean isNetty) throws Exception {
+      Configuration configuration = createDefaultConfig(isNetty);
+      setDBStoreType(configuration);
       return configuration;
    }
+
 
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
       ConfigurationImpl configuration = createBasicConfig(serverID).setJMXManagementEnabled(false).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
@@ -446,6 +440,16 @@ public abstract class ActiveMQTestBase extends Assert {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD);
 
       return configuration;
+   }
+
+   private void setDBStoreType(Configuration configuration) {
+      DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
+      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
+      dbStorageConfiguration.setBindingsTableName("BINDINGS");
+      dbStorageConfiguration.setMessageTableName("MESSAGES");
+      dbStorageConfiguration.setJdbcDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
+
+      configuration.setStoreConfiguration(dbStorageConfiguration);
    }
 
    protected Map<String, Object> generateInVMParams(final int node) {
@@ -1388,6 +1392,18 @@ public abstract class ActiveMQTestBase extends Assert {
       return server;
    }
 
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                               final Configuration configuration,
+                                               final long pageSize,
+                                               final long maxAddressSize,
+                                               final Map<String, AddressSettings> settings,
+                                               StoreConfiguration.StoreType storeType) {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         setDBStoreType(configuration);
+      }
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
+   }
+
    protected final ActiveMQServer createServer(final boolean realFiles) throws Exception {
       return createServer(realFiles, false);
    }
@@ -1402,6 +1418,11 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final Configuration configuration) {
       return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+   }
+
+   protected ActiveMQServer createServer(final boolean realFiles, boolean isNetty, StoreConfiguration.StoreType storeType) throws Exception {
+      Configuration configuration = storeType == StoreConfiguration.StoreType.DATABASE ? createDefaultJDBCConfig(isNetty) : createDefaultConfig(isNetty);
+      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
    }
 
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,

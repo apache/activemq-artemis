@@ -125,7 +125,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
    protected void createStorage() throws Exception {
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         journal = createJDBCJournalStorageManager(createDefaultJDBCConfig());
+         journal = createJDBCJournalStorageManager(createDefaultJDBCConfig(true));
       }
       else {
          journal = createJournalStorageManager(createDefaultInVMConfig());
