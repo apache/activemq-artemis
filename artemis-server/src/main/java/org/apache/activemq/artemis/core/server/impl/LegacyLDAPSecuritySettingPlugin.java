@@ -398,7 +398,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       }
 
       try {
-         context.close();
+         if (context != null) {
+            context.close();
+         }
       }
       catch (NamingException e) {
          // ignore

@@ -1151,7 +1151,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Map<String, Set<Role>> getSecurityRoles() {
       for (SecuritySettingPlugin securitySettingPlugin : securitySettingPlugins) {
-         securitySettings.putAll(securitySettingPlugin.getSecurityRoles());
+         Map<String, Set<Role>> securitySettings = securitySettingPlugin.getSecurityRoles();
+         if (securitySettings != null) {
+            securitySettings.putAll(securitySettings);
+         }
       }
       return securitySettings;
    }
