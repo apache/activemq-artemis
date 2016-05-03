@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -50,6 +49,7 @@ import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * A bridge with extra functionality only available when the server is clustered.
@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * Such as such adding extra properties and setting up notifications between the nodes.
  */
 public class ClusterConnectionBridge extends BridgeImpl {
+   private static final Logger logger = Logger.getLogger(ClusterConnectionBridge.class);
 
    private final ClusterConnection clusterConnection;
 
@@ -123,8 +124,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       // we need to disable DLQ check on the clustered bridges
       queue.setInternalQueue(true);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
       }
    }
 
@@ -151,8 +152,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
       // Note we must copy since same message may get routed to other nodes which require different headers
       ServerMessage messageCopy = message.copy();
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
+      if (logger.isTraceEnabled()) {
+         logger.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
       }
 
       // TODO - we can optimise this
@@ -181,8 +182,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    private void setupNotificationConsumer() throws Exception {
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
+      if (logger.isDebugEnabled()) {
+         logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
                                               " and " +
                                               flowRecord.getBridge().getForwardingConnection() +
                                               " clusterConnection = " +
@@ -195,7 +196,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          if (notifConsumer != null) {
             try {
-               ActiveMQServerLogger.LOGGER.debug("Closing notification Consumer for reopening " + notifConsumer +
+               logger.debug("Closing notification Consumer for reopening " + notifConsumer +
                                                     " on bridge " +
                                                     this.getName());
                notifConsumer.close();
@@ -250,14 +251,14 @@ public class ClusterConnectionBridge extends BridgeImpl {
          sessionConsumer.start();
 
          ClientMessage message = sessionConsumer.createMessage(false);
-         if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQClientLogger.LOGGER.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
+         if (logger.isTraceEnabled()) {
+            logger.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
          }
          ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
          try (ClientProducer prod = sessionConsumer.createProducer(managementAddress)) {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQClientLogger.LOGGER.debug("Cluster connection bridge on " + clusterConnection + " requesting information on queues");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Cluster connection bridge on " + clusterConnection + " requesting information on queues");
             }
 
             prod.send(message);
@@ -348,11 +349,11 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    @Override
    protected void fail(final boolean permanently) {
-      ActiveMQServerLogger.LOGGER.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
+      logger.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
       super.fail(permanently);
 
       if (permanently) {
-         ActiveMQServerLogger.LOGGER.debug("cluster node for bridge " + this.getName() + " is permanently down");
+         logger.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
       }
       else {

@@ -83,8 +83,7 @@ import org.jboss.logging.Logger;
 public final class ReplicationManager implements ActiveMQComponent, ReadyListener {
 
 
-   Logger logger = Logger.getLogger(ReplicationManager.class);
-   final boolean isTrace = logger.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ReplicationManager.class);
 
    public enum ADD_OPERATION_TYPE {
       UPDATE {
@@ -584,7 +583,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
    public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout) {
       if (enabled) {
 
-         if (isTrace) {
+         if (logger.isTraceEnabled()) {
             logger.trace("sendSynchronizationDone ::" + nodeID + ", " + initialReplicationSyncTimeout);
          }
 
@@ -596,7 +595,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             }
          }
          catch (InterruptedException e) {
-            ActiveMQServerLogger.LOGGER.debug(e);
+            logger.debug(e);
          }
          inSync = false;
       }
@@ -627,9 +626,9 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
     * @return
     */
    public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
-      ActiveMQServerLogger.LOGGER.debug("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
+      logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
       if (enabled) {
-         ActiveMQServerLogger.LOGGER.debug("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
+         logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
          return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
       }
       return null;

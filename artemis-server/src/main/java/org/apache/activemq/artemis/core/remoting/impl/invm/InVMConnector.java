@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
@@ -44,8 +43,11 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.jboss.logging.Logger;
 
 public class InVMConnector extends AbstractConnector {
+
+   private static final Logger logger = Logger.getLogger(InVMConnector.class);
 
    public static final Map<String, Object> DEFAULT_CONFIG;
 
@@ -165,7 +167,7 @@ public class InVMConnector extends AbstractConnector {
       if (InVMConnector.failOnCreateConnection) {
          InVMConnector.incFailures();
 
-         ActiveMQServerLogger.LOGGER.debug("Returning null on InVMConnector for tests");
+         logger.debug("Returning null on InVMConnector for tests");
          // For testing only
          return null;
       }
@@ -181,8 +183,8 @@ public class InVMConnector extends AbstractConnector {
          return conn;
       }
       else {
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
+         if (logger.isDebugEnabled()) {
+            logger.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
          }
          return null;
       }

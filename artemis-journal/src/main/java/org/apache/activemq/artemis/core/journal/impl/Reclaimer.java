@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 /**
  * <p>The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}</p>
@@ -34,10 +34,10 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
  */
 public class Reclaimer {
 
-   private static boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(Reclaimer.class);
 
    private static void trace(final String message) {
-      ActiveMQJournalLogger.LOGGER.trace(message);
+      logger.trace(message);
    }
 
    public void scan(final JournalFile[] files) {
@@ -50,14 +50,14 @@ public class Reclaimer {
 
          int totNeg = 0;
 
-         if (Reclaimer.trace) {
-            Reclaimer.trace("posCount on " + currentFile + " = " + posCount);
+         if (logger.isTraceEnabled()) {
+            logger.trace("posCount on " + currentFile + " = " + posCount);
          }
 
          for (int j = i; j < files.length; j++) {
-            if (Reclaimer.trace) {
+            if (logger.isTraceEnabled()) {
                if (files[j].getNegCount(currentFile) != 0) {
-                  Reclaimer.trace("Negative from " + files[j] +
+                  logger.trace("Negative from " + files[j] +
                                      " into " +
                                      currentFile +
                                      " = " +
@@ -83,8 +83,8 @@ public class Reclaimer {
                      // Ok
                   }
                   else {
-                     if (Reclaimer.trace) {
-                        Reclaimer.trace(currentFile + " Can't be reclaimed because " + file + " has negative values");
+                     if (logger.isTraceEnabled()) {
+                        logger.trace(currentFile + " Can't be reclaimed because " + file + " has negative values");
                      }
 
                      currentFile.setCanReclaim(false);

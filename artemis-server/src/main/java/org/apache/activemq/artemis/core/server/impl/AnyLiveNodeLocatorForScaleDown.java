@@ -28,14 +28,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.jboss.logging.Logger;
 
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as
  * tried and the next available is used.
  */
 public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator {
+
+   private static final Logger logger = Logger.getLogger(AnyLiveNodeLocatorForScaleDown.class);
 
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
@@ -88,8 +90,8 @@ public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator {
          Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
 
          if (topologyMember.getNodeId().equals(myNodeID)) {
-            if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQServerLogger.LOGGER.trace(this + "::informing node about itself, nodeUUID=" +
+            if (logger.isTraceEnabled()) {
+               logger.trace(this + "::informing node about itself, nodeUUID=" +
                                                     server.getNodeID() + ", connectorPair=" + topologyMember + ", this = " + this);
             }
             return;

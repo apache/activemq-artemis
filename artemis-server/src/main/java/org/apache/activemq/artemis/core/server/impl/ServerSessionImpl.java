@@ -85,6 +85,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.jboss.logging.Logger;
 
 /**
  * Server side Session implementation
@@ -92,7 +93,7 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
 public class ServerSessionImpl implements ServerSession, FailureListener {
    // Constants -----------------------------------------------------------------------------
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ServerSessionImpl.class);
 
    // Static -------------------------------------------------------------------------------
 
@@ -445,8 +446,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CREATED, props);
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Session with user=" + username +
+         if (logger.isDebugEnabled()) {
+            logger.debug("Session with user=" + username +
                                                  ", connection=" + this.remotingConnection +
                                                  " created a consumer on queue " + queueName +
                                                  ", filter = " + filterString);
@@ -509,8 +510,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          tempQueueCleannerUppers.put(name, cleaner);
       }
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + address +
+      if (logger.isDebugEnabled()) {
+         logger.debug("Queue " + name + " created on address " + address +
                                               " with filter=" + filterString + " temporary = " +
                                               temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
@@ -550,15 +551,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       private void run() {
          try {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("deleting temporary queue " + bindingName);
+            if (logger.isDebugEnabled()) {
+               logger.debug("deleting temporary queue " + bindingName);
             }
             try {
                server.destroyQueue(bindingName, null, false);
             }
             catch (ActiveMQException e) {
                // that's fine.. it can happen due to queue already been deleted
-               ActiveMQServerLogger.LOGGER.debug(e.getMessage(), e);
+               logger.debug(e.getMessage(), e);
             }
          }
          catch (Exception e) {
@@ -642,7 +643,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          catch (Exception e) {
             // just ignored
             // will log it just in case
-            ActiveMQServerLogger.LOGGER.debug("Ignored exception while acking messageID " + messageID +
+            logger.debug("Ignored exception while acking messageID " + messageID +
                                                  " on a rolledback TX", e);
          }
          newTX.rollback();
@@ -712,8 +713,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void commit() throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Calling commit");
+      if (logger.isTraceEnabled()) {
+         logger.trace("Calling commit");
       }
       try {
          if (tx != null) {
@@ -785,8 +786,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       else {
          Transaction theTx = resourceManager.removeTransaction(xid);
 
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid);
+         if (logger.isTraceEnabled()) {
+            logger.trace("XAcommit into " + theTx + ", xid=" + xid);
          }
 
          if (theTx == null) {
@@ -799,8 +800,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has been heuristically rolled back: " + xid);
             }
             else {
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
                }
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
@@ -939,8 +940,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       else {
          Transaction theTx = resourceManager.removeTransaction(xid);
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx);
+         if (logger.isTraceEnabled()) {
+            logger.trace("xarollback into " + theTx);
          }
 
          if (theTx == null) {
@@ -953,8 +954,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has ben heuristically rolled back: " + xid);
             }
             else {
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
                }
 
                try {
@@ -972,8 +973,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
          else {
             if (theTx.getState() == Transaction.State.SUSPENDED) {
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + " sending tx back as it was suspended");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("xarollback into " + theTx + " sending tx back as it was suspended");
                }
 
                // Put it back
@@ -1003,14 +1004,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          }
          catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.debug("An exception happened while we tried to debug the previous tx, we can ignore this exception", e);
+            logger.debug("An exception happened while we tried to debug the previous tx, we can ignore this exception", e);
          }
       }
 
       tx = newTransaction(xid);
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
+      if (logger.isTraceEnabled()) {
+         logger.trace("xastart into tx= " + tx);
       }
 
       boolean added = resourceManager.putTransaction(xid, tx);
@@ -1032,7 +1033,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (theTX.isEffective()) {
-         ActiveMQServerLogger.LOGGER.debug("Client failed with Xid " + xid + " but the server already had it " + theTX.getState());
+         logger.debug("Client failed with Xid " + xid + " but the server already had it " + theTX.getState());
          tx = null;
       }
       else {
@@ -1040,16 +1041,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          tx = theTX;
       }
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
+      if (logger.isTraceEnabled()) {
+         logger.trace("xastart into tx= " + tx);
       }
    }
 
    @Override
    public synchronized void xaSuspend() throws Exception {
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("xasuspend on " + this.tx);
+      if (logger.isTraceEnabled()) {
+         logger.trace("xasuspend on " + this.tx);
       }
 
       if (tx == null) {
@@ -1081,8 +1082,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       else {
          Transaction theTx = resourceManager.getTransaction(xid);
 
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
+         if (logger.isTraceEnabled()) {
+            logger.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
          }
 
          if (theTx == null) {
@@ -1182,7 +1183,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer == null) {
-         ActiveMQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
+         logger.debug("There is no consumer with id " + consumerID);
 
          return;
       }
@@ -1202,8 +1203,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("sendLarge::" + largeMsg);
+      if (logger.isTraceEnabled()) {
+         logger.trace("sendLarge::" + largeMsg);
       }
 
       if (currentLargeMessage != null) {
@@ -1248,8 +1249,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
       }
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("send(message=" + message + ", direct=" + direct + ") being called");
+      if (logger.isTraceEnabled()) {
+         logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
       }
 
       if (message.getAddress() == null) {

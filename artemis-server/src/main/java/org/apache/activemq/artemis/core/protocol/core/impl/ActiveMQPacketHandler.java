@@ -25,12 +25,12 @@ import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -39,11 +39,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.version.Version;
+import org.jboss.logging.Logger;
 
 /**
  * A packet handler for all packets that need to be handled at the server level
  */
 public class ActiveMQPacketHandler implements ChannelHandler {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQPacketHandler.class);
 
    private final ActiveMQServer server;
 
@@ -162,7 +165,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
       catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
             incompatibleVersion = true;
-            ActiveMQServerLogger.LOGGER.debug("Sending ActiveMQException after Incompatible client", e);
+            logger.debug("Sending ActiveMQException after Incompatible client", e);
          }
          else {
             ActiveMQServerLogger.LOGGER.failedToCreateSession(e);
@@ -196,7 +199,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             response = new ReattachSessionResponseMessage(-1, false);
          }
 
-         ActiveMQServerLogger.LOGGER.debug("Reattaching request from " + connection.getRemoteAddress());
+         logger.debug("Reattaching request from " + connection.getRemoteAddress());
 
          ServerSessionPacketHandler sessionHandler = protocolManager.getSessionHandler(request.getName());
 

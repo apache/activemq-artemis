@@ -57,10 +57,11 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.jboss.logging.Logger;
 
 final class PageSubscriptionImpl implements PageSubscription {
 
-   private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(PageSubscriptionImpl.class);
 
    private boolean empty = true;
 
@@ -262,7 +263,7 @@ final class PageSubscriptionImpl implements PageSubscription {
 
                if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId() &&
                   currentPage.isLive()) {
-                  ActiveMQServerLogger.LOGGER.trace("We can't clear page " + entry.getKey() +
+                  logger.trace("We can't clear page " + entry.getKey() +
                                                        " now since it's the current page");
                }
                else {
@@ -634,8 +635,8 @@ final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void processReload() throws Exception {
       if (recoveredACK != null) {
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("********** processing reload!!!!!!!");
+         if (logger.isTraceEnabled()) {
+            logger.trace("********** processing reload!!!!!!!");
          }
          Collections.sort(recoveredACK);
 
@@ -773,12 +774,12 @@ final class PageSubscriptionImpl implements PageSubscription {
    // The only exception is on non storage events such as not matching messages
    private PageCursorInfo processACK(final PagePosition pos) {
       if (lastAckedPosition == null || pos.compareTo(lastAckedPosition) > 0) {
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("a new position is being processed as ACK");
+         if (logger.isTraceEnabled()) {
+            logger.trace("a new position is being processed as ACK");
          }
          if (lastAckedPosition != null && lastAckedPosition.getPageNr() != pos.getPageNr()) {
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("Scheduling cleanup on pageSubscription for address = " + pageStore.getAddress() + " queue = " + this.getQueue().getName());
+            if (logger.isTraceEnabled()) {
+               logger.trace("Scheduling cleanup on pageSubscription for address = " + pageStore.getAddress() + " queue = " + this.getQueue().getName());
             }
 
             // there's a different page being acked, we will do the check right away
@@ -976,9 +977,9 @@ final class PageSubscriptionImpl implements PageSubscription {
 
       public void addACK(final PagePosition posACK) {
 
-         if (isTrace) {
+         if (logger.isTraceEnabled()) {
             try {
-               ActiveMQServerLogger.LOGGER.trace("numberOfMessages =  " + getNumberOfMessages() +
+               logger.trace("numberOfMessages =  " + getNumberOfMessages() +
                                                     " confirmed =  " +
                                                     (confirmed.get() + 1) +
                                                     " pendingTX = " + pendingTX +
@@ -986,7 +987,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                                                     pageId + " posACK = " + posACK);
             }
             catch (Throwable ignored) {
-               ActiveMQServerLogger.LOGGER.debug(ignored.getMessage(), ignored);
+               logger.debug(ignored.getMessage(), ignored);
             }
          }
 

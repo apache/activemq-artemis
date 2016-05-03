@@ -53,8 +53,11 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class LDAPLoginModule implements LoginModule {
+
+   private static final Logger logger = Logger.getLogger(LDAPLoginModule.class);
 
    private static final String INITIAL_CONTEXT_FACTORY = "initialContextFactory";
    private static final String CONNECTION_URL = "connectionURL";
@@ -161,8 +164,8 @@ public class LDAPLoginModule implements LoginModule {
 
       DirContext context = null;
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Create the LDAP initial context.");
+      if (logger.isDebugEnabled()) {
+         logger.debug("Create the LDAP initial context.");
       }
       try {
          context = open();
@@ -199,11 +202,11 @@ public class LDAPLoginModule implements LoginModule {
          list.toArray(attribs);
          constraints.setReturningAttributes(attribs);
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Get the user DN.");
-            ActiveMQServerLogger.LOGGER.debug("Looking for the user in LDAP with ");
-            ActiveMQServerLogger.LOGGER.debug("  base DN: " + getLDAPPropertyValue(USER_BASE));
-            ActiveMQServerLogger.LOGGER.debug("  filter: " + filter);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Get the user DN.");
+            logger.debug("Looking for the user in LDAP with ");
+            logger.debug("  base DN: " + getLDAPPropertyValue(USER_BASE));
+            logger.debug("  filter: " + filter);
          }
 
          NamingEnumeration<SearchResult> results = context.search(getLDAPPropertyValue(USER_BASE), filter, constraints);
@@ -221,7 +224,7 @@ public class LDAPLoginModule implements LoginModule {
 
          String dn;
          if (result.isRelative()) {
-            ActiveMQServerLogger.LOGGER.debug("LDAP returned a relative name: " + result.getName());
+            logger.debug("LDAP returned a relative name: " + result.getName());
 
             NameParser parser = context.getNameParser("");
             Name contextName = parser.parse(context.getNameInNamespace());
@@ -232,7 +235,7 @@ public class LDAPLoginModule implements LoginModule {
             dn = name.toString();
          }
          else {
-            ActiveMQServerLogger.LOGGER.debug("LDAP returned an absolute name: " + result.getName());
+            logger.debug("LDAP returned an absolute name: " + result.getName());
 
             try {
                URI uri = new URI(result.getName());
@@ -253,8 +256,8 @@ public class LDAPLoginModule implements LoginModule {
             }
          }
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Using DN [" + dn + "] for binding.");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Using DN [" + dn + "] for binding.");
          }
 
          Attributes attrs = result.getAttributes();
@@ -270,8 +273,8 @@ public class LDAPLoginModule implements LoginModule {
          if (bindUser(context, dn, password)) {
             // if authenticated add more roles
             roles = getRoles(context, dn, username, roles);
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("Roles " + roles + " for user " + username);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Roles " + roles + " for user " + username);
             }
             for (int i = 0; i < roles.size(); i++) {
                groups.add(new RolePrincipal(roles.get(i)));
@@ -323,11 +326,11 @@ public class LDAPLoginModule implements LoginModule {
       else {
          constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       }
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Get user roles.");
-         ActiveMQServerLogger.LOGGER.debug("Looking for the user roles in LDAP with ");
-         ActiveMQServerLogger.LOGGER.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
-         ActiveMQServerLogger.LOGGER.debug("  filter: " + filter);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Get user roles.");
+         logger.debug("Looking for the user roles in LDAP with ");
+         logger.debug("  base DN: " + getLDAPPropertyValue(ROLE_BASE));
+         logger.debug("  filter: " + filter);
       }
       HashSet<String> haveSeenNames = new HashSet<>();
       Queue<String> pendingNameExpansion = new LinkedList<>();
@@ -396,22 +399,22 @@ public class LDAPLoginModule implements LoginModule {
    protected boolean bindUser(DirContext context, String dn, String password) throws NamingException {
       boolean isValid = false;
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug("Binding the user.");
+      if (logger.isDebugEnabled()) {
+         logger.debug("Binding the user.");
       }
       context.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
       try {
          context.getAttributes("", null);
          isValid = true;
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("User " + dn + " successfully bound.");
+         if (logger.isDebugEnabled()) {
+            logger.debug("User " + dn + " successfully bound.");
          }
       }
       catch (AuthenticationException e) {
          isValid = false;
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Authentication failed for dn=" + dn);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Authentication failed for dn=" + dn);
          }
       }
 

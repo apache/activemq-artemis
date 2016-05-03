@@ -89,7 +89,7 @@ import org.jboss.logging.Logger;
 public final class ReplicationEndpoint implements ChannelHandler, ActiveMQComponent {
 
    private static final Logger logger = Logger.getLogger(ReplicationEndpoint.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
+
 
    private final IOCriticalErrorListener criticalErrorListener;
    private final ActiveMQServerImpl server;
@@ -155,7 +155,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    @Override
    public void handlePacket(final Packet packet) {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("handlePacket::handling " + packet);
       }
       PacketImpl response = new ReplicationResponseMessage();
@@ -163,7 +163,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       try {
          if (!started) {
-            if (isTrace) {
+            if (logger.isTraceEnabled()) {
                logger.trace("handlePacket::ignoring " + packet);
             }
 
@@ -350,7 +350,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    private void finishSynchronization(String liveID) throws Exception {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("finishSynchronization::" + liveID);
       }
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
@@ -445,7 +445,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     */
    private ReplicationResponseMessageV2 handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception {
 
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("handleStartReplicationSynchronization:: nodeID = " + packet);
       }
       ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
@@ -494,7 +494,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    private void handleLargeMessageEnd(final ReplicationLargeMessageEndMessage packet) {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("handleLargeMessageEnd on " + packet.getMessageId());
       }
       final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), true, false);
@@ -503,7 +503,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             @Override
             public void run() {
                try {
-                  if (isTrace) {
+                  if (logger.isTraceEnabled()) {
                      logger.trace("Deleting LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
                   }
                   message.deleteFile();
@@ -558,7 +558,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handleLargeMessageBegin(final ReplicationLargeMessageBeginMessage packet) {
       final long id = packet.getMessageId();
       createLargeMessage(id, false);
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("Receiving Large Message Begin " + id + " on backup");
       }
    }
@@ -636,13 +636,13 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private void handleAppendAddRecord(final ReplicationAddMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       if (packet.getRecord() == ADD_OPERATION_TYPE.UPDATE) {
-         if (isTrace) {
+         if (logger.isTraceEnabled()) {
             logger.trace("Endpoint appendUpdate id = " + packet.getId());
          }
          journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
       }
       else {
-         if (isTrace) {
+         if (logger.isTraceEnabled()) {
             logger.trace("Endpoint append id = " + packet.getId());
          }
          journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);

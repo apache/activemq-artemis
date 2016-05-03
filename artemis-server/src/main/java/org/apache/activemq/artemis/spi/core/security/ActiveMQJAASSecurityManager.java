@@ -29,11 +29,11 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.utils.CertificateUtil;
+import org.jboss.logging.Logger;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.utils.CertificateUtil;
  */
 public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
-   private final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ActiveMQJAASSecurityManager.class);
 
    private String configurationName;
    private SecurityConfiguration configuration;
@@ -72,7 +72,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          return true;
       }
       catch (LoginException e) {
-         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user", e);
+         logger.debug("Couldn't validate user", e);
          return false;
       }
    }
@@ -98,7 +98,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          localSubject = getAuthenticatedSubject(user, password, certificates);
       }
       catch (LoginException e) {
-         ActiveMQServerLogger.LOGGER.debug("Couldn't validate user", e);
+         logger.debug("Couldn't validate user", e);
          return false;
       }
 
@@ -121,8 +121,8 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
             }
          }
 
-         if (trace) {
-            ActiveMQServerLogger.LOGGER.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
+         if (logger.isTraceEnabled()) {
+            logger.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
          }
       }
 

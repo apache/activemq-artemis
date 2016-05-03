@@ -62,11 +62,14 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.jboss.logging.Logger;
 
 /**
  * @see PagingStore
  */
 public class PagingStoreImpl implements PagingStore {
+
+   private static final Logger logger = Logger.getLogger(Page.class);
 
    private final SimpleString address;
 
@@ -120,8 +123,6 @@ public class PagingStoreImpl implements PagingStore {
    private final boolean syncNonTransactional;
 
    private volatile AtomicBoolean blocking = new AtomicBoolean(false);
-
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    public PagingStoreImpl(final SimpleString address,
                           final ScheduledExecutorService scheduledExecutor,
@@ -828,8 +829,8 @@ public class PagingStoreImpl implements PagingStore {
                sync();
             }
 
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
+            if (logger.isTraceEnabled()) {
+               logger.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
                                                     " pageId=" + currentPage.getPageId());
             }
 

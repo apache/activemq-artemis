@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 /**
  * Always login the user with a default 'guest' identity.
@@ -39,6 +39,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  *
  */
 public class GuestLoginModule implements LoginModule {
+
+   private static final Logger logger = Logger.getLogger(GuestLoginModule.class);
 
    private static final String GUEST_USER = "org.apache.activemq.jaas.guest.user";
    private static final String GUEST_ROLE = "org.apache.activemq.jaas.guest.role";
@@ -68,7 +70,7 @@ public class GuestLoginModule implements LoginModule {
       principals.add(new RolePrincipal(roleName));
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("Initialized debug=" + debug + " guestUser=" + userName + " guestGroup=" + roleName);
+         logger.debug("Initialized debug=" + debug + " guestUser=" + userName + " guestGroup=" + roleName);
       }
 
    }
@@ -82,7 +84,7 @@ public class GuestLoginModule implements LoginModule {
             callbackHandler.handle(new Callback[]{passwordCallback});
             if (passwordCallback.getPassword() != null) {
                if (debug) {
-                  ActiveMQServerLogger.LOGGER.debug("Guest login failing (credentialsInvalidate=true) on presence of a password");
+                  logger.debug("Guest login failing (credentialsInvalidate=true) on presence of a password");
                }
                loginSucceeded = false;
                passwordCallback.clearPassword();
@@ -94,7 +96,7 @@ public class GuestLoginModule implements LoginModule {
          }
       }
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("Guest login " + loginSucceeded);
+         logger.debug("Guest login " + loginSucceeded);
       }
       return loginSucceeded;
    }
@@ -106,7 +108,7 @@ public class GuestLoginModule implements LoginModule {
       }
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("commit: " + loginSucceeded);
+         logger.debug("commit: " + loginSucceeded);
       }
       return loginSucceeded;
    }
@@ -115,7 +117,7 @@ public class GuestLoginModule implements LoginModule {
    public boolean abort() throws LoginException {
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("abort");
+         logger.debug("abort");
       }
       return true;
    }
@@ -125,7 +127,7 @@ public class GuestLoginModule implements LoginModule {
       subject.getPrincipals().removeAll(principals);
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("logout");
+         logger.debug("logout");
       }
       return true;
    }

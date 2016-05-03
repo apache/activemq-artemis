@@ -22,8 +22,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
+import org.jboss.logging.Logger;
 
 public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
+
+   private static final Logger logger = Logger.getLogger(AutoCreatedQueueManagerImpl.class);
 
    private final SimpleString queueName;
 
@@ -39,14 +42,14 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
             boolean isAutoDeleteJmsQueues = server.getAddressSettingsRepository().getMatch(queueName.toString()).isAutoDeleteJmsQueues();
 
             if (server.locateQueue(queueName).getMessageCount() == 0 && isAutoDeleteJmsQueues) {
-               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
                }
 
                server.destroyQueue(queueName, null, false);
             }
-            else if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("NOT deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
+            else if (logger.isDebugEnabled()) {
+               logger.debug("NOT deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
             }
          }
          catch (Exception e) {

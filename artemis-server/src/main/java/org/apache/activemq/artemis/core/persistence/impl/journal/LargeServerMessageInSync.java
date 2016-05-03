@@ -32,7 +32,7 @@ import org.jboss.logging.Logger;
 public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
 
    private static final Logger logger = Logger.getLogger(LargeServerMessageInSync.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
+
 
    private final LargeServerMessage mainLM;
    private final StorageManager storageManager;
@@ -58,7 +58,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
 
       try {
          if (appendFile != null) {
-            if (isTrace) {
+            if (logger.isTraceEnabled()) {
                logger.trace("joinSyncedData on " + mainLM + ", currentSize on mainMessage=" + mainSeqFile.size() + ", appendFile size = " + appendFile.size());
             }
 
@@ -66,7 +66,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
             deleteAppendFile();
          }
          else {
-            if (isTrace) {
+            if (logger.isTraceEnabled()) {
                logger.trace("joinSyncedData, appendFile is null, ignoring joinSyncedData on " + mainLM);
             }
          }
@@ -75,8 +75,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
          logger.warn("Error while sincing data on largeMessageInSync::" + mainLM);
       }
 
-
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("joinedSyncData on " + mainLM + " finished with " + mainSeqFile.size());
       }
 
@@ -103,7 +102,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
 
    @Override
    public synchronized void releaseResources() {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("release resources called on " + mainLM, new Exception("trace"));
       }
       mainLM.releaseResources();
@@ -145,14 +144,14 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
          return;
 
       if (syncDone) {
-         if (isTrace) {
+         if (logger.isTraceEnabled()) {
             logger.trace("Adding " + bytes.length + " towards sync message::" + mainLM);
          }
          mainLM.addBytes(bytes);
          return;
       }
 
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("addBytes(bytes.length=" + bytes.length + ") on message=" + mainLM);
       }
 

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -40,11 +40,14 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 /**
  * A Local Grouping handler. All the Remote handlers will talk with us
  */
 public final class LocalGroupingHandler extends GroupHandlingAbstract {
+
+   private static final Logger logger = Logger.getLogger(LocalGroupingHandler.class);
 
    private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<>();
 
@@ -189,7 +192,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    @Override
    public Response receive(final Proposal proposal, final int distance) throws Exception {
-      ActiveMQServerLogger.LOGGER.trace("received proposal " + proposal);
+      logger.trace("received proposal " + proposal);
       return propose(proposal);
    }
 
@@ -262,7 +265,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
             if (expectedBindings.size() > 0) {
-               ActiveMQServerLogger.LOGGER.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
+               logger.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we arent signaled then bindingsAdded still has some groupids we need to remove.
                if (!awaitCondition.await(timeout, TimeUnit.MILLISECONDS)) {
@@ -296,20 +299,20 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             if (expectedBindings != null) {
                if (waitingForBindings) {
                   if (expectedBindings.remove(clusterName)) {
-                     ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
+                     logger.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
                   }
                   else {
-                     ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
+                     logger.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
                   }
                }
                else {
                   expectedBindings.add(clusterName);
-                  ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
+                  logger.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
                }
 
-               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+               if (logger.isDebugEnabled()) {
                   for (SimpleString stillWaiting : expectedBindings) {
-                     ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
+                     logger.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
                   }
                }
 

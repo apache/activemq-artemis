@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 /**
  * A LoginModule that allows for authentication based on SSL certificates.
@@ -38,6 +38,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  * find user roles. Uses CertificateCallbacks to retrieve certificates.
  */
 public abstract class CertificateLoginModule extends PropertiesLoader implements LoginModule {
+
+   private static final Logger logger = Logger.getLogger(CertificateLoginModule.class);
 
    private CallbackHandler callbackHandler;
    private Subject subject;
@@ -82,7 +84,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       }
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("Certificate for user: " + username);
+         logger.debug("Certificate for user: " + username);
       }
       return true;
    }
@@ -103,7 +105,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       clear();
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("commit");
+         logger.debug("commit");
       }
       return true;
    }
@@ -116,7 +118,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       clear();
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("abort");
+         logger.debug("abort");
       }
       return true;
    }
@@ -130,7 +132,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       principals.clear();
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("logout");
+         logger.debug("logout");
       }
       return true;
    }

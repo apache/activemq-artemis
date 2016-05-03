@@ -30,17 +30,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
+import org.jboss.logging.Logger;
 
 /**
  * Handles scheduling deliveries to a queue at the correct time.
  */
 public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
-   private static final boolean trace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ScheduledDeliveryHandlerImpl.class);
 
    private final ScheduledExecutorService scheduledExecutor;
 
@@ -59,8 +59,8 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       long deliveryTime = ref.getScheduledDeliveryTime();
 
       if (deliveryTime > 0 && scheduledExecutor != null) {
-         if (ScheduledDeliveryHandlerImpl.trace) {
-            ActiveMQServerLogger.LOGGER.trace("Scheduling delivery for " + ref + " to occur at " + deliveryTime);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Scheduling delivery for " + ref + " to occur at " + deliveryTime);
          }
 
          addInPlace(deliveryTime, ref, tail);
@@ -137,8 +137,8 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       final long delay = deliveryTime - now;
 
       if (delay < 0) {
-         if (ScheduledDeliveryHandlerImpl.trace) {
-            ActiveMQServerLogger.LOGGER.trace("calling another scheduler now as deliverTime " + deliveryTime + " < now=" + now);
+         if (logger.isTraceEnabled()) {
+            logger.trace("calling another scheduler now as deliverTime " + deliveryTime + " < now=" + now);
          }
          // if delay == 0 we will avoid races between adding the scheduler and finishing it
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
@@ -147,16 +147,16 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
       else if (!runnables.containsKey(deliveryTime)) {
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
 
-         if (ScheduledDeliveryHandlerImpl.trace) {
-            ActiveMQServerLogger.LOGGER.trace("Setting up scheduler for " + deliveryTime + " with a delay of " + delay + " as now=" + now);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Setting up scheduler for " + deliveryTime + " with a delay of " + delay + " as now=" + now);
          }
 
          runnables.put(deliveryTime, runnable);
          scheduledExecutor.schedule(runnable, delay, TimeUnit.MILLISECONDS);
       }
       else {
-         if (ScheduledDeliveryHandlerImpl.trace) {
-            ActiveMQServerLogger.LOGGER.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
          }
       }
    }
@@ -184,16 +184,16 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             // for that reason we will schedule it again so no messages are lost!
             // we can't just assume deliveryTime here as we could deliver earlier than what we are supposed to
             // this is basically a hack to work around an OS or JDK bug!
-            if (trace) {
-               ActiveMQServerLogger.LOGGER.trace("Scheduler is working around OS imprecisions on " +
+            if (logger.isTraceEnabled()) {
+               logger.trace("Scheduler is working around OS imprecisions on " +
                                                     "timing and re-scheduling an executor. now=" + now +
                                                     " and deliveryTime=" + deliveryTime);
             }
             ScheduledDeliveryHandlerImpl.this.scheduleDelivery(deliveryTime);
          }
 
-         if (ScheduledDeliveryHandlerImpl.trace) {
-            ActiveMQServerLogger.LOGGER.trace("Is it " + System.currentTimeMillis() + " now and we are running deliveryTime = " + deliveryTime);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Is it " + System.currentTimeMillis() + " now and we are running deliveryTime = " + deliveryTime);
          }
 
          synchronized (scheduledReferences) {
@@ -217,14 +217,14 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                   refs.put(reference.getQueue(), references);
                }
 
-               if (ScheduledDeliveryHandlerImpl.trace) {
-                  ActiveMQServerLogger.LOGGER.trace("sending message " + reference + " to delivery, deliveryTime =  " + deliveryTime);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("sending message " + reference + " to delivery, deliveryTime =  " + deliveryTime);
                }
 
                references.addFirst(reference);
             }
-            if (ScheduledDeliveryHandlerImpl.trace) {
-               ActiveMQServerLogger.LOGGER.trace("Finished loop on deliveryTime = " + deliveryTime);
+            if (logger.isTraceEnabled()) {
+               logger.trace("Finished loop on deliveryTime = " + deliveryTime);
             }
          }
 
@@ -232,8 +232,8 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
             Queue queue = entry.getKey();
             LinkedList<MessageReference> list = entry.getValue();
-            if (trace) {
-               ActiveMQServerLogger.LOGGER.trace("Delivering " + list.size() + " elements on list to queue " + queue);
+            if (logger.isTraceEnabled()) {
+               logger.trace("Delivering " + list.size() + " elements on list to queue " + queue);
             }
             queue.addHead(list, true);
          }

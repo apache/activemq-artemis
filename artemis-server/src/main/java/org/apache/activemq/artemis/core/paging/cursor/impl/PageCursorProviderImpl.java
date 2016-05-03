@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
+import org.jboss.logging.Logger;
 
 /**
  * A PageProviderIMpl
@@ -50,7 +51,7 @@ import org.apache.activemq.artemis.utils.SoftValueHashMap;
 public class PageCursorProviderImpl implements PageCursorProvider {
    // Constants -----------------------------------------------------
 
-   boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(PageCursorProviderImpl.class);
 
    // Attributes ----------------------------------------------------
 
@@ -90,8 +91,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent) {
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace(this.pagingStore.getAddress() + " creating subscription " + cursorID + " with filter " + filter, new Exception("trace"));
       }
 
       if (activeCursors.containsKey(cursorID)) {
@@ -145,8 +146,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                cache = createPageCache(pageId);
                // anyone reading from this cache will have to wait reading to finish first
                // we also want only one thread reading this cache
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("adding " + pageId + " into cursor = " + this.pagingStore.getAddress());
+               if (logger.isTraceEnabled()) {
+                  logger.trace("adding " + pageId + " into cursor = " + this.pagingStore.getAddress());
                }
                readPage((int) pageId, cache);
                softCache.put(pageId, cache);
@@ -355,8 +356,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                return;
             }
 
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("Asserting cleanup for address " + this.pagingStore.getAddress());
+            if (logger.isDebugEnabled()) {
+               logger.debug("Asserting cleanup for address " + this.pagingStore.getAddress());
             }
 
             ArrayList<PageSubscription> cursorList = cloneSubscriptions();
@@ -375,8 +376,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
                if (complete) {
 
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.debug("Address " + pagingStore.getAddress() +
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("Address " + pagingStore.getAddress() +
                                                           " is leaving page mode as all messages are consumed and acknowledged from the page store");
                   }
 
@@ -405,8 +406,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                pagingStore.stopPaging();
             }
             else {
-               if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-                  ActiveMQServerLogger.LOGGER.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() +
                                                        " as numberOfPages == " +
                                                        pagingStore.getNumberOfPages() +
                                                        " and currentPage.numberOfMessages = " +
@@ -431,8 +432,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                cache = softCache.get((long) depagedPage.getPageId());
             }
 
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("Removing page " + depagedPage.getPageId() + " from page-cache");
+            if (logger.isTraceEnabled()) {
+               logger.trace("Removing page " + depagedPage.getPageId() + " from page-cache");
             }
 
             if (cache == null) {
@@ -482,16 +483,16 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       for (PageSubscription cursor : cursorList) {
          if (!cursor.isComplete(minPage)) {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
             }
 
             complete = false;
             break;
          }
          else {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
             }
          }
       }
@@ -563,8 +564,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       for (PageSubscription cursor : cursorList) {
          long firstPage = cursor.getFirstPage();
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has a cursor " + cursor + " with first page=" + firstPage);
+         if (logger.isDebugEnabled()) {
+            logger.debug(this.pagingStore.getAddress() + " has a cursor " + cursor + " with first page=" + firstPage);
          }
 
          // the cursor will return -1 if the cursor is empty
@@ -573,8 +574,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
       }
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQServerLogger.LOGGER.debug(this.pagingStore.getAddress() + " has minPage=" + minPage);
+      if (logger.isDebugEnabled()) {
+         logger.debug(this.pagingStore.getAddress() + " has minPage=" + minPage);
       }
 
       return minPage;
