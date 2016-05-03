@@ -66,13 +66,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    private SequentialFileFactory journalFF;
 
-   private SequentialFileFactory largeMessagesFactory;
+   SequentialFileFactory largeMessagesFactory;
 
    private Journal originalMessageJournal;
 
    private Journal originalBindingsJournal;
 
-   private String largeMessagesDirectory;
+   protected String largeMessagesDirectory;
 
    private ReplicationManager replicator;
 

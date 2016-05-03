@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
@@ -45,7 +46,8 @@ import org.junit.Test;
 public class LargeMessageCompressTest extends LargeMessageTest {
 
    // Constructors --------------------------------------------------
-   public LargeMessageCompressTest() {
+   public LargeMessageCompressTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
       isCompressedTest = true;
    }
 

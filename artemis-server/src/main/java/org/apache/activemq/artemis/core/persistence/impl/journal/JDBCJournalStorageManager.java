@@ -16,13 +16,16 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
@@ -39,14 +42,25 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
    }
 
    @Override
-   protected void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
-      DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
+   protected synchronized void init(Configuration config, IOCriticalErrorListener criticalErrorListener) {
+      try {
+         DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
 
-      Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName());
-      bindingsJournal = localBindings;
+         Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName());
+         bindingsJournal = localBindings;
 
-      Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName());
-      messageJournal = localMessage;
+         Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName());
+         messageJournal = localMessage;
+
+         bindingsJournal.start();
+         messageJournal.start();
+
+         largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), dbConf.getLargeMessageTableName(), dbConf.getJdbcDriverClassName(), executor);
+         largeMessagesFactory.start();
+      }
+      catch (Exception e) {
+         criticalErrorListener.onIOException(e, e.getMessage(), null);
+      }
    }
 
    @Override
@@ -76,7 +90,9 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
       ((JDBCJournalImpl) bindingsJournal).stop(false);
 
-      messageJournal.stop();
+      ((JDBCJournalImpl) messageJournal).stop(false);
+
+      largeMessagesFactory.stop();
 
       singleThreadExecutor.shutdown();
 
@@ -85,4 +101,12 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       started = false;
    }
 
+   @Override
+   public ByteBuffer allocateDirectBuffer(int size) {
+      return NIOSequentialFileFactory.allocateDirectByteBuffer(size);
+   }
+
+   @Override
+   public void freeDirectBuffer(ByteBuffer buffer) {
+   }
 }
