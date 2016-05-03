@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.reader.MessageUtil;
 public class ServerJMSMessage implements Message {
 
    protected final MessageInternal message;
+   private final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
 
    protected int deliveryCount;
 
@@ -65,11 +66,17 @@ public class ServerJMSMessage implements Message {
 
    @Override
    public final String getJMSMessageID() throws JMSException {
+      if (message.containsProperty(NATIVE_MESSAGE_ID)) {
+         return getStringProperty(NATIVE_MESSAGE_ID);
+      }
       return null;
    }
 
    @Override
    public final void setJMSMessageID(String id) throws JMSException {
+      if (id != null) {
+         message.putStringProperty(NATIVE_MESSAGE_ID, id);
+      }
    }
 
    @Override
