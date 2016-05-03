@@ -229,11 +229,12 @@ public class JDBCJournalImpl implements Journal {
 
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
-   private void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
+   private synchronized void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
 
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
+
 
       for (Long txId : committedTx) {
          transactions.get(txId).committed = true;
@@ -319,7 +320,7 @@ public class JDBCJournalImpl implements Journal {
       if (callback != null) callback.waitCompletion();
    }
 
-   private void addTxRecord(JDBCJournalRecord record) {
+   private synchronized void addTxRecord(JDBCJournalRecord record) {
       TransactionHolder txHolder = transactions.get(record.getTxId());
       if (txHolder == null) {
          txHolder = new TransactionHolder(record.getTxId());
@@ -341,7 +342,7 @@ public class JDBCJournalImpl implements Journal {
       }
    }
 
-   private void removeTxRecord(JDBCJournalRecord record) {
+   private synchronized void removeTxRecord(JDBCJournalRecord record) {
       TransactionHolder txHolder = transactions.get(record.getTxId());
 
       // We actually only need the record ID in this instance.
