@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.core.protocol.proton.converter.jms;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.util.ByteArrayOutputStream;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
