@@ -156,7 +156,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
     */
    void handleConnect(MqttConnectMessage connect, ChannelHandlerContext ctx) throws Exception {
       this.ctx = ctx;
-      connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 750;
+      connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 1500;
 
       String clientId = connect.payload().clientIdentifier();
       session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().password(), connect.variableHeader().isWillFlag(), connect.payload().willMessage(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
