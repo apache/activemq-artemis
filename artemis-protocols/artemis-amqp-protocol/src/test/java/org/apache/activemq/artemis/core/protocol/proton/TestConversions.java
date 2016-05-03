@@ -26,7 +26,7 @@ import java.util.Map;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.transport.amqp.message.EncodedMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;

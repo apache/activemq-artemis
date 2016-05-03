@@ -414,18 +414,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-amqp</artifactId>
-            <version>${activemq5-version}</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.apache.geronimo.specs</groupId>
-                  <artifactId>geronimo-jms_1.1_spec</artifactId>
-               </exclusion>
-            </exclusions>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
            <groupId>org.slf4j</groupId>
            <artifactId>slf4j-api</artifactId>
            <version>${slf4j.version}</version>
