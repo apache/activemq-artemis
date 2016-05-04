@@ -104,7 +104,7 @@ public class LargeMessageOverReplicationTest extends ActiveMQTestBase {
       waitForRemoteBackup(connection.getSessionFactory(), 30);
 
       session = connection.createSession(true, Session.SESSION_TRANSACTED);
-      queue = session.createQueue("jms.queue.Queue");
+      queue = session.createQueue("Queue");
       producer = session.createProducer(queue);
 
    }
