@@ -108,7 +108,7 @@ public class RaceOnSyncLargeMessageOverReplicationTest extends ActiveMQTestBase 
 
       connection = (ActiveMQConnection) factory.createConnection();
       session = connection.createSession(true, Session.SESSION_TRANSACTED);
-      queue = session.createQueue("jms.queue.Queue");
+      queue = session.createQueue("Queue");
       producer = session.createProducer(queue);
 
    }

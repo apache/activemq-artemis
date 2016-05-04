@@ -254,6 +254,13 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      boolean durable,
                      boolean temporary) throws Exception;
 
+   Queue deployQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filterString,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated) throws Exception;
+
    Queue locateQueue(SimpleString queueName);
 
    BindingQueryResult bindingQuery(SimpleString address) throws Exception;
