@@ -483,7 +483,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          public void runException() throws Exception {
             checkBindings(bindings);
 
-            if (internalCreateQueue(queueName, selectorString, durable)) {
+            if (internalCreateQueue(queueName, selectorString, durable, autoCreated)) {
 
                ActiveMQDestination destination = queues.get(queueName);
                if (destination == null) {
@@ -1047,6 +1047,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private synchronized boolean internalCreateQueue(final String queueName,
                                        final String selectorString,
                                        final boolean durable) throws Exception {
+      return internalCreateQueue(queueName, selectorString, durable, false);
+   }
+
+   private synchronized boolean internalCreateQueue(final String queueName,
+                                       final String selectorString,
+                                       final boolean durable,
+                                       final boolean autoCreated) throws Exception {
       if (queues.get(queueName) != null) {
          return false;
       }
@@ -1060,7 +1067,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             coreFilterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
          }
 
-         Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false);
+         Queue queue = server.deployQueue(SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(activeMQQueue.getAddress()), SimpleString.toSimpleString(coreFilterString), durable, false, autoCreated);
 
          queues.put(queueName, activeMQQueue);
 
