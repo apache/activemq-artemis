@@ -81,9 +81,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
-//      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
-      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.DATABASE}};
-      //Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}};
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
       return Arrays.asList(params);
    }
 
