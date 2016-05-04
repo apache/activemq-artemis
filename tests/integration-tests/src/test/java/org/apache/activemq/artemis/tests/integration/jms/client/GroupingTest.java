@@ -121,6 +121,7 @@ public class GroupingTest extends JMSTestBase {
    public void testGroupingWithJMS2Producer() throws Exception {
       ConnectionFactory fact = getCF();
       Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
+      Assume.assumeTrue("only makes sense withOUT explicit group-id", ((ActiveMQConnectionFactory) fact).getGroupID() == null);
       final String groupID = UUID.randomUUID().toString();
       JMSContext ctx = addContext(getCF().createContext(JMSContext.SESSION_TRANSACTED));
 
