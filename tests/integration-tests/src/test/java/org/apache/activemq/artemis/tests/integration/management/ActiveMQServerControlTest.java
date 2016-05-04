@@ -82,6 +82,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    // Public --------------------------------------------------------
 
+   public boolean usingCore() {
+      return false;
+   }
+
    @Test
    public void testGetAttributes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
@@ -923,8 +927,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          createSessionFactory(locator).close();
       }
 
-      assertEquals(CONNECTION_COUNT, serverControl.getTotalConnectionCount());
-      assertEquals(0, serverControl.getConnectionCount());
+      assertEquals(CONNECTION_COUNT + (usingCore() ? 1 : 0), serverControl.getTotalConnectionCount());
+      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getConnectionCount());
 
       locator.close();
    }
@@ -962,7 +966,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAdded());
-      assertEquals(0, serverControl.getTotalMessageCount());
+      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1008,7 +1012,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAcknowledged());
-      assertEquals(0, serverControl.getTotalMessageCount());
+      assertEquals(0  + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1040,7 +1044,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientConsumer consumer1 = session.createConsumer(random1);
       ClientConsumer consumer2 = session.createConsumer(random2);
 
-      assertEquals(2, serverControl.getTotalConsumerCount());
+      assertEquals(2 + (usingCore() ? 1 : 0), serverControl.getTotalConsumerCount());
       assertEquals(1, queueControl1.getConsumerCount());
       assertEquals(1, queueControl2.getConsumerCount());
 

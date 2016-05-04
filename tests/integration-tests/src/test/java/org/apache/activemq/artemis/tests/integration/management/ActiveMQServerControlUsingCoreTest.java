@@ -664,6 +664,10 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
       };
    }
+
+   public boolean usingCore() {
+      return true;
+   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
