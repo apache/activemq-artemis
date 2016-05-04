@@ -99,7 +99,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       addressSettings.clear();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         configuration = createDefaultJDBCConfig();
+         configuration = createDefaultJDBCConfig(true);
       }
       else {
          configuration = createBasicConfig();

@@ -143,6 +143,7 @@ public class OperationContextImpl implements OperationContext {
          }
 
          // On this case, we can just execute the context directly
+
          if (replicationLineUp.intValue() == replicated && storeLineUp.intValue() == stored &&
             pageLineUp.intValue() == paged) {
             // We want to avoid the executor if everything is complete...

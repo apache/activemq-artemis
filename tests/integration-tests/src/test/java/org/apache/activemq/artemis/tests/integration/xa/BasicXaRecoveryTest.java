@@ -101,7 +101,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       addressSettings.clear();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         configuration = createDefaultJDBCConfig().setJMXManagementEnabled(true);
+         configuration = createDefaultJDBCConfig(true).setJMXManagementEnabled(true);
       }
       else {
          configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);

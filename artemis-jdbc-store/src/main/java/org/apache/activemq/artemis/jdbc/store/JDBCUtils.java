@@ -23,6 +23,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.activemq.artemis.jdbc.store.file.sql.DerbySQLProvider;
+import org.apache.activemq.artemis.jdbc.store.file.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.file.sql.SQLProvider;
+
 public class JDBCUtils {
 
    public static Driver getDriver(String className) throws Exception {
@@ -58,6 +62,15 @@ public class JDBCUtils {
       if (!rs.next()) {
          Statement statement = connection.createStatement();
          statement.executeUpdate(sql);
+      }
+   }
+
+   public static SQLProvider getSQLProvider(String driverClass, String tableName) {
+      if (driverClass.contains("derby")) {
+         return new DerbySQLProvider(tableName);
+      }
+      else {
+         return new GenericSQLProvider(tableName);
       }
    }
 }
