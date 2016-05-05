@@ -149,6 +149,17 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", exit=" + exit);
+      buff.append(", last=" + last);
+      buff.append(", nodeID=" + nodeID);
+      buff.append(", pair=" + pair);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj) {
          return true;

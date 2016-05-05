@@ -109,6 +109,17 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", consumerID=" + consumerID);
+      buff.append(", deliveryCount=" + deliveryCount);
+      buff.append(", largeMessageSize=" + largeMessageSize);
+      buff.append(", message=" + message);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

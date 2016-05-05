@@ -69,6 +69,14 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", xids=" + xids);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();

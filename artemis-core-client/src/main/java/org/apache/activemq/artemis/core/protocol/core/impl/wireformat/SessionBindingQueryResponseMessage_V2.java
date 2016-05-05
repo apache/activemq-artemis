@@ -66,6 +66,16 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", exists=" + exists);
+      buff.append(", queueNames=" + queueNames);
+      buff.append(", autoCreateJmsQueues=" + autoCreateJmsQueues);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

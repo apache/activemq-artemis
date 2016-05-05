@@ -76,6 +76,20 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", exit=" + exit);
+      buff.append(", last=" + last);
+      buff.append(", nodeID=" + nodeID);
+      buff.append(", pair=" + pair);
+      buff.append(", backupGroupName=" + backupGroupName);
+      buff.append(", uniqueEventID=" + uniqueEventID);
+      buff.append(", scaleDownGroupName=" + scaleDownGroupName);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj) {
          return true;

@@ -61,10 +61,10 @@ public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl {
 
    @Override
    public String toString() {
-      return "SubscribeClusterTopologyUpdatesMessage [clusterConnection=" + clusterConnection +
-         ", toString()=" +
-         super.toString() +
-         "]";
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", clusterConnection=" + clusterConnection);
+      buff.append("]");
+      return buff.toString();
    }
 
    @Override
