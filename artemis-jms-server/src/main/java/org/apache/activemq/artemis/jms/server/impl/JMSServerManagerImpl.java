@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.QueueDeleter;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -371,6 +372,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
 
       server.setJMSQueueCreator(new JMSQueueCreator());
+
+      server.setJMSQueueDeleter(new JMSQueueDeleter());
 
       server.registerActivateCallback(this);
       /**
@@ -1617,15 +1620,11 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    }
 
    class JMSQueueCreator implements QueueCreator {
-
-      private final SimpleString PREFIX = SimpleString.toSimpleString("jms.queue");
-
       @Override
       public boolean create(SimpleString address) throws Exception {
          AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
-         if (address.startsWith(PREFIX) && settings.isAutoCreateJmsQueues()) {
-            // stopped here... finish here
-            JMSServerManagerImpl.this.internalCreateJMSQueue(false, address.toString().substring(PREFIX.toString().length() + 1), null, true, true);
+         if (address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && settings.isAutoCreateJmsQueues()) {
+            JMSServerManagerImpl.this.internalCreateJMSQueue(false, address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), null, true, true);
             return true;
          }
          else {
@@ -1634,4 +1633,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
       }
    }
 
+   class JMSQueueDeleter implements QueueDeleter {
+      @Override
+      public boolean delete(SimpleString address) throws Exception {
+         return JMSServerManagerImpl.this.destroyQueue(address.toString().substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length()), false);
+      }
+   }
 }

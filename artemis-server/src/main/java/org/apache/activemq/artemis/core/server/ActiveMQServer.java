@@ -187,7 +187,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
    long getUptimeMillis();
 
    /**
-    * This is the queue creator responsible for JMS Queue creations*
+    * This is the queue creator responsible for automatic JMS Queue creations.
     *
     * @param queueCreator
     */
@@ -197,6 +197,18 @@ public interface ActiveMQServer extends ActiveMQComponent {
     * @see org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)
     */
    QueueCreator getJMSQueueCreator();
+
+   /**
+    * This is the queue deleter responsible for automatic JMS Queue deletions.
+    *
+    * @param queueDeleter
+    */
+   void setJMSQueueDeleter(QueueDeleter queueDeleter);
+
+   /**
+    * @see org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueDeleter(QueueDeleter)
+    */
+   QueueDeleter getJMSQueueDeleter();
 
    /**
     * Wait for server initialization.
