@@ -93,17 +93,17 @@ public class FailureXATest extends ActiveMQTestBase {
       try {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          Queue queue = session.createQueue("Queue1");
+         final XASession xaSession = connection.createXASession();
+         MessageConsumer consumer = xaSession.createConsumer(queue);
 
          MessageProducer producer = session.createProducer(queue);
          producer.send(session.createTextMessage("hello " + 1));
          session.commit();
 
-         final XASession xaSession = connection.createXASession();
          XAResource xaResource = xaSession.getXAResource();
          final Xid xid = newXID();
          xaResource.start(xid, XAResource.TMNOFLAGS);
 
-         MessageConsumer consumer = xaSession.createConsumer(queue);
          connection.start();
          Assert.assertNotNull(consumer.receive(5000));
 
