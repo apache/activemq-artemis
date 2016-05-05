@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -63,6 +64,8 @@ public class InterceptorTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
+
+   private final SimpleString JMS_QUEUE = SimpleString.toSimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + QUEUE.toString());
 
    private ServerLocator locator;
 
@@ -1056,6 +1059,8 @@ public class InterceptorTest extends ActiveMQTestBase {
    public void testInterceptorOnURI() throws Exception {
       locator.close();
 
+      server.createQueue(JMS_QUEUE, JMS_QUEUE, null, true, false);
+
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 
       System.out.println(uri);
@@ -1084,7 +1089,7 @@ public class InterceptorTest extends ActiveMQTestBase {
       MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE.toString()));
 
       TextMessage msg = (TextMessage) consumer.receive(5000);
-      Assert.assertNotNull(consumer);
+      Assert.assertNotNull(msg);
 
       Assert.assertEquals("HelloMessage", msg.getText());
 
