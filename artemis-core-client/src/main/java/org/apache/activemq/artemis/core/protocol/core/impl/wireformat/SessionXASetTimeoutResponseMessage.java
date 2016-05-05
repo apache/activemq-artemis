@@ -63,6 +63,14 @@ public class SessionXASetTimeoutResponseMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", ok=" + ok);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

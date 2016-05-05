@@ -87,6 +87,15 @@ public abstract class SessionContinuationMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", body=" + Arrays.toString(body));
+      buff.append(", continues=" + continues);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

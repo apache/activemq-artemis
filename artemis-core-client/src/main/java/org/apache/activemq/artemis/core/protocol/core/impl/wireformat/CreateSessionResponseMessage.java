@@ -78,4 +78,12 @@ public class CreateSessionResponseMessage extends PacketImpl {
          return false;
       return true;
    }
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", serverVersion=" + serverVersion);
+      buff.append("]");
+      return buff.toString();
+   }
 }

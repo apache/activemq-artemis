@@ -55,6 +55,9 @@ public class SessionCreateConsumerMessage extends PacketImpl {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
+      buff.append(", id=" + id);
+      buff.append(", browseOnly=" + browseOnly);
+      buff.append(", requiresResponse=" + requiresResponse);
       buff.append("]");
       return buff.toString();
    }

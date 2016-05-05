@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Arrays;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
@@ -117,6 +119,18 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       result = prime * result + (int) (messageBodySize ^ (messageBodySize >>> 32));
       result = prime * result + (requiresResponse ? 1231 : 1237);
       return result;
+   }
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", body=" + Arrays.toString(body));
+      buff.append(", continues=" + continues);
+      buff.append(", message=" + message);
+      buff.append(", messageBodySize=" + messageBodySize);
+      buff.append(", requiresResponse=" + requiresResponse);
+      buff.append("]");
+      return buff.toString();
    }
 
    @Override

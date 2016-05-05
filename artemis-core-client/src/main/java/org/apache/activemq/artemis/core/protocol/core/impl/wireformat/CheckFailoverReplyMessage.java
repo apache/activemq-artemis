@@ -47,6 +47,14 @@ public class CheckFailoverReplyMessage extends PacketImpl {
       okToFailover = buffer.readBoolean();
    }
 
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", okToFailover=" + okToFailover);
+      buff.append("]");
+      return buff.toString();
+   }
+
    public boolean isOkToFailover() {
       return okToFailover;
    }

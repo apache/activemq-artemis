@@ -58,7 +58,8 @@ public class CreateSharedQueueMessage extends PacketImpl {
       buff.append(", address=" + address);
       buff.append(", queueName=" + queueName);
       buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + filterString);
+      buff.append(", durable=" + durable);
+      buff.append(", requiresResponse=" + requiresResponse);
       buff.append("]");
       return buff.toString();
    }

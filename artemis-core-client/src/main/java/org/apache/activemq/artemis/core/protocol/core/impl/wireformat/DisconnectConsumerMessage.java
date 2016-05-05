@@ -42,6 +42,14 @@ public class DisconnectConsumerMessage extends PacketImpl {
       consumerId = buffer.readLong();
    }
 
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", consumerId=" + consumerId);
+      buff.append("]");
+      return buff.toString();
+   }
+
    public long getConsumerId() {
       return consumerId;
    }

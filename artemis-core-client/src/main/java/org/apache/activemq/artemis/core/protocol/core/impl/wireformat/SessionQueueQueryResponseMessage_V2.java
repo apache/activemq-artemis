@@ -89,6 +89,22 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", address=" + address);
+      buff.append(", name=" + name);
+      buff.append(", consumerCount=" + consumerCount);
+      buff.append(", filterString=" + filterString);
+      buff.append(", durable=" + durable);
+      buff.append(", exists=" + exists);
+      buff.append(", temporary=" + temporary);
+      buff.append(", messageCount=" + messageCount);
+      buff.append(", autoCreationEnabled=" + autoCreationEnabled);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public ClientSession.QueueQuery toQueueQuery() {
       return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreationEnabled());
    }
