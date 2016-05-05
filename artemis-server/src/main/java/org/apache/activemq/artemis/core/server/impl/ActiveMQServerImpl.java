@@ -108,6 +108,7 @@ import org.apache.activemq.artemis.core.server.MemoryManager;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.QueueDeleter;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -242,6 +243,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * This will be set by the JMS Queue Manager.
     */
    private QueueCreator jmsQueueCreator;
+
+   /**
+    * This will be set by the JMS Queue Manager.
+    */
+   private QueueDeleter jmsQueueDeleter;
 
    private final Map<String, ServerSession> sessions = new ConcurrentHashMap<>();
 
@@ -656,6 +662,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void setJMSQueueCreator(QueueCreator jmsQueueCreator) {
       this.jmsQueueCreator = jmsQueueCreator;
+   }
+
+   @Override
+   public QueueDeleter getJMSQueueDeleter() {
+      return jmsQueueDeleter;
+   }
+
+   @Override
+   public void setJMSQueueDeleter(QueueDeleter jmsQueueDeleter) {
+      this.jmsQueueDeleter = jmsQueueDeleter;
    }
 
    /**

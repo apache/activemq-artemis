@@ -46,7 +46,7 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
                   logger.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
                }
 
-               server.destroyQueue(queueName, null, false);
+               server.getJMSQueueDeleter().delete(queueName);
             }
             else if (logger.isDebugEnabled()) {
                logger.debug("NOT deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
