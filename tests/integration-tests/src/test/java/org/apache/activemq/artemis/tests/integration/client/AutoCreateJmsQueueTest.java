@@ -65,10 +65,10 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
          Assert.assertNotNull(m);
       }
 
-      connection.close();
-
       // make sure the JMX control was created for the JMS queue
       assertNotNull(server.getManagementService().getResource("jms.queue.test"));
+
+      connection.close();
    }
 
    @Test

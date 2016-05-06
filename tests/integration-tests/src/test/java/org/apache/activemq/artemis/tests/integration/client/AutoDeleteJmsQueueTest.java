@@ -75,6 +75,9 @@ public class AutoDeleteJmsQueueTest extends JMSTestBase {
 
       // ensure the queue was removed
       Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("jms.queue.test")));
+
+      // make sure the JMX control was removed for the JMS queue
+      assertNull(server.getManagementService().getResource("jms.queue.test"));
    }
 
    @Test
