@@ -87,6 +87,7 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFac
 import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
@@ -142,7 +143,7 @@ public final class XmlDataExporter extends LockAbstract {
                        String pagingDir,
                        String largeMessagesDir) throws Exception {
       config = new ConfigurationImpl().setBindingsDirectory(bindingsDir).setJournalDirectory(journalDir).setPagingDirectory(pagingDir).setLargeMessagesDirectory(largeMessagesDir).setJournalType(JournalType.NIO);
-      final ExecutorService executor = Executors.newFixedThreadPool(1);
+      final ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
       ExecutorFactory executorFactory = new ExecutorFactory() {
          @Override
          public Executor getExecutor() {
@@ -678,8 +679,8 @@ public final class XmlDataExporter extends LockAbstract {
     */
    private void printPagedMessagesAsXML() {
       try {
-         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
-         final ExecutorService executor = Executors.newFixedThreadPool(10);
+         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
+         final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
          ExecutorFactory executorFactory = new ExecutorFactory() {
             @Override
             public Executor getExecutor() {

@@ -133,7 +133,7 @@ public final class UUIDGenerator {
    public static byte[] getHardwareAddress() {
       try {
          // check if we have enough security permissions to create and shutdown an executor
-         ExecutorService executor = Executors.newFixedThreadPool(1);
+         ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
          executor.shutdownNow();
       }
       catch (Throwable t) {
@@ -259,7 +259,7 @@ public final class UUIDGenerator {
    }
 
    private static byte[] findFirstMatchingHardwareAddress(List<NetworkInterface> ifaces) {
-      ExecutorService executor = Executors.newFixedThreadPool(ifaces.size());
+      ExecutorService executor = Executors.newFixedThreadPool(ifaces.size(), ActiveMQThreadFactory.defaultThreadFactory());
       Collection<Callable<byte[]>> tasks = new ArrayList<>(ifaces.size());
 
       for (final NetworkInterface networkInterface : ifaces) {

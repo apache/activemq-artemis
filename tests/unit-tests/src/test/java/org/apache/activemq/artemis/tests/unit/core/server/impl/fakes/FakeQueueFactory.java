@@ -27,12 +27,13 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 public class FakeQueueFactory implements QueueFactory {
 
-   private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+   private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
-   private final ExecutorService executor = Executors.newSingleThreadExecutor();
+   private final ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
    private PostOffice postOffice;
 

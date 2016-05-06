@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -93,7 +94,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
          public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
-      pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize());
+      pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
       NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, null);
 
       addActiveMQComponent(acceptor);

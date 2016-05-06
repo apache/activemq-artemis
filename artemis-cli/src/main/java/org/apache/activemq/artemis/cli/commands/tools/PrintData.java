@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
@@ -139,8 +140,8 @@ public class PrintData extends LockAbstract {
 
          Set<Long> pgTXs = cursorACKs.getPgTXs();
 
-         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
-         final ExecutorService executor = Executors.newFixedThreadPool(10);
+         ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
+         final ExecutorService executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
          ExecutorFactory execfactory = new ExecutorFactory() {
             @Override
             public Executor getExecutor() {

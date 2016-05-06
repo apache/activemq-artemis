@@ -89,4 +89,9 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       return t;
    }
 
+   public static ActiveMQThreadFactory defaultThreadFactory() {
+      String callerClassName = Thread.currentThread().getStackTrace()[2].getClassName();
+      return new ActiveMQThreadFactory(callerClassName, false, null);
+   }
+
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
@@ -35,11 +36,11 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    AMQPConnectionContext returningConnection;
 
-   ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI(), Executors.newSingleThreadExecutor(), null);
+   ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI(), Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
 
-   final ExecutorService mainExecutor = Executors.newSingleThreadExecutor();
+   final ExecutorService mainExecutor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
-   final ExecutorService returningExecutor = Executors.newSingleThreadExecutor();
+   final ExecutorService returningExecutor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
    public ProtonINVMSPI() {
       mainExecutor.execute(new Runnable() {
