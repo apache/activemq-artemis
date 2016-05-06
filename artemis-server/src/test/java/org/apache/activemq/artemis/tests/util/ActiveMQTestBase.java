@@ -1319,7 +1319,7 @@ public abstract class ActiveMQTestBase extends Assert {
          boolean isRemoteUpToDate = true;
          if (isReplicated) {
             if (activation instanceof SharedNothingBackupActivation) {
-               isRemoteUpToDate = ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
+               isRemoteUpToDate = backup.isReplicaSync();
             }
             else {
                //we may have already failed over and changed the Activation

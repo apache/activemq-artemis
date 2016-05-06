@@ -670,6 +670,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public boolean isReplicaSync() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.isReplicaSync();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String[] getAddressNames() {
       checkStarted();
 

@@ -396,6 +396,13 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "uptime of this server in milliseconds")
    long getUptimeMillis();
 
+   /**
+    * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
+    * either the live or backup server.
+    */
+   @Attribute(desc = "whether the initial replication synchronization process with the backup server is complete")
+   boolean isReplicaSync();
+
    // Operations ----------------------------------------------------
 
    /**

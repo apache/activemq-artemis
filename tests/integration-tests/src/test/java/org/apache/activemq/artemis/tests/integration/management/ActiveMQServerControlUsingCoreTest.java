@@ -239,6 +239,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public boolean isReplicaSync() {
+            return false;
+         }
+
+         @Override
          public int getIDCacheSize() {
             return (Integer) proxy.retrieveAttributeValue("IDCacheSize");
          }
