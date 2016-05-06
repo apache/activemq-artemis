@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -170,8 +171,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    @Test
    public void testScheduleNow() throws Exception {
 
-      ExecutorService executor = Executors.newFixedThreadPool(50);
-      ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1);
+      ExecutorService executor = Executors.newFixedThreadPool(50, ActiveMQThreadFactory.defaultThreadFactory());
+      ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, ActiveMQThreadFactory.defaultThreadFactory());
       try {
          for (int i = 0; i < 100; i++) {
             // it's better to run the test a few times instead of run millions of messages here

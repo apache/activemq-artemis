@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -160,7 +161,7 @@ public final class SpawnedVMSupport {
    public static void assertProcessExits(final boolean sameValue,
                                          final int value,
                                          final Process p) throws InterruptedException, ExecutionException, TimeoutException {
-      ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+      ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       Future<Integer> future = executor.submit(new Callable<Integer>() {
 
          @Override

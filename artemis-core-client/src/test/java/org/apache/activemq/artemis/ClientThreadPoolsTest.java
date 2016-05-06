@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -106,7 +107,7 @@ public class ClientThreadPoolsTest {
                                                                0L, TimeUnit.MILLISECONDS,
                                                                new LinkedBlockingQueue<Runnable>());
 
-      ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor)Executors.newScheduledThreadPool(1);
+      ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = (ScheduledThreadPoolExecutor)Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
 
       ActiveMQClient.injectPools(poolExecutor, scheduledThreadPoolExecutor);
 

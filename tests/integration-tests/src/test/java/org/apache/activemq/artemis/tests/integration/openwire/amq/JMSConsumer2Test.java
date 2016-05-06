@@ -32,6 +32,7 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
          }
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
       consumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message m) {

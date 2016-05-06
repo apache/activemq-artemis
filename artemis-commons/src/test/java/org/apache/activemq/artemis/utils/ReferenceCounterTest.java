@@ -48,14 +48,14 @@ public class ReferenceCounterTest extends Assert {
 
    @Test
    public void testReferenceWithExecutor() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       internalTestReferenceNoExecutor(executor);
       executor.shutdown();
    }
 
    @Test
    public void testReferenceValidExecutorUsed() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       LatchRunner runner = new LatchRunner();
       ReferenceCounterUtil counter = new ReferenceCounterUtil(runner, executor);
       counter.increment();

@@ -128,6 +128,7 @@ import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -472,7 +473,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final OrderedExecutorFactory getOrderedExecutor() {
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
       executorSet.add(executor);
       return new OrderedExecutorFactory(executor);
    }

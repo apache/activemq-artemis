@@ -40,6 +40,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 import org.proton.plug.test.Constants;
@@ -125,7 +126,7 @@ public class MinimalServer {
       @Override
       public void channelActive(ChannelHandlerContext ctx) throws Exception {
          super.channelActive(ctx);
-         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()), Executors.newSingleThreadExecutor(), null);
+         connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()), Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
          //ctx.read();
       }
 
