@@ -181,10 +181,33 @@ public class ScaleDownTest extends ClusterTestBase {
       addConsumer(0, 1, queueName1, null);
       addConsumer(1, 1, queueName2, null);
 
+      LocalQueueBinding queue1Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1)));
+      LocalQueueBinding queue2Binding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2)));
+      LocalQueueBinding sfQueueBinding = ((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(sfQueueName)));
+
+      long timeout = 5000;
+      long start = System.currentTimeMillis();
+
+      while (getMessageCount(queue1Binding.getQueue()) > 0 && System.currentTimeMillis() - start <= timeout) {
+         Thread.sleep(50);
+      }
+
+      start = System.currentTimeMillis();
+
+      while (getMessageCount(queue2Binding.getQueue()) > 0 && System.currentTimeMillis() - start <= timeout) {
+         Thread.sleep(50);
+      }
+
+      start = System.currentTimeMillis();
+
+      while (getMessageCount(sfQueueBinding.getQueue()) < TEST_SIZE * 2 && System.currentTimeMillis() - start <= timeout) {
+         Thread.sleep(50);
+      }
+
       // at this point on node 0 there should be 0 messages in test queues and TEST_SIZE * 2 messages in the sf queue
-      Assert.assertEquals(0, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
-      Assert.assertEquals(0, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName2))).getQueue()));
-      Assert.assertEquals(TEST_SIZE * 2, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(sfQueueName))).getQueue()));
+      Assert.assertEquals(0, getMessageCount(queue1Binding.getQueue()));
+      Assert.assertEquals(0, getMessageCount(queue2Binding.getQueue()));
+      Assert.assertEquals(TEST_SIZE * 2, getMessageCount(sfQueueBinding.getQueue()));
 
       removeConsumer(0);
       removeConsumer(1);
