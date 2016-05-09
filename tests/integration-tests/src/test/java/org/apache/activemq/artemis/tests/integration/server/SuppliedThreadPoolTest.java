@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +43,8 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase {
    @Before
    public void setup() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
-      serviceRegistry.setExecutorService(Executors.newFixedThreadPool(1));
-      serviceRegistry.setScheduledExecutorService(Executors.newScheduledThreadPool(1));
+      serviceRegistry.setExecutorService(Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory()));
+      serviceRegistry.setScheduledExecutorService(Executors.newScheduledThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory()));
       server = new ActiveMQServerImpl(null, null, null, null, serviceRegistry);
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);

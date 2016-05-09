@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +56,7 @@ public class JDBCSequentialFileFactoryTest {
 
    @Before
    public void setup() throws Exception {
-      Executor executor = Executors.newSingleThreadExecutor();
+      Executor executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
       factory = new JDBCSequentialFileFactory(connectionUrl, tableName, className, executor);
       factory.start();

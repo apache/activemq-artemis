@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -69,7 +70,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      executor = Executors.newSingleThreadExecutor();
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       factory = new OrderedExecutorFactory(executor);
    }
 
@@ -89,7 +90,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          PostOffice postOffice = new FakePostOffice();
 
-         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize());
+         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
 
          journal = new JournalStorageManager(configuration, factory, null);
 

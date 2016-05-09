@@ -1597,9 +1597,12 @@ public final class JMSBridgeImpl implements JMSBridge {
     */
    private ExecutorService createExecutor() {
       ExecutorService service = Executors.newFixedThreadPool(3, new ThreadFactory() {
+
+         ThreadGroup group = new ThreadGroup("JMSBridgeImpl");
+
          @Override
          public Thread newThread(Runnable r) {
-            final Thread thr = new Thread(r);
+            final Thread thr = new Thread(group, r);
             if (moduleTccl != null) {
                AccessController.doPrivileged(new PrivilegedAction() {
                   @Override

@@ -29,6 +29,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.context.client.ProtonClientConnectionContextFactory;
 
@@ -60,7 +61,7 @@ public class SimpleAMQPConnector implements Connector {
 
       AMQPClientSPI clientConnectionSPI = new AMQPClientSPI(future.channel());
 
-      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI, Executors.newSingleThreadExecutor(), null);
+      final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI, Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
 
       future.channel().pipeline().addLast(new ChannelDuplexHandler() {
             @Override

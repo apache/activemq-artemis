@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -550,7 +551,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       session.close();
 
       // need thread pool to service both consumers and producers plus a thread to cycle nodes
-      ExecutorService executorService = Executors.newFixedThreadPool(groups.size() * 2 + 1);
+      ExecutorService executorService = Executors.newFixedThreadPool(groups.size() * 2 + 1, ActiveMQThreadFactory.defaultThreadFactory());
 
       final AtomicInteger producerCounter = new AtomicInteger(0);
       final CountDownLatch okToConsume = new CountDownLatch(groups.size() + 1);

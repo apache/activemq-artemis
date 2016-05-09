@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCompleteTaskAfterPaging() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
@@ -102,7 +103,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCaptureExceptionOnExecutor() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       executor.shutdown();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -148,7 +149,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCaptureExceptionOnFailure() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
       final CountDownLatch latch = new CountDownLatch(1);
 

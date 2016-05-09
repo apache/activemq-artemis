@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -119,7 +120,7 @@ public class PropertiesLoginModuleRaceConditionTest {
       options.put("baseDir", temp.getRoot().getAbsolutePath());
 
       errors = new ArrayBlockingQueue<>(processorCount());
-      pool = Executors.newFixedThreadPool(processorCount());
+      pool = Executors.newFixedThreadPool(processorCount(), ActiveMQThreadFactory.defaultThreadFactory());
       callback = new JaasCallbackHandler(USERNAME, PASSWORD, null);
    }
 

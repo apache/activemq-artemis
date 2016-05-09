@@ -18,6 +18,7 @@ package org.proton.plug.test.invm;
 
 import java.util.concurrent.Executors;
 
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.context.client.ProtonClientConnectionContext;
 import org.proton.plug.test.minimalclient.Connector;
@@ -34,6 +35,6 @@ public class InVMTestConnector implements Connector {
 
    @Override
    public AMQPClientConnectionContext connect(String host, int port) throws Exception {
-      return new ProtonClientConnectionContext(new ProtonINVMSPI(), Executors.newSingleThreadExecutor(), null);
+      return new ProtonClientConnectionContext(new ProtonINVMSPI(), Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
    }
 }

@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.rest.util.LinkHeaderLinkStrategy;
 import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.XMLUtil;
 
 public class MessageServiceManager {
@@ -126,7 +127,7 @@ public class MessageServiceManager {
          }
       }
       if (threadPool == null)
-         threadPool = Executors.newCachedThreadPool();
+         threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
       timeoutTaskInterval = configuration.getTimeoutTaskInterval();
       timeoutTask = new TimeoutTask(timeoutTaskInterval);
       threadPool.execute(timeoutTask);

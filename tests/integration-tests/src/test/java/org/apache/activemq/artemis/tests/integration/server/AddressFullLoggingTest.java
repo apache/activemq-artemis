@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -75,7 +76,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       final ClientMessage message = session.createMessage(false);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      ExecutorService executor = Executors.newFixedThreadPool(1);
+      ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
       Callable<Object> sendMessageTask = new Callable<Object>() {
          @Override
          public Object call() throws ActiveMQException {
