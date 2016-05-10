@@ -25,7 +25,7 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
  */
 public interface ProtonDeliveryHandler {
 
-   void onFlow(int currentCredits);
+   void onFlow(int currentCredits, boolean drain);
 
    void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 

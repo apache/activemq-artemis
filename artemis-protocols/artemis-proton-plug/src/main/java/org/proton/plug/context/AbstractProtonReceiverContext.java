@@ -69,4 +69,20 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
       }
       connection.flush();
    }
+
+
+   public void drain(int credits) {
+      synchronized (connection.getLock()) {
+         receiver.drain(credits);
+      }
+      connection.flush();
+   }
+
+   public int drained() {
+      return receiver.drained();
+   }
+
+   public boolean isDraining() {
+      return receiver.draining();
+   }
 }

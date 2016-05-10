@@ -65,9 +65,9 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    }
 
    @Override
-   public void onFlow(int currentCredits) {
-      super.onFlow(currentCredits);
-      sessionSPI.onFlowConsumer(brokerConsumer, currentCredits);
+   public void onFlow(int currentCredits, boolean drain) {
+      super.onFlow(currentCredits, drain);
+      sessionSPI.onFlowConsumer(brokerConsumer, currentCredits, drain);
    }
 
    /*

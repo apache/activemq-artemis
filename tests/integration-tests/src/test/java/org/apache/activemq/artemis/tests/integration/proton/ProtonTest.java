@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -50,12 +51,18 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.message.ProtonJMessage;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.proton.plug.AMQPClientConnectionContext;
+import org.proton.plug.AMQPClientReceiverContext;
+import org.proton.plug.AMQPClientSessionContext;
+import org.proton.plug.test.Constants;
+import org.proton.plug.test.minimalclient.SimpleAMQPConnector;
 
 @RunWith(Parameterized.class)
 public class ProtonTest extends ActiveMQTestBase {
@@ -214,10 +221,8 @@ public class ProtonTest extends ActiveMQTestBase {
    /*
    // Uncomment testLoopBrowser to validate the hunging on the test
    @Test
-   public void testLoopBrowser() throws Throwable
-   {
-      for (int i = 0 ; i < 1000; i++)
-      {
+   public void testLoopBrowser() throws Throwable {
+      for (int i = 0 ; i < 1000; i++) {
          System.out.println("#test " + i);
          testBrowser();
          tearDown();
@@ -230,7 +235,7 @@ public class ProtonTest extends ActiveMQTestBase {
     *
     * @throws Throwable
     */
-   // @Test TODO: re-enable this when we can get a version free of QPID-4901 bug
+   //@Test // TODO: re-enable this when we can get a version free of QPID-4901 bug
    public void testBrowser() throws Throwable {
 
       boolean success = false;
@@ -272,7 +277,7 @@ public class ProtonTest extends ActiveMQTestBase {
                connection.close();
                Assert.assertEquals(getMessageCount(q), numMessages);
             }
-         }, 1000);
+         }, 5000);
 
          if (success) {
             break;
@@ -288,6 +293,64 @@ public class ProtonTest extends ActiveMQTestBase {
       // but we can't have it on 10 iterations... something must be broken if that's the case
       Assert.assertTrue("Test had to interrupt on all occasions.. this is beyond the expected for the test", success);
    }
+
+   @Test
+   public void testReceiveImmediate() throws Exception {
+      testReceiveImmediate(1000, 1000);
+   }
+
+   @Test
+   public void testReceiveImmediateMoreCredits() throws Exception {
+      testReceiveImmediate(1000, 100);
+   }
+
+   @Test
+   public void testReceiveImmediateMoreMessages() throws Exception {
+      testReceiveImmediate(100, 1000);
+   }
+
+   public void testReceiveImmediate(int noCredits, int noMessages) throws Exception {
+
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = createQueue(address);
+      MessageProducer p = session.createProducer(queue);
+
+      TextMessage message = session.createTextMessage();
+      message.setText("Message temporary");
+      for (int i = 0; i < noMessages; i++) {
+         message.setText("msg:" + i);
+         p.send(message);
+      }
+
+      SimpleAMQPConnector connector = new SimpleAMQPConnector();
+      connector.start();
+      AMQPClientConnectionContext clientConnection = connector.connect("127.0.0.1", Constants.PORT);
+
+      clientConnection.clientOpen(null);
+
+      AMQPClientSessionContext csession = clientConnection.createClientSession();
+      AMQPClientReceiverContext receiver = csession.createReceiver(address);
+      receiver.drain(noCredits);
+
+      int expectedNumberMessages = noCredits > noMessages ? noMessages : noCredits;
+      for (int i = 0; i < expectedNumberMessages; i++) {
+         ProtonJMessage protonJMessage = receiver.receiveMessage(500, TimeUnit.SECONDS);
+         Assert.assertNotNull(protonJMessage);
+      }
+      ProtonJMessage protonJMessage = receiver.receiveMessage(500, TimeUnit.MILLISECONDS);
+      Assert.assertNull(protonJMessage);
+
+      assertFalse(receiver.isDraining());
+      if (noCredits >= noMessages) {
+         assertEquals(noCredits - noMessages, receiver.drained());
+      }
+      else {
+         assertEquals(0, receiver.drained());
+      }
+   }
+
 
    @Test
    public void testConnection() throws Exception {
