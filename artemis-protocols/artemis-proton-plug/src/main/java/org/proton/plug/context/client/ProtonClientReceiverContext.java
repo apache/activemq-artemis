@@ -46,7 +46,7 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
    }
 
    LinkedBlockingDeque<MessageImpl> queues = new LinkedBlockingDeque<>();
@@ -83,4 +83,5 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
    public ProtonJMessage receiveMessage(int time, TimeUnit unit) throws Exception {
       return queues.poll(time, unit);
    }
+
 }

@@ -51,7 +51,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
       this.creditsSemaphore.setCredits(credits);
    }
 

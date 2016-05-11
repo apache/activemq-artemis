@@ -32,7 +32,7 @@ public interface AMQPSessionCallback {
 
    void start();
 
-   void onFlowConsumer(Object consumer, int credits);
+   void onFlowConsumer(Object consumer, int credits, boolean drain);
 
    Object createSender(ProtonPlugSender protonSender, String queue, String filer, boolean browserOnly) throws Exception;
 

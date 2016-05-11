@@ -111,7 +111,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
 
    }
 

@@ -46,7 +46,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
    }
 
    @Override

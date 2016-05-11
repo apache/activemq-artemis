@@ -71,7 +71,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void onFlowConsumer(Object consumer, int credits) {
+   public void onFlowConsumer(Object consumer, int credits, boolean drain) {
    }
 
    @Override

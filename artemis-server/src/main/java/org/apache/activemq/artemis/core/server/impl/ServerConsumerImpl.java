@@ -510,7 +510,21 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
     * there are no other messages to be delivered.
     */
    @Override
-   public synchronized void forceDelivery(final long sequence) {
+   public void forceDelivery(final long sequence) {
+      forceDelivery(sequence, new Runnable() {
+         @Override
+         public void run() {
+            ServerMessage forcedDeliveryMessage = new ServerMessageImpl(storageManager.generateID(), 50);
+
+            forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
+            forcedDeliveryMessage.setAddress(messageQueue.getName());
+
+            callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+         }
+      });
+   }
+
+   public synchronized void forceDelivery(final long sequence, final Runnable r) {
       promptDelivery();
 
       // JBPAPP-6030 - Using the executor to avoid distributed dead locks
@@ -527,17 +541,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                      messageQueue.getExecutor().execute(new Runnable() {
                         @Override
                         public void run() {
-                           forceDelivery(sequence);
+                           forceDelivery(sequence, r);
                         }
                      });
                   }
                   else {
-                     ServerMessage forcedDeliveryMessage = new ServerMessageImpl(storageManager.generateID(), 50);
-
-                     forcedDeliveryMessage.putLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE, sequence);
-                     forcedDeliveryMessage.setAddress(messageQueue.getName());
-
-                     callback.sendMessage(null, forcedDeliveryMessage, ServerConsumerImpl.this, 0);
+                     r.run();
                   }
                }
             }
@@ -546,7 +555,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             }
          }
       });
-
    }
 
    @Override

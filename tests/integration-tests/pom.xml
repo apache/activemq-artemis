@@ -124,6 +124,12 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-proton-plug</artifactId>
+         <version>${project.version}</version>
+         <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>

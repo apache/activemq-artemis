@@ -17,11 +17,13 @@
 package org.apache.activemq.artemis.core.protocol.proton.plug;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -70,6 +72,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    private final Executor closeExecutor;
 
+   private final AtomicBoolean draining = new AtomicBoolean(false);
+
    public ProtonSessionIntegrationCallback(ActiveMQProtonConnectionCallback protonSPI,
                                            ProtonProtocolManager manager,
                                            AMQPConnectionContext connection,
@@ -88,9 +92,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public void onFlowConsumer(Object consumer, int credits) {
-      // We have our own flow control on AMQP, so we set activemq's flow control to 0
-      ((ServerConsumer) consumer).receiveCredits(-1);
+   public void onFlowConsumer(Object consumer, int credits, final boolean drain) {
+      ServerConsumerImpl serverConsumer = (ServerConsumerImpl) consumer;
+      if (drain) {
+         // If the draining is already running, then don't do anything
+         if (draining.compareAndSet(false, true)) {
+            final ProtonPlugSender plugSender = (ProtonPlugSender) serverConsumer.getProtocolContext();
+            serverConsumer.forceDelivery(1, new Runnable() {
+               @Override
+               public void run() {
+                  try {
+                     plugSender.getSender().drained();
+                  }
+                  finally {
+                     draining.set(false);
+                  }
+               }
+            });
+         }
+      }
+      else {
+         serverConsumer.receiveCredits(-1);
+      }
    }
 
    @Override

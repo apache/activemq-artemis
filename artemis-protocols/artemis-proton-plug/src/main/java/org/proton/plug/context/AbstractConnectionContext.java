@@ -70,6 +70,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       connectionCallback.setConnection(this);
       this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
       Transport transport = handler.getTransport();
+      transport.setEmitFlowEventOnSend(false);
       if (idleTimeout > 0) {
          transport.setIdleTimeout(idleTimeout);
       }
@@ -256,7 +257,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
       @Override
       public void onFlow(Link link) throws Exception {
-         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit());
+         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
       }
 
       @Override
