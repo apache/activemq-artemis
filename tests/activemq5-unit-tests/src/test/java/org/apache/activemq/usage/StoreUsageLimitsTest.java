@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -56,7 +57,7 @@ public class StoreUsageLimitsTest extends EmbeddedBrokerTestSupport {
       boolean foundUsage = false;
 
       try {
-         br = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+         br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
          String line = null;
          while ((line = br.readLine()) != null) {
             if (line.contains(new String(Long.toString(Long.MAX_VALUE / (1024 * 1024)))) && line.contains(limitsLogLevel.toUpperCase())) {

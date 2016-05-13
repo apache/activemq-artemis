@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -818,7 +819,7 @@ public class Create extends InputAbstract {
       try (InputStream in = openStream(source)) {
          copy(in, out);
       }
-      return new String(out.toByteArray(), "UTF-8");
+      return new String(out.toByteArray(), StandardCharsets.UTF_8);
    }
 
    private void write(String source) throws IOException {

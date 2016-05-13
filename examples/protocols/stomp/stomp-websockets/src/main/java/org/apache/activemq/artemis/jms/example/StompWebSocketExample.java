@@ -49,7 +49,7 @@ public class StompWebSocketExample {
          // use JMS bytes message with UTF-8 String to send a text to Stomp clients
          String text = "message sent from a Java application at " + new Date();
          //BytesMessage message = session.createBytesMessage();
-         //message.writeBytes(text.getBytes("UTF-8"));
+         //message.writeBytes(text.getBytes(StandardCharsets.UTF_8));
          TextMessage message = session.createTextMessage(text);
          System.out.println("Sent message: " + text);
          System.out.println("Open up the chat/index.html file in a browser and press enter");

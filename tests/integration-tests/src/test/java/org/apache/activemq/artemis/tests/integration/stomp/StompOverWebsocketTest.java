@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.stomp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -148,7 +147,7 @@ public class StompOverWebsocketTest extends StompTest {
 
    protected WebSocketFrame createFrame(String msg) {
       if (useBinaryFrames) {
-         return new BinaryWebSocketFrame(Unpooled.copiedBuffer(msg, Charset.forName("UTF-8")));
+         return new BinaryWebSocketFrame(Unpooled.copiedBuffer(msg, StandardCharsets.UTF_8));
       }
       else {
          return new TextWebSocketFrame(msg);
