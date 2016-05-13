@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.vertx;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -163,7 +164,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       assertEquals(greeting, body);
 
       //send a Buffer message
-      final byte[] content = greeting.getBytes("UTF-8");
+      final byte[] content = greeting.getBytes(StandardCharsets.UTF_8);
       Buffer buffer = new Buffer(content);
       vertx.eventBus().send(incomingVertxAddress1, buffer);
 
@@ -383,7 +384,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       handler.checkStringMessageReceived(greeting);
 
       //send a Buffer message
-      final byte[] content = greeting.getBytes("UTF-8");
+      final byte[] content = greeting.getBytes(StandardCharsets.UTF_8);
       Buffer buffer = new Buffer(content);
       vertx.eventBus().send(incomingVertxAddress2, buffer);
 
@@ -395,7 +396,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
 
       handler.checkBooleanMessageReceived(boolValue);
 
-      byte[] byteArray = greeting.getBytes("UTF-8");
+      byte[] byteArray = greeting.getBytes(StandardCharsets.UTF_8);
       vertx.eventBus().send(incomingVertxAddress2, byteArray);
 
       handler.checkByteArrayMessageReceived(byteArray);
@@ -517,7 +518,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       handler2.checkStringMessageReceived(greeting);
 
       //send a Buffer message
-      final byte[] content = greeting.getBytes("UTF-8");
+      final byte[] content = greeting.getBytes(StandardCharsets.UTF_8);
       Buffer buffer = new Buffer(content);
       vertx.eventBus().send(incomingVertxAddress3, buffer);
 
@@ -531,7 +532,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
       handler1.checkBooleanMessageReceived(boolValue);
       handler2.checkBooleanMessageReceived(boolValue);
 
-      byte[] byteArray = greeting.getBytes("UTF-8");
+      byte[] byteArray = greeting.getBytes(StandardCharsets.UTF_8);
       vertx.eventBus().send(incomingVertxAddress3, byteArray);
 
       handler1.checkByteArrayMessageReceived(byteArray);

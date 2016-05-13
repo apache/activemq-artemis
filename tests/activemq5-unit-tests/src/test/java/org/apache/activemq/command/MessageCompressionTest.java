@@ -17,6 +17,7 @@
 package org.apache.activemq.command;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -83,10 +84,10 @@ public class MessageCompressionTest extends TestCase {
       sendTestBytesMessage(factory, TEXT);
       ActiveMQBytesMessage message = receiveTestBytesMessage(factory);
       int compressedSize = message.getContent().getLength();
-      byte[] bytes = new byte[TEXT.getBytes("UTF8").length];
+      byte[] bytes = new byte[TEXT.getBytes(StandardCharsets.UTF_8).length];
       message.readBytes(bytes);
       assertTrue(message.readBytes(new byte[255]) == -1);
-      String rcvString = new String(bytes, "UTF8");
+      String rcvString = new String(bytes, StandardCharsets.UTF_8);
       assertEquals(TEXT, rcvString);
       assertTrue(message.isCompressed());
 
@@ -326,7 +327,7 @@ public class MessageCompressionTest extends TestCase {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer producer = session.createProducer(queue);
       BytesMessage bytesMessage = session.createBytesMessage();
-      bytesMessage.writeBytes(message.getBytes("UTF8"));
+      bytesMessage.writeBytes(message.getBytes(StandardCharsets.UTF_8));
       producer.send(bytesMessage);
       connection.close();
    }

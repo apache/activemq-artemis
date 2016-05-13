@@ -35,6 +35,7 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This test covers interactions between core clients and
@@ -132,7 +133,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       assertEquals("hello streammessage", streamMessage.readString());
 
       //bytes messages
-      final byte[] bytesData = text.getBytes("UTF-8");
+      final byte[] bytesData = text.getBytes(StandardCharsets.UTF_8);
       sendBytesMessageUsingCoreJms(queueName, bytesData);
 
       BytesMessage bytesMessage = (BytesMessage) consumer.receive(5000);
@@ -441,7 +442,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          assertEquals("hello streammessage", streamMessage.readString());
 
          //bytes messages
-         final byte[] bytesData = text.getBytes("UTF-8");
+         final byte[] bytesData = text.getBytes(StandardCharsets.UTF_8);
          sendBytesMessageUsingOpenWire(bytesData);
 
          BytesMessage bytesMessage = (BytesMessage) coreConsumer.receive(5000);
