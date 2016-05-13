@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
 
    private static final int NUMBER_OF_CLIENTS = 30;
-   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private final List<ActiveMQConnection> connections = new ArrayList<>();
    private EmbeddedJMS server0;
    private EmbeddedJMS server1;
    private String clientUrl;
@@ -126,7 +126,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
    }
 
    protected void assertClientsConnectedToTwoBrokers() {
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          if (c.getTransportChannel().getRemoteAddress() != null) {
             set.add(c.getTransportChannel().getRemoteAddress());
@@ -136,7 +136,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
    }
 
    protected void assertClientsConnectionsEvenlyDistributed(double minimumPercentage) {
-      Map<String, Double> clientConnectionCounts = new HashMap<String, Double>();
+      Map<String, Double> clientConnectionCounts = new HashMap<>();
       int total = 0;
       for (ActiveMQConnection c : connections) {
          String key = c.getTransportChannel().getRemoteAddress();
