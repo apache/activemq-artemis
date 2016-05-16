@@ -48,7 +48,7 @@
 		<bundle>mvn:commons-beanutils/commons-beanutils/1.9.2</bundle>
 		<bundle>mvn:commons-collections/commons-collections/3.2.2</bundle>
 
-		<bundle>mvn:org.jboss.logging/jboss-logging/3.1.4.GA</bundle>
+		<bundle>mvn:org.jboss.logging/jboss-logging/3.3.0.Final</bundle>
 		<bundle>mvn:org.jgroups/jgroups/3.6.0.Final</bundle>
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
