@@ -432,6 +432,16 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
    }
 
    @Override
+   public void setProtocolManagerFactoryStr(String protocolManagerFactoryStr) {
+      cfConfig.setProtocolManagerFactoryStr(protocolManagerFactoryStr);
+      recreateCF();
+   }
+
+   @Override
+   public String getProtocolManagerFactoryStr() {
+      return cfConfig.getProtocolManagerFactoryStr();
+   }
+   @Override
    public boolean isAutoGroup() {
       return cfConfig.isAutoGroup();
    }
