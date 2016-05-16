@@ -376,6 +376,16 @@ public interface ConnectionFactoryControl {
    DiscoveryGroupConfiguration getDiscoveryGroupConfiguration();
 
    /**
+    * get the protocol manager factory name
+    */
+   String getProtocolManagerFactoryStr();
+
+   /**
+    * set the protocol manager factory name
+    */
+   void setProtocolManagerFactoryStr(String protocolManagerFactoryStr);
+
+   /**
     * Add the Registry binding to this destination
     */
    @Operation(desc = "Adds the factory to another Registry binding")

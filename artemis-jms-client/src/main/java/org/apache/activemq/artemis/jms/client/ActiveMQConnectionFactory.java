@@ -134,11 +134,11 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
    public void setProtocolManagerFactoryStr(final String protocolManagerFactoryStr) {
 
-      if (protocolManagerFactoryStr != null && !protocolManagerFactoryStr.trim().isEmpty()) {
+      if (protocolManagerFactoryStr != null && !protocolManagerFactoryStr.trim().isEmpty() &&
+               !protocolManagerFactoryStr.equals("undefined")) {
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-
                ClientProtocolManagerFactory protocolManagerFactory =
                   (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(protocolManagerFactoryStr);
                serverLocator.setProtocolManagerFactory(protocolManagerFactory);
