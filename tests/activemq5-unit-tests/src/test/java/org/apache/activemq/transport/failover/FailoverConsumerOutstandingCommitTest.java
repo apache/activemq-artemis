@@ -228,7 +228,7 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       final CountDownLatch commitDoneLatch = new CountDownLatch(1);
       final CountDownLatch messagesReceived = new CountDownLatch(3);
       final AtomicBoolean gotCommitException = new AtomicBoolean(false);
-      final ArrayList<TextMessage> receivedMessages = new ArrayList<TextMessage>();
+      final ArrayList<TextMessage> receivedMessages = new ArrayList<>();
       final MessageConsumer testConsumer = consumerSession.createConsumer(destination);
       doByteman.set(true);
       testConsumer.setMessageListener(new MessageListener() {

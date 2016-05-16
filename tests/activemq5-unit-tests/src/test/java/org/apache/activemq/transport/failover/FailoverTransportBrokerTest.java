@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(FailoverTransportBrokerTest.class);
-   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected ArrayList<StubConnection> connections = new ArrayList<>();
    protected long idGenerator;
    protected int msgIdGenerator;
    protected int maxWait = 10000;

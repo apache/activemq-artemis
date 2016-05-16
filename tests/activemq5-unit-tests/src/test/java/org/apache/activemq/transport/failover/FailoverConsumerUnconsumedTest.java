@@ -149,7 +149,7 @@ public class FailoverConsumerUnconsumedTest extends OpenwireArtemisBaseTest {
 
       doByteman.set(true);
 
-      final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
+      final Vector<TestConsumer> testConsumers = new Vector<>();
       TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
       testConsumer.setMessageListener(new MessageListener() {
          @Override

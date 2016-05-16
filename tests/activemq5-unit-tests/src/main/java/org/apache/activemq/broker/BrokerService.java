@@ -104,7 +104,7 @@ public class BrokerService implements Service {
    private PolicyMap destinationPolicy;
    private SystemUsage systemUsage;
 
-   private final List<NetworkConnector> networkConnectors = new CopyOnWriteArrayList<NetworkConnector>();
+   private final List<NetworkConnector> networkConnectors = new CopyOnWriteArrayList<>();
 
    private TemporaryFolder tmpfolder;
 
