@@ -674,6 +674,26 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.jmsQueueDeleter = jmsQueueDeleter;
    }
 
+   @Override
+   public boolean isReplicaSync() {
+      if (activation instanceof SharedNothingLiveActivation) {
+         ReplicationManager replicationManager = getReplicationManager();
+
+         if (replicationManager == null) {
+            return false;
+         }
+         else {
+            return !replicationManager.isSynchronizing();
+         }
+      }
+      else if (activation instanceof SharedNothingBackupActivation) {
+         return ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
+      }
+      else {
+         throw ActiveMQMessageBundle.BUNDLE.methodNotApplicable();
+      }
+   }
+
    /**
     * Stops the server
     *

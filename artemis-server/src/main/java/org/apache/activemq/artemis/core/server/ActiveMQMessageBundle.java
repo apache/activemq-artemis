@@ -371,4 +371,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119117, value = "Replicator is null. Replication was likely terminated.")
    ActiveMQIllegalStateException replicatorIsNull();
+
+   @Message(id = 119118, value = "Management method not applicable for current server configuration")
+   IllegalStateException methodNotApplicable();
 }
