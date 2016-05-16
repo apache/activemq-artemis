@@ -48,6 +48,7 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -207,7 +208,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          else if (key.startsWith("JMSXUserID")) {
             String value = msg.getStringProperty(key);
-            props.setUserId(new Binary(value.getBytes("UTF-8")));
+            props.setUserId(new Binary(value.getBytes(StandardCharsets.UTF_8)));
          }
          else if (key.startsWith("JMSXGroupID")) {
             String value = msg.getStringProperty(key);

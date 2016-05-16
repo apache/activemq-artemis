@@ -123,7 +123,7 @@ public class StompExample {
       int nbytes = inputStream.read(bytes);
       byte[] data = new byte[nbytes];
       System.arraycopy(bytes, 0, data, 0, data.length);
-      String resp = new String(data, "UTF-8");
+      String resp = new String(data, StandardCharsets.UTF_8);
       System.out.println("Got response from server: " + resp);
       return resp;
    }

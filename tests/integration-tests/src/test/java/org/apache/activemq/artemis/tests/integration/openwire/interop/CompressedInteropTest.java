@@ -22,6 +22,8 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -215,11 +217,11 @@ public class CompressedInteropTest extends BasicOpenWireTest {
    private void receiveBytesMessageUsingCore() throws Exception {
       BytesMessage bytesMessage = (BytesMessage) receiveMessageUsingCore();
 
-      byte[] bytes = new byte[TEXT.getBytes("UTF8").length];
+      byte[] bytes = new byte[TEXT.getBytes(StandardCharsets.UTF_8).length];
       bytesMessage.readBytes(bytes);
       assertTrue(bytesMessage.readBytes(new byte[255]) == -1);
 
-      String rcvString = new String(bytes, "UTF8");
+      String rcvString = new String(bytes, StandardCharsets.UTF_8);
       assertEquals(TEXT, rcvString);
    }
 

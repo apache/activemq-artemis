@@ -34,6 +34,8 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 
@@ -201,7 +203,7 @@ public abstract class InboundTransformer {
          }
          Binary userId = properties.getUserId();
          if (userId != null) {
-            vendor.setJMSXUserID(jms, new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), "UTF-8"));
+            vendor.setJMSXUserID(jms, new String(userId.getArray(), userId.getArrayOffset(), userId.getLength(), StandardCharsets.UTF_8));
          }
          if (properties.getTo() != null) {
             jms.setJMSDestination(vendor.createDestination(properties.getTo()));
