@@ -22,8 +22,18 @@ import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 
 public final class JMSExceptionHelper {
+
+   public static JMSException convertFromActiveMQException(final ActiveMQInterruptedException me) {
+      JMSException je = new javax.jms.IllegalStateException(me.getMessage());
+
+      je.setStackTrace(me.getStackTrace());
+
+      je.initCause(me);
+      return je;
+   }
 
    public static JMSException convertFromActiveMQException(final ActiveMQException me) {
       JMSException je;

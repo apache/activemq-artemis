@@ -46,6 +46,13 @@ public class ActiveMQConsumerContext extends ConsumerContext {
    }
 
    @Override
+   public String toString() {
+      return "ActiveMQConsumerContext{" +
+         "id=" + id +
+         '}';
+   }
+
+   @Override
    public int hashCode() {
       return (int) (id ^ (id >>> 32));
    }

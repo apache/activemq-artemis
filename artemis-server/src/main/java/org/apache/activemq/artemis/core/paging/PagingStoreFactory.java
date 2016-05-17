@@ -17,9 +17,12 @@
 package org.apache.activemq.artemis.core.paging;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
@@ -29,6 +32,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 public interface PagingStoreFactory {
 
    PagingStore newStore(SimpleString address, AddressSettings addressSettings);
+
+   PageCursorProvider newCursorProvider(PagingStore store, StorageManager storageManager, AddressSettings addressSettings, Executor executor);
 
    void stop() throws InterruptedException;
 

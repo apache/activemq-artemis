@@ -1671,9 +1671,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.queueFactory = factory;
    }
 
-   private PagingManager createPagingManager() {
+   protected PagingManager createPagingManager() {
 
-      return new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getJournalBufferTimeout_NIO(), scheduledPool, executorFactory, configuration.isJournalSyncNonTransactional(), shutdownOnCriticalIO), addressSettingsRepository);
+      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository);
+   }
+
+   protected PagingStoreFactoryNIO getPagingStoreFactory() {
+      return new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getJournalBufferTimeout_NIO(), scheduledPool, executorFactory, configuration.isJournalSyncNonTransactional(), shutdownOnCriticalIO);
    }
 
    /**

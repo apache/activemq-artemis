@@ -316,6 +316,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
    private void processQueue() {
       AggregatedSoftReference ref = null;
       while ((ref = (AggregatedSoftReference) this.refQueue.poll()) != null) {
+         logger.tracef("Removing reference through processQueue:: %s", ref.get());
          mapDelegate.remove(ref.key);
       }
    }

@@ -543,13 +543,15 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             }
             bindingsJournal = new ReplicatedJournal(((byte) 0), originalBindingsJournal, replicator);
             messageJournal = new ReplicatedJournal((byte) 1, originalMessageJournal, replicator);
+
+            // We need to send the list while locking otherwise part of the body might get sent too soon
+            // it will send a list of IDs that we are allocating
+            replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
          }
          finally {
             storageManagerLock.writeLock().unlock();
          }
 
-         // it will send a list of IDs that we are allocating
-         replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
          sendJournalFile(messageFiles, JournalContent.MESSAGES);
          sendJournalFile(bindingsFiles, JournalContent.BINDINGS);
          sendLargeMessageFiles(pendingLargeMessages);

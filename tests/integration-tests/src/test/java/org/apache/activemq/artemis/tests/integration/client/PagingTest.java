@@ -21,6 +21,7 @@ import javax.transaction.xa.Xid;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,7 +60,11 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
@@ -70,13 +76,17 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PagingTest extends ActiveMQTestBase {
+
+   private static final Logger logger = Logger.getLogger(PagingTest.class);
 
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -2912,6 +2922,250 @@ public class PagingTest extends ActiveMQTestBase {
       Assert.assertNull(consumer.receiveImmediate());
 
       session.close();
+   }
+
+
+   @Test
+   public void testRollbackOnSendThenSendMore() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, new HashMap<String, AddressSettings>());
+
+      server.start();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
+
+      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+
+      Queue queue = server.locateQueue(ADDRESS);
+
+      queue.getPageSubscription().getPagingStore().startPaging();
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message;
+
+      for (int i = 0; i < 20; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(new byte[100 * 4]);
+
+         message.putIntProperty(new SimpleString("id"), i);
+
+         producer.send(message);
+         session.commit();
+         queue.getPageSubscription().getPagingStore().forceAnotherPage();
+
+      }
+
+      for (int i = 20; i < 24; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(new byte[100 * 4]);
+
+         message.putIntProperty(new SimpleString("id"), i);
+
+         producer.send(message);
+      }
+
+      session.rollback();
+
+      ClientSession consumerSession = sf.createSession(false, false);
+
+
+      queue.getPageSubscription().getPagingStore().disableCleanup();
+
+      queue.getPageSubscription().getPagingStore().getCursorProvider().cleanup();
+
+      consumerSession.start();
+      ClientConsumer consumer = consumerSession.createConsumer(ADDRESS, SimpleString.toSimpleString("id > 0"));
+      for (int i = 0; i < 19; i++) {
+         ClientMessage messageRec = consumer.receive(5000);
+         System.err.println("msg::" + messageRec);
+         Assert.assertNotNull(messageRec);
+         messageRec.acknowledge();
+         consumerSession.commit();
+
+         // The only reason I'm calling cleanup directly is that it would be easy to debug in case of bugs
+         // if you see an issue with cleanup here, enjoy debugging this method
+         queue.getPageSubscription().getPagingStore().getCursorProvider().cleanup();
+      }
+      queue.getPageSubscription().getPagingStore().enableCleanup();
+
+      consumerSession.close();
+
+
+      session.close();
+      sf.close();
+
+
+      server.stop();
+   }
+
+   // The pages are complete, and this is simulating a scenario where the server crashed before deleting the pages.
+   @Test
+   public void testRestartWithComplete() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      final AtomicBoolean mainCleanup = new AtomicBoolean(true);
+
+      class InterruptedCursorProvider extends PageCursorProviderImpl {
+
+         public InterruptedCursorProvider(PagingStore pagingStore,
+                                          StorageManager storageManager,
+                                          Executor executor,
+                                          int maxCacheSize) {
+            super(pagingStore, storageManager, executor, maxCacheSize);
+         }
+
+         @Override
+         public void cleanup() {
+            if (mainCleanup.get()) {
+               super.cleanup();
+            }
+            else {
+               try {
+                  pagingStore.unlock();
+               }
+               catch (Throwable ignored) {
+               }
+            }
+         }
+      }
+
+      server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
+         @Override
+         protected PagingStoreFactoryNIO getPagingStoreFactory() {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               @Override
+               public PageCursorProvider newCursorProvider(PagingStore store, StorageManager storageManager, AddressSettings addressSettings, Executor executor) {
+                  return new InterruptedCursorProvider(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+               }
+            };
+         }
+
+      };
+
+      addServer(server);
+
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes( PagingTest.PAGE_SIZE).setMaxSizeBytes(PagingTest.PAGE_MAX).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+
+      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+
+      server.start();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(true, true, 0);
+      session.createQueue(PagingTest.ADDRESS, PagingTest.ADDRESS, null, true);
+
+      Queue queue = server.locateQueue(ADDRESS);
+
+      queue.getPageSubscription().getPagingStore().startPaging();
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message;
+
+      for (int i = 0; i < 20; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(new byte[100 * 4]);
+
+         message.putIntProperty(new SimpleString("idi"), i);
+
+         producer.send(message);
+         session.commit();
+         if (i < 19) {
+            queue.getPageSubscription().getPagingStore().forceAnotherPage();
+         }
+
+      }
+
+      Assert.assertEquals(20, queue.getPageSubscription().getPagingStore().getCurrentWritingPage());
+
+      // This will force a scenario where the pages are cleaned up. When restarting we need to check if the current page is complete
+      // if it is complete we must move to another page avoiding races on cleanup
+      // which could happen during a crash / restart
+      long tx = server.getStorageManager().generateID();
+      for (int i = 1; i <= 20; i++) {
+         server.getStorageManager().storePageCompleteTransactional(tx, queue.getID(), new PagePositionImpl(i, 1));
+      }
+
+      server.getStorageManager().commit(tx);
+
+      session.close();
+      sf.close();
+
+      server.stop();
+      mainCleanup.set(false);
+
+      logger.trace("Server restart");
+
+      server.start();
+
+      queue = server.locateQueue(ADDRESS);
+
+      locator = createInVMNonHALocator();
+      sf = createSessionFactory(locator);
+      session = sf.createSession(null, null, false, false, true, false, 0);
+      producer = session.createProducer(PagingTest.ADDRESS);
+
+      for (int i = 0; i < 10; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(new byte[100 * 4]);
+
+         message.putIntProperty(new SimpleString("newid"), i);
+
+         producer.send(message);
+         session.commit();
+
+         if (i == 5) {
+            queue.getPageSubscription().getPagingStore().forceAnotherPage();
+         }
+      }
+
+
+      mainCleanup.set(true);
+
+      queue = server.locateQueue(ADDRESS);
+      queue.getPageSubscription().cleanupEntries(false);
+      queue.getPageSubscription().getPagingStore().getCursorProvider().cleanup();
+
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+      session.start();
+
+      for (int i = 0; i < 10; i++) {
+         message = consumer.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals(i, message.getIntProperty("newid").intValue());
+         message.acknowledge();
+      }
+
+      server.stop();
+
+      //      Thread.sleep(5000);
+
+
+
    }
 
    @Test

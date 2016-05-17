@@ -251,7 +251,7 @@ public final class Page implements Comparable<Page> {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Deleting pageId=" + pageId + " on store " + storeName);
+         logger.debug("Deleting pageNr=" + pageId + " on store " + storeName);
       }
 
       if (messages != null) {
@@ -294,7 +294,7 @@ public final class Page implements Comparable<Page> {
 
    @Override
    public String toString() {
-      return "Page::pageID=" + this.pageId + ", file=" + this.file;
+      return "Page::pageNr=" + this.pageId + ", file=" + this.file;
    }
 
    @Override

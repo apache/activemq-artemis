@@ -47,7 +47,6 @@ import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.impl.LivePageCacheImpl;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -69,7 +68,7 @@ import org.jboss.logging.Logger;
  */
 public class PagingStoreImpl implements PagingStore {
 
-   private static final Logger logger = Logger.getLogger(Page.class);
+   private static final Logger logger = Logger.getLogger(PagingStoreImpl.class);
 
    private final SimpleString address;
 
@@ -173,7 +172,7 @@ public class PagingStoreImpl implements PagingStore {
          this.syncTimer = null;
       }
 
-      this.cursorProvider = new PageCursorProviderImpl(this, this.storageManager, executor, addressSettings.getPageCacheMaxSize());
+      this.cursorProvider = storeFactory.newCursorProvider(this, this.storageManager, addressSettings, executor);
 
    }
 
@@ -831,7 +830,7 @@ public class PagingStoreImpl implements PagingStore {
 
             if (logger.isTraceEnabled()) {
                logger.trace("Paging message " + pagedMessage + " on pageStore " + this.getStoreName() +
-                                                    " pageId=" + currentPage.getPageId());
+                                                    " pageNr=" + currentPage.getPageId());
             }
 
             return true;
@@ -1020,6 +1019,10 @@ public class PagingStoreImpl implements PagingStore {
          numberOfPages++;
 
          int tmpCurrentPageId = currentPageId + 1;
+
+         if (logger.isTraceEnabled()) {
+            logger.trace("new pageNr=" + tmpCurrentPageId, new Exception("trace"));
+         }
 
          if (currentPage != null) {
             currentPage.close(true);

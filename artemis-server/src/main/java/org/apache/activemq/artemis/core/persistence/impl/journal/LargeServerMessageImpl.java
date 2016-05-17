@@ -340,10 +340,21 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
    @Override
    public String toString() {
-      return "LargeServerMessage[messageID=" + messageID + ",priority=" + this.getPriority() +
-         ",expiration=[" + (this.getExpiration() != 0 ? new java.util.Date(this.getExpiration()) : "null") + "]" +
+      return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() +
+         ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
          ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
    }
+
+   private static String toDate(long timestamp) {
+      if (timestamp == 0) {
+         return "0";
+      }
+      else {
+         return new java.util.Date(timestamp).toString();
+      }
+
+   }
+
 
    // Package protected ---------------------------------------------
 

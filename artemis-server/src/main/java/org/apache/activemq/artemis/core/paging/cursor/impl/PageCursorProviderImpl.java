@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
@@ -58,20 +59,20 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    /**
     * As an optimization, avoid subsequent schedules as they are unnecessary
     */
-   private final AtomicInteger scheduledCleanup = new AtomicInteger(0);
+   protected final AtomicInteger scheduledCleanup = new AtomicInteger(0);
 
-   private volatile boolean cleanupEnabled = true;
+   protected volatile boolean cleanupEnabled = true;
 
-   private final PagingStore pagingStore;
+   protected final PagingStore pagingStore;
 
-   private final StorageManager storageManager;
+   protected final StorageManager storageManager;
 
    // This is the same executor used at the PageStoreImpl. One Executor per pageStore
    private final Executor executor;
 
    private final SoftValueHashMap<Long, PageCache> softCache;
 
-   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<>();
+   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<Long, PageSubscription>();
 
    // Static --------------------------------------------------------
 
@@ -115,7 +116,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       if (cache == null || pos.getMessageNr() >= cache.getNumberOfMessages()) {
          // sanity check, this should never happen unless there's a bug
-         throw new IllegalStateException("Invalid messageNumber passed = " + pos + " on " + cache);
+         throw new NonExistentPage("Invalid messageNumber passed = " + pos + " on " + cache);
       }
 
       return cache.getMessage(pos.getMessageNr());
@@ -146,9 +147,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                cache = createPageCache(pageId);
                // anyone reading from this cache will have to wait reading to finish first
                // we also want only one thread reading this cache
-               if (logger.isTraceEnabled()) {
-                  logger.trace("adding " + pageId + " into cursor = " + this.pagingStore.getAddress());
-               }
+               logger.tracef("adding pageCache pageNr=%d into cursor = %s", pageId, this.pagingStore.getAddress());
                readPage((int) pageId, cache);
                softCache.put(pageId, cache);
             }
@@ -186,6 +185,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void addPageCache(PageCache cache) {
+      logger.tracef("Add page cache %s", cache);
       synchronized (softCache) {
          softCache.put(cache.getPageId(), cache);
       }
@@ -203,6 +203,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
+   @Override
    public void clearCache() {
       synchronized (softCache) {
          softCache.clear();
@@ -273,6 +274,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public void scheduleCleanup() {
 
+      if (logger.isTraceEnabled()) {
+         logger.trace("scheduling cleanup", new Exception("trace"));
+      }
       if (!cleanupEnabled || scheduledCleanup.intValue() > 2) {
          // Scheduled cleanup was already scheduled before.. never mind!
          // or we have cleanup disabled
@@ -286,7 +290,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          public void run() {
             storageManager.setContext(storageManager.newSingleThreadContext());
             try {
-               cleanup();
+               if (cleanupEnabled) {
+                  cleanup();
+               }
             }
             finally {
                storageManager.clearContext();
@@ -336,7 +342,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void cleanup() {
-      ArrayList<Page> depagedPages = new ArrayList<>();
+
+      logger.tracef("performing page cleanup %s", this);
+
+      ArrayList<Page> depagedPages = new ArrayList<Page>();
 
       while (true) {
          if (pagingStore.lock(100)) {
@@ -345,6 +354,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          if (!pagingStore.isStarted())
             return;
       }
+
+      logger.tracef("%s locked", this);
 
       synchronized (this) {
          try {
@@ -356,13 +367,11 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                return;
             }
 
-            if (logger.isDebugEnabled()) {
-               logger.debug("Asserting cleanup for address " + this.pagingStore.getAddress());
-            }
-
             ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
             long minPage = checkMinPage(cursorList);
+
+            logger.debugf("Asserting cleanup for address %s, firstPage=%d", pagingStore.getAddress(), minPage);
 
             // if the current page is being written...
             // on that case we need to move to verify it in a different way
@@ -376,18 +385,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                // All the pages on the cursor are complete.. so we will cleanup everything and store a bookmark
                if (complete) {
 
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("Address " + pagingStore.getAddress() +
-                                                          " is leaving page mode as all messages are consumed and acknowledged from the page store");
-                  }
-
-                  pagingStore.forceAnotherPage();
-
-                  Page currentPage = pagingStore.getCurrentPage();
-
-                  storeBookmark(cursorList, currentPage);
-
-                  pagingStore.stopPaging();
+                  cleanupComplete(cursorList);
                }
             }
 
@@ -423,7 +421,30 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             pagingStore.unlock();
          }
       }
+      finishCleanup(depagedPages);
 
+
+   }
+
+   // Protected as a way to inject testing
+   protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Address " + pagingStore.getAddress() +
+                                              " is leaving page mode as all messages are consumed and acknowledged from the page store");
+      }
+
+      pagingStore.forceAnotherPage();
+
+      Page currentPage = pagingStore.getCurrentPage();
+
+      storeBookmark(cursorList, currentPage);
+
+      pagingStore.stopPaging();
+   }
+
+   // Protected as a way to inject testing
+   protected void finishCleanup(ArrayList<Page> depagedPages) {
+      logger.tracef("this(%s) finishing cleanup on %s", this, depagedPages);
       try {
          for (Page depagedPage : depagedPages) {
             PageCache cache;
@@ -433,7 +454,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             }
 
             if (logger.isTraceEnabled()) {
-               logger.trace("Removing page " + depagedPage.getPageId() + " from page-cache");
+               logger.trace("Removing pageNr=" + depagedPage.getPageId() + " from page-cache");
             }
 
             if (cache == null) {
@@ -479,12 +500,15 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    private boolean checkPageCompletion(ArrayList<PageSubscription> cursorList, long minPage) {
+
+      logger.tracef("checkPageCompletion(%d)", minPage);
+
       boolean complete = true;
 
       for (PageSubscription cursor : cursorList) {
          if (!cursor.isComplete(minPage)) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Cursor " + cursor + " was considered incomplete at page " + minPage);
+               logger.debug("Cursor " + cursor + " was considered incomplete at pageNr=" + minPage);
             }
 
             complete = false;
@@ -492,7 +516,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
          else {
             if (logger.isDebugEnabled()) {
-               logger.debug("Cursor " + cursor + "was considered **complete** at page " + minPage);
+               logger.debug("Cursor " + cursor + " was considered **complete** at pageNr=" + minPage);
             }
          }
       }
@@ -543,6 +567,13 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       for (PageCache cache : softCache.values()) {
          System.out.println("Cache " + cache);
       }
+   }
+
+   @Override
+   public String toString() {
+      return "PageCursorProviderImpl{" +
+         "pagingStore=" + pagingStore +
+         '}';
    }
 
    // Package protected ---------------------------------------------
