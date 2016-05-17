@@ -28,11 +28,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.jboss.logging.Logger;
 
 public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implements Map<K, V> {
 
-   private final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(SoftValueHashMap.class);
 
    // The soft references that are already good.
    // too bad there's no way to override the queue method on ReferenceQueue, so I wouldn't need this
@@ -170,8 +170,8 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
             if (ref.used > 0) {
                Object removed = mapDelegate.remove(ref.key);
 
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Removing " + removed + " with id = " + ref.key + " from SoftValueHashMap");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Removing " + removed + " with id = " + ref.key + " from SoftValueHashMap");
                }
 
                if (mapDelegate.size() <= maxElements) {

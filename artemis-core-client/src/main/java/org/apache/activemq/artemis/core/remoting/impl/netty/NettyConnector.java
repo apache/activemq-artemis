@@ -101,10 +101,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
 public class NettyConnector extends AbstractConnector {
+   private static final Logger logger = Logger.getLogger(NettyConnector.class);
 
    // Constants -----------------------------------------------------
    public static final String JAVAX_KEYSTORE_PATH_PROP_NAME = "javax.net.ssl.keyStore";
@@ -528,7 +530,7 @@ public class NettyConnector extends AbstractConnector {
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
 
-      ActiveMQClientLogger.LOGGER.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
+      logger.debug("Started Netty Connector version " + TransportConstants.NETTY_VERSION);
    }
 
    @Override
@@ -589,7 +591,7 @@ public class NettyConnector extends AbstractConnector {
          }
       }
 
-      ActiveMQClientLogger.LOGGER.debug("Remote destination: " + remoteDestination);
+      logger.debug("Remote destination: " + remoteDestination);
 
       ChannelFuture future;
       //port 0 does not work so only use local address if set
@@ -659,7 +661,7 @@ public class NettyConnector extends AbstractConnector {
                request.headers().set(SEC_ACTIVEMQ_REMOTING_KEY, key);
                ch.attr(REMOTING_KEY).set(key);
 
-               ActiveMQClientLogger.LOGGER.debugf("Sending HTTP request %s", request);
+               logger.debugf("Sending HTTP request %s", request);
 
                // Send the HTTP request.
                ch.writeAndFlush(request);
@@ -985,7 +987,7 @@ public class NettyConnector extends AbstractConnector {
          InetAddress inetAddr2 = InetAddress.getByName(this.host);
          String ip1 = inetAddr1.getHostAddress();
          String ip2 = inetAddr2.getHostAddress();
-         ActiveMQClientLogger.LOGGER.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
+         logger.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
 
          result = ip1.equals(ip2);
       }

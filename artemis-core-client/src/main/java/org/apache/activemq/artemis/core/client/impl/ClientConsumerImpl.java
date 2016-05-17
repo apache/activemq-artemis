@@ -43,12 +43,13 @@ import org.apache.activemq.artemis.utils.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.jboss.logging.Logger;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal {
    // Constants
    // ------------------------------------------------------------------------------------
 
-   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ClientConsumerImpl.class);
 
    private static final long CLOSE_TIMEOUT_MILLISECONDS = 10000;
 
@@ -267,8 +268,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             }
 
             if (callForceDelivery) {
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Forcing delivery");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Forcing delivery");
                }
                // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
                sessionContext.forceDelivery(this, forceDeliveryCount++);
@@ -289,15 +290,15 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                      // forced delivery messages are discarded, nothing has been delivered by the queue
                      resetIfSlowConsumer();
 
-                     if (isTrace) {
-                        ActiveMQClientLogger.LOGGER.trace("There was nothing on the queue, leaving it now:: returning null");
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("There was nothing on the queue, leaving it now:: returning null");
                      }
 
                      return null;
                   }
                   else {
-                     if (isTrace) {
-                        ActiveMQClientLogger.LOGGER.trace("Ignored force delivery answer as it belonged to another call");
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("Ignored force delivery answer as it belonged to another call");
                      }
                      // Ignore the message
                      continue;
@@ -329,15 +330,15 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   largeMessageReceived = m;
                }
 
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Returning " + m);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Returning " + m);
                }
 
                return m;
             }
             else {
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Returning null");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Returning null");
                }
                resetIfSlowConsumer();
                return null;
@@ -645,8 +646,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          return;
       }
       if (currentLargeMessageController == null) {
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Sending back credits for largeController = null " + flowControlSize);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Sending back credits for largeController = null " + flowControlSize);
          }
          flowControl(flowControlSize, false);
       }
@@ -761,8 +762,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          if (creditsToSend >= clientWindowSize) {
             if (clientWindowSize == 0 && discountSlowConsumer) {
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
                }
 
                // sending the credits - 1 initially send to fire the slow consumer, or the slow consumer would be
@@ -776,8 +777,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
             }
             else {
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQClientLogger.LOGGER.debug("Sending " + messageBytes + " from flow-control");
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Sending " + messageBytes + " from flow-control");
                }
 
                final int credits = creditsToSend;
@@ -808,8 +809,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * Sending an initial credit for slow consumers
     */
    private void startSlowConsumer() {
-      if (isTrace) {
-         ActiveMQClientLogger.LOGGER.trace("Sending 1 credit to start delivering of one message to slow consumer");
+      if (logger.isTraceEnabled()) {
+         logger.trace("Sending 1 credit to start delivering of one message to slow consumer");
       }
       sendCredits(1);
       try {
@@ -853,8 +854,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    private void queueExecutor() {
-      if (isTrace) {
-         ActiveMQClientLogger.LOGGER.trace("Adding Runner on Executor for delivery");
+      if (logger.isTraceEnabled()) {
+         logger.trace("Adding Runner on Executor for delivery");
       }
 
       sessionExecutor.execute(runner);
@@ -944,8 +945,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             flowControlBeforeConsumption(message);
 
             if (!expired) {
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Calling handler.onMessage");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Calling handler.onMessage");
                }
                final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
                   @Override
@@ -979,8 +980,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   onMessageThread = null;
                }
 
-               if (isTrace) {
-                  ActiveMQClientLogger.LOGGER.trace("Handler.onMessage done");
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Handler.onMessage done");
                }
 
                if (message.isLargeMessage()) {

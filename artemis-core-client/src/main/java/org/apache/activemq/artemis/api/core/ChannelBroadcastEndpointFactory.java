@@ -31,7 +31,6 @@ import org.jgroups.JChannel;
 public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory {
 
    private static final Logger logger = Logger.getLogger(ChannelBroadcastEndpointFactory.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
 
    private final JChannel channel;
 
@@ -47,14 +46,14 @@ public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
 //   private static JChannelManager recoverManager(JChannel channel) {
 //      JChannelManager manager = managers.get(channel);
 //      if (manager == null) {
-//         if (isTrace) {
+//         if (logger.isTraceEnabled()) {
 //            logger.trace("Creating a new JChannelManager for " + channel, new Exception("trace"));
 //         }
 //         manager = new JChannelManager();
 //         managers.put(channel, manager);
 //      }
 //      else {
-//         if (isTrace) {
+//         if (logger.isTraceEnabled()) {
 //            logger.trace("Recover an already existent channelManager for " + channel, new Exception("trace"));
 //         }
 //
@@ -69,7 +68,7 @@ public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
    }
 
    private ChannelBroadcastEndpointFactory(JChannelManager manager, JChannel channel, String channelName) {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace("new ChannelBroadcastEndpointFactory(" + manager + ", " + channel + ", " + channelName, new Exception("trace"));
       }
       this.manager = manager;

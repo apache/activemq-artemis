@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.protocol.ClientPacketDecoder;
@@ -59,6 +58,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jboss.logging.Logger;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.
@@ -73,6 +73,8 @@ import org.apache.activemq.artemis.utils.VersionLoader;
  */
 
 public class ActiveMQClientProtocolManager implements ClientProtocolManager {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQClientProtocolManager.class);
 
    private static final String handshake = "ARTEMIS";
 
@@ -504,8 +506,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          }
 
          if (topMessage.isExit()) {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQClientLogger.LOGGER.debug("Notifying " + topMessage.getNodeID() + " going down");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Notifying " + topMessage.getNodeID() + " going down");
             }
 
             if (topologyResponseHandler != null) {

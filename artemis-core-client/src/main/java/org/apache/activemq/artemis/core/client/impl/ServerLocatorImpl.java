@@ -68,12 +68,15 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.jboss.logging.Logger;
 
 /**
  * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all
  * the proper javadoc is located on that interface.
  */
 public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener {
+
+   private static final Logger logger = Logger.getLogger(ServerLocatorImpl.class);
 
    private enum STATE {
       INITIALIZED, CLOSED, CLOSING
@@ -536,8 +539,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (this) {
          // if the topologyArray is null, we will use the initialConnectors
          if (usedTopology != null) {
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace("Selecting connector from toplogy.");
+            if (logger.isTraceEnabled()) {
+               logger.trace("Selecting connector from toplogy.");
             }
             int pos = loadBalancingPolicy.select(usedTopology.length);
             Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
@@ -546,8 +549,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
          else {
             // Get from initialconnectors
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace("Selecting connector from initial connectors.");
+            if (logger.isTraceEnabled()) {
+               logger.trace("Selecting connector from initial connectors.");
             }
 
             int pos = loadBalancingPolicy.select(initialConnectors.length);
@@ -651,8 +654,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    public ClientSessionFactory createSessionFactory(String nodeID) throws Exception {
       TopologyMember topologyMember = topology.getMember(nodeID);
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Creating connection factory towards " + nodeID + " = " + topologyMember + ", topology=" + topology.describe());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Creating connection factory towards " + nodeID + " = " + topologyMember + ", topology=" + topology.describe());
       }
 
       if (topologyMember == null) {
@@ -1323,8 +1326,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private void doClose(final boolean sendClose) {
       synchronized (stateGuard) {
          if (state == STATE.CLOSED) {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQClientLogger.LOGGER.debug(this + " is already closed when calling closed");
+            if (logger.isDebugEnabled()) {
+               logger.debug(this + " is already closed when calling closed");
             }
             return;
          }
@@ -1428,8 +1431,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          return;
       }
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("nodeDown " + this + " nodeID=" + nodeID + " as being down", new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("nodeDown " + this + " nodeID=" + nodeID + " as being down", new Exception("trace"));
       }
 
       topology.removeMember(eventTime, nodeID);
@@ -1462,8 +1465,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                             final String scaleDownGroupName,
                             final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                             final boolean last) {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("NodeUp " + this + "::nodeID=" + nodeID + ", connectorPair=" + connectorPair, new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("NodeUp " + this + "::nodeID=" + nodeID + ", connectorPair=" + connectorPair, new Exception("trace"));
       }
 
       TopologyMemberImpl member = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, connectorPair.getA(), connectorPair.getB());
@@ -1654,8 +1657,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             while (csf == null && !isClosed()) {
                retryNumber++;
                for (Connector conn : connectors) {
-                  if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQClientLogger.LOGGER.debug(this + "::Submitting connect towards " + conn);
+                  if (logger.isDebugEnabled()) {
+                     logger.debug(this + "::Submitting connect towards " + conn);
                   }
 
                   csf = conn.tryConnect();
@@ -1690,8 +1693,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                         }
                      });
 
-                     if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-                        ActiveMQClientLogger.LOGGER.debug("Returning " + csf +
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Returning " + csf +
                                                              " after " +
                                                              retryNumber +
                                                              " retries on StaticConnector " +
@@ -1714,7 +1717,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          catch (RejectedExecutionException e) {
             if (isClosed() || skipWarnings)
                return null;
-            ActiveMQClientLogger.LOGGER.debug("Rejected execution", e);
+            logger.debug("Rejected execution", e);
             throw e;
          }
          catch (Exception e) {
@@ -1787,8 +1790,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
 
          public ClientSessionFactory tryConnect() throws ActiveMQException {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQClientLogger.LOGGER.debug(this + "::Trying to connect to " + factory);
+            if (logger.isDebugEnabled()) {
+               logger.debug(this + "::Trying to connect to " + factory);
             }
             try {
                ClientSessionFactoryInternal factoryToUse = factory;
@@ -1805,7 +1808,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                return factoryToUse;
             }
             catch (ActiveMQException e) {
-               ActiveMQClientLogger.LOGGER.debug(this + "::Exception on establish connector initial connection", e);
+               logger.debug(this + "::Exception on establish connector initial connection", e);
                return null;
             }
          }

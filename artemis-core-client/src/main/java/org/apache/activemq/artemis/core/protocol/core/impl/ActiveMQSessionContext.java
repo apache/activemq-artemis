@@ -101,6 +101,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
@@ -109,6 +110,8 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
 public class ActiveMQSessionContext extends SessionContext {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQSessionContext.class);
 
    private final Channel sessionChannel;
    private final int serverVersion;
@@ -340,8 +343,8 @@ public class ActiveMQSessionContext extends SessionContext {
          throw new XAException(response.getResponseCode());
       }
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("finished commit on " + ClientSessionImpl.convert(xid) + " with response = " + response);
+      if (logger.isTraceEnabled()) {
+         logger.trace("finished commit on " + ClientSessionImpl.convert(xid) + " with response = " + response);
       }
    }
 

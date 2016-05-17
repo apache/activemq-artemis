@@ -39,8 +39,10 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.jboss.logging.Logger;
 
 public final class ChannelImpl implements Channel {
+   private static final Logger logger = Logger.getLogger(ChannelImpl.class);
 
    public enum CHANNEL_ID {
       /**
@@ -78,8 +80,6 @@ public final class ChannelImpl implements Channel {
          return Long.toString(code);
       }
    }
-
-   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
 
    private volatile long id;
 
@@ -242,8 +242,8 @@ public final class ChannelImpl implements Channel {
       synchronized (sendLock) {
          packet.setChannelID(id);
 
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Sending packet nonblocking " + packet + " on channeID=" + id);
          }
 
          ActiveMQBuffer buffer = packet.encode(connection);
@@ -258,7 +258,7 @@ public final class ChannelImpl implements Channel {
                   }
                   else {
                      if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
-                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for fail-over condition on non-blocking send");
+                        logger.debug("timed-out waiting for fail-over condition on non-blocking send");
                      }
                   }
                }
@@ -280,8 +280,8 @@ public final class ChannelImpl implements Channel {
             lock.unlock();
          }
 
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Writing buffer for channelID=" + id);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Writing buffer for channelID=" + id);
          }
 
          checkReconnectID(reconnectID);
@@ -346,7 +346,7 @@ public final class ChannelImpl implements Channel {
                   }
                   else {
                      if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
-                        ActiveMQClientLogger.LOGGER.debug("timed-out waiting for fail-over condition on blocking send");
+                        logger.debug("timed-out waiting for fail-over condition on blocking send");
                      }
                   }
                }
@@ -427,12 +427,12 @@ public final class ChannelImpl implements Channel {
             try {
                boolean callNext = interceptor.intercept(packet, connection);
 
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
+               if (logger.isDebugEnabled()) {
                   // use a StringBuilder for speed since this may be executed a lot
                   StringBuilder msg = new StringBuilder();
                   msg.append("Invocation of interceptor ").append(interceptor.getClass().getName()).append(" on ").
                      append(packet).append(" returned ").append(callNext);
-                  ActiveMQClientLogger.LOGGER.debug(msg.toString());
+                  logger.debug(msg.toString());
                }
 
                if (!callNext) {
@@ -505,8 +505,8 @@ public final class ChannelImpl implements Channel {
    @Override
    public void replayCommands(final int otherLastConfirmedCommandID) {
       if (resendCache != null) {
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Replaying commands on channelID=" + id);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Replaying commands on channelID=" + id);
          }
          clearUpTo(otherLastConfirmedCommandID);
 
@@ -553,8 +553,8 @@ public final class ChannelImpl implements Channel {
 
          confirmed.setChannelID(id);
 
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::flushConfirmation flushing confirmation " + confirmed);
+         if (logger.isTraceEnabled()) {
+            logger.trace("ChannelImpl::flushConfirmation flushing confirmation " + confirmed);
          }
 
          doWrite(confirmed);
@@ -566,8 +566,8 @@ public final class ChannelImpl implements Channel {
       if (resendCache != null && packet.isRequiresConfirmations()) {
          lastConfirmedCommandID.incrementAndGet();
 
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::confirming packet " + packet + " last commandID=" + lastConfirmedCommandID);
+         if (logger.isTraceEnabled()) {
+            logger.trace("ChannelImpl::confirming packet " + packet + " last commandID=" + lastConfirmedCommandID);
          }
 
          receivedBytes += packet.getPacketSize();
@@ -639,16 +639,16 @@ public final class ChannelImpl implements Channel {
    private void addResendPacket(Packet packet) {
       resendCache.add(packet);
 
-      if (isTrace) {
-         ActiveMQClientLogger.LOGGER.trace("ChannelImpl::addResendPacket adding packet " + packet + " stored commandID=" + firstStoredCommandID + " possible commandIDr=" + (firstStoredCommandID + resendCache.size()));
+      if (logger.isTraceEnabled()) {
+         logger.trace("ChannelImpl::addResendPacket adding packet " + packet + " stored commandID=" + firstStoredCommandID + " possible commandIDr=" + (firstStoredCommandID + resendCache.size()));
       }
    }
 
    private void clearUpTo(final int lastReceivedCommandID) {
       final int numberToClear = 1 + lastReceivedCommandID - firstStoredCommandID;
 
-      if (isTrace) {
-         ActiveMQClientLogger.LOGGER.trace("ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID +
+      if (logger.isTraceEnabled()) {
+         logger.trace("ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID +
                                               " first commandID=" + firstStoredCommandID +
                                               " number to clear " + numberToClear);
       }
@@ -662,8 +662,8 @@ public final class ChannelImpl implements Channel {
             return;
          }
 
-         if (isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("ChannelImpl::clearUpTo confirming " + packet + " towards " + commandConfirmationHandler);
+         if (logger.isTraceEnabled()) {
+            logger.trace("ChannelImpl::clearUpTo confirming " + packet + " towards " + commandConfirmationHandler);
          }
          if (commandConfirmationHandler != null) {
             commandConfirmationHandler.commandConfirmed(packet);

@@ -30,8 +30,10 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
+import org.jboss.logging.Logger;
 
 public final class Topology {
+   private static final Logger logger = Logger.getLogger(Topology.class);
 
    private final Set<ClusterTopologyListener> topologyListeners;
 
@@ -76,8 +78,8 @@ public final class Topology {
       }
       this.executor = executor;
       this.owner = owner;
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
       }
    }
 
@@ -89,8 +91,8 @@ public final class Topology {
    }
 
    public void addClusterTopologyListener(final ClusterTopologyListener listener) {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
       }
       synchronized (topologyListeners) {
          topologyListeners.add(listener);
@@ -99,8 +101,8 @@ public final class Topology {
    }
 
    public void removeClusterTopologyListener(final ClusterTopologyListener listener) {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
       }
       synchronized (topologyListeners) {
          topologyListeners.remove(listener);
@@ -112,8 +114,8 @@ public final class Topology {
     */
    public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput) {
       synchronized (this) {
-         if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQClientLogger.LOGGER.debug(this + "::node " + nodeId + "=" + memberInput);
+         if (logger.isDebugEnabled()) {
+            logger.debug(this + "::node " + nodeId + "=" + memberInput);
          }
          memberInput.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
@@ -142,15 +144,15 @@ public final class Topology {
     */
    public TopologyMemberImpl updateBackup(final TopologyMemberImpl memberInput) {
       final String nodeId = memberInput.getNodeId();
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
       }
 
       synchronized (this) {
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null) {
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput, new Exception("trace"));
+            if (logger.isTraceEnabled()) {
+               logger.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput, new Exception("trace"));
             }
 
             currentMember = memberInput;
@@ -178,7 +180,7 @@ public final class Topology {
 
       Long deleteTme = getMapDelete().get(nodeId);
       if (deleteTme != null && uniqueEventID != 0 && uniqueEventID < deleteTme) {
-         ActiveMQClientLogger.LOGGER.debug("Update uniqueEvent=" + uniqueEventID +
+         logger.debug("Update uniqueEvent=" + uniqueEventID +
                                               ", nodeId=" +
                                               nodeId +
                                               ", memberInput=" +
@@ -191,8 +193,8 @@ public final class Topology {
          TopologyMemberImpl currentMember = topology.get(nodeId);
 
          if (currentMember == null) {
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput, new Exception("trace"));
+            if (logger.isTraceEnabled()) {
+               logger.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput, new Exception("trace"));
             }
             memberInput.setUniqueEventID(uniqueEventID);
             topology.put(nodeId, memberInput);
@@ -210,8 +212,8 @@ public final class Topology {
                newMember.setBackup(currentMember.getBackup());
             }
 
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-               ActiveMQClientLogger.LOGGER.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
+            if (logger.isTraceEnabled()) {
+               logger.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
                                                     currentMember + ", memberInput=" + memberInput + "newMember=" +
                                                     newMember, new Exception("trace"));
             }
@@ -241,8 +243,8 @@ public final class Topology {
    private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend) {
       final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
       }
 
       if (copy.size() > 0) {
@@ -250,8 +252,8 @@ public final class Topology {
             @Override
             public void run() {
                for (ClusterTopologyListener listener : copy) {
-                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-                     ActiveMQClientLogger.LOGGER.trace(Topology.this + " informing " +
+                  if (logger.isTraceEnabled()) {
+                     logger.trace(Topology.this + " informing " +
                                                           listener +
                                                           " about node up = " +
                                                           nodeId +
@@ -289,7 +291,7 @@ public final class Topology {
          member = topology.get(nodeId);
          if (member != null) {
             if (member.getUniqueEventID() > uniqueEventID) {
-               ActiveMQClientLogger.LOGGER.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
+               logger.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
                member = null;
             }
             else {
@@ -299,8 +301,8 @@ public final class Topology {
          }
       }
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("removeMember " + this +
+      if (logger.isTraceEnabled()) {
+         logger.trace("removeMember " + this +
                                               " removing nodeID=" +
                                               nodeId +
                                               ", result=" +
@@ -316,8 +318,8 @@ public final class Topology {
             @Override
             public void run() {
                for (ClusterTopologyListener listener : copy) {
-                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-                     ActiveMQClientLogger.LOGGER.trace(this + " informing " + listener + " about node down = " + nodeId);
+                  if (logger.isTraceEnabled()) {
+                     logger.trace(this + " informing " + listener + " about node down = " + nodeId);
                   }
                   try {
                      listener.nodeDown(uniqueEventID, nodeId);
@@ -333,8 +335,8 @@ public final class Topology {
    }
 
    public synchronized void sendTopology(final ClusterTopologyListener listener) {
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQClientLogger.LOGGER.debug(this + " is sending topology to " + listener);
+      if (logger.isDebugEnabled()) {
+         logger.debug(this + " is sending topology to " + listener);
       }
 
       executor.execute(new Runnable() {
@@ -349,8 +351,8 @@ public final class Topology {
             }
 
             for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-                  ActiveMQClientLogger.LOGGER.debug(Topology.this + " sending " +
+               if (logger.isDebugEnabled()) {
+                  logger.debug(Topology.this + " sending " +
                                                        entry.getKey() +
                                                        " / " +
                                                        entry.getValue().getConnector() +
