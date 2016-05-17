@@ -128,7 +128,7 @@
                  <artifactItem>
                    <groupId>com.sun.winsw</groupId>
                    <artifactId>winsw</artifactId>
-                   <version>1.9</version>
+                   <version>1.18</version>
                    <classifier>bin</classifier>
                    <type>exe</type>
                    <outputDirectory>${basedir}/target/classes/org/apache/activemq/artemis/cli/commands/bin/</outputDirectory>
@@ -142,5 +142,12 @@
      </plugins>
    </build>
 
+   <repositories>
+      <repository>
+         <id>jenkins</id>
+         <name>jenkins</name>
+         <url>http://repo.jenkins-ci.org/releases/</url>
+      </repository>
+   </repositories>
 
 </project>
