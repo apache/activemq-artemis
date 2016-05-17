@@ -46,7 +46,7 @@
    <argument>-Ddata.dir="${artemis.instance}\data"</argument>
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
    <argument>-Dlogging.configuration="file:${artemis.instance}\etc\logging.properties"</argument>
-   <argument>-Djava.security.auth.login.config"${artemis.instance}\etc\login.config"</argument>
+   <argument>-Djava.security.auth.login.config="${artemis.instance}\etc\login.config"</argument>
 
 
    <!-- Debug args: Uncomment to enable debug
