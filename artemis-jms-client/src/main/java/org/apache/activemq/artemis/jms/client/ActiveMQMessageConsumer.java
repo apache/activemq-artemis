@@ -218,6 +218,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                jmsMsg.doBeforeReceive();
             }
             catch (IndexOutOfBoundsException ioob) {
+               ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
                // In case this exception happen you will need to know where it happened.
                // it has been a bug here in the past, and this was used to debug it.
                // nothing better than keep it for future investigations in case it happened again
@@ -240,6 +241,11 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
          return jmsMsg;
       }
       catch (ActiveMQException e) {
+         ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
+         throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+      catch (ActiveMQInterruptedException e) {
+         ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
