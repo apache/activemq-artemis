@@ -33,7 +33,6 @@ import org.jboss.logging.Logger;
 public class JChannelManager {
 
    private static final Logger logger = Logger.getLogger(JChannelManager.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
 
    private Map<String, JChannelWrapper> channels;
 
@@ -46,11 +45,11 @@ public class JChannelManager {
       if (wrapper == null) {
          wrapper = new JChannelWrapper(this, channelName, endpoint.createChannel());
          channels.put(channelName, wrapper);
-         if (isTrace)
+         if (logger.isTraceEnabled())
             logger.trace("Put Channel " + channelName);
          return wrapper;
       }
-      if (isTrace)
+      if (logger.isTraceEnabled())
          logger.trace("Add Ref Count " + channelName);
       return wrapper.addRef();
    }

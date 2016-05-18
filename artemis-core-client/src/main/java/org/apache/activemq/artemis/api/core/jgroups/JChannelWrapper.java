@@ -31,7 +31,6 @@ import org.jgroups.ReceiverAdapter;
  */
 public class JChannelWrapper {
    private static final Logger logger = Logger.getLogger(JChannelWrapper.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
 
    private boolean connected = false;
    int refCount = 1;
@@ -47,7 +46,7 @@ public class JChannelWrapper {
       this.manager = manager;
 
 
-      if (isTrace && channel.getReceiver() != null) {
+      if (logger.isTraceEnabled() && channel.getReceiver() != null) {
          logger.trace(this + "The channel already had a receiver previously!!!! == " + channel.getReceiver(), new Exception("trace"));
       }
 
@@ -61,7 +60,7 @@ public class JChannelWrapper {
 
          @Override
          public void receive(org.jgroups.Message msg) {
-            if (isTrace) {
+            if (logger.isTraceEnabled()) {
                logger.trace(this + ":: Wrapper received " + msg + " on channel " + channelName);
             }
             synchronized (receivers) {
@@ -83,7 +82,7 @@ public class JChannelWrapper {
 
    public synchronized void close(boolean closeWrappedChannel) {
       refCount--;
-      if (isTrace) logger.trace(this + "::RefCount-- " + refCount + " on channel " + channelName, new Exception("Trace"));
+      if (logger.isTraceEnabled()) logger.trace(this + "::RefCount-- " + refCount + " on channel " + channelName, new Exception("Trace"));
       if (refCount == 0) {
          if (closeWrappedChannel) {
             connected = false;
@@ -96,14 +95,14 @@ public class JChannelWrapper {
    }
 
    public void removeReceiver(JGroupsReceiver receiver) {
-      if (isTrace) logger.trace(this + "::removeReceiver: " + receiver + " on "  + channelName, new Exception("Trace"));
+      if (logger.isTraceEnabled()) logger.trace(this + "::removeReceiver: " + receiver + " on "  + channelName, new Exception("Trace"));
       synchronized (receivers) {
          receivers.remove(receiver);
       }
    }
 
    public synchronized void connect() throws Exception {
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logger.trace(this + ":: Connecting " + channelName, new Exception("Trace"));
       }
 
@@ -121,19 +120,19 @@ public class JChannelWrapper {
 
    public void addReceiver(JGroupsReceiver jGroupsReceiver) {
       synchronized (receivers) {
-         if (isTrace) logger.trace(this + "::Add Receiver: " + jGroupsReceiver + " on " + channelName);
+         if (logger.isTraceEnabled()) logger.trace(this + "::Add Receiver: " + jGroupsReceiver + " on " + channelName);
          receivers.add(jGroupsReceiver);
       }
    }
 
    public void send(org.jgroups.Message msg) throws Exception {
-      if (isTrace) logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
+      if (logger.isTraceEnabled()) logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
       channel.send(msg);
    }
 
    public JChannelWrapper addRef() {
       this.refCount++;
-      if (isTrace) logger.trace(this + "::RefCount++ = " + refCount + " on channel " + channelName);
+      if (logger.isTraceEnabled()) logger.trace(this + "::RefCount++ = " + refCount + " on channel " + channelName);
       return this;
    }
 

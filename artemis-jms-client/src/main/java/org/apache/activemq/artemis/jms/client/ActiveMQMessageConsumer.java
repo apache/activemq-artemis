@@ -27,12 +27,14 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
@@ -216,6 +218,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                jmsMsg.doBeforeReceive();
             }
             catch (IndexOutOfBoundsException ioob) {
+               ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
                // In case this exception happen you will need to know where it happened.
                // it has been a bug here in the past, and this was used to debug it.
                // nothing better than keep it for future investigations in case it happened again
@@ -238,6 +241,11 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
          return jmsMsg;
       }
       catch (ActiveMQException e) {
+         ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
+         throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+      catch (ActiveMQInterruptedException e) {
+         ((ClientSessionInternal)session.getCoreSession()).markRollbackOnly();
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }

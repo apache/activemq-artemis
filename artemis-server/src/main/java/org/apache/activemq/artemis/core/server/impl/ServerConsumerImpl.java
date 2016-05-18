@@ -854,7 +854,15 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       boolean startedTransaction = false;
 
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("individualACK messageID=" + messageID);
+      }
+
       if (tx == null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("individualACK starting new TX");
+         }
          startedTransaction = true;
          tx = new TransactionImpl(storageManager);
       }

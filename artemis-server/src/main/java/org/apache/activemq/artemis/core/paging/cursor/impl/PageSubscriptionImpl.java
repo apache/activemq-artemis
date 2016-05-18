@@ -191,7 +191,11 @@ final class PageSubscriptionImpl implements PageSubscription {
     * cursor/subscription.
     */
    @Override
-   public void reloadPageCompletion(PagePosition position) {
+   public void reloadPageCompletion(PagePosition position) throws Exception {
+      // if the current page is complete, we must move it out of the way
+      if (pageStore.getCurrentPage().getPageId() == position.getPageNr()) {
+         pageStore.forceAnotherPage();
+      }
       PageCursorInfo info = new PageCursorInfo(position.getPageNr(), position.getMessageNr(), null);
       info.setCompleteInfo(position);
       synchronized (consumedPages) {
@@ -202,6 +206,9 @@ final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void scheduleCleanupCheck() {
       if (autoCleanup) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Scheduling cleanup", new Exception("trace"));
+         }
          if (scheduledCleanupCount.get() > 2) {
             return;
          }
@@ -212,7 +219,9 @@ final class PageSubscriptionImpl implements PageSubscription {
             @Override
             public void run() {
                try {
-                  cleanupEntries(false);
+                  if (autoCleanup) {
+                     cleanupEntries(false);
+                  }
                }
                catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.problemCleaningCursorPages(e);
@@ -241,6 +250,9 @@ final class PageSubscriptionImpl implements PageSubscription {
    public void cleanupEntries(final boolean completeDelete) throws Exception {
       if (completeDelete) {
          counter.delete();
+      }
+      if (logger.isTraceEnabled()) {
+         logger.trace("cleanupEntries", new Exception("trace"));
       }
       Transaction tx = new TransactionImpl(store);
 
@@ -564,17 +576,23 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public boolean isComplete(long page) {
+      logger.tracef("%s isComplete %d", this, page);
       synchronized (consumedPages) {
          if (empty && consumedPages.isEmpty()) {
+            if (logger.isTraceEnabled()) {
+               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", (Object)page, this, consumedPages.isEmpty());
+            }
             return true;
          }
 
          PageCursorInfo info = consumedPages.get(page);
 
          if (info == null && empty) {
+            logger.tracef("isComplete(%d)::::Couldn't find info and it is empty", page);
             return true;
          }
          else {
+            logger.tracef("isComplete(%d)::calling is %s", (Object)page, this, consumedPages.isEmpty());
             return info != null && info.isDone();
          }
       }
@@ -731,18 +749,18 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void reloadPageInfo(long pageNr) {
-      getPageInfo(pageNr, true);
+      getPageInfo(pageNr);
    }
 
    private PageCursorInfo getPageInfo(final PagePosition pos) {
-      return getPageInfo(pos.getPageNr(), true);
+      return getPageInfo(pos.getPageNr());
    }
 
-   private PageCursorInfo getPageInfo(final long pageNr, boolean create) {
+   private PageCursorInfo getPageInfo(final long pageNr) {
       synchronized (consumedPages) {
          PageCursorInfo pageInfo = consumedPages.get(pageNr);
 
-         if (create && pageInfo == null) {
+         if (pageInfo == null) {
             PageCache cache = cursorProvider.getPageCache(pageNr);
             if (cache == null) {
                return null;
@@ -814,7 +832,11 @@ final class PageSubscriptionImpl implements PageSubscription {
          tx.setContainsPersistent();
       }
 
-      getPageInfo(position).remove(position);
+      PageCursorInfo info = getPageInfo(position);
+
+      logger.tracef("InstallTXCallback looking up pagePosition %s, result=%s", position, info);
+
+      info.remove(position);
 
       PageCursorTX cursorTX = (PageCursorTX) tx.getProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS);
 
@@ -897,16 +919,17 @@ final class PageSubscriptionImpl implements PageSubscription {
       @Override
       public String toString() {
          try {
-            return "PageCursorInfo::PageID=" + pageId +
+            return "PageCursorInfo::pageNr=" + pageId +
                " numberOfMessage = " +
                numberOfMessages +
                ", confirmed = " +
                confirmed +
                ", isDone=" +
-               this.isDone();
+               this.isDone() +
+               " wasLive = " + wasLive;
          }
          catch (Exception e) {
-            return "PageCursorInfo::PageID=" + pageId +
+            return "PageCursorInfo::pageNr=" + pageId +
                " numberOfMessage = " +
                numberOfMessages +
                ", confirmed = " +
@@ -917,6 +940,7 @@ final class PageSubscriptionImpl implements PageSubscription {
       }
 
       public PageCursorInfo(final long pageId, final int numberOfMessages, final PageCache cache) {
+         logger.tracef("Created PageCursorInfo for pageNr=%d, numberOfMessages=%d,  cache=%s", pageId, numberOfMessages, cache);
          this.pageId = pageId;
          this.numberOfMessages = numberOfMessages;
          if (cache != null) {
@@ -932,6 +956,7 @@ final class PageSubscriptionImpl implements PageSubscription {
        * @param completePage
        */
       public void setCompleteInfo(final PagePosition completePage) {
+         logger.tracef("Setting up complete page %s on cursor %s on subscription %s", completePage, this, PageSubscriptionImpl.this);
          this.completePage = completePage;
       }
 
@@ -940,6 +965,10 @@ final class PageSubscriptionImpl implements PageSubscription {
       }
 
       public boolean isDone() {
+         if (logger.isTraceEnabled()) {
+            logger.trace(PageSubscriptionImpl.this + "::PageCursorInfo(" + pageId + ")::isDone checking with completePage!=null->" + (completePage != null) + " getNumberOfMessages=" + getNumberOfMessages() + ", confirmed=" + confirmed.get() + " and pendingTX=" + pendingTX.get());
+
+         }
          return completePage != null || (getNumberOfMessages() == confirmed.get() && pendingTX.get() == 0);
       }
 
@@ -983,7 +1012,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                                                     " confirmed =  " +
                                                     (confirmed.get() + 1) +
                                                     " pendingTX = " + pendingTX +
-                                                    ", page = " +
+                                                    ", pageNr = " +
                                                     pageId + " posACK = " + posACK);
             }
             catch (Throwable ignored) {
@@ -1189,7 +1218,7 @@ final class PageSubscriptionImpl implements PageSubscription {
                   ignored = true;
                }
 
-               PageCursorInfo info = getPageInfo(message.getPosition().getPageNr(), false);
+               PageCursorInfo info = getPageInfo(message.getPosition().getPageNr());
 
                if (info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null)) {
                   continue;

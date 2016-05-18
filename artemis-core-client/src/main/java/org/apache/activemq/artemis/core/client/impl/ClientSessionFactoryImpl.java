@@ -66,17 +66,11 @@ import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
-   // Constants
-   // ------------------------------------------------------------------------------------
 
-   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
-
-   private static final boolean isDebug = ActiveMQClientLogger.LOGGER.isDebugEnabled();
-
-   // Attributes
-   // -----------------------------------------------------------------------------------
+   private static final Logger logger = Logger.getLogger(ClientSessionFactoryImpl.class);
 
    private final ServerLocatorInternal serverLocator;
 
@@ -270,14 +264,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
 
       if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())) {
-         if (ClientSessionFactoryImpl.isDebug) {
-            ActiveMQClientLogger.LOGGER.debug("Setting up backup config = " + backUp + " for live = " + live);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Setting up backup config = " + backUp + " for live = " + live);
          }
          backupConfig = backUp;
       }
       else {
-         if (ClientSessionFactoryImpl.isDebug) {
-            ActiveMQClientLogger.LOGGER.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
+         if (logger.isDebugEnabled()) {
+            logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
                                                  " / " +
                                                  backUp +
                                                  " but it didn't belong to " +
@@ -514,7 +508,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
       catch (ActiveMQInterruptedException e1) {
          // this is just a debug, since an interrupt is an expected event (in case of a shutdown)
-         ActiveMQClientLogger.LOGGER.debug(e1.getMessage(), e1);
+         logger.debug(e1.getMessage(), e1);
       }
       catch (Throwable t) {
          //for anything else just close so clients are un blocked
@@ -548,8 +542,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             return;
          }
 
-         if (ClientSessionFactoryImpl.isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts=" + reconnectAttempts);
+         if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
+            logger.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts=" + reconnectAttempts);
          }
 
          callFailoverListeners(FailoverEventType.FAILURE_DETECTED);
@@ -782,8 +776,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private void getConnectionWithRetry(final int reconnectAttempts) {
       if (!clientProtocolManager.isAlive())
          return;
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("getConnectionWithRetry::" + reconnectAttempts +
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConnectionWithRetry::" + reconnectAttempts +
                                               " with retryInterval = " +
                                               retryInterval +
                                               " multiplier = " +
@@ -795,13 +789,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       int count = 0;
 
       while (clientProtocolManager.isAlive()) {
-         if (ClientSessionFactoryImpl.isDebug) {
-            ActiveMQClientLogger.LOGGER.debug("Trying reconnection attempt " + count + "/" + reconnectAttempts);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Trying reconnection attempt " + count + "/" + reconnectAttempts);
          }
 
          if (getConnection() != null) {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQClientLogger.LOGGER.debug("Reconnection successful");
+            if (logger.isDebugEnabled()) {
+               logger.debug("Reconnection successful");
             }
             return;
          }
@@ -819,7 +813,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   return;
                }
 
-               if (ClientSessionFactoryImpl.isTrace) {
+               if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
                   ActiveMQClientLogger.LOGGER.waitingForRetry(interval, retryInterval, retryIntervalMultiplier);
                }
 
@@ -842,7 +836,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                interval = newInterval;
             }
             else {
-               ActiveMQClientLogger.LOGGER.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
+               logger.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
                return;
             }
          }
@@ -929,14 +923,14 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
             if (serverLocator.getTopology() != null) {
                if (connection != null) {
-                  if (ClientSessionFactoryImpl.isTrace) {
-                     ActiveMQClientLogger.LOGGER.trace(this + "::Subscribing Topology");
+                  if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
+                     logger.trace(this + "::Subscribing Topology");
                   }
                   clientProtocolManager.sendSubscribeTopology(serverLocator.isClusterConnection());
                }
             }
             else {
-               ActiveMQClientLogger.LOGGER.debug("serverLocator@" + System.identityHashCode(serverLocator + " had no topology"));
+               logger.debug("serverLocator@" + System.identityHashCode(serverLocator + " had no topology"));
             }
 
             return connection;
@@ -1050,8 +1044,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = connector.createConnection();
 
       if (transportConnection == null) {
-         if (ClientSessionFactoryImpl.isDebug) {
-            ActiveMQClientLogger.LOGGER.debug("Connector towards " + connector + " failed");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Connector towards " + connector + " failed");
          }
 
          try {
@@ -1081,8 +1075,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = null;
 
       try {
-         if (ClientSessionFactoryImpl.isDebug) {
-            ActiveMQClientLogger.LOGGER.debug("Trying to connect with connector = " + connectorFactory +
+         if (logger.isDebugEnabled()) {
+            logger.debug("Trying to connect with connector = " + connectorFactory +
                                                  ", parameters = " +
                                                  connectorConfig.getParams() +
                                                  " connector = " +
@@ -1096,8 +1090,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             connector = liveConnector;
          }
          else if (backupConfig != null) {
-            if (ClientSessionFactoryImpl.isDebug) {
-               ActiveMQClientLogger.LOGGER.debug("Trying backup config = " + backupConfig);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Trying backup config = " + backupConfig);
             }
 
             ConnectorFactory backupConnectorFactory = instantiateConnectorFactory(backupConfig.getFactoryClassName());
@@ -1109,8 +1103,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             if (transportConnection != null) {
             /*looks like the backup is now live, let's use that*/
 
-               if (ClientSessionFactoryImpl.isDebug) {
-                  ActiveMQClientLogger.LOGGER.debug("Connected to the backup at " + backupConfig);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Connected to the backup at " + backupConfig);
                }
 
                // Switching backup as live
@@ -1120,8 +1114,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                connectorFactory = backupConnectorFactory;
             }
             else {
-               if (ClientSessionFactoryImpl.isDebug) {
-                  ActiveMQClientLogger.LOGGER.debug("Backup is not active.");
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Backup is not active.");
                }
             }
 
@@ -1166,7 +1160,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             theConn.bufferReceived(connectionID, buffer);
          }
          else {
-            ActiveMQClientLogger.LOGGER.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
+            logger.debug("TheConn == null on ClientSessionFactoryImpl::DelegatingBufferHandler, ignoring packet");
          }
       }
    }
@@ -1279,8 +1273,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = createTransportConnection();
 
       if (transportConnection == null) {
-         if (ClientSessionFactoryImpl.isTrace) {
-            ActiveMQClientLogger.LOGGER.trace("Neither backup or live were active, will just give up now");
+         if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
+            logger.trace("Neither backup or live were active, will just give up now");
          }
          return null;
       }
@@ -1291,8 +1285,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       schedulePing();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("returning " + newConnection);
+      if (logger.isTraceEnabled()) {
+         logger.trace("returning " + newConnection);
       }
 
       return newConnection;
@@ -1320,8 +1314,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       @Override
       public void nodeDisconnected(RemotingConnection conn, String nodeID, String scaleDownTargetNodeID) {
 
-         if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQClientLogger.LOGGER.trace("Disconnect being called on client:" +
+         if (logger.isTraceEnabled()) {
+            logger.trace("Disconnect being called on client:" +
                                                  " server locator = " +
                                                  serverLocator +
                                                  " notifying node " +

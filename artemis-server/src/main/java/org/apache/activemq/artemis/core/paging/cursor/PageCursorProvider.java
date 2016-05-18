@@ -24,6 +24,9 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
  */
 public interface PageCursorProvider {
 
+   /** Used on tests, to simulate a scenario where the VM cleared space */
+   void clearCache();
+
    PageCache getPageCache(long pageNr);
 
    PagedReference newReference(final PagePosition pos, final PagedMessage msg, PageSubscription sub);

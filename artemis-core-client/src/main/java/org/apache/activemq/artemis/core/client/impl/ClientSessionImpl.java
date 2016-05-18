@@ -51,8 +51,11 @@ import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
+import org.jboss.logging.Logger;
 
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
+
+   private static final Logger logger = Logger.getLogger(ClientSessionImpl.class);
 
    private final Map<String, String> metadata = new HashMap<>();
 
@@ -486,8 +489,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void commit() throws ActiveMQException {
       checkClosed();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Sending commit");
+      if (logger.isTraceEnabled()) {
+         logger.trace("Sending commit");
       }
 
       /*
@@ -547,8 +550,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void rollback(final boolean isLastMessageAsDelivered, final boolean waitConsumers) throws ActiveMQException
    {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
       }
       checkClosed();
 
@@ -745,8 +748,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
 
       checkClosed();
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQClientLogger.LOGGER.debug("client ack messageID = " + message.getMessageID());
+      if (logger.isDebugEnabled()) {
+         logger.debug("client ack messageID = " + message.getMessageID());
       }
 
       startCall();
@@ -870,12 +873,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void close() throws ActiveMQException {
       if (closed) {
-         ActiveMQClientLogger.LOGGER.debug("Session was already closed, giving up now, this=" + this);
+         logger.debug("Session was already closed, giving up now, this=" + this);
          return;
       }
 
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQClientLogger.LOGGER.debug("Calling close on session " + this);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Calling close on session " + this);
       }
 
       try {
@@ -891,7 +894,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          // Session close should always return without exception
 
          // Note - we only log at trace
-         ActiveMQClientLogger.LOGGER.trace("Failed to close session", e);
+         logger.trace("Failed to close session", e);
       }
 
       doCleanup(false);
@@ -1128,8 +1131,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("call commit(xid=" + convert(xid));
+      if (logger.isTraceEnabled()) {
+         logger.trace("call commit(xid=" + convert(xid));
       }
       checkXA();
 
@@ -1178,8 +1181,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void end(final Xid xid, final int flags) throws XAException {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
       }
 
       checkXA();
@@ -1190,7 +1193,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                rollback(false, false);
             }
             catch (Throwable ignored) {
-               ActiveMQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
+               logger.debug("Error on rollback during end call!", ignored);
             }
             throw new XAException(XAException.XAER_RMFAIL);
          }
@@ -1315,8 +1318,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public int prepare(final Xid xid) throws XAException {
       checkXA();
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Calling prepare:: " + convert(xid));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Calling prepare:: " + convert(xid));
       }
 
       if (rollbackOnly) {
@@ -1402,8 +1405,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void rollback(final Xid xid) throws XAException {
       checkXA();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Calling rollback:: " + convert(xid));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Calling rollback:: " + convert(xid));
       }
 
       try {
@@ -1455,8 +1458,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void start(final Xid xid, final int flags) throws XAException {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQClientLogger.LOGGER.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
       }
 
       checkXA();
@@ -1633,8 +1636,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    private void doCleanup(boolean failingOver) {
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQClientLogger.LOGGER.debug("calling cleanup on " + this);
+      if (logger.isDebugEnabled()) {
+         logger.debug("calling cleanup on " + this);
       }
 
       synchronized (this) {

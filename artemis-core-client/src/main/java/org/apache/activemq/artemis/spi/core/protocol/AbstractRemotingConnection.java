@@ -30,8 +30,11 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.jboss.logging.Logger;
 
 public abstract class AbstractRemotingConnection implements RemotingConnection {
+
+   private static final Logger logger = Logger.getLogger(AbstractRemotingConnection.class);
 
    protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
    protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
@@ -65,7 +68,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
          }
          catch (ActiveMQInterruptedException interrupted) {
             // this is an expected behaviour.. no warn or error here
-            ActiveMQClientLogger.LOGGER.debug("thread interrupted", interrupted);
+            logger.debug("thread interrupted", interrupted);
          }
          catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others

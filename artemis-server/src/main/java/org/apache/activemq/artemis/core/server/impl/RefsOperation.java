@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -164,6 +165,10 @@ public class RefsOperation extends TransactionOperationAbstract {
    private void decrementRefCount(MessageReference refmsg) {
       try {
          refmsg.getMessage().decrementRefCount();
+      }
+      catch (NonExistentPage e) {
+         // This could happen on after commit, since the page could be deleted on file earlier by another thread
+         logger.debug(e);
       }
       catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);

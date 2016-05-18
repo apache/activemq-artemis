@@ -34,11 +34,14 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.jboss.logging.Logger;
 
 public final class PageTransactionInfoImpl implements PageTransactionInfo {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
+
+   private static final Logger logger = Logger.getLogger(PageTransactionInfoImpl.class);
 
    private long transactionID;
 
@@ -239,19 +242,36 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    public synchronized boolean deliverAfterCommit(PageIterator iterator,
                                                   PageSubscription cursor,
                                                   PagePosition cursorPos) {
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("deliver after commit on " + cursor + ", position=" + cursorPos);
+      }
+
       if (committed && useRedelivery) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("commit & useRedelivery on " + cursor + ", position=" + cursorPos);
+         }
          cursor.addPendingDelivery(cursorPos);
          cursor.redeliver(iterator, cursorPos);
          return true;
       }
       else if (committed) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("committed on " + cursor + ", position=" + cursorPos + ", ignoring position");
+         }
          return false;
       }
       else if (rolledback) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("rolled back, position ignored on " + cursor + ", position=" + cursorPos);
+         }
          cursor.positionIgnored(cursorPos);
          return true;
       }
       else {
+         if (logger.isTraceEnabled()) {
+            logger.trace("deliverAftercommit/else, marking useRedelivery on " + cursor + ", position " + cursorPos);
+         }
          useRedelivery = true;
          if (lateDeliveries == null) {
             lateDeliveries = new LinkedList<>();
