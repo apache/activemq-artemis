@@ -68,7 +68,7 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
       ServerSASL[] result;
 
       if (supportsAnonymous) {
-         result = new ServerSASL[]{new AnonymousServerSASL(), new ActiveMQPlainSASL(manager.getServer().getSecurityStore())};
+         result = new ServerSASL[]{new ActiveMQPlainSASL(manager.getServer().getSecurityStore()), new AnonymousServerSASL()};
       }
       else {
          result = new ServerSASL[]{new ActiveMQPlainSASL(manager.getServer().getSecurityStore())};
