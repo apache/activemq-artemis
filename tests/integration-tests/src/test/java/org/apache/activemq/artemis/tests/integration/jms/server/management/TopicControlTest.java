@@ -133,9 +133,9 @@ public class TopicControlTest extends ManagementTestBase {
 
       JMSUtil.sendMessages(topic, 2);
 
-      Assert.assertEquals(3 * 2, topicControl.getMessageCount());
-      Assert.assertEquals(1 * 2, topicControl.getNonDurableMessageCount());
-      Assert.assertEquals(2 * 2, topicControl.getDurableMessageCount());
+      waitForMessageCount(3 * 2, topicControl, 3000);
+      waitForNonDurableMessageCount(1 * 2, topicControl, 3000);
+      waitForDurableMessageCount(2 * 2, topicControl, 3000);
 
       connection_1.close();
       connection_2.close();
@@ -406,7 +406,7 @@ public class TopicControlTest extends ManagementTestBase {
       JMSUtil.sendMessages(topic, 3);
 
       TopicControl topicControl = createManagementControl();
-      Assert.assertEquals(3 * 2, topicControl.getMessageCount());
+      waitForMessageCount(3 * 2, topicControl, 3000);
 
       int removedCount = topicControl.removeMessages(null);
       Assert.assertEquals(3 * 2, removedCount);
@@ -494,7 +494,7 @@ public class TopicControlTest extends ManagementTestBase {
 
       JMSUtil.sendMessages(topic, 2);
 
-      Assert.assertEquals(3 * 2, topicControl.getMessagesAdded());
+      waitForAddedMessageCount(3 * 2, topicControl, 3000);
 
       connection_1.close();
       connection_2.close();
@@ -618,6 +618,54 @@ public class TopicControlTest extends ManagementTestBase {
    }
 
    // Private -------------------------------------------------------
+
+   private void waitForMessageCount(long expected, TopicControl topicControl, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (expected == topicControl.getMessageCount()) {
+            return;
+         }
+         Thread.sleep(100);
+      }
+      assertEquals(expected, topicControl.getMessageCount());
+   }
+
+   private void waitForNonDurableMessageCount(long expected, TopicControl topicControl, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (expected == topicControl.getNonDurableMessageCount()) {
+            return;
+         }
+         Thread.sleep(100);
+      }
+      assertEquals(expected, topicControl.getNonDurableMessageCount());
+   }
+
+   private void waitForDurableMessageCount(long expected, TopicControl topicControl, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (expected == topicControl.getDurableMessageCount()) {
+            return;
+         }
+         Thread.sleep(100);
+      }
+      assertEquals(expected, topicControl.getDurableMessageCount());
+   }
+
+   private void waitForAddedMessageCount(long expected, TopicControl topicControl, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (expected == topicControl.getMessagesAdded()) {
+            return;
+         }
+         Thread.sleep(100);
+      }
+      assertEquals(expected, topicControl.getMessagesAdded());
+   }
 
    // Inner classes -------------------------------------------------
 
