@@ -23,15 +23,6 @@ loggers=org.jboss.logging,org.apache.activemq.artemis.core.server,org.apache.act
 
 # Root logger level
 logger.level=TRACE
-# ActiveMQ Artemis logger levels
-logger.org.apache.activemq.artemis.core.server.level=TRACE
-logger.org.apache.activemq.artemis.journal.level=TRACE
-logger.org.apache.activemq.artemis.utils.level=TRACE
-logger.org.apache.activemq.artemis.jms.level=TRACE
-logger.org.apache.activemq.artemis.ra.level=TRACE
-logger.org.apache.activemq.artemis.tests.unit.level=TRACE
-logger.org.apache.activemq.artemis.tests.integration.level=TRACE
-logger.org.apache.activemq.artemis.jms.tests.level=TRACE
 
 # Root logger handlers
 logger.handlers=CONSOLE,TEST,FILE
@@ -60,4 +51,7 @@ handler.TEST.formatter=PATTERN
 # Formatter pattern configuration
 formatter.PATTERN=org.jboss.logmanager.formatters.PatternFormatter
 formatter.PATTERN.properties=pattern
-formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
+formatter.PATTERN.pattern=[%t] %d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
+
+# Alternate format useful when debugging
+#formatter.PATTERN.pattern=*** [%t] ***\n%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n\n
