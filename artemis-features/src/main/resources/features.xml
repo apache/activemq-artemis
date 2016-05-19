@@ -43,23 +43,23 @@
 		<configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${pom.version}/xml/artemis</configfile>
 
 		<bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo.jms.2.spec.version}</bundle>
-		<bundle>mvn:com.google.guava/guava/18.0</bundle>
+		<bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
 		<bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
-		<bundle>mvn:commons-beanutils/commons-beanutils/1.9.2</bundle>
-		<bundle>mvn:commons-collections/commons-collections/3.2.2</bundle>
+		<bundle>mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
+		<bundle>mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
 
-		<bundle>mvn:org.jboss.logging/jboss-logging/3.3.0.Final</bundle>
-		<bundle>mvn:org.jgroups/jgroups/3.6.0.Final</bundle>
+		<bundle>mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
+		<bundle>mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
 
 		<bundle>mvn:org.apache.activemq/artemis-native/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
 	</feature>
 
 	<feature name="artemis-amqp" version="${pom.version}">
+		<feature prerequisite="true">wrap</feature>
 		<feature>artemis-core</feature>
-		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.qpid/0.32_1</bundle>
-		<bundle>wrap:mvn:org.apache.qpid/proton-j/0.10</bundle>
-		<bundle>wrap:mvn:org.apache.qpid/proton-jms/0.10</bundle>
+		<bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+		<bundle>wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid.jms.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-proton-plug/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
 	</feature>

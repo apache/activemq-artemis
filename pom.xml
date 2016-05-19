@@ -68,10 +68,23 @@
    <properties>
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
-      <netty.version>4.0.32.Final</netty.version>
+
+      <activemq5-version>5.12.0</activemq5-version>
+      <apache.derby.version>10.11.1.1</apache.derby.version>
+      <commons.beanutils.version>1.9.2</commons.beanutils.version>
+      <commons.collections.version>3.2.2</commons.collections.version>
+      <fuse.mqtt.client.version>1.10</fuse.mqtt.client.version>
+      <guava.version>18.0</guava.version>
+      <jboss.logging.version>3.3.0.Final</jboss.logging.version>
       <jetty.version>9.2.11.v20150529</jetty.version>
-      <slf4j.version>1.7.12</slf4j.version>
+      <jgroups.version>3.6.8.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
+      <netty.version>4.0.32.Final</netty.version>
+      <proton.version>0.12.1</proton.version>
+      <resteasy.version>3.0.16.Final</resteasy.version>
+      <slf4j.version>1.7.12</slf4j.version>
+      <qpid.jms.version>0.9.0</qpid.jms.version>
+
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
       <activemq.version.minorVersion>0</activemq.version.minorVersion>
@@ -81,11 +94,7 @@
       <ActiveMQ-Version>
          ${project.version}(${activemq.version.incrementingVersion})
       </ActiveMQ-Version>
-      <resteasy.version>3.0.16.Final</resteasy.version>
-      <proton.version>0.12.0</proton.version>
-      <activemq5-version>5.12.0</activemq5-version>
-      <fuse.mqtt.client.version>1.10</fuse.mqtt.client.version>
-      <apache.derby.version>10.11.1.1</apache.derby.version>
+
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
@@ -223,7 +232,7 @@
          <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections-testframework</artifactId>
-            <version>3.2.2</version>
+            <version>${commons.collections.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <!-- ## End Test Dependencies ## -->
@@ -295,13 +304,13 @@
          <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>${guava.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
-            <version>3.3.0.Final</version>
+            <version>${jboss.logging.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -326,7 +335,7 @@
          <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
+            <version>${commons.collections.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
 
@@ -379,7 +388,7 @@
          <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
-            <version>3.6.8.Final</version>
+            <version>${jgroups.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -527,7 +536,7 @@
          <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
+            <version>${commons.beanutils.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
 
