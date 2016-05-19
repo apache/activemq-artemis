@@ -1,0 +1,8 @@
+
+      <!--
+       This value was determined through a calculation.
+       Your system could perform ${writesPerMillisecond} writes per millisecond
+       on the current journal configuration.
+       That translates as a sync write every ${nanoseconds} nanoseconds
+      -->
+      <journal-buffer-timeout>${nanoseconds}</journal-buffer-timeout>
