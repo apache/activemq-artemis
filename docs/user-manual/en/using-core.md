@@ -139,7 +139,7 @@ messages sent is costly since it requires a network round trip for each
 message sent. By not blocking and receiving send acknowledgements
 asynchronously you can create true end to end asynchronous systems which
 is not possible using the standard JMS API. For more information on this
-advanced feature please see the section [Guarantees of sends and commits]{send-guarantees.md).
+advanced feature please see the section [Guarantees of sends and commits](send-guarantees.md).
 
 ### ClientConsumer
 
