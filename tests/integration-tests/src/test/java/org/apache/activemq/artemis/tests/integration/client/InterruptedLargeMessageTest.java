@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.IOException;
@@ -37,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -202,6 +207,64 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       server.stop();
    }
+
+
+
+   @Test
+   public void testForcedInterruptUsingJMS() throws Exception {
+      ActiveMQServer server = createServer(true, isNetty());
+
+      server.start();
+
+
+      SimpleString jmsAddress = new SimpleString("jms.queue.Test");
+
+      server.createQueue(jmsAddress, jmsAddress, null, true, false);
+
+      final AtomicInteger unexpectedErrors = new AtomicInteger(0);
+      final AtomicInteger expectedErrors = new AtomicInteger(0);
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(Session.SESSION_TRANSACTED);
+      connection.start();
+      final MessageConsumer consumer = session.createConsumer(session.createQueue(jmsAddress.toString()));
+
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            try {
+               System.out.println("Receiving message");
+               javax.jms.Message msg = consumer.receive(5000);
+               if (msg == null) {
+                  System.err.println("Message not received");
+                  unexpectedErrors.incrementAndGet();
+                  return;
+               }
+            }
+            catch (JMSException e) {
+               log.debug("This exception was ok as it was expected", e);
+               expectedErrors.incrementAndGet();
+            }
+            catch (Throwable e) {
+               log.warn("Captured unexpected exception", e);
+               unexpectedErrors.incrementAndGet();
+            }
+         }
+      };
+
+      t.start();
+      t.interrupt();
+
+      t.join();
+
+      Assert.assertEquals(0, unexpectedErrors.get());
+      Assert.assertEquals(1, expectedErrors.get());
+
+      session.close();
+
+      server.stop();
+   }
+
 
    @Test
    public void testSendNonPersistentQueue() throws Exception {
