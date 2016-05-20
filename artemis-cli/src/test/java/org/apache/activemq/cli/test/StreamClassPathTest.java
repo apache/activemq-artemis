@@ -50,6 +50,10 @@ public class StreamClassPathTest {
       openStream(Create.ETC_CONNECTOR_SETTINGS_TXT);
       openStream(Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
       openStream(Create.ETC_JOURNAL_BUFFER_SETTINGS);
+      openStream(Create.ETC_AMQP_ACCEPTOR_TXT);
+      openStream(Create.ETC_MQTT_ACCEPTOR_TXT);
+      openStream(Create.ETC_HORNETQ_ACCEPTOR_TXT);
+      openStream(Create.ETC_STOMP_ACCEPTOR_TXT);
    }
 
    private void openStream(String source) throws Exception {

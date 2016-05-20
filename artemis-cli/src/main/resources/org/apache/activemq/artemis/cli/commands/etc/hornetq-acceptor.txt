@@ -1,2 +1,3 @@
+
          <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
          <acceptor name="hornetq">tcp://${host}:${hq.port}?protocols=HORNETQ,STOMP</acceptor>

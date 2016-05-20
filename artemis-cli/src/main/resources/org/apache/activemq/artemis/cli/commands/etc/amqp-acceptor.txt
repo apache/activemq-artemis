@@ -1,8 +1,3 @@
 
-      <!--
-       This value was determined through a calculation.
-       Your system could perform ${writesPerMillisecond} writes per millisecond
-       on the current journal configuration.
-       That translates as a sync write every ${nanoseconds} nanoseconds
-      -->
-      <journal-buffer-timeout>${nanoseconds}</journal-buffer-timeout>
+         <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+         <acceptor name="amqp">tcp://${host}:${amqp.port}?protocols=AMQP</acceptor>
