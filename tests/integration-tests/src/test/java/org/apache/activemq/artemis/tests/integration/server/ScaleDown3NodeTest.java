@@ -347,12 +347,12 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Assert.assertEquals(TEST_SIZE * 2, messageCount);
 
       for (int i = 0; i < TEST_SIZE; i++) {
-         ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
+         ClientMessage clientMessage = consumers[0].getConsumer().receive(1000);
          Assert.assertNotNull(clientMessage);
          IntegrationTestLogger.LOGGER.info("Received: " + clientMessage);
          clientMessage.acknowledge();
 
-         clientMessage = consumers[1].getConsumer().receive(250);
+         clientMessage = consumers[1].getConsumer().receive(1000);
          Assert.assertNotNull(clientMessage);
          IntegrationTestLogger.LOGGER.info("Received: " + clientMessage);
          clientMessage.acknowledge();

@@ -900,7 +900,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ClientProducer producer1 = session.createProducer(random1);
       ClientProducer producer2 = session.createProducer(random2);
-      ClientMessage message = session.createMessage(false);
+      ClientMessage message = session.createMessage(true);
       producer1.send(message);
       producer2.send(message);
 

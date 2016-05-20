@@ -54,18 +54,7 @@ ${connector-config.settings}
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports ActiveMQ Artemis Core, OpenWire, STOMP, AMQP, MQTT, and HornetQ Core. -->
          <!-- performance tests have shown that openWire performs best with these buffer sizes -->
          <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
-
-         <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-         <acceptor name="amqp">tcp://${host}:${amqp.port}?protocols=AMQP</acceptor>
-
-         <!-- STOMP Acceptor. -->
-         <acceptor name="stomp">tcp://${host}:${stomp.port}?protocols=STOMP</acceptor>
-
-         <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://${host}:${hq.port}?protocols=HORNETQ,STOMP</acceptor>
-
-         <!-- MQTT Acceptor -->
-         <acceptor name="mqtt">tcp://${host}:${mqtt.port}?protocols=MQTT</acceptor>
+${amqp-acceptor}${stomp-acceptor}${hornetq-acceptor}${mqtt-acceptor}
       </acceptors>
 
 ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
