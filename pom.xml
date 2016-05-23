@@ -520,7 +520,7 @@
            <groupId>org.jolokia</groupId>
            <artifactId>jolokia-war</artifactId>
            <type>war</type>
-           <version>1.3.2</version>
+           <version>1.3.3</version>
            <!-- License: Apache 2.0 -->
         </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
