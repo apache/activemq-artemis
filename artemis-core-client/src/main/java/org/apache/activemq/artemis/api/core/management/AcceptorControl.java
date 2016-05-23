@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import javax.management.MBeanOperationInfo;
 import java.util.Map;
 
 /**
@@ -46,5 +47,6 @@ public interface AcceptorControl extends ActiveMQComponentControl {
     * Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust
     * stores on acceptors which support SSL.
     */
+   @Operation(desc = "Re-create the acceptor with the existing configuration values. Useful, for example, for reloading key/trust stores on acceptors which support SSL.", impact = MBeanOperationInfo.ACTION)
    void reload();
 }
