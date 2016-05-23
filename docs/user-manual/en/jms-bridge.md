@@ -26,7 +26,7 @@ JMS servers, as long as they are JMS 1.1 compliant.
 >
 > Do not confuse a JMS bridge with a core bridge. A JMS bridge can be
 > used to bridge any two JMS 1.1 compliant JMS providers and uses the
-> JMS API. A core bridge (described in [Core Bidges](core-bridges.md)) is used to bridge any two
+> JMS API. A core bridge (described in [Core Bridges](core-bridges.md)) is used to bridge any two
 > Apache ActiveMQ Artemis instances and uses the core API. Always use a core bridge if
 > you can in preference to a JMS bridge. The core bridge will typically
 > provide better performance than a JMS bridge. Also the core bridge can
