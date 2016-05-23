@@ -21,7 +21,6 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
-import javax.management.StandardMBean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -262,7 +261,7 @@ public class ManagementServiceImpl implements ManagementService {
    public synchronized void registerDivert(final Divert divert, final DivertConfiguration config) throws Exception {
       ObjectName objectName = objectNameBuilder.getDivertObjectName(divert.getUniqueName().toString());
       DivertControl divertControl = new DivertControlImpl(divert, storageManager, config);
-      registerInJMX(objectName, new StandardMBean(divertControl, DivertControl.class));
+      registerInJMX(objectName, divertControl);
       registerInRegistry(ResourceNames.CORE_DIVERT + config.getName(), divertControl);
 
       if (logger.isDebugEnabled()) {
@@ -282,7 +281,7 @@ public class ManagementServiceImpl implements ManagementService {
                                              final TransportConfiguration configuration) throws Exception {
       ObjectName objectName = objectNameBuilder.getAcceptorObjectName(configuration.getName());
       AcceptorControl control = new AcceptorControlImpl(acceptor, storageManager, configuration);
-      registerInJMX(objectName, new StandardMBean(control, AcceptorControl.class));
+      registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.CORE_ACCEPTOR + configuration.getName(), control);
    }
 
@@ -320,7 +319,7 @@ public class ManagementServiceImpl implements ManagementService {
       broadcastGroup.setNotificationService(this);
       ObjectName objectName = objectNameBuilder.getBroadcastGroupObjectName(configuration.getName());
       BroadcastGroupControl control = new BroadcastGroupControlImpl(broadcastGroup, storageManager, configuration);
-      registerInJMX(objectName, new StandardMBean(control, BroadcastGroupControl.class));
+      registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.CORE_BROADCAST_GROUP + configuration.getName(), control);
    }
 
@@ -337,7 +336,7 @@ public class ManagementServiceImpl implements ManagementService {
       bridge.setNotificationService(this);
       ObjectName objectName = objectNameBuilder.getBridgeObjectName(configuration.getName());
       BridgeControl control = new BridgeControlImpl(bridge, storageManager, configuration);
-      registerInJMX(objectName, new StandardMBean(control, BridgeControl.class));
+      registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.CORE_BRIDGE + configuration.getName(), control);
    }
 
@@ -353,7 +352,7 @@ public class ManagementServiceImpl implements ManagementService {
                                             final ClusterConnectionConfiguration configuration) throws Exception {
       ObjectName objectName = objectNameBuilder.getClusterConnectionObjectName(configuration.getName());
       ClusterConnectionControl control = new ClusterConnectionControlImpl(cluster, storageManager, configuration);
-      registerInJMX(objectName, new StandardMBean(control, ClusterConnectionControl.class));
+      registerInJMX(objectName, control);
       registerInRegistry(ResourceNames.CORE_CLUSTER_CONNECTION + configuration.getName(), control);
    }
 
