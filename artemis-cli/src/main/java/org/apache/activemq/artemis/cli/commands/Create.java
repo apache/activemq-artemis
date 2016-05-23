@@ -99,6 +99,9 @@ public class Create extends InputAbstract {
    @Option(name = "--default-port", description = "The port number to use for the main 'artemis' acceptor (Default: 61616)")
    int defaultPort = DEFAULT_PORT;
 
+   @Option(name = "--http-port", description = "The port number to use for embedded web server (Default: 8161)")
+   int httpPort = HTTP_PORT;
+
    @Option(name = "--name", description = "The name of the broker (Default: same as host)")
    String name;
 
@@ -524,7 +527,7 @@ public class Create extends InputAbstract {
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${mqtt.port}", String.valueOf(MQTT_PORT + portOffset));
-      filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
+      filters.put("${http.port}", String.valueOf(httpPort + portOffset));
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));
 
