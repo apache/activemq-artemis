@@ -101,7 +101,7 @@ server and the client of 0.25 ms.
 With a RTT of 0.25 ms, the client can send *at most* 1000/ 0.25 = 4000
 messages per second if it blocks on each message send.
 
-If each message is \< 1500 bytes and a standard 1500 bytes MTU size is
+If each message is < 1500 bytes and a standard 1500 bytes MTU (Maximum Transmission Unit) size is
 used on the network, then a 1GiB network has a *theoretical* upper limit
 of (1024 \* 1024 \* 1024 / 8) / 1500 = 89478 messages per second if
 messages are sent without blocking! These figures aren't an exact
