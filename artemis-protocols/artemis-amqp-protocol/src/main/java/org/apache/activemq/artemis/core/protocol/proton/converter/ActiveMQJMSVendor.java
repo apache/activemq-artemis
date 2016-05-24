@@ -88,7 +88,13 @@ public class ActiveMQJMSVendor implements JMSVendor {
 
    @Override
    public void setJMSXGroupID(Message message, String s) {
+      try {
+         message.setStringProperty("_AMQ_GROUP_ID", s);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
 
+      }
    }
 
    @Override
@@ -98,7 +104,6 @@ public class ActiveMQJMSVendor implements JMSVendor {
 
    @Override
    public void setJMSXDeliveryCount(Message message, long l) {
-
    }
 
    public ServerJMSMessage wrapMessage(int messageType, ServerMessage wrapped, int deliveryCount) {

@@ -120,7 +120,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void rollbackCurrentTX() {
+   public void rollbackCurrentTX(boolean lastMessage) {
    }
 
    @Override

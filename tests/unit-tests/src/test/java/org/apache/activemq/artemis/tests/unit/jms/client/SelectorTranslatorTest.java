@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.artemis.jms.client.SelectorTranslator;
 
 public class SelectorTranslatorTest extends ActiveMQTestBase {
 

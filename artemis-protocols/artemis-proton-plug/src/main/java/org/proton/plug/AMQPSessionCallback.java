@@ -59,7 +59,7 @@ public interface AMQPSessionCallback {
 
    void commitCurrentTX() throws Exception;
 
-   void rollbackCurrentTX() throws Exception;
+   void rollbackCurrentTX(boolean lastMessageReceived) throws Exception;
 
    void close() throws Exception;
 

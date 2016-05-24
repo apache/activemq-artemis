@@ -140,7 +140,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
       senders.clear();
       try {
          if (sessionSPI != null) {
-            sessionSPI.rollbackCurrentTX();
+            sessionSPI.rollbackCurrentTX(false);
             sessionSPI.close();
          }
       }
