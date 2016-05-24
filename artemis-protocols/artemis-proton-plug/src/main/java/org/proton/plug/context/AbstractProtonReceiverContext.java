@@ -53,14 +53,14 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException {
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
    }
 
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       receiver.setCondition(condition);
-      close();
+      close(false);
    }
 
    public void flow(int credits) {

@@ -32,6 +32,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.SASLResult;
+import org.proton.plug.context.server.ProtonServerSenderContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.handler.impl.DefaultEventHandler;
@@ -163,6 +164,14 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       }
    }
 
+   public String getRemoteContainer() {
+      return handler.getConnection().getRemoteContainer();
+   }
+
+   public String getPubSubPrefix() {
+      return null;
+   }
+
    // This listener will perform a bunch of things here
    class LocalListener extends DefaultEventHandler {
 
@@ -265,13 +274,22 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
          link.close();
          ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
          if (linkContext != null) {
-            linkContext.close();
+            linkContext.close(true);
          }
       }
 
       @Override
       public void onRemoteDetach(Link link) throws Exception {
          link.detach();
+      }
+
+      @Override
+      public void onDetach(Link link) throws Exception {
+         Object context = link.getContext();
+         if (context instanceof ProtonServerSenderContext) {
+            ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
+            senderContext.close(false);
+         }
       }
 
       @Override
@@ -288,5 +306,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       }
 
    }
+
+
 
 }
