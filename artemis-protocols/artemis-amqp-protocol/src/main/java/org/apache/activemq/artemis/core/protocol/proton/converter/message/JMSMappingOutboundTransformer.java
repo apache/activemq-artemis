@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton.converter.message;
 
-import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
