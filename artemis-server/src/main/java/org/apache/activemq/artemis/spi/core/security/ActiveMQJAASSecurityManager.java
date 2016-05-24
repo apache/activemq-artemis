@@ -91,7 +91,6 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          return true;
       }
       catch (LoginException e) {
-         logger.info("Couldn't validate user: " + e.getMessage());
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
@@ -120,7 +119,9 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          localSubject = getAuthenticatedSubject(user, password, certificates);
       }
       catch (LoginException e) {
-         logger.debug("Couldn't validate user", e);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Couldn't validate user", e);
+         }
          return false;
       }
 

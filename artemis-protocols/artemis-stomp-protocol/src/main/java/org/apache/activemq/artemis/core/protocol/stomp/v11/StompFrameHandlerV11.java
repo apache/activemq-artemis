@@ -93,8 +93,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             response = createStompFrame(Stomp.Responses.ERROR);
             response.setNeedsDisconnect(true);
             response.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
-            response.addHeader(Stomp.Headers.Error.MESSAGE, "Failed to connect");
-            response.setBody("The login account is not valid.");
+            String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
+            response.setBody(responseText);
+            response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
          }
       }
       catch (ActiveMQStompException e) {
