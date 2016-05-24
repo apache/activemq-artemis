@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton.converter.message;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -126,7 +127,14 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          catch (MessageEOFException e) {
          }
-         body = new AmqpSequence(list);
+
+         String amqpType = msg.getStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY);
+         if (amqpType.equals(AMQPMessageTypes.AMQP_LIST)) {
+            body = new AmqpValue(list);
+         }
+         else {
+            body = new AmqpSequence(list);
+         }
       }
       if (msg instanceof ObjectMessage) {
          body = new AmqpValue(((ObjectMessage) msg).getObject());
@@ -255,6 +263,9 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             }
             String name = key.substring(prefixFooterKey.length());
             footerMap.put(name, msg.getObjectProperty(key));
+         }
+         else if (key.equals(AMQPMessageTypes.AMQP_TYPE_KEY)) {
+            // skip
          }
          else {
             if (apMap == null) {
