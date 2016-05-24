@@ -72,6 +72,7 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
             m.writeObject(item);
          }
          rc = m;
+         m.setStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY, AMQPMessageTypes.AMQP_SEQUENCE);
       }
       else if (body instanceof AmqpValue) {
          Object value = ((AmqpValue) body).getValue();
@@ -95,6 +96,7 @@ public class JMSMappingInboundTransformer extends InboundTransformer {
                m.writeObject(item);
             }
             rc = m;
+            m.setStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY, AMQPMessageTypes.AMQP_LIST);
          }
          else if (value instanceof Map) {
             MapMessage m = vendor.createMapMessage();
