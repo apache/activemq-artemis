@@ -26,6 +26,8 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -50,6 +52,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
    private static final Symbol SELECTOR = Symbol.getSymbol("jms-selector");
    private static final Symbol COPY = Symbol.valueOf("copy");
+   private static final Symbol TOPIC = Symbol.valueOf("topic");
 
    private Object brokerConsumer;
 
@@ -81,7 +84,10 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       //todo add flow control
       try {
          // to do whatever you need to make the broker start sending messages to the consumer
-         sessionSPI.startSender(brokerConsumer);
+         //this could be null if a link reattach has happened
+         if (brokerConsumer != null) {
+            sessionSPI.startSender(brokerConsumer);
+         }
          //protonSession.getServerSession().receiveConsumerCredits(consumerID, -1);
       }
       catch (Exception e) {
@@ -105,26 +111,58 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       /*
       * even tho the filter is a map it will only return a single filter unless a nolocal is also provided
       * */
-      Map.Entry<Symbol, DescribedType> filter = findFilter(source.getFilter(), JMS_SELECTOR_FILTER_IDS);
-      if (filter != null) {
-         selector = filter.getValue().getDescribed().toString();
-         // Validate the Selector.
-         try {
-            SelectorParser.parse(selector);
-         }
-         catch (FilterException e) {
-            close(new ErrorCondition(AmqpError.INVALID_FIELD, e.getMessage()));
-            return;
+      if (source != null) {
+         Map.Entry<Symbol, DescribedType> filter = findFilter(source.getFilter(), JMS_SELECTOR_FILTER_IDS);
+         if (filter != null) {
+            selector = filter.getValue().getDescribed().toString();
+            // Validate the Selector.
+            try {
+               SelectorParser.parse(selector);
+            }
+            catch (FilterException e) {
+               close(new ErrorCondition(AmqpError.INVALID_FIELD, e.getMessage()));
+               return;
+            }
          }
       }
+
+      /*
+      * if we have a capability for a topic (qpid-jms) or we are configured on this address to act like a topic then act
+      * like a subscription.
+      * */
+      boolean isPubSub = hasCapabilities(TOPIC, source) || isPubSub(source);
 
       //filter = findFilter(source.getFilter(), NO_LOCAL_FILTER_IDS);
 
       //if (filter != null) {
          //todo implement nolocal filter
       //}
+      if (source == null) {
+         // Attempt to recover a previous subscription happens when a link reattach happens on a subscription queue
+         String clientId = connection.getRemoteContainer();
+         String pubId = sender.getName();
+         queue = clientId + ":" + pubId;
+         boolean exists = sessionSPI.queueQuery(queue);
 
-      if (source != null) {
+         /*
+         * If it exists then we know it is a subscription so we set the capabilities on the source so we can delete on a
+         * link remote close.
+         * */
+         if (exists) {
+            source = new org.apache.qpid.proton.amqp.messaging.Source();
+            source.setAddress(queue);
+            source.setDurable(TerminusDurability.UNSETTLED_STATE);
+            source.setExpiryPolicy(TerminusExpiryPolicy.NEVER);
+            source.setDistributionMode(COPY);
+            source.setCapabilities(TOPIC);
+            sender.setSource(source);
+         }
+         else {
+            sender.setCondition(new ErrorCondition(AmqpError.NOT_FOUND, "Unknown subscription link: " + sender.getName()));
+            sender.close();
+         }
+      }
+      else {
          if (source.getDynamic()) {
             //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
@@ -141,7 +179,36 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
-            queue = source.getAddress();
+
+
+            if (isPubSub) {
+               // if we are a subscription and durable create a durable queue using the container id and link name
+               if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) ||
+                                TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
+                  String clientId = connection.getRemoteContainer();
+                  String pubId = sender.getName();
+                  queue = clientId + ":" + pubId;
+                  boolean exists = sessionSPI.queueQuery(queue);
+                  if (!exists) {
+                     sessionSPI.createDurableQueue(source.getAddress(), queue);
+                  }
+               }
+               //otherwise we are a volatile subscription
+               else {
+                  queue = java.util.UUID.randomUUID().toString();
+                  try {
+                     sessionSPI.createTemporaryQueue(source.getAddress(), queue);
+                  }
+                  catch (Exception e) {
+                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
+                  }
+                  source.setAddress(queue);
+               }
+
+            }
+            else {
+               queue = source.getAddress();
+            }
             if (queue == null) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
             }
@@ -156,7 +223,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
          }
 
-         boolean browseOnly = source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
+         boolean browseOnly = !isPubSub && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
          try {
             brokerConsumer = sessionSPI.createSender(this, queue, selector, browseOnly);
          }
@@ -165,6 +232,12 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          }
       }
    }
+
+   private boolean isPubSub(Source source) {
+      String pubSubPrefix = sessionSPI.getPubSubPrefix();
+      return source != null && pubSubPrefix != null && source.getAddress() != null && source.getAddress().startsWith(pubSubPrefix);
+   }
+
 
    /*
    * close the session
@@ -185,10 +258,23 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    * close the session
    * */
    @Override
-   public void close() throws ActiveMQAMQPException {
-      super.close();
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      super.close(remoteLinkClose);
+
       try {
          sessionSPI.closeSender(brokerConsumer);
+         //if this is a link close rather than a connection close or detach, we need to delete any durable resources for
+         // say pub subs
+         if (remoteLinkClose ) {
+            Source source = (Source)sender.getSource();
+            if (source != null && source.getAddress() != null && hasCapabilities(TOPIC, source)) {
+               String address = source.getAddress();
+               boolean exists = sessionSPI.queueQuery(address);
+               if (exists) {
+                  sessionSPI.deleteQueue(address);
+               }
+            }
+         }
       }
       catch (Exception e) {
          e.printStackTrace();
@@ -275,6 +361,19 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       }
 
       return performSend(serverMessage, message);
+   }
+
+   private static boolean hasCapabilities(Symbol symbol, Source source) {
+      if (source != null) {
+         if (source.getCapabilities() != null) {
+            for (Symbol cap : source.getCapabilities()) {
+               if (symbol.equals(cap)) {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
 }

@@ -85,7 +85,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
       AbstractProtonContextSender protonConsumer = senders.remove(consumer);
       if (protonConsumer != null) {
          try {
-            protonConsumer.close();
+            protonConsumer.close(false);
          }
          catch (ActiveMQAMQPException e) {
             protonConsumer.getSender().setTarget(null);
@@ -116,7 +116,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
 
       for (AbstractProtonReceiverContext protonProducer : receiversCopy) {
          try {
-            protonProducer.close();
+            protonProducer.close(false);
          }
          catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +130,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
 
       for (AbstractProtonContextSender protonConsumer : protonSendersClone) {
          try {
-            protonConsumer.close();
+            protonConsumer.close(false);
          }
          catch (Exception e) {
             e.printStackTrace();

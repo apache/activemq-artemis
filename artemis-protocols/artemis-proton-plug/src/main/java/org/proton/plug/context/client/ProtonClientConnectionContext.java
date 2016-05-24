@@ -83,6 +83,11 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
    }
 
    @Override
+   public void setContainer(String containerID) {
+      handler.getConnection().setContainer(containerID);
+   }
+
+   @Override
    protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
       AbstractProtonSessionContext protonSession = new ProtonClientSessionContext(sessionSPI, this, realSession);

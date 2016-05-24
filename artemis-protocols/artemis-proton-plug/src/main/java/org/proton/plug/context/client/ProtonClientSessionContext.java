@@ -64,12 +64,17 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
 
    @Override
    public AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException {
+      return createReceiver(address, address);
+   }
+
+   @Override
+   public AMQPClientReceiverContext createReceiver(String name, String address) throws ActiveMQAMQPException {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 
       ProtonClientReceiverContext amqpReceiver;
 
       synchronized (connection.getLock()) {
-         Receiver receiver = session.receiver(address);
+         Receiver receiver = session.receiver(name);
          Source source = new Source();
          source.setAddress(address);
          receiver.setSource(source);

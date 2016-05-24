@@ -40,6 +40,12 @@ public interface AMQPSessionCallback {
 
    void createTemporaryQueue(String queueName) throws Exception;
 
+   void createTemporaryQueue(String address, String queueName) throws Exception;
+
+   void createDurableQueue(String address, String queueName) throws Exception;
+
+   void deleteQueue(String address) throws Exception;
+
    boolean queueQuery(String queueName) throws Exception;
 
    void closeSender(Object brokerConsumer) throws Exception;
@@ -82,4 +88,5 @@ public interface AMQPSessionCallback {
                    int messageFormat,
                    ByteBuf messageEncoded) throws Exception;
 
+   String getPubSubPrefix();
 }

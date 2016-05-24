@@ -185,6 +185,16 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
+   public void createTemporaryQueue(String address, String queueName) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
+   }
+
+   @Override
+   public void createDurableQueue(String address, String queueName) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
+   }
+
+   @Override
    public boolean queueQuery(String queueName) throws Exception {
       boolean queryResult = false;
 
@@ -358,6 +368,16 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       finally {
          resetContext();
       }
+   }
+
+   @Override
+   public String getPubSubPrefix() {
+      return manager.getPubSubPrefix();
+   }
+
+   @Override
+   public void deleteQueue(String address) throws Exception {
+      manager.getServer().destroyQueue(new SimpleString(address));
    }
 
    private void resetContext() {

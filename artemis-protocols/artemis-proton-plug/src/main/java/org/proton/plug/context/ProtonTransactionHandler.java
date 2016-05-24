@@ -116,7 +116,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException {
+   public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
       //noop
    }
 
