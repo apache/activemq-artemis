@@ -20,6 +20,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.cert.X509Certificate;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,8 +47,11 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
    private static final Logger logger = Logger.getLogger(ActiveMQJAASSecurityManager.class);
 
+   private static final String WILDCARD = "*";
+
    private String configurationName;
    private SecurityConfiguration configuration;
+   private String rolePrincipalClass = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
 
    public ActiveMQJAASSecurityManager() {
    }
@@ -72,7 +77,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          return true;
       }
       catch (LoginException e) {
-         logger.debug("Couldn't validate user", e);
+         logger.info("Couldn't validate user: " + e.getMessage());
+         if (logger.isDebugEnabled()) {
+            logger.debug("Couldn't validate user", e);
+         }
          return false;
       }
    }
@@ -108,9 +116,15 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
 
          // Check the caller's roles
-         Set<RolePrincipal> rolesForSubject = localSubject.getPrincipals(RolePrincipal.class);
+         Set<Principal> rolesForSubject = new HashSet<Principal>();
+         try {
+            rolesForSubject.addAll(localSubject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
+         }
+         catch (Exception e) {
+            logger.info("Can't find roles for the subject", e);
+         }
          if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
-            Iterator<RolePrincipal> rolesForSubjectIter = rolesForSubject.iterator();
+            Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
             while (!authorized && rolesForSubjectIter.hasNext()) {
                Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();
                Principal subjectRole = rolesForSubjectIter.next();
@@ -136,10 +150,15 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    }
 
    private Set<RolePrincipal> getPrincipalsInRole(final CheckType checkType, final Set<Role> roles) {
-      Set<RolePrincipal> principals = new HashSet<>();
+      Set principals = new HashSet<>();
       for (Role role : roles) {
          if (checkType.hasRole(role)) {
-            principals.add(new RolePrincipal(role.getName()));
+            try {
+               principals.add(createGroupPrincipal(role.getName(), rolePrincipalClass));
+            }
+            catch (Exception e) {
+               logger.info("Can't add role principal", e);
+            }
          }
       }
       return principals;
@@ -160,4 +179,71 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
       return configuration;
    }
+
+   public String getRolePrincipalClass() {
+      return rolePrincipalClass;
+   }
+
+   public void setRolePrincipalClass(String rolePrincipalClass) {
+      this.rolePrincipalClass = rolePrincipalClass;
+   }
+
+   public static Object createGroupPrincipal(String name, String groupClass) throws Exception {
+      if (WILDCARD.equals(name)) {
+         // simple match all group principal - match any name and class
+         return new Principal() {
+            @Override
+            public String getName() {
+               return WILDCARD;
+            }
+
+            @Override
+            public boolean equals(Object other) {
+               return true;
+            }
+
+            @Override
+            public int hashCode() {
+               return WILDCARD.hashCode();
+            }
+         };
+      }
+      Object[] param = new Object[]{name};
+
+      Class<?> cls = Class.forName(groupClass);
+
+      Constructor<?>[] constructors = cls.getConstructors();
+      int i;
+      Object instance;
+      for (i = 0; i < constructors.length; i++) {
+         Class<?>[] paramTypes = constructors[i].getParameterTypes();
+         if (paramTypes.length != 0 && paramTypes[0].equals(String.class)) {
+            break;
+         }
+      }
+      if (i < constructors.length) {
+         instance = constructors[i].newInstance(param);
+      }
+      else {
+         instance = cls.newInstance();
+         Method[] methods = cls.getMethods();
+         i = 0;
+         for (i = 0; i < methods.length; i++) {
+            Class<?>[] paramTypes = methods[i].getParameterTypes();
+            if (paramTypes.length != 0 && methods[i].getName().equals("setName") && paramTypes[0].equals(String.class)) {
+               break;
+            }
+         }
+
+         if (i < methods.length) {
+            methods[i].invoke(instance, param);
+         }
+         else {
+            throw new NoSuchMethodException();
+         }
+      }
+
+      return instance;
+   }
+
 }

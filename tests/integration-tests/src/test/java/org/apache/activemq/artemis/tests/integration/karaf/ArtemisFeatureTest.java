@@ -40,6 +40,11 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
 
 import javax.inject.Inject;
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.security.auth.Subject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -137,13 +142,17 @@ public class ArtemisFeatureTest extends Assert {
 
       String amqpURI = "amqp://localhost:5672";
       JmsConnectionFactory factory = new JmsConnectionFactory(amqpURI);
-      factory.setUsername(USER);
-      factory.setPassword(PASSWORD);
+      Connection connection = factory.createConnection(USER, PASSWORD);
+      connection.start();
 
-      //TODO fix security settings and test sending/receiving messages
-        /*
-      Connection connection = factory.createConnection();
-      connection.start();*/
+      javax.jms.Session sess = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+      Queue queue = sess.createQueue("jms.queue.exampleQueue");
+      MessageProducer producer = sess.createProducer(queue);
+      producer.send(sess.createTextMessage("TEST"));
+
+      MessageConsumer consumer = sess.createConsumer(queue);
+      Message msg = consumer.receive(5000);
+      assertNotNull(msg);
    }
 
    protected String executeCommand(final String command, final Long timeout, final Boolean silent) {

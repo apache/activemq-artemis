@@ -65,14 +65,14 @@ under the License.
 
       <security-settings>
          <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="amq"/>
-            <permission type="deleteNonDurableQueue" roles="amq"/>
-            <permission type="createDurableQueue" roles="amq"/>
-            <permission type="deleteDurableQueue" roles="amq"/>
-            <permission type="consume" roles="amq"/>
-            <permission type="send" roles="amq"/>
+            <permission type="createNonDurableQueue" roles="manager"/>
+            <permission type="deleteNonDurableQueue" roles="manager"/>
+            <permission type="createDurableQueue" roles="manager"/>
+            <permission type="deleteDurableQueue" roles="manager"/>
+            <permission type="consume" roles="manager"/>
+            <permission type="send" roles="manager"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
-            <permission type="manage" roles="amq"/>
+            <permission type="manage" roles="manager"/>
          </security-setting>
       </security-settings>
 
@@ -85,6 +85,7 @@ under the License.
             <max-size-bytes>10485760</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>BLOCK</address-full-policy>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
          </address-setting>
       </address-settings>
    </core>
