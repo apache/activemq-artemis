@@ -24,6 +24,7 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.server.ServerMessage;
@@ -52,8 +53,6 @@ public class MQTTUtil {
 
    public static final int MAX_MESSAGE_SIZE = 268435455;
 
-   public static final String MQTT_ADDRESS_PREFIX = "$sys.mqtt.";
-
    public static final String MQTT_RETAIN_ADDRESS_PREFIX = "$sys.mqtt.retain.";
 
    public static final String MQTT_QOS_LEVEL_KEY = "mqtt.qos.level";
@@ -67,15 +66,12 @@ public class MQTTUtil {
    public static final int DEFAULT_KEEP_ALIVE_FREQUENCY = 5000;
 
    public static String convertMQTTAddressFilterToCore(String filter) {
-      return MQTT_ADDRESS_PREFIX + swapMQTTAndCoreWildCards(filter);
+      return swapMQTTAndCoreWildCards(filter);
    }
 
    public static String convertCoreAddressFilterToMQTT(String filter) {
       if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX)) {
          filter = filter.substring(MQTT_RETAIN_ADDRESS_PREFIX.length(), filter.length());
-      }
-      else if (filter.startsWith(MQTT_ADDRESS_PREFIX)) {
-         filter = filter.substring(MQTT_ADDRESS_PREFIX.length(), filter.length());
       }
       return swapMQTTAndCoreWildCards(filter);
    }
@@ -117,6 +113,8 @@ public class MQTTUtil {
       message.setAddress(address);
       message.putBooleanProperty(new SimpleString(MQTT_MESSAGE_RETAIN_KEY), retain);
       message.putIntProperty(new SimpleString(MQTT_QOS_LEVEL_KEY), qos);
+      // For JMS Consumption
+      message.setType(Message.BYTES_TYPE);
       return message;
    }
 
