@@ -24,11 +24,7 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 
-import java.util.Hashtable;
-
-import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -115,11 +111,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          admin.createTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.createTopic(PubSubTestCase.TOPIC_NAME);
 
-         Hashtable<String, String> props = new Hashtable<>();
-         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put("connectionFactory." + PubSubTestCase.TCF_NAME, "tcp://127.0.0.1:61616?type=TOPIC_CF");
-         props.put("topic." + PubSubTestCase.TOPIC_NAME, PubSubTestCase.TOPIC_NAME);
-         Context ctx = new InitialContext(props);
+         Context ctx = admin.createContext();
 
          publisherTCF = (TopicConnectionFactory) ctx.lookup(PubSubTestCase.TCF_NAME);
          publisherTopic = (Topic) ctx.lookup(PubSubTestCase.TOPIC_NAME);
@@ -140,6 +132,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
          // end of client step
       }
       catch (Exception e) {
+         e.printStackTrace();
          throw new RuntimeException(e);
       }
    }

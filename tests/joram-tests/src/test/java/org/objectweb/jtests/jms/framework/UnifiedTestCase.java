@@ -27,11 +27,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 
-import java.util.Hashtable;
-
-import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -165,15 +161,7 @@ public abstract class UnifiedTestCase extends JMSTestCase {
          admin.createQueue(UnifiedTestCase.QUEUE_NAME);
          admin.createTopic(UnifiedTestCase.TOPIC_NAME);
 
-         Hashtable<String, String> props = new Hashtable<>();
-         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put("connectionFactory." + UnifiedTestCase.CF_NAME, "tcp://127.0.0.1:61616");
-         props.put("connectionFactory." + UnifiedTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");
-         props.put("connectionFactory." + UnifiedTestCase.TCF_NAME, "tcp://127.0.0.1:61616?type=TOPIC_CF");
-         props.put("queue." + UnifiedTestCase.DESTINATION_NAME, UnifiedTestCase.DESTINATION_NAME);
-         props.put("queue." + UnifiedTestCase.QUEUE_NAME, UnifiedTestCase.QUEUE_NAME);
-         props.put("topic." + UnifiedTestCase.TOPIC_NAME, UnifiedTestCase.TOPIC_NAME);
-         Context ctx = new InitialContext(props);
+         Context ctx = admin.createContext();
 
          producerCF = (ConnectionFactory) ctx.lookup(UnifiedTestCase.CF_NAME);
          // we see destination of the unified domain as a javax.jms.Destination

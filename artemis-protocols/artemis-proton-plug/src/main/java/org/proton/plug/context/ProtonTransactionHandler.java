@@ -78,7 +78,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Discharge discharge = (Discharge) action;
             if (discharge.getFail()) {
                try {
-                  sessionSPI.rollbackCurrentTX();
+                  sessionSPI.rollbackCurrentTX(true);
                }
                catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());

@@ -35,7 +35,16 @@ import org.objectweb.jtests.jms.admin.AdminFactory;
  */
 public abstract class JMSTestCase extends Assert {
 
-   public static final String PROP_FILE_NAME = "provider.properties";
+   public static String _PROP_FILE_NAME = "provider.properties";
+
+   public static String getPropFileName() {
+      return System.getProperty("joram.provider", _PROP_FILE_NAME);
+   }
+
+   public static void setPropFileName(String fileName) {
+      System.setProperty("joram.provider", fileName);
+      _PROP_FILE_NAME = fileName;
+   }
 
    public static boolean startServer = true;
 
@@ -70,7 +79,7 @@ public abstract class JMSTestCase extends Assert {
     */
    protected Properties getProviderProperties() throws IOException {
       Properties props = new Properties();
-      props.load(ClassLoader.getSystemResourceAsStream(JMSTestCase.PROP_FILE_NAME));
+      props.load(ClassLoader.getSystemResourceAsStream(getPropFileName()));
       return props;
    }
 

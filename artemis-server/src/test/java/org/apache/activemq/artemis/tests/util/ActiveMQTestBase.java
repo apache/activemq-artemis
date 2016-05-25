@@ -129,6 +129,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -2045,29 +2046,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected static final boolean deleteDirectory(final File directory) {
-      if (directory.isDirectory()) {
-         String[] files = directory.list();
-         int num = 5;
-         int attempts = 0;
-         while (files == null && (attempts < num)) {
-            try {
-               Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
-            }
-            files = directory.list();
-            attempts++;
-         }
-
-         for (String file : files) {
-            File f = new File(directory, file);
-            if (!deleteDirectory(f)) {
-               log.warn("Failed to clean up file: " + f.getAbsolutePath());
-            }
-         }
-      }
-
-      return directory.delete();
+      return FileUtil.deleteDirectory(directory);
    }
 
    protected static final void copyRecursive(final File from, final File to) throws Exception {

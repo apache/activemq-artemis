@@ -217,7 +217,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             String value = msg.getStringProperty(key);
             props.setUserId(new Binary(value.getBytes(StandardCharsets.UTF_8)));
          }
-         else if (key.startsWith("JMSXGroupID")) {
+         else if (key.startsWith("JMSXGroupID") || key.startsWith("_AMQ_GROUP_ID")) {
             String value = msg.getStringProperty(key);
             props.setGroupId(value);
             if (apMap == null) {

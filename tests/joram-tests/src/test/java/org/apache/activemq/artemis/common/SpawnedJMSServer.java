@@ -14,38 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jms;
+package org.apache.activemq.artemis.common;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.utils.FileUtil;
 
 public class SpawnedJMSServer {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
+   public static ActiveMQServer server;
+   public static JMSServerManager serverManager;
 
-   // Static --------------------------------------------------------
+   // Using files may be useful for debugging (through print-data for instance)
+   private static final boolean useFiles = false;
+
 
    public static void main(final String[] args) throws Exception {
       try {
-         Configuration config = new ConfigurationImpl().addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName())).setSecurityEnabled(false).addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
-
-         // disable server persistence since JORAM tests do not restart server
-         final ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
-
-         JMSServerManager serverManager = new JMSServerManagerImpl(server);
-         serverManager.start();
+         startServer();
 
          System.out.println("Server started, ready to start client test");
 
@@ -59,7 +54,7 @@ public class SpawnedJMSServer {
          String line = null;
          while ((line = br.readLine()) != null) {
             if ("STOP".equals(line.trim())) {
-               server.stop();
+               stopServer();
                System.out.println("Server stopped");
                System.exit(0);
             }
@@ -80,6 +75,35 @@ public class SpawnedJMSServer {
          System.out.println("KO");
          System.exit(1);
       }
+   }
+
+   public static ActiveMQServer startServer() throws Exception {
+      if (server == null) {
+         Configuration config = new ConfigurationImpl().addAcceptorConfiguration("netty", "tcp://localhost:61616").setSecurityEnabled(false).addConnectorConfiguration("netty", "tcp://localhost:61616");
+         File dataPlace = new File("./target/dataJoram");
+
+         FileUtil.deleteDirectory(dataPlace);
+
+         config.setJournalDirectory(new File(dataPlace, "./journal").getAbsolutePath()).
+            setPagingDirectory(new File(dataPlace, "./paging").getAbsolutePath()).
+            setLargeMessagesDirectory(new File(dataPlace, "./largemessages").getAbsolutePath()).
+            setBindingsDirectory(new File(dataPlace, "./bindings").getAbsolutePath()).setPersistenceEnabled(true);
+
+         // disable server persistence since JORAM tests do not restart server
+         server = ActiveMQServers.newActiveMQServer(config, useFiles);
+
+         serverManager = new JMSServerManagerImpl(server);
+         serverManager.start();
+      }
+      return server;
+   }
+
+   public static void stopServer() throws Exception {
+      if (server != null) {
+         serverManager.stop();
+      }
+      server = null;
+      serverManager = null;
    }
 
    // Constructors --------------------------------------------------
