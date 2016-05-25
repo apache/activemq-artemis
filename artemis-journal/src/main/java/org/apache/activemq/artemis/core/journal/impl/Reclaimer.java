@@ -36,43 +36,55 @@ public class Reclaimer {
 
    private static final Logger logger = Logger.getLogger(Reclaimer.class);
 
+   // The files are scanned in two stages. First we only check for 2) and do so while that criteria is not met.
+   // When 2) is met, set the first reclaim flag in the journal. After that point only check for 1)
+   // until that criteria is met as well. When 1) is met we set the second flag and the file can be reclaimed.
+
    public void scan(final JournalFile[] files) {
       for (int i = 0; i < files.length; i++) {
          JournalFile currentFile = files[i];
-         currentFile.setCanReclaim(true);
 
-         // First we evaluate criterion 2)
-         for (int j = i - 1; j >= 0; j--) {
-            JournalFile file = files[j];
-            if (currentFile.getNegCount(file) != 0 && !file.isCanReclaim()) {
-               logger.tracef("%s can't be reclaimed because %s has negative values", currentFile, file);
-               currentFile.setCanReclaim(false);
-               break;
+         // criterion 2) --- this file deletes are from pos on files marked for reclaim or reclaimed
+         if (!currentFile.isNegReclaimCriteria()) {
+            boolean outstandingNeg = false;
+
+            for (int j = i - 1; j >= 0 && !outstandingNeg; j--) {
+               JournalFile file = files[j];
+               if (!file.isCanReclaim() && currentFile.getNegCount(file) != 0) {
+                  logger.tracef("%s can't be reclaimed because %s has negative values", currentFile, file);
+                  outstandingNeg = true;
+               }
             }
-         }
-         if (!currentFile.isCanReclaim()) {
-            continue; // Move to next file as we already know that this file can't be reclaimed because criterion 2)
-         }
 
-         // Now we evaluate criterion 1)
-         int negCount = 0, posCount = currentFile.getPosCount();
-         logger.tracef("posCount on %s = %d", currentFile, posCount);
-
-         for (int j = i; j < files.length && negCount < posCount; j++) {
-            int toNeg = files[j].getNegCount(currentFile);
-            negCount += toNeg;
-
-            if (logger.isTraceEnabled() && toNeg != 0) {
-               logger.tracef("Negative from %s into %s = %d", files[j], currentFile, toNeg);
+            if (outstandingNeg) {
+               continue; // Move to next file as we already know that this file can't be reclaimed because criterion 2)
+            }
+            else {
+               currentFile.setNegReclaimCriteria();
             }
          }
 
-         if (negCount < posCount ) {
-            logger.tracef("%s can't be reclaimed because there are not enough negatives %d", currentFile, negCount);
-            currentFile.setCanReclaim(false);
-         }
-         else {
-            logger.tracef("%s can be reclaimed", currentFile);
+         // criterion 1) --- this files additions all have matching deletes
+         if (!currentFile.isPosReclaimCriteria()) {
+            int negCount = 0, posCount = currentFile.getPosCount();
+            logger.tracef("posCount on %s = %d", currentFile, posCount);
+
+            for (int j = i; j < files.length && negCount < posCount; j++) {
+               int toNeg = files[j].getNegCount(currentFile);
+               negCount += toNeg;
+
+               if (logger.isTraceEnabled() && toNeg != 0) {
+                  logger.tracef("Negative from %s into %s = %d", files[j], currentFile, toNeg);
+               }
+            }
+
+            if (negCount < posCount ) {
+               logger.tracef("%s can't be reclaimed because there are not enough negatives %d", currentFile, negCount);
+            }
+            else {
+               logger.tracef("%s can be reclaimed", currentFile);
+               currentFile.setPosReclaimCriteria();
+            }
          }
       }
    }

@@ -42,12 +42,18 @@ public interface JournalFile {
    int getTotalNegativeToOthers();
 
    /**
-    * Whether this file's contents can deleted and the file reused.
-    *
-    * @param canDelete if {@code true} then this file's contents are unimportant and may be deleted
-    *                  at any time.
+    * Whether this file additions all have a delete in some other file
     */
-   void setCanReclaim(boolean canDelete);
+   boolean isPosReclaimCriteria();
+
+   void setPosReclaimCriteria();
+
+   /**
+    * Whether this file deletes are on files that are either marked for reclaim or have already been reclaimed
+    */
+   boolean isNegReclaimCriteria();
+
+   void setNegReclaimCriteria();
 
    /**
     * Whether this file's contents can deleted and the file reused.

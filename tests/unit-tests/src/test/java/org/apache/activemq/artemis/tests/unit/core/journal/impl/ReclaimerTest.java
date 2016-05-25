@@ -16,22 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.Reclaimer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReclaimerTest extends ActiveMQTestBase {
 
@@ -722,40 +716,23 @@ public class ReclaimerTest extends ActiveMQTestBase {
 
    static final class MockJournalFile implements JournalFile {
 
-      private final Set<Long> transactionIDs = new HashSet<>();
-
-      private final Set<Long> transactionTerminationIDs = new HashSet<>();
-
-      private final Set<Long> transactionPrepareIDs = new HashSet<>();
-
       private final Map<JournalFile, Integer> negCounts = new HashMap<>();
 
       private int posCount;
 
-      private boolean canDelete;
-
-      private boolean needCleanup;
-
       private int totalDep;
 
-      public void extendOffset(final int delta) {
-      }
+      private boolean posReclaimCriteria;
+      private boolean negReclaimCriteria;
 
       @Override
       public SequentialFile getFile() {
          return null;
       }
 
-      public long getOffset() {
-         return 0;
-      }
-
       @Override
       public long getFileID() {
          return 0;
-      }
-
-      public void setOffset(final long offset) {
       }
 
       @Override
@@ -797,75 +774,28 @@ public class ReclaimerTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isCanReclaim() {
-         return canDelete;
+      public boolean isPosReclaimCriteria() {
+         return posReclaimCriteria;
       }
 
       @Override
-      public void setCanReclaim(final boolean canDelete) {
-         this.canDelete = canDelete;
+      public void setPosReclaimCriteria() {
+         this.posReclaimCriteria = true;
       }
 
-      public void addTransactionID(final long id) {
-         transactionIDs.add(id);
+      @Override
+      public boolean isNegReclaimCriteria() {
+         return negReclaimCriteria;
       }
 
-      public void addTransactionPrepareID(final long id) {
-         transactionPrepareIDs.add(id);
+      @Override
+      public void setNegReclaimCriteria() {
+         this.negReclaimCriteria = true;
       }
 
-      public void addTransactionTerminationID(final long id) {
-         transactionTerminationIDs.add(id);
-      }
-
-      public boolean containsTransactionID(final long id) {
-         return transactionIDs.contains(id);
-      }
-
-      public boolean containsTransactionPrepareID(final long id) {
-         return transactionPrepareIDs.contains(id);
-      }
-
-      public boolean containsTransactionTerminationID(final long id) {
-         return transactionTerminationIDs.contains(id);
-      }
-
-      public Set<Long> getTranactionTerminationIDs() {
-         return transactionTerminationIDs;
-      }
-
-      public Set<Long> getTransactionPrepareIDs() {
-         return transactionPrepareIDs;
-      }
-
-      public Set<Long> getTransactionsIDs() {
-         return transactionIDs;
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#decPendingTransaction()
-       */
-      public void decPendingTransaction() {
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getPendingTransactions()
-       */
-      public int getPendingTransactions() {
-         return 0;
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#incPendingTransaction()
-       */
-      public void incPendingTransaction() {
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getOrderingID()
-       */
-      public int getOrderingID() {
-         return 0;
+      @Override
+      public boolean isCanReclaim() {
+         return posReclaimCriteria && negReclaimCriteria;
       }
 
       @Override
@@ -876,74 +806,25 @@ public class ReclaimerTest extends ActiveMQTestBase {
       public void decSize(final int bytes) {
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getSize()
-       */
       @Override
       public int getLiveSize() {
          return 0;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#isNeedCleanup()
-       */
-      public boolean isNeedCleanup() {
-         return needCleanup;
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#resetNegCount(org.apache.activemq.artemis.core.journal.impl.JournalFile)
-       */
-      public boolean resetNegCount(final JournalFile file) {
-         return false;
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#setNeedCleanup(boolean)
-       */
-      public void setNeedCleanup(final boolean needCleanup) {
-         this.needCleanup = needCleanup;
-
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getRecordID()
-       */
       @Override
       public int getRecordID() {
          return 0;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getTotalNegativeToOthers()
-       */
       @Override
       public int getTotalNegativeToOthers() {
          return totalDep;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getJournalVersion()
-       */
       @Override
       public int getJournalVersion() {
          return JournalImpl.FORMAT_VERSION;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getTotNeg()
-       */
-      public int getTotNeg() {
-         // TODO Auto-generated method stub
-         return 0;
-      }
-
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#setTotNeg(int)
-       */
-      public void setTotNeg(int totNeg) {
-         // TODO Auto-generated method stub
-
-      }
    }
 }
