@@ -223,7 +223,11 @@ public class MQTTPublishManager {
 
    private int decideQoS(ServerMessage message, ServerConsumer consumer) {
       int subscriptionQoS = session.getSubscriptionManager().getConsumerQoSLevels().get(consumer.getID());
-      int qos = message.getIntProperty(MQTTUtil.MQTT_QOS_LEVEL_KEY);
+
+      int qos = 2;
+      if (message.containsProperty(MQTTUtil.MQTT_QOS_LEVEL_KEY)) {
+         qos = message.getIntProperty(MQTTUtil.MQTT_QOS_LEVEL_KEY);
+      }
 
       /* Subscription QoS is the maximum QoS the client is willing to receive for this subscription.  If the message QoS
       is less than the subscription QoS then use it, otherwise use the subscription qos). */
