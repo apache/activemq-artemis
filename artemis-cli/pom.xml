@@ -29,6 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
+      <winsw.version>1.18</winsw.version>
    </properties>
 
    <dependencies>
@@ -64,7 +65,7 @@
       <dependency>
         <groupId>com.sun.winsw</groupId>
         <artifactId>winsw</artifactId>
-        <version>1.9</version>
+        <version>${winsw.version}</version>
         <classifier>bin</classifier>
         <type>exe</type>
         <scope>test</scope>
@@ -128,7 +129,7 @@
                  <artifactItem>
                    <groupId>com.sun.winsw</groupId>
                    <artifactId>winsw</artifactId>
-                   <version>1.18</version>
+                   <version>${winsw.version}</version>
                    <classifier>bin</classifier>
                    <type>exe</type>
                    <outputDirectory>${basedir}/target/classes/org/apache/activemq/artemis/cli/commands/bin/</outputDirectory>
