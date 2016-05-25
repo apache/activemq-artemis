@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -37,13 +37,15 @@ public class JournalFileImpl implements JournalFile {
 
    private final AtomicInteger liveBytes = new AtomicInteger(0);
 
-   private boolean canReclaim;
+   // Flags to be used by determine if the journal file can be reclaimed
+   private boolean posReclaimCriteria = false;
+   private boolean negReclaimCriteria = false;
 
    private final AtomicInteger totalNegativeToOthers = new AtomicInteger(0);
 
    private final int version;
 
-   private final Map<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
+   private final ConcurrentMap<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
       this.file = file;
@@ -61,13 +63,28 @@ public class JournalFileImpl implements JournalFile {
    }
 
    @Override
-   public boolean isCanReclaim() {
-      return canReclaim;
+   public boolean isPosReclaimCriteria() {
+      return posReclaimCriteria;
    }
 
    @Override
-   public void setCanReclaim(final boolean canReclaim) {
-      this.canReclaim = canReclaim;
+   public void setPosReclaimCriteria() {
+      this.posReclaimCriteria = true;
+   }
+
+   @Override
+   public boolean isNegReclaimCriteria() {
+      return negReclaimCriteria;
+   }
+
+   @Override
+   public void setNegReclaimCriteria() {
+      this.negReclaimCriteria = true;
+   }
+
+   @Override
+   public boolean isCanReclaim() {
+      return posReclaimCriteria && negReclaimCriteria;
    }
 
    @Override
@@ -75,7 +92,10 @@ public class JournalFileImpl implements JournalFile {
       if (file != this) {
          totalNegativeToOthers.incrementAndGet();
       }
-      getOrCreateNegCount(file).incrementAndGet();
+      AtomicInteger previous = negCounts.putIfAbsent(file, new AtomicInteger(1));
+      if (previous != null) {
+         previous.incrementAndGet();
+      }
    }
 
    @Override
@@ -150,17 +170,6 @@ public class JournalFileImpl implements JournalFile {
       }
 
       return builder.toString();
-   }
-
-   private synchronized AtomicInteger getOrCreateNegCount(final JournalFile file) {
-      AtomicInteger count = negCounts.get(file);
-
-      if (count == null) {
-         count = new AtomicInteger();
-         negCounts.put(file, count);
-      }
-
-      return count;
    }
 
    @Override
