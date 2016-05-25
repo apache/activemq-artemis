@@ -50,6 +50,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class OsgiBroker {
    private String name;
    private String configurationUrl;
+   private String rolePrincipalClass;
    private Map<String, ActiveMQComponent> components;
    private Map<String, ServiceRegistration<?>> registrations;
    private ServiceTracker tracker;
@@ -60,8 +61,12 @@ public class OsgiBroker {
       final Dictionary<String, Object> properties = cctx.getProperties();
       configurationUrl = getMandatory(properties, "config");
       name = getMandatory(properties, "name");
+      rolePrincipalClass = (String)properties.get("rolePrincipalClass");
       String domain = getMandatory(properties, "domain");
       ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
+      if (rolePrincipalClass != null) {
+         security.setRolePrincipalClass(rolePrincipalClass);
+      }
       String brokerInstance = null;
       String karafDataDir = System.getProperty("karaf.data");
       if (karafDataDir != null) {
