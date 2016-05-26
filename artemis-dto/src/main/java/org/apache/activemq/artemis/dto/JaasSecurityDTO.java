@@ -27,4 +27,7 @@ public class JaasSecurityDTO extends SecurityDTO {
 
    @XmlAttribute(name = "domain", required = true)
    public String domain;
+
+   @XmlAttribute(name = "certificate-domain", required = false)
+   public String certificateDomain;
 }
