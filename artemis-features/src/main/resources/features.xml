@@ -19,7 +19,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-  <feature name="artemis" version="${pom.version}">
+  <feature name="artemis" version="${pom.version}" description="Full ActiveMQ Artemis broker with default configuration">
     <feature>artemis-core</feature>
     <feature>artemis-amqp</feature>
     <feature>artemis-stomp</feature>
@@ -27,7 +27,7 @@
     <feature>artemis-hornetq</feature>
   </feature>
 
-	<feature name="netty-core" version="${netty.version}">
+	<feature name="netty-core" version="${netty.version}" description="Netty libraries">
 		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
@@ -35,7 +35,7 @@
 		<bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
 	</feature>
 
-	<feature name="artemis-core" version="${pom.version}">
+	<feature name="artemis-core" version="${pom.version}" description="ActiveMQ Artemis broker libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
 		<feature>scr</feature>
@@ -55,7 +55,7 @@
 		<bundle>mvn:org.apache.activemq/artemis-server-osgi/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-amqp" version="${pom.version}">
+	<feature name="artemis-amqp" version="${pom.version}" description="ActiveMQ Artemis AMQP protocol libraries">
 		<feature prerequisite="true">wrap</feature>
 		<feature>artemis-core</feature>
 		<bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
@@ -64,17 +64,17 @@
 		<bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-stomp" version="${pom.version}">
+	<feature name="artemis-stomp" version="${pom.version}" description="ActiveMQ Artemis Stomp protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-mqtt" version="${pom.version}">
+	<feature name="artemis-mqtt" version="${pom.version}" description="ActiveMQ Artemis MQTT protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${pom.version}</bundle>
 	</feature>
 
-	<feature name="artemis-hornetq" version="${pom.version}">
+	<feature name="artemis-hornetq" version="${pom.version}" description="ActiveMQ Artemis HornetQ protocol libraries">
 		<feature>artemis-core</feature>
 		<bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${pom.version}</bundle>
 		<bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${pom.version}</bundle>

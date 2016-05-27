@@ -140,19 +140,26 @@ public class ArtemisFeatureTest extends Assert {
 
       executeCommand("service:list -n");
 
-      String amqpURI = "amqp://localhost:5672";
-      JmsConnectionFactory factory = new JmsConnectionFactory(amqpURI);
-      Connection connection = factory.createConnection(USER, PASSWORD);
-      connection.start();
+      Connection connection = null;
+      try {
+         JmsConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:5672");
+         connection = factory.createConnection(USER, PASSWORD);
+         connection.start();
 
-      javax.jms.Session sess = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-      Queue queue = sess.createQueue("jms.queue.exampleQueue");
-      MessageProducer producer = sess.createProducer(queue);
-      producer.send(sess.createTextMessage("TEST"));
+         javax.jms.Session sess = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+         Queue queue = sess.createQueue("jms.queue.exampleQueue");
+         MessageProducer producer = sess.createProducer(queue);
+         producer.send(sess.createTextMessage("TEST"));
 
-      MessageConsumer consumer = sess.createConsumer(queue);
-      Message msg = consumer.receive(5000);
-      assertNotNull(msg);
+         MessageConsumer consumer = sess.createConsumer(queue);
+         Message msg = consumer.receive(5000);
+         assertNotNull(msg);
+      }
+      finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
    }
 
    protected String executeCommand(final String command, final Long timeout, final Boolean silent) {
