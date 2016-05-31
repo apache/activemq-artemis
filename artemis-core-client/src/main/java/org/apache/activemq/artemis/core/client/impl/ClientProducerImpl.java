@@ -34,11 +34,14 @@ import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * The client-side Producer.
  */
 public class ClientProducerImpl implements ClientProducerInternal {
+
+   private static final Logger logger = Logger.getLogger(ClientProducerImpl.class);
 
    private final SimpleString address;
 
@@ -290,6 +293,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       // Not the continuations, but this is ok since we are only interested in limiting the amount of
       // data in *memory* and continuations go straight to the disk
 
+      logger.tracef("sendRegularMessage::%s, Blocking=%s", msgI, sendBlocking);
+
       int creditSize = sessionContext.getCreditsOnSendingFull(msgI);
 
       theCredits.acquireCredits(creditSize);
@@ -314,6 +319,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
                                  final MessageInternal msgI,
                                  final ClientProducerCredits credits,
                                  SendAcknowledgementHandler handler) throws ActiveMQException {
+      logger.tracef("largeMessageSend::%s, Blocking=%s", msgI, sendBlocking);
+
       int headerSize = msgI.getHeadersAndPropertiesEncodeSize();
 
       if (msgI.getHeadersAndPropertiesEncodeSize() >= minLargeMessageSize) {
