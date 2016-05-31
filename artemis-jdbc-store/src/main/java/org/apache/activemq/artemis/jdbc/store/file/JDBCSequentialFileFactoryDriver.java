@@ -18,24 +18,16 @@ package org.apache.activemq.artemis.jdbc.store.file;
 
 import java.nio.ByteBuffer;
 import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
-import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 
-public class JDBCFileFactoryDriver {
-
-   protected Connection connection;
-
-   protected SQLProvider sqlProvider;
+public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    protected PreparedStatement deleteFile;
 
@@ -53,37 +45,24 @@ public class JDBCFileFactoryDriver {
 
    protected PreparedStatement selectFileNamesByExtension;
 
-   protected String connectionUrl;
-
-   protected String driverClass;
-
-   public JDBCFileFactoryDriver() {
+   public JDBCSequentialFileFactoryDriver() {
+      super();
    }
 
-   public void setConnectionURL(String connectionUrl) {
-      this.connectionUrl = connectionUrl;
-   }
-
-   public void setSqlProvider(SQLProvider sqlProvider) {
-      this.sqlProvider = sqlProvider;
-   }
-
-   public void setDriverClass(String driverClass) {
-      this.driverClass = driverClass;
+   public JDBCSequentialFileFactoryDriver(String tableName, String jdbcConnectionUrl, String jdbcDriverClass) {
+      super(tableName, jdbcConnectionUrl, jdbcDriverClass);
    }
 
    public void start() throws Exception {
-      Driver driver = JDBCUtils.getDriver(driverClass);
-      connection = driver.connect(connectionUrl, new Properties());
-      JDBCUtils.createTableIfNotExists(connection, sqlProvider.getTableName(), sqlProvider.getCreateFileTableSQL());
-      prepareStatements();
+      super.start();
    }
 
-   public void stop() throws SQLException {
-      if (sqlProvider.closeConnectionOnShutdown())
-         connection.close();
+   @Override
+   protected void createSchema() throws SQLException {
+      createTable(sqlProvider.getCreateFileTableSQL());
    }
 
+   @Override
    protected void prepareStatements() throws SQLException {
       this.deleteFile = connection.prepareStatement(sqlProvider.getDeleteFileSQL());
       this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), Statement.RETURN_GENERATED_KEYS);

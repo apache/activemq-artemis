@@ -53,10 +53,16 @@
          <scope>test</scope>
       </dependency>
 
+      <!-- Database driver support -->
       <dependency>
          <groupId>org.apache.derby</groupId>
          <artifactId>derby</artifactId>
          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.postgresql</groupId>
+         <artifactId>postgresql</artifactId>
       </dependency>
 
       <dependency>

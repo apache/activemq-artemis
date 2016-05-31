@@ -42,7 +42,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private Map<String, Object> fileLocks = new HashMap<>();
 
-   private final JDBCFileFactoryDriver dbDriver;
+   private final JDBCSequentialFileFactoryDriver dbDriver;
 
    public JDBCSequentialFileFactory(final String connectionUrl,
                                     final String tableName,
@@ -184,5 +184,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    public synchronized void destroy() throws SQLException {
+      dbDriver.destroy();
    }
 }

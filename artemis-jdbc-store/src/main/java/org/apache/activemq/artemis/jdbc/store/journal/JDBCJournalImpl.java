@@ -95,6 +95,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       createTable(sqlProvider.getCreateJournalTableSQL());
    }
 
+   @Override
    protected void prepareStatements() throws SQLException {
       insertJournalRecords = connection.prepareStatement(sqlProvider.getInsertJournalRecordsSQL());
       selectJournalRecords = connection.prepareStatement(sqlProvider.getSelectJournalRecordsSQL());
@@ -104,7 +105,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    }
 
    @Override
-   public synchronized void stop() throws Exception {
+   public synchronized void stop() throws SQLException {
       if (started) {
          synchronized (journalLock) {
             syncTimer.cancel();

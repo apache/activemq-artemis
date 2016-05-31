@@ -33,13 +33,16 @@ public abstract class AbstractJDBCDriver {
 
    protected Connection connection;
 
-   protected final SQLProvider sqlProvider;
+   protected SQLProvider sqlProvider;
 
-   protected final String jdbcConnectionUrl;
+   protected String jdbcConnectionUrl;
 
-   protected final String jdbcDriverClass;
+   protected String jdbcDriverClass;
 
    protected Driver dbDriver;
+
+   public AbstractJDBCDriver() {
+   }
 
    public AbstractJDBCDriver(String tableName, String jdbcConnectionUrl, String jdbcDriverClass) {
       this.jdbcConnectionUrl = jdbcConnectionUrl;
@@ -53,7 +56,7 @@ public abstract class AbstractJDBCDriver {
       prepareStatements();
    }
 
-   public void stop() throws Exception {
+   public void stop() throws SQLException {
       if (sqlProvider.closeConnectionOnShutdown()) {
          connection.close();
       }
@@ -79,10 +82,48 @@ public abstract class AbstractJDBCDriver {
    }
 
    public void destroy() throws Exception {
-      connection.setAutoCommit(false);
-      Statement statement = connection.createStatement();
-      statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
-      statement.close();
-      connection.commit();
+      try {
+         connection.setAutoCommit(false);
+         Statement statement = connection.createStatement();
+         statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
+         statement.close();
+         connection.commit();
+      }
+      catch (SQLException e) {
+         connection.rollback();
+         throw e;
+      }
+   }
+
+   public Connection getConnection() {
+      return connection;
+   }
+
+   public void setConnection(Connection connection) {
+      this.connection = connection;
+   }
+
+   public SQLProvider getSqlProvider() {
+      return sqlProvider;
+   }
+
+   public void setSqlProvider(SQLProvider sqlProvider) {
+      this.sqlProvider = sqlProvider;
+   }
+
+   public String getJdbcConnectionUrl() {
+      return jdbcConnectionUrl;
+   }
+
+   public void setJdbcConnectionUrl(String jdbcConnectionUrl) {
+      this.jdbcConnectionUrl = jdbcConnectionUrl;
+   }
+
+   public String getJdbcDriverClass() {
+      return jdbcDriverClass;
+   }
+
+   public void setJdbcDriverClass(String jdbcDriverClass) {
+      this.jdbcDriverClass = jdbcDriverClass;
    }
 }
