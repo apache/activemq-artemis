@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCJournalImpl implements Journal {
@@ -60,7 +61,7 @@ public class JDBCJournalImpl implements Journal {
 
    private Connection connection;
 
-   private List<JDBCJournalRecord> records;
+   private final List<JDBCJournalRecord> records;
 
    private PreparedStatement insertJournalRecords;
 
@@ -84,6 +85,8 @@ public class JDBCJournalImpl implements Journal {
 
    private final String timerThread;
 
+   private final SQLProvider sqlProvider;
+
    // Track Tx Records
    private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
 
@@ -94,6 +97,7 @@ public class JDBCJournalImpl implements Journal {
       this.tableName = tableName;
       this.jdbcUrl = jdbcUrl;
       this.jdbcDriverClass = jdbcDriverClass;
+      this.sqlProvider = JDBCUtils.getSQLProvider(jdbcDriverClass, tableName);
       timerThread = "Timer JDBC Journal(" + tableName + ")";
 
       records = new ArrayList<>();
@@ -111,13 +115,13 @@ public class JDBCJournalImpl implements Journal {
          throw new RuntimeException("Error connecting to database", e);
       }
 
-      JDBCUtils.createTableIfNotExists(connection, tableName, JDBCJournalRecord.createTableSQL(tableName));
+      JDBCUtils.createTableIfNotExists(connection, sqlProvider.getTableName(), sqlProvider.getCreateJournalTableSQL());
 
-      insertJournalRecords = connection.prepareStatement(JDBCJournalRecord.insertRecordsSQL(tableName));
-      selectJournalRecords = connection.prepareStatement(JDBCJournalRecord.selectRecordsSQL(tableName));
+      insertJournalRecords = connection.prepareStatement(sqlProvider.getInsertJournalRecordsSQL());
+      selectJournalRecords = connection.prepareStatement(sqlProvider.getSelectJournalRecordsSQL());
       countJournalRecords = connection.prepareStatement("SELECT COUNT(*) FROM " + tableName);
-      deleteJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteRecordsSQL(tableName));
-      deleteJournalTxRecords = connection.prepareStatement(JDBCJournalRecord.deleteJournalTxRecordsSQL(tableName));
+      deleteJournalRecords = connection.prepareStatement(sqlProvider.getDeleteJournalRecordsSQL());
+      deleteJournalTxRecords = connection.prepareStatement(sqlProvider.getDeleteJournalTxRecordsSQL());
 
       syncTimer = new Timer(timerThread, true);
       syncTimer.schedule(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
@@ -126,18 +130,14 @@ public class JDBCJournalImpl implements Journal {
    }
 
    @Override
-   public void stop() throws Exception {
-      stop(true);
-   }
-
-   public synchronized void stop(boolean shutdownConnection) throws Exception {
+   public synchronized void stop() throws Exception {
       if (started) {
          journalLock.writeLock().lock();
 
          syncTimer.cancel();
 
          sync();
-         if (shutdownConnection) {
+         if (sqlProvider.closeConnectionOnShutdown()) {
             connection.close();
          }
 
@@ -159,8 +159,11 @@ public class JDBCJournalImpl implements Journal {
       if (!started)
          return 0;
 
-      List<JDBCJournalRecord> recordRef = records;
-      records = new ArrayList<JDBCJournalRecord>();
+      List<JDBCJournalRecord> recordRef = new ArrayList<>();
+      synchronized (records) {
+         recordRef.addAll(records);
+         records.clear();
+      }
 
       // We keep a list of deleted records and committed tx (used for cleaning up old transaction data).
       List<Long> deletedRecords = new ArrayList<>();
@@ -311,7 +314,10 @@ public class JDBCJournalImpl implements Journal {
          if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
             addTxRecord(record);
          }
-         records.add(record);
+
+         synchronized (records) {
+            records.add(record);
+         }
       }
       finally {
          journalLock.writeLock().unlock();

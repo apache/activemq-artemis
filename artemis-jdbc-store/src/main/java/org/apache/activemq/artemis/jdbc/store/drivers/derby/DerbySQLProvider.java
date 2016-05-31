@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jdbc.store.file.sql;
+package org.apache.activemq.artemis.jdbc.store.drivers.derby;
+
+import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
 
 public class DerbySQLProvider extends GenericSQLProvider {
 
@@ -46,7 +48,12 @@ public class DerbySQLProvider extends GenericSQLProvider {
    }
 
    @Override
-   public String getAppendToFileSQL() {
+   public String getAppendToLargeObjectSQL() {
       return appendToFileSQL;
+   }
+
+   @Override
+   public boolean closeConnectionOnShutdown() {
+      return false;
    }
 }

@@ -17,7 +17,12 @@
 package org.apache.activemq.artemis.jdbc.file;
 
 import java.nio.ByteBuffer;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +36,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -63,7 +70,8 @@ public class JDBCSequentialFileFactoryTest {
    }
 
    @After
-   public void tearDown() throws SQLException {
+   public void tearDown() throws Exception {
+      destroyTables(Arrays.asList(tableName));
       factory.destroy();
    }
 
@@ -126,8 +134,8 @@ public class JDBCSequentialFileFactoryTest {
       JDBCSequentialFile copy = (JDBCSequentialFile) factory.createSequentialFile("copy.txt");
       file.copyTo(copy);
 
-      checkData(copy, src);
       checkData(file, src);
+      checkData(copy, src);
    }
 
    @Test
@@ -145,7 +153,12 @@ public class JDBCSequentialFileFactoryTest {
       IOCallbackCountdown callback = new IOCallbackCountdown(1);
       file.internalWrite(src, callback);
 
+      assertEquals(bufferSize, file.size());
       JDBCSequentialFile copy = (JDBCSequentialFile) file.cloneFile();
+      copy.open();
+
+      assertEquals(bufferSize, copy.size());
+      assertEquals(bufferSize, file.size());
    }
 
    private void checkData(JDBCSequentialFile file, ActiveMQBuffer expectedData) throws SQLException {
@@ -158,6 +171,28 @@ public class JDBCSequentialFileFactoryTest {
       expectedData.getBytes(0, resultingBytes);
 
       assertArrayEquals(resultingBytes, byteBuffer.array());
+   }
+
+   private void destroyTables(List<String> tableNames) throws Exception {
+      Driver driver = JDBCUtils.getDriver(className);
+      Connection connection = driver.connect(connectionUrl, null);
+      Statement statement = connection.createStatement();
+
+      try {
+         for (String tableName : tableNames) {
+            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(className, tableName);
+            ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null);
+            if (rs.next()) {
+               statement.execute("DROP TABLE " + sqlProvider.getTableName());
+            }
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      finally {
+         connection.close();
+      }
    }
 
    private class IOCallbackCountdown implements IOCallback {

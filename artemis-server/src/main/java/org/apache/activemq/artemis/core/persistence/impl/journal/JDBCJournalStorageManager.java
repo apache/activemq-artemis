@@ -88,10 +88,8 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
       beforeStop();
 
-      ((JDBCJournalImpl) bindingsJournal).stop(false);
-
-      ((JDBCJournalImpl) messageJournal).stop(false);
-
+      bindingsJournal.stop();
+      messageJournal.stop();
       largeMessagesFactory.stop();
 
       singleThreadExecutor.shutdown();
