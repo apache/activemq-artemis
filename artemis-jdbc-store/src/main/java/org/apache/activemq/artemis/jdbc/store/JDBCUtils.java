@@ -23,9 +23,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.activemq.artemis.jdbc.store.file.sql.DerbySQLProvider;
-import org.apache.activemq.artemis.jdbc.store.file.sql.GenericSQLProvider;
-import org.apache.activemq.artemis.jdbc.store.file.sql.SQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSequentialSequentialFileDriver;
+import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriver;
+import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class JDBCUtils {
 
@@ -69,8 +72,36 @@ public class JDBCUtils {
       if (driverClass.contains("derby")) {
          return new DerbySQLProvider(tableName);
       }
+      else if (driverClass.contains("postgres")) {
+         return new PostgresSQLProvider(tableName);
+      }
       else {
          return new GenericSQLProvider(tableName);
       }
+   }
+
+   public static JDBCSequentialFileFactoryDriver getDBFileDriver(String driverClass,
+                                                                 String tableName,
+                                                                 String jdbcConnectionUrl) throws SQLException {
+      JDBCSequentialFileFactoryDriver dbDriver;
+      if (driverClass.contains("derby")) {
+         dbDriver = new JDBCSequentialFileFactoryDriver();
+         dbDriver.setSqlProvider(new DerbySQLProvider(tableName));
+         dbDriver.setConnectionURL(jdbcConnectionUrl);
+         dbDriver.setDriverClass(driverClass);
+      }
+      else if (driverClass.contains("postgres")) {
+         dbDriver = new PostgresSequentialSequentialFileDriver();
+         dbDriver.setSqlProvider(new PostgresSQLProvider(tableName));
+         dbDriver.setConnectionURL(jdbcConnectionUrl);
+         dbDriver.setDriverClass(driverClass);
+      }
+      else {
+         dbDriver = new JDBCSequentialFileFactoryDriver();
+         dbDriver.setSqlProvider(new GenericSQLProvider(tableName));
+         dbDriver.setConnectionURL(jdbcConnectionUrl);
+         dbDriver.setDriverClass(driverClass);
+      }
+      return dbDriver;
    }
 }

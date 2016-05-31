@@ -14,11 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jdbc.store.file.sql;
+package org.apache.activemq.artemis.jdbc.store.sql;
 
 public interface SQLProvider {
 
    int getMaxBlobSize();
+
+   String getCreateJournalTableSQL();
+
+   String getInsertJournalRecordsSQL();
+
+   String getSelectJournalRecordsSQL();
+
+   String getDeleteJournalRecordsSQL();
+
+   String getDeleteJournalTxRecordsSQL();
 
    String getTableName();
 
@@ -30,9 +40,9 @@ public interface SQLProvider {
 
    String getSelectFileByFileName();
 
-   String getAppendToFileSQL();
+   String getAppendToLargeObjectSQL();
 
-   String getReadFileSQL();
+   String getReadLargeObjectSQL();
 
    String getDeleteFileSQL();
 
@@ -43,4 +53,8 @@ public interface SQLProvider {
    String getDropFileTableSQL();
 
    String getCloneFileRecordByIdSQL();
+
+   String getCountJournalRecordsSQL();
+
+   boolean closeConnectionOnShutdown();
 }

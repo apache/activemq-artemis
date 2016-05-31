@@ -240,10 +240,18 @@
          <artifactId>jboss-javaee</artifactId>
          <version>5.0.0.GA</version>
       </dependency>
+
+      <!-- DB Test Deps -->
       <dependency>
          <groupId>org.apache.derby</groupId>
          <artifactId>derby</artifactId>
-         <version>${apache.derby.version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.postgresql</groupId>
+         <artifactId>postgresql</artifactId>
+         <scope>test</scope>
       </dependency>
       <!--Vertx provided dependencies-->
       <dependency>
