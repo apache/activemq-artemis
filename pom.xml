@@ -77,11 +77,11 @@
       <guava.version>18.0</guava.version>
       <jboss.logging.version>3.3.0.Final</jboss.logging.version>
       <jetty.version>9.2.11.v20150529</jetty.version>
-      <jgroups.version>3.6.8.Final</jgroups.version>
+      <jgroups.version>3.6.9.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <netty.version>4.0.32.Final</netty.version>
       <proton.version>0.12.2</proton.version>
-      <resteasy.version>3.0.16.Final</resteasy.version>
+      <resteasy.version>3.0.17.Final</resteasy.version>
       <slf4j.version>1.7.12</slf4j.version>
       <qpid.jms.version>0.9.0</qpid.jms.version>
 
