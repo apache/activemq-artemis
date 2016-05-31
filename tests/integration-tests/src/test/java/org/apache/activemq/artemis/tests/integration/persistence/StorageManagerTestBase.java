@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -105,15 +103,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
          jmsJournal = null;
       }
 
-      // Stops the database engine early to stop thread leaks showing.
-      if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         try {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-         }
-         catch (SQLException e) {
-         }
-      }
-
+      destroyTables(Arrays.asList(new String[] {"MESSAGE", "BINDINGS", "LARGE_MESSAGE"}));
       super.tearDown();
       if (exception != null)
          throw exception;

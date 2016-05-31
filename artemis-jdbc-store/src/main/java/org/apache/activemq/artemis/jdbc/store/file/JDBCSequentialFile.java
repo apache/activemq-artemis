@@ -19,24 +19,20 @@ package org.apache.activemq.artemis.jdbc.store.file;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.artemis.jdbc.store.file.sql.SQLProvider;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
 
 public class JDBCSequentialFile implements SequentialFile {
@@ -53,20 +49,6 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private int id = -1;
 
-   private final PreparedStatement appendToFile;
-
-   private final PreparedStatement deleteFile;
-
-   private final PreparedStatement readFile;
-
-   private final PreparedStatement createFile;
-
-   private final PreparedStatement selectFileByFileName;
-
-   private final PreparedStatement copyFileRecord;
-
-   private final PreparedStatement renameFile;
-
    private long readPosition = 0;
 
    private long writePosition = 0;
@@ -75,33 +57,30 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private JDBCSequentialFileFactory fileFactory;
 
-   private int maxSize;
-
-   private SQLProvider sqlProvider;
-
    private final Object writeLock;
+
+   private final JDBCFileFactoryDriver dbDriver;
+
+   private static final Logger log = Logger.getLogger(JDBCSequentialFile.class.getName());
+
+   // Allows DB Drivers to cache meta data.
+   private Map<Object, Object> metaData = new ConcurrentHashMap<>();
 
    public JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
                              final String filename,
-                             final SQLProvider sqlProvider,
                              final Executor executor,
+                             final JDBCFileFactoryDriver driver,
                              final Object writeLock) throws SQLException {
       this.fileFactory = fileFactory;
       this.filename = filename;
       this.extension = filename.contains(".") ? filename.substring(filename.lastIndexOf(".") + 1, filename.length()) : "";
       this.executor = executor;
-      this.maxSize = sqlProvider.getMaxBlobSize();
-      this.sqlProvider = sqlProvider;
       this.writeLock = writeLock;
+      this.dbDriver = driver;
+   }
 
-      Connection connection = fileFactory.getConnection();
-      this.appendToFile = connection.prepareStatement(sqlProvider.getAppendToFileSQL());
-      this.deleteFile = connection.prepareStatement(sqlProvider.getDeleteFileSQL());
-      this.createFile = connection.prepareStatement(sqlProvider.getInsertFileSQL(), Statement.RETURN_GENERATED_KEYS);
-      this.readFile = connection.prepareStatement(sqlProvider.getReadFileSQL());
-      this.selectFileByFileName = connection.prepareStatement(sqlProvider.getSelectFileByFileName());
-      this.copyFileRecord = connection.prepareStatement(sqlProvider.getCopyFileRecordByIdSQL());
-      this.renameFile = connection.prepareStatement(sqlProvider.getUpdateFileNameByIdSQL());
+   public void setWritePosition(int writePosition) {
+      this.writePosition = writePosition;
    }
 
    @Override
@@ -117,35 +96,11 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public synchronized void open() throws Exception {
       if (!isOpen) {
-         try {
-            synchronized (writeLock) {
-               selectFileByFileName.setString(1, filename);
-
-               try (ResultSet rs = selectFileByFileName.executeQuery()) {
-                  if (!rs.next()) {
-                     createFile.setString(1, filename);
-                     createFile.setString(2, extension);
-                     createFile.setBytes(3, new byte[0]);
-                     createFile.executeUpdate();
-                     try (ResultSet keys = createFile.getGeneratedKeys()) {
-                        keys.next();
-                        this.id = keys.getInt(1);
-                     }
-                  }
-                  else {
-                     this.id = rs.getInt(1);
-                     this.writePosition = rs.getBlob(4).length();
-                  }
-               }
-            }
+         synchronized (writeLock) {
+            dbDriver.openFile(this);
+            isCreated = true;
+            isOpen = true;
          }
-         catch (SQLException e) {
-            ActiveMQJournalLogger.LOGGER.error("Error retreiving file record", e);
-            isOpen = false;
-         }
-
-         isCreated = true;
-         isOpen = true;
       }
    }
 
@@ -156,7 +111,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public boolean fits(int size) {
-      return writePosition + size <= maxSize;
+      return writePosition + size <= dbDriver.getMaxSize();
    }
 
    @Override
@@ -183,24 +138,20 @@ public class JDBCSequentialFile implements SequentialFile {
    public void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
          if (isCreated) {
-            deleteFile.setInt(1, id);
-            deleteFile.executeUpdate();
+            synchronized (writeLock) {
+               dbDriver.deleteFile(this);
+            }
          }
       }
       catch (SQLException e) {
-         throw new IOException(e);
+         throw new ActiveMQException(ActiveMQExceptionType.IO_ERROR, e.getMessage(), e);
       }
    }
 
    private synchronized int internalWrite(byte[] data, IOCallback callback) {
       try {
          synchronized (writeLock) {
-            int noBytes = data.length;
-            appendToFile.setBytes(1, data);
-            appendToFile.setInt(2, id);
-            int result = appendToFile.executeUpdate();
-            if (result < 1)
-               throw new ActiveMQException("No record found for file id: " + id);
+            int noBytes = dbDriver.writeToFile(this, data);
             seek(noBytes);
             if (callback != null)
                callback.done();
@@ -295,36 +246,19 @@ public class JDBCSequentialFile implements SequentialFile {
    }
 
    @Override
-   public synchronized int read(ByteBuffer bytes, IOCallback callback) throws SQLException {
+   public synchronized int read(ByteBuffer bytes, final IOCallback callback) throws SQLException {
       synchronized (writeLock) {
-         readFile.setInt(1, id);
-         try (ResultSet rs = readFile.executeQuery()) {
-            if (rs.next()) {
-               Blob blob = rs.getBlob(1);
-
-               long bytesRemaining = blob.length() - readPosition;
-               byte[] data;
-               if (bytesRemaining > bytes.remaining()) {
-                  // First index into blob is 1 (not 0)
-                  data = blob.getBytes(readPosition + 1, bytes.remaining());
-               }
-               else {
-                  // First index into blob is 1 (not 0)
-                  data = blob.getBytes(readPosition + 1, (int) bytesRemaining);
-               }
-
-               bytes.put(data);
-               readPosition += data.length;
-               if (callback != null)
-                  callback.done();
-
-               return data.length;
-            }
-            return 0;
+         try {
+            int read = dbDriver.readFromFile(this, bytes);
+            readPosition += read;
+            if (callback != null)
+               callback.done();
+            return read;
          }
          catch (Exception e) {
             if (callback != null)
                callback.onError(-1, e.getMessage());
+            e.printStackTrace();
             return 0;
          }
       }
@@ -352,8 +286,20 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void sync() throws IOException {
-      // (mtaylor) We always write straight away, so we don't need to do anything here.
-      // (mtaylor) Is this meant to be blocking?
+      final SimpleWaitIOCallback callback = new SimpleWaitIOCallback();
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            callback.done();
+         }
+      });
+
+      try {
+         callback.waitCompletion();
+      }
+      catch (Exception e) {
+         throw new IOException(e);
+      }
    }
 
    @Override
@@ -363,15 +309,15 @@ public class JDBCSequentialFile implements SequentialFile {
 
    @Override
    public void renameTo(String newFileName) throws Exception {
-      renameFile.setString(1, newFileName);
-      renameFile.setInt(2, id);
-      renameFile.executeUpdate();
+      synchronized (writeLock) {
+         dbDriver.renameFile(this, newFileName);
+      }
    }
 
    @Override
    public SequentialFile cloneFile() {
       try {
-         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, sqlProvider, executor, writeLock);
+         JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, dbDriver, writeLock);
          return clone;
       }
       catch (Exception e) {
@@ -385,9 +331,9 @@ public class JDBCSequentialFile implements SequentialFile {
       JDBCSequentialFile clone = (JDBCSequentialFile) cloneFile;
       clone.open();
 
-      copyFileRecord.setInt(1, id);
-      copyFileRecord.setInt(2, clone.getId());
-      copyFileRecord.executeUpdate();
+      synchronized (writeLock) {
+         dbDriver.copyFileData(this, clone);
+      }
    }
 
    public int getId() {
@@ -415,5 +361,17 @@ public class JDBCSequentialFile implements SequentialFile {
    @Override
    public File getJavaFile() {
       return null;
+   }
+
+   public void addMetaData(Object key, Object value) {
+      metaData.put(key, value);
+   }
+
+   public Object removeMetaData(Object key) {
+      return metaData.remove(key);
+   }
+
+   public Object getMetaData(Object key) {
+      return metaData.get(key);
    }
 }

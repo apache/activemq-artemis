@@ -79,6 +79,13 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       this.storeType = storeType;
    }
 
+   public void tearDown() throws Exception {
+      super.tearDown();
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE"));
+      }
+   }
+
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
       Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};

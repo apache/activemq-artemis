@@ -17,21 +17,15 @@
 
 package org.apache.activemq.artemis.jdbc.store.journal;
 
-import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -44,23 +38,18 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
-public class JDBCJournalImpl implements Journal {
+public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    // Sync Delay in ms
    public static final int SYNC_DELAY = 5;
 
    private static int USER_VERSION = 1;
 
-   private final String tableName;
-
-   private final String jdbcDriverClass;
-
-   private Connection connection;
-
-   private List<JDBCJournalRecord> records;
+   private final List<JDBCJournalRecord> records;
 
    private PreparedStatement insertJournalRecords;
 
@@ -74,13 +63,9 @@ public class JDBCJournalImpl implements Journal {
 
    private boolean started;
 
-   private String jdbcUrl;
-
    private Timer syncTimer;
 
-   private Driver dbDriver;
-
-   private final ReadWriteLock journalLock = new ReentrantReadWriteLock();
+   private final Object journalLock = new Object();
 
    private final String timerThread;
 
@@ -90,68 +75,48 @@ public class JDBCJournalImpl implements Journal {
    // Sequence ID for journal records
    private AtomicLong seq = new AtomicLong(0);
 
-   public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass) {
-      this.tableName = tableName;
-      this.jdbcUrl = jdbcUrl;
-      this.jdbcDriverClass = jdbcDriverClass;
-      timerThread = "Timer JDBC Journal(" + tableName + ")";
+   private Logger logger = Logger.getLogger(this.getClass());
 
+   public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass) {
+      super(tableName, jdbcUrl, jdbcDriverClass);
+      timerThread = "Timer JDBC Journal(" + tableName + ")";
       records = new ArrayList<>();
    }
 
    @Override
    public void start() throws Exception {
-      dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
-
-      try {
-         connection = dbDriver.connect(jdbcUrl, new Properties());
-      }
-      catch (SQLException e) {
-         ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcUrl);
-         throw new RuntimeException("Error connecting to database", e);
-      }
-
-      JDBCUtils.createTableIfNotExists(connection, tableName, JDBCJournalRecord.createTableSQL(tableName));
-
-      insertJournalRecords = connection.prepareStatement(JDBCJournalRecord.insertRecordsSQL(tableName));
-      selectJournalRecords = connection.prepareStatement(JDBCJournalRecord.selectRecordsSQL(tableName));
-      countJournalRecords = connection.prepareStatement("SELECT COUNT(*) FROM " + tableName);
-      deleteJournalRecords = connection.prepareStatement(JDBCJournalRecord.deleteRecordsSQL(tableName));
-      deleteJournalTxRecords = connection.prepareStatement(JDBCJournalRecord.deleteJournalTxRecordsSQL(tableName));
-
+      super.start();
       syncTimer = new Timer(timerThread, true);
       syncTimer.schedule(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
-
       started = true;
    }
 
-   @Override
-   public void stop() throws Exception {
-      stop(true);
+   protected void createSchema() throws SQLException {
+      createTable(sqlProvider.getCreateJournalTableSQL());
    }
 
-   public synchronized void stop(boolean shutdownConnection) throws Exception {
+   protected void prepareStatements() throws SQLException {
+      insertJournalRecords = connection.prepareStatement(sqlProvider.getInsertJournalRecordsSQL());
+      selectJournalRecords = connection.prepareStatement(sqlProvider.getSelectJournalRecordsSQL());
+      countJournalRecords = connection.prepareStatement(sqlProvider.getCountJournalRecordsSQL());
+      deleteJournalRecords = connection.prepareStatement(sqlProvider.getDeleteJournalRecordsSQL());
+      deleteJournalTxRecords = connection.prepareStatement(sqlProvider.getDeleteJournalTxRecordsSQL());
+   }
+
+   @Override
+   public synchronized void stop() throws Exception {
       if (started) {
-         journalLock.writeLock().lock();
-
-         syncTimer.cancel();
-
-         sync();
-         if (shutdownConnection) {
-            connection.close();
+         synchronized (journalLock) {
+            syncTimer.cancel();
+            sync();
+            started = false;
+            super.stop();
          }
-
-         started = false;
-         journalLock.writeLock().unlock();
       }
    }
 
    public synchronized void destroy() throws Exception {
-      connection.setAutoCommit(false);
-      Statement statement = connection.createStatement();
-      statement.executeUpdate("DROP TABLE " + tableName);
-      statement.close();
-      connection.commit();
+      super.destroy();
       stop();
    }
 
@@ -159,8 +124,11 @@ public class JDBCJournalImpl implements Journal {
       if (!started)
          return 0;
 
-      List<JDBCJournalRecord> recordRef = records;
-      records = new ArrayList<JDBCJournalRecord>();
+      List<JDBCJournalRecord> recordRef = new ArrayList<>();
+      synchronized (records) {
+         recordRef.addAll(records);
+         records.clear();
+      }
 
       // We keep a list of deleted records and committed tx (used for cleaning up old transaction data).
       List<Long> deletedRecords = new ArrayList<>();
@@ -215,12 +183,18 @@ public class JDBCJournalImpl implements Journal {
          deleteJournalTxRecords.executeBatch();
 
          connection.commit();
-
-         cleanupTxRecords(deletedRecords, committedTransactions);
          success = true;
       }
       catch (SQLException e) {
-         performRollback(connection, recordRef);
+         performRollback(recordRef);
+      }
+
+      try {
+         if (success)
+            cleanupTxRecords(deletedRecords, committedTransactions);
+      }
+      catch (SQLException e) {
+         e.printStackTrace();
       }
 
       executeCallbacks(recordRef, success);
@@ -230,11 +204,10 @@ public class JDBCJournalImpl implements Journal {
    /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
       we remove the Tx Records (i.e. PREPARE, COMMIT). */
    private synchronized void cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx) throws SQLException {
-
+      connection.rollback();
       List<RecordInfo> iterableCopy;
       List<TransactionHolder> iterableCopyTx = new ArrayList<>();
       iterableCopyTx.addAll(transactions.values());
-
 
       for (Long txId : committedTx) {
          transactions.get(txId).committed = true;
@@ -260,9 +233,8 @@ public class JDBCJournalImpl implements Journal {
       }
    }
 
-   private void performRollback(Connection connection, List<JDBCJournalRecord> records) {
+   private void performRollback(List<JDBCJournalRecord> records) {
       try {
-         connection.rollback();
          for (JDBCJournalRecord record : records) {
             if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
                removeTxRecord(record);
@@ -306,18 +278,18 @@ public class JDBCJournalImpl implements Journal {
          record.setIoCompletion(callback);
       }
 
-      try {
-         journalLock.writeLock().lock();
+      synchronized (journalLock) {
          if (record.isTransactional() || record.getRecordType() == JDBCJournalRecord.PREPARE_RECORD) {
             addTxRecord(record);
          }
-         records.add(record);
-      }
-      finally {
-         journalLock.writeLock().unlock();
+
+         synchronized (records) {
+            records.add(record);
+         }
       }
 
-      if (callback != null) callback.waitCompletion();
+      if (callback != null)
+         callback.waitCompletion();
    }
 
    private synchronized void addTxRecord(JDBCJournalRecord record) {
@@ -703,12 +675,12 @@ public class JDBCJournalImpl implements Journal {
 
    @Override
    public final void synchronizationLock() {
-      journalLock.writeLock().lock();
+      logger.error("Replication is not supported with JDBC Store");
    }
 
    @Override
    public final void synchronizationUnlock() {
-      journalLock.writeLock().unlock();
+      logger.error("Replication is not supported with JDBC Store");
    }
 
    @Override

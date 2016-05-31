@@ -63,7 +63,7 @@ public class JDBCSequentialFileFactoryTest {
    }
 
    @After
-   public void tearDown() throws SQLException {
+   public void tearDown() throws Exception {
       factory.destroy();
    }
 
@@ -126,8 +126,8 @@ public class JDBCSequentialFileFactoryTest {
       JDBCSequentialFile copy = (JDBCSequentialFile) factory.createSequentialFile("copy.txt");
       file.copyTo(copy);
 
-      checkData(copy, src);
       checkData(file, src);
+      checkData(copy, src);
    }
 
    @Test
@@ -145,7 +145,12 @@ public class JDBCSequentialFileFactoryTest {
       IOCallbackCountdown callback = new IOCallbackCountdown(1);
       file.internalWrite(src, callback);
 
+      assertEquals(bufferSize, file.size());
       JDBCSequentialFile copy = (JDBCSequentialFile) file.cloneFile();
+      copy.open();
+
+      assertEquals(bufferSize, copy.size());
+      assertEquals(bufferSize, file.size());
    }
 
    private void checkData(JDBCSequentialFile file, ActiveMQBuffer expectedData) throws SQLException {

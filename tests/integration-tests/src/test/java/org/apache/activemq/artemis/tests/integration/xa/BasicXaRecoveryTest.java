@@ -125,6 +125,9 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE"));
+      }
    }
 
    @Test
