@@ -59,7 +59,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private final Object writeLock;
 
-   private final JDBCFileFactoryDriver dbDriver;
+   private final JDBCSequentialFileFactoryDriver dbDriver;
 
    private static final Logger log = Logger.getLogger(JDBCSequentialFile.class.getName());
 
@@ -69,7 +69,7 @@ public class JDBCSequentialFile implements SequentialFile {
    public JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
                              final String filename,
                              final Executor executor,
-                             final JDBCFileFactoryDriver driver,
+                             final JDBCSequentialFileFactoryDriver driver,
                              final Object writeLock) throws SQLException {
       this.fileFactory = fileFactory;
       this.filename = filename;

@@ -31,7 +31,7 @@ import java.util.Properties;
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
-public class JDBCFileFactoryDriver {
+public class JDBCSequentialFileFactoryDriver {
 
    protected Connection connection;
 
@@ -57,7 +57,7 @@ public class JDBCFileFactoryDriver {
 
    protected String driverClass;
 
-   public JDBCFileFactoryDriver() {
+   public JDBCSequentialFileFactoryDriver() {
    }
 
    public void setConnectionURL(String connectionUrl) {
