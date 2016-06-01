@@ -226,7 +226,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache {
             }
             // For a tx, it's important that the entry is not added to the cache until commit
             // since if the client fails then resends them tx we don't want it to get rejected
-            tx.addOperation(new AddDuplicateIDOperation(duplID, recordID));
+            tx.afterStore(new AddDuplicateIDOperation(duplID, recordID));
          }
       }
    }

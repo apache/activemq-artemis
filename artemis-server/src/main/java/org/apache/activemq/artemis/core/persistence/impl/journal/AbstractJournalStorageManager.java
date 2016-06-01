@@ -292,6 +292,10 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       getContext().executeOnCompletion(run);
    }
 
+   public void afterStoreOperations(IOCallback run) {
+      getContext().executeOnCompletion(run, true);
+   }
+
    @Override
    public long generateID() {
       return idGenerator.generateID();
@@ -1786,6 +1790,11 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          // There are no executeOnCompletion calls while using the DummyOperationContext
          // However we keep the code here for correctness
          runnable.done();
+      }
+
+      @Override
+      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+         executeOnCompletion(runnable);
       }
 
       @Override

@@ -115,6 +115,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void afterStore(TransactionOperation sync) {
+
+      }
+
+      @Override
       public void addOperation(final TransactionOperation sync) {
 
       }

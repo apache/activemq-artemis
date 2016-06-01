@@ -690,9 +690,17 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                }
 
                for (Object id : idsToRemove) {
-                  RemotingConnection conn = getConnection(id);
+                  final RemotingConnection conn = getConnection(id);
                   if (conn != null) {
-                     conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                     // In certain cases (replicationManager for instance) calling fail could take some time
+                     // We can't pause the FailureCheckAndFlushThread as that would lead other clients to fail for
+                     // missing pings
+                     flushExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                           conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                        }
+                     });
                      removeConnection(id);
                   }
                }

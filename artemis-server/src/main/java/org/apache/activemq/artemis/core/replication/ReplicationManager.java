@@ -265,12 +265,13 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
    }
 
    @Override
-   public synchronized void stop() throws Exception {
-      if (!started) {
-         return;
+   public void stop() throws Exception {
+      synchronized (this) {
+         if (!started) {
+            logger.trace("Stopping being ignored as it hasn't been started");
+            return;
+         }
       }
-
-      enabled = false;
 
       // This is to avoid the write holding a lock while we are trying to close it
       if (replicatingChannel != null) {
@@ -279,6 +280,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       }
 
       synchronized (replicationLock) {
+         enabled = false;
          writable.set(true);
          replicationLock.notifyAll();
          clearReplicationTokens();
@@ -299,9 +301,12 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
     * backup crashing).
     */
    public void clearReplicationTokens() {
+      logger.trace("clearReplicationTokens initiating");
       synchronized (replicationLock) {
+         logger.trace("clearReplicationTokens entered the lock");
          while (!pendingTokens.isEmpty()) {
             OperationContext ctx = pendingTokens.poll();
+            logger.trace("Calling ctx.replicationDone()");
             try {
                ctx.replicationDone();
             }
@@ -310,6 +315,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             }
          }
       }
+      logger.trace("clearReplicationTokens finished");
    }
 
    /**
@@ -347,20 +353,8 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       synchronized (replicationLock) {
          if (enabled) {
             pendingTokens.add(repliToken);
-            if (!replicatingChannel.getConnection().isWritable(this)) {
-               try {
-                  writable.set(false);
-                  //don't wait for ever as this may hang tests etc, we've probably been closed anyway
-                  long now = System.currentTimeMillis();
-                  long deadline = now + 5000;
-                  while (!writable.get() && now < deadline)  {
-                     replicationLock.wait(deadline - now);
-                     now = System.currentTimeMillis();
-                  }
-               }
-               catch (InterruptedException e) {
-                  throw new ActiveMQInterruptedException(e);
-               }
+            if (!flowControl()) {
+               return repliToken;
             }
             replicatingChannel.send(packet);
          }
@@ -377,6 +371,43 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       }
 
       return repliToken;
+   }
+
+   /** This was written as a refactoring of sendReplicatePacket.
+    *  In case you refactor this in any way, this method must hold a lock on replication lock. .*/
+   private boolean flowControl() {
+      // synchronized (replicationLock) { -- I'm not adding this because the caller already has it
+      // future maintainers of this code please be aware that the intention here is hold the lock on replication lock
+      if (!replicatingChannel.getConnection().isWritable(this)) {
+         try {
+            logger.trace("flowControl waiting on writable");
+            writable.set(false);
+            //don't wait for ever as this may hang tests etc, we've probably been closed anyway
+            long now = System.currentTimeMillis();
+            long deadline = now + 5000;
+            while (!writable.get() && now < deadline)  {
+               replicationLock.wait(deadline - now);
+               now = System.currentTimeMillis();
+            }
+            logger.trace("flow control done");
+
+            if (!writable.get()) {
+               ActiveMQServerLogger.LOGGER.slowReplicationResponse();
+               logger.tracef("There was no response from replication backup after %s seconds, server being stopped now", System.currentTimeMillis() - now);
+               try {
+                  stop();
+               }
+               catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
+               return false;
+            }
+         }
+         catch (InterruptedException e) {
+            throw new ActiveMQInterruptedException(e);
+         }
+      }
+      return true;
    }
 
    @Override
@@ -591,6 +622,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
          sendReplicatePacket(new ReplicationStartSyncMessage(nodeID));
          try {
             if (!synchronizationIsFinishedAcknowledgement.await(initialReplicationSyncTimeout)) {
+               logger.trace("sendSynchronizationDone wasn't finished in time");
                throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
             }
          }
@@ -598,6 +630,8 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             logger.debug(e);
          }
          inSync = false;
+
+         logger.trace("sendSynchronizationDone finished");
       }
    }
 

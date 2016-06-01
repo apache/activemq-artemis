@@ -35,6 +35,13 @@ final class DummyOperationContext implements OperationContext {
    }
 
    @Override
+   public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+      // There are no executeOnCompletion calls while using the DummyOperationContext
+      // However we keep the code here for correctness
+      runnable.done();
+   }
+
+   @Override
    public void replicationDone() {
    }
 

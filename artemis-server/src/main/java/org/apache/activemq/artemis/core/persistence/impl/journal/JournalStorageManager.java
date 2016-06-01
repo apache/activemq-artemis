@@ -61,8 +61,10 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.jboss.logging.Logger;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
+   private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
 
    private SequentialFileFactory journalFF;
 
@@ -569,6 +571,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          }
       }
       catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          stopReplication();
          throw e;
       }
@@ -681,6 +684,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     */
    @Override
    public void stopReplication() {
+      logger.trace("stopReplication()");
       storageManagerLock.writeLock().lock();
       try {
          if (replicator == null)
