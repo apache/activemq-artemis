@@ -44,6 +44,9 @@ import org.jboss.logging.Logger;
 
 public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
+
+   private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
+
    // Sync Delay in ms
    public static final int SYNC_DELAY = 5;
 
@@ -75,8 +78,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    // Sequence ID for journal records
    private AtomicLong seq = new AtomicLong(0);
 
-   private Logger logger = Logger.getLogger(this.getClass());
-
    public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass) {
       super(tableName, jdbcUrl, jdbcDriverClass);
       timerThread = "Timer JDBC Journal(" + tableName + ")";
@@ -97,6 +98,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    @Override
    protected void prepareStatements() throws SQLException {
+      logger.tracef("preparing statements");
       insertJournalRecords = connection.prepareStatement(sqlProvider.getInsertJournalRecordsSQL());
       selectJournalRecords = connection.prepareStatement(sqlProvider.getSelectJournalRecordsSQL());
       countJournalRecords = connection.prepareStatement(sqlProvider.getCountJournalRecordsSQL());
@@ -676,12 +678,12 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    @Override
    public final void synchronizationLock() {
-      logger.error("Replication is not supported with JDBC Store");
+      logger.error("Replication is not supported with JDBC Store", new Exception("trace"));
    }
 
    @Override
    public final void synchronizationUnlock() {
-      logger.error("Replication is not supported with JDBC Store");
+      logger.error("Replication is not supported with JDBC Store", new Exception("trace"));
    }
 
    @Override
