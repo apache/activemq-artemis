@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
+import org.apache.activemq.artemis.jdbc.store.drivers.mysql.MySQLSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSequentialSequentialFileDriver;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactoryDriver;
@@ -75,6 +76,9 @@ public class JDBCUtils {
       else if (driverClass.contains("postgres")) {
          return new PostgresSQLProvider(tableName);
       }
+      else if (driverClass.contains("mysql")) {
+         return new MySQLSQLProvider(tableName);
+      }
       else {
          return new GenericSQLProvider(tableName);
       }
@@ -93,6 +97,12 @@ public class JDBCUtils {
       else if (driverClass.contains("postgres")) {
          dbDriver = new PostgresSequentialSequentialFileDriver();
          dbDriver.setSqlProvider(new PostgresSQLProvider(tableName));
+         dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
+         dbDriver.setJdbcDriverClass(driverClass);
+      }
+      else if (driverClass.contains("mysql")) {
+         dbDriver = new JDBCSequentialFileFactoryDriver();
+         dbDriver.setSqlProvider(new MySQLSQLProvider(tableName));
          dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
          dbDriver.setJdbcDriverClass(driverClass);
       }

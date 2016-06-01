@@ -253,6 +253,7 @@
          <artifactId>postgresql</artifactId>
          <scope>test</scope>
       </dependency>
+
       <!--Vertx provided dependencies-->
       <dependency>
          <groupId>io.vertx</groupId>
