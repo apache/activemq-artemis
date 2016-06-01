@@ -185,6 +185,10 @@ public class ThreadLeakCheckRule extends ExternalResource {
          // The derby engine is initialized once, and lasts the lifetime of the VM
          return true;
       }
+      else if (threadName.contains("Abandoned connection cleanup thread")) {
+         // MySQL Engine checks for abandoned connections
+         return true;
+      }
       else if (threadName.contains("Timer")) {
          // The timer threads in Derby and JDBC use daemon and shutdown once user threads exit.
          return true;

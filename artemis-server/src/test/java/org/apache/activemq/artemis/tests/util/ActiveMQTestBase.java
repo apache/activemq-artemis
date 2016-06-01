@@ -40,6 +40,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -124,6 +128,8 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -448,10 +454,32 @@ public abstract class ActiveMQTestBase extends Assert {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
       dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
       dbStorageConfiguration.setBindingsTableName("BINDINGS");
-      dbStorageConfiguration.setMessageTableName("MESSAGES");
-      dbStorageConfiguration.setJdbcDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
+      dbStorageConfiguration.setMessageTableName("MESSAGE");
+      dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
+      dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
 
       configuration.setStoreConfiguration(dbStorageConfiguration);
+   }
+
+   public void destroyTables(List<String> tableNames) throws Exception {
+      Driver driver = JDBCUtils.getDriver(getJDBCClassName());
+      Connection connection = driver.connect(getTestJDBCConnectionUrl(), null);
+      Statement statement = connection.createStatement();
+      try {
+         for (String tableName : tableNames) {
+            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName);
+            ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null);
+            if (rs.next()) {
+               statement.execute("DROP TABLE " + sqlProvider.getTableName());
+            }
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      finally {
+         connection.close();
+      }
    }
 
    protected Map<String, Object> generateInVMParams(final int node) {
@@ -797,7 +825,11 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final String getTestJDBCConnectionUrl() {
-      return "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true";
+      return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true");
+   }
+
+   protected final String getJDBCClassName() {
+      return System.getProperty("jdbc.driver.class","org.apache.derby.jdbc.EmbeddedDriver");
    }
 
    protected final File getTestDirfile() {

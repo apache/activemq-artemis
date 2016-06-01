@@ -40,7 +40,6 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-
       mapExpectedSets = new HashMap<>();
    }
 

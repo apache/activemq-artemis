@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jdbc.store.file.sql;
+package org.apache.activemq.artemis.jdbc.store.sql;
 
 public class GenericSQLProvider implements SQLProvider {
 
    // Default to lowest (MYSQL = 64k)
    private static final int MAX_BLOB_SIZE = 64512;
 
-   private final String tableName;
+   protected final String tableName;
 
    private final String createFileTableSQL;
 
@@ -33,7 +33,7 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String appendToFileSQL;
 
-   private final String readFileSQL;
+   private final String readLargeObjectSQL;
 
    private final String deleteFileSQL;
 
@@ -45,14 +45,25 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String dropFileTableSQL;
 
+   private final String createJournalTableSQL;
+
+   private final String insertJournalRecordsSQL;
+
+   private final String selectJournalRecordsSQL;
+
+   private final String deleteJournalRecordsSQL;
+
+   private final String deleteJournalTxRecordsSQL;
+
+   private final String countJournalRecordsSQL;
+
    public GenericSQLProvider(String tableName) {
       this.tableName = tableName;
 
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID INT AUTO_INCREMENT, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA BLOB, PRIMARY KEY(ID))";
 
-      insertFileSQL = "INSERT INTO " + tableName +
-         " (FILENAME, EXTENSION, DATA) VALUES (?,?,?)";
+      insertFileSQL = "INSERT INTO " + tableName + " (FILENAME, EXTENSION, DATA) VALUES (?,?,?)";
 
       selectFileNamesByExtensionSQL = "SELECT FILENAME, ID FROM " + tableName + " WHERE EXTENSION=?";
 
@@ -60,7 +71,7 @@ public class GenericSQLProvider implements SQLProvider {
 
       appendToFileSQL = "UPDATE " + tableName + " SET DATA = CONCAT(DATA, ?) WHERE ID=?";
 
-      readFileSQL = "SELECT DATA FROM " + tableName + " WHERE ID=?";
+      readLargeObjectSQL = "SELECT DATA FROM " + tableName + " WHERE ID=?";
 
       deleteFileSQL = "DELETE FROM " + tableName + " WHERE ID=?";
 
@@ -72,6 +83,18 @@ public class GenericSQLProvider implements SQLProvider {
       copyFileRecordByIdSQL = "UPDATE " + tableName + " SET DATA = (SELECT DATA FROM " + tableName + " WHERE ID=?) WHERE ID=?";
 
       dropFileTableSQL = "DROP TABLE " + tableName;
+
+      createJournalTableSQL = "CREATE TABLE " + tableName + "(id BIGINT,recordType SMALLINT,compactCount SMALLINT,txId BIGINT,userRecordType SMALLINT,variableSize INTEGER,record BLOB,txDataSize INTEGER,txData BLOB,txCheckNoRecords INTEGER,seq BIGINT)";
+
+      insertJournalRecordsSQL = "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+      selectJournalRecordsSQL = "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq " + "FROM " + tableName + " ORDER BY seq ASC";
+
+      deleteJournalRecordsSQL = "DELETE FROM " + tableName + " WHERE id = ?";
+
+      deleteJournalTxRecordsSQL = "DELETE FROM " + tableName + " WHERE txId=?";
+
+      countJournalRecordsSQL = "SELECT COUNT(*) FROM " + tableName;
    }
 
    @Override
@@ -84,6 +107,38 @@ public class GenericSQLProvider implements SQLProvider {
       return tableName;
    }
 
+   // Journal SQL Statements
+   @Override
+   public String getCreateJournalTableSQL() {
+      return createJournalTableSQL;
+   }
+
+   @Override
+   public String getInsertJournalRecordsSQL() {
+      return insertJournalRecordsSQL;
+   }
+
+   @Override
+   public String getSelectJournalRecordsSQL() {
+      return selectJournalRecordsSQL;
+   }
+
+   @Override
+   public String getDeleteJournalRecordsSQL() {
+      return deleteJournalRecordsSQL;
+   }
+
+   @Override
+   public String getDeleteJournalTxRecordsSQL() {
+      return deleteJournalTxRecordsSQL;
+   }
+
+   @Override
+   public String getCountJournalRecordsSQL() {
+      return countJournalRecordsSQL;
+   }
+
+   // Large Message Statements
    @Override
    public String getCreateFileTableSQL() {
       return createFileTableSQL;
@@ -105,13 +160,13 @@ public class GenericSQLProvider implements SQLProvider {
    }
 
    @Override
-   public String getAppendToFileSQL() {
+   public String getAppendToLargeObjectSQL() {
       return appendToFileSQL;
    }
 
    @Override
-   public String getReadFileSQL() {
-      return readFileSQL;
+   public String getReadLargeObjectSQL() {
+      return readLargeObjectSQL;
    }
 
    @Override
@@ -139,5 +194,8 @@ public class GenericSQLProvider implements SQLProvider {
       return dropFileTableSQL;
    }
 
-
+   @Override
+   public boolean closeConnectionOnShutdown() {
+      return true;
+   }
 }
