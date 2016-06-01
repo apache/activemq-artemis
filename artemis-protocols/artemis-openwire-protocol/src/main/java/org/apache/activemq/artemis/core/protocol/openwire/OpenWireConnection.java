@@ -801,11 +801,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
-         SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
-         server.destroyQueue(qName);
+         server.destroyQueue(OpenWireUtil.toCoreAddress(dest));
       }
       else {
-         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("jms.topic." + dest.getPhysicalName()));
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(OpenWireUtil.toCoreAddress(dest));
          Iterator<Binding> iterator = bindings.getBindings().iterator();
 
          while (iterator.hasNext()) {

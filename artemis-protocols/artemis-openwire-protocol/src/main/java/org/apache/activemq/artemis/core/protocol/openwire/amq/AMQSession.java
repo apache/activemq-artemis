@@ -149,7 +149,7 @@ public class AMQSession implements SessionCallback {
       for (ActiveMQDestination openWireDest : dests) {
          if (openWireDest.isQueue()) {
             SimpleString queueName = OpenWireUtil.toCoreAddress(openWireDest);
-            getCoreServer().getJMSQueueCreator().create(queueName);
+            getCoreServer().getJMSDestinationCreator().create(queueName);
          }
          AMQConsumer consumer = new AMQConsumer(this, openWireDest, info, scheduledPool);
 

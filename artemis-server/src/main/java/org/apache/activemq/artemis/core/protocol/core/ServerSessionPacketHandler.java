@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAdd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -263,7 +264,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
-                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
+                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
+                     response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues(), result.isAutoCreateJmsTopics());
+                  }
+                  else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
                      response = new SessionBindingQueryResponseMessage_V2(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues());
                   }
                   else {

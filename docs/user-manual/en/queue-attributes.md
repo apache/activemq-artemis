@@ -90,6 +90,8 @@ entry that would be found in the `broker.xml` file.
           <slow-consumer-check-period>5</slow-consumer-check-period>
           <auto-create-jms-queues>true</auto-create-jms-queues>
           <auto-delete-jms-queues>true</auto-delete-jms-queues>
+          <auto-create-jms-topics>true</auto-create-jms-topics>
+          <auto-delete-jms-topics>true</auto-delete-jms-topics>
        </address-setting>
     </address-settings>
 
@@ -177,7 +179,18 @@ create a JMS queue when a JMS message is sent to a queue whose name fits
 the address `match` (remember, a JMS queue is just a core queue which has
 the same address and queue name) or a JMS consumer tries to connect to a
 queue whose name fits the address `match`. Queues which are auto-created
-are durable, non-temporary, and non-transient.
+are durable, non-temporary, and non-transient. Default is `true`.
 
-`auto-delete-jms-queues`. Whether or not to the broker should automatically
+`auto-delete-jms-queues`. Whether or not the broker should automatically
 delete auto-created JMS queues when they have both 0 consumers and 0 messages.
+Default is `true`.
+
+`auto-create-jms-topics`. Whether or not the broker should automatically
+create a JMS topic when a JMS message is sent to a topic whose name fits
+the address `match` (remember, a JMS topic is just a core address which has 
+one or more core queues mapped to it) or a JMS consumer tries to subscribe
+to a topic whose name fits the address `match`. Default is `true`.
+
+`auto-delete-jms-topics`. Whether or not the broker should automatically
+delete auto-created JMS topics once the last subscription on the topic has
+been closed. Default is `true`.

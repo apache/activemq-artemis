@@ -64,6 +64,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
        * queue, <code>false</code> else.
        */
       boolean isAutoCreateJmsQueues();
+
+      /**
+       * Returns <code>true</code> if auto-creation for this address is enabled and if the address queried is for a JMS
+       * topic, <code>false</code> else.
+       */
+      boolean isAutoCreateJmsTopics();
    }
 
    /**

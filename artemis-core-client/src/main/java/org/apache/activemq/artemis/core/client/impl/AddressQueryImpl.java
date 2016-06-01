@@ -30,12 +30,16 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final boolean autoCreateJmsQueues;
 
+   private final boolean autoCreateJmsTopics;
+
    public AddressQueryImpl(final boolean exists,
                            final List<SimpleString> queueNames,
-                           final boolean autoCreateJmsQueues) {
+                           final boolean autoCreateJmsQueues,
+                           final boolean autoCreateJmsTopics) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateJmsQueues = autoCreateJmsQueues;
+      this.autoCreateJmsTopics = autoCreateJmsTopics;
    }
 
    @Override
@@ -51,5 +55,10 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    @Override
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
+   }
+
+   @Override
+   public boolean isAutoCreateJmsTopics() {
+      return autoCreateJmsTopics;
    }
 }

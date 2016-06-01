@@ -17,41 +17,23 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
-import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueDeleter;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
-import org.jboss.logging.Logger;
 
 public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
 
-   private static final Logger logger = Logger.getLogger(AutoCreatedQueueManagerImpl.class);
-
    private final SimpleString queueName;
 
-   private final ActiveMQServer server;
+   private final QueueDeleter deleter;
 
    private final Runnable runnable = new Runnable() {
       @Override
       public void run() {
          try {
-            Queue queue = server.locateQueue(queueName);
-            long consumerCount = queue.getConsumerCount();
-            long messageCount = queue.getMessageCount();
-            boolean isAutoDeleteJmsQueues = server.getAddressSettingsRepository().getMatch(queueName.toString()).isAutoDeleteJmsQueues();
-
-            if (server.locateQueue(queueName).getMessageCount() == 0 && isAutoDeleteJmsQueues) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
-               }
-
-               if (server.getJMSQueueDeleter() != null) {
-                  server.getJMSQueueDeleter().delete(queueName);
-               }
-            }
-            else if (logger.isDebugEnabled()) {
-               logger.debug("NOT deleting auto-created queue \"" + queueName + ".\" consumerCount = " + consumerCount + "; messageCount = " + messageCount + "; isAutoDeleteJmsQueues = " + isAutoDeleteJmsQueues);
+            if (deleter != null) {
+               deleter.delete(queueName);
             }
          }
          catch (Exception e) {
@@ -62,9 +44,8 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public AutoCreatedQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
-      this.server = server;
-
+   public AutoCreatedQueueManagerImpl(QueueDeleter deleter, SimpleString queueName) {
+      this.deleter = deleter;
       this.queueName = queueName;
    }
 

@@ -106,6 +106,8 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MemoryManager;
 import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
+import org.apache.activemq.artemis.core.server.PostQueueDeletionCallback;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueDeleter;
@@ -260,6 +262,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private final Set<ActivateCallback> activateCallbacks = new ConcurrentHashSet<>();
 
    private final Set<ActivationFailureListener> activationFailureListeners = new ConcurrentHashSet<>();
+
+   private final Set<PostQueueCreationCallback> postQueueCreationCallbacks = new ConcurrentHashSet<>();
+
+   private final Set<PostQueueDeletionCallback> postQueueDeletionCallbacks = new ConcurrentHashSet<>();
 
    private volatile GroupingHandler groupingHandler;
 
@@ -564,6 +570,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
+      boolean autoCreateJmsTopics = address.toString().startsWith(ResourceNames.JMS_TOPIC) && getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsTopics();
 
       List<SimpleString> names = new ArrayList<>();
 
@@ -571,7 +578,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       ManagementService managementService = getManagementService();
       if (managementService != null) {
          if (address.equals(managementService.getManagementAddress())) {
-            return new BindingQueryResult(true, names, autoCreateJmsQueues);
+            return new BindingQueryResult(true, names, autoCreateJmsQueues, autoCreateJmsTopics);
          }
       }
 
@@ -583,7 +590,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
+      return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues, autoCreateJmsTopics);
    }
 
    @Override
@@ -655,7 +662,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public QueueCreator getJMSQueueCreator() {
+   public QueueCreator getJMSDestinationCreator() {
       return jmsQueueCreator;
    }
 
@@ -1496,6 +1503,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
+      SimpleString address = binding.getAddress();
+
       Queue queue = (Queue) binding.getBindable();
 
       // This check is only valid if checkConsumerCount == true
@@ -1507,14 +1516,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          if (queue.isDurable()) {
             // make sure the user has privileges to delete this queue
-            securityStore.check(binding.getAddress(), CheckType.DELETE_DURABLE_QUEUE, session);
+            securityStore.check(address, CheckType.DELETE_DURABLE_QUEUE, session);
          }
          else {
-            securityStore.check(binding.getAddress(), CheckType.DELETE_NON_DURABLE_QUEUE, session);
+            securityStore.check(address, CheckType.DELETE_NON_DURABLE_QUEUE, session);
          }
       }
 
       queue.deleteQueue(removeConsumers);
+
+      callPostQueueDeletionCallbacks(address, queueName);
    }
 
    @Override
@@ -1541,6 +1552,40 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void callActivationFailureListeners(final Exception e) {
       for (ActivationFailureListener listener : activationFailureListeners) {
          listener.activationFailed(e);
+      }
+   }
+
+   @Override
+   public void registerPostQueueCreationCallback(final PostQueueCreationCallback callback) {
+      postQueueCreationCallbacks.add(callback);
+   }
+
+   @Override
+   public void unregisterPostQueueCreationCallback(final PostQueueCreationCallback callback) {
+      postQueueCreationCallbacks.remove(callback);
+   }
+
+   @Override
+   public void callPostQueueCreationCallbacks(final SimpleString queueName) throws Exception {
+      for (PostQueueCreationCallback callback : postQueueCreationCallbacks) {
+         callback.callback(queueName);
+      }
+   }
+
+   @Override
+   public void registerPostQueueDeletionCallback(final PostQueueDeletionCallback callback) {
+      postQueueDeletionCallbacks.add(callback);
+   }
+
+   @Override
+   public void unregisterPostQueueDeletionCallback(final PostQueueDeletionCallback callback) {
+      postQueueDeletionCallbacks.remove(callback);
+   }
+
+   @Override
+   public void callPostQueueDeletionCallbacks(final SimpleString address, final SimpleString queueName) throws Exception {
+      for (PostQueueDeletionCallback callback : postQueueDeletionCallbacks) {
+         callback.callback(address, queueName);
       }
    }
 
@@ -2091,7 +2136,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          queue.setConsumersRefCount(new TransientQueueManagerImpl(this, queueName));
       }
       else if (autoCreated) {
-         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this, queueName));
+         queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(this.getJMSQueueDeleter(), queueName));
       }
 
       binding = new LocalQueueBinding(address, queue, nodeManager.getNodeId());
@@ -2126,6 +2171,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       managementService.registerAddress(address);
       managementService.registerQueue(queue, address, storageManager);
+
+      callPostQueueCreationCallbacks(queueName);
 
       return queue;
    }

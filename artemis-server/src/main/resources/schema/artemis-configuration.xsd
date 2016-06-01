@@ -2308,6 +2308,23 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
+                     a topic
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created JMS topics when the last subscription is closed
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1"
                          minOccurs="0">
                <xsd:annotation>

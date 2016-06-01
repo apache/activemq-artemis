@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.jms.Connection;
-import javax.jms.InvalidDestinationException;
 import javax.jms.JMSSecurityException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -26,18 +25,21 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AutoCreateJmsQueueTest extends JMSTestBase {
+public class AutoCreateJmsDestinationTest extends JMSTestBase {
 
    @Test
    public void testAutoCreateOnSendToQueue() throws Exception {
@@ -134,15 +136,12 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
 
       javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
 
-      try {
-         MessageProducer producer = session.createProducer(topic);
-         Assert.fail("Creating a producer here should throw an exception");
-      }
-      catch (Exception e) {
-         Assert.assertTrue(e instanceof InvalidDestinationException);
-      }
+      MessageProducer producer = session.createProducer(topic);
+      producer.send(session.createTextMessage("msg"));
 
       connection.close();
+
+      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
    }
 
    @Test
@@ -166,22 +165,77 @@ public class AutoCreateJmsQueueTest extends JMSTestBase {
    }
 
    @Test
-   public void testAutoCreateOnConsumeFromTopic() throws Exception {
-      Connection connection = null;
-      connection = cf.createConnection();
+   public void testAutoCreateOnSubscribeToTopic() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final String topicName = "test-" + UUID.randomUUID().toString();
+
+      javax.jms.Topic topic = ActiveMQJMSClient.createTopic(topicName);
+
+      MessageConsumer consumer = session.createConsumer(topic);
+      MessageProducer producer = session.createProducer(topic);
+      producer.send(session.createTextMessage("msg"));
+      connection.start();
+      assertNotNull(consumer.receive(500));
+
+      assertNotNull(server.getManagementService().getResource("jms.topic." + topicName));
+
+      connection.close();
+
+      assertNull(server.getManagementService().getResource("jms.topic." + topicName));
+   }
+
+   @Test
+   public void testAutoCreateOnDurableSubscribeToTopic() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("myClientID");
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
 
-      try {
-         MessageConsumer messageConsumer = session.createConsumer(topic);
-         Assert.fail("Creating a consumer here should throw an exception");
-      }
-      catch (Exception e) {
-         Assert.assertTrue(e instanceof InvalidDestinationException);
-      }
+      MessageConsumer consumer = session.createDurableConsumer(topic, "myDurableSub");
+      MessageProducer producer = session.createProducer(topic);
+      producer.send(session.createTextMessage("msg"));
+      connection.start();
+      assertNotNull(consumer.receive(500));
 
       connection.close();
+
+      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
+
+      assertNotNull(server.locateQueue(SimpleString.toSimpleString("myClientID.myDurableSub")));
+   }
+
+   @Test
+   public void testTemporaryTopic() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+//      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
+
+      ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic) session.createTemporaryTopic();
+
+      MessageConsumer consumer = session.createConsumer(topic);
+      MessageProducer producer = session.createProducer(topic);
+      producer.send(session.createTextMessage("msg"));
+      connection.start();
+      assertNotNull(consumer.receive(500));
+
+      SimpleString topicAddress = topic.getSimpleAddress();
+
+      consumer.close();
+
+      assertNotNull(server.locateQueue(topicAddress));
+
+      IntegrationTestLogger.LOGGER.info("Topic name: " + topicAddress);
+
+      topic.delete();
+
+      connection.close();
+
+//      assertNotNull(server.getManagementService().getResource("jms.topic.test"));
+
+      assertNull(server.locateQueue(topicAddress));
    }
 
    @Before
