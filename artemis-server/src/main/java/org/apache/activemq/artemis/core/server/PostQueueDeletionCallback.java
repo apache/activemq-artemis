@@ -14,15 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface QueueDeleter {
+/**
+ * When a "core" queue is deleted this callback will be invoked
+ */
+public interface PostQueueDeletionCallback {
 
-   /**
-    * @return True if a queue was deleted.
-    */
-   boolean delete(SimpleString queueName) throws Exception;
+   void callback(SimpleString address, SimpleString queueName) throws Exception;
 }

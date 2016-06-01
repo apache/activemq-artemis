@@ -487,8 +487,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       Queue queue;
 
-      // any non-temporary JMS queue created via this method should be marked as auto-created
-      if (!temporary && address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name)) {
+      // any non-temporary JMS destination created via this method should be marked as auto-created
+      if (!temporary && ((address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name)) || address.toString().startsWith(ResourceNames.JMS_TOPIC)) ) {
          queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true);
       }
       else {
@@ -1453,7 +1453,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void installJMSHooks() {
-      this.queueCreator = server.getJMSQueueCreator();
+      this.queueCreator = server.getJMSDestinationCreator();
    }
 
    private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses() {

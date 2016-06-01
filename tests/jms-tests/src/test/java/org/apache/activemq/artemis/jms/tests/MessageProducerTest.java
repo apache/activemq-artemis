@@ -32,6 +32,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -348,6 +349,7 @@ public class MessageProducerTest extends JMSTestCase {
 
    @Test
    public void testCreateProducerOnInexistentDestination() throws Exception {
+      getJmsServer().getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
       Connection pconn = createConnection();
       try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);

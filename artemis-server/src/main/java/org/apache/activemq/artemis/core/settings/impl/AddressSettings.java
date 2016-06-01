@@ -56,6 +56,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final boolean DEFAULT_AUTO_DELETE_QUEUES = true;
 
+   public static final boolean DEFAULT_AUTO_CREATE_TOPICS = true;
+
+   public static final boolean DEFAULT_AUTO_DELETE_TOPICS = true;
+
    public static final long DEFAULT_REDISTRIBUTION_DELAY = -1;
 
    public static final long DEFAULT_EXPIRY_DELAY = -1;
@@ -114,6 +118,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean autoDeleteJmsQueues = null;
 
+   private Boolean autoCreateJmsTopics = null;
+
+   private Boolean autoDeleteJmsTopics = null;
+
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
    //from amq5
@@ -142,6 +150,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.slowConsumerPolicy = other.slowConsumerPolicy;
       this.autoCreateJmsQueues = other.autoCreateJmsQueues;
       this.autoDeleteJmsQueues = other.autoDeleteJmsQueues;
+      this.autoCreateJmsTopics = other.autoCreateJmsTopics;
+      this.autoDeleteJmsTopics = other.autoDeleteJmsTopics;
       this.managementBrowsePageSize = other.managementBrowsePageSize;
       this.queuePrefetch = other.queuePrefetch;
    }
@@ -164,6 +174,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setAutoDeleteJmsQueues(final boolean autoDeleteJmsQueues) {
       this.autoDeleteJmsQueues = autoDeleteJmsQueues;
+      return this;
+   }
+
+   public boolean isAutoCreateJmsTopics() {
+      return autoCreateJmsTopics != null ? autoCreateJmsTopics : AddressSettings.DEFAULT_AUTO_CREATE_TOPICS;
+   }
+
+   public AddressSettings setAutoCreateJmsTopics(final boolean autoCreateJmsTopics) {
+      this.autoCreateJmsTopics = autoCreateJmsTopics;
+      return this;
+   }
+
+   public boolean isAutoDeleteJmsTopics() {
+      return autoDeleteJmsTopics != null ? autoDeleteJmsTopics : AddressSettings.DEFAULT_AUTO_DELETE_QUEUES;
+   }
+
+   public AddressSettings setAutoDeleteJmsTopics(final boolean autoDeleteJmsTopics) {
+      this.autoDeleteJmsTopics = autoDeleteJmsTopics;
       return this;
    }
 
@@ -416,6 +444,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (autoDeleteJmsQueues == null) {
          autoDeleteJmsQueues = merged.autoDeleteJmsQueues;
       }
+      if (autoCreateJmsTopics == null) {
+         autoCreateJmsTopics = merged.autoCreateJmsTopics;
+      }
+      if (autoDeleteJmsTopics == null) {
+         autoDeleteJmsTopics = merged.autoDeleteJmsTopics;
+      }
       if (managementBrowsePageSize == null) {
          managementBrowsePageSize = merged.managementBrowsePageSize;
       }
@@ -482,6 +516,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       autoDeleteJmsQueues = BufferHelper.readNullableBoolean(buffer);
 
+      autoCreateJmsTopics = BufferHelper.readNullableBoolean(buffer);
+
+      autoDeleteJmsTopics = BufferHelper.readNullableBoolean(buffer);
+
       managementBrowsePageSize = BufferHelper.readNullableInteger(buffer);
    }
 
@@ -509,6 +547,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableSimpleString(slowConsumerPolicy != null ? slowConsumerPolicy.toString() : null) +
          BufferHelper.sizeOfNullableBoolean(autoCreateJmsQueues) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteJmsQueues) +
+         BufferHelper.sizeOfNullableBoolean(autoCreateJmsTopics) +
+         BufferHelper.sizeOfNullableBoolean(autoDeleteJmsTopics) +
          BufferHelper.sizeOfNullableInteger(managementBrowsePageSize);
    }
 
@@ -556,6 +596,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteJmsQueues);
 
+      BufferHelper.writeNullableBoolean(buffer, autoCreateJmsTopics);
+
+      BufferHelper.writeNullableBoolean(buffer, autoDeleteJmsTopics);
+
       BufferHelper.writeNullableInteger(buffer, managementBrowsePageSize);
    }
 
@@ -587,6 +631,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((slowConsumerPolicy == null) ? 0 : slowConsumerPolicy.hashCode());
       result = prime * result + ((autoCreateJmsQueues == null) ? 0 : autoCreateJmsQueues.hashCode());
       result = prime * result + ((autoDeleteJmsQueues == null) ? 0 : autoDeleteJmsQueues.hashCode());
+      result = prime * result + ((autoCreateJmsTopics == null) ? 0 : autoCreateJmsTopics.hashCode());
+      result = prime * result + ((autoDeleteJmsTopics == null) ? 0 : autoDeleteJmsTopics.hashCode());
       result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
       result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
       return result;
@@ -730,8 +776,20 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       else if (!autoDeleteJmsQueues.equals(other.autoDeleteJmsQueues))
          return false;
-      else if (!managementBrowsePageSize.equals(other.managementBrowsePageSize))
+
+      if (autoCreateJmsTopics == null) {
+         if (other.autoCreateJmsTopics != null)
+            return false;
+      }
+      else if (!autoCreateJmsTopics.equals(other.autoCreateJmsTopics))
          return false;
+      if (autoDeleteJmsTopics == null) {
+         if (other.autoDeleteJmsTopics != null)
+            return false;
+      }
+      else if (!autoDeleteJmsTopics.equals(other.autoDeleteJmsTopics))
+         return false;
+
       if (managementBrowsePageSize == null) {
          if (other.managementBrowsePageSize != null)
             return false;
@@ -793,6 +851,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          autoCreateJmsQueues +
          ", autoDeleteJmsQueues=" +
          autoDeleteJmsQueues +
+         ", autoCreateJmsTopics=" +
+         autoCreateJmsTopics +
+         ", autoDeleteJmsTopics=" +
+         autoDeleteJmsTopics +
          ", managementBrowsePageSize=" +
          managementBrowsePageSize +
          "]";

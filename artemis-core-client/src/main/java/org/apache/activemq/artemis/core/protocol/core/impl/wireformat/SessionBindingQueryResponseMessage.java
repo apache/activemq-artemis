@@ -44,8 +44,8 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
       super(SESS_BINDINGQUERY_RESP);
    }
 
-   public SessionBindingQueryResponseMessage(byte v2) {
-      super(v2);
+   public SessionBindingQueryResponseMessage(byte v) {
+      super(v);
    }
 
    @Override

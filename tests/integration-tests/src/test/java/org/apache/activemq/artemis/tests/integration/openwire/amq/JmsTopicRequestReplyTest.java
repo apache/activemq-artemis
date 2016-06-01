@@ -57,11 +57,16 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       clientConnection = createConnection();
       clientConnection.setClientID("ClientConnection:" + name.getMethodName());
 
+      System.out.println("Creating session.");
       Session session = clientConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       clientConnection.start();
 
       Destination replyDestination = createTemporaryDestination(session);
+      System.out.println("Created temporary topic " + replyDestination);
+
+      System.out.println("Creating consumer on: " + replyDestination);
+      MessageConsumer replyConsumer = session.createConsumer(replyDestination);
 
       // lets test the destination
       clientSideClientID = clientConnection.getClientID();
@@ -74,12 +79,15 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       System.out.println("Both the clientID and destination clientID match properly: " + clientSideClientID);
 
       /* build queues */
-      MessageProducer requestProducer = session.createProducer(requestDestination);
-      MessageConsumer replyConsumer = session.createConsumer(replyDestination);
 
       /* build requestmessage */
       TextMessage requestMessage = session.createTextMessage("Olivier");
       requestMessage.setJMSReplyTo(replyDestination);
+
+      System.out.println("Creating producer on " + requestDestination);
+      MessageProducer requestProducer = session.createProducer(requestDestination);
+
+      System.out.println("Sending message to " + requestDestination);
       requestProducer.send(requestMessage);
 
       System.out.println("Sent request.");
@@ -116,7 +124,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       try {
          TextMessage requestMessage = (TextMessage) message;
 
-         System.out.println("Received request.");
+         System.out.println("Received request from " + requestDestination);
          System.out.println(requestMessage.toString());
 
          Destination replyDestination = requestMessage.getJMSReplyTo();
@@ -140,7 +148,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
             replyProducer.send(replyDestination, replyMessage);
          }
 
-         System.out.println("Sent reply.");
+         System.out.println("Sent reply to " + replyDestination);
          System.out.println(replyMessage.toString());
       }
       catch (JMSException e) {
@@ -180,6 +188,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       requestDestination = createDestination(serverSession);
 
       /* build queues */
+      System.out.println("Creating consumer on: " + requestDestination);
       final MessageConsumer requestConsumer = serverSession.createConsumer(requestDestination);
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);
@@ -232,6 +241,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
          ((TemporaryTopic) dest).delete();
       }
       else {
+         System.out.println("Deleting: " + dest);
          ((TemporaryQueue) dest).delete();
       }
    }

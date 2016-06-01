@@ -405,7 +405,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
                // if it's autoCreateJMSQueue we will let the PostOffice.route to execute the creation at the server's side
                // as that's a more efficient path for such operation
-               if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
+               if (!query.isExists() && ((address.toString().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && !query.isAutoCreateJmsQueues()) || (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && !query.isAutoCreateJmsTopics()))) {
                   throw new InvalidDestinationException("Destination " + address + " does not exist");
                }
                else {

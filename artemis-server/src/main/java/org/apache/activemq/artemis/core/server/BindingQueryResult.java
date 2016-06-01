@@ -28,14 +28,19 @@ public class BindingQueryResult {
 
    private boolean autoCreateJmsQueues;
 
+   private boolean autoCreateJmsTopics;
+
    public BindingQueryResult(final boolean exists,
                              final List<SimpleString> queueNames,
-                             final boolean autoCreateJmsQueues) {
+                             final boolean autoCreateJmsQueues,
+                             final boolean autoCreateJmsTopics) {
       this.exists = exists;
 
       this.queueNames = queueNames;
 
       this.autoCreateJmsQueues = autoCreateJmsQueues;
+
+      this.autoCreateJmsTopics = autoCreateJmsTopics;
    }
 
    public boolean isExists() {
@@ -44,6 +49,10 @@ public class BindingQueryResult {
 
    public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
+   }
+
+   public boolean isAutoCreateJmsTopics() {
+      return autoCreateJmsTopics;
    }
 
    public List<SimpleString> getQueueNames() {

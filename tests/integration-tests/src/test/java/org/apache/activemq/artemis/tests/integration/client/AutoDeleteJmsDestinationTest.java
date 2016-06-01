@@ -31,10 +31,10 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AutoDeleteJmsQueueTest extends JMSTestBase {
+public class AutoDeleteJmsDestinationTest extends JMSTestBase {
 
    @Test
-   public void testAutoDelete() throws Exception {
+   public void testAutoDeleteQueue() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -123,5 +123,77 @@ public class AutoDeleteJmsQueueTest extends JMSTestBase {
 
       // ensure the queue was not removed
       Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("jms.queue.test")));
+   }
+
+   @Test
+   public void testAutoDeleteTopic() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
+
+      MessageConsumer messageConsumer = session.createConsumer(topic);
+      MessageProducer producer = session.createProducer(topic);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(mess);
+      }
+
+      producer.close();
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      connection.close();
+
+      // ensure the topic was removed
+      Assert.assertNull(server.locateQueue(new SimpleString("jms.topic.test")));
+
+      // make sure the JMX control was removed for the JMS topic
+      assertNull(server.getManagementService().getResource("jms.topic.test"));
+   }
+
+   @Test
+   public void testAutoDeleteTopicDurableSubscriber() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("myClientID");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
+
+      MessageConsumer messageConsumer = session.createDurableConsumer(topic, "mySub");
+      MessageProducer producer = session.createProducer(topic);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(mess);
+      }
+
+      producer.close();
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      messageConsumer.close();
+      session.unsubscribe("mySub");
+
+      connection.close();
+
+      // ensure the topic was removed
+      Assert.assertNull(server.locateQueue(new SimpleString("jms.topic.test")));
+
+      // make sure the JMX control was removed for the JMS topic
+      assertNull(server.getManagementService().getResource("jms.topic.test"));
    }
 }

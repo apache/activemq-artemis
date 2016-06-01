@@ -245,6 +245,8 @@ public class PacketImpl implements Packet {
 
    public static final byte REPLICATION_RESPONSE_V2 = -9;
 
+   public static final byte SESS_BINDINGQUERY_RESP_V3 = -10;
+
    // Static --------------------------------------------------------
 
    public PacketImpl(final byte type) {
