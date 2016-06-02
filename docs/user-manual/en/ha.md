@@ -448,7 +448,7 @@ configuration file as follows:
 > **Warning**
 >
 > Be aware that if you restart a live server while after failover has
-> occurred then this value must be set to ``. If not the live server
+> occurred then `check-for-live-server` must be set to `true`. If not the live server
 > will restart and server the same messages that the backup has already
 > handled causing duplicates.
 
