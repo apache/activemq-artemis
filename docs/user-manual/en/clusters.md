@@ -98,7 +98,7 @@ Let's take a look at an example broadcast group from
           <group-address>231.7.7.7</group-address>
           <group-port>9876</group-port>
           <broadcast-period>2000</broadcast-period>
-          <connector-ref connector-name="netty-connector"/>
+          <connector-ref>netty-connector</connector-ref>
        </broadcast-group>
     </broadcast-groups>
 
@@ -138,8 +138,7 @@ clarity. Let's discuss each one in turn:
 
 -   `connector-ref`. This specifies the connector and optional backup
     connector that will be broadcasted (see [Configuring the Transport](configuring-transports.md) for more information on
-    connectors). The connector to be broadcasted is specified by the
-    `connector-name` attribute.
+    connectors). 
 
 Here is another example broadcast group that defines a JGroups broadcast
 group:
