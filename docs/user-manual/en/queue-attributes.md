@@ -88,8 +88,8 @@ entry that would be found in the `broker.xml` file.
           <slow-consumer-threshold>-1</slow-consumer-threshold>
           <slow-consumer-policy>NOTIFY</slow-consumer-policy>
           <slow-consumer-check-period>5</slow-consumer-check-period>
-          <auto-create-queues>true</auto-create-queues>
-          <auto-delete-queues>true</auto-delete-queues>
+          <auto-create-jms-queues>true</auto-create-jms-queues>
+          <auto-delete-jms-queues>true</auto-delete-jms-queues>
        </address-setting>
     </address-settings>
 
