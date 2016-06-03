@@ -65,12 +65,21 @@ public class JDBCUtils {
 
    public static void createTableIfNotExists(Connection connection, String tableName, String sql) throws SQLException {
       logger.tracef("Validating if table %s didn't exist before creating", tableName);
-      ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null);
-      if (!rs.next()) {
-         logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
-         Statement statement = connection.createStatement();
-         statement.executeUpdate(sql);
+      try {
+         connection.setAutoCommit(false);
+         try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
+            if (rs != null && !rs.next()) {
+               logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
+               Statement statement = connection.createStatement();
+               statement.executeUpdate(sql);
+            }
+         }
+         connection.commit();
       }
+      catch (SQLException e) {
+         connection.rollback();
+      }
+
    }
 
    public static SQLProvider getSQLProvider(String driverClass, String tableName) {
