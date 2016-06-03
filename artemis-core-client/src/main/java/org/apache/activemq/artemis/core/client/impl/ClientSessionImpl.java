@@ -1088,7 +1088,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon) {
-      setAddress(null, address);
       ClientProducerCredits credits = producerCreditManager.getCredits(address, anon, sessionContext);
 
       return credits;
