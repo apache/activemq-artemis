@@ -257,7 +257,7 @@ public class TransportConfiguration implements Serializable {
 
             // HORNETQ-1281 - don't log passwords
             String val;
-            if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD)) {
+            if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME)) {
                val = "****";
             }
             else {
