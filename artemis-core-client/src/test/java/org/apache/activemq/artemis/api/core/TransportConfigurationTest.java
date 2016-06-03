@@ -19,8 +19,12 @@ package org.apache.activemq.artemis.api.core;
 
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 
 public class TransportConfigurationTest {
 
@@ -61,4 +65,16 @@ public class TransportConfigurationTest {
       Assert.assertNotEquals(configuration.hashCode(), configuration2.hashCode());
 
    }
+
+   @Test
+   public void testToStringObfuscatesPasswords() {
+      HashMap<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secret_password");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secret_password");
+
+      TransportConfiguration configuration = new TransportConfiguration("SomeClass", params, null);
+
+      Assert.assertThat(configuration.toString(), not(containsString("secret_password")));
+   }
+
 }
