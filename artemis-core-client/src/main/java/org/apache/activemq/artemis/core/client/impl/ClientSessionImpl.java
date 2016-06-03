@@ -1052,6 +1052,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void setAddress(final Message message, final SimpleString address) {
       if (defaultAddress == null) {
+         logger.tracef("setAddress() Setting default address as %s", address);
          defaultAddress = address;
 
          if (message != null) {
