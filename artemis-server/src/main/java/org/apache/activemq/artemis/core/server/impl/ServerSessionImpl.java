@@ -1268,7 +1268,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    protected void checkDefaultAddress(SimpleString address) {
+      logger.tracef("checkDefaultAddress %s, defaultAddress=%s", address, defaultAddress);
       if (defaultAddress == null && address != null) {
+         logger.tracef("checkDefaultAddress setting as %s", address);
          defaultAddress = address;
       }
    }
