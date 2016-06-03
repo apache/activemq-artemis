@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.karaf;
 
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.log4j.Logger;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -66,7 +66,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDist
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 @RunWith(PaxExam.class)
-public class ArtemisFeatureTest extends Assert {
+public class ArtemisFeatureTest extends ActiveMQTestBase {
 
    private static Logger LOG = Logger.getLogger(ArtemisFeatureTest.class.getName());
 
