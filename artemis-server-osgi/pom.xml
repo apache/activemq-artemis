@@ -116,6 +116,10 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+            <Import-Package>
+              org.postgresql*;resolution:=optional,
+              *
+            </Import-Package>
 						<_exportcontents>*</_exportcontents>
 					</instructions>
 				</configuration>
