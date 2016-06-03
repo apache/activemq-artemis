@@ -43,6 +43,7 @@ import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -467,10 +468,16 @@ public abstract class ActiveMQTestBase extends Assert {
       Statement statement = connection.createStatement();
       try {
          for (String tableName : tableNames) {
+            connection.setAutoCommit(false);
             SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName);
-            ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null);
-            if (rs.next()) {
-               statement.execute("DROP TABLE " + sqlProvider.getTableName());
+            try (ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null)) {
+               if (rs.next()) {
+                  statement.execute("DROP TABLE " + sqlProvider.getTableName());
+               }
+               connection.commit();
+            }
+            catch (SQLException e) {
+               connection.rollback();
             }
          }
       }
