@@ -28,6 +28,11 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.util.ByteSequence;
 
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
+
 public class OpenWireUtil {
 
    public static ActiveMQBuffer toActiveMQBuffer(ByteSequence bytes) {
@@ -39,10 +44,20 @@ public class OpenWireUtil {
 
    public static SimpleString toCoreAddress(ActiveMQDestination dest) {
       if (dest.isQueue()) {
-         return new SimpleString("jms.queue." + dest.getPhysicalName());
+         if (dest.isTemporary()) {
+            return new SimpleString(JMS_TEMP_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
+         }
+         else {
+            return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + dest.getPhysicalName());
+         }
       }
       else {
-         return new SimpleString("jms.topic." + dest.getPhysicalName());
+         if (dest.isTemporary()) {
+            return new SimpleString(JMS_TEMP_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
+         }
+         else {
+            return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + dest.getPhysicalName());
+         }
       }
    }
 
@@ -54,7 +69,7 @@ public class OpenWireUtil {
     */
    public static ActiveMQDestination toAMQAddress(ServerMessage message, ActiveMQDestination actualDestination) {
       String address = message.getAddress().toString();
-      String strippedAddress = address.replace("jms.queue.", "").replace("jms.topic.", "");
+      String strippedAddress = address.replace(JMS_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TEMP_QUEUE_ADDRESS_PREFIX, "").replace(JMS_TOPIC_ADDRESS_PREFIX, "").replace(JMS_TEMP_TOPIC_ADDRESS_PREFIX, "");
       if (actualDestination.isQueue()) {
          return new ActiveMQQueue(strippedAddress);
       }

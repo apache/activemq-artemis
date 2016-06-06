@@ -248,6 +248,8 @@
             <slow-consumer-policy>NOTIFY</slow-consumer-policy>
             <auto-create-jms-queues>true</auto-create-jms-queues>
             <auto-delete-jms-queues>true</auto-delete-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+            <auto-delete-jms-topics>true</auto-delete-jms-topics>
          </address-setting>
          <address-setting match="a2">
             <dead-letter-address>a2.1</dead-letter-address>
@@ -262,6 +264,8 @@
             <slow-consumer-policy>KILL</slow-consumer-policy>
             <auto-create-jms-queues>false</auto-create-jms-queues>
             <auto-delete-jms-queues>false</auto-delete-jms-queues>
+            <auto-create-jms-topics>false</auto-create-jms-topics>
+            <auto-delete-jms-topics>false</auto-delete-jms-topics>
          </address-setting>
       </address-settings>
       <resource-limit-settings>

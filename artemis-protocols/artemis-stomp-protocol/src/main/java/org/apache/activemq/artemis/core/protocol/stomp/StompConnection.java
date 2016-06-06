@@ -29,13 +29,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -227,30 +227,23 @@ public final class StompConnection implements RemotingConnection {
    }
 
    public void checkDestination(String destination) throws ActiveMQStompException {
-      if (autoCreateQueueIfPossible(destination)) {
-         return;
-      }
+      autoCreateDestinationIfPossible(destination);
 
       if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
-   public boolean autoCreateQueueIfPossible(String queue) throws ActiveMQStompException {
-      boolean autoCreated = false;
-
-      if (queue.startsWith(ResourceNames.JMS_QUEUE) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateJmsQueues() && manager.getServer().locateQueue(new SimpleString(queue)) == null) {
-         SimpleString queueName = new SimpleString(queue);
-         try {
-            manager.getServer().createQueue(queueName, queueName, null, SimpleString.toSimpleString(this.getLogin()), true, false, true);
+   public void autoCreateDestinationIfPossible(String queue) throws ActiveMQStompException {
+      try {
+         QueueCreator queueCreator = manager.getServer().getJMSDestinationCreator();
+         if (queueCreator != null) {
+            queueCreator.create(SimpleString.toSimpleString(queue));
          }
-         catch (Exception e) {
-            throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
-         }
-         autoCreated = true;
       }
-
-      return autoCreated;
+      catch (Exception e) {
+         throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
+      }
    }
 
    @Override
@@ -618,7 +611,7 @@ public final class StompConnection implements RemotingConnection {
                   String id,
                   String durableSubscriptionName,
                   boolean noLocal) throws ActiveMQStompException {
-      autoCreateQueueIfPossible(destination);
+      autoCreateDestinationIfPossible(destination);
       if (noLocal) {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
          if (selector == null) {

@@ -81,7 +81,12 @@ public class AMQConsumer {
       SimpleString address;
 
       if (openwireDestination.isTopic()) {
-         address = new SimpleString("jms.topic." + physicalName);
+         if (openwireDestination.isTemporary()) {
+            address = new SimpleString("jms.temptopic." + physicalName);
+         }
+         else {
+            address = new SimpleString("jms.topic." + physicalName);
+         }
 
          SimpleString queueName = createTopicSubscription(info.isDurable(), info.getClientId(), physicalName, info.getSubscriptionName(), selector, address);
 
@@ -90,7 +95,7 @@ public class AMQConsumer {
       }
       else {
          SimpleString queueName = OpenWireUtil.toCoreAddress(openwireDestination);
-         session.getCoreServer().getJMSQueueCreator().create(queueName);
+         session.getCoreServer().getJMSDestinationCreator().create(queueName);
          serverConsumer = session.getCoreSession().createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
          serverConsumer.setlowConsumerDetection(slowConsumerDetectionListener);
          AddressSettings addrSettings = session.getCoreServer().getAddressSettingsRepository().getMatch(queueName.toString());

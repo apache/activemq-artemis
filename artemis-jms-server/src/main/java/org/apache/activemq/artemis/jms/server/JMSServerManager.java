@@ -77,6 +77,17 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean createTopic(boolean storeConfig, String topicName, String... bindings) throws Exception;
 
    /**
+    *
+    * @param storeConfig
+    * @param topicName
+    * @param autoCreated
+    * @param bindings
+    * @return
+    * @throws Exception
+    */
+   boolean createTopic(boolean storeConfig, String topicName, boolean autoCreated, String... bindings) throws Exception;
+
+   /**
     * Remove the topic from the Binding Registry or BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *

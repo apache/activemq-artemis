@@ -57,11 +57,15 @@ public final class AddressSettingsInfo {
 
    private final boolean autoDeleteJmsQueues;
 
+   private final boolean autoCreateJmsTopics;
+
+   private final boolean autoDeleteJmsTopics;
+
    // Static --------------------------------------------------------
 
    public static AddressSettingsInfo from(final String jsonString) throws Exception {
       JSONObject object = new JSONObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getLong("maxSizeBytes"), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getLong("redeliveryDelay"), object.getDouble("redeliveryMultiplier"), object.getLong("maxRedeliveryDelay"), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getLong("redistributionDelay"), object.getBoolean("sendToDLAOnNoRoute"), object.getLong("slowConsumerThreshold"), object.getLong("slowConsumerCheckPeriod"), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoDeleteJmsQueues"));
+      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getLong("maxSizeBytes"), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getLong("redeliveryDelay"), object.getDouble("redeliveryMultiplier"), object.getLong("maxRedeliveryDelay"), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getLong("redistributionDelay"), object.getBoolean("sendToDLAOnNoRoute"), object.getLong("slowConsumerThreshold"), object.getLong("slowConsumerCheckPeriod"), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoCreateJmsTopics"), object.getBoolean("autoDeleteJmsTopics"));
    }
 
    // Constructors --------------------------------------------------
@@ -83,7 +87,9 @@ public final class AddressSettingsInfo {
                               long slowConsumerCheckPeriod,
                               String slowConsumerPolicy,
                               boolean autoCreateJmsQueues,
-                              boolean autoDeleteJmsQueues) {
+                              boolean autoDeleteJmsQueues,
+                              boolean autoCreateJmsTopics,
+                              boolean autoDeleteJmsTopics) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -102,6 +108,8 @@ public final class AddressSettingsInfo {
       this.slowConsumerPolicy = slowConsumerPolicy;
       this.autoCreateJmsQueues = autoCreateJmsQueues;
       this.autoDeleteJmsQueues = autoDeleteJmsQueues;
+      this.autoCreateJmsTopics = autoCreateJmsTopics;
+      this.autoDeleteJmsTopics = autoDeleteJmsTopics;
    }
 
    // Public --------------------------------------------------------
@@ -180,6 +188,14 @@ public final class AddressSettingsInfo {
 
    public boolean isAutoDeleteJmsQueues() {
       return autoDeleteJmsQueues;
+   }
+
+   public boolean isAutoCreateJmsTopics() {
+      return autoCreateJmsTopics;
+   }
+
+   public boolean isAutoDeleteJmsTopics() {
+      return autoDeleteJmsTopics;
    }
 }
 

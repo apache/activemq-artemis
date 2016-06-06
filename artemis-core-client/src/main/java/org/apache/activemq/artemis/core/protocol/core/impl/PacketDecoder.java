@@ -40,6 +40,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V3;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_CLOSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_COMMIT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_CONSUMER_CLOSE;
@@ -110,6 +111,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAdd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
@@ -255,6 +257,10 @@ public abstract class PacketDecoder implements Serializable {
          }
          case SESS_BINDINGQUERY_RESP_V2: {
             packet = new SessionBindingQueryResponseMessage_V2();
+            break;
+         }
+         case SESS_BINDINGQUERY_RESP_V3: {
+            packet = new SessionBindingQueryResponseMessage_V3();
             break;
          }
          case SESS_XA_START: {

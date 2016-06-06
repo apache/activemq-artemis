@@ -233,6 +233,43 @@ public class StompTest extends StompTestBase {
       assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
    }
 
+   @Test
+   public void testSendMessageToNonExistentTopic() throws Exception {
+      String nonExistentTopic = RandomUtil.randomString();
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      // first send a message to ensure that sending to a non-existent topic won't throw an error
+      frame = "SEND\n" + "destination:" + getTopicPrefix() + nonExistentTopic + "\n\n" + "Hello World" + Stomp.NULL;
+      sendFrame(frame);
+      receiveFrame(1000);
+
+      // create a subscription on the topic and send/receive another message
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
+      sendFrame(frame);
+      receiveFrame(1000);
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      // Assert default priority 4 is used when priority header is not set
+      Assert.assertEquals("getJMSPriority", 4, message.getJMSPriority());
+
+      // Make sure that the timestamp is valid - should
+      // be very close to the current time.
+      long tnow = System.currentTimeMillis();
+      long tmsg = message.getJMSTimestamp();
+      Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
+
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
+
+      // closing the consumer here should trigger auto-deletion of the topic
+      consumer.close();
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
+   }
+
    /*
     * Some STOMP clients erroneously put a new line \n *after* the terminating NUL char at the end of the frame
     * This means next frame read might have a \n a the beginning.
