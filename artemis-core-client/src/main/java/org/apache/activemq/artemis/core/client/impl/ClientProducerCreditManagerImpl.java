@@ -79,10 +79,6 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          // while this is still sending requests causing a dead lock
          if (needInit) {
             credits.init(context);
-
-            // Setting default address on the session
-            session.setAddress(null, address);
-
          }
 
          return credits;
