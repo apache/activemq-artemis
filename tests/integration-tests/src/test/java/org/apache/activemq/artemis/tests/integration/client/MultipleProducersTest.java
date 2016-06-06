@@ -96,6 +96,7 @@ public class MultipleProducersTest extends JMSTestBase {
          }
       }
       catch (Throwable t) {
+//         t.printStackTrace();
          // expected
       }
 

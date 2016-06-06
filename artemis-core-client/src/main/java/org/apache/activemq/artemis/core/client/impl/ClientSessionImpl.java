@@ -1053,21 +1053,29 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void setAddress(final Message message, final SimpleString address) {
       if (defaultAddress == null) {
          logger.tracef("setAddress() Setting default address as %s", address);
-         defaultAddress = address;
 
-         if (message != null) {
-            message.setAddress(address);
-         }
+         message.setAddress(address);
       }
-      else if (message != null) {
+      else {
          if (!address.equals(defaultAddress)) {
+            logger.tracef("setAddress() setting non default address %s on message", address);
             message.setAddress(address);
          }
          else {
+            logger.trace("setAddress() being set as null");
             message.setAddress(null);
          }
       }
    }
+
+   @Override
+   public void checkDefaultAddress(SimpleString address) {
+      if (defaultAddress == null) {
+         logger.tracef("checkDefaultAddress(%s)", address);
+         defaultAddress = address;
+      }
+   }
+
 
    @Override
    public void setPacketSize(final int packetSize) {
