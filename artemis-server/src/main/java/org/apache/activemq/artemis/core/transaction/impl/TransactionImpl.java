@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.transaction.impl;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -37,6 +38,8 @@ public class TransactionImpl implements Transaction {
    private static final Logger logger = Logger.getLogger(TransactionImpl.class);
 
    private List<TransactionOperation> operations;
+
+   private List<TransactionOperation> storeOperations;
 
    private static final int INITIAL_NUM_PROPERTIES = 10;
 
@@ -301,6 +304,24 @@ public class TransactionImpl implements Transaction {
             }
          });
 
+         final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
+         this.storeOperations = null;
+
+         if (storeOperationsToComplete != null) {
+            storageManager.afterStoreOperations(new IOCallback() {
+
+               @Override
+               public void onError(final int errorCode, final String errorMessage) {
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               }
+
+               @Override
+               public void done() {
+                  afterCommit(storeOperationsToComplete);
+               }
+            });
+         }
+
       }
    }
 
@@ -365,6 +386,9 @@ public class TransactionImpl implements Transaction {
       final List<TransactionOperation> operationsToComplete = this.operations;
       this.operations = null;
 
+      final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
+      this.storeOperations = null;
+
       // We use the Callback even for non persistence
       // If we are using non-persistence with replication, the replication manager will have
       // to execute this runnable in the correct order
@@ -380,6 +404,21 @@ public class TransactionImpl implements Transaction {
             afterRollback(operationsToComplete);
          }
       });
+
+      if (storeOperationsToComplete != null) {
+         storageManager.afterStoreOperations(new IOCallback() {
+
+            @Override
+            public void onError(final int errorCode, final String errorMessage) {
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+            }
+
+            @Override
+            public void done() {
+               afterRollback(storeOperationsToComplete);
+            }
+         });
+      }
    }
 
    @Override
@@ -445,6 +484,15 @@ public class TransactionImpl implements Transaction {
       operations.add(operation);
    }
 
+
+   @Override
+   public synchronized void afterStore(TransactionOperation sync) {
+      if (storeOperations == null) {
+         storeOperations = new LinkedList<>();
+      }
+      storeOperations.add(sync);
+   }
+
    private int getOperationsCount() {
       checkCreateOperations();
 
@@ -491,7 +539,7 @@ public class TransactionImpl implements Transaction {
 
    private void checkCreateOperations() {
       if (operations == null) {
-         operations = new ArrayList<>();
+         operations = new LinkedList<>();
       }
    }
 
@@ -505,19 +553,24 @@ public class TransactionImpl implements Transaction {
       }
    }
 
-   private synchronized void afterRollback(List<TransactionOperation> oeprationsToComplete) {
-      if (oeprationsToComplete != null) {
-         for (TransactionOperation operation : oeprationsToComplete) {
+   private synchronized void afterRollback(List<TransactionOperation> operationsToComplete) {
+      if (operationsToComplete != null) {
+         for (TransactionOperation operation : operationsToComplete) {
             operation.afterRollback(this);
          }
          // Help out GC here
-         oeprationsToComplete.clear();
+         operationsToComplete.clear();
       }
    }
 
    private synchronized void beforeCommit() throws Exception {
       if (operations != null) {
          for (TransactionOperation operation : operations) {
+            operation.beforeCommit(this);
+         }
+      }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
             operation.beforeCommit(this);
          }
       }
@@ -529,6 +582,11 @@ public class TransactionImpl implements Transaction {
             operation.beforePrepare(this);
          }
       }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
+            operation.beforePrepare(this);
+         }
+      }
    }
 
    private synchronized void beforeRollback() throws Exception {
@@ -537,11 +595,21 @@ public class TransactionImpl implements Transaction {
             operation.beforeRollback(this);
          }
       }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
+            operation.beforeRollback(this);
+         }
+      }
    }
 
    private synchronized void afterPrepare() {
       if (operations != null) {
          for (TransactionOperation operation : operations) {
+            operation.afterPrepare(this);
+         }
+      }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
             operation.afterPrepare(this);
          }
       }

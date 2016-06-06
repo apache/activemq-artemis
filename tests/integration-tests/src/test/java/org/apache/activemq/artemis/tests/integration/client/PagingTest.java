@@ -5730,7 +5730,12 @@ public class PagingTest extends ActiveMQTestBase {
 
       @Override
       public void executeOnCompletion(IOCallback runnable) {
+         runnable.done();
+      }
 
+      @Override
+      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+         runnable.done();
       }
    }
 }

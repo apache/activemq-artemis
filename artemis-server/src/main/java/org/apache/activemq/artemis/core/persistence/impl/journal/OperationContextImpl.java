@@ -72,6 +72,7 @@ public class OperationContextImpl implements OperationContext {
    }
 
    private List<TaskHolder> tasks;
+   private List<TaskHolder> storeOnlyTasks;
 
    private long minimalStore = Long.MAX_VALUE;
    private long minimalReplicated = Long.MAX_VALUE;
@@ -126,7 +127,12 @@ public class OperationContextImpl implements OperationContext {
    }
 
    @Override
-   public void executeOnCompletion(final IOCallback completion) {
+   public void executeOnCompletion(IOCallback runnable) {
+      executeOnCompletion(runnable, false);
+   }
+
+   @Override
+   public void executeOnCompletion(final IOCallback completion, final boolean storeOnly) {
       if (errorCode != -1) {
          completion.onError(errorCode, errorMessage);
          return;
@@ -135,11 +141,18 @@ public class OperationContextImpl implements OperationContext {
       boolean executeNow = false;
 
       synchronized (this) {
-         if (tasks == null) {
-            tasks = new LinkedList<>();
-            minimalReplicated = replicationLineUp.intValue();
-            minimalStore = storeLineUp.intValue();
-            minimalPage = pageLineUp.intValue();
+         if (storeOnly) {
+            if (storeOnlyTasks == null) {
+               storeOnlyTasks = new LinkedList<>();
+            }
+         }
+         else {
+            if (tasks == null) {
+               tasks = new LinkedList<>();
+               minimalReplicated = replicationLineUp.intValue();
+               minimalStore = storeLineUp.intValue();
+               minimalPage = pageLineUp.intValue();
+            }
          }
 
          // On this case, we can just execute the context directly
@@ -159,7 +172,12 @@ public class OperationContextImpl implements OperationContext {
             }
          }
          else {
-            tasks.add(new TaskHolder(completion));
+            if (storeOnly) {
+               storeOnlyTasks.add(new TaskHolder(completion));
+            }
+            else {
+               tasks.add(new TaskHolder(completion));
+            }
          }
       }
 
@@ -177,6 +195,20 @@ public class OperationContextImpl implements OperationContext {
    }
 
    private void checkTasks() {
+
+      if (storeOnlyTasks != null) {
+         Iterator<TaskHolder> iter = storeOnlyTasks.iterator();
+         while (iter.hasNext()) {
+            TaskHolder holder = iter.next();
+            if (stored >= holder.storeLined) {
+               // If set, we use an executor to avoid the server being single threaded
+               execute(holder.task);
+
+               iter.remove();
+            }
+         }
+      }
+
       if (stored >= minimalStore && replicated >= minimalReplicated && paged >= minimalPage) {
          Iterator<TaskHolder> iter = tasks.iterator();
          while (iter.hasNext()) {

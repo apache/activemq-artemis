@@ -67,6 +67,11 @@ public interface Transaction {
 
    void addOperation(TransactionOperation sync);
 
+   /** This is an operation that will be called right after the storage is completed.
+    *  addOperation could only happen after paging and replication, while these operations will just be
+    *  about the storage*/
+   void afterStore(TransactionOperation sync);
+
    List<TransactionOperation> getAllOperations();
 
    boolean hasTimedOut(long currentTime, int defaultTimeout);

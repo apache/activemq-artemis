@@ -94,6 +94,11 @@ public class NullStorageManager implements StorageManager {
       }
 
       @Override
+      public void executeOnCompletion(IOCallback runnable, boolean storeOnly) {
+         runnable.done();
+      }
+
+      @Override
       public void storeLineUp() {
       }
 
@@ -335,6 +340,11 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void afterCompleteOperations(final IOCallback run) {
+      run.done();
+   }
+
+   @Override
+   public void afterStoreOperations(IOCallback run) {
       run.done();
    }
 

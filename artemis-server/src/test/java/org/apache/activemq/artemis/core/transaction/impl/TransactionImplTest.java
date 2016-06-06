@@ -253,6 +253,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void afterStoreOperations(IOCallback run) {
+         run.done();
+      }
+
+      @Override
       public boolean waitOnOperations(long timeout) throws Exception {
          return false;
       }
