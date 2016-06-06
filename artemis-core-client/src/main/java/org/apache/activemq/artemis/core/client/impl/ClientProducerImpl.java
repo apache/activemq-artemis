@@ -210,10 +210,13 @@ public class ClientProducerImpl implements ClientProducerInternal {
       closed = true;
    }
 
-   private void doSend(final SimpleString address1,
+   private void doSend(SimpleString sendingAddress,
                        final Message msg,
                        final SendAcknowledgementHandler handler,
                        final boolean forceAsync) throws ActiveMQException {
+      if (sendingAddress == null) {
+         sendingAddress = this.address;
+      }
       session.startCall();
 
       try {
@@ -233,27 +236,15 @@ public class ClientProducerImpl implements ClientProducerInternal {
             isLarge = false;
          }
 
-         if (address1 != null) {
-            if (!isLarge) {
-               session.setAddress(msg, address1);
-            }
-            else {
-               msg.setAddress(address1);
-            }
-
-            // Anonymous
-            theCredits = session.getCredits(address1, true);
+         if (!isLarge) {
+            session.setAddress(msg, sendingAddress);
          }
          else {
-            if (!isLarge) {
-               session.setAddress(msg, this.address);
-            }
-            else {
-               msg.setAddress(this.address);
-            }
-
-            theCredits = producerCredits;
+            msg.setAddress(sendingAddress);
          }
+
+         // Anonymous
+         theCredits = session.getCredits(sendingAddress, true);
 
          if (rateLimiter != null) {
             // Rate flow control
@@ -276,6 +267,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          }
          else {
             sendRegularMessage(msgI, sendBlocking, theCredits, handler);
+            session.checkDefaultAddress(sendingAddress);
          }
       }
       finally {

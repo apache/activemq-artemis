@@ -87,7 +87,10 @@ public interface ClientSessionInternal extends ClientSession {
 
    ClientProducerCreditManager getProducerCreditManager();
 
+   /** This will set the address at the message */
    void setAddress(Message message, SimpleString address);
+
+   void checkDefaultAddress(SimpleString address);
 
    void setPacketSize(int packetSize);
 
