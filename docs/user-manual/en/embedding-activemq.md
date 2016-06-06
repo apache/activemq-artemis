@@ -72,10 +72,9 @@ properties. See the javadocs for this class for more details.
 ## JMS API
 
 JMS embedding is simple as well. This example requires that you have
-defined the config files `broker.xml`,
-`activemq-jms.xml`, and a `activemq-users.xml` if you have security
-enabled. Let's also assume that a queue and connection factory has been
-defined in the `activemq-jms.xml` config file.
+defined the config file `broker.xml`. Let's also assume that a queue
+and connection factory has been defined in the `broker.xml` 
+config file as well.
 
 ``` java
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
@@ -85,19 +84,19 @@ import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 EmbeddedJMS jms = new EmbeddedJMS();
 jms.start();
 
-// This assumes we have configured activemq-jms.xml with the appropriate config information
+// This assumes we have configured broker.xml with the appropriate config information
 ConnectionFactory connectionFactory = jms.lookup("ConnectionFactory");
 Destination destination = jms.lookup("/example/queue");
 
 ... regular JMS code ...
 ```
 
-By default, the `EmbeddedJMS` class will store component entries defined
-within your `activemq-jms.xml` file in an internal concurrent hash map.
-The `EmbeddedJMS.lookup()` method returns components stored in this map.
-If you want to use JNDI, call the `EmbeddedJMS.setContext()` method with
-the root JNDI context you want your components bound into. See the
-javadocs for this class for more details on other config options.
+By default, the `EmbeddedJMS` class will store the "entries" defined for
+your JMS components within `broker.xml` in an internal concurrent hash
+map. The `EmbeddedJMS.lookup()` method returns components stored in
+this map. If you want to use JNDI, call the `EmbeddedJMS.setContext()` 
+method with the root JNDI context you want your components bound into. 
+See the JavaDocs for this class for more details on other config options.
 
 ## POJO instantiation - Embedding Programmatically
 
@@ -159,28 +158,34 @@ an example of this:
 
 ``` java
 // Step 1. Create Apache ActiveMQ Artemis core configuration, and set the properties accordingly
-Configuration configuration = new ConfigurationImpl();
-configuration.setPersistenceEnabled(false);
-configuration.setSecurityEnabled(false);
-configuration.getAcceptorConfigurations().add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));
+Configuration configuration = new ConfigurationImpl()
+   .setPersistenceEnabled(false)
+   .setSecurityEnabled(false)
+   .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
+   .addConnectorConfiguration("myConnector", new TransportConfiguration(NettyAcceptorFactory.class.getName()));
 
 // Step 2. Create the JMS configuration
 JMSConfiguration jmsConfig = new JMSConfigurationImpl();
 
 // Step 3. Configure the JMS ConnectionFactory
-TransportConfiguration connectorConfig = new TransportConfiguration(NettyConnectorFactory.class.getName());
-ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl("cf", connectorConfig, "/cf");
+ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
+   .setName("cf")
+   .setConnectorNames(Arrays.asList("myConnector"))
+   .setBindings("/cf");
 jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
 // Step 4. Configure the JMS Queue
-JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl("queue1", null, false, "/queue/queue1");
+JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
+   .setName("queue1")
+   .setDurable(false)
+   .setBindings("/queue/queue1");
 jmsConfig.getQueueConfigurations().add(queueConfig);
 
 // Step 5. Start the JMS Server using the Apache ActiveMQ Artemis core server and the JMS configuration
-EmbeddedJMS jmsServer = new EmbeddedJMS();
-jmsServer.setConfiguration(configuration);
-jmsServer.setJmsConfiguration(jmsConfig);
-jmsServer.start();
+jmsServer = new EmbeddedJMS()
+   .setConfiguration(configuration)
+   .setJmsConfiguration(jmsConfig)
+   .start();
 ```
 
 Please see the examples for an example which shows how to setup and run Apache ActiveMQ Artemis
