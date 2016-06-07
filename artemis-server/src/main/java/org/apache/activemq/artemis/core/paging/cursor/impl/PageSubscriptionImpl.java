@@ -580,7 +580,7 @@ final class PageSubscriptionImpl implements PageSubscription {
       synchronized (consumedPages) {
          if (empty && consumedPages.isEmpty()) {
             if (logger.isTraceEnabled()) {
-               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", (Object)page, this, consumedPages.isEmpty());
+               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", page, this, empty, consumedPages.isEmpty());
             }
             return true;
          }
