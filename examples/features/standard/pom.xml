@@ -146,12 +146,7 @@ under the License.
             <module>security-ldap</module>
             <module>send-acknowledgements</module>
             <module>spring-integration</module>
-
-            <!-- ARTEMIS-197 FIX ME
-                 this one could be the case of leaving it out for good
-                 as it may require to be run manually
-            <module>ssl-enabled</module> -->
-
+            <module>ssl-enabled</module>
             <module>static-selector</module>
 
             <!--this needs to be run standalone as it needs manual intervention-->
