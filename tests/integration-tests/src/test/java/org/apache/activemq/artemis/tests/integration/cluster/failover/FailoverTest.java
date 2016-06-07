@@ -410,8 +410,13 @@ public class FailoverTest extends FailoverTestBase {
          session.rollback(xid);
       }
       catch (XAException e) {
-         //there is still an edge condition that we must deal with
-         session.rollback(xid);
+         try {
+            //there is still an edge condition that we must deal with
+            session.rollback(xid);
+         }
+         catch (Exception ignored) {
+            log.trace(ignored.getMessage(), ignored);
+         }
       }
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);

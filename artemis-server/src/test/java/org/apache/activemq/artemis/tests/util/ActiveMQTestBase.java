@@ -627,7 +627,7 @@ public abstract class ActiveMQTestBase extends Assert {
                break;
             }
          }
-      } while (i++ <= 50 && hasValue);
+      } while (i++ <= 200 && hasValue);
 
       for (WeakReference<?> ref : references) {
          Assert.assertNull(ref.get());
