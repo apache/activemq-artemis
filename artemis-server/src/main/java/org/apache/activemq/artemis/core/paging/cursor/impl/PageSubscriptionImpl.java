@@ -576,11 +576,14 @@ final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public boolean isComplete(long page) {
-      logger.tracef("%s isComplete %d", this, page);
+      if (empty && consumedPages.isEmpty()) {
+         logger.tracef("%s isComplete %d", this, page);
+      }
+
       synchronized (consumedPages) {
          if (empty && consumedPages.isEmpty()) {
             if (logger.isTraceEnabled()) {
-               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", (Object)page, this, consumedPages.isEmpty());
+               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", page, this, empty, consumedPages.isEmpty());
             }
             return true;
          }
@@ -588,11 +591,15 @@ final class PageSubscriptionImpl implements PageSubscription {
          PageCursorInfo info = consumedPages.get(page);
 
          if (info == null && empty) {
-            logger.tracef("isComplete(%d)::::Couldn't find info and it is empty", page);
+            if (empty && consumedPages.isEmpty()) {
+               logger.tracef("isComplete(%d)::::Couldn't find info and it is empty", page);
+            }
             return true;
          }
          else {
-            logger.tracef("isComplete(%d)::calling is %s", (Object)page, this, consumedPages.isEmpty());
+            if (empty && consumedPages.isEmpty()) {
+               logger.tracef("isComplete(%d)::calling is %s, consumedPages.isEmpty=%s", (Object) page, this, consumedPages.isEmpty());
+            }
             return info != null && info.isDone();
          }
       }
