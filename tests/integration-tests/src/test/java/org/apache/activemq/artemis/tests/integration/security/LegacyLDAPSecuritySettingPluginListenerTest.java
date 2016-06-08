@@ -56,6 +56,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -80,6 +81,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
    }
 
    private ServerLocator locator;
+   ActiveMQServer server;
 
    public static final String TARGET_TMP = "./target/tmp";
    private static final String PRINCIPAL = "uid=admin,ou=system";
@@ -98,8 +100,38 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
    @Before
    public void setUp() throws Exception {
-      locator = ActiveMQClient.createServerLocatorWithHA(new TransportConfiguration(InVMConnectorFactory.class.getCanonicalName()));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getCanonicalName()));
       testDir = temporaryFolder.getRoot().getAbsolutePath();
+
+      LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = new LegacyLDAPSecuritySettingPlugin();
+      Map<String, String> map = new HashMap<>();
+      map.put(LegacyLDAPSecuritySettingPlugin.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_URL, "ldap://localhost:1024");
+      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_USERNAME, "uid=admin,ou=system");
+      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_PASSWORD, "secret");
+      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_PROTOCOL, "s");
+      map.put(LegacyLDAPSecuritySettingPlugin.AUTHENTICATION, "simple");
+      map.put(LegacyLDAPSecuritySettingPlugin.ENABLE_LISTENER, "true");
+      legacyLDAPSecuritySettingPlugin.init(map);
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
+      Configuration configuration = new ConfigurationImpl()
+         .setSecurityEnabled(true)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
+         .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
+         .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))
+         .setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false))
+         .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false))
+         .setPersistenceEnabled(false)
+         .addSecuritySettingPlugin(legacyLDAPSecuritySettingPlugin);
+
+      server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      locator.close();
+      server.stop();
    }
 
    @Test
@@ -134,7 +166,6 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
    @Test
    public void testProducerPermissionUpdate() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
@@ -158,6 +189,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       BasicAttributes basicAttributes = new BasicAttributes();
       basicAttributes.put("uniquemember", "uid=role2");
       ctx.modifyAttributes("cn=write,uid=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+      ctx.close();
 
       producer2.send(name, session.createMessage(true));
 
@@ -170,13 +202,10 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       }
 
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
    public void testConsumerPermissionUpdate() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
@@ -201,6 +230,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       BasicAttributes basicAttributes = new BasicAttributes();
       basicAttributes.put("uniquemember", "uid=role2");
       ctx.modifyAttributes("cn=read,uid=queue1,ou=queues,ou=destinations,o=ActiveMQ,ou=system", DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+      ctx.close();
 
       consumer2 = session2.createConsumer(queue);
       consumer2.receiveImmediate();
@@ -215,13 +245,10 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       }
 
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
    public void testNewConsumerPermission() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
@@ -261,16 +288,11 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
          // ok
       }
 
-      consumer.close();
-
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
    public void testNewProducerPermission() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.getConfiguration().setSecurityInvalidationInterval(0);
       server.start();
       String queue = "queue2";
@@ -309,43 +331,6 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
          // ok
       }
 
-      producer.close();
-
       cf.close();
-      locator.close();
-      server.stop();
-   }
-
-   private ActiveMQServer getActiveMQServer() {
-      LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = new LegacyLDAPSecuritySettingPlugin();
-      Map<String, String> map = new HashMap<>();
-      map.put(LegacyLDAPSecuritySettingPlugin.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_URL, "ldap://localhost:1024");
-      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_USERNAME, "uid=admin,ou=system");
-      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_PASSWORD, "secret");
-      map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_PROTOCOL, "s");
-      map.put(LegacyLDAPSecuritySettingPlugin.AUTHENTICATION, "simple");
-      map.put(LegacyLDAPSecuritySettingPlugin.ENABLE_LISTENER, "true");
-      legacyLDAPSecuritySettingPlugin.init(map);
-//         .setInitialContextFactory("com.sun.jndi.ldap.LdapCtxFactory")
-//         .setConnectionURL("ldap://localhost:1024")
-//         .setConnectionUsername("uid=admin,ou=system")
-//         .setConnectionPassword("secret")
-//         .setConnectionProtocol("s")
-//         .setAuthentication("simple")
-//         .setEnableListener(true);
-
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
-      Configuration configuration = new ConfigurationImpl()
-         .setSecurityEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
-         .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
-         .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))
-         .setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false))
-         .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false))
-         .setPersistenceEnabled(false)
-         .addSecuritySettingPlugin(legacyLDAPSecuritySettingPlugin);
-
-      return ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 }
