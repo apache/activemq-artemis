@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnectio
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -53,6 +54,12 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    private MessageConverter protonConverter;
 
    private final ProtonProtocolManagerFactory factory;
+
+   /*
+   * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
+   * the address. This can be changed on the acceptor.
+   * */
+   private String pubSubPrefix = ActiveMQTopic.JMS_TOPIC_ADDRESS_PREFIX;
 
    public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -138,5 +145,14 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
    }
+
+   public String getPubSubPrefix() {
+      return pubSubPrefix;
+   }
+
+   public void setPubSubPrefix(String pubSubPrefix) {
+      this.pubSubPrefix = pubSubPrefix;
+   }
+
 
 }

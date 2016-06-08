@@ -61,18 +61,20 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.jboss.logging.Logger;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
+   private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
 
    private SequentialFileFactory journalFF;
 
-   private SequentialFileFactory largeMessagesFactory;
+   SequentialFileFactory largeMessagesFactory;
 
    private Journal originalMessageJournal;
 
    private Journal originalBindingsJournal;
 
-   private String largeMessagesDirectory;
+   protected String largeMessagesDirectory;
 
    private ReplicationManager replicator;
 
@@ -543,13 +545,15 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             }
             bindingsJournal = new ReplicatedJournal(((byte) 0), originalBindingsJournal, replicator);
             messageJournal = new ReplicatedJournal((byte) 1, originalMessageJournal, replicator);
+
+            // We need to send the list while locking otherwise part of the body might get sent too soon
+            // it will send a list of IDs that we are allocating
+            replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
          }
          finally {
             storageManagerLock.writeLock().unlock();
          }
 
-         // it will send a list of IDs that we are allocating
-         replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
          sendJournalFile(messageFiles, JournalContent.MESSAGES);
          sendJournalFile(bindingsFiles, JournalContent.BINDINGS);
          sendLargeMessageFiles(pendingLargeMessages);
@@ -567,6 +571,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          }
       }
       catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          stopReplication();
          throw e;
       }
@@ -679,6 +684,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     */
    @Override
    public void stopReplication() {
+      logger.trace("stopReplication()");
       storageManagerLock.writeLock().lock();
       try {
          if (replicator == null)

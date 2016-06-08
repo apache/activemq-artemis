@@ -65,18 +65,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
       super(journalDir, buffered, bufferSize, bufferTimeout, maxIO, logRates, listener);
    }
 
-   @Override
-   public SequentialFile createSequentialFile(final String fileName) {
-      return new NIOSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
-   }
-
-   @Override
-   public boolean isSupportsCallbacks() {
-      return timedBuffer != null;
-   }
-
-   @Override
-   public ByteBuffer allocateDirectBuffer(final int size) {
+   public static ByteBuffer allocateDirectByteBuffer(final int size) {
       // Using direct buffer, as described on https://jira.jboss.org/browse/HORNETQ-467
       ByteBuffer buffer2 = null;
       try {
@@ -102,6 +91,21 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
       }
       return buffer2;
+   }
+
+   @Override
+   public SequentialFile createSequentialFile(final String fileName) {
+      return new NIOSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
+   }
+
+   @Override
+   public boolean isSupportsCallbacks() {
+      return timedBuffer != null;
+   }
+
+   @Override
+   public ByteBuffer allocateDirectBuffer(final int size) {
+      return NIOSequentialFileFactory.allocateDirectByteBuffer(size);
    }
 
    @Override

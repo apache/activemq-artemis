@@ -78,6 +78,15 @@ public class SessionExpireMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", consumerID=" + consumerID);
+      buff.append(", messageID=" + messageID);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

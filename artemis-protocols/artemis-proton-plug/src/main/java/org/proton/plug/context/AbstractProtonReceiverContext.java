@@ -53,14 +53,14 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException {
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
    }
 
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       receiver.setCondition(condition);
-      close();
+      close(false);
    }
 
    public void flow(int credits) {
@@ -68,5 +68,21 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
          receiver.flow(credits);
       }
       connection.flush();
+   }
+
+
+   public void drain(int credits) {
+      synchronized (connection.getLock()) {
+         receiver.drain(credits);
+      }
+      connection.flush();
+   }
+
+   public int drained() {
+      return receiver.drained();
+   }
+
+   public boolean isDraining() {
+      return receiver.draining();
    }
 }

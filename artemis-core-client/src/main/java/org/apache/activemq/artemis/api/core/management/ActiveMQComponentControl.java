@@ -30,10 +30,12 @@ public interface ActiveMQComponentControl {
    /**
     * Starts this component.
     */
+   @Operation(desc = "starts this component")
    void start() throws Exception;
 
    /**
     * Stops this component.
     */
+   @Operation(desc = "stops this component")
    void stop() throws Exception;
 }

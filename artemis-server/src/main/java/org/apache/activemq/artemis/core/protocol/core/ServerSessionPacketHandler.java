@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAdd
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -78,6 +79,7 @@ import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE;
@@ -115,7 +117,7 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SES
 
 public class ServerSessionPacketHandler implements ChannelHandler {
 
-   private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(ServerSessionPacketHandler.class);
 
    private final ServerSession session;
 
@@ -196,8 +198,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       boolean closeChannel = false;
       boolean requiresResponse = false;
 
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::handlePacket," + packet);
+      if (logger.isTraceEnabled()) {
+         logger.trace("ServerSessionPacketHandler::handlePacket," + packet);
       }
 
       try {
@@ -262,7 +264,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   requiresResponse = true;
                   SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
-                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
+                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
+                     response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues(), result.isAutoCreateJmsTopics());
+                  }
+                  else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
                      response = new SessionBindingQueryResponseMessage_V2(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues());
                   }
                   else {
@@ -486,7 +491,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          catch (ActiveMQIOErrorException e) {
             getSession().markTXFailed(e);
             if (requiresResponse) {
-               ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
+               logger.debug("Sending exception to client", e);
                response = new ActiveMQExceptionMessage(e);
             }
             else {
@@ -495,7 +500,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          }
          catch (ActiveMQXAException e) {
             if (requiresResponse) {
-               ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
+               logger.debug("Sending exception to client", e);
                response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
             }
             else {
@@ -504,12 +509,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          }
          catch (ActiveMQException e) {
             if (requiresResponse) {
-               ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
+               logger.debug("Sending exception to client", e);
                response = new ActiveMQExceptionMessage(e);
             }
             else {
                if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS) {
-                  ActiveMQServerLogger.LOGGER.debug("Caught exception", e);
+                  logger.debug("Caught exception", e);
                }
                else {
                   ActiveMQServerLogger.LOGGER.caughtException(e);
@@ -540,8 +545,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                              final Packet response,
                              final boolean flush,
                              final boolean closeChannel) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::scheduling response::" + response);
+      if (logger.isTraceEnabled()) {
+         logger.trace("ServerSessionPacketHandler::scheduling response::" + response);
       }
 
       storageManager.afterCompleteOperations(new IOCallback() {
@@ -553,8 +558,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
 
-            if (isTrace) {
-               ActiveMQServerLogger.LOGGER.trace("ServerSessionPacketHandler::response sent::" + response);
+            if (logger.isTraceEnabled()) {
+               logger.trace("ServerSessionPacketHandler::response sent::" + response);
             }
 
          }

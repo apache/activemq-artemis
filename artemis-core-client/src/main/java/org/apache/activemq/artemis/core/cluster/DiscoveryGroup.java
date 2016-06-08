@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.
@@ -47,7 +48,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
  */
 public final class DiscoveryGroup implements ActiveMQComponent {
 
-   private static final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(DiscoveryGroup.class);
 
    private final List<DiscoveryListener> listeners = new ArrayList<>();
 
@@ -317,10 +318,10 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                //only call the listeners if we have changed
                //also make sure that we aren't stopping to avoid deadlock
                if (changed && started) {
-                  if (isTrace) {
-                     ActiveMQClientLogger.LOGGER.trace("Connectors changed on Discovery:");
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Connectors changed on Discovery:");
                      for (DiscoveryEntry connector : connectors.values()) {
-                        ActiveMQClientLogger.LOGGER.trace(connector);
+                        logger.trace(connector);
                      }
                   }
                   callListeners();
@@ -376,8 +377,8 @@ public final class DiscoveryGroup implements ActiveMQComponent {
          Map.Entry<String, DiscoveryEntry> entry = iter.next();
 
          if (entry.getValue().getLastUpdate() + timeout <= now) {
-            if (isTrace) {
-               ActiveMQClientLogger.LOGGER.trace("Timed out node on discovery:" + entry.getValue());
+            if (logger.isTraceEnabled()) {
+               logger.trace("Timed out node on discovery:" + entry.getValue());
             }
             iter.remove();
 

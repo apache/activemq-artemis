@@ -18,7 +18,7 @@
    <parent>
       <artifactId>artemis-protocols</artifactId>
       <groupId>org.apache.activemq</groupId>
-      <version>1.3.0-SNAPSHOT</version>
+      <version>1.4.0-SNAPSHOT</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
@@ -110,6 +110,23 @@
 
    </dependencies>
 
+   <!-- We use the proton plug test classes in some of the Artemis Integration tests -->
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.6</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>test-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
 
    <packaging>bundle</packaging>
 </project>

@@ -195,6 +195,25 @@ public class CreateSessionMessage extends PacketImpl {
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", autoCommitAcks=" + autoCommitAcks);
+      buff.append(", autoCommitSends=" + autoCommitSends);
+      buff.append(", defaultAddress=" + defaultAddress);
+      buff.append(", minLargeMessageSize=" + minLargeMessageSize);
+      buff.append(", name=" + name);
+      buff.append(", password=" + password);
+      buff.append(", preAcknowledge=" + preAcknowledge);
+      buff.append(", sessionChannelID=" + sessionChannelID);
+      buff.append(", username=" + username);
+      buff.append(", version=" + version);
+      buff.append(", windowSize=" + windowSize);
+      buff.append(", xa=" + xa);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

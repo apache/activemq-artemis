@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
@@ -44,7 +45,7 @@ public class MinimalConnectionSPI implements AMQPConnectionCallback {
       this.channel = channel;
    }
 
-   ExecutorService executorService = Executors.newSingleThreadExecutor();
+   ExecutorService executorService = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
    @Override
    public void close() {

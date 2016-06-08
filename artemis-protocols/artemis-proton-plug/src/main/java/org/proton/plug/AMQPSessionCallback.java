@@ -32,13 +32,19 @@ public interface AMQPSessionCallback {
 
    void start();
 
-   void onFlowConsumer(Object consumer, int credits);
+   void onFlowConsumer(Object consumer, int credits, boolean drain);
 
    Object createSender(ProtonPlugSender protonSender, String queue, String filer, boolean browserOnly) throws Exception;
 
    void startSender(Object brokerConsumer) throws Exception;
 
    void createTemporaryQueue(String queueName) throws Exception;
+
+   void createTemporaryQueue(String address, String queueName) throws Exception;
+
+   void createDurableQueue(String address, String queueName) throws Exception;
+
+   void deleteQueue(String address) throws Exception;
 
    boolean queueQuery(String queueName) throws Exception;
 
@@ -53,7 +59,7 @@ public interface AMQPSessionCallback {
 
    void commitCurrentTX() throws Exception;
 
-   void rollbackCurrentTX() throws Exception;
+   void rollbackCurrentTX(boolean lastMessageReceived) throws Exception;
 
    void close() throws Exception;
 
@@ -82,4 +88,5 @@ public interface AMQPSessionCallback {
                    int messageFormat,
                    ByteBuf messageEncoded) throws Exception;
 
+   String getPubSubPrefix();
 }

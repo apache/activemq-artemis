@@ -1209,6 +1209,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222206, value = "Connection limit of {0} reached. Refusing connection from {1}.", format = Message.Format.MESSAGE_FORMAT)
    void connectionLimitReached(long connectionsAllowed, String address);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222207, value = "The backup server is not responding promptly introducing latency beyond the limit. Replication server being disconnected now.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void slowReplicationResponse();
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);

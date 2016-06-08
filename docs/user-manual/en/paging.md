@@ -115,7 +115,7 @@ This is the list of available parameters on the address settings.
     </tr>
     <tr>
         <td>`page-max-cache-size`</td>
-        <td>The system will keep up to \<`page-max-cache-size` page files in memory to optimize IO during paging navigation.</td>
+        <td>The system will keep up to `page-max-cache-size` page files in memory to optimize IO during paging navigation.</td>
         <td>5</td>
     </tr>
     </tbody>

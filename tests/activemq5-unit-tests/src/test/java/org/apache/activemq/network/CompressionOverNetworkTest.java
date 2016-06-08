@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -136,7 +137,7 @@ public class CompressionOverNetworkTest {
          payload.append(UUID.randomUUID().toString());
       }
 
-      byte[] bytes = payload.toString().getBytes("UTF-8");
+      byte[] bytes = payload.toString().getBytes(StandardCharsets.UTF_8);
 
       BytesMessage test = localSession.createBytesMessage();
       test.writeBytes(bytes);

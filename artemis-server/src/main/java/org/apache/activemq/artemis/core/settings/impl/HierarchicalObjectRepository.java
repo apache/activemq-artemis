@@ -34,11 +34,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.jboss.logging.Logger;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
  */
 public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T> {
+
+   private static final Logger logger = Logger.getLogger(HierarchicalObjectRepository.class);
 
    private boolean listenersEnabled = true;
    /**
@@ -248,7 +251,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       try {
          boolean isImmutable = immutables.contains(match);
          if (isImmutable) {
-            ActiveMQServerLogger.LOGGER.debug("Cannot remove match " + match + " since it came from a main config");
+            logger.debug("Cannot remove match " + match + " since it came from a main config");
          }
          else {
             /**

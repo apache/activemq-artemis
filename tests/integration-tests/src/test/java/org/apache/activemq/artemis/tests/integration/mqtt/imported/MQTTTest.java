@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.lang.reflect.Field;
 import java.net.ProtocolException;
 import java.util.ArrayList;
@@ -47,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.vertx.java.core.impl.ConcurrentHashSet;
 
 /**
+ * QT
  * MQTT Test imported from ActiveMQ MQTT component.
  */
 public class MQTTTest extends MQTTTestSupport {
@@ -997,95 +1004,84 @@ public class MQTTTest extends MQTTTestSupport {
       notClean.disconnect();
    }
 
-   /* TODO These Cross protocol tests were imported from ActiveMQ and need reworking to apply to Artemis.  There is an
-   outstanding task to add cross protocol support.  This task should rework these tests.  The tests are included here
-   and commented out to ensure ActiveMQ and Artemis tests are in sync. */
+   @Test(timeout = 60 * 1000)
+   public void testSendMQTTReceiveJMS() throws Exception {
+      doTestSendMQTTReceiveJMS("foo.*", "foo/bar");
+   }
 
-   //   @Test(timeout = 60 * 1000)
-   //   public void testSendMQTTReceiveJMS() throws Exception {
-   //      doTestSendMQTTReceiveJMS("foo.*");
-   //   }
+   public void doTestSendMQTTReceiveJMS(String jmsTopicAddress, String mqttAddress) throws Exception {
+      final MQTTClientProvider provider = getMQTTClientProvider();
+      initializeConnection(provider);
 
-   //   public void doTestSendMQTTReceiveJMS(String destinationName) throws Exception {
-   //      final MQTTClientProvider provider = getMQTTClientProvider();
-   //      initializeConnection(provider);
-   //
-   //      // send retained message
-   //      final String RETAINED = "RETAINED";
-   //      provider.publish("foo/bah", RETAINED.getBytes(), AT_LEAST_ONCE, true);
-   //
-   //      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
-   //      // MUST set to true to receive retained messages
-   //      activeMQConnection.setUseRetroactiveConsumer(true);
-   //      activeMQConnection.start();
-   //      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-   //      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
-   //      MessageConsumer consumer = s.createConsumer(jmsTopic);
-   //
-   //      // check whether we received retained message on JMS subscribe
-   //      ActiveMQMessage message = (ActiveMQMessage) consumer.receive(5000);
-   //      assertNotNull("Should get retained message", message);
-   //      ByteSequence bs = message.getContent();
-   //      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
-   //      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
-   //
-   //      for (int i = 0; i < NUM_MESSAGES; i++) {
-   //         String payload = "Test Message: " + i;
-   //         provider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
-   //         message = (ActiveMQMessage) consumer.receive(5000);
-   //         assertNotNull("Should get a message", message);
-   //         bs = message.getContent();
-   //         assertEquals(payload, new String(bs.data, bs.offset, bs.length));
-   //      }
-   //
-   //      activeMQConnection.close();
-   //      provider.disconnect();
-   //   }
+      // send retained message
+      final String address = "jms/queue/" + mqttAddress;
+      final String RETAINED = "RETAINED";
 
-   // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-   //   @Test(timeout = 2 * 60 * 1000)
-   //   public void testSendJMSReceiveMQTT() throws Exception {
-   //      doTestSendJMSReceiveMQTT("foo.far");
-   //   }
+      final byte[] payload = RETAINED.getBytes();
 
-   // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-   //   public void doTestSendJMSReceiveMQTT(String destinationName) throws Exception {
-   //      final MQTTClientProvider provider = getMQTTClientProvider();
-   //      initializeConnection(provider);
-   //
-   //      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
-   //      activeMQConnection.setUseRetroactiveConsumer(true);
-   //      activeMQConnection.start();
-   //      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-   //      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
-   //      MessageProducer producer = s.createProducer(jmsTopic);
-   //
-   //      // send retained message from JMS
-   //      final String RETAINED = "RETAINED";
-   //      TextMessage sendMessage = s.createTextMessage(RETAINED);
-   //      // mark the message to be retained
-   //      sendMessage.setBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAIN_PROPERTY, true);
-   //      // MQTT QoS can be set using MQTTProtocolConverter.QOS_PROPERTY_NAME property
-   //      sendMessage.setIntProperty(MQTTProtocolConverter.QOS_PROPERTY_NAME, 0);
-   //      producer.send(sendMessage);
-   //
-   //      provider.subscribe("foo/+", AT_MOST_ONCE);
-   //      byte[] message = provider.receive(10000);
-   //      assertNotNull("Should get retained message", message);
-   //      assertEquals(RETAINED, new String(message));
-   //
-   //      for (int i = 0; i < NUM_MESSAGES; i++) {
-   //         String payload = "This is Test Message: " + i;
-   //         sendMessage = s.createTextMessage(payload);
-   //         producer.send(sendMessage);
-   //         message = provider.receive(5000);
-   //         assertNotNull("Should get a message", message);
-   //
-   //         assertEquals(payload, new String(message));
-   //      }
-   //      provider.disconnect();
-   //      activeMQConnection.close();
-   //   }
+      Connection connection = cf.createConnection();
+      // MUST set to true to receive retained messages
+      connection.start();
+
+      Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue jmsQueue = s.createQueue(jmsTopicAddress);
+      MessageConsumer consumer = s.createConsumer(jmsQueue);
+
+      provider.publish(address, RETAINED.getBytes(), AT_LEAST_ONCE, true);
+
+      // check whether we received retained message on JMS subscribe
+      BytesMessage message = (BytesMessage) consumer.receive(5000);
+      assertNotNull("Should get retained message", message);
+
+      byte[] b = new byte[8];
+      message.readBytes(b);
+      assertArrayEquals(payload, b);
+
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         String p = "Test Message: " + i;
+         provider.publish(address, p.getBytes(), AT_LEAST_ONCE);
+         message = (BytesMessage) consumer.receive(5000);
+         assertNotNull("Should get a message", message);
+
+         byte[] bytePayload = new byte[p.getBytes().length];
+         message.readBytes(bytePayload);
+         assertArrayEquals(payload, b);
+      }
+
+      connection.close();
+      provider.disconnect();
+   }
+
+   @Test(timeout = 2 * 60 * 1000)
+   public void testSendJMSReceiveMQTT() throws Exception {
+      doTestSendJMSReceiveMQTT("foo.far");
+   }
+
+   public void doTestSendJMSReceiveMQTT(String destinationName) throws Exception {
+      final MQTTClientProvider provider = getMQTTClientProvider();
+      initializeConnection(provider);
+      provider.subscribe("jms/queue/foo/+", AT_MOST_ONCE);
+
+      Connection connection = cf.createConnection();
+      connection.start();
+
+      Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = s.createQueue(destinationName);
+      MessageProducer producer = s.createProducer(queue);
+
+      // send retained message from JMS
+      final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+      BytesMessage bytesMessage = s.createBytesMessage();
+      bytesMessage.writeBytes(bytes);
+      producer.send(bytesMessage);
+
+      byte[] message = provider.receive(10000);
+      assertNotNull("Should get retained message", message);
+      assertArrayEquals(bytes, message);
+
+      provider.disconnect();
+      connection.close();
+   }
 
    @Test(timeout = 60 * 1000)
    public void testPingKeepsInactivityMonitorAlive() throws Exception {
@@ -1231,52 +1227,51 @@ public class MQTTTest extends MQTTTestSupport {
       connection2.disconnect();
    }
 
-   // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-   //   @Test(timeout = 30 * 10000)
-   //   public void testJmsMapping() throws Exception {
-   //      doTestJmsMapping("test.foo");
-   //   }
+   @Test(timeout = 30 * 10000)
+   public void testJmsMapping() throws Exception {
+      doTestJmsMapping("test.foo");
+   }
 
    // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-   //   public void doTestJmsMapping(String destinationName) throws Exception {
-   //      // start up jms consumer
-   //      Connection jmsConn = cf.createConnection();
-   //      Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-   //      Destination dest = session.createTopic(destinationName);
-   //      MessageConsumer consumer = session.createConsumer(dest);
-   //      jmsConn.start();
-   //
-   //      // set up mqtt producer
-   //      MQTT mqtt = createMQTTConnection();
-   //      mqtt.setClientId("foo3");
-   //      mqtt.setKeepAlive((short) 2);
-   //      final BlockingConnection connection = mqtt.blockingConnection();
-   //      connection.connect();
-   //
-   //      int messagesToSend = 5;
-   //
-   //      // publish
-   //      for (int i = 0; i < messagesToSend; ++i) {
-   //         connection.publish("test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
-   //      }
-   //
-   //      connection.disconnect();
-   //
-   //      for (int i = 0; i < messagesToSend; i++) {
-   //
-   //         javax.jms.Message message = consumer.receive(2 * 1000);
-   //         assertNotNull(message);
-   //         assertTrue(message instanceof BytesMessage);
-   //         BytesMessage bytesMessage = (BytesMessage) message;
-   //
-   //         int length = (int) bytesMessage.getBodyLength();
-   //         byte[] buffer = new byte[length];
-   //         bytesMessage.readBytes(buffer);
-   //         assertEquals("hello world", new String(buffer));
-   //      }
-   //
-   //      jmsConn.close();
-   //   }
+   public void doTestJmsMapping(String destinationName) throws Exception {
+      // start up jms consumer
+      Connection jmsConn = cf.createConnection();
+      Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = session.createQueue(destinationName);
+      MessageConsumer consumer = session.createConsumer(dest);
+      jmsConn.start();
+
+      // set up mqtt producer
+      MQTT mqtt = createMQTTConnection();
+      mqtt.setClientId("foo3");
+      mqtt.setKeepAlive((short) 2);
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+
+      int messagesToSend = 5;
+
+      // publish
+      for (int i = 0; i < messagesToSend; ++i) {
+         connection.publish("jms/queue/test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
+      }
+
+      connection.disconnect();
+
+      for (int i = 0; i < messagesToSend; i++) {
+
+         javax.jms.Message message = consumer.receive(2 * 1000);
+         assertNotNull(message);
+         assertTrue(message instanceof BytesMessage);
+         BytesMessage bytesMessage = (BytesMessage) message;
+
+         int length = (int) bytesMessage.getBodyLength();
+         byte[] buffer = new byte[length];
+         bytesMessage.readBytes(buffer);
+         assertEquals("hello world", new String(buffer));
+      }
+
+      jmsConn.close();
+   }
 
    @Test(timeout = 30 * 10000)
    public void testSubscribeMultipleTopics() throws Exception {

@@ -68,6 +68,14 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
    }
 
    @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", largeMessage=" + largeMessage);
+      buff.append("]");
+      return buff.toString();
+   }
+
+   @Override
    public boolean equals(Object obj) {
       if (this == obj)
          return true;

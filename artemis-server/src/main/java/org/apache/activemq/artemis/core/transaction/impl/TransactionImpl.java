@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.transaction.impl;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -30,12 +31,15 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.jboss.logging.Logger;
 
 public class TransactionImpl implements Transaction {
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(TransactionImpl.class);
 
    private List<TransactionOperation> operations;
+
+   private List<TransactionOperation> storeOperations;
 
    private static final int INITIAL_NUM_PROPERTIES = 10;
 
@@ -174,19 +178,19 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void prepare() throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::prepare::" + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("TransactionImpl::prepare::" + this);
       }
       storageManager.readLock();
       try {
          synchronized (timeoutLock) {
             if (isEffective()) {
-               ActiveMQServerLogger.LOGGER.debug("TransactionImpl::prepare::" + this + " is being ignored");
+               logger.debug("TransactionImpl::prepare::" + this + " is being ignored");
                return;
             }
             if (state == State.ROLLBACK_ONLY) {
-               if (isTrace) {
-                  ActiveMQServerLogger.LOGGER.trace("TransactionImpl::prepare::rollbackonly, rollingback " + this);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("TransactionImpl::prepare::rollbackonly, rollingback " + this);
                }
 
                internalRollback();
@@ -241,13 +245,13 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void commit(final boolean onePhase) throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::commit::" + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("TransactionImpl::commit::" + this);
       }
       synchronized (timeoutLock) {
          if (state == State.COMMITTED) {
             // I don't think this could happen, but just in case
-            ActiveMQServerLogger.LOGGER.debug("TransactionImpl::commit::" + this + " is being ignored");
+            logger.debug("TransactionImpl::commit::" + this + " is being ignored");
             return;
          }
          if (state == State.ROLLBACK_ONLY) {
@@ -300,6 +304,24 @@ public class TransactionImpl implements Transaction {
             }
          });
 
+         final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
+         this.storeOperations = null;
+
+         if (storeOperationsToComplete != null) {
+            storageManager.afterStoreOperations(new IOCallback() {
+
+               @Override
+               public void onError(final int errorCode, final String errorMessage) {
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+               }
+
+               @Override
+               public void done() {
+                  afterCommit(storeOperationsToComplete);
+               }
+            });
+         }
+
       }
    }
 
@@ -318,14 +340,14 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void rollback() throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::rollback::" + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("TransactionImpl::rollback::" + this);
       }
 
       synchronized (timeoutLock) {
          if (state == State.ROLLEDBACK) {
             // I don't think this could happen, but just in case
-            ActiveMQServerLogger.LOGGER.debug("TransactionImpl::rollback::" + this + " is being ignored");
+            logger.debug("TransactionImpl::rollback::" + this + " is being ignored");
             return;
          }
          if (xid != null) {
@@ -344,8 +366,8 @@ public class TransactionImpl implements Transaction {
    }
 
    private void internalRollback() throws Exception {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("TransactionImpl::internalRollback " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("TransactionImpl::internalRollback " + this);
       }
 
       beforeRollback();
@@ -364,6 +386,9 @@ public class TransactionImpl implements Transaction {
       final List<TransactionOperation> operationsToComplete = this.operations;
       this.operations = null;
 
+      final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
+      this.storeOperations = null;
+
       // We use the Callback even for non persistence
       // If we are using non-persistence with replication, the replication manager will have
       // to execute this runnable in the correct order
@@ -379,6 +404,21 @@ public class TransactionImpl implements Transaction {
             afterRollback(operationsToComplete);
          }
       });
+
+      if (storeOperationsToComplete != null) {
+         storageManager.afterStoreOperations(new IOCallback() {
+
+            @Override
+            public void onError(final int errorCode, final String errorMessage) {
+               ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
+            }
+
+            @Override
+            public void done() {
+               afterRollback(storeOperationsToComplete);
+            }
+         });
+      }
    }
 
    @Override
@@ -419,17 +459,17 @@ public class TransactionImpl implements Transaction {
    @Override
    public void markAsRollbackOnly(final ActiveMQException exception) {
       synchronized (timeoutLock) {
-         if (isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("TransactionImpl::" + this + " marking rollbackOnly for " + exception.toString() + ", msg=" + exception.getMessage());
+         if (logger.isTraceEnabled()) {
+            logger.trace("TransactionImpl::" + this + " marking rollbackOnly for " + exception.toString() + ", msg=" + exception.getMessage());
          }
 
          if (isEffective()) {
-            ActiveMQServerLogger.LOGGER.debug("Trying to mark transaction " + this.id + " xid=" + this.xid + " as rollbackOnly but it was already effective (prepared, committed or rolledback!)");
+            logger.debug("Trying to mark transaction " + this.id + " xid=" + this.xid + " as rollbackOnly but it was already effective (prepared, committed or rolledback!)");
             return;
          }
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Marking Transaction " + this.id + " as rollback only");
          }
          state = State.ROLLBACK_ONLY;
 
@@ -442,6 +482,15 @@ public class TransactionImpl implements Transaction {
       checkCreateOperations();
 
       operations.add(operation);
+   }
+
+
+   @Override
+   public synchronized void afterStore(TransactionOperation sync) {
+      if (storeOperations == null) {
+         storeOperations = new LinkedList<>();
+      }
+      storeOperations.add(sync);
    }
 
    private int getOperationsCount() {
@@ -490,7 +539,7 @@ public class TransactionImpl implements Transaction {
 
    private void checkCreateOperations() {
       if (operations == null) {
-         operations = new ArrayList<>();
+         operations = new LinkedList<>();
       }
    }
 
@@ -504,19 +553,24 @@ public class TransactionImpl implements Transaction {
       }
    }
 
-   private synchronized void afterRollback(List<TransactionOperation> oeprationsToComplete) {
-      if (oeprationsToComplete != null) {
-         for (TransactionOperation operation : oeprationsToComplete) {
+   private synchronized void afterRollback(List<TransactionOperation> operationsToComplete) {
+      if (operationsToComplete != null) {
+         for (TransactionOperation operation : operationsToComplete) {
             operation.afterRollback(this);
          }
          // Help out GC here
-         oeprationsToComplete.clear();
+         operationsToComplete.clear();
       }
    }
 
    private synchronized void beforeCommit() throws Exception {
       if (operations != null) {
          for (TransactionOperation operation : operations) {
+            operation.beforeCommit(this);
+         }
+      }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
             operation.beforeCommit(this);
          }
       }
@@ -528,6 +582,11 @@ public class TransactionImpl implements Transaction {
             operation.beforePrepare(this);
          }
       }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
+            operation.beforePrepare(this);
+         }
+      }
    }
 
    private synchronized void beforeRollback() throws Exception {
@@ -536,11 +595,21 @@ public class TransactionImpl implements Transaction {
             operation.beforeRollback(this);
          }
       }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
+            operation.beforeRollback(this);
+         }
+      }
    }
 
    private synchronized void afterPrepare() {
       if (operations != null) {
          for (TransactionOperation operation : operations) {
+            operation.afterPrepare(this);
+         }
+      }
+      if (storeOperations != null) {
+         for (TransactionOperation operation : storeOperations) {
             operation.afterPrepare(this);
          }
       }

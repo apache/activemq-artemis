@@ -396,6 +396,13 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "uptime of this server in milliseconds")
    long getUptimeMillis();
 
+   /**
+    * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
+    * either the live or backup server.
+    */
+   @Attribute(desc = "whether the initial replication synchronization process with the backup server is complete")
+   boolean isReplicaSync();
+
    // Operations ----------------------------------------------------
 
    /**
@@ -649,7 +656,9 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
                            @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
                            @Parameter(desc = "allow queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
-                           @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues) throws Exception;
+                           @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
+                           @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics")  boolean autoCreateJmsTopics,
+                           @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception;
 
    void removeAddressSettings(String addressMatch) throws Exception;
 

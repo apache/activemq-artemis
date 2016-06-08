@@ -90,7 +90,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
          public void onError(int errorCode, String errorMessage) {
 
          }
-      });
+      }, true);
 
 
       Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));

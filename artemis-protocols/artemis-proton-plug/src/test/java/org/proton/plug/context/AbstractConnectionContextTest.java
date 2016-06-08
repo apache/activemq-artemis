@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
 
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Session;
@@ -50,7 +51,7 @@ public class AbstractConnectionContextTest {
    private class TestConnectionContext extends AbstractConnectionContext {
 
       public TestConnectionContext(AMQPConnectionCallback connectionCallback) {
-         super(connectionCallback, Executors.newSingleThreadExecutor(), null);
+         super(connectionCallback, Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
       }
 
       @Override

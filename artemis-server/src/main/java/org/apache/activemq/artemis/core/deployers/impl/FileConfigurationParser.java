@@ -163,6 +163,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String AUTO_DELETE_JMS_QUEUES = "auto-delete-jms-queues";
 
+   private static final String AUTO_CREATE_JMS_TOPICS = "auto-create-jms-topics";
+
+   private static final String AUTO_DELETE_JMS_TOPICS = "auto-delete-jms-topics";
+
    private static final String MANAGEMENT_BROWSE_PAGE_SIZE = "management-browse-page-size";
 
    private static final String MAX_CONNECTIONS_NODE_NAME = "max-connections";
@@ -796,6 +800,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteJmsQueues(XMLUtil.parseBoolean(child));
          }
+         else if (AUTO_CREATE_JMS_TOPICS.equalsIgnoreCase(name)) {
+            addressSettings.setAutoCreateJmsTopics(XMLUtil.parseBoolean(child));
+         }
+         else if (AUTO_DELETE_JMS_TOPICS.equalsIgnoreCase(name)) {
+            addressSettings.setAutoDeleteJmsTopics(XMLUtil.parseBoolean(child));
+         }
          else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          }
@@ -1144,11 +1154,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    private DatabaseStorageConfiguration createDatabaseStoreConfig(Element storeNode) {
-      NodeList databaseStoreNode = storeNode.getElementsByTagName("database-store");
-
       DatabaseStorageConfiguration conf = new DatabaseStorageConfiguration();
       conf.setBindingsTableName(getString(storeNode, "bindings-table-name", conf.getBindingsTableName(), Validators.NO_CHECK));
       conf.setMessageTableName(getString(storeNode, "message-table-name", conf.getMessageTableName(), Validators.NO_CHECK));
+      conf.setLargeMessageTableName(getString(storeNode, "large-message-table-name", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
       conf.setJdbcConnectionUrl(getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), Validators.NO_CHECK));
       conf.setJdbcDriverClassName(getString(storeNode, "jdbc-driver-class-name", conf.getJdbcDriverClassName(), Validators.NO_CHECK));
       return conf;

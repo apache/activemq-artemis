@@ -23,13 +23,16 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.jboss.logging.Logger;
 
 /**
  * This is the same as PageCache, however this is for the page that's being currently written.
  */
 public class LivePageCacheImpl implements LivePageCache {
 
-   private final List<PagedMessage> messages = new LinkedList<>();
+   private static final Logger logger = Logger.getLogger(LivePageCacheImpl.class);
+
+   private final List<PagedMessage> messages = new LinkedList<PagedMessage>();
 
    private final Page page;
 
@@ -82,6 +85,7 @@ public class LivePageCacheImpl implements LivePageCache {
 
    @Override
    public synchronized void close() {
+      logger.tracef("Closing %s", this);
       this.isLive = false;
    }
 

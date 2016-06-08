@@ -86,6 +86,21 @@ does not exist then an exception will be sent
 > For the next version we will add a flag to aut create durable queue
 > but for now you will have to add them via the configuration
 
+### AMQP and Topics
+ 
+Although amqp has no notion of topics it is still possible to treat amqp consumers or receivers as subscriptions rather 
+than just consumers on a queue. By default any receiving link that attaches to an address with the prefix `jms.topic.` 
+will be treated as a subscription and a subscription queue will be created. If the Terminus Durability is either UNSETTLED_STATE
+or CONFIGURATION then the queue will be made durable, similar to a JMS durable subscription and given a name made up from 
+the container id and the link name, something like `my-container-id:my-link-name`. if the Terminus Durability is configured 
+as NONE then a volatile queue will be created.
+
+The prefix can be changed by configuring the Acceptor and setting the `pubSubPrefix` like so
+  
+> <acceptor name="amqp">tcp://0.0.0.0:5672?protocols=AMQP;pubSubPrefix=foo.bar.</acceptor>
+
+Artemis also supports the qpid-jms client and will respect its use of topics regardless of the prefix used for the address. 
+
 ### AMQP and Coordinations - Handling Transactions
 
 An AMQP links target can also be a Coordinator, the Coordinator is used

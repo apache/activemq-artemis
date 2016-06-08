@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -70,7 +71,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       server2.getConfiguration().setJournalLockAcquisitionTimeout(5000);
 
       // if something happens that causes the timeout to misbehave we don't want the test to hang
-      ExecutorService service = Executors.newSingleThreadExecutor();
+      ExecutorService service = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       Runnable r = new Runnable() {
          @Override
          public void run() {

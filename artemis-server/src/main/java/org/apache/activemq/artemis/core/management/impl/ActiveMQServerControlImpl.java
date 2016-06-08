@@ -670,6 +670,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public boolean isReplicaSync() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.isReplicaSync();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String[] getAddressNames() {
       checkStarted();
 
@@ -1506,6 +1519,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       settings.put("slowConsumerPolicy", policy);
       settings.put("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues());
       settings.put("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues());
+      settings.put("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics());
+      settings.put("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics());
 
       JSONObject jsonObject = new JSONObject(settings);
       return jsonObject.toString();
@@ -1531,7 +1546,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final long slowConsumerCheckPeriod,
                                   final String slowConsumerPolicy,
                                   final boolean autoCreateJmsQueues,
-                                  final boolean autoDeleteJmsQueues) throws Exception {
+                                  final boolean autoDeleteJmsQueues,
+                                  final boolean autoCreateJmsTopics,
+                                  final boolean autoDeleteJmsTopics) throws Exception {
       checkStarted();
 
       // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
@@ -1585,6 +1602,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
       addressSettings.setAutoDeleteJmsQueues(autoDeleteJmsQueues);
+      addressSettings.setAutoCreateJmsTopics(autoCreateJmsTopics);
+      addressSettings.setAutoDeleteJmsTopics(autoDeleteJmsTopics);
       server.getAddressSettingsRepository().addMatch(address, addressSettings);
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));

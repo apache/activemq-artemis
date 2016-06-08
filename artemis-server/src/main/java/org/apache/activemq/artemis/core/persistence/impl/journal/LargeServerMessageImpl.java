@@ -33,11 +33,12 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 public final class LargeServerMessageImpl extends ServerMessageImpl implements LargeServerMessage {
 
    // Constants -----------------------------------------------------
-   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(LargeServerMessageImpl.class);
 
    // Attributes ----------------------------------------------------
 
@@ -183,8 +184,8 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
    private void checkDelete() throws Exception {
       if (getRefCount() <= 0) {
-         if (LargeServerMessageImpl.isTrace) {
-            ActiveMQServerLogger.LOGGER.trace("Deleting file " + file + " as the usage was complete");
+         if (logger.isTraceEnabled()) {
+            logger.trace("Deleting file " + file + " as the usage was complete");
          }
 
          try {
@@ -339,10 +340,21 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
    @Override
    public String toString() {
-      return "LargeServerMessage[messageID=" + messageID + ",priority=" + this.getPriority() +
-         ",expiration=[" + (this.getExpiration() != 0 ? new java.util.Date(this.getExpiration()) : "null") + "]" +
+      return "LargeServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() +
+         ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
          ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
    }
+
+   private static String toDate(long timestamp) {
+      if (timestamp == 0) {
+         return "0";
+      }
+      else {
+         return new java.util.Date(timestamp).toString();
+      }
+
+   }
+
 
    // Package protected ---------------------------------------------
 

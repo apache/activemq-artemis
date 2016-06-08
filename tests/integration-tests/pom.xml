@@ -19,7 +19,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>1.3.0-SNAPSHOT</version>
+      <version>1.4.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>integration-tests</artifactId>
@@ -28,6 +28,8 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <karaf.version>4.0.3</karaf.version>
+	  <pax.exam.version>4.7.0</pax.exam.version>
       <vertx.version>2.1.2</vertx.version>
       <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
    </properties>
@@ -124,6 +126,12 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-proton-plug</artifactId>
+         <version>${project.version}</version>
+         <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
@@ -134,9 +142,27 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-proton-plug</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-proton-plug</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+         <type>test-jar</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-hornetq-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
+	   <dependency>
+		   <groupId>org.apache.activemq</groupId>
+		   <artifactId>artemis-features</artifactId>
+		   <version>${project.version}</version>
+		   <type>pom</type>
+	   </dependency>
 
       <!-- MQTT Deps -->
       <dependency>
@@ -188,7 +214,7 @@
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
-         <version>0.7.0</version>
+         <version>${qpid.jms.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.qpid</groupId>
@@ -214,11 +240,20 @@
          <artifactId>jboss-javaee</artifactId>
          <version>5.0.0.GA</version>
       </dependency>
+
+      <!-- DB Test Deps -->
       <dependency>
          <groupId>org.apache.derby</groupId>
          <artifactId>derby</artifactId>
-         <version>${apache.derby.version}</version>
+         <scope>test</scope>
       </dependency>
+
+      <dependency>
+         <groupId>org.postgresql</groupId>
+         <artifactId>postgresql</artifactId>
+         <scope>test</scope>
+      </dependency>
+
       <!--Vertx provided dependencies-->
       <dependency>
          <groupId>io.vertx</groupId>
@@ -279,6 +314,38 @@
             </exclusion>
          </exclusions>
       </dependency>
+
+	  <!-- karaf test -->
+
+	   <dependency>
+		   <groupId>org.ops4j.pax.exam</groupId>
+		   <artifactId>pax-exam-container-karaf</artifactId>
+		   <version>${pax.exam.version}</version>
+		   <scope>test</scope>
+	   </dependency>
+	   <dependency>
+		   <groupId>org.ops4j.pax.exam</groupId>
+		   <artifactId>pax-exam-junit4</artifactId>
+		   <version>${pax.exam.version}</version>
+		   <scope>test</scope>
+	   </dependency>
+	   <dependency>
+		   <groupId>org.apache.geronimo.specs</groupId>
+		   <artifactId>geronimo-atinject_1.0_spec</artifactId>
+		   <version>1.0</version>
+		   <scope>provided</scope>
+	   </dependency>
+	   <dependency>
+		   <groupId>org.apache.karaf</groupId>
+		   <artifactId>apache-karaf</artifactId>
+		   <version>${karaf.version}</version>
+		   <type>tar.gz</type>
+	   </dependency>
+	   <dependency>
+		   <groupId>org.apache.karaf.shell</groupId>
+		   <artifactId>org.apache.karaf.shell.console</artifactId>
+		   <version>${karaf.version}</version>
+	   </dependency>
    </dependencies>
 
    <build>
@@ -313,6 +380,19 @@
                <argLine>-Djgroups.bind_addr=::1 ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
+		  <plugin>
+			  <groupId>org.apache.servicemix.tooling</groupId>
+			  <artifactId>depends-maven-plugin</artifactId>
+			  <version>1.2</version>
+			  <executions>
+				  <execution>
+					  <id>generate-depends-file</id>
+					  <goals>
+						  <goal>generate-depends-file</goal>
+					  </goals>
+				  </execution>
+			  </executions>
+		  </plugin>
       </plugins>
    </build>
 

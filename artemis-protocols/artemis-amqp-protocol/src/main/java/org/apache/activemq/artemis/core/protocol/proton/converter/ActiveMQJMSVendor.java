@@ -26,6 +26,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSObjectMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.message.JMSVendor;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
@@ -36,7 +37,6 @@ import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMST
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.IDGenerator;
-import org.apache.activemq.transport.amqp.message.JMSVendor;
 
 public class ActiveMQJMSVendor implements JMSVendor {
 
@@ -88,7 +88,13 @@ public class ActiveMQJMSVendor implements JMSVendor {
 
    @Override
    public void setJMSXGroupID(Message message, String s) {
+      try {
+         message.setStringProperty("_AMQ_GROUP_ID", s);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
 
+      }
    }
 
    @Override
@@ -98,7 +104,6 @@ public class ActiveMQJMSVendor implements JMSVendor {
 
    @Override
    public void setJMSXDeliveryCount(Message message, long l) {
-
    }
 
    public ServerJMSMessage wrapMessage(int messageType, ServerMessage wrapped, int deliveryCount) {

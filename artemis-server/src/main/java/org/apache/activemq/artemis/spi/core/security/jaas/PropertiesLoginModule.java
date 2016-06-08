@@ -32,9 +32,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class PropertiesLoginModule extends PropertiesLoader implements LoginModule {
+
+   private static final Logger logger = Logger.getLogger(PropertiesLoginModule.class);
 
    private static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.user";
    private static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.role";
@@ -96,7 +98,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       loginSucceeded = true;
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("login " + user);
+         logger.debug("login " + user);
       }
       return loginSucceeded;
    }
@@ -121,7 +123,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       clear();
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("commit, result: " + result);
+         logger.debug("commit, result: " + result);
       }
       return result;
    }
@@ -131,7 +133,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       clear();
 
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("abort");
+         logger.debug("abort");
       }
       return true;
    }
@@ -142,7 +144,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       principals.clear();
       clear();
       if (debug) {
-         ActiveMQServerLogger.LOGGER.debug("logout");
+         logger.debug("logout");
       }
       return true;
    }

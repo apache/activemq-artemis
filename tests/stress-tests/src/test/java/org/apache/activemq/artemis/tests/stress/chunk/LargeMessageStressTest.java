@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.stress.chunk;
 
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.junit.Test;
 
 public class LargeMessageStressTest extends LargeMessageTestBase {
+
+   public LargeMessageStressTest(StoreConfiguration.StoreType storeType) {
+      super(storeType);
+   }
 
    // Constants -----------------------------------------------------
 

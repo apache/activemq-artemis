@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public class FanoutTransportBrokerTest extends OpenwireArtemisBaseTest {
    public static final boolean FAST_NO_MESSAGE_LEFT_ASSERT = System.getProperty("FAST_NO_MESSAGE_LEFT_ASSERT", "true").equals("true");
 
-   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected ArrayList<StubConnection> connections = new ArrayList<>();
    protected long idGenerator;
    protected int msgIdGenerator;
    protected int maxWait = 10000;

@@ -32,6 +32,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.SASLResult;
+import org.proton.plug.context.server.ProtonServerSenderContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.handler.impl.DefaultEventHandler;
@@ -70,6 +71,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       connectionCallback.setConnection(this);
       this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
       Transport transport = handler.getTransport();
+      transport.setEmitFlowEventOnSend(false);
       if (idleTimeout > 0) {
          transport.setIdleTimeout(idleTimeout);
       }
@@ -160,6 +162,14 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       while ((bytes = handler.outputBuffer()) != null) {
          connectionCallback.onTransport(bytes, AbstractConnectionContext.this);
       }
+   }
+
+   public String getRemoteContainer() {
+      return handler.getConnection().getRemoteContainer();
+   }
+
+   public String getPubSubPrefix() {
+      return null;
    }
 
    // This listener will perform a bunch of things here
@@ -256,7 +266,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
       @Override
       public void onFlow(Link link) throws Exception {
-         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit());
+         ((ProtonDeliveryHandler) link.getContext()).onFlow(link.getCredit(), link.getDrain());
       }
 
       @Override
@@ -264,13 +274,22 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
          link.close();
          ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
          if (linkContext != null) {
-            linkContext.close();
+            linkContext.close(true);
          }
       }
 
       @Override
       public void onRemoteDetach(Link link) throws Exception {
          link.detach();
+      }
+
+      @Override
+      public void onDetach(Link link) throws Exception {
+         Object context = link.getContext();
+         if (context instanceof ProtonServerSenderContext) {
+            ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
+            senderContext.close(false);
+         }
       }
 
       @Override
@@ -287,5 +306,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       }
 
    }
+
+
 
 }

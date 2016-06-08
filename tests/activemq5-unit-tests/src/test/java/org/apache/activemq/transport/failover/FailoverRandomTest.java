@@ -38,7 +38,7 @@ public class FailoverRandomTest extends OpenwireArtemisBaseTest {
 
    @Before
    public void setUp() throws Exception {
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
 
       params.put("rebalanceClusterClients", "true");
       params.put("updateClusterClients", "true");

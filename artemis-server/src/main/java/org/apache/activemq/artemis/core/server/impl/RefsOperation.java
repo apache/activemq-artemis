@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -30,8 +31,11 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.jboss.logging.Logger;
 
 public class RefsOperation extends TransactionOperationAbstract {
+
+   private static final Logger logger = Logger.getLogger(RefsOperation.class);
 
    private final StorageManager storageManager;
    private Queue queue;
@@ -78,8 +82,8 @@ public class RefsOperation extends TransactionOperationAbstract {
       for (MessageReference ref : refsToAck) {
          ref.setConsumerId(null);
 
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-            ActiveMQServerLogger.LOGGER.trace("rolling back " + ref);
+         if (logger.isTraceEnabled()) {
+            logger.trace("rolling back " + ref);
          }
          try {
             if (ref.isAlreadyAcked()) {
@@ -161,6 +165,10 @@ public class RefsOperation extends TransactionOperationAbstract {
    private void decrementRefCount(MessageReference refmsg) {
       try {
          refmsg.getMessage().decrementRefCount();
+      }
+      catch (NonExistentPage e) {
+         // This could happen on after commit, since the page could be deleted on file earlier by another thread
+         logger.debug(e);
       }
       catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);

@@ -122,7 +122,7 @@ the maximum desired message consumption rate specified in units of
 messages per second. Setting this to `-1` disables rate limited flow
 control. The default value is `-1`.
 
-Please see ? for a working example of limiting consumer rate.
+Please see [the examples chapter](examples.md) for a working example of limiting consumer rate.
 
 ### Using Core API
 
@@ -152,7 +152,7 @@ can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
 > buffer. So if you had a slow rate limit and a high window based limit
 > the clients internal buffer would soon fill up with messages.
 
-Please see ? for an example which shows how to configure ActiveMQ Artemis to
+Please see [the examples chapter](examples.md) for an example which shows how to configure ActiveMQ Artemis to
 prevent consumer buffering when dealing with slow consumers.
 
 ## Producer flow control

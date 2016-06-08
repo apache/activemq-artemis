@@ -40,6 +40,11 @@ import java.lang.management.ManagementFactory;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -78,6 +83,7 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
@@ -123,13 +129,18 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -144,6 +155,8 @@ import org.junit.runner.Description;
  * Base class with basic utilities on starting up a basic server
  */
 public abstract class ActiveMQTestBase extends Assert {
+
+   private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
 
    @Rule
    public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
@@ -393,19 +406,12 @@ public abstract class ActiveMQTestBase extends Assert {
       return createDefaultConfig(0, netty);
    }
 
-   protected Configuration createDefaultJDBCConfig() throws Exception {
-      Configuration configuration = createDefaultConfig(true);
-
-      DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
-      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
-      dbStorageConfiguration.setBindingsTableName("BINDINGS");
-      dbStorageConfiguration.setMessageTableName("MESSAGES");
-      dbStorageConfiguration.setJdbcDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-
-      configuration.setStoreConfiguration(dbStorageConfiguration);
-
+   protected Configuration createDefaultJDBCConfig(boolean isNetty) throws Exception {
+      Configuration configuration = createDefaultConfig(isNetty);
+      setDBStoreType(configuration);
       return configuration;
    }
+
 
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
       ConfigurationImpl configuration = createBasicConfig(serverID).setJMXManagementEnabled(false).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
@@ -445,6 +451,44 @@ public abstract class ActiveMQTestBase extends Assert {
       return configuration;
    }
 
+   private void setDBStoreType(Configuration configuration) {
+      DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
+      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
+      dbStorageConfiguration.setBindingsTableName("BINDINGS");
+      dbStorageConfiguration.setMessageTableName("MESSAGE");
+      dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
+      dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
+
+      configuration.setStoreConfiguration(dbStorageConfiguration);
+   }
+
+   public void destroyTables(List<String> tableNames) throws Exception {
+      Driver driver = JDBCUtils.getDriver(getJDBCClassName());
+      Connection connection = driver.connect(getTestJDBCConnectionUrl(), null);
+      Statement statement = connection.createStatement();
+      try {
+         for (String tableName : tableNames) {
+            connection.setAutoCommit(false);
+            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName);
+            try (ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null)) {
+               if (rs.next()) {
+                  statement.execute("DROP TABLE " + sqlProvider.getTableName());
+               }
+               connection.commit();
+            }
+            catch (SQLException e) {
+               connection.rollback();
+            }
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      finally {
+         connection.close();
+      }
+   }
+
    protected Map<String, Object> generateInVMParams(final int node) {
       Map<String, Object> params = new HashMap<>();
 
@@ -465,7 +509,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final OrderedExecutorFactory getOrderedExecutor() {
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
       executorSet.add(executor);
       return new OrderedExecutorFactory(executor);
    }
@@ -583,7 +627,7 @@ public abstract class ActiveMQTestBase extends Assert {
                break;
             }
          }
-      } while (i++ <= 30 && hasValue);
+      } while (i++ <= 200 && hasValue);
 
       for (WeakReference<?> ref : references) {
          Assert.assertNull(ref.get());
@@ -788,7 +832,11 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final String getTestJDBCConnectionUrl() {
-      return "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true";
+      return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getTestDir() + File.separator + "derby;create=true");
+   }
+
+   protected final String getJDBCClassName() {
+      return System.getProperty("jdbc.driver.class","org.apache.derby.jdbc.EmbeddedDriver");
    }
 
    protected final File getTestDirfile() {
@@ -1096,7 +1144,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                       final int liveNodes,
                                       final int backupNodes,
                                       final long timeout) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("waiting for " + liveNodes + " on the topology for server = " + server);
+      logger.debug("waiting for " + liveNodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -1147,7 +1195,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                   String clusterConnectionName,
                                   final int nodes,
                                   final long timeout) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("waiting for " + nodes + " on the topology for server = " + server);
+      logger.debug("waiting for " + nodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -1311,7 +1359,7 @@ public abstract class ActiveMQTestBase extends Assert {
          boolean isRemoteUpToDate = true;
          if (isReplicated) {
             if (activation instanceof SharedNothingBackupActivation) {
-               isRemoteUpToDate = ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
+               isRemoteUpToDate = backup.isReplicaSync();
             }
             else {
                //we may have already failed over and changed the Activation
@@ -1385,6 +1433,18 @@ public abstract class ActiveMQTestBase extends Assert {
       return server;
    }
 
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                               final Configuration configuration,
+                                               final long pageSize,
+                                               final long maxAddressSize,
+                                               final Map<String, AddressSettings> settings,
+                                               StoreConfiguration.StoreType storeType) {
+      if (storeType == StoreConfiguration.StoreType.DATABASE) {
+         setDBStoreType(configuration);
+      }
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
+   }
+
    protected final ActiveMQServer createServer(final boolean realFiles) throws Exception {
       return createServer(realFiles, false);
    }
@@ -1399,6 +1459,11 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final ActiveMQServer createServer(final Configuration configuration) {
       return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+   }
+
+   protected ActiveMQServer createServer(final boolean realFiles, boolean isNetty, StoreConfiguration.StoreType storeType) throws Exception {
+      Configuration configuration = storeType == StoreConfiguration.StoreType.DATABASE ? createDefaultJDBCConfig(isNetty) : createDefaultConfig(isNetty);
+      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
    }
 
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
@@ -2020,29 +2085,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected static final boolean deleteDirectory(final File directory) {
-      if (directory.isDirectory()) {
-         String[] files = directory.list();
-         int num = 5;
-         int attempts = 0;
-         while (files == null && (attempts < num)) {
-            try {
-               Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
-            }
-            files = directory.list();
-            attempts++;
-         }
-
-         for (String file : files) {
-            File f = new File(directory, file);
-            if (!deleteDirectory(f)) {
-               log.warn("Failed to clean up file: " + f.getAbsolutePath());
-            }
-         }
-      }
-
-      return directory.delete();
+      return FileUtil.deleteDirectory(directory);
    }
 
    protected static final void copyRecursive(final File from, final File to) throws Exception {

@@ -332,7 +332,7 @@ public class FailoverTest extends FailoverTestBase {
    // https://issues.jboss.org/browse/HORNETQ-685
    @Test
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
-      locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(-1);
+      locator.setCallTimeout(5000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(-1);
 
       ((InVMNodeManager) nodeManager).failoverPause = 5000L;
 
@@ -410,8 +410,13 @@ public class FailoverTest extends FailoverTestBase {
          session.rollback(xid);
       }
       catch (XAException e) {
-         //there is still an edge condition that we must deal with
-         session.rollback(xid);
+         try {
+            //there is still an edge condition that we must deal with
+            session.rollback(xid);
+         }
+         catch (Exception ignored) {
+            log.trace(ignored.getMessage(), ignored);
+         }
       }
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);

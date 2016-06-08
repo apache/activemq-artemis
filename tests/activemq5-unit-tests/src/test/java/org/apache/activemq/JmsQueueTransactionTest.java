@@ -70,7 +70,7 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
         LOG.info("Sent 0: " + outbound[0]);
         LOG.info("Sent 1: " + outbound[1]);
 
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         beginTx();
         Message message = consumer.receive(2000);
         assertEquals(outbound[0], message);

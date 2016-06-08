@@ -156,6 +156,21 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
       return result;
    }
 
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", address=" + address);
+      buff.append(", name=" + name);
+      buff.append(", consumerCount=" + consumerCount);
+      buff.append(", filterString=" + filterString);
+      buff.append(", durable=" + durable);
+      buff.append(", exists=" + exists);
+      buff.append(", temporary=" + temporary);
+      buff.append(", messageCount=" + messageCount);
+      buff.append("]");
+      return buff.toString();
+   }
+
    public ClientSession.QueueQuery toQueueQuery() {
       return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists());
    }

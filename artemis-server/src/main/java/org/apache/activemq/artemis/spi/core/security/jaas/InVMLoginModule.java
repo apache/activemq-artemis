@@ -33,9 +33,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class InVMLoginModule implements LoginModule {
+
+   private static final Logger logger = Logger.getLogger(InVMLoginModule.class);
+
    public static final String CONFIG_PROP_NAME = "org.apache.activemq.jaas.invm.config";
 
    private SecurityConfiguration configuration;
@@ -92,7 +95,7 @@ public class InVMLoginModule implements LoginModule {
       }
       loginSucceeded = true;
 
-      ActiveMQServerLogger.LOGGER.debug("login " + user);
+      logger.debug("login " + user);
 
       return loginSucceeded;
    }
@@ -117,7 +120,7 @@ public class InVMLoginModule implements LoginModule {
       // will whack loginSucceeded
       clear();
 
-      ActiveMQServerLogger.LOGGER.debug("commit, result: " + result);
+      logger.debug("commit, result: " + result);
 
       return result;
    }
@@ -126,7 +129,7 @@ public class InVMLoginModule implements LoginModule {
    public boolean abort() throws LoginException {
       clear();
 
-      ActiveMQServerLogger.LOGGER.debug("abort");
+      logger.debug("abort");
 
       return true;
    }
@@ -142,7 +145,7 @@ public class InVMLoginModule implements LoginModule {
       principals.clear();
       clear();
 
-      ActiveMQServerLogger.LOGGER.debug("logout");
+      logger.debug("logout");
 
       return true;
    }

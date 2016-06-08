@@ -126,6 +126,36 @@ public interface ActiveMQServer extends ActiveMQComponent {
     */
    void callActivationFailureListeners(Exception e);
 
+   /**
+    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback}
+    */
+   void registerPostQueueCreationCallback(PostQueueCreationCallback callback);
+
+   /**
+    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback}
+    */
+   void unregisterPostQueueCreationCallback(PostQueueCreationCallback callback);
+
+   /**
+    * @param queueName
+    */
+   void callPostQueueCreationCallbacks(SimpleString queueName) throws Exception;
+
+   /**
+    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback}
+    */
+   void registerPostQueueDeletionCallback(PostQueueDeletionCallback callback);
+
+   /**
+    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback}
+    */
+   void unregisterPostQueueDeletionCallback(PostQueueDeletionCallback callback);
+
+   /**
+    * @param queueName
+    */
+   void callPostQueueDeletionCallbacks(SimpleString address, SimpleString queueName) throws Exception;
+
    void checkQueueCreationLimit(String username) throws Exception;
 
    ServerSession createSession(String name,
@@ -187,7 +217,7 @@ public interface ActiveMQServer extends ActiveMQComponent {
    long getUptimeMillis();
 
    /**
-    * This is the queue creator responsible for JMS Queue creations*
+    * This is the queue creator responsible for automatic JMS Queue creations.
     *
     * @param queueCreator
     */
@@ -196,7 +226,25 @@ public interface ActiveMQServer extends ActiveMQComponent {
    /**
     * @see org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)
     */
-   QueueCreator getJMSQueueCreator();
+   QueueCreator getJMSDestinationCreator();
+
+   /**
+    * This is the queue deleter responsible for automatic JMS Queue deletions.
+    *
+    * @param queueDeleter
+    */
+   void setJMSQueueDeleter(QueueDeleter queueDeleter);
+
+   /**
+    * @see org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueDeleter(QueueDeleter)
+    */
+   QueueDeleter getJMSQueueDeleter();
+
+   /**
+    * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
+    * either the live or backup server.
+    */
+   boolean isReplicaSync();
 
    /**
     * Wait for server initialization.
@@ -253,6 +301,13 @@ public interface ActiveMQServer extends ActiveMQComponent {
                      SimpleString filterString,
                      boolean durable,
                      boolean temporary) throws Exception;
+
+   Queue deployQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filterString,
+                     boolean durable,
+                     boolean temporary,
+                     boolean autoCreated) throws Exception;
 
    Queue locateQueue(SimpleString queueName);
 

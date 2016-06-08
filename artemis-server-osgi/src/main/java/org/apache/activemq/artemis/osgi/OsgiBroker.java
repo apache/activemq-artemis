@@ -42,14 +42,16 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.util.tracker.ServiceTracker;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-@Component(configurationPid = "org.apache.activemq.artemis")
+@Component(configurationPid = "org.apache.activemq.artemis", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class OsgiBroker {
    private String name;
    private String configurationUrl;
+   private String rolePrincipalClass;
    private Map<String, ActiveMQComponent> components;
    private Map<String, ServiceRegistration<?>> registrations;
    private ServiceTracker tracker;
@@ -60,8 +62,12 @@ public class OsgiBroker {
       final Dictionary<String, Object> properties = cctx.getProperties();
       configurationUrl = getMandatory(properties, "config");
       name = getMandatory(properties, "name");
+      rolePrincipalClass = (String)properties.get("rolePrincipalClass");
       String domain = getMandatory(properties, "domain");
       ActiveMQJAASSecurityManager security = new ActiveMQJAASSecurityManager(domain);
+      if (rolePrincipalClass != null) {
+         security.setRolePrincipalClass(rolePrincipalClass);
+      }
       String brokerInstance = null;
       String karafDataDir = System.getProperty("karaf.data");
       if (karafDataDir != null) {

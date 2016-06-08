@@ -61,8 +61,8 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
     protected BrokerService broker;
 
     // for message listener test
-    private final List<Message> unackMessages = new ArrayList<Message>(MESSAGE_COUNT);
-    private final List<Message> ackMessages = new ArrayList<Message>(MESSAGE_COUNT);
+    private final List<Message> unackMessages = new ArrayList<>(MESSAGE_COUNT);
+    private final List<Message> ackMessages = new ArrayList<>(MESSAGE_COUNT);
     private boolean resendPhase;
 
     public JmsTransactionTestSupport() {
@@ -208,7 +208,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
         // receives the first message
         beginTx();
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         LOG.info("About to consume message 1");
         Message message = consumer.receive(1000);
         messages.add(message);
@@ -243,7 +243,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
         // receives the first message
         beginTx();
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         LOG.info("About to consume message 1");
         Message message = consumer.receive(1000);
         messages.add(message);
@@ -283,7 +283,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
         commitTx();
 
         // receives the first message
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         LOG.info("About to consume message 1");
         beginTx();
         Message message = consumer.receive(1000);
@@ -331,7 +331,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
         commitTx();
 
         // receives the first message
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         LOG.info("About to consume message 1");
         beginTx();
         Message message = consumer.receive(1000);
@@ -375,7 +375,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
         LOG.info("Sent 0: " + outbound[0]);
         LOG.info("Sent 1: " + outbound[1]);
 
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         beginTx();
         Message message = consumer.receive(1000);
         messages.add(message);
@@ -426,7 +426,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
         LOG.info("Sent 0: " + outbound[0]);
         LOG.info("Sent 1: " + outbound[1]);
 
-        ArrayList<Message> messages = new ArrayList<Message>();
+        ArrayList<Message> messages = new ArrayList<>();
         beginTx();
         Message message = consumer.receive(1000);
         assertEquals(outbound[0], message);
@@ -566,7 +566,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
     }
 
     public void testChangeMutableObjectInObjectMessageThenRollback() throws Exception {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("First");
         Message outbound = session.createObjectMessage(list);
         outbound.setStringProperty("foo", "abc");

@@ -20,16 +20,18 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.jboss.logging.Logger;
 
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress
  */
 public class DivertImpl implements Divert {
+
+   private static final Logger logger = Logger.getLogger(DivertImpl.class);
 
    private final PostOffice postOffice;
 
@@ -77,8 +79,8 @@ public class DivertImpl implements Divert {
       // We must make a copy of the message, otherwise things like returning credits to the page won't work
       // properly on ack, since the original address will be overwritten
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("Diverting message " + message + " into " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Diverting message " + message + " into " + this);
       }
 
       long id = storageManager.generateID();

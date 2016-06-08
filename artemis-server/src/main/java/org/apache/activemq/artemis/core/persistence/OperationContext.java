@@ -29,8 +29,20 @@ public interface OperationContext extends IOCompletion {
    /**
     * Execute the task when all IO operations are complete,
     * Or execute it immediately if nothing is pending.
+    * @param runnable the tas to be executed.
+    * @param storeOnly There are tasks that won't need to wait on replication or paging and will need to
+    *                  be completed as soon as the response from the journal is received. An example would be the
+    *                  DuplicateCache
+    */
+   void executeOnCompletion(IOCallback runnable, boolean storeOnly);
+
+   /**
+    * Execute the task when all IO operations are complete,
+    * Or execute it immediately if nothing is pending.
+    * @param runnable the tas to be executed.
     */
    void executeOnCompletion(IOCallback runnable);
+
 
    void replicationLineUp();
 

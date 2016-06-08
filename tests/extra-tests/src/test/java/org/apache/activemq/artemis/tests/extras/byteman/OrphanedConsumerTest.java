@@ -67,10 +67,6 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
     * This static method is an entry point for the byteman rules on {@link #testOrphanedConsumers()}
     */
    public static void leavingCloseOnTestCountersWhileClosing() {
-      if (staticServer.getConnectionCount() == 0) {
-         verification = new AssertionError("The connection was closed before the consumers and sessions, this may cause issues on management leaving Orphaned Consumers!");
-      }
-
       if (staticServer.getSessions().size() == 0) {
          verification = new AssertionError("The session was closed before the consumers, this may cause issues on management leaving Orphaned Consumers!");
       }

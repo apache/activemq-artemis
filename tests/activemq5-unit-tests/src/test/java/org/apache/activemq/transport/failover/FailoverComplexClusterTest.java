@@ -56,7 +56,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    private EmbeddedJMS[] servers = new EmbeddedJMS[3];
 
    private static final int NUMBER_OF_CLIENTS = 30;
-   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private final List<ActiveMQConnection> connections = new ArrayList<>();
 
 
    @Before
@@ -65,7 +65,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    //default setup for most tests
    private void commonSetup() throws Exception {
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
 
       params.put("rebalanceClusterClients", "true");
       params.put("updateClusterClients", "true");
@@ -349,7 +349,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    protected void assertClientsConnectedToThreeBrokers() {
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          if (c.getTransportChannel().getRemoteAddress() != null) {
             set.add(c.getTransportChannel().getRemoteAddress());
@@ -359,7 +359,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    protected void assertClientsConnectedToTwoBrokers() {
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          if (c.getTransportChannel().getRemoteAddress() != null) {
             set.add(c.getTransportChannel().getRemoteAddress());
@@ -415,7 +415,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
    }
 
    protected void assertClientsConnectionsEvenlyDistributed(double minimumPercentage, double maximumPercentage) {
-      Map<String, Double> clientConnectionCounts = new HashMap<String, Double>();
+      Map<String, Double> clientConnectionCounts = new HashMap<>();
       int total = 0;
       for (ActiveMQConnection c : connections) {
          String key = c.getTransportChannel().getRemoteAddress();
@@ -432,7 +432,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
          }
       }
       Set<String> keys = clientConnectionCounts.keySet();
-      List<String> errorMsgs = new ArrayList<String>();
+      List<String> errorMsgs = new ArrayList<>();
       for (String key : keys) {
          double count = clientConnectionCounts.get(key);
          double percentage = count / total;

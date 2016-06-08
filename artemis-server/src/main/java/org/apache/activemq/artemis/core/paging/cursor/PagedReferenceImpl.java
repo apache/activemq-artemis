@@ -26,10 +26,11 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.jboss.logging.Logger;
 
 public class PagedReferenceImpl implements PagedReference {
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(PagedReferenceImpl.class);
 
    private final PagePosition position;
 
@@ -173,8 +174,8 @@ public class PagedReferenceImpl implements PagedReference {
    @Override
    public void incrementDeliveryCount() {
       deliveryCount.incrementAndGet();
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
 
    }
@@ -182,8 +183,8 @@ public class PagedReferenceImpl implements PagedReference {
    @Override
    public void decrementDeliveryCount() {
       deliveryCount.decrementAndGet();
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
    }
 

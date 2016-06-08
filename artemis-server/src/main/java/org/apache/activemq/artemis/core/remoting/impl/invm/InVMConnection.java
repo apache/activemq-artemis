@@ -36,10 +36,11 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 public class InVMConnection implements Connection {
 
-   private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(InVMConnection.class);
 
    private final BufferHandler handler;
 
@@ -183,8 +184,8 @@ public class InVMConnection implements Connection {
                try {
                   if (!closed) {
                      copied.readInt(); // read and discard
-                     if (isTrace) {
-                        ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::Sending inVM packet");
+                     if (logger.isTraceEnabled()) {
+                        logger.trace(InVMConnection.this + "::Sending inVM packet");
                      }
                      handler.bufferReceived(id, copied);
                      if (futureListener != null) {
@@ -199,8 +200,8 @@ public class InVMConnection implements Connection {
                   throw new IllegalStateException(msg, e);
                }
                finally {
-                  if (isTrace) {
-                     ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::packet sent done");
+                  if (logger.isTraceEnabled()) {
+                     logger.trace(InVMConnection.this + "::packet sent done");
                   }
                }
             }

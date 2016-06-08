@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Vector;
 
@@ -111,7 +112,7 @@ public class RequestReplyNoAdvisoryNetworkTest extends JmsMultipleBrokersTestSup
 
                         @Override
                         public InputStream getInputStream() throws IOException {
-                           return new ByteArrayInputStream(xmlConfigString.replace("%HOST%", url.getFile()).getBytes("UTF-8"));
+                           return new ByteArrayInputStream(xmlConfigString.replace("%HOST%", url.getFile()).getBytes(StandardCharsets.UTF_8));
                         }
                      };
                   }

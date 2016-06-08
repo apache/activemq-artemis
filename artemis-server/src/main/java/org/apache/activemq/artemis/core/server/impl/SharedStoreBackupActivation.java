@@ -33,8 +33,11 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.jboss.logging.Logger;
 
 public final class SharedStoreBackupActivation extends Activation {
+
+   private static final Logger logger = Logger.getLogger(SharedStoreBackupActivation.class);
 
    //this is how we act as a backup
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
@@ -215,7 +218,7 @@ public final class SharedStoreBackupActivation extends Activation {
                      @Override
                      public void run() {
                         try {
-                           ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");
+                           logger.debug(activeMQServer + "::Stopping live node in favor of failback");
 
                            NodeManager nodeManager = activeMQServer.getNodeManager();
                            activeMQServer.stop(true, false, true);
@@ -230,7 +233,7 @@ public final class SharedStoreBackupActivation extends Activation {
                                  return;
 
                               activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
-                              ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Starting backup node now after failback");
+                              logger.debug(activeMQServer + "::Starting backup node now after failback");
                               activeMQServer.start();
                            }
                         }

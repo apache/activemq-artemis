@@ -25,6 +25,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private String bindingsTableName = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
+   private String largeMessagesTableName = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
+
    private String jdbcConnectionUrl = ActiveMQDefaultConfiguration.getDefaultDatabaseUrl();
 
    private String jdbcDriverClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
@@ -47,6 +49,14 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setBindingsTableName(String bindingsTableName) {
       this.bindingsTableName = bindingsTableName;
+   }
+
+   public String getLargeMessageTableName() {
+      return largeMessagesTableName;
+   }
+
+   public void setLargeMessageTableName(String largeMessagesTableName) {
+      this.largeMessagesTableName = largeMessagesTableName;
    }
 
    public void setJdbcConnectionUrl(String jdbcConnectionUrl) {

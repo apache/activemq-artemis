@@ -51,7 +51,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
       this.creditsSemaphore.setCredits(credits);
    }
 
@@ -67,7 +67,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    * close the session
    * */
    @Override
-   public void close() throws ActiveMQAMQPException {
+   public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
       closed = true;
       protonSession.removeSender(sender);
       synchronized (connection.getLock()) {
@@ -84,7 +84,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       closed = true;
       sender.setCondition(condition);
-      close();
+      close(false);
    }
 
    @Override

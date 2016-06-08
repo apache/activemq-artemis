@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +85,10 @@ public class Create extends InputAbstract {
    public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
    public static final String ETC_BOOTSTRAP_WEB_SETTINGS_TXT = "etc/bootstrap-web-settings.txt";
    public static final String ETC_JOURNAL_BUFFER_SETTINGS = "etc/journal-buffer-settings.txt";
+   public static final String ETC_AMQP_ACCEPTOR_TXT = "etc/amqp-acceptor.txt";
+   public static final String ETC_HORNETQ_ACCEPTOR_TXT = "etc/hornetq-acceptor.txt";
+   public static final String ETC_MQTT_ACCEPTOR_TXT = "etc/mqtt-acceptor.txt";
+   public static final String ETC_STOMP_ACCEPTOR_TXT = "etc/stomp-acceptor.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    File directory;
@@ -91,10 +96,16 @@ public class Create extends InputAbstract {
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    String host;
 
+   @Option(name = "--default-port", description = "The port number to use for the main 'artemis' acceptor (Default: 61616)")
+   int defaultPort = DEFAULT_PORT;
+
+   @Option(name = "--http-port", description = "The port number to use for embedded web server (Default: 8161)")
+   int httpPort = HTTP_PORT;
+
    @Option(name = "--name", description = "The name of the broker (Default: same as host)")
    String name;
 
-   @Option(name = "--port-offset", description = "Off sets the default ports")
+   @Option(name = "--port-offset", description = "Off sets the ports of every acceptor")
    int portOffset;
 
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
@@ -174,6 +185,18 @@ public class Create extends InputAbstract {
 
    @Option(name = "--disable-persistence", description = "Disable message persistence to the journal")
    boolean disablePersistence;
+
+   @Option(name = "--no-amqp-acceptor", description = "Disable the AMQP specific acceptor.")
+   boolean noAmqpAcceptor;
+
+   @Option(name = "--no-mqtt-acceptor", description = "Disable the MQTT specific acceptor.")
+   boolean noMqttAcceptor;
+
+   @Option(name = "--no-stomp-acceptor", description = "Disable the STOMP specific acceptor.")
+   boolean noStompAcceptor;
+
+   @Option(name = "--no-hornetq-acceptor", description = "Disable the HornetQ specific acceptor.")
+   boolean noHornetQAcceptor;
 
    boolean IS_WINDOWS;
 
@@ -499,12 +522,12 @@ public class Create extends InputAbstract {
       }
 
       filters.put("${user}", System.getProperty("user.name", ""));
-      filters.put("${default.port}", String.valueOf(DEFAULT_PORT + portOffset));
+      filters.put("${default.port}", String.valueOf(defaultPort + portOffset));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${mqtt.port}", String.valueOf(MQTT_PORT + portOffset));
-      filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
+      filters.put("${http.port}", String.valueOf(httpPort + portOffset));
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));
 
@@ -599,6 +622,34 @@ public class Create extends InputAbstract {
       }
       else {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
+      }
+
+      if (noAmqpAcceptor) {
+         filters.put("${amqp-acceptor}", "");
+      }
+      else {
+         filters.put("${amqp-acceptor}", applyFilters(readTextFile(ETC_AMQP_ACCEPTOR_TXT), filters));
+      }
+
+      if (noMqttAcceptor) {
+         filters.put("${mqtt-acceptor}", "");
+      }
+      else {
+         filters.put("${mqtt-acceptor}", applyFilters(readTextFile(ETC_MQTT_ACCEPTOR_TXT), filters));
+      }
+
+      if (noStompAcceptor) {
+         filters.put("${stomp-acceptor}", "");
+      }
+      else {
+         filters.put("${stomp-acceptor}", applyFilters(readTextFile(ETC_STOMP_ACCEPTOR_TXT), filters));
+      }
+
+      if (noHornetQAcceptor) {
+         filters.put("${hornetq-acceptor}", "");
+      }
+      else {
+         filters.put("${hornetq-acceptor}", applyFilters(readTextFile(ETC_HORNETQ_ACCEPTOR_TXT), filters));
       }
 
       performAutoTune(filters, aio, dataFolder);
@@ -818,7 +869,7 @@ public class Create extends InputAbstract {
       try (InputStream in = openStream(source)) {
          copy(in, out);
       }
-      return new String(out.toByteArray(), "UTF-8");
+      return new String(out.toByteArray(), StandardCharsets.UTF_8);
    }
 
    private void write(String source) throws IOException {

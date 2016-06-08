@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.apache.activemq</groupId>
 		<artifactId>artemis-pom</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>artemis-server-osgi</artifactId>
@@ -54,6 +54,11 @@
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>artemis-jms-server</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>artemis-jdbc-store</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -111,6 +116,10 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+            <Import-Package>
+              org.postgresql*;resolution:=optional,
+              *
+            </Import-Package>
 						<_exportcontents>*</_exportcontents>
 					</instructions>
 				</configuration>

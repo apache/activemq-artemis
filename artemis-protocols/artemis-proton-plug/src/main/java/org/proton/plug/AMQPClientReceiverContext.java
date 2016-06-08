@@ -25,4 +25,10 @@ public interface AMQPClientReceiverContext {
    ProtonJMessage receiveMessage(int time, TimeUnit unit) throws Exception;
 
    void flow(int credits);
+
+   void drain(int i);
+
+   int drained();
+
+   boolean isDraining();
 }

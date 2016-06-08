@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -49,7 +50,7 @@ public class HierarchicalObjectRepositoryTest {
    public void setUp() {
       latch = new CountDownLatch(1);
       latch2 = new CountDownLatch(1);
-      executor = Executors.newSingleThreadExecutor();
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
       repo = new HierarchicalObjectRepository<>();
       addToRepo(repo, A);
    }

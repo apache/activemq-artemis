@@ -33,9 +33,11 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.FuseMQTTClientProvider;
+import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -146,6 +148,59 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void sendSTOMPReceiveMQTT() throws Exception {
+      String address = "myTestAddress";
+
+      // Set up MQTT Subscription
+      MQTTClientProvider clientProvider = new FuseMQTTClientProvider();
+      clientProvider.connect("tcp://localhost:61616");
+      clientProvider.subscribe(address, 0);
+
+      String stompPayload = "This is a test message";
+
+      // Set up STOMP connection and send STOMP Message
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = "SEND\n" + "destination:" + address + "\n\n" + stompPayload + Stomp.NULL;
+      sendFrame(frame);
+
+      // Recieve MQTT Message
+      byte[] mqttPayload = clientProvider.receive(10000);
+      clientProvider.disconnect();
+
+      assertEquals(stompPayload, new String(mqttPayload, "UTF-8"));
+      clientProvider.disconnect();
+   }
+
+   @Test
+   public void sendMQTTReceiveSTOMP() throws Exception {
+      String address = "myTestAddress";
+      String payload = "This is a test message";
+
+      server.getActiveMQServer().createQueue(new SimpleString(address), new SimpleString(address), null, false, false);
+
+      // Set up STOMP subscription
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = "SUBSCRIBE\n" + "destination:" + address + "\n" + "ack:auto\n\n" + Stomp.NULL;
+      sendFrame(frame);
+      receiveFrame(1000);
+
+      // Send MQTT Message
+      MQTTClientProvider clientProvider = new FuseMQTTClientProvider();
+      clientProvider.connect("tcp://localhost:61616");
+      clientProvider.publish(address, payload.getBytes(), 0);
+      clientProvider.disconnect();
+
+      // Receive STOMP Message
+      frame = receiveFrame(1000);
+      assertTrue(frame.contains(payload));
+
+   }
+
+   @Test
    public void testSendMessageToNonExistentQueue() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -176,6 +231,43 @@ public class StompTest extends StompTestBase {
       assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
       consumer.close();
       assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
+   }
+
+   @Test
+   public void testSendMessageToNonExistentTopic() throws Exception {
+      String nonExistentTopic = RandomUtil.randomString();
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      // first send a message to ensure that sending to a non-existent topic won't throw an error
+      frame = "SEND\n" + "destination:" + getTopicPrefix() + nonExistentTopic + "\n\n" + "Hello World" + Stomp.NULL;
+      sendFrame(frame);
+      receiveFrame(1000);
+
+      // create a subscription on the topic and send/receive another message
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createTopic(nonExistentTopic));
+      sendFrame(frame);
+      receiveFrame(1000);
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      // Assert default priority 4 is used when priority header is not set
+      Assert.assertEquals("getJMSPriority", 4, message.getJMSPriority());
+
+      // Make sure that the timestamp is valid - should
+      // be very close to the current time.
+      long tnow = System.currentTimeMillis();
+      long tmsg = message.getJMSTimestamp();
+      Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
+
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
+
+      // closing the consumer here should trigger auto-deletion of the topic
+      consumer.close();
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_TOPIC + nonExistentTopic)));
    }
 
    /*

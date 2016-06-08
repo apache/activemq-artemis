@@ -26,8 +26,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class ReloadableProperties {
+
+   private static final Logger logger = Logger.getLogger(ReloadableProperties.class);
 
    private Properties props = new Properties();
    private Map<String, String> invertedProps;
@@ -51,13 +54,13 @@ public class ReloadableProperties {
             invertedProps = null;
             invertedValueProps = null;
             if (key.isDebug()) {
-               ActiveMQServerLogger.LOGGER.debug("Load of: " + key);
+               logger.debug("Load of: " + key);
             }
          }
          catch (IOException e) {
             ActiveMQServerLogger.LOGGER.error("Failed to load: " + key + ", reason:" + e.getLocalizedMessage());
             if (key.isDebug()) {
-               ActiveMQServerLogger.LOGGER.debug("Load of: " + key + ", failure exception" + e);
+               logger.debug("Load of: " + key + ", failure exception" + e);
             }
          }
          reloadTime = System.currentTimeMillis();

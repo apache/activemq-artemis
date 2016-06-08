@@ -31,4 +31,6 @@ public interface AMQPClientConnectionContext extends AMQPConnectionContext {
    void clientOpen(ClientSASL sasl) throws Exception;
 
    AMQPClientSessionContext createClientSession() throws ActiveMQAMQPException;
+
+   void setContainer(String containerID);
 }

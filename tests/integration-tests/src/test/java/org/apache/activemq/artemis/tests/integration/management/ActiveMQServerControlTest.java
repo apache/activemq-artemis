@@ -82,6 +82,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    // Public --------------------------------------------------------
 
+   public boolean usingCore() {
+      return false;
+   }
+
    @Test
    public void testGetAttributes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
@@ -464,12 +468,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String slowConsumerPolicy = SlowConsumerPolicy.KILL.toString();
       boolean autoCreateJmsQueues = false;
       boolean autoDeleteJmsQueues = false;
+      boolean autoCreateJmsTopics = false;
+      boolean autoDeleteJmsTopics = false;
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
+      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
 
       boolean ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, 100, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
+         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, 100, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
       }
       catch (Exception expected) {
          ex = true;
@@ -500,8 +506,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+      assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
-      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
+      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -524,10 +532,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(slowConsumerPolicy, info.getSlowConsumerPolicy());
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
+      assertEquals(autoCreateJmsTopics, info.isAutoCreateJmsTopics());
+      assertEquals(autoDeleteJmsTopics, info.isAutoDeleteJmsTopics());
 
       ex = false;
       try {
-         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -2, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
+         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -2, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics);
       }
       catch (Exception e) {
          ex = true;
@@ -896,7 +906,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ClientProducer producer1 = session.createProducer(random1);
       ClientProducer producer2 = session.createProducer(random2);
-      ClientMessage message = session.createMessage(false);
+      ClientMessage message = session.createMessage(true);
       producer1.send(message);
       producer2.send(message);
 
@@ -923,8 +933,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          createSessionFactory(locator).close();
       }
 
-      assertEquals(CONNECTION_COUNT, serverControl.getTotalConnectionCount());
-      assertEquals(0, serverControl.getConnectionCount());
+      assertEquals(CONNECTION_COUNT + (usingCore() ? 1 : 0), serverControl.getTotalConnectionCount());
+      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getConnectionCount());
 
       locator.close();
    }
@@ -962,7 +972,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAdded());
-      assertEquals(0, serverControl.getTotalMessageCount());
+      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1008,7 +1018,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAcknowledged());
-      assertEquals(0, serverControl.getTotalMessageCount());
+      assertEquals(0  + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1040,7 +1050,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientConsumer consumer1 = session.createConsumer(random1);
       ClientConsumer consumer2 = session.createConsumer(random2);
 
-      assertEquals(2, serverControl.getTotalConsumerCount());
+      assertEquals(2 + (usingCore() ? 1 : 0), serverControl.getTotalConsumerCount());
       assertEquals(1, queueControl1.getConsumerCount());
       assertEquals(1, queueControl2.getConsumerCount());
 

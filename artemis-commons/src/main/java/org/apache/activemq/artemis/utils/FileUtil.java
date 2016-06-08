@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.jboss.logging.Logger;
+
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_WRITE;
@@ -34,6 +36,8 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 public class FileUtil {
 
+   private static final Logger logger = Logger.getLogger(FileUtil.class);
+
    public static void makeExec(File file) throws IOException {
       try {
          Files.setPosixFilePermissions(file.toPath(), new HashSet<>(Arrays.asList(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, GROUP_WRITE, GROUP_EXECUTE, OTHERS_READ, OTHERS_EXECUTE)));
@@ -42,5 +46,33 @@ public class FileUtil {
          // Our best effort was not good enough :)
       }
    }
+
+
+   public static final boolean deleteDirectory(final File directory) {
+      if (directory.isDirectory()) {
+         String[] files = directory.list();
+         int num = 5;
+         int attempts = 0;
+         while (files == null && (attempts < num)) {
+            try {
+               Thread.sleep(100);
+            }
+            catch (InterruptedException e) {
+            }
+            files = directory.list();
+            attempts++;
+         }
+
+         for (String file : files) {
+            File f = new File(directory, file);
+            if (!deleteDirectory(f)) {
+               logger.warn("Failed to clean up file: " + f.getAbsolutePath());
+            }
+         }
+      }
+
+      return directory.delete();
+   }
+
 
 }

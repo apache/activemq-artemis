@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * <p>This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections
@@ -45,6 +46,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * into sub classes of {@link BroadcastEndpoint}</p>
  */
 public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
+
+   private static final Logger logger = Logger.getLogger(BroadcastGroupImpl.class);
 
    private final NodeManager nodeManager;
 
@@ -215,7 +218,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
             loggedBroadcastException = true;
          }
          else {
-            ActiveMQServerLogger.LOGGER.debug("Failed to broadcast connector configs...again", e);
+            logger.debug("Failed to broadcast connector configs...again", e);
          }
       }
    }

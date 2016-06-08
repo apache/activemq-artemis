@@ -52,7 +52,7 @@ public class SocketProxy {
 
     private CountDownLatch closed = new CountDownLatch(1);
 
-    public final List<Bridge> connections = new LinkedList<Bridge>();
+    public final List<Bridge> connections = new LinkedList<>();
 
     private int listenPort = 0;
 
@@ -131,7 +131,7 @@ public class SocketProxy {
     public void close() {
         List<Bridge> connections;
         synchronized(this.connections) {
-            connections = new ArrayList<Bridge>(this.connections);
+            connections = new ArrayList<>(this.connections);
         }
         LOG.info("close, numConnections=" + connections.size());
         for (Bridge con : connections) {
@@ -148,7 +148,7 @@ public class SocketProxy {
     public void halfClose() {
         List<Bridge> connections;
         synchronized(this.connections) {
-            connections = new ArrayList<Bridge>(this.connections);
+            connections = new ArrayList<>(this.connections);
         }
         LOG.info("halfClose, numConnections=" + connections.size());
         for (Bridge con : connections) {
@@ -288,7 +288,7 @@ public class SocketProxy {
 
             protected Socket src;
             private Socket destination;
-            private AtomicReference<CountDownLatch> pause = new AtomicReference<CountDownLatch>();
+            private AtomicReference<CountDownLatch> pause = new AtomicReference<>();
 
             public Pump(Socket source, Socket dest) {
                 super("SocketProxy-DataTransfer-" + source.getPort() + ":" + dest.getPort());
@@ -339,7 +339,7 @@ public class SocketProxy {
 
         private ServerSocket socket;
         private URI target;
-        private AtomicReference<CountDownLatch> pause = new AtomicReference<CountDownLatch>();
+        private AtomicReference<CountDownLatch> pause = new AtomicReference<>();
 
 
         public Acceptor(ServerSocket serverSocket, URI uri) {

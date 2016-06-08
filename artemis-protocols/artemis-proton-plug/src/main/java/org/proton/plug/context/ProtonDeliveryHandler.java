@@ -25,11 +25,15 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
  */
 public interface ProtonDeliveryHandler {
 
-   void onFlow(int currentCredits);
+   void onFlow(int currentCredits, boolean drain);
 
    void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 
-   void close() throws ActiveMQAMQPException;
+   /*
+   * we have to distinguish between a remote close on the link and a close via a connection or session as the latter mean
+   * that a link reattach can happen and we need to keep the underlying resource (queue/subscription) around for pub subs
+   * */
+   void close(boolean remoteLinkClose) throws ActiveMQAMQPException;
 
    void close(ErrorCondition condition) throws ActiveMQAMQPException;
 }

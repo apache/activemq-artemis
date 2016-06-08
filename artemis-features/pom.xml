@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.apache.activemq</groupId>
 		<artifactId>artemis-pom</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.4.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>artemis-features</artifactId>
 	<packaging>pom</packaging>
@@ -67,6 +67,7 @@
 								<artifact>
 									<file>target/classes/features.xml</file>
 									<type>xml</type>
+									<classifier>features</classifier>
 								</artifact>
 								<artifact>
 									<file>target/classes/artemis.xml</file>

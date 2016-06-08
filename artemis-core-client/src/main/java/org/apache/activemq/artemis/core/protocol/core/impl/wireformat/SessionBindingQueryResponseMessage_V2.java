@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage {
 
-   private boolean autoCreateJmsQueues;
+   protected boolean autoCreateJmsQueues;
 
    public SessionBindingQueryResponseMessage_V2(final boolean exists,
                                                 final List<SimpleString> queueNames,
@@ -39,6 +39,10 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
 
    public SessionBindingQueryResponseMessage_V2() {
       super(SESS_BINDINGQUERY_RESP_V2);
+   }
+
+   public SessionBindingQueryResponseMessage_V2(byte v) {
+      super(v);
    }
 
    public boolean isAutoCreateJmsQueues() {
@@ -63,6 +67,16 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
       int result = super.hashCode();
       result = prime * result + (autoCreateJmsQueues ? 1231 : 1237);
       return result;
+   }
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", exists=" + exists);
+      buff.append(", queueNames=" + queueNames);
+      buff.append(", autoCreateJmsQueues=" + autoCreateJmsQueues);
+      buff.append("]");
+      return buff.toString();
    }
 
    @Override

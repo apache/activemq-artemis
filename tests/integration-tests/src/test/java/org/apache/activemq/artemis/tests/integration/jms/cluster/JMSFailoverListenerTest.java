@@ -56,7 +56,6 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,7 +311,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    private static class MyFailoverListener implements FailoverEventListener {
 
-      private List<FailoverEventType> eventTypeList = Collections.synchronizedList(new ArrayList<FailoverEventType>());
+      private List<FailoverEventType> eventTypeList = new ArrayList<>();
 
       public FailoverEventType get(int element) {
          waitForElements(element + 1);

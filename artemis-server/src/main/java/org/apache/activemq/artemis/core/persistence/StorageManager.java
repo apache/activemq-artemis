@@ -100,6 +100,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void afterCompleteOperations(IOCallback run);
 
+   /** This is similar to afterComplete, however this only cares about the journal part. */
+   void afterStoreOperations(IOCallback run);
    /**
     * Block until the operations are done.
     * Warning: Don't use it inside an ordered executor, otherwise the system may lock up

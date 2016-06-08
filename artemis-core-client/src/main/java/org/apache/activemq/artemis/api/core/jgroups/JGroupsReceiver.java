@@ -31,19 +31,18 @@ import org.jgroups.ReceiverAdapter;
 public class JGroupsReceiver extends ReceiverAdapter {
 
    private static final Logger logger = Logger.getLogger(JGroupsReceiver.class);
-   private static final boolean isTrace = logger.isTraceEnabled();
 
    private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<>();
 
    @Override
    public void receive(org.jgroups.Message msg) {
-      if (isTrace) logger.trace("sending message " + msg);
+      if (logger.isTraceEnabled()) logger.trace("sending message " + msg);
       dequeue.add(msg.getBuffer());
    }
 
    public byte[] receiveBroadcast() throws Exception {
       byte[] bytes = dequeue.take();
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logBytes("receiveBroadcast()", bytes);
       }
 
@@ -62,7 +61,7 @@ public class JGroupsReceiver extends ReceiverAdapter {
    public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
       byte[] bytes = dequeue.poll(time, unit);
 
-      if (isTrace) {
+      if (logger.isTraceEnabled()) {
          logBytes("receiveBroadcast(long time, TimeUnit unit)", bytes);
       }
 

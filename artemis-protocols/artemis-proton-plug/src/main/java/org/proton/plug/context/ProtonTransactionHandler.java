@@ -78,7 +78,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             Discharge discharge = (Discharge) action;
             if (discharge.getFail()) {
                try {
-                  sessionSPI.rollbackCurrentTX();
+                  sessionSPI.rollbackCurrentTX(true);
                }
                catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
@@ -111,12 +111,12 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    }
 
    @Override
-   public void onFlow(int credits) {
+   public void onFlow(int credits, boolean drain) {
 
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException {
+   public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
       //noop
    }
 

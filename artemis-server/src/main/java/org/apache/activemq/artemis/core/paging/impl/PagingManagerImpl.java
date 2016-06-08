@@ -28,11 +28,13 @@ import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.jboss.logging.Logger;
 
 public final class PagingManagerImpl implements PagingManager {
+
+   private static final Logger logger = Logger.getLogger(PagingManagerImpl.class);
 
    private volatile boolean started = false;
 
@@ -56,8 +58,6 @@ public final class PagingManagerImpl implements PagingManager {
 
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
-
-   private static boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Constructors
    // --------------------------------------------------------------------------------------------------------------------
@@ -176,24 +176,24 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
       }
       transactions.put(pageTransaction.getTransactionID(), pageTransaction);
    }
 
    @Override
    public void removeTransaction(final long id) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("Removing pageTransaction " + id);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Removing pageTransaction " + id);
       }
       transactions.remove(id);
    }
 
    @Override
    public PageTransactionInfo getTransaction(final long id) {
-      if (isTrace) {
-         ActiveMQServerLogger.LOGGER.trace("looking up pageTX = " + id);
+      if (logger.isTraceEnabled()) {
+         logger.trace("looking up pageTX = " + id);
       }
       return transactions.get(id);
    }

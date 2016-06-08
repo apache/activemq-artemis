@@ -20,9 +20,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.jms.client.SelectorTranslator;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 import java.util.ArrayList;
 import java.util.List;

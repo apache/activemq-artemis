@@ -1544,6 +1544,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="large-message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The table name used to large message files
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
    </xsd:complexType>
 
@@ -2297,6 +2304,23 @@
                <xsd:annotation>
                   <xsd:documentation>
                      whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
+                     a topic
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to delete auto-created JMS topics when the last subscription is closed
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

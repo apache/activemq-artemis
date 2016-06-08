@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.jboss.logging.Logger;
 
 /**
  * This is a helper class for the Journal, which will control access to dataFiles, openedFiles and freeFiles
@@ -43,7 +44,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
  */
 public class JournalFilesRepository {
 
-   private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
+   private static final Logger logger = Logger.getLogger(JournalFilesRepository.class);
 
    /**
     * Used to debug the consistency of the journal ordering.
@@ -51,13 +52,6 @@ public class JournalFilesRepository {
     * This is meant to be false as these extra checks would cause performance issues
     */
    private static final boolean CHECK_CONSISTENCE = false;
-
-   // This method exists just to make debug easier.
-   // I could replace log.trace by log.info temporarily while I was debugging
-   // Journal
-   private static void trace(final String message) {
-      ActiveMQJournalLogger.LOGGER.trace(message);
-   }
 
    private final SequentialFileFactory fileFactory;
 
@@ -365,8 +359,8 @@ public class JournalFilesRepository {
       else if (!checkDelete || (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size() < poolSize) || (poolSize < 0)) {
          // Re-initialise it
 
-         if (JournalFilesRepository.trace) {
-            JournalFilesRepository.trace("Adding free file " + file);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Adding free file " + file);
          }
 
          JournalFile jf = reinitializeFile(file);
@@ -379,15 +373,14 @@ public class JournalFilesRepository {
          freeFilesCount.getAndIncrement();
       }
       else {
-         if (trace) {
-            ActiveMQJournalLogger.LOGGER.trace("DataFiles.size() = " + dataFiles.size());
-            ActiveMQJournalLogger.LOGGER.trace("openedFiles.size() = " + openedFiles.size());
-            ActiveMQJournalLogger.LOGGER.trace("minfiles = " + minFiles + ", poolSize = " + poolSize);
-            ActiveMQJournalLogger.LOGGER.trace("Free Files = " + freeFilesCount.get());
-            ActiveMQJournalLogger.LOGGER.trace("File " + file +
-                                                  " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
-                                                  (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
-                                                  ") < minFiles (" + minFiles + ")");
+         if (logger.isTraceEnabled()) {
+            logger.trace("DataFiles.size() = " + dataFiles.size());
+            logger.trace("openedFiles.size() = " + openedFiles.size());
+            logger.trace("minfiles = " + minFiles + ", poolSize = " + poolSize);
+            logger.trace("Free Files = " + freeFilesCount.get());
+            logger.trace("File " + file + " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
+                                            (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
+                                            ") < minFiles (" + minFiles + ")");
          }
          file.getFile().delete();
       }
@@ -421,8 +414,8 @@ public class JournalFilesRepository {
     * @throws ActiveMQIOErrorException In case the file could not be opened
     */
    public JournalFile openFile() throws InterruptedException, ActiveMQIOErrorException {
-      if (JournalFilesRepository.trace) {
-         JournalFilesRepository.trace("enqueueOpenFile with openedFiles.size=" + openedFiles.size());
+      if (logger.isTraceEnabled()) {
+         logger.trace("enqueueOpenFile with openedFiles.size=" + openedFiles.size());
       }
 
       if (openFilesExecutor == null) {
@@ -441,8 +434,8 @@ public class JournalFilesRepository {
          throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
       }
 
-      if (JournalFilesRepository.trace) {
-         JournalFilesRepository.trace("Returning file " + nextFile);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Returning file " + nextFile);
       }
 
       return nextFile;
@@ -454,8 +447,8 @@ public class JournalFilesRepository {
    public void pushOpenedFile() throws Exception {
       JournalFile nextOpenedFile = takeFile(true, true, true, false);
 
-      if (JournalFilesRepository.trace) {
-         JournalFilesRepository.trace("pushing openFile " + nextOpenedFile);
+      if (logger.isTraceEnabled()) {
+         logger.trace("pushing openFile " + nextOpenedFile);
       }
 
       if (!openedFiles.offer(nextOpenedFile)) {
@@ -580,8 +573,8 @@ public class JournalFilesRepository {
 
       final String fileName = createFileName(tmpCompact, fileID);
 
-      if (JournalFilesRepository.trace) {
-         JournalFilesRepository.trace("Creating file " + fileName);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Creating file " + fileName);
       }
 
       String tmpFileName = fileName + ".tmp";
@@ -600,8 +593,8 @@ public class JournalFilesRepository {
 
       sequentialFile.close();
 
-      if (JournalFilesRepository.trace) {
-         JournalFilesRepository.trace("Renaming file " + tmpFileName + " as " + fileName);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Renaming file " + tmpFileName + " as " + fileName);
       }
 
       sequentialFile.renameTo(fileName);

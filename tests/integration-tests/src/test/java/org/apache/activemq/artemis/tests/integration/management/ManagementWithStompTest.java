@@ -30,6 +30,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,6 +53,8 @@ public class ManagementWithStompTest extends ManagementTestBase {
    // Attributes ----------------------------------------------------
 
    protected ActiveMQServer server;
+
+   protected JMSServerManager jmsServer;
 
    protected ClientSession session;
 
@@ -169,7 +173,9 @@ public class ManagementWithStompTest extends ManagementTestBase {
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false, "brianm", "wombats"));
 
-      server.start();
+      jmsServer = new JMSServerManagerImpl(server);
+
+      jmsServer.start();
 
       locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
       ClientSessionFactory sf = createSessionFactory(locator);

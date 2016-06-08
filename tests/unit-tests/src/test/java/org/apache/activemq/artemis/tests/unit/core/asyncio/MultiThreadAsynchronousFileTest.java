@@ -71,7 +71,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
    public void setUp() throws Exception {
       super.setUp();
       pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), false, this.getClass().getClassLoader()));
-      executor = Executors.newSingleThreadExecutor();
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
    }
 
    @Override

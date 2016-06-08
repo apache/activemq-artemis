@@ -34,11 +34,14 @@ import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * The client-side Producer.
  */
 public class ClientProducerImpl implements ClientProducerInternal {
+
+   private static final Logger logger = Logger.getLogger(ClientProducerImpl.class);
 
    private final SimpleString address;
 
@@ -207,10 +210,13 @@ public class ClientProducerImpl implements ClientProducerInternal {
       closed = true;
    }
 
-   private void doSend(final SimpleString address1,
+   private void doSend(SimpleString sendingAddress,
                        final Message msg,
                        final SendAcknowledgementHandler handler,
                        final boolean forceAsync) throws ActiveMQException {
+      if (sendingAddress == null) {
+         sendingAddress = this.address;
+      }
       session.startCall();
 
       try {
@@ -230,27 +236,15 @@ public class ClientProducerImpl implements ClientProducerInternal {
             isLarge = false;
          }
 
-         if (address1 != null) {
-            if (!isLarge) {
-               session.setAddress(msg, address1);
-            }
-            else {
-               msg.setAddress(address1);
-            }
-
-            // Anonymous
-            theCredits = session.getCredits(address1, true);
+         if (!isLarge) {
+            session.setAddress(msg, sendingAddress);
          }
          else {
-            if (!isLarge) {
-               session.setAddress(msg, this.address);
-            }
-            else {
-               msg.setAddress(this.address);
-            }
-
-            theCredits = producerCredits;
+            msg.setAddress(sendingAddress);
          }
+
+         // Anonymous
+         theCredits = session.getCredits(sendingAddress, true);
 
          if (rateLimiter != null) {
             // Rate flow control
@@ -273,6 +267,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          }
          else {
             sendRegularMessage(msgI, sendBlocking, theCredits, handler);
+            session.checkDefaultAddress(sendingAddress);
          }
       }
       finally {
@@ -289,6 +284,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       // Note, that for a large message, the encode size only includes the properties + headers
       // Not the continuations, but this is ok since we are only interested in limiting the amount of
       // data in *memory* and continuations go straight to the disk
+
+      logger.tracef("sendRegularMessage::%s, Blocking=%s", msgI, sendBlocking);
 
       int creditSize = sessionContext.getCreditsOnSendingFull(msgI);
 
@@ -314,6 +311,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
                                  final MessageInternal msgI,
                                  final ClientProducerCredits credits,
                                  SendAcknowledgementHandler handler) throws ActiveMQException {
+      logger.tracef("largeMessageSend::%s, Blocking=%s", msgI, sendBlocking);
+
       int headerSize = msgI.getHeadersAndPropertiesEncodeSize();
 
       if (msgI.getHeadersAndPropertiesEncodeSize() >= minLargeMessageSize) {

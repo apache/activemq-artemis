@@ -20,7 +20,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>1.3.0-SNAPSHOT</version>
+      <version>1.4.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>joram-tests</artifactId>
@@ -44,6 +44,12 @@
          <artifactId>artemis-ra</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-amqp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
@@ -84,6 +90,12 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-jms-client</artifactId>
+         <version>${qpid.jms.version}</version>
          <scope>test</scope>
       </dependency>
 

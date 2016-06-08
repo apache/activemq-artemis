@@ -44,8 +44,8 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
       super(SESS_BINDINGQUERY_RESP);
    }
 
-   public SessionBindingQueryResponseMessage(byte v2) {
-      super(v2);
+   public SessionBindingQueryResponseMessage(byte v) {
+      super(v);
    }
 
    @Override
@@ -87,6 +87,15 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
       result = prime * result + (exists ? 1231 : 1237);
       result = prime * result + ((queueNames == null) ? 0 : queueNames.hashCode());
       return result;
+   }
+
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", exists=" + exists);
+      buff.append(", queueNames=" + queueNames);
+      buff.append("]");
+      return buff.toString();
    }
 
    @Override

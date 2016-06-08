@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.jboss.logging.Logger;
 
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID
@@ -35,6 +36,8 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  * @see IDGenerator
  */
 public final class BatchingIDGenerator implements IDGenerator {
+
+   private static final Logger logger = Logger.getLogger(BatchingIDGenerator.class);
 
    private final AtomicLong counter;
 
@@ -124,7 +127,7 @@ public final class BatchingIDGenerator implements IDGenerator {
             // while notifications are being sent and ID gerated.
             // If the ID is intended to the journal you would know soon enough
             // so we just ignore this for now
-            ActiveMQServerLogger.LOGGER.debug("The journalStorageManager is not loaded. " + "This is probably ok as long as it's a notification being sent after shutdown");
+            logger.debug("The journalStorageManager is not loaded. " + "This is probably ok as long as it's a notification being sent after shutdown");
          }
          else {
             storeID(counter.getAndIncrement(), nextID);

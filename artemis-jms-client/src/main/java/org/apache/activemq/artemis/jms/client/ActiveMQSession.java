@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Session.
@@ -298,13 +299,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (jbd != null) {
             ClientSession.AddressQuery response = session.addressQuery(jbd.getSimpleAddress());
 
-            if (!response.isExists()) {
-               if (response.isAutoCreateJmsQueues()) {
-                  session.createQueue(jbd.getSimpleAddress(), jbd.getSimpleAddress(), true);
-               }
-               else {
-                  throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
-               }
+            if (!response.isExists() && ((jbd.getAddress().startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX) && !response.isAutoCreateJmsQueues()) || (jbd.getAddress().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && !response.isAutoCreateJmsTopics()))) {
+               throw new InvalidDestinationException("Destination " + jbd.getName() + " does not exist");
             }
 
             connection.addKnownDestination(jbd.getSimpleAddress());
@@ -663,7 +659,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          else {
             AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
-            if (!response.isExists()) {
+            if (!response.isExists() && !response.isAutoCreateJmsTopics()) {
                throw new InvalidDestinationException("Topic " + dest.getName() + " does not exist");
             }
 
@@ -1110,7 +1106,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       AddressQuery query = session.addressQuery(topic.getSimpleAddress());
 
-      if (!query.isExists()) {
+      if (!query.isExists() && !query.isAutoCreateJmsTopics()) {
          return null;
       }
       else {

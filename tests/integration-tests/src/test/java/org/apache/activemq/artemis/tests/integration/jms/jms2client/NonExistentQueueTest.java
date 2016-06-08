@@ -32,6 +32,7 @@ import java.util.Random;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.junit.Assert;
@@ -54,6 +55,7 @@ public class NonExistentQueueTest extends JMSTestBase {
 
    @Test
    public void sendToNonExistentDestination() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateJmsTopics(false));
       Destination destination = ActiveMQJMSClient.createTopic("DoesNotExist");
       TransportConfiguration transportConfiguration = new TransportConfiguration(InVMConnectorFactory.class.getName());
       ConnectionFactory localConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);

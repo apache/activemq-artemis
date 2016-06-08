@@ -119,7 +119,7 @@ public class FailoverUpdateURIsTest extends OpenwireArtemisBaseTest {
 
    @Test
    public void testAutoUpdateURIs() throws Exception {
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
       params.put("updateClusterClients", "true");
       Configuration config0 = createConfig("localhost", 0, params);
       deployClusterConfiguration(config0, 10);

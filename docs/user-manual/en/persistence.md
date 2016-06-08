@@ -360,15 +360,33 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
 ## Apache ActiveMQ Artemis JDBC Persistence
 
-The Apache ActiveMQ Artemis JDBC persistence store is still under development and only supports persistence of standard messages and bindings (this is everything except large messages and paging).  The JDBC store uses a JDBC connection to store messages and bindings data in records in database tables.  The data stored in the database tables is encoded using Apache ActiveMQ Artemis journal encoding.
+WARNING: The Apache ActiveMQ Artemis JDBC persistence store is under development and is included for evaluation purposes.
+
+The Apache ActiveMQ Artemis JDBC persistence layer offers the ability to store broker state (Messages, Addresses and other
+application state) using a database.  N.B. Address full policy Paging (See: [The section on Paging](paging.md)) is currently not
+supported with the JDBC persistence layer.
+
+Using the ActiveMQ Artemis File Journal is the recommended configuration as it offers higher levels of performance and is
+more mature.  The JDBC persistence layer is targetted to those users who must use a database e.g. due to internal company
+policy.
+
+ActiveMQ Artemis currently has support for a limited number of database vendors (older versions may work but mileage may
+vary):
+
+1. PostGres 9.4.x
+2. MySQL 5.7.x
+3. Apache Derby 10.11.1.1
+
+The JDBC store uses a JDBC connection to store messages and bindings data in records in database tables.  The data stored
+in the database tables is encoded using Apache ActiveMQ Artemis internal encodings.
 
 ### Configuring JDBC Persistence
 
 To configure Apache ActiveMQ Artemis to use a database for persisting messages and bindings data you must do two things.
 
-1. Add the appropriate JDBC client libraries to the Artemis runtime.  You can do this by dropping the relevant jars in the lib folder of the ActiveMQ Artemis distribution.
+1. Add the appropriate JDBC driver libraries to the Artemis runtime.  You can do this by dropping the relevant jars in the lib folder of the ActiveMQ Artemis distribution.
 
-2. create a store element in your broker.xml config file under the <core> element.  For example:
+2. Create a store element in your broker.xml config file under the <core> element.  For example:
 
 ```xml
       <store>
@@ -376,6 +394,7 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
             <jdbc-connection-url>jdbc:derby:target/derby/database-store;create=true</jdbc-connection-url>
             <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
             <message-table-name>MESSAGE_TABLE</message-table-name>
+            <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
             <jdbc-driver-class-name>org.apache.derby.jdbc.EmbeddedDriver</jdbc-driver-class-name>
          </database-store>
       </store>
@@ -383,13 +402,17 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
 -   `jdbc-connection-url`
 
-    The full JDBC connection URL for your database server.  The connection url should include all configuration parameters and database name.
-    
+    The full JDBC connection URL for your database server.  The connection url should include all configuration parameters and database name.  Note: When configuring the server using the XML configuration files please ensure to escape any illegal chars; "&" for example, is typical in JDBC connection url and should be escaped to "&amp;".
+
 -   `bindings-table-name`
 
     The name of the table in which bindings data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
-    
+
 -   `message-table-name`
+
+    The name of the table in which bindings data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
+
+-   `large-message-table-name`
 
     The name of the table in which messages and related data will be persisted for the ActiveMQ Artemis server.  Specifying table names allows users to share single database amongst multiple servers, without interference.
 

@@ -42,6 +42,8 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
@@ -56,6 +58,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.After;
@@ -104,7 +107,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testDoubleStart() throws Exception {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 
-      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, null, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), getExecutorFactory().getExecutor(), true);
+      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, new FakeStoreFactory(factory), PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), getExecutorFactory().getExecutor(), true);
 
       storeImpl.start();
 
@@ -159,7 +162,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       storeImpl.sync();
 
-      storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, null, PagingStoreImplTest.destinationTestName, addressSettings, getExecutorFactory().getExecutor(), true);
+      storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, getExecutorFactory().getExecutor(), true);
 
       storeImpl.start();
 
@@ -770,7 +773,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      executor = Executors.newSingleThreadExecutor();
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
    }
 
    @Override
@@ -805,6 +808,14 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       @Override
       public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
          return null;
+      }
+
+      @Override
+      public PageCursorProvider newCursorProvider(PagingStore store,
+                                                  StorageManager storageManager,
+                                                  AddressSettings addressSettings,
+                                                  Executor executor) {
+         return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
       }
 
       @Override

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.jms;
+package org.apache.activemq.artemis.amqpJMS;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -48,8 +48,11 @@ import org.objectweb.jtests.jms.conform.topic.TemporaryTopicTest;
 import org.objectweb.jtests.jms.framework.JMSTestCase;
 
 @RunWith(Suite.class)
-@SuiteClasses({TopicConnectionTest.class, ConnectionTest.class, MessageBodyTest.class, MessageDefaultTest.class, MessageTypeTest.class, MessageHeaderTest.class, JMSXPropertyTest.class, MessagePropertyConversionTest.class, MessagePropertyTest.class, QueueBrowserTest.class, TemporaryQueueTest.class, SelectorSyntaxTest.class, SelectorTest.class, QueueSessionTest.class, SessionTest.class, TopicSessionTest.class, UnifiedSessionTest.class, TemporaryTopicTest.class,})
-public class JoramAggregationTest extends Assert {
+@SuiteClasses({TopicConnectionTest.class, ConnectionTest.class, MessageBodyTest.class, MessageDefaultTest.class,
+   MessageTypeTest.class, MessageHeaderTest.class, JMSXPropertyTest.class, MessagePropertyConversionTest.class, MessagePropertyTest.class,
+   QueueBrowserTest.class, TemporaryQueueTest.class, SelectorSyntaxTest.class, SelectorTest.class, QueueSessionTest.class, SessionTest.class,
+   TopicSessionTest.class, UnifiedSessionTest.class, TemporaryTopicTest.class,})
+public class JoramAMQPAggregationTest extends Assert {
 
    /**
     * Should be overridden
@@ -58,7 +61,7 @@ public class JoramAggregationTest extends Assert {
     */
    protected static Properties getProviderProperties() throws IOException {
       Properties props = new Properties();
-      props.load(ClassLoader.getSystemResourceAsStream(JMSTestCase.PROP_FILE_NAME));
+      props.load(ClassLoader.getSystemResourceAsStream(JMSTestCase.getPropFileName()));
       return props;
    }
 
@@ -66,6 +69,7 @@ public class JoramAggregationTest extends Assert {
 
    @BeforeClass
    public static void setUpServer() throws Exception {
+      JMSTestCase.setPropFileName("amqp_provider.properties");
       JMSTestCase.startServer = false;
       // Admin step
       // gets the provider administration wrapper...

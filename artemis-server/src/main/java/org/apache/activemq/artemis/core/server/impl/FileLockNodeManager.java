@@ -27,8 +27,11 @@ import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUID;
+import org.jboss.logging.Logger;
 
 public class FileLockNodeManager extends NodeManager {
+
+   private static final Logger logger = Logger.getLogger(FileLockNodeManager.class);
 
    private static final int LIVE_LOCK_POS = 1;
 
@@ -114,7 +117,7 @@ public class FileLockNodeManager extends NodeManager {
       do {
          byte state = getState();
          while (state == FileLockNodeManager.NOT_STARTED || state == FIRST_TIME_START) {
-            ActiveMQServerLogger.LOGGER.debug("awaiting live node startup state='" + state + "'");
+            logger.debug("awaiting live node startup state='" + state + "'");
             Thread.sleep(2000);
             state = getState();
          }
@@ -127,16 +130,16 @@ public class FileLockNodeManager extends NodeManager {
          state = getState();
          if (state == FileLockNodeManager.PAUSED) {
             liveLock.release();
-            ActiveMQServerLogger.LOGGER.debug("awaiting live node restarting");
+            logger.debug("awaiting live node restarting");
             Thread.sleep(2000);
          }
          else if (state == FileLockNodeManager.FAILINGBACK) {
             liveLock.release();
-            ActiveMQServerLogger.LOGGER.debug("awaiting live node failing back");
+            logger.debug("awaiting live node failing back");
             Thread.sleep(2000);
          }
          else if (state == FileLockNodeManager.LIVE) {
-            ActiveMQServerLogger.LOGGER.debug("acquired live node lock state = " + (char) state);
+            logger.debug("acquired live node lock state = " + (char) state);
             break;
          }
       } while (true);

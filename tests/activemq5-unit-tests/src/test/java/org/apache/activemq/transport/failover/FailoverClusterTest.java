@@ -52,7 +52,7 @@ public class FailoverClusterTest extends OpenwireArtemisBaseTest {
 
    @Before
    public void setUp() throws Exception {
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
 
       params.put("rebalanceClusterClients", "true");
       params.put("updateClusterClients", "true");
@@ -110,7 +110,7 @@ public class FailoverClusterTest extends OpenwireArtemisBaseTest {
 
       Thread.sleep(3000);
 
-      Set<String> set = new HashSet<String>();
+      Set<String> set = new HashSet<>();
       for (ActiveMQConnection c : connections) {
          set.add(c.getTransportChannel().getRemoteAddress());
       }

@@ -42,6 +42,14 @@ public class CheckFailoverMessage extends PacketImpl {
       nodeID = buffer.readNullableString();
    }
 
+   @Override
+   public String toString() {
+      StringBuffer buff = new StringBuffer(getParentString());
+      buff.append(", nodeID=" + nodeID);
+      buff.append("]");
+      return buff.toString();
+   }
+
    public String getNodeID() {
       return nodeID;
    }

@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -1627,11 +1628,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       final AtomicLong seqGenerator = new AtomicLong(1);
 
-      final ExecutorService executor = Executors.newCachedThreadPool();
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
 
       OrderedExecutorFactory factory = new OrderedExecutorFactory(executor);
 
-      final ExecutorService deleteExecutor = Executors.newCachedThreadPool();
+      final ExecutorService deleteExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
 
       final JournalStorageManager storage = new JournalStorageManager(config, factory, null);
 

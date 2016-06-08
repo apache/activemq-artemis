@@ -23,19 +23,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.AddressManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.jboss.logging.Logger;
 
 /**
  * A simple address manager that maintains the addresses and bindings.
  */
 public class SimpleAddressManager implements AddressManager {
+   private static final Logger logger = Logger.getLogger(Page.class);
 
    /**
     * HashMap<Address, Binding>
@@ -59,8 +61,8 @@ public class SimpleAddressManager implements AddressManager {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQServerLogger.LOGGER.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
+      if (logger.isTraceEnabled()) {
+         logger.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
       }
 
       return addMappingInternal(binding.getAddress(), binding);

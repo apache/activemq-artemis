@@ -44,7 +44,7 @@ public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
    // connection sooner)
    protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
    protected EmbeddedJMS master = null;
-   protected AtomicReference<EmbeddedJMS> slave = new AtomicReference<EmbeddedJMS>();
+   protected AtomicReference<EmbeddedJMS> slave = new AtomicReference<>();
 
    @After
    public void tearDown() throws Exception {

@@ -24,11 +24,7 @@ import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.naming.Context;
-import javax.naming.InitialContext;
 
-import java.util.Hashtable;
-
-import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -115,11 +111,7 @@ public abstract class PTPTestCase extends JMSTestCase {
          admin.createQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.createQueue(PTPTestCase.QUEUE_NAME);
 
-         Hashtable<String, String> props = new Hashtable<>();
-         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put("connectionFactory." + PTPTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");
-         props.put("queue." + PTPTestCase.QUEUE_NAME, PTPTestCase.QUEUE_NAME);
-         Context ctx = new InitialContext(props);
+         Context ctx = admin.createContext();
 
          senderQCF = (QueueConnectionFactory) ctx.lookup(PTPTestCase.QCF_NAME);
          senderQueue = (Queue) ctx.lookup(PTPTestCase.QUEUE_NAME);
