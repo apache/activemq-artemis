@@ -51,6 +51,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -75,6 +76,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
    }
 
    private ServerLocator locator;
+   ActiveMQServer server;
 
    public static final String TARGET_TMP = "./target/tmp";
    private static final String PRINCIPAL = "uid=admin,ou=system";
@@ -93,8 +95,24 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
    @Before
    public void setUp() throws Exception {
-      locator = ActiveMQClient.createServerLocatorWithHA(new TransportConfiguration(InVMConnectorFactory.class.getCanonicalName()));
+      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getCanonicalName()));
       testDir = temporaryFolder.getRoot().getAbsolutePath();
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
+      Configuration configuration = new ConfigurationImpl()
+         .setSecurityEnabled(true)
+         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
+         .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
+         .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))
+         .setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false))
+         .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
+      server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
+   }
+
+   @After
+   public void tearDown() throws Exception {
+      locator.close();
+      server.stop();
    }
 
    @Test
@@ -121,11 +139,12 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       Assert.assertTrue(set.contains("ou=groups"));
       Assert.assertTrue(set.contains("ou=configuration"));
       Assert.assertTrue(set.contains("prefNodeName=sysPrefRoot"));
+
+      ctx.close();
    }
 
    @Test
    public void testJAASSecurityManagerAuthentication() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
 
@@ -139,13 +158,10 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       }
 
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
    public void testJAASSecurityManagerAuthenticationBadPassword() throws Exception {
-      ActiveMQServer server = getActiveMQServer();
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
 
@@ -158,8 +174,6 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       }
 
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
@@ -168,7 +182,6 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQServer server = getActiveMQServer();
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
@@ -246,8 +259,6 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
       session.close();
       cf.close();
-      locator.close();
-      server.stop();
    }
 
    @Test
@@ -256,7 +267,6 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
-      ActiveMQServer server = getActiveMQServer();
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("admins", true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);
@@ -329,17 +339,5 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
       session.close();
       cf.close();
-      locator.close();
-      server.stop();
-   }
-
-   private ActiveMQServer getActiveMQServer() {
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
-      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
-         .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
-         .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))
-         .setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false))
-         .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
-      return ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 }
