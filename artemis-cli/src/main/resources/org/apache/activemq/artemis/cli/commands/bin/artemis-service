@@ -96,9 +96,9 @@ start() {
   fi
 
   if [ -z "$ARTEMIS_USER" -o `id -un` = "$ARTEMIS_USER" ] ; then
-    nohup ${ARTEMIS_INSTANCE}/bin/artemis run > /dev/null 2> /dev/null &
+    nohup "${ARTEMIS_INSTANCE}/bin/artemis" run > /dev/null 2> /dev/null &
   else
-    sudo -n -u ${ARTEMIS_USER} nohup ${ARTEMIS_INSTANCE}/bin/artemis run > /dev/null 2> /dev/null &
+    sudo -n -u ${ARTEMIS_USER} nohup "${ARTEMIS_INSTANCE}/bin/artemis" run > /dev/null 2> /dev/null &
   fi
 
   echo $! > "${PID_FILE}"
