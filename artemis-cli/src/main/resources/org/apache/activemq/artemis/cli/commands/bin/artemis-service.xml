@@ -22,10 +22,14 @@
    <name>ActiveMQ Artemis: ${artemis.instance.name} @ ${host}</name>
    <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
+   <env name="ARTEMIS_HOME" value="${artemis.home}"/>
+   <env name="ARTEMIS_INSTANCE" value="${artemis.instance}"/>
+
    <logpath>${artemis.instance}\log</logpath>
    <logmode>roll</logmode>
 
    <executable>java</executable>
+   <argument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager}</argument>
    <argument>-XX:+UseParallelGC</argument>
    <argument>-XX:+AggressiveOpts</argument>
    <argument>-XX:+UseFastAccessorMethods</argument>
@@ -40,13 +44,12 @@
    -->
 
    <argument>-classpath</argument>
-   <argument>"${artemis.home}\lib\artemis-boot.jar"</argument>
-   <argument>-Dartemis.home="${artemis.home}"</argument>
-   <argument>-Dartemis.instance="${artemis.instance}"</argument>
-   <argument>-Ddata.dir="${artemis.instance}\data"</argument>
+   <argument>%ARTEMIS_HOME%\lib\artemis-boot.jar</argument>
+   <argument>-Dartemis.home=%ARTEMIS_HOME%</argument>
+   <argument>-Dartemis.instance=%ARTEMIS_INSTANCE%</argument>
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
-   <argument>-Dlogging.configuration="file:${artemis.instance}\etc\logging.properties"</argument>
-   <argument>-Djava.security.auth.login.config="${artemis.instance}\etc\login.config"</argument>
+   <argument>-Dlogging.configuration=file:%ARTEMIS_INSTANCE%\etc\logging.properties</argument>
+   <argument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE%\etc\login.config</argument>
 
 
    <!-- Debug args: Uncomment to enable debug

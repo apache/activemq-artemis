@@ -21,11 +21,11 @@ setlocal
 if NOT "%ARTEMIS_INSTANCE%"=="" goto CHECK_ARTEMIS_INSTANCE
 PUSHD .
 CD %~dp0..
-set ARTEMIS_INSTANCE=%CD%
+set ARTEMIS_INSTANCE="%CD%"
 POPD
 
 :CHECK_ARTEMIS_INSTANCE
-if exist "%ARTEMIS_INSTANCE%\bin\artemis.cmd" goto CHECK_JAVA
+if exist %ARTEMIS_INSTANCE%\bin\artemis.cmd goto CHECK_JAVA
 
 :NO_HOME
 echo ARTEMIS_INSTANCE environment variable is set incorrectly. Please set ARTEMIS_INSTANCE.
@@ -53,17 +53,17 @@ set ARTEMIS_DATA_DIR=%ARTEMIS_INSTANCE%\data
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 rem "Load Profile Config"
-call "%ARTEMIS_INSTANCE%\etc\artemis.profile.cmd" %*
+call %ARTEMIS_INSTANCE%\etc\artemis.profile.cmd %*
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
 if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PROPS%
-set JVM_ARGS=%JVM_ARGS% -classpath "%ARTEMIS_HOME%\lib\artemis-boot.jar"
-set JVM_ARGS=%JVM_ARGS% -Dartemis.home="%ARTEMIS_HOME%"
-set JVM_ARGS=%JVM_ARGS% -Dartemis.instance="%ARTEMIS_INSTANCE%"
-set JVM_ARGS=%JVM_ARGS% -Ddata.dir="%ARTEMIS_DATA_DIR%"
-set JVM_ARGS=%JVM_ARGS% -Djava.util.logging.manager="%ARTEMIS_LOG_MANAGER%"
-set JVM_ARGS=%JVM_ARGS% -Dlogging.configuration="%ARTEMIS_LOGGING_CONF%"
+set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\artemis-boot.jar
+set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
+set JVM_ARGS=%JVM_ARGS% -Dartemis.instance=%ARTEMIS_INSTANCE%
+set JVM_ARGS=%JVM_ARGS% -Ddata.dir=%ARTEMIS_DATA_DIR%
+set JVM_ARGS=%JVM_ARGS% -Djava.util.logging.manager=%ARTEMIS_LOG_MANAGER%
+set JVM_ARGS=%JVM_ARGS% -Dlogging.configuration=%ARTEMIS_LOGGING_CONF%
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 
 "%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.Artemis %*

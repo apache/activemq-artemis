@@ -592,8 +592,11 @@ final class PageSubscriptionImpl implements PageSubscription {
             return true;
          }
          else {
-            logger.tracef("isComplete(%d)::calling is %s", (Object)page, this, consumedPages.isEmpty());
-            return info != null && info.isDone();
+            boolean isDone = info != null && info.isDone();
+            if (logger.isTraceEnabled()) {
+               logger.tracef("isComplete(%d):: found info=%s, isDone=%s", (Object) page, info, isDone);
+            }
+            return isDone;
          }
       }
    }
