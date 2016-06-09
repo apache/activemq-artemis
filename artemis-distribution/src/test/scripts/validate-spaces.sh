@@ -18,7 +18,7 @@
 
 # This script will validate the distribution works with folders with spaces on Linux machines
 
-rm -rf target/with\ space
+rm -rf target
 mkdir target
 mkdir target/with\ space
 
@@ -29,9 +29,9 @@ set -e
 export CURRENT_DIR=`pwd`
 
 if [ $# -eq 0 ]; then
-    export LOCAL_USED=`ls ../../../target/apache-artemis-*bin.zip`
+    export LOCAL_USED=`ls ../../../target/apache-artemis-*bin.tar.gz`
     echo Unziping $LOCAL_USED
-    unzip $LOCAL_USED -d "./target/with space"
+    tar -zxf $LOCAL_USED -C "./target/with space"
     cd "./target/with space"
     export ARTEMIS_HOME="`pwd`/`ls`"
     echo home is $ARTEMIS_HOME
@@ -67,7 +67,7 @@ sleep 5
 ./artemis stop
 
 sleep 5
-./artemis data print
+./artemis data print > data.log
 ./artemis data compact
 ./artemis data exp
 
