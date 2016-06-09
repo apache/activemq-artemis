@@ -90,6 +90,10 @@ public interface JMSBridge extends ActiveMQComponent {
 
    boolean isFailed();
 
+   long getMessageCount();
+
+   long getAbortedMessageCount();
+
    void setSourceConnectionFactoryFactory(ConnectionFactoryFactory cff);
 
    void setTargetConnectionFactoryFactory(ConnectionFactoryFactory cff);

@@ -181,6 +181,10 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private ClassLoader moduleTccl;
 
+   private long messageCount = 0;
+
+   private long abortedMessageCount = 0;
+
    /*
     * Constructor for MBean
     */
@@ -488,6 +492,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
             try {
                tx.rollback();
+               abortedMessageCount += messages.size();
             }
             catch (Exception ignore) {
                if (JMSBridgeImpl.trace) {
@@ -772,6 +777,16 @@ public final class JMSBridgeImpl implements JMSBridge {
    @Override
    public synchronized boolean isFailed() {
       return failed;
+   }
+
+   @Override
+   public synchronized long getMessageCount() {
+      return messageCount;
+   }
+
+   @Override
+   public synchronized long getAbortedMessageCount() {
+      return abortedMessageCount;
    }
 
    @Override
@@ -1199,6 +1214,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          try {
             // Terminate the tx
             tx.rollback();
+            abortedMessageCount += messages.size();
          }
          catch (Throwable ignore) {
             if (JMSBridgeImpl.trace) {
@@ -1398,6 +1414,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          try {
             // we call this just in case there is a failure other than failover
             tx.rollback();
+            abortedMessageCount += messages.size();
          }
          catch (Throwable ignored) {
          }
@@ -1493,6 +1510,8 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          targetProducer.send(targetDestination, msg, msg.getJMSDeliveryMode(), msg.getJMSPriority(), timeToLive);
 
+         if (msg != null)
+            messageCount++;
          if (JMSBridgeImpl.trace) {
             ActiveMQJMSBridgeLogger.LOGGER.trace("Sent message " + msg);
          }
