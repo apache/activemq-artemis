@@ -23,7 +23,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.rest</groupId>
       <artifactId>artemis-rests-pom</artifactId>
-      <version>1.3.0</version>
+      <version>1.4.0-SNAPSHOT</version>
    </parent>
    <artifactId>javascript-chat</artifactId>
    <packaging>war</packaging>
