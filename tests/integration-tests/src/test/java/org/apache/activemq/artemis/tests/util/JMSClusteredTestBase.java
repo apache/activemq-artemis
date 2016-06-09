@@ -169,7 +169,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       final String destinationLabel = "toServer" + destination;
       final String sourceLabel = "server" + source;
 
-      Configuration configuration = createDefaultInVMConfig(source).setSecurityEnabled(false).setJMXManagementEnabled(true).setPersistenceEnabled(false).addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination))).addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source))).addClusterConfiguration(new ClusterConnectionConfiguration().setName(destinationLabel).setAddress("jms").setConnectorName(sourceLabel).setRetryInterval(1000).setMaxHops(MAX_HOPS).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(new ArrayList<String>() {
+      Configuration configuration = createDefaultInVMConfig(source).setSecurityEnabled(false).setJMXManagementEnabled(true).setPersistenceEnabled(false).addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination))).addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source))).addClusterConfiguration(new ClusterConnectionConfiguration().setName(destinationLabel).setAddress("jms").setConnectorName(sourceLabel).setRetryInterval(250).setMaxHops(MAX_HOPS).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(new ArrayList<String>() {
          {
             add(destinationLabel);
          }
