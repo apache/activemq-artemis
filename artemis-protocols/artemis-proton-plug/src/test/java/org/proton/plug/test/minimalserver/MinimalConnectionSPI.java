@@ -25,6 +25,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
@@ -32,11 +33,11 @@ import org.proton.plug.ServerSASL;
 import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
 import org.proton.plug.util.ByteUtil;
-import org.proton.plug.util.DebugInfo;
 import org.proton.plug.util.ReusableLatch;
 
 public class MinimalConnectionSPI implements AMQPConnectionCallback {
 
+   private static final Logger logger = Logger.getLogger(MinimalConnectionSPI.class);
    Channel channel;
 
    private AMQPConnectionContext connection;
@@ -73,7 +74,7 @@ public class MinimalConnectionSPI implements AMQPConnectionCallback {
    public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
       final int bufferSize = bytes.writerIndex();
 
-      if (DebugInfo.debug) {
+      if (logger.isTraceEnabled()) {
          // some debug
          byte[] frame = new byte[bytes.writerIndex()];
          int readerOriginalPos = bytes.readerIndex();

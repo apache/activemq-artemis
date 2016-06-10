@@ -26,10 +26,13 @@ import javax.jms.Session;
 import java.lang.ref.WeakReference;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.jboss.logging.Logger;
 import org.proton.plug.test.minimalserver.DumbServer;
 import org.proton.plug.test.minimalserver.MinimalServer;
 
 public class AbstractJMSTest {
+
+   private static final Logger log = Logger.getLogger(AbstractJMSTest.class);
 
    protected final boolean useSASL;
 
@@ -66,7 +69,7 @@ public class AbstractJMSTest {
       connection.setExceptionListener(new ExceptionListener() {
          @Override
          public void onException(JMSException exception) {
-            exception.printStackTrace();
+            log.warn(exception.getMessage(), exception);
          }
       });
       connection.start();

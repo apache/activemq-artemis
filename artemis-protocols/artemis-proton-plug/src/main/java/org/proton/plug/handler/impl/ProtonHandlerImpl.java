@@ -33,6 +33,7 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
 import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.Transport;
+import org.jboss.logging.Logger;
 import org.proton.plug.ClientSASL;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.handler.EventHandler;
@@ -41,13 +42,13 @@ import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.context.ProtonInitializable;
 import org.proton.plug.SASLResult;
 import org.proton.plug.util.ByteUtil;
-import org.proton.plug.util.DebugInfo;
 
 /**
  * Clebert Suconic
  */
 public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHandler {
 
+   private static final Logger log = Logger.getLogger(ProtonHandlerImpl.class);
 
    private final Transport transport = Proton.transport();
 
@@ -177,8 +178,8 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
                      capacity = transport.capacity();
                   }
                }
-               catch (Throwable ignored) {
-                  ignored.printStackTrace();
+               catch (Throwable e) {
+                  log.debug(e.getMessage(), e);
                }
 
                receivedFirstPacket = true;
@@ -194,10 +195,10 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
             }
             else {
                if (capacity == 0) {
-                  System.out.println("abandoning: " + buffer.readableBytes());
+                  log.debugf("abandoning: readableBytes=%d", buffer.readableBytes());
                }
                else {
-                  System.out.println("transport closed, discarding: " + buffer.readableBytes() + " capacity = " + transport.capacity());
+                  log.debugf("transport closed, discarding: readableBytes=%d, capacity=%d", buffer.readableBytes(), transport.capacity());
                }
                break;
             }
@@ -303,8 +304,8 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
             byte[] dataSASL = new byte[serverSasl.pending()];
             serverSasl.recv(dataSASL, 0, dataSASL.length);
 
-            if (DebugInfo.debug) {
-               System.out.println("Working on sasl::" + ByteUtil.bytesToHex(dataSASL, 2));
+            if (log.isTraceEnabled()) {
+               log.trace("Working on sasl::" + ByteUtil.bytesToHex(dataSASL, 2));
             }
 
             saslResult = mechanism.processSASL(dataSASL);
@@ -355,15 +356,14 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
       // while a client is also trying to write here
       while ((ev = popEvent()) != null) {
          for (EventHandler h : handlers) {
-            if (DebugInfo.debug) {
-               System.out.println("Handling " + ev + " towards " + h);
+            if (log.isTraceEnabled()) {
+               log.trace("Handling " + ev + " towards " + h);
             }
             try {
                Events.dispatch(ev, h);
             }
             catch (Exception e) {
-               // TODO: logs
-               e.printStackTrace();
+               log.warn(e.getMessage(), e);
                connection.setCondition(new ErrorCondition());
             }
          }
@@ -374,8 +374,7 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
             h.onTransport(transport);
          }
          catch (Exception e) {
-            // TODO: logs
-            e.printStackTrace();
+            log.warn(e.getMessage(), e);
             connection.setCondition(new ErrorCondition());
          }
       }
