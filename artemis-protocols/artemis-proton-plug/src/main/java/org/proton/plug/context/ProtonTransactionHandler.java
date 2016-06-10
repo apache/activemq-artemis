@@ -29,6 +29,7 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.impl.MessageImpl;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
@@ -40,6 +41,8 @@ import static org.proton.plug.util.DeliveryUtil.readDelivery;
  * handles an amqp Coordinator to deal with transaction boundaries etc
  */
 public class ProtonTransactionHandler implements ProtonDeliveryHandler {
+
+   private static final Logger log = Logger.getLogger(ProtonTransactionHandler.class);
 
    final AMQPSessionCallback sessionSPI;
 
@@ -97,7 +100,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
       }
       catch (Exception e) {
-         e.printStackTrace();
+         log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();
          condition.setCondition(Symbol.valueOf("failed"));

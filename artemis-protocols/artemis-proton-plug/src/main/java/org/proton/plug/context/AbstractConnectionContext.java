@@ -29,6 +29,7 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.SASLResult;
@@ -37,13 +38,13 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.handler.impl.DefaultEventHandler;
 import org.proton.plug.util.ByteUtil;
-import org.proton.plug.util.DebugInfo;
 
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_CHANNEL_MAX;
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
 
 public abstract class AbstractConnectionContext extends ProtonInitializable implements AMQPConnectionContext {
+   private static final Logger log = Logger.getLogger(AbstractConnectionContext.class);
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
 
@@ -87,8 +88,8 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    @Override
    public void inputBuffer(ByteBuf buffer) {
-      if (DebugInfo.debug) {
-         ByteUtil.debugFrame("Buffer Received ", buffer);
+      if (log.isTraceEnabled()) {
+         ByteUtil.debugFrame(log, "Buffer Received ", buffer);
       }
 
       handler.inputBuffer(buffer);

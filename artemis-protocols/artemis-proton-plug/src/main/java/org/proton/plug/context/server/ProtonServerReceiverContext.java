@@ -24,6 +24,7 @@ import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonReceiverContext;
@@ -35,6 +36,8 @@ import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 
 public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
+
+   private static final Logger log = Logger.getLogger(ProtonServerReceiverContext.class);
 
    private final int numberOfCredits = 100;
 
@@ -127,7 +130,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
          }
       }
       catch (Exception e) {
-         e.printStackTrace();
+         log.warn(e.getMessage(), e);
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();
          condition.setCondition(Symbol.valueOf("failed"));

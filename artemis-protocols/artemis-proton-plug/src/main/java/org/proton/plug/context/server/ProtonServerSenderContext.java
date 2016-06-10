@@ -35,6 +35,7 @@ import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.ProtonJMessage;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonContextSender;
@@ -49,6 +50,8 @@ import static org.proton.plug.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
 import static org.proton.plug.AmqpSupport.findFilter;
 
 public class ProtonServerSenderContext extends AbstractProtonContextSender implements ProtonPlugSender {
+
+   private static final Logger log = Logger.getLogger(ProtonServerSenderContext.class);
 
    private static final Symbol SELECTOR = Symbol.getSymbol("jms-selector");
    private static final Symbol COPY = Symbol.valueOf("copy");
@@ -249,7 +252,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          sessionSPI.closeSender(brokerConsumer);
       }
       catch (Exception e) {
-         e.printStackTrace();
+         log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
@@ -277,7 +280,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          }
       }
       catch (Exception e) {
-         e.printStackTrace();
+         log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
@@ -356,7 +359,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          serverMessage = sessionSPI.encodeMessage(message, deliveryCount);
       }
       catch (Throwable e) {
-         e.printStackTrace();
+         log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
 

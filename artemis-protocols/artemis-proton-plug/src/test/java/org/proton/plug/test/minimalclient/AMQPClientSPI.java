@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
@@ -29,11 +30,11 @@ import org.proton.plug.ServerSASL;
 import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
 import org.proton.plug.util.ByteUtil;
-import org.proton.plug.util.DebugInfo;
 import org.proton.plug.util.ReusableLatch;
 
 public class AMQPClientSPI implements AMQPConnectionCallback {
 
+   private static final Logger log = Logger.getLogger(AMQPClientSPI.class);
    final Channel channel;
    protected AMQPConnectionContext connection;
 
@@ -65,8 +66,8 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
 
    @Override
    public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
-      if (DebugInfo.debug) {
-         ByteUtil.debugFrame("Bytes leaving client", bytes);
+      if (log.isTraceEnabled()) {
+         ByteUtil.debugFrame(log, "Bytes leaving client", bytes);
       }
 
       final int bufferSize = bytes.writerIndex();
@@ -85,12 +86,11 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
       if (connection.isSyncOnFlush()) {
          try {
             if (!latch.await(5, TimeUnit.SECONDS)) {
-               // TODO logs
-               System.err.println("Flush took longer than 5 seconds!!!");
+               log.debug("Flush took longer than 5 seconds!!!");
             }
          }
          catch (Throwable e) {
-            e.printStackTrace();
+            log.warn(e.getMessage(), e);
          }
       }
 
