@@ -25,6 +25,7 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
@@ -37,6 +38,7 @@ import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
  */
 public abstract class AbstractProtonSessionContext extends ProtonInitializable implements AMQPSessionContext {
 
+   private static final Logger log = Logger.getLogger(AbstractProtonSessionContext.class);
    protected final AbstractConnectionContext connection;
 
    protected final AMQPSessionCallback sessionSPI;
@@ -119,8 +121,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
             protonProducer.close(false);
          }
          catch (Exception e) {
-            e.printStackTrace();
-            // TODO Logging
+            log.warn(e.getMessage(), e);
          }
       }
       receivers.clear();
@@ -133,8 +134,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
             protonConsumer.close(false);
          }
          catch (Exception e) {
-            e.printStackTrace();
-            // TODO Logging
+            log.warn(e.getMessage(), e);
          }
       }
       senders.clear();
@@ -145,8 +145,7 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
          }
       }
       catch (Exception e) {
-         e.printStackTrace();
-         // TODO logging
+         log.warn(e.getMessage(), e);
       }
       closed = true;
    }

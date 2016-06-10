@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
@@ -30,10 +31,10 @@ import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
 import org.proton.plug.test.minimalserver.MinimalSessionSPI;
 import org.proton.plug.util.ByteUtil;
-import org.proton.plug.util.DebugInfo;
 
 public class ProtonINVMSPI implements AMQPConnectionCallback {
 
+   private static final Logger log = Logger.getLogger(ProtonINVMSPI.class);
    AMQPConnectionContext returningConnection;
 
    ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI(), Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
@@ -69,8 +70,8 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    @Override
    public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
-      if (DebugInfo.debug) {
-         ByteUtil.debugFrame("InVM->", bytes);
+      if (log.isTraceEnabled()) {
+         ByteUtil.debugFrame(log, "InVM->", bytes);
       }
       final int size = bytes.writerIndex();
 
@@ -79,15 +80,15 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
          @Override
          public void run() {
             try {
-               if (DebugInfo.debug) {
-                  ByteUtil.debugFrame("InVMDone->", bytes);
+               if (log.isTraceEnabled()) {
+                  ByteUtil.debugFrame(log, "InVMDone->", bytes);
                }
                serverConnection.inputBuffer(bytes);
                try {
                   connection.outputDone(size);
                }
                catch (Exception e) {
-                  e.printStackTrace();
+                  log.warn(e.getMessage(), e);
                }
             }
             finally {
@@ -128,9 +129,7 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
       public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
 
          final int size = bytes.writerIndex();
-         if (DebugInfo.debug) {
-            ByteUtil.debugFrame("InVM<-", bytes);
-         }
+         ByteUtil.debugFrame(log, "InVM<-", bytes);
 
          bytes.retain();
          returningExecutor.execute(new Runnable() {
@@ -138,16 +137,14 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
             public void run() {
                try {
 
-                  if (DebugInfo.debug) {
-                     ByteUtil.debugFrame("InVM done<-", bytes);
-                  }
+                  ByteUtil.debugFrame(log, "InVM done<-", bytes);
 
                   returningConnection.inputBuffer(bytes);
                   try {
                      connection.outputDone(size);
                   }
                   catch (Exception e) {
-                     e.printStackTrace();
+                     log.warn(e.getMessage(), e);
                   }
 
                }

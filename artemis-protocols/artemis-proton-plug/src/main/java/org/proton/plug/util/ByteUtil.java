@@ -18,23 +18,26 @@ package org.proton.plug.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import org.jboss.logging.Logger;
 
 public class ByteUtil {
 
-   public static void debugFrame(String message, ByteBuf byteIn) {
-      int location = byteIn.readerIndex();
-      // debugging
-      byte[] frame = new byte[byteIn.writerIndex()];
-      byteIn.readBytes(frame);
+   public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
+      if (logger.isTraceEnabled()) {
+         int location = byteIn.readerIndex();
+         // debugging
+         byte[] frame = new byte[byteIn.writerIndex()];
+         byteIn.readBytes(frame);
 
-      try {
-         System.out.println(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
-      }
-      catch (Exception e) {
-         e.printStackTrace();
-      }
+         try {
+            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+         }
+         catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
 
-      byteIn.readerIndex(location);
+         byteIn.readerIndex(location);
+      }
    }
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {
