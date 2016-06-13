@@ -847,8 +847,7 @@ public class Base64 {
          sbiCrop = (byte) (source[i] & 0x7f); // Only the low seven bits
          sbiDecode = DECODABET[sbiCrop];
 
-         if (sbiDecode >= Base64.WHITE_SPACE_ENC) // White space, Equals sign or better
-         {
+         if (sbiDecode >= Base64.WHITE_SPACE_ENC) { // White space, Equals sign or better
             if (sbiDecode >= Base64.EQUALS_SIGN_ENC) {
                b4[b4Posn++] = sbiCrop;
                if (b4Posn > 3) {

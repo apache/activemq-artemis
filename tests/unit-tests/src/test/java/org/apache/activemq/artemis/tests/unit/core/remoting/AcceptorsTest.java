@@ -31,8 +31,7 @@ import org.junit.Test;
 public class AcceptorsTest extends ActiveMQTestBase {
 
    @Test
-   public void testMultipleAcceptorsWithSameHostPortDifferentName() throws Exception
-   {
+   public void testMultipleAcceptorsWithSameHostPortDifferentName() throws Exception {
       final String acceptorFactoryClass = FakeAcceptorFactory.class.getName();
 
       Map<String, Object> params = new HashMap<>();

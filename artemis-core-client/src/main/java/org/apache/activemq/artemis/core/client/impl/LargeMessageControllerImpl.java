@@ -1094,8 +1094,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             throw new IndexOutOfBoundsException();
          }
 
-         if (currentPacket.chunk == null) // Empty packet as a signal to interruption
-         {
+         if (currentPacket.chunk == null) { // Empty packet as a signal to interruption
             currentPacket = null;
             streamEnded = true;
             throw new IndexOutOfBoundsException();

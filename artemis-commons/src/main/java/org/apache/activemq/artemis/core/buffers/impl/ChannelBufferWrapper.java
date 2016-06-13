@@ -34,8 +34,8 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
 
    public static ByteBuf unwrap(ByteBuf buffer) {
       ByteBuf parent;
-      while ((parent = buffer.unwrap()) != null && parent != buffer) // this last part is just in case the semantic
-      {                         // ever changes where unwrap is returning itself
+      while ((parent = buffer.unwrap()) != null && parent != buffer) { // this last part is just in case the semantic
+                                                                       // ever changes where unwrap is returning itself
          buffer = parent;
       }
 

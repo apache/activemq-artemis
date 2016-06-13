@@ -543,13 +543,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
-   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
-   {
+   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException {
       rollback(isLastMessageAsDelivered, true);
    }
 
-   public void rollback(final boolean isLastMessageAsDelivered, final boolean waitConsumers) throws ActiveMQException
-   {
+   public void rollback(final boolean isLastMessageAsDelivered, final boolean waitConsumers) throws ActiveMQException {
       if (logger.isTraceEnabled()) {
          logger.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
       }

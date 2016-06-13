@@ -454,8 +454,7 @@ public final class XmlDataImporter extends ActionAbstract {
                else {
                   String characters = new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
                   String trimmedCharacters = characters.trim();
-                  if (trimmedCharacters.length() > 0)  // this will skip "indentation" characters
-                  {
+                  if (trimmedCharacters.length() > 0) { // this will skip "indentation" characters
                      byte[] data = decode(trimmedCharacters);
                      out.write(data);
                   }
