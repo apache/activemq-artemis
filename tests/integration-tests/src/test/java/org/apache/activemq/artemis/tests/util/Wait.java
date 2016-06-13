@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.openwire.util;
+package org.apache.activemq.artemis.tests.util;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +28,7 @@ public class Wait {
 
    public interface Condition {
 
-      boolean isSatisified() throws Exception;
+      boolean isSatisfied() throws Exception;
    }
 
    public static boolean waitFor(Condition condition) throws Exception {
@@ -41,13 +41,13 @@ public class Wait {
 
    public static boolean waitFor(final Condition condition,
                                  final long duration,
-                                 final int sleepMillis) throws Exception {
+                                 final long sleepMillis) throws Exception {
 
       final long expiry = System.currentTimeMillis() + duration;
-      boolean conditionSatisified = condition.isSatisified();
+      boolean conditionSatisified = condition.isSatisfied();
       while (!conditionSatisified && System.currentTimeMillis() < expiry) {
          TimeUnit.MILLISECONDS.sleep(sleepMillis);
-         conditionSatisified = condition.isSatisified();
+         conditionSatisified = condition.isSatisfied();
       }
       return conditionSatisified;
    }

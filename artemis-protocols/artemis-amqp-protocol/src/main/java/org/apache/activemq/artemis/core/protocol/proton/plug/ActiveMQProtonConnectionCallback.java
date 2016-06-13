@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.protocol.proton.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
@@ -48,7 +49,9 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
 
    private final Executor closeExecutor;
 
-   public ActiveMQProtonConnectionCallback(ProtonProtocolManager manager, Connection connection, Executor closeExecutor) {
+   public ActiveMQProtonConnectionCallback(ProtonProtocolManager manager,
+                                           Connection connection,
+                                           Executor closeExecutor) {
       this.manager = manager;
       this.connection = connection;
       this.closeExecutor = closeExecutor;
@@ -56,18 +59,10 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
 
    @Override
    public ServerSASL[] getSASLMechnisms() {
-      boolean supportsAnonymous = false;
-      try {
-         manager.getServer().getSecurityStore().authenticate(null, null, null);
-         supportsAnonymous = true;
-      }
-      catch (Exception e) {
-         // authentication failed so no anonymous support
-      }
 
       ServerSASL[] result;
 
-      if (supportsAnonymous) {
+      if (isSupportsAnonymous()) {
          result = new ServerSASL[]{new ActiveMQPlainSASL(manager.getServer().getSecurityStore()), new AnonymousServerSASL()};
       }
       else {
@@ -77,9 +72,22 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
       return result;
    }
 
+   public boolean isSupportsAnonymous() {
+      boolean supportsAnonymous = false;
+      try {
+         manager.getServer().getSecurityStore().authenticate(null, null, null);
+         supportsAnonymous = true;
+      }
+      catch (Exception e) {
+         // authentication failed so no anonymous support
+      }
+      return supportsAnonymous;
+   }
+
    @Override
    public void close() {
-
+      connection.close();
+      amqpConnection.close();
    }
 
    public Executor getExeuctor() {
@@ -138,4 +146,8 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
       return new ProtonSessionIntegrationCallback(this, manager, connection, this.connection, closeExecutor);
    }
 
+   @Override
+   public void sendSASLSupported() {
+      connection.write(ActiveMQBuffers.wrappedBuffer(new byte[]{'A', 'M', 'Q', 'P', 3, 1, 0, 0}));
+   }
 }
