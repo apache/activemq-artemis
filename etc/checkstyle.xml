@@ -107,5 +107,8 @@ under the License.
          <property name="severity" value="ignore"/>
       </module>
 
+      <!-- Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
+      <module name="DiamondOperatorForVariableDefinition"/>
+
    </module>
 </module>
