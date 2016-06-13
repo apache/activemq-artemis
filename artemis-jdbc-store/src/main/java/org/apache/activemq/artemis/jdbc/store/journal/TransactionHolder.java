@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 
 final class TransactionHolder {
 
-   public TransactionHolder(final long id) {
+   TransactionHolder(final long id) {
       transactionID = id;
    }
 

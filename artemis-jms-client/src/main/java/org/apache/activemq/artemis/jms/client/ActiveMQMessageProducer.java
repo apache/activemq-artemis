@@ -533,9 +533,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
        * @param jmsMessage
        * @param producer
        */
-      public CompletionListenerWrapper(CompletionListener listener,
-                                       Message jmsMessage,
-                                       ActiveMQMessageProducer producer) {
+      private CompletionListenerWrapper(CompletionListener listener,
+                                        Message jmsMessage,
+                                        ActiveMQMessageProducer producer) {
          this.completionListener = listener;
          this.jmsMessage = jmsMessage;
          this.producer = producer;

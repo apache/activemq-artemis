@@ -361,7 +361,7 @@ public abstract class PerfBase {
 
       private final AtomicLong count = new AtomicLong(0);
 
-      public PerfListener(final CountDownLatch countDownLatch, final PerfParams perfParams) {
+      private PerfListener(final CountDownLatch countDownLatch, final PerfParams perfParams) {
          this.countDownLatch = countDownLatch;
          this.perfParams = perfParams;
          warmingUp = perfParams.getNoOfWarmupMessages() > 0;

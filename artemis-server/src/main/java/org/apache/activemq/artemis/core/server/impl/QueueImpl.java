@@ -2708,7 +2708,7 @@ public class QueueImpl implements Queue {
 
       final boolean scheduleExpiry;
 
-      public DepageRunner(boolean scheduleExpiry) {
+      private DepageRunner(boolean scheduleExpiry) {
          this.scheduleExpiry = scheduleExpiry;
       }
 
@@ -2785,7 +2785,7 @@ public class QueueImpl implements Queue {
 
       Iterator lastIterator = null;
 
-      public TotalQueueIterator() {
+      private TotalQueueIterator() {
          if (pageSubscription != null) {
             pageIter = pageSubscription.iterator();
          }
@@ -2911,7 +2911,7 @@ public class QueueImpl implements Queue {
       private float threshold;
       private long checkPeriod;
 
-      public SlowConsumerReaperRunnable(long checkPeriod, float threshold, SlowConsumerPolicy policy) {
+      private SlowConsumerReaperRunnable(long checkPeriod, float threshold, SlowConsumerPolicy policy) {
          this.checkPeriod = checkPeriod;
          this.policy = policy;
          this.threshold = threshold;

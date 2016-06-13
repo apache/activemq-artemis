@@ -126,7 +126,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
 
       public boolean failed = false;
 
-      public MessageReceiver(String qname, long numberOfSamples) throws Exception {
+      private MessageReceiver(String qname, long numberOfSamples) throws Exception {
          super("Receiver " + qname);
          this.qName = qname;
          this.numberOfSamples = numberOfSamples;
@@ -160,7 +160,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
 
       public boolean failed = false;
 
-      public MessageSender(String qname) throws Exception {
+      private MessageSender(String qname) throws Exception {
          super("Sender " + qname);
 
          this.qName = qname;

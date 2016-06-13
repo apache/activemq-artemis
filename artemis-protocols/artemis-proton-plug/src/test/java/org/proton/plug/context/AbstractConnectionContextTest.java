@@ -50,7 +50,7 @@ public class AbstractConnectionContextTest {
 
    private class TestConnectionContext extends AbstractConnectionContext {
 
-      public TestConnectionContext(AMQPConnectionCallback connectionCallback) {
+      private TestConnectionContext(AMQPConnectionCallback connectionCallback) {
          super(connectionCallback, Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
       }
 

@@ -203,7 +203,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
       JSONObject jsonObject;
       private CountDownLatch latch;
 
-      public AeroGearHandler(CountDownLatch latch) {
+      AeroGearHandler(CountDownLatch latch) {
          this.latch = latch;
       }
 

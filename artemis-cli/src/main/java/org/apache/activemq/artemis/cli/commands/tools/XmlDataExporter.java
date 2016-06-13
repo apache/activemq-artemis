@@ -935,7 +935,7 @@ public final class XmlDataExporter extends LockAbstract {
 
       boolean wrap = true;
 
-      public PrettyPrintHandler(XMLStreamWriter target) {
+      PrettyPrintHandler(XMLStreamWriter target) {
          this.target = target;
       }
 

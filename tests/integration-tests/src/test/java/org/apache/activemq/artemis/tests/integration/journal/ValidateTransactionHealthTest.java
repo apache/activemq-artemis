@@ -178,7 +178,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
 
       long lastID = 0;
 
-      public Loader(final long expectedRecords) {
+      Loader(final long expectedRecords) {
          this.expectedRecords = expectedRecords;
       }
 
@@ -346,10 +346,10 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase {
 
       Exception e;
 
-      public LocalThread(final JournalImpl journal,
-                         final long numberOfElements,
-                         final int transactionSize,
-                         final AtomicLong nextID) {
+      LocalThread(final JournalImpl journal,
+                  final long numberOfElements,
+                  final int transactionSize,
+                  final AtomicLong nextID) {
          super();
          this.journal = journal;
          this.numberOfElements = numberOfElements;

@@ -214,7 +214,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       private long delay;
       private volatile Exception error = null;
 
-      public SenderThread(SimpleString address, int num, long delay) {
+      private SenderThread(SimpleString address, int num, long delay) {
          this.address = address;
          this.num = num;
          this.delay = delay;
@@ -263,7 +263,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       private long delay;
       private volatile Exception error = null;
 
-      public ReceiverThread(SimpleString queue, int num, long delay) {
+      private ReceiverThread(SimpleString queue, int num, long delay) {
          this.queue = queue;
          this.num = num;
          this.delay = delay;
@@ -303,7 +303,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       private volatile boolean stop = false;
       private Exception error = null;
 
-      public ManagementThread(QueueControl queueControl) {
+      private ManagementThread(QueueControl queueControl) {
          this.queueControl = queueControl;
       }
 

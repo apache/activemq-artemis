@@ -223,7 +223,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
       DURABLE(".msg"), TEMPORARY(".tmp"), SYNC(".sync");
       final String extension;
 
-      private LargeMessageExtension(String extension) {
+      LargeMessageExtension(String extension) {
          this.extension = extension;
       }
 

@@ -79,7 +79,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
       /**
        */
-      public LikeExpression(Expression right, String like, int escape) {
+      LikeExpression(Expression right, String like, int escape) {
          super(right);
 
          StringBuffer regexp = new StringBuffer(like.length() * 2);

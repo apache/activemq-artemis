@@ -359,7 +359,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    private class PollerThread extends Thread {
 
-      public PollerThread() {
+      private PollerThread() {
          super("Apache ActiveMQ Artemis libaio poller");
       }
 

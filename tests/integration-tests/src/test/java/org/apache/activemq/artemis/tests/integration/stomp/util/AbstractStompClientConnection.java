@@ -303,7 +303,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       ClientStompFrame pingFrame;
       volatile boolean stop = false;
 
-      public Pinger(long interval) {
+      private Pinger(long interval) {
          this.pingInterval = interval;
          pingFrame = createFrame("STOMP");
          pingFrame.setBody("\n");

@@ -1784,7 +1784,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          private volatile ClientSessionFactoryInternal factory;
 
-         public Connector(TransportConfiguration initialConnector, ClientSessionFactoryInternal factory) {
+         private Connector(TransportConfiguration initialConnector, ClientSessionFactoryInternal factory) {
             this.initialConnector = initialConnector;
             this.factory = factory;
          }

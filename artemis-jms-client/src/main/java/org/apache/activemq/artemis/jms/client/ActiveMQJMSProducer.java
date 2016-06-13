@@ -628,7 +628,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
 
       private final CompletionListener wrapped;
 
-      public CompletionListenerWrapper(CompletionListener wrapped) {
+      CompletionListenerWrapper(CompletionListener wrapped) {
          this.wrapped = wrapped;
       }
 

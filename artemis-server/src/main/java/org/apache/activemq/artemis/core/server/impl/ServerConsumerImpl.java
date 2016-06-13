@@ -1094,7 +1094,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
       private BodyEncoder context;
 
-      public LargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
+      private LargeMessageDeliverer(final LargeServerMessage message, final MessageReference ref) throws Exception {
          largeMessage = message;
 
          largeMessage.incrementDelayDeletionCount();

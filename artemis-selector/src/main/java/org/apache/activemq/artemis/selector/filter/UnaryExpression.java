@@ -125,7 +125,7 @@ public abstract class UnaryExpression implements Expression {
 
    abstract static class BooleanUnaryExpression extends UnaryExpression implements BooleanExpression {
 
-      public BooleanUnaryExpression(Expression left) {
+      BooleanUnaryExpression(Expression left) {
          super(left);
       }
 

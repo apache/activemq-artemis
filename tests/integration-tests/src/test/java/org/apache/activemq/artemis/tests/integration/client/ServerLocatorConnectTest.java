@@ -156,7 +156,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       CountDownLatch latch;
       Exception e;
 
-      public Connector(ServerLocatorInternal locator, CountDownLatch latch) {
+      Connector(ServerLocatorInternal locator, CountDownLatch latch) {
          this.locator = locator;
          this.latch = latch;
       }

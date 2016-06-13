@@ -251,7 +251,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       AtomicLong lastAccepted = new AtomicLong(0);
       StompFrame pingFrame;
 
-      public HeartBeater(long clientPing, long clientAcceptPing) {
+      private HeartBeater(long clientPing, long clientAcceptPing) {
          if (clientPing != 0) {
             serverAcceptPing = clientPing > MIN_CLIENT_PING ? clientPing : MIN_CLIENT_PING;
          }

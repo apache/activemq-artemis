@@ -119,7 +119,7 @@ class SimpleMessageListener implements MessageListener {
    private final String name;
    AtomicBoolean result;
 
-   public SimpleMessageListener(final String listener, AtomicBoolean result) {
+   SimpleMessageListener(final String listener, AtomicBoolean result) {
       name = listener;
       this.result = result;
    }

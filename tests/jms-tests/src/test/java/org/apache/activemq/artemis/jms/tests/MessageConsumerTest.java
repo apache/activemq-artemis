@@ -1976,10 +1976,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
       final AtomicBoolean running;
 
-      public ThreadCloser(final AtomicBoolean running,
-                          final Object waitMonitor,
-                          final long timeToSleep,
-                          final MessageConsumer topicConsumer) {
+      private ThreadCloser(final AtomicBoolean running,
+                           final Object waitMonitor,
+                           final long timeToSleep,
+                           final MessageConsumer topicConsumer) {
          this.running = running;
          this.waitMonitor = waitMonitor;
          this.timeToSleep = timeToSleep;
@@ -2024,10 +2024,10 @@ public class MessageConsumerTest extends JMSTestCase {
 
       final AtomicBoolean running;
 
-      public ThreadReceiver(final AtomicBoolean running,
-                            final Object waitMonitor,
-                            final long timeToWait,
-                            final MessageConsumer topicConsumer) {
+      private ThreadReceiver(final AtomicBoolean running,
+                             final Object waitMonitor,
+                             final long timeToWait,
+                             final MessageConsumer topicConsumer) {
          this.running = running;
          this.waitMonitor = waitMonitor;
          this.timeToWait = timeToWait;
@@ -3819,7 +3819,7 @@ public class MessageConsumerTest extends JMSTestCase {
       private CountDownLatch latch;
       private JMSException exception;
 
-      public ConnectionCloseMessageListener(Connection conn, CountDownLatch latch) {
+      private ConnectionCloseMessageListener(Connection conn, CountDownLatch latch) {
          this.conn = conn;
          this.latch = latch;
       }
@@ -3842,7 +3842,7 @@ public class MessageConsumerTest extends JMSTestCase {
       private CountDownLatch latch;
       private JMSException exception;
 
-      public ConnectionStopMessageListener(Connection conn, CountDownLatch latch) {
+      private ConnectionStopMessageListener(Connection conn, CountDownLatch latch) {
          this.conn = conn;
          this.latch = latch;
       }
@@ -3865,7 +3865,7 @@ public class MessageConsumerTest extends JMSTestCase {
       private CountDownLatch latch;
       private JMSException exception;
 
-      public SessionCloseMessageListener(Session session, CountDownLatch latch) {
+      private SessionCloseMessageListener(Session session, CountDownLatch latch) {
          this.session = session;
          this.latch = latch;
       }
@@ -3904,7 +3904,7 @@ public class MessageConsumerTest extends JMSTestCase {
          ActiveMQTestBase.waitForLatch(latch);
       }
 
-      public ExceptionRedelMessageListenerImpl(final Session sess) {
+      private ExceptionRedelMessageListenerImpl(final Session sess) {
          this.sess = sess;
       }
 
@@ -3994,7 +3994,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
       private final boolean transacted;
 
-      public RedelMessageListenerImpl(final boolean transacted) {
+      private RedelMessageListenerImpl(final boolean transacted) {
          this.transacted = transacted;
       }
 
@@ -4070,11 +4070,11 @@ public class MessageConsumerTest extends JMSTestCase {
 
       private CountDownLatch latch = new CountDownLatch(1);
 
-      public MessageListenerImpl(final int count) {
+      private MessageListenerImpl(final int count) {
          latch = new CountDownLatch(count);
       }
 
-      public MessageListenerImpl() {
+      private MessageListenerImpl() {
          this(1);
       }
 

@@ -169,7 +169,7 @@ public class ColocatedActivation extends LiveActivation {
       //the available nodes that we can request
       private final List<Pair<String, Integer>> nodes = new ArrayList<>();
 
-      public RequestBackupQuorumVote() {
+      private RequestBackupQuorumVote() {
          super(REQUEST_BACKUP_QUORUM_VOTE);
       }
 
@@ -249,11 +249,11 @@ public class ColocatedActivation extends LiveActivation {
       private String nodeID;
       private boolean backupAvailable;
 
-      public RequestBackupVote() {
+      RequestBackupVote() {
          backupsSize = -1;
       }
 
-      public RequestBackupVote(int backupsSize, String nodeID, boolean backupAvailable) {
+      RequestBackupVote(int backupsSize, String nodeID, boolean backupAvailable) {
          this.backupsSize = backupsSize;
          this.nodeID = nodeID;
          this.backupAvailable = backupAvailable;

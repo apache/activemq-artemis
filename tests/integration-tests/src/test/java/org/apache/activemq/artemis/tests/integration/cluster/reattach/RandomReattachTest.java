@@ -1268,7 +1268,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
       private boolean executed;
 
-      public Failer(final ClientSessionInternal session) {
+      Failer(final ClientSessionInternal session) {
          this.session = session;
       }
 

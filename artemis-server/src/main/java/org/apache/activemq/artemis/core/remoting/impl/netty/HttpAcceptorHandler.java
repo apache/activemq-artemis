@@ -123,13 +123,13 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
 
       private final ChannelPromise promise;
 
-      public ResponseRunner(final ByteBuf buffer, ChannelPromise promise) {
+      ResponseRunner(final ByteBuf buffer, ChannelPromise promise) {
          this.buffer = buffer;
          bogusResponse = false;
          this.promise = promise;
       }
 
-      public ResponseRunner() {
+      ResponseRunner() {
          bogusResponse = true;
          buffer = Unpooled.buffer(0);
          promise = channel.newPromise();
@@ -211,7 +211,7 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
 
       final long timeReceived;
 
-      public ResponseHolder(final long timeReceived, final FullHttpResponse response) {
+      private ResponseHolder(final long timeReceived, final FullHttpResponse response) {
          this.timeReceived = timeReceived;
          this.response = response;
       }

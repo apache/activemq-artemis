@@ -85,7 +85,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
 
       private final QueueSender sender;
 
-      public TestMessageListener(final QueueSession sess) throws JMSException {
+      TestMessageListener(final QueueSession sess) throws JMSException {
          this.sess = sess;
          sender = sess.createSender(null);
       }

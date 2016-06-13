@@ -342,7 +342,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
          used = usedCounter.incrementAndGet();
       }
 
-      public AggregatedSoftReference(final K key, final V referent) {
+      AggregatedSoftReference(final K key, final V referent) {
          super(referent, refQueue);
          this.key = key;
       }

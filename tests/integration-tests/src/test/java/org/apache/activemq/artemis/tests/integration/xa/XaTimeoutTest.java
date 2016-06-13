@@ -693,7 +693,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
 
       final CountDownLatch latch;
 
-      public RollbackCompleteOperation(final CountDownLatch latch) {
+      RollbackCompleteOperation(final CountDownLatch latch) {
          this.latch = latch;
       }
 

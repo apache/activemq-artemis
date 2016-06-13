@@ -113,7 +113,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
       private volatile boolean open;
 
-      public UDPBroadcastEndpoint() {
+      private UDPBroadcastEndpoint() {
       }
 
       public UDPBroadcastEndpoint setGroupAddress(InetAddress groupAddress) {

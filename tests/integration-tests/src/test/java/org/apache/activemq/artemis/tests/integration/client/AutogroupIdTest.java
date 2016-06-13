@@ -203,7 +203,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       private final CountDownLatch latch;
 
-      public MyMessageHandler(final CountDownLatch latch) {
+      private MyMessageHandler(final CountDownLatch latch) {
          this.latch = latch;
       }
 

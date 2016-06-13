@@ -104,7 +104,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       final String prefix;
       final Map<String, Pair<TransportConfiguration, TransportConfiguration>> nodes = new ConcurrentHashMap<>();
 
-      public TopologyListener(String string) {
+      private TopologyListener(String string) {
          prefix = string;
       }
 

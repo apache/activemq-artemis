@@ -242,7 +242,7 @@ public class CommitRollbackTest extends ActiveMQTestBase {
 
       private final CountDownLatch latch;
 
-      public ackHandler(final ClientSession session, final CountDownLatch latch) {
+      private ackHandler(final ClientSession session, final CountDownLatch latch) {
          this.session = session;
          this.latch = latch;
       }

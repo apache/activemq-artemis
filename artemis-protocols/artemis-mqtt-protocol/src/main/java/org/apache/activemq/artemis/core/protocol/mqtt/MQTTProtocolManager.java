@@ -43,7 +43,7 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener {
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTProtocolManager(ActiveMQServer server) {
+   MQTTProtocolManager(ActiveMQServer server) {
       this.server = server;
    }
 

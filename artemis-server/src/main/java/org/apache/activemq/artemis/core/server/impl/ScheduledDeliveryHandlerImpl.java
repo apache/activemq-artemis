@@ -165,7 +165,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       long deliveryTime;
 
-      public ScheduledDeliveryRunnable(final long deliveryTime) {
+      private ScheduledDeliveryRunnable(final long deliveryTime) {
          this.deliveryTime = deliveryTime;
       }
 

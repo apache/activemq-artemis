@@ -513,20 +513,20 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       class NoPostACKQueue extends QueueImpl {
 
-         public NoPostACKQueue(long id,
-                               SimpleString address,
-                               SimpleString name,
-                               Filter filter,
-                               SimpleString user,
-                               PageSubscription pageSubscription,
-                               boolean durable,
-                               boolean temporary,
-                               boolean autoCreated,
-                               ScheduledExecutorService scheduledExecutor,
-                               PostOffice postOffice,
-                               StorageManager storageManager,
-                               HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                               Executor executor) {
+         NoPostACKQueue(long id,
+                        SimpleString address,
+                        SimpleString name,
+                        Filter filter,
+                        SimpleString user,
+                        PageSubscription pageSubscription,
+                        boolean durable,
+                        boolean temporary,
+                        boolean autoCreated,
+                        ScheduledExecutorService scheduledExecutor,
+                        PostOffice postOffice,
+                        StorageManager storageManager,
+                        HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                        Executor executor) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
          }
 
@@ -552,11 +552,11 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          final ExecutorFactory execFactory;
 
-         public NoPostACKQueueFactory(StorageManager storageManager,
-                                      PostOffice postOffice,
-                                      ScheduledExecutorService scheduledExecutor,
-                                      HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                      final ExecutorFactory execFactory) {
+         NoPostACKQueueFactory(StorageManager storageManager,
+                               PostOffice postOffice,
+                               ScheduledExecutorService scheduledExecutor,
+                               HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                               final ExecutorFactory execFactory) {
             this.storageManager = storageManager;
             this.postOffice = postOffice;
             this.scheduledExecutor = scheduledExecutor;

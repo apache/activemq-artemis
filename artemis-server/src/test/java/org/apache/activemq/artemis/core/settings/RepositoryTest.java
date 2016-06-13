@@ -247,7 +247,7 @@ public class RepositoryTest extends ActiveMQTestBase {
          return DummyMergeable.merged.contains(i);
       }
 
-      public DummyMergeable(final Integer id) {
+      DummyMergeable(final Integer id) {
          this.id = id;
       }
 

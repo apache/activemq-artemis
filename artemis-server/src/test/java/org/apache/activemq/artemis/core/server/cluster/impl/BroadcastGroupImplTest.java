@@ -42,7 +42,7 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
    static class BroadcastEndpointImpl implements BroadcastEndpoint {
       private BroadcastEndpointFactoryImpl factory;
 
-      public BroadcastEndpointImpl(BroadcastEndpointFactoryImpl factory) {
+      BroadcastEndpointImpl(BroadcastEndpointFactoryImpl factory) {
          this.factory = factory;
       }
 

@@ -1013,7 +1013,7 @@ public abstract class MessageImpl implements MessageInternal {
 
       private int lastPos = 0;
 
-      public DecodingContext() {
+      private DecodingContext() {
       }
 
       @Override

@@ -94,7 +94,7 @@ public class ProtocolHandler {
 
       private final boolean httpEnabled;
 
-      public ProtocolDecoder(boolean http, boolean httpEnabled) {
+      ProtocolDecoder(boolean http, boolean httpEnabled) {
          this.http = http;
          this.httpEnabled = httpEnabled;
       }

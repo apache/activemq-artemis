@@ -289,7 +289,7 @@ public class PrintData extends LockAbstract {
 
       private final Map<Long, Set<Long>> completePages = new HashMap<>();
 
-      public PageCursorsInfo() {
+      private PageCursorsInfo() {
       }
 
       /**

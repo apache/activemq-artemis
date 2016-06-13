@@ -32,7 +32,7 @@ final class BackupTopologyListener implements ClusterTopologyListener {
    // Transport configuration of this node
    private final TransportConfiguration myTc;
 
-   public BackupTopologyListener(String ownId, TransportConfiguration nodeTransportConfig) {
+   BackupTopologyListener(String ownId, TransportConfiguration nodeTransportConfig) {
       this.ownId = ownId;
       this.myTc = nodeTransportConfig;
    }

@@ -358,7 +358,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
          final ClientSession sess;
 
-         public MyHandler(ClientSession sess, String color, int expectedMessages) {
+         MyHandler(ClientSession sess, String color, int expectedMessages) {
             this.sess = sess;
             latch = new CountDownLatch(expectedMessages);
             this.color = color;

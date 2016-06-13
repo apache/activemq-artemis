@@ -725,7 +725,7 @@ public class NettyConnector extends AbstractConnector {
       private final CountDownLatch latch = new CountDownLatch(1);
       private boolean handshakeComplete = false;
 
-      public HttpUpgradeHandler(ChannelPipeline pipeline, HttpClientCodec httpClientCodec) {
+      private HttpUpgradeHandler(ChannelPipeline pipeline, HttpClientCodec httpClientCodec) {
          this.pipeline = pipeline;
          this.httpClientCodec = httpClientCodec;
       }
@@ -798,7 +798,7 @@ public class NettyConnector extends AbstractConnector {
 
       private String cookie;
 
-      public HttpHandler() throws Exception {
+      HttpHandler() throws Exception {
          url = new URI("http", null, host, port, servletPath, null, null).toString();
       }
 

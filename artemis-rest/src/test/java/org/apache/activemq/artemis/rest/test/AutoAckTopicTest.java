@@ -150,7 +150,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       private boolean isFinished = false;
       private boolean failed = false;
 
-      public NewPullSubscriber(String url) {
+      private NewPullSubscriber(String url) {
          this.url = url;
       }
 
@@ -187,7 +187,7 @@ public class AutoAckTopicTest extends MessageTestBase {
       private boolean isFinished = false;
       private boolean failed = false;
 
-      public AcceptWaitListener(String url) {
+      private AcceptWaitListener(String url) {
          this.url = url;
       }
 

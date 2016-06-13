@@ -204,11 +204,11 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       private final Acceptor acceptorUsed;
       private final CoreRemotingConnection rc;
 
-      public LocalChannelHandler(final Configuration config,
-                                 final ConnectionEntry entry,
-                                 final Channel channel0,
-                                 final Acceptor acceptorUsed,
-                                 final CoreRemotingConnection rc) {
+      private LocalChannelHandler(final Configuration config,
+                                  final ConnectionEntry entry,
+                                  final Channel channel0,
+                                  final Acceptor acceptorUsed,
+                                  final CoreRemotingConnection rc) {
          this.config = config;
          this.entry = entry;
          this.channel0 = channel0;

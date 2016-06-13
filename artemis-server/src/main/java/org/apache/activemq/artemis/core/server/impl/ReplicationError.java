@@ -39,7 +39,7 @@ final class ReplicationError implements Interceptor {
    private final ActiveMQServer server;
    private LiveNodeLocator nodeLocator;
 
-   public ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator) {
+   ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator) {
       this.server = server;
       this.nodeLocator = nodeLocator;
    }

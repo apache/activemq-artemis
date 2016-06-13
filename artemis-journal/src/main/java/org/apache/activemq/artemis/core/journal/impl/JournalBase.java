@@ -28,7 +28,7 @@ abstract class JournalBase implements Journal {
    protected final int fileSize;
    private final boolean supportsCallback;
 
-   public JournalBase(boolean supportsCallback, int fileSize) {
+   JournalBase(boolean supportsCallback, int fileSize) {
       if (fileSize < JournalImpl.MIN_FILE_SIZE) {
          throw new IllegalArgumentException("File size cannot be less than " + JournalImpl.MIN_FILE_SIZE + " bytes");
       }

@@ -1141,7 +1141,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    private final class FileCache {
 
-      public FileCache(final File cachedFile) {
+      private FileCache(final File cachedFile) {
          this.cachedFile = cachedFile;
       }
 
@@ -1323,13 +1323,13 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       final int flowControlSize;
       final boolean continues;
 
-      public LargeData() {
+      private LargeData() {
          continues = false;
          flowControlSize = 0;
          chunk = null;
       }
 
-      public LargeData(byte[] chunk, int flowControlSize, boolean continues) {
+      private LargeData(byte[] chunk, int flowControlSize, boolean continues) {
          this.chunk = chunk;
          this.flowControlSize = flowControlSize;
          this.continues = continues;

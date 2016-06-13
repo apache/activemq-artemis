@@ -92,7 +92,7 @@ public class MessageListenerRedeliveryTest extends BasicOpenWireTest {
       public int counter;
       private final Session session;
 
-      public TestMessageListener(Session session) {
+      private TestMessageListener(Session session) {
          this.session = session;
       }
 

@@ -97,10 +97,10 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    class TestThread extends Thread {
 
-      public TestThread() {
+      TestThread() {
       }
 
-      public TestThread(String name) {
+      TestThread(String name) {
          super(name);
       }
 
@@ -232,7 +232,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    class MonitorThread extends TestThread {
 
-      public MonitorThread() {
+      MonitorThread() {
          super("Monitor-thread");
       }
 

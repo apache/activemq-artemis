@@ -1900,7 +1900,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       BridgeFailoverListener failoverListener;
       private final boolean isSource;
 
-      public BridgeExceptionListener(boolean ha, BridgeFailoverListener failoverListener, boolean isSource) {
+      private BridgeExceptionListener(boolean ha, BridgeFailoverListener failoverListener, boolean isSource) {
          this.ha = ha;
          this.failoverListener = failoverListener;
          this.isSource = isSource;
@@ -1992,7 +1992,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       private final boolean isSource;
       volatile FailoverEventType lastEvent;
 
-      public BridgeFailoverListener(boolean isSource) {
+      private BridgeFailoverListener(boolean isSource) {
          this.isSource = isSource;
       }
 

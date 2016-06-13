@@ -69,7 +69,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
 
          private final Message message;
 
-         public AckAndClose(Message m) {
+         AckAndClose(Message m) {
             this.message = m;
          }
 

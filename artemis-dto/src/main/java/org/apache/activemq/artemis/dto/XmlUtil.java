@@ -42,7 +42,7 @@ public class XmlUtil {
       static final Pattern pattern = Pattern.compile("\\$\\{([^\\}]+)\\}");
       private final Properties props;
 
-      public PropertiesFilter(XMLStreamReader parent, Properties props) {
+      PropertiesFilter(XMLStreamReader parent, Properties props) {
          super(parent);
          this.props = props;
       }

@@ -2578,7 +2578,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // Used on Load
    private static final class TransactionHolder {
 
-      public TransactionHolder(final long id) {
+      private TransactionHolder(final long id) {
          transactionID = id;
       }
 

@@ -72,7 +72,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
       public final AtomicInteger errors = new AtomicInteger(0);
 
-      public SomeProducer() throws Exception {
+      SomeProducer() throws Exception {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          prodSession = factory.createSession(false, false);
@@ -135,7 +135,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      public SomeConsumer(int nr) throws Exception {
+      SomeConsumer(int nr) throws Exception {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          consumerSession = factory.createSession(false, false);

@@ -73,7 +73,7 @@ public class HierarchicalObjectRepositoryTest {
 
       private final int code;
 
-      public Clearer(int code) {
+      private Clearer(int code) {
          this.code = code;
       }
 

@@ -153,7 +153,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch) {
+         MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
@@ -246,7 +246,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch) {
+         MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
@@ -326,7 +326,7 @@ public class MessageHandlerTest extends ActiveMQTestBase {
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch) {
+         MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 

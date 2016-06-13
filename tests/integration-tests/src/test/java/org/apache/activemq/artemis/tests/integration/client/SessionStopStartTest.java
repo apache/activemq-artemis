@@ -352,11 +352,11 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
          private boolean stop = true;
 
-         public MyHandler(final CountDownLatch latch) {
+         MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public MyHandler(final CountDownLatch latch, final boolean stop) {
+         MyHandler(final CountDownLatch latch, final boolean stop) {
             this(latch);
             this.stop = stop;
          }
@@ -447,11 +447,11 @@ public class SessionStopStartTest extends ActiveMQTestBase {
 
          private boolean stop = true;
 
-         public MyHandler(final CountDownLatch latch) {
+         MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public MyHandler(final CountDownLatch latch, final boolean stop) {
+         MyHandler(final CountDownLatch latch, final boolean stop) {
             this(latch);
             this.stop = stop;
          }

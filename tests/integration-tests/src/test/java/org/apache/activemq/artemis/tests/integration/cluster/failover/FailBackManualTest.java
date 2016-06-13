@@ -177,7 +177,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
       private final TestableServer server;
 
-      public ServerStarter(TestableServer server) {
+      ServerStarter(TestableServer server) {
          this.server = server;
       }
 

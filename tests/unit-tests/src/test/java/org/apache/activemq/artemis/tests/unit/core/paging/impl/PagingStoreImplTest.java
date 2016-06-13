@@ -634,7 +634,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       class WriterThread extends Thread {
 
-         public WriterThread() {
+         WriterThread() {
             super("PageWriter");
          }
 
@@ -668,7 +668,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       class ReaderThread extends Thread {
 
-         public ReaderThread() {
+         ReaderThread() {
             super("PageReader");
          }
 
@@ -787,11 +787,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       final SequentialFileFactory factory;
 
-      public FakeStoreFactory() {
+      FakeStoreFactory() {
          factory = new FakeSequentialFileFactory();
       }
 
-      public FakeStoreFactory(final SequentialFileFactory factory) {
+      FakeStoreFactory(final SequentialFileFactory factory) {
          this.factory = factory;
       }
 

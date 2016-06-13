@@ -111,7 +111,7 @@ class SimpleMessageListener implements MessageListener {
    private final String name;
    final Map<String, String> messageReceiverMap;
 
-   public SimpleMessageListener(String listenerName, Map<String, String> messageReceiverMap) {
+   SimpleMessageListener(String listenerName, Map<String, String> messageReceiverMap) {
       name = listenerName;
       this.messageReceiverMap = messageReceiverMap;
    }

@@ -162,7 +162,7 @@ public class NodeManagerTest extends ActiveMQTestBase {
       private NodeManager manager;
       Throwable e;
 
-      public NodeRunner(NodeManager nodeManager, NodeManagerAction action) {
+      NodeRunner(NodeManager nodeManager, NodeManagerAction action) {
          this.manager = nodeManager;
          this.action = action;
       }

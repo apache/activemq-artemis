@@ -721,7 +721,7 @@ public class LibaioTest {
       String errorMessage;
       int errno;
 
-      public TestInfo() {
+      TestInfo() {
          count.incrementAndGet();
       }
 

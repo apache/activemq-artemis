@@ -1803,7 +1803,7 @@ public abstract class ActiveMQTestBase extends Assert {
       /**
        * @param recordsType
        */
-      public RecordTypeCounter(HashMap<Integer, AtomicInteger> recordsType) {
+      private RecordTypeCounter(HashMap<Integer, AtomicInteger> recordsType) {
          this.recordsType = recordsType;
       }
 

@@ -836,7 +836,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       private final ClientMessage message;
 
-      public FakeSession(final ClientMessage message) {
+      FakeSession(final ClientMessage message) {
          this.message = message;
       }
 

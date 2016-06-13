@@ -53,7 +53,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       private byte code;
       private static final Set<FileType> ALL_OF = EnumSet.allOf(FileType.class);
 
-      private FileType(int code) {
+      FileType(int code) {
          this.code = (byte) code;
       }
 

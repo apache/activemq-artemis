@@ -257,7 +257,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       private final List<VoteRunnable> runnables;
       private int size;
 
-      public VoteRunnableHolder(QuorumVote quorumVote, List<VoteRunnable> runnables, int size) {
+      private VoteRunnableHolder(QuorumVote quorumVote, List<VoteRunnable> runnables, int size) {
          this.quorumVote = quorumVote;
 
          this.runnables = runnables;
@@ -282,7 +282,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       private final QuorumVote quorumVote;
       private ClusterControl clusterControl;
 
-      public VoteRunnable(TransportConfiguration serverTC, QuorumVote quorumVote) {
+      private VoteRunnable(TransportConfiguration serverTC, QuorumVote quorumVote) {
          this.serverTC = serverTC;
          this.quorumVote = quorumVote;
       }

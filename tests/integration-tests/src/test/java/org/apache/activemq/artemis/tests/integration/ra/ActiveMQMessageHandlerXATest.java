@@ -195,7 +195,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
 
       private Xid xid;
 
-      public XADummyEndpoint(CountDownLatch latch) {
+      XADummyEndpoint(CountDownLatch latch) {
          super(latch);
          xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       }
@@ -242,7 +242,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
 
       boolean interrupted = false;
 
-      public PausingXADummyEndpoint(CountDownLatch latch, CountDownLatch beforeDeliveryLatch) {
+      PausingXADummyEndpoint(CountDownLatch latch, CountDownLatch beforeDeliveryLatch) {
          super(latch);
          this.beforeDeliveryLatch = beforeDeliveryLatch;
       }

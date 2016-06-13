@@ -559,7 +559,7 @@ public class JmsContextTest extends JMSTestBase {
       private CountDownLatch latch;
       private BytesMessage message;
 
-      public SimpleCompletionListener(CountDownLatch latch) {
+      private SimpleCompletionListener(CountDownLatch latch) {
          this.latch = latch;
       }
 
@@ -582,7 +582,7 @@ public class JmsContextTest extends JMSTestBase {
       private JMSContext context;
       private volatile Throwable error;
 
-      public InvalidMessageListener(JMSContext context, CountDownLatch latch, int id) {
+      private InvalidMessageListener(JMSContext context, CountDownLatch latch, int id) {
          this.id = id;
          this.latch = latch;
          this.context = context;
@@ -633,7 +633,7 @@ public class JmsContextTest extends JMSTestBase {
       private CountDownLatch latch;
       private Exception ex;
 
-      public JMSCOntextStopCompletionListener(JMSContext context, CountDownLatch latch) {
+      private JMSCOntextStopCompletionListener(JMSContext context, CountDownLatch latch) {
          this.context = context;
          this.latch = latch;
       }

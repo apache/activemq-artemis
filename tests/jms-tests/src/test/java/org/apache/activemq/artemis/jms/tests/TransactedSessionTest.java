@@ -697,7 +697,7 @@ public class TransactedSessionTest extends JMSTestCase {
 
       private final Connection conn;
 
-      public myReceiver(CountDownLatch startLatch, Connection conn) {
+      myReceiver(CountDownLatch startLatch, Connection conn) {
          this.startLatch = startLatch;
          this.conn = conn;
       }

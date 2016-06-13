@@ -798,7 +798,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
       boolean throwException = true;
 
-      public ExceptionDummyMessageEndpoint(CountDownLatch latch) {
+      ExceptionDummyMessageEndpoint(CountDownLatch latch) {
          super(latch);
       }
 
@@ -820,7 +820,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       AtomicInteger messages = new AtomicInteger(0);
       AtomicInteger interrupted = new AtomicInteger(0);
 
-      public MultipleEndpoints(CountDownLatch latch, CountDownLatch latchDone, boolean pause) {
+      MultipleEndpoints(CountDownLatch latch, CountDownLatch latchDone, boolean pause) {
          super(latch);
          this.latch = latch;
          this.latchDone = latchDone;
