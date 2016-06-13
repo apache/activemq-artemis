@@ -363,7 +363,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       private final SimpleString nodeId;
       private final CountDownLatch latch = new CountDownLatch(1);
 
-      public NodeIdListener(SimpleString nodeId) {
+      NodeIdListener(SimpleString nodeId) {
          this.nodeId = nodeId;
       }
 

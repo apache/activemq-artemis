@@ -301,7 +301,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
       OperationContextImpl ctx = new OperationContextImpl(executorFactory.getExecutor());
 
-      public FastAppenderTx() {
+      FastAppenderTx() {
          super("FastAppenderTX");
       }
 
@@ -373,7 +373,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
       OperationContextImpl ctx = new OperationContextImpl(executorFactory.getExecutor());
 
-      public FastUpdateTx(final LinkedBlockingDeque<Long> queue) {
+      FastUpdateTx(final LinkedBlockingDeque<Long> queue) {
          super("FastUpdateTX");
          this.queue = queue;
       }
@@ -475,7 +475,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
     */
    class SlowAppenderNoTX extends Thread {
 
-      public SlowAppenderNoTX() {
+      SlowAppenderNoTX() {
          super("SlowAppender");
       }
 

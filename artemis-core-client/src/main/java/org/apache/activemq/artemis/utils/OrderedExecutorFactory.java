@@ -74,7 +74,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
       private static final int STATE_NOT_RUNNING = 0;
       private static final int STATE_RUNNING = 1;
 
-      public OrderedExecutor(Executor delegate) {
+      private OrderedExecutor(Executor delegate) {
          this.delegate = delegate;
       }
 

@@ -3022,10 +3022,10 @@ public class PagingTest extends ActiveMQTestBase {
 
       class InterruptedCursorProvider extends PageCursorProviderImpl {
 
-         public InterruptedCursorProvider(PagingStore pagingStore,
-                                          StorageManager storageManager,
-                                          Executor executor,
-                                          int maxCacheSize) {
+         InterruptedCursorProvider(PagingStore pagingStore,
+                                   StorageManager storageManager,
+                                   Executor executor,
+                                   int maxCacheSize) {
             super(pagingStore, storageManager, executor, maxCacheSize);
          }
 
@@ -5681,7 +5681,7 @@ public class PagingTest extends ActiveMQTestBase {
       private final CountDownLatch pageUp;
       private final CountDownLatch pageDone;
 
-      public DummyOperationContext(CountDownLatch pageUp, CountDownLatch pageDone) {
+      private DummyOperationContext(CountDownLatch pageUp, CountDownLatch pageDone) {
          this.pageDone = pageDone;
          this.pageUp = pageUp;
       }

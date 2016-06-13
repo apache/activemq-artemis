@@ -303,7 +303,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       final PagePosition pagePosition;
       final PageIterator iterator;
 
-      public LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator) {
+      private LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator) {
          this.subscription = subscription;
          this.pagePosition = pagePosition;
          this.iterator = iterator;
@@ -332,7 +332,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
       private final PagingManager pagingManager;
 
-      public UpdatePageTXOperation(final StorageManager storageManager, final PagingManager pagingManager) {
+      private UpdatePageTXOperation(final StorageManager storageManager, final PagingManager pagingManager) {
          this.storageManager = storageManager;
          this.pagingManager = pagingManager;
       }

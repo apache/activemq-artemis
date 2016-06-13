@@ -201,7 +201,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
       private final boolean failOnCreateConnection;
 
-      public Failer(final ClientSession session, final boolean failOnCreateConnection) {
+      private Failer(final ClientSession session, final boolean failOnCreateConnection) {
          this.session = session;
 
          this.failOnCreateConnection = failOnCreateConnection;

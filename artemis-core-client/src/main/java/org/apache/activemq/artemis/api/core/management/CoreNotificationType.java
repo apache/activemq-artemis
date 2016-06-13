@@ -43,7 +43,7 @@ public enum CoreNotificationType implements NotificationType {
 
    private final int value;
 
-   private CoreNotificationType(final int value) {
+   CoreNotificationType(final int value) {
       this.value = value;
    }
 

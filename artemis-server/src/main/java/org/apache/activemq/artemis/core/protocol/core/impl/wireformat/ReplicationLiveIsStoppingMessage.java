@@ -39,7 +39,7 @@ public final class ReplicationLiveIsStoppingMessage extends PacketImpl {
       FAIL_OVER(1);
       private final int code;
 
-      private LiveStopping(int code) {
+      LiveStopping(int code) {
          this.code = code;
       }
    }

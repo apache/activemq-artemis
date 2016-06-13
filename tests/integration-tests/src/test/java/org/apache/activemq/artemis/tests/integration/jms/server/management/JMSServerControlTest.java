@@ -1031,7 +1031,7 @@ public class JMSServerControlTest extends ManagementTestBase {
 
       JMSStorageManager delegate;
 
-      public FakeJMSStorageManager(JMSStorageManager delegate) {
+      FakeJMSStorageManager(JMSStorageManager delegate) {
          this.delegate = delegate;
       }
 

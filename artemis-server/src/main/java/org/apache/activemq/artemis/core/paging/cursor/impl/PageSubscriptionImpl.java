@@ -942,7 +942,7 @@ final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
-      public PageCursorInfo(final long pageId, final int numberOfMessages, final PageCache cache) {
+      private PageCursorInfo(final long pageId, final int numberOfMessages, final PageCache cache) {
          logger.tracef("Created PageCursorInfo for pageNr=%d, numberOfMessages=%d,  cache=%s", pageId, numberOfMessages, cache);
          this.pageId = pageId;
          this.numberOfMessages = numberOfMessages;
@@ -1130,7 +1130,7 @@ final class PageSubscriptionImpl implements PageSubscription {
        */
       private volatile PagedReference cachedNext;
 
-      public CursorIterator() {
+      private CursorIterator() {
       }
 
       @Override

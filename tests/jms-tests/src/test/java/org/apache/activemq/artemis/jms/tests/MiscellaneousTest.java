@@ -242,7 +242,7 @@ public class MiscellaneousTest extends JMSTestCase {
 
       private boolean resultSet;
 
-      public Result() {
+      private Result() {
          success = false;
          e = null;
       }

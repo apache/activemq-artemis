@@ -1650,12 +1650,12 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       private final int node;
 
-      public ThreadSender(final int msgStart,
-                          final int msgEnd,
-                          final int node,
-                          final SimpleString id,
-                          final CountDownLatch latch,
-                          final boolean wait) {
+      ThreadSender(final int msgStart,
+                   final int msgEnd,
+                   final int node,
+                   final SimpleString id,
+                   final CountDownLatch latch,
+                   final boolean wait) {
          this.msgStart = msgStart;
          this.msgEnd = msgEnd;
          this.node = node;

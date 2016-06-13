@@ -99,7 +99,7 @@ public class WebServerComponentTest extends Assert {
       private CountDownLatch latch;
       private String body;
 
-      public ClientHandler(CountDownLatch latch) {
+      ClientHandler(CountDownLatch latch) {
          this.latch = latch;
       }
 

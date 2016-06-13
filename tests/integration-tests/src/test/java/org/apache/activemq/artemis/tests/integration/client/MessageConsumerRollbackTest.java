@@ -173,7 +173,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       CountDownLatch commitLatch;
 
-      public LocalConsumer(AtomicInteger counter, CountDownLatch commitLatch) {
+      private LocalConsumer(AtomicInteger counter, CountDownLatch commitLatch) {
          this.counter = counter;
          this.commitLatch = commitLatch;
       }

@@ -75,7 +75,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
 
       private final CountDownLatch latch;
 
-      public MyExceptionListener(final CountDownLatch latch) {
+      private MyExceptionListener(final CountDownLatch latch) {
          this.latch = latch;
       }
 

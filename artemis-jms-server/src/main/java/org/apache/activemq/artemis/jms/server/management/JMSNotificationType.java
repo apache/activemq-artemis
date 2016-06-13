@@ -31,7 +31,7 @@ public enum JMSNotificationType implements NotificationType {
 
    private int type;
 
-   private JMSNotificationType(int type) {
+   JMSNotificationType(int type) {
       this.type = type;
    }
 

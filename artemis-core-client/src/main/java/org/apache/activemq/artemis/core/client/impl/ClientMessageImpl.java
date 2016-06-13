@@ -318,7 +318,7 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
 
    private final class DecodingContext implements BodyEncoder {
 
-      public DecodingContext() {
+      private DecodingContext() {
       }
 
       @Override

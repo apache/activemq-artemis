@@ -242,7 +242,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
       public final long recordID;
 
-      public HeuristicCompletionHolder(final long recordID, final Xid xid, final boolean isCommit) {
+      private HeuristicCompletionHolder(final long recordID, final Xid xid, final boolean isCommit) {
          this.recordID = recordID;
          this.xid = xid;
          this.isCommit = isCommit;

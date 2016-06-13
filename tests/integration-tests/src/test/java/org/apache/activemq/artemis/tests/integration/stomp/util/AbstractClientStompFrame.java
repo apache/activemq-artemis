@@ -169,7 +169,7 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
       public String key;
       public String val;
 
-      public Header(String key, String val) {
+      private Header(String key, String val) {
          this.key = key;
          this.val = val;
       }

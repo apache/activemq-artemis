@@ -75,10 +75,10 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor> {
 
    // Constructors --------------------------------------------------
 
-   public StompProtocolManager(final StompProtocolManagerFactory factory,
-                               final ActiveMQServer server,
-                               final List<StompFrameInterceptor> incomingInterceptors,
-                               final List<StompFrameInterceptor> outgoingInterceptors) {
+   StompProtocolManager(final StompProtocolManagerFactory factory,
+                        final ActiveMQServer server,
+                        final List<StompFrameInterceptor> incomingInterceptors,
+                        final List<StompFrameInterceptor> outgoingInterceptors) {
       this.factory = factory;
       this.server = server;
       this.executor = server.getExecutorFactory().getExecutor();

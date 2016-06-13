@@ -86,7 +86,7 @@ public interface ActiveMQRALogger extends BasicLogger {
    void unableToRollbackTX();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152003, value = "unable to reset session after failure, we will place the MDB Inflow now in setup mode for activation={0}" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 152003, value = "unable to reset session after failure, we will place the MDB Inflow now in setup mode for activation={0}", format = Message.Format.MESSAGE_FORMAT)
    void unableToResetSession(String spec, @Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)

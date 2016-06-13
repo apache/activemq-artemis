@@ -871,7 +871,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       private final CountDownLatch latch;
 
-      public TxMessageHandler(final ClientSession session, final CountDownLatch latch) {
+      TxMessageHandler(final ClientSession session, final CountDownLatch latch) {
          this.latch = latch;
          this.session = session;
       }

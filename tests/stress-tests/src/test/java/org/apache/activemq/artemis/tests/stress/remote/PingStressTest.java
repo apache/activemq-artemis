@@ -100,7 +100,7 @@ public class PingStressTest extends ActiveMQTestBase {
 
          int threadNumber;
 
-         public LocalThread(final int i) {
+         LocalThread(final int i) {
             super("LocalThread i = " + i);
             threadNumber = i;
          }

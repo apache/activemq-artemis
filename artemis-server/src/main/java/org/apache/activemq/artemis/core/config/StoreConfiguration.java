@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 public interface StoreConfiguration extends Serializable {
 
-   public enum StoreType {
+   enum StoreType {
       FILE,
       DATABASE
    }

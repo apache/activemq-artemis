@@ -745,7 +745,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       private final ClassLoader original;
       private final String knownClass = "com.class.only.visible.to.tccl.SomeClass";
 
-      public MockContextClassLoader(ClassLoader parent) {
+      private MockContextClassLoader(ClassLoader parent) {
          super(parent);
          original = Thread.currentThread().getContextClassLoader();
       }

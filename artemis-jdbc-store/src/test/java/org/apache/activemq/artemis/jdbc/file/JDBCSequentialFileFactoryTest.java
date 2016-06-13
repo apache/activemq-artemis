@@ -169,7 +169,7 @@ public class JDBCSequentialFileFactoryTest {
 
       private final CountDownLatch countDownLatch;
 
-      public IOCallbackCountdown(int size) {
+      private IOCallbackCountdown(int size) {
          this.countDownLatch = new CountDownLatch(size);
       }
 

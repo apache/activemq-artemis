@@ -215,20 +215,20 @@ public class HangConsumerTest extends ActiveMQTestBase {
           * @param addressSettingsRepository
           * @param executor
           */
-         public MyQueueWithBlocking(final long id,
-                                    final SimpleString address,
-                                    final SimpleString name,
-                                    final Filter filter,
-                                    final SimpleString user,
-                                    final PageSubscription pageSubscription,
-                                    final boolean durable,
-                                    final boolean temporary,
-                                    final boolean autoCreated,
-                                    final ScheduledExecutorService scheduledExecutor,
-                                    final PostOffice postOffice,
-                                    final StorageManager storageManager,
-                                    final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                    final Executor executor) {
+         MyQueueWithBlocking(final long id,
+                             final SimpleString address,
+                             final SimpleString name,
+                             final Filter filter,
+                             final SimpleString user,
+                             final PageSubscription pageSubscription,
+                             final boolean durable,
+                             final boolean temporary,
+                             final boolean autoCreated,
+                             final ScheduledExecutorService scheduledExecutor,
+                             final PostOffice postOffice,
+                             final StorageManager storageManager,
+                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                             final Executor executor) {
             super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
          }
 
@@ -247,10 +247,10 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       class LocalFactory extends QueueFactoryImpl {
 
-         public LocalFactory(final ExecutorFactory executorFactory,
-                             final ScheduledExecutorService scheduledExecutor,
-                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                             final StorageManager storageManager) {
+         LocalFactory(final ExecutorFactory executorFactory,
+                      final ScheduledExecutorService scheduledExecutor,
+                      final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                      final StorageManager storageManager) {
             super(executorFactory, scheduledExecutor, addressSettingsRepository, storageManager);
          }
 
@@ -567,9 +567,9 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    class MyActiveMQServer extends ActiveMQServerImpl {
 
-      public MyActiveMQServer(Configuration configuration,
-                              MBeanServer mbeanServer,
-                              ActiveMQSecurityManager securityManager) {
+      MyActiveMQServer(Configuration configuration,
+                       MBeanServer mbeanServer,
+                       ActiveMQSecurityManager securityManager) {
          super(configuration, mbeanServer, securityManager);
       }
 

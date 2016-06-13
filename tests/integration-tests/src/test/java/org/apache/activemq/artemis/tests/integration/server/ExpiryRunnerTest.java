@@ -258,7 +258,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
 
       private final CountDownLatch latch;
 
-      public DummyMessageHandler(final ClientConsumer consumer, final CountDownLatch latch) {
+      private DummyMessageHandler(final ClientConsumer consumer, final CountDownLatch latch) {
          this.consumer = consumer;
          this.latch = latch;
       }

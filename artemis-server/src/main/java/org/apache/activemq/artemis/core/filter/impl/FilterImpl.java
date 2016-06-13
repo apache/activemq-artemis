@@ -172,7 +172,7 @@ public class FilterImpl implements Filter {
 
       private final ServerMessage message;
 
-      public FilterableServerMessage(ServerMessage message) {
+      private FilterableServerMessage(ServerMessage message) {
          this.message = message;
       }
 

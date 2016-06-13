@@ -154,7 +154,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase {
 
       boolean failed = false;
 
-      public Receiver(final CountDownLatch latch) {
+      Receiver(final CountDownLatch latch) {
          this.latch = latch;
       }
 

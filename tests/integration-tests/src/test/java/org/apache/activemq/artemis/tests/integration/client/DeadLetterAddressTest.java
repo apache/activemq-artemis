@@ -175,7 +175,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
 
       private final ClientSession clientSession;
 
-      public TestHandler(CountDownLatch latch, ClientSession clientSession) {
+      TestHandler(CountDownLatch latch, ClientSession clientSession) {
          this.latch = latch;
          this.clientSession = clientSession;
       }

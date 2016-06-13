@@ -80,7 +80,7 @@ public class StompOverWebsocketTest extends StompTest {
 
       private WebSocketClientHandshaker handshaker;
 
-      public WebsocketHandler(WebSocketClientHandshaker webSocketClientHandshaker) {
+      WebsocketHandler(WebSocketClientHandshaker webSocketClientHandshaker) {
          this.handshaker = webSocketClientHandshaker;
       }
 

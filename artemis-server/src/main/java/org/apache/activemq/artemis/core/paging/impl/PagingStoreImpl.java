@@ -937,9 +937,9 @@ public class PagingStoreImpl implements PagingStore {
          this.usedStores.add(store);
       }
 
-      public FinishPageMessageOperation(final PageTransactionInfo pageTransaction,
-                                        final StorageManager storageManager,
-                                        final PagingManager pagingManager) {
+      private FinishPageMessageOperation(final PageTransactionInfo pageTransaction,
+                                         final StorageManager storageManager,
+                                         final PagingManager pagingManager) {
          this.pageTransaction = pageTransaction;
          this.storageManager = storageManager;
          this.pagingManager = pagingManager;

@@ -64,7 +64,7 @@ public class ProtocolTrackerTest {
       ServiceReference<ProtocolManagerFactory<Interceptor>> ref;
       ProtocolManagerFactory factory;
 
-      public RefFact(IMocksControl c, BundleContext context, String[] protocols) {
+      RefFact(IMocksControl c, BundleContext context, String[] protocols) {
          ref = c.createMock(ServiceReference.class);
          factory = c.createMock(ProtocolManagerFactory.class);
          expect(factory.getProtocols()).andReturn(protocols).atLeastOnce();

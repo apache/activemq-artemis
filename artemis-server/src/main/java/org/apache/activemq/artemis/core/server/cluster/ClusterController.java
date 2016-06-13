@@ -306,10 +306,10 @@ public class ClusterController implements ActiveMQComponent {
       private final ChannelHandler channelHandler;
       boolean authorized = false;
 
-      public ClusterControllerChannelHandler(Channel clusterChannel,
-                                             Acceptor acceptorUsed,
-                                             CoreRemotingConnection remotingConnection,
-                                             ChannelHandler channelHandler) {
+      private ClusterControllerChannelHandler(Channel clusterChannel,
+                                              Acceptor acceptorUsed,
+                                              CoreRemotingConnection remotingConnection,
+                                              ChannelHandler channelHandler) {
          this.clusterChannel = clusterChannel;
          this.acceptorUsed = acceptorUsed;
          this.remotingConnection = remotingConnection;
@@ -396,7 +396,7 @@ public class ClusterController implements ActiveMQComponent {
 
       private ServerLocatorInternal serverLocator;
 
-      public ConnectRunnable(ServerLocatorInternal serverLocator) {
+      private ConnectRunnable(ServerLocatorInternal serverLocator) {
          this.serverLocator = serverLocator;
       }
 

@@ -735,7 +735,7 @@ public class MessageProducerTest extends JMSTestCase {
       private CountDownLatch latch;
       private JMSException exception;
 
-      public CloseCompletionListener(MessageProducer p, CountDownLatch latch) {
+      private CloseCompletionListener(MessageProducer p, CountDownLatch latch) {
          this.p = p;
          this.latch = latch;
       }
@@ -762,7 +762,7 @@ public class MessageProducerTest extends JMSTestCase {
       private JMSException exception;
       private Connection conn;
 
-      public ConnectionCloseCompletionListener(Connection conn, CountDownLatch latch) {
+      private ConnectionCloseCompletionListener(Connection conn, CountDownLatch latch) {
          this.conn = conn;
          this.latch = latch;
       }
@@ -789,7 +789,7 @@ public class MessageProducerTest extends JMSTestCase {
       private JMSException exception;
       private Session session;
 
-      public SessionCloseCompletionListener(Session session, CountDownLatch latch) {
+      private SessionCloseCompletionListener(Session session, CountDownLatch latch) {
          this.session = session;
          this.latch = latch;
       }

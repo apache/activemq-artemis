@@ -36,7 +36,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
 
       final int code;
 
-      private BackupRegistrationProblem(int code) {
+      BackupRegistrationProblem(int code) {
          this.code = code;
       }
 

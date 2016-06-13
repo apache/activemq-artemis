@@ -598,7 +598,7 @@ public final class TypedProperties {
 
    private static final class NullValue extends PropertyValue {
 
-      public NullValue() {
+      private NullValue() {
       }
 
       @Override
@@ -622,11 +622,11 @@ public final class TypedProperties {
 
       final boolean val;
 
-      public BooleanValue(final boolean val) {
+      private BooleanValue(final boolean val) {
          this.val = val;
       }
 
-      public BooleanValue(final ActiveMQBuffer buffer) {
+      private BooleanValue(final ActiveMQBuffer buffer) {
          val = buffer.readBoolean();
       }
 
@@ -652,11 +652,11 @@ public final class TypedProperties {
 
       final byte val;
 
-      public ByteValue(final byte val) {
+      private ByteValue(final byte val) {
          this.val = val;
       }
 
-      public ByteValue(final ActiveMQBuffer buffer) {
+      private ByteValue(final ActiveMQBuffer buffer) {
          val = buffer.readByte();
       }
 
@@ -681,11 +681,11 @@ public final class TypedProperties {
 
       final byte[] val;
 
-      public BytesValue(final byte[] val) {
+      private BytesValue(final byte[] val) {
          this.val = val;
       }
 
-      public BytesValue(final ActiveMQBuffer buffer) {
+      private BytesValue(final ActiveMQBuffer buffer) {
          int len = buffer.readInt();
          val = new byte[len];
          buffer.readBytes(val);
@@ -714,11 +714,11 @@ public final class TypedProperties {
 
       final short val;
 
-      public ShortValue(final short val) {
+      private ShortValue(final short val) {
          this.val = val;
       }
 
-      public ShortValue(final ActiveMQBuffer buffer) {
+      private ShortValue(final ActiveMQBuffer buffer) {
          val = buffer.readShort();
       }
 
@@ -743,11 +743,11 @@ public final class TypedProperties {
 
       final int val;
 
-      public IntValue(final int val) {
+      private IntValue(final int val) {
          this.val = val;
       }
 
-      public IntValue(final ActiveMQBuffer buffer) {
+      private IntValue(final ActiveMQBuffer buffer) {
          val = buffer.readInt();
       }
 
@@ -772,11 +772,11 @@ public final class TypedProperties {
 
       final long val;
 
-      public LongValue(final long val) {
+      private LongValue(final long val) {
          this.val = val;
       }
 
-      public LongValue(final ActiveMQBuffer buffer) {
+      private LongValue(final ActiveMQBuffer buffer) {
          val = buffer.readLong();
       }
 
@@ -801,11 +801,11 @@ public final class TypedProperties {
 
       final float val;
 
-      public FloatValue(final float val) {
+      private FloatValue(final float val) {
          this.val = val;
       }
 
-      public FloatValue(final ActiveMQBuffer buffer) {
+      private FloatValue(final ActiveMQBuffer buffer) {
          val = Float.intBitsToFloat(buffer.readInt());
       }
 
@@ -831,11 +831,11 @@ public final class TypedProperties {
 
       final double val;
 
-      public DoubleValue(final double val) {
+      private DoubleValue(final double val) {
          this.val = val;
       }
 
-      public DoubleValue(final ActiveMQBuffer buffer) {
+      private DoubleValue(final ActiveMQBuffer buffer) {
          val = Double.longBitsToDouble(buffer.readLong());
       }
 
@@ -860,11 +860,11 @@ public final class TypedProperties {
 
       final char val;
 
-      public CharValue(final char val) {
+      private CharValue(final char val) {
          this.val = val;
       }
 
-      public CharValue(final ActiveMQBuffer buffer) {
+      private CharValue(final ActiveMQBuffer buffer) {
          val = (char) buffer.readShort();
       }
 
@@ -889,11 +889,11 @@ public final class TypedProperties {
 
       final SimpleString val;
 
-      public StringValue(final SimpleString val) {
+      private StringValue(final SimpleString val) {
          this.val = val;
       }
 
-      public StringValue(final ActiveMQBuffer buffer) {
+      private StringValue(final ActiveMQBuffer buffer) {
          val = buffer.readSimpleString();
       }
 

@@ -37,7 +37,7 @@ class PageCacheImpl implements PageCache {
 
    // Constructors --------------------------------------------------
 
-   public PageCacheImpl(final Page page) {
+   PageCacheImpl(final Page page) {
       this.page = page;
    }
 

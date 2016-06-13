@@ -173,7 +173,7 @@ class SimpleMessageListener implements MessageListener {
    ArrayList<String> receiveHolder;
    AtomicBoolean result;
 
-   public SimpleMessageListener(ArrayList<String> receiveHolder, AtomicBoolean result) {
+   SimpleMessageListener(ArrayList<String> receiveHolder, AtomicBoolean result) {
       this.receiveHolder = receiveHolder;
       this.result = result;
    }

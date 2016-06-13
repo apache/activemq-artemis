@@ -97,7 +97,7 @@ public class ActiveMQStompException extends Exception {
       public final String key;
       public final String val;
 
-      public Header(String key, String val) {
+      private Header(String key, String val) {
          this.key = key;
          this.val = val;
       }

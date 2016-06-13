@@ -351,7 +351,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private static class ItemOper {
 
-      public ItemOper(PageSubscriptionCounterImpl counter, long id, int add) {
+      private ItemOper(PageSubscriptionCounterImpl counter, long id, int add) {
          this.counter = counter;
          this.id = id;
          this.amount = add;

@@ -24,11 +24,11 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
 class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage {
 
-   public NullStorageLargeServerMessage() {
+   NullStorageLargeServerMessage() {
       super();
    }
 
-   public NullStorageLargeServerMessage(NullStorageLargeServerMessage other) {
+   NullStorageLargeServerMessage(NullStorageLargeServerMessage other) {
       super(other);
    }
 

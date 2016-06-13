@@ -26,7 +26,7 @@ public enum StompVersions {
 
    private String version;
 
-   private StompVersions(String ver) {
+   StompVersions(String ver) {
       this.version = ver;
    }
 

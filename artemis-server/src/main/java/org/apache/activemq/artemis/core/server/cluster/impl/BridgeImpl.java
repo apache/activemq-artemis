@@ -1055,7 +1055,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       private final Executor executor;
 
-      public FutureConnectRunnable(Executor exe, BridgeImpl bridge) {
+      private FutureConnectRunnable(Executor exe, BridgeImpl bridge) {
          executor = exe;
          this.bridge = bridge;
       }
@@ -1071,7 +1071,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       private final BridgeImpl bridge;
 
-      public ConnectRunnable(BridgeImpl bridge2) {
+      private ConnectRunnable(BridgeImpl bridge2) {
          bridge = bridge2;
       }
 

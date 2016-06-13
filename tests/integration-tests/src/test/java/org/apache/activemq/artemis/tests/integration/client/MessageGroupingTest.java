@@ -555,7 +555,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
 
       private final boolean acknowledge;
 
-      public DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge) {
+      private DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge) {
          this.latch = latch;
          this.acknowledge = acknowledge;
       }

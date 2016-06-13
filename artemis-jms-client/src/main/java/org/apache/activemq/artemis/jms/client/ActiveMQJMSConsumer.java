@@ -143,7 +143,7 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
 
       private final MessageListener wrapped;
 
-      public MessageListenerWrapper(MessageListener wrapped) {
+      MessageListenerWrapper(MessageListener wrapped) {
          this.wrapped = wrapped;
       }
 

@@ -120,7 +120,7 @@ public class MinimalServer {
 
       AMQPServerConnectionContext connection;
 
-      public ProtocolDecoder() {
+      ProtocolDecoder() {
       }
 
       @Override

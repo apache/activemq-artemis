@@ -835,12 +835,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private volatile boolean reset = false;
 
-      public MessageFlowRecordImpl(final ServerLocatorInternal targetLocator,
-                                   final long eventUID,
-                                   final String targetNodeID,
-                                   final TransportConfiguration connector,
-                                   final SimpleString queueName,
-                                   final Queue queue) {
+      private MessageFlowRecordImpl(final ServerLocatorInternal targetLocator,
+                                    final long eventUID,
+                                    final String targetNodeID,
+                                    final TransportConfiguration connector,
+                                    final SimpleString queueName,
+                                    final Queue queue) {
          this.targetLocator = targetLocator;
          this.queue = queue;
          this.targetNodeID = targetNodeID;
@@ -1418,7 +1418,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private final TransportConfiguration[] tcConfigs;
 
-      public StaticClusterConnector(TransportConfiguration[] tcConfigs) {
+      private StaticClusterConnector(TransportConfiguration[] tcConfigs) {
          this.tcConfigs = tcConfigs;
       }
 
@@ -1446,7 +1446,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       private final DiscoveryGroupConfiguration dg;
 
-      public DiscoveryClusterConnector(DiscoveryGroupConfiguration dg) {
+      private DiscoveryClusterConnector(DiscoveryGroupConfiguration dg) {
          this.dg = dg;
       }
 

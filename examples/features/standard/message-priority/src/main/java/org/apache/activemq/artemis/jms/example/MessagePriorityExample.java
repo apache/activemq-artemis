@@ -115,7 +115,7 @@ class SimpleMessageListener implements MessageListener {
    ArrayList<TextMessage> msgReceived;
    AtomicBoolean result;
 
-   public SimpleMessageListener(ArrayList<TextMessage> msgReceived, AtomicBoolean result) {
+   SimpleMessageListener(ArrayList<TextMessage> msgReceived, AtomicBoolean result) {
       this.msgReceived = msgReceived;
       this.result = result;
    }

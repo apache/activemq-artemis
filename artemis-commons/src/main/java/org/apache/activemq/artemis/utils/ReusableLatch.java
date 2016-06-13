@@ -43,7 +43,7 @@ public class ReusableLatch {
    @SuppressWarnings("serial")
    private static class CountSync extends AbstractQueuedSynchronizer {
 
-      public CountSync(int count) {
+      private CountSync(int count) {
          setState(count);
       }
 

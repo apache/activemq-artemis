@@ -186,10 +186,10 @@ public class BackupManager implements ActiveMQComponent {
       private boolean announcingBackup;
       private boolean backupAnnounced = false;
 
-      public BackupConnector(String name,
-                             TransportConfiguration connector,
-                             long retryInterval,
-                             ClusterManager clusterManager) {
+      private BackupConnector(String name,
+                              TransportConfiguration connector,
+                              long retryInterval,
+                              ClusterManager clusterManager) {
          this.name = name;
          this.connector = connector;
          this.retryInterval = retryInterval;
@@ -328,11 +328,11 @@ public class BackupManager implements ActiveMQComponent {
 
       private final TransportConfiguration[] tcConfigs;
 
-      public StaticBackupConnector(TransportConfiguration[] tcConfigs,
-                                   String name,
-                                   TransportConfiguration connector,
-                                   long retryInterval,
-                                   ClusterManager clusterManager) {
+      private StaticBackupConnector(TransportConfiguration[] tcConfigs,
+                                    String name,
+                                    TransportConfiguration connector,
+                                    long retryInterval,
+                                    ClusterManager clusterManager) {
          super(name, connector, retryInterval, clusterManager);
          this.tcConfigs = tcConfigs;
       }
@@ -365,11 +365,11 @@ public class BackupManager implements ActiveMQComponent {
 
       private final DiscoveryGroupConfiguration discoveryGroupConfiguration;
 
-      public DiscoveryBackupConnector(DiscoveryGroupConfiguration discoveryGroupConfiguration,
-                                      String name,
-                                      TransportConfiguration connector,
-                                      long retryInterval,
-                                      ClusterManager clusterManager) {
+      private DiscoveryBackupConnector(DiscoveryGroupConfiguration discoveryGroupConfiguration,
+                                       String name,
+                                       TransportConfiguration connector,
+                                       long retryInterval,
+                                       ClusterManager clusterManager) {
          super(name, connector, retryInterval, clusterManager);
          this.discoveryGroupConfiguration = discoveryGroupConfiguration;
       }

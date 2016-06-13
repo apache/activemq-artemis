@@ -1219,10 +1219,10 @@ public class QueueImplTest extends ActiveMQTestBase {
 
       boolean first;
 
-      public AddtoQueueRunner(final boolean first,
-                              final QueueImpl queue,
-                              final MessageReference messageReference,
-                              final CountDownLatch countDownLatch) {
+      AddtoQueueRunner(final boolean first,
+                       final QueueImpl queue,
+                       final MessageReference messageReference,
+                       final CountDownLatch countDownLatch) {
          this.queue = queue;
          this.messageReference = messageReference;
          this.countDownLatch = countDownLatch;

@@ -288,7 +288,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       final long id;
 
-      public FakeMessage(final long id) {
+      FakeMessage(final long id) {
          this.id = id;
       }
 

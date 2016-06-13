@@ -46,7 +46,7 @@ public class ReplicationStartSyncMessage extends PacketImpl {
 
       private byte code;
 
-      private SyncDataType(byte code) {
+      SyncDataType(byte code) {
          this.code = code;
       }
 

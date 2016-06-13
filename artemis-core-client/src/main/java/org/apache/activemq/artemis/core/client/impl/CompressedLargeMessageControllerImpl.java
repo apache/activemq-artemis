@@ -40,7 +40,7 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
 
    private final LargeMessageController bufferDelegate;
 
-   public CompressedLargeMessageControllerImpl(final LargeMessageController bufferDelegate) {
+   CompressedLargeMessageControllerImpl(final LargeMessageController bufferDelegate) {
       this.bufferDelegate = bufferDelegate;
    }
 

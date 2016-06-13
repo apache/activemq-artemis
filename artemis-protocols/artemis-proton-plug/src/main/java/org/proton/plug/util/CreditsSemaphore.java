@@ -23,7 +23,7 @@ public class CreditsSemaphore {
    @SuppressWarnings("serial")
    private static class Sync extends AbstractQueuedSynchronizer {
 
-      public Sync(int initial) {
+      private Sync(int initial) {
          setState(initial);
       }
 

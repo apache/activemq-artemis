@@ -444,7 +444,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       JournalFile usedFile;
 
-      public DeleteCompactCommand(final long id, final JournalFile usedFile) {
+      private DeleteCompactCommand(final long id, final JournalFile usedFile) {
          this.id = id;
          this.usedFile = usedFile;
       }
@@ -479,7 +479,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       private final int size;
 
-      public UpdateCompactCommand(final long id, final JournalFile usedFile, final int size) {
+      private UpdateCompactCommand(final long id, final JournalFile usedFile, final int size) {
          this.id = id;
          this.usedFile = usedFile;
          this.size = size;
@@ -501,7 +501,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
        */
       private final JournalFile commitFile;
 
-      public CommitCompactCommand(final JournalTransaction liveTransaction, final JournalFile commitFile) {
+      private CommitCompactCommand(final JournalTransaction liveTransaction, final JournalFile commitFile) {
          this.liveTransaction = liveTransaction;
          this.commitFile = commitFile;
       }
@@ -526,7 +526,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
        */
       private final JournalFile rollbackFile;
 
-      public RollbackCompactCommand(final JournalTransaction liveTransaction, final JournalFile rollbackFile) {
+      private RollbackCompactCommand(final JournalTransaction liveTransaction, final JournalFile rollbackFile) {
          this.liveTransaction = liveTransaction;
          this.rollbackFile = rollbackFile;
       }

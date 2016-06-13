@@ -99,7 +99,7 @@ public class AutoAckMesageListenerTest extends JMSTestCase {
 
       private final CountDownLatch monitor;
 
-      public AutoAckMsgListener(CountDownLatch latch, Session session) {
+      private AutoAckMsgListener(CountDownLatch latch, Session session) {
          this.monitor = latch;
          this.session = session;
       }

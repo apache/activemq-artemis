@@ -141,7 +141,7 @@ public class PropertiesLoginModuleTest extends Assert {
       private final String user;
       private final String pass;
 
-      public UserPassHandler(final String user, final String pass) {
+      private UserPassHandler(final String user, final String pass) {
          this.user = user;
          this.pass = pass;
       }

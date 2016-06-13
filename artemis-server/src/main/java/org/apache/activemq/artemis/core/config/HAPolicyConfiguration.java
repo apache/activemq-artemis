@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 public interface HAPolicyConfiguration extends Serializable {
 
-   public enum TYPE {
+   enum TYPE {
       LIVE_ONLY,
       REPLICATED,
       REPLICA,

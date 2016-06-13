@@ -315,7 +315,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       private int retryAttempt;
 
-      public ReconnectRunnable(int retryAttempt) {
+      private ReconnectRunnable(int retryAttempt) {
          this.retryAttempt = retryAttempt;
       }
 

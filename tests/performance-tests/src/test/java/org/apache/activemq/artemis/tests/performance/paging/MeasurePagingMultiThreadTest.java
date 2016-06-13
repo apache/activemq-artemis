@@ -69,7 +69,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
             Throwable e;
 
-            public Sender() throws Exception {
+            Sender() throws Exception {
                session = factory.createSession(false, true, true);
                producer = session.createProducer(adr);
                msg = session.createMessage(true);

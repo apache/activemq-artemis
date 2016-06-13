@@ -159,10 +159,10 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
       AIOSequentialFile libaio;
 
-      public ThreadProducer(final String name,
-                            final CountDownLatch latchStart,
-                            final AIOSequentialFile libaio,
-                            final boolean sync) {
+      ThreadProducer(final String name,
+                     final CountDownLatch latchStart,
+                     final AIOSequentialFile libaio,
+                     final boolean sync) {
          super(name);
          this.latchStart = latchStart;
          this.libaio = libaio;

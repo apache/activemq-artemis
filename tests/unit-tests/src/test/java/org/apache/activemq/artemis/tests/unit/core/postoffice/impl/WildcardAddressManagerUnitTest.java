@@ -84,11 +84,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       final SimpleString address;
       final SimpleString id;
 
-      public BindingFake(String addressParameter, String id) {
+      BindingFake(String addressParameter, String id) {
          this(SimpleString.toSimpleString(addressParameter), SimpleString.toSimpleString(id));
       }
 
-      public BindingFake(SimpleString addressParameter, SimpleString id) {
+      BindingFake(SimpleString addressParameter, SimpleString id) {
          this.address = addressParameter;
          this.id = id;
       }

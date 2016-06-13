@@ -27,7 +27,7 @@ public class ConstantExpression implements Expression {
 
    static class BooleanConstantExpression extends ConstantExpression implements BooleanExpression {
 
-      public BooleanConstantExpression(Object value) {
+      BooleanConstantExpression(Object value) {
          super(value);
       }
 
