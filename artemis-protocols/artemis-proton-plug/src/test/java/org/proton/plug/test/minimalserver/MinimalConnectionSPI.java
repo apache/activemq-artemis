@@ -71,6 +71,16 @@ public class MinimalConnectionSPI implements AMQPConnectionCallback {
    }
 
    @Override
+   public boolean isSupportsAnonymous() {
+      return false;
+   }
+
+   @Override
+   public void sendSASLSupported() {
+
+   }
+
+   @Override
    public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
       final int bufferSize = bytes.writerIndex();
 

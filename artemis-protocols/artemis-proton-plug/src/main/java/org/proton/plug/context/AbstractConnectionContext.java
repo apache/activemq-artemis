@@ -187,8 +187,17 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
    class LocalListener extends DefaultEventHandler {
 
       @Override
-      public void onSASLInit(ProtonHandler handler, Connection connection) {
-         handler.createServerSASL(connectionCallback.getSASLMechnisms());
+      public void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {
+         if (sasl) {
+            handler.createServerSASL(connectionCallback.getSASLMechnisms());
+         }
+         else {
+            if (!connectionCallback.isSupportsAnonymous()) {
+               connectionCallback.sendSASLSupported();
+               connectionCallback.close();
+               handler.close();
+            }
+         }
       }
 
       @Override

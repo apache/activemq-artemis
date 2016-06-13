@@ -27,7 +27,7 @@ import org.apache.qpid.proton.engine.Transport;
  */
 public interface EventHandler {
 
-   void onSASLInit(ProtonHandler handler, Connection connection);
+   void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl);
 
    void onInit(Connection connection) throws Exception;
 
