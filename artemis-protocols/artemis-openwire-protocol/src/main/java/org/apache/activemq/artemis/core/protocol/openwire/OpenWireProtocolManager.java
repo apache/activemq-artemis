@@ -90,7 +90,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<String, AMQConnectionContext>();
+   private final Map<String, AMQConnectionContext> clientIdSet = new HashMap<>();
 
    private String brokerName;
 

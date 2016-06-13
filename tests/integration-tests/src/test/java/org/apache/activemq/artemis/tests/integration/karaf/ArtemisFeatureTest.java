@@ -96,7 +96,7 @@ public class ArtemisFeatureTest extends Assert {
 
    public static Option[] configure(String... features) {
 
-      ArrayList<String> f = new ArrayList<String>();
+      ArrayList<String> f = new ArrayList<>();
       f.addAll(Arrays.asList(features));
 
       Option[] options =
@@ -169,7 +169,7 @@ public class ArtemisFeatureTest extends Assert {
       final Session commandSession = sessionFactory.create(System.in, printStream, printStream);
       commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
       commandSession.put("USER", USER);
-      FutureTask<String> commandFuture = new FutureTask<String>(
+      FutureTask<String> commandFuture = new FutureTask<>(
             new Callable<String>() {
                @Override
                public String call() {
@@ -246,7 +246,7 @@ public class ArtemisFeatureTest extends Assert {
    }
 
    protected Object waitForService(String filter, long timeout) throws InvalidSyntaxException, InterruptedException {
-      ServiceTracker<Object, Object> st = new ServiceTracker<Object, Object>(bundleContext, bundleContext.createFilter(filter), null);
+      ServiceTracker<Object, Object> st = new ServiceTracker<>(bundleContext, bundleContext.createFilter(filter), null);
       try {
          st.open();
          return st.waitForService(timeout);
