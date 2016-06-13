@@ -1067,14 +1067,6 @@
                   <artifactId>sevntu-checkstyle-maven-plugin</artifactId>
                   <version>1.21.0</version>
                </dependency>
-               <!-- This was initially done to enforce name on Parameter annotation
-                    I've developed a customized check and I needed this jar to deploy the specialized checkstyle -->
-               <dependency>
-                  <!-- TODO Find a better home -->
-                  <groupId>org.hornetq</groupId>
-                  <artifactId>hornetq-checkstyle-checks</artifactId>
-                  <version>0.2</version>
-               </dependency>
             </dependencies>
             <configuration>
                <skip>${skipStyleCheck}</skip>

@@ -94,13 +94,6 @@ under the License.
            <property name="illegalPkgs" value="junit.framework"/>
        </module>
 
-      <!-- TODO: Where to place this now? -->
-      <!-- developed at https://github.com/hornetq/hornetq-checkstyle-checks -->
-      <module name="org.hornetq.checks.annotation.RequiredAnnotation">
-         <property name="annotationName" value="Parameters"/>
-         <property name="requiredParameters" value="name"/>
-      </module>
-
       <module name="WriteTag">
          <property name="tag" value="@author"/>
          <property name="tagSeverity" value="error"/>
@@ -109,6 +102,10 @@ under the License.
 
       <!-- Sevntu checks, http://sevntu-checkstyle.github.io/sevntu.checkstyle/ -->
       <module name="DiamondOperatorForVariableDefinition"/>
+      <module name="RequiredParameterForAnnotation">
+         <property name="annotationName" value="Parameterized.Parameters"/>
+         <property name="requiredParameters" value="name"/>
+      </module>
 
    </module>
 </module>
