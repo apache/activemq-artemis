@@ -107,7 +107,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          body = new AmqpValue(((TextMessage) msg).getText());
       }
       if (msg instanceof MapMessage) {
-         final HashMap<String, Object> map = new HashMap<String, Object>();
+         final HashMap<String, Object> map = new HashMap<>();
          final MapMessage m = (MapMessage) msg;
          final Enumeration<String> names = m.getMapNames();
          while (names.hasMoreElements()) {
@@ -117,7 +117,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          body = new AmqpValue(map);
       }
       if (msg instanceof StreamMessage) {
-         ArrayList<Object> list = new ArrayList<Object>();
+         ArrayList<Object> list = new ArrayList<>();
          final StreamMessage m = (StreamMessage) msg;
          try {
             while (true) {
@@ -163,7 +163,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       if (msg.getJMSDestination() != null) {
          props.setTo(vendor.toAddress(msg.getJMSDestination()));
          if (maMap == null) {
-            maMap = new HashMap<Symbol, Object>();
+            maMap = new HashMap<>();
          }
          maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, destinationType(msg.getJMSDestination()));
 
@@ -173,7 +173,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       if (msg.getJMSReplyTo() != null) {
          props.setReplyTo(vendor.toAddress(msg.getJMSReplyTo()));
          if (maMap == null) {
-            maMap = new HashMap<Symbol, Object>();
+            maMap = new HashMap<>();
          }
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(msg.getJMSReplyTo()));
 
@@ -235,14 +235,14 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          else if (key.startsWith(prefixDeliveryAnnotationsKey)) {
             if (daMap == null) {
-               daMap = new HashMap<Symbol, Object>();
+               daMap = new HashMap<>();
             }
             String name = key.substring(prefixDeliveryAnnotationsKey.length());
             daMap.put(Symbol.valueOf(name), msg.getObjectProperty(key));
          }
          else if (key.startsWith(prefixMessageAnnotationsKey)) {
             if (maMap == null) {
-               maMap = new HashMap<Symbol, Object>();
+               maMap = new HashMap<>();
             }
             String name = key.substring(prefixMessageAnnotationsKey.length());
             maMap.put(Symbol.valueOf(name), msg.getObjectProperty(key));

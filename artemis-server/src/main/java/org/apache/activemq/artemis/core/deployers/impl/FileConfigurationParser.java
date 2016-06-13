@@ -620,9 +620,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    protected Pair<String, Set<Role>> parseSecurityRoles(final Node node) {
       final String match = node.getAttributes().getNamedItem("match").getNodeValue();
 
-      HashSet<Role> securityRoles = new HashSet<>();
+      Set<Role> securityRoles = new HashSet<>();
 
-      Pair<String, Set<Role>> securityMatch = new Pair<String, Set<Role>>(match, securityRoles);
+      Pair<String, Set<Role>> securityMatch = new Pair<>(match, securityRoles);
 
       ArrayList<String> send = new ArrayList<>();
       ArrayList<String> consume = new ArrayList<>();

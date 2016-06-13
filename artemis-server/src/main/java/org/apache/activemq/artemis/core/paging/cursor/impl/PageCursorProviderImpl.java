@@ -72,7 +72,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    private final SoftValueHashMap<Long, PageCache> softCache;
 
-   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<Long, PageSubscription>();
+   private final ConcurrentMap<Long, PageSubscription> activeCursors = new ConcurrentHashMap<>();
 
    // Static --------------------------------------------------------
 
@@ -345,7 +345,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       logger.tracef("performing page cleanup %s", this);
 
-      ArrayList<Page> depagedPages = new ArrayList<Page>();
+      ArrayList<Page> depagedPages = new ArrayList<>();
 
       while (true) {
          if (pagingStore.lock(100)) {
