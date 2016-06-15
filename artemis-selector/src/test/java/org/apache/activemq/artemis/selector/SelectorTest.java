@@ -470,6 +470,8 @@ public class SelectorTest {
       assertInvalidSelector(message, "3+5");
       assertInvalidSelector(message, "True AND 3+5");
       assertInvalidSelector(message, "=TEST 'test'");
+      assertInvalidSelector(message, "prop1 = prop2 foo AND string = 'Test'");
+      assertInvalidSelector(message, "a = 1 AMD  b = 2");
    }
 
    protected MockMessage createMessage() {
