@@ -32,7 +32,7 @@ public class LivePageCacheImpl implements LivePageCache {
 
    private static final Logger logger = Logger.getLogger(LivePageCacheImpl.class);
 
-   private final List<PagedMessage> messages = new LinkedList<PagedMessage>();
+   private final List<PagedMessage> messages = new LinkedList<>();
 
    private final Page page;
 

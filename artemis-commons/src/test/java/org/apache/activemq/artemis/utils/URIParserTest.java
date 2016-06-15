@@ -104,7 +104,7 @@ public class URIParserTest {
 
    @Test
    public void testQueryConversion() throws Exception {
-      Map<String, String> query = new HashMap<String, String>();
+      Map<String, String> query = new HashMap<>();
       String queryString = URISupport.createQueryString(query);
       System.out.println("queryString1: " + queryString);
       Assert.assertTrue(queryString.isEmpty());

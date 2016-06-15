@@ -116,7 +116,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          Set<RolePrincipal> rolesWithPermission = getPrincipalsInRole(checkType, roles);
 
          // Check the caller's roles
-         Set<Principal> rolesForSubject = new HashSet<Principal>();
+         Set<Principal> rolesForSubject = new HashSet<>();
          try {
             rolesForSubject.addAll(localSubject.getPrincipals(Class.forName(rolePrincipalClass).asSubclass(Principal.class)));
          }

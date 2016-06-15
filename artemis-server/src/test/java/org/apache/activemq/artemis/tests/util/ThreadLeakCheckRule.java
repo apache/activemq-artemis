@@ -28,7 +28,7 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
-   private static Set<String> knownThreads = new HashSet<String>();
+   private static Set<String> knownThreads = new HashSet<>();
 
    boolean enabled = true;
 

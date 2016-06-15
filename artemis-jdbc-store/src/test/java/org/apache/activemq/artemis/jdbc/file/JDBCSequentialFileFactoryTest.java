@@ -75,7 +75,7 @@ public class JDBCSequentialFileFactoryTest {
    @Test
    public void testCreateFiles() throws Exception {
       int noFiles = 100;
-      Set<String> fileNames = new HashSet<String>();
+      Set<String> fileNames = new HashSet<>();
       for (int i = 0; i < noFiles; i++) {
          String fileName = UUID.randomUUID().toString() + ".txt";
          fileNames.add(fileName);

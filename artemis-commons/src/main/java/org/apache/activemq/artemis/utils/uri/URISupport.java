@@ -474,7 +474,7 @@ public class URISupport {
          if (options.size() > 0) {
             StringBuilder rc = new StringBuilder();
             boolean first = true;
-            List<String> keys = new ArrayList<String>();
+            List<String> keys = new ArrayList<>();
             keys.addAll(options.keySet());
             Collections.sort(keys);
             for (String key : keys) {

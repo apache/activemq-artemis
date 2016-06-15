@@ -71,7 +71,7 @@ public class InMemorySchemaPartition extends AbstractLdifPartition {
 
       // load schema
       final Map<String, Boolean> resMap = ResourceMap.getResources(Pattern.compile("schema[/\\Q\\\\E]ou=schema.*"));
-      for (String resourcePath : new TreeSet<String>(resMap.keySet())) {
+      for (String resourcePath : new TreeSet<>(resMap.keySet())) {
          if (resourcePath.endsWith(".ldif")) {
             URL resource = DefaultSchemaLdifExtractor.getUniqueResource(resourcePath, "Schema LDIF file");
             LdifReader reader = new LdifReader(resource.openStream());
