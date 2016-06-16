@@ -259,6 +259,7 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
          ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(size);
          ByteBuffer head = transport.head();
          head.position(offset);
+         head.limit(offset + size);
          buffer.writeBytes(head);
          offset += size; // incrementing offset for future calls
          return buffer;
