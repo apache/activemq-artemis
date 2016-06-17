@@ -426,7 +426,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       Set<String> set = new HashSet<>();
       for (String s : protocols) {
          if (s.equalsIgnoreCase("SSLv3") || s.equals("SSLv2Hello")) {
-            ActiveMQServerLogger.LOGGER.disallowedProtocol(s);
+            ActiveMQServerLogger.LOGGER.disallowedProtocol(s, name);
             continue;
          }
          set.add(s);
