@@ -1289,5 +1289,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       public SimpleString getUser() {
          return null;
       }
+
+      @Override
+      public void decDelivering(int size) {
+
+      }
    }
 }

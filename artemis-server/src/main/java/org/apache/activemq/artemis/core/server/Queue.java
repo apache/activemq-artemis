@@ -249,4 +249,6 @@ public interface Queue extends Bindable {
     * @return the user who created this queue
     */
    SimpleString getUser();
+
+   void decDelivering(int size);
 }
