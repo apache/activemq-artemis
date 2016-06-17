@@ -148,7 +148,7 @@ public abstract class Configurable extends ActionAbstract {
       if (brokerDTO == null) {
          getConfiguration();
 
-         brokerDTO = BrokerFactory.createBrokerConfiguration(configuration);
+         brokerDTO = BrokerFactory.createBrokerConfiguration(configuration, getBrokerHome(), getBrokerInstance());
 
          if (brokerConfig != null) {
             if (!brokerConfig.startsWith("file:")) {
