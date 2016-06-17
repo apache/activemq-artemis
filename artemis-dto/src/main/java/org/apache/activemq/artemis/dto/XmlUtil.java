@@ -76,6 +76,11 @@ public class XmlUtil {
    private static final XMLInputFactory factory = XMLInputFactory.newInstance();
 
    public static <T> T decode(Class<T> clazz, File configuration) throws Exception {
+      return decode(clazz, configuration, null, null);
+   }
+
+   /** We offer parameters for artemisInstance and artemisHoms as they could be coming from the CLI or Maven Plugin */
+   public static <T> T decode(Class<T> clazz, File configuration, String artemisHome, String artemisInstance) throws Exception {
       JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.artemis.dto");
 
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -86,9 +91,16 @@ public class XmlUtil {
       Schema schema = sf.newSchema(xsdSource);
       unmarshaller.setSchema(schema);
 
+      Properties props = new Properties(System.getProperties());
+      if (artemisHome != null) {
+         props.put("artemis.home", artemisHome);
+      }
+
+      if (artemisInstance != null) {
+         props.put("artemis.instance", artemisInstance);
+      }
+
       XMLStreamReader reader = factory.createXMLStreamReader(new FileInputStream(configuration));
-      //TODO - support properties files
-      Properties props = System.getProperties();
 
       if (props != null) {
          reader = new PropertiesFilter(reader, props);
