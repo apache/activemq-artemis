@@ -386,12 +386,12 @@ To configure Apache ActiveMQ Artemis to use a database for persisting messages a
 
 1. Add the appropriate JDBC driver libraries to the Artemis runtime.  You can do this by dropping the relevant jars in the lib folder of the ActiveMQ Artemis distribution.
 
-2. Create a store element in your broker.xml config file under the <core> element.  For example:
+2. Create a store element in your broker.xml config file under the ```<core>``` element.  For example:
 
 ```xml
       <store>
          <database-store>
-            <jdbc-connection-url>jdbc:derby:target/derby/database-store;create=true</jdbc-connection-url>
+            <jdbc-connection-url>jdbc:derby:data/derby/database-store;create=true</jdbc-connection-url>
             <bindings-table-name>BINDINGS_TABLE</bindings-table-name>
             <message-table-name>MESSAGE_TABLE</message-table-name>
             <large-message-table-name>LARGE_MESSAGES_TABLE</large-message-table-name>
