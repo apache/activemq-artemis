@@ -570,4 +570,8 @@ public class FakeQueue implements Queue {
    public SimpleString getUser() {
       return null;
    }
+
+   @Override
+   public void decDelivering(int size) {
+   }
 }

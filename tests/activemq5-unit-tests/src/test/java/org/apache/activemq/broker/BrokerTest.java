@@ -459,7 +459,7 @@ public class BrokerTest extends BrokerTestSupport {
       //due to async tx operations, we need some time for message count to go down
       Thread.sleep(1000);
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
-      long messageCount = wrapper.getAMQueueMessageCount(destination.getPhysicalName());
+      long messageCount = wrapper.getAMQueueMessageCount(destination);
 
       // The queue should now only have the remaining 2 messages
       assertEquals(2, messageCount);
@@ -1473,15 +1473,15 @@ public class BrokerTest extends BrokerTestSupport {
       assertEquals(m.getMessageId(), message1.getMessageId());
 
       ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
-      long messageCount = wrapper.getAMQueueMessageCount(destination.getPhysicalName());
+      long messageCount = wrapper.getAMQueueMessageCount(destination);
       assertTrue(messageCount == 2);
       connection.send(createAck(consumerInfo, m, 1, MessageAck.DELIVERED_ACK_TYPE));
-      messageCount = wrapper.getAMQueueMessageCount(destination.getPhysicalName());
+      messageCount = wrapper.getAMQueueMessageCount(destination);
       assertTrue(messageCount == 2);
       connection.send(createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE));
       //give some time for broker to count down
       Thread.sleep(2000);
-      messageCount = wrapper.getAMQueueMessageCount(destination.getPhysicalName());
+      messageCount = wrapper.getAMQueueMessageCount(destination);
       assertTrue(messageCount == 1);
 
    }

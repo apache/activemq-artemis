@@ -43,6 +43,7 @@ import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.MessagePull;
+import org.apache.activemq.command.RemoveInfo;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQConsumer {
@@ -271,6 +272,10 @@ public class AMQConsumer {
             transaction.commit(true);
          }
       }
+      if (ack.isExpiredAck()) {
+         //adjust delivering count for expired messages
+         this.serverConsumer.getQueue().decDelivering(ackList.size());
+      }
    }
 
    public void browseFinished() {
@@ -314,14 +319,23 @@ public class AMQConsumer {
       }
    }
 
-   public void updateDeliveryCountAfterCancel(MessageReference ref) {
+   public boolean updateDeliveryCountAfterCancel(MessageReference ref) {
       long seqId = ref.getMessage().getMessageID();
       long lastDelSeqId = info.getLastDeliveredSequenceId();
 
+      //because delivering count is always one greater than redelivery count
+      //we adjust it down before further calculating.
+      ref.decrementDeliveryCount();
+
       // This is a specific rule of the protocol
-      if (!(lastDelSeqId < 0 || seqId <= lastDelSeqId)) {
-         ref.decrementDeliveryCount();
+      if (lastDelSeqId == RemoveInfo.LAST_DELIVERED_UNKNOWN) {
+         // this takes care of un-acked messages in non-tx deliveries
+         // tx cases are handled by
+         // org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection.CommandProcessor.processRollbackTransaction()
+         ref.incrementDeliveryCount();
       }
+
+      return true;
    }
 
    /**
