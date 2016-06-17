@@ -50,7 +50,9 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    private static final String WILDCARD = "*";
 
    private String configurationName;
+   private String certificateConfigurationName;
    private SecurityConfiguration configuration;
+   private SecurityConfiguration certificateConfiguration;
    private String rolePrincipalClass = "org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal";
 
    public ActiveMQJAASSecurityManager() {
@@ -60,9 +62,21 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
       this.configurationName = configurationName;
    }
 
+   public ActiveMQJAASSecurityManager(String configurationName, String certificateConfigurationName) {
+      this.configurationName = configurationName;
+      this.certificateConfigurationName = certificateConfigurationName;
+   }
+
    public ActiveMQJAASSecurityManager(String configurationName, SecurityConfiguration configuration) {
       this.configurationName = configurationName;
       this.configuration = configuration;
+   }
+
+   public ActiveMQJAASSecurityManager(String configurationName, String certificateConfigurationName, SecurityConfiguration configuration, SecurityConfiguration certificateConfiguration) {
+      this.configurationName = configurationName;
+      this.configuration = configuration;
+      this.certificateConfigurationName = certificateConfigurationName;
+      this.certificateConfiguration = certificateConfiguration;
    }
 
    @Override
@@ -144,7 +158,13 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    }
 
    private Subject getAuthenticatedSubject(final String user, final String password, final X509Certificate[] certificates) throws LoginException {
-      LoginContext lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
+      LoginContext lc;
+      if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && certificates != null) {
+         lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, certificates), certificateConfiguration);
+      }
+      else {
+         lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, certificates), configuration);
+      }
       lc.login();
       return lc.getSubject();
    }
@@ -172,12 +192,28 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
       this.configuration = configuration;
    }
 
+   public void setCertificateConfigurationName(final String certificateConfigurationName) {
+      this.certificateConfigurationName = certificateConfigurationName;
+   }
+
+   public void setCertificateConfiguration(SecurityConfiguration certificateConfiguration) {
+      this.certificateConfiguration = certificateConfiguration;
+   }
+
    public SecurityConfiguration getConfiguration() {
       if (configuration == null) {
          configuration = new SecurityConfiguration();
       }
 
       return configuration;
+   }
+
+   public SecurityConfiguration getCertificateConfiguration() {
+      if (certificateConfiguration == null) {
+         certificateConfiguration = new SecurityConfiguration();
+      }
+
+      return certificateConfiguration;
    }
 
    public String getRolePrincipalClass() {

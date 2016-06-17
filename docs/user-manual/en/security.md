@@ -238,10 +238,9 @@ As mentioned, there are a few places where a translation was performed to achiev
 
 ## Secure Sockets Layer (SSL) Transport
 
-When messaging clients are connected to servers, or servers are
-connected to other servers (e.g. via bridges) over an untrusted network
-then Apache ActiveMQ Artemis allows that traffic to be encrypted using the Secure
-Sockets Layer (SSL) transport.
+When messaging clients are connected to servers, or servers are connected to other servers (e.g. via bridges) over an
+untrusted network then Apache ActiveMQ Artemis allows that traffic to be encrypted using the Secure Sockets Layer (SSL)
+transport.
 
 For more information on configuring the SSL transport, please see [Configuring the Transport](configuring-transports.md).
 
@@ -250,12 +249,11 @@ For more information on configuring the SSL transport, please see [Configuring t
 Apache ActiveMQ Artemis ships with two security manager implementations:
  
 -   The legacy, deprecated `ActiveMQSecurityManager` that reads user credentials, i.e. user names, passwords and role 
-information from properties files on the classpath called `artemis-users.properties` and `artemis-roles.properties`. 
-This is the default security manager.
+information from properties files on the classpath called `artemis-users.properties` and `artemis-roles.properties`.
 
 -   The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any standard JAAS login module. Artemis ships 
-with several login modules which will be discussed further down. 
-    
+with several login modules which will be discussed further down. This is the default security manager.
+
 ### JAAS Security Manager
 
 When using JAAS much of the configuration depends on which login module is used. However, there are a few commonalities
@@ -278,16 +276,45 @@ The `login.config` file is a standard JAAS configuration file. You can read more
 [Oracle's website](https://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
 In short, the file defines:
 
--   an alias for a configuration (e.g. `PropertiesLogin`)
+-   an alias for an entry (e.g. `PropertiesLogin`)
 
--   the implementation class (e.g. `org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule`)
+-   the implementation class for the login module (e.g. `org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule`)
 
--   a flag which indicates whether the success of the LoginModule is `required`, `requisite`, `sufficient`, or `optional`
+-   a flag which indicates whether the success of the login module is `required`, `requisite`, `sufficient`, or `optional`
+(see more details on these flags in the [JavaDoc](http://docs.oracle.com/javase/8/docs/api/javax/security/auth/login/Configuration.html)
 
 -   a list of configuration options specific to the login module implementation
 
 By default, the location and name of `login.config` is specified on the Artemis command-line which is set by 
 `etc/artemis.profile` on linux and `etc\artemis.profile.cmd` on Windows.
+
+#### Dual Authentication
+
+The JAAS Security Manager also supports another configuration parameter - `certificate-domain`. This is useful when you 
+want to authenticate clients connecting with SSL connections based on their SSL certificates (e.g. using the `CertificateLoginModule`
+discussed below) but you still want to authenticate clients connecting with non-SSL connections with, e.g., username and
+password. Here's an example of what would go in `bootstrap.xml`:
+
+    <jaas-security domain="PropertiesLogin" certificate-domain="CertLogin"/>
+    
+And here's the corresponding `login.config`:
+
+    PropertiesLogin {
+       org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule required
+           debug=false
+           org.apache.activemq.jaas.properties.user="artemis-users.properties"
+           org.apache.activemq.jaas.properties.role="artemis-roles.properties";
+    };
+    
+    CertLogin {
+       org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule required
+           debug=true
+           org.apache.activemq.jaas.textfiledn.user="cert-users.properties"
+           org.apache.activemq.jaas.textfiledn.role="cert-roles.properties";
+    };
+
+When the broker is configured this way then any client connecting with SSL and a client certificate will be authenticated
+using `CertLogin` and any client connecting without SSL will be authenticated using `PropertiesLogin`.
 
 ### JAAS Login Modules
 

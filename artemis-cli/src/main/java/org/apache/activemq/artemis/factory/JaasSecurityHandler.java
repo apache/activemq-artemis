@@ -25,7 +25,7 @@ public class JaasSecurityHandler implements SecurityHandler {
    @Override
    public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception {
       JaasSecurityDTO jaasSecurity = (JaasSecurityDTO) security;
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(jaasSecurity.domain);
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(jaasSecurity.domain, jaasSecurity.certificateDomain);
       return securityManager;
    }
 }
