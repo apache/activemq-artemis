@@ -2854,6 +2854,11 @@ public class QueueImpl implements Queue {
       deliveringCount.decrementAndGet();
    }
 
+   @Override
+   public void decDelivering(int size) {
+      deliveringCount.addAndGet(-size);
+   }
+
    private void configureExpiry(final AddressSettings settings) {
       this.expiryAddress = settings == null ? null : settings.getExpiryAddress();
    }

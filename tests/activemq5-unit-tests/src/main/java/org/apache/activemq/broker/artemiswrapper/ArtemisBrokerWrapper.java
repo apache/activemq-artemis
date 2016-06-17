@@ -41,12 +41,12 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
-
    protected final Map<String, SimpleString> testQueues = new HashMap<>();
    protected JMSServerManagerImpl jmsServer;
    protected MBeanServer mbeanServer;
@@ -251,9 +251,18 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       }
    }
 
-   public long getAMQueueMessageCount(String physicalName) {
+   public long getAMQueueMessageCount(ActiveMQDestination amq5Dest) {
+      if (amq5Dest.isTopic()) {
+         throw new IllegalArgumentException("Method only accept queue type parameter.");
+      }
       long count = 0;
-      String qname = "jms.queue." + physicalName;
+      String qname = null;
+      if (amq5Dest.isTemporary()) {
+         qname = "jms.tempqueue." + amq5Dest.getPhysicalName();
+      }
+      else {
+         qname = "jms.queue." + amq5Dest.getPhysicalName();
+      }
       Binding binding = server.getPostOffice().getBinding(new SimpleString(qname));
       if (binding != null) {
          QueueImpl q = (QueueImpl) binding.getBindable();

@@ -123,8 +123,7 @@ public class AMQSession implements SessionCallback {
    @Override
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
       if (consumer.getProtocolData() != null) {
-         ((AMQConsumer) consumer.getProtocolData()).updateDeliveryCountAfterCancel(ref);
-         return true;
+         return ((AMQConsumer) consumer.getProtocolData()).updateDeliveryCountAfterCancel(ref);
       }
       else {
          return false;
