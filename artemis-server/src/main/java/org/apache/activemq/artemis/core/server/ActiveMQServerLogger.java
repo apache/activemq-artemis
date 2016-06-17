@@ -309,6 +309,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 221052, value = "trying to deploy topic {0}", format = Message.Format.MESSAGE_FORMAT)
    void deployTopic(SimpleString topicName);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221053,
+      value = "Disallowing use of vulnerable protocol ''{0}'' on acceptor ''{1}''. See http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html for more details.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void disallowedProtocol(String protocol, String acceptorName);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
@@ -1111,12 +1117,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
       value = "Failed to activate shared store slave",
       format = Message.Format.MESSAGE_FORMAT)
    void activateSharedStoreSlaveFailed(@Cause Throwable e);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222190,
-      value = "Disallowing use of vulnerable protocol: {0}. See http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html for more details.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void disallowedProtocol(String protocol);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222191,
