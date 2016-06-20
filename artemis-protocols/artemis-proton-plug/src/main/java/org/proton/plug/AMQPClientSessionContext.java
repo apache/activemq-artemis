@@ -22,6 +22,8 @@ public interface AMQPClientSessionContext extends AMQPSessionContext {
 
    AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException;
 
+   AMQPClientSenderContext createDynamicSender(boolean preSettled) throws ActiveMQAMQPException;
+
    AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException;
 
    AMQPClientReceiverContext createReceiver(String name, String address) throws ActiveMQAMQPException;

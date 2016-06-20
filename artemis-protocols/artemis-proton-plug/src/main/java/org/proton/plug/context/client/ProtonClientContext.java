@@ -67,7 +67,10 @@ public class ProtonClientContext extends AbstractProtonContextSender implements 
          Thread.currentThread().interrupt();
          return false;
       }
-
    }
 
+   @Override
+   public String getAddress() {
+      return sender.getRemoteTarget().getAddress();
+   }
 }

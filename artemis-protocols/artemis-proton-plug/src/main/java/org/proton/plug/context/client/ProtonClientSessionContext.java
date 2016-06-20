@@ -16,8 +16,18 @@
  */
 package org.proton.plug.context.client;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Accepted;
+import org.apache.qpid.proton.amqp.messaging.DeleteOnClose;
+import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
@@ -26,6 +36,7 @@ import org.proton.plug.AMQPClientReceiverContext;
 import org.proton.plug.AMQPClientSenderContext;
 import org.proton.plug.AMQPClientSessionContext;
 import org.proton.plug.AMQPSessionCallback;
+import org.proton.plug.AmqpSupport;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
@@ -52,6 +63,46 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
          sender.setTarget(target);
          amqpSender = new ProtonClientContext(connection, sender, this, sessionSPI);
          amqpSender.afterInit(futureRunnable);
+         sender.setContext(amqpSender);
+         sender.open();
+      }
+
+      connection.flush();
+
+      waitWithTimeout(futureRunnable);
+      return amqpSender;
+   }
+
+   @Override
+   public AMQPClientSenderContext createDynamicSender(boolean preSettled) throws ActiveMQAMQPException {
+      FutureRunnable futureRunnable = new FutureRunnable(1);
+
+      ProtonClientContext amqpSender;
+      synchronized (connection.getLock()) {
+         final String senderName = "Dynamic-" + UUID.randomUUID().toString();
+
+         Sender sender = session.sender(senderName);
+         sender.setSenderSettleMode(SenderSettleMode.SETTLED);
+
+         Symbol[] outcomes = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL};
+         Source source = new Source();
+         source.setAddress(senderName);
+         source.setOutcomes(outcomes);
+
+         Target target = new Target();
+         target.setDynamic(true);
+         target.setDurable(TerminusDurability.NONE);
+         target.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+
+         // Set the dynamic node lifetime-policy
+         Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
+         dynamicNodeProperties.put(AmqpSupport.LIFETIME_POLICY, DeleteOnClose.getInstance());
+         target.setDynamicNodeProperties(dynamicNodeProperties);
+
+         amqpSender = new ProtonClientContext(connection, sender, this, sessionSPI);
+         amqpSender.afterInit(futureRunnable);
+         sender.setSource(source);
+         sender.setTarget(target);
          sender.setContext(amqpSender);
          sender.open();
       }
