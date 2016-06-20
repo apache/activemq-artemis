@@ -256,10 +256,9 @@ Netty for simple TCP:
     small number of consumers, but at the cost of overall throughput and
     scalability - especially on multi-core machines. If you want the
     lowest latency and a possible reduction in throughput then you can
-    use the default value for `directDeliver` (i.e. true). If you are
+    use the default value for `directDeliver` (i.e. `true`). If you are
     willing to take some small extra hit on latency but want the highest
-    throughput set `directDeliver` to `false
-                            `.
+    throughput set `directDeliver` to `false`.
 
 -   `nioRemotingThreads`. When configured to use NIO, Apache ActiveMQ Artemis will,
     by default, use a number of threads equal to three times the number
@@ -422,6 +421,6 @@ additional properties:
 -   `httpServerScanPeriod`. How often, in milliseconds, to scan for
     clients needing responses
 
--   `httpRequiresSessionId`. If true the client will wait after the
+-   `httpRequiresSessionId`. If `true` the client will wait after the
     first call to receive a session id. Used the http connector is
     connecting to servlet acceptor (not recommended)
