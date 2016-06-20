@@ -32,8 +32,8 @@ import java.util.Set;
  * The user and role files' locations must be specified in the
  * org.apache.activemq.jaas.textfiledn.user and
  * org.apache.activemq.jaas.textfiledn.role properties respectively. NOTE: This
- * class will re-read user and group files for every authentication (i.e it does
- * live updates of allowed roles and users).
+ * class will re-read user and group files if they have been modified and the "reload"
+ * option is true
  */
 public class TextFileCertificateLoginModule extends CertificateLoginModule {
 

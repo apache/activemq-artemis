@@ -406,6 +406,8 @@ with LDAP is preferable. It is implemented by `org.apache.activemq.artemis.spi.c
 
 -   `org.apache.activemq.jaas.properties.role` - the path to the file which contains user and role properties
 
+-   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
+
 -   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it 
 should be set to `false`, or omitted; default is `false`
 
@@ -574,6 +576,8 @@ login module. The options supported by this login module are as follows:
 
 -   `org.apache.activemq.jaas.textfiledn.role` - specifies the location of the role properties file (relative to the 
     directory containing the login configuration file).
+
+-   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
 
 In the context of the certificate login module, the `users.properties` file consists of a list of properties of the form,
 `UserName=StringifiedSubjectDN`. For example, to define the users, system, user, and guest, you could create a file like
