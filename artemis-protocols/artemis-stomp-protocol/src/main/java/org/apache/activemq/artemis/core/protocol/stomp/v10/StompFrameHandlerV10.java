@@ -67,8 +67,9 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       else {
          //not valid
          response = new StompFrameV10(Stomp.Responses.ERROR);
-         response.addHeader(Stomp.Headers.Error.MESSAGE, "Failed to connect");
-         response.setBody("The login account is not valid.");
+         String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
+         response.setBody(responseText);
+         response.addHeader(Stomp.Headers.Error.MESSAGE, responseText);
       }
       return response;
    }
