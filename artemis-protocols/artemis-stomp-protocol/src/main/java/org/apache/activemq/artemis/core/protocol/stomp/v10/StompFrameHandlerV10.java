@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v10;
 
+import javax.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
@@ -26,7 +27,9 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.StompVersions;
 import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandler;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -48,7 +51,12 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String clientID = headers.get(Stomp.Headers.Connect.CLIENT_ID);
       String requestID = headers.get(Stomp.Headers.Connect.REQUEST_ID);
 
-      if (connection.validateUser(login, passcode)) {
+      X509Certificate[] certificates = null;
+      if (connection.getTransportConnection() instanceof NettyConnection) {
+         certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
+      }
+
+      if (connection.validateUser(login, passcode, certificates)) {
          connection.setClientID(clientID);
          connection.setValid(true);
 
