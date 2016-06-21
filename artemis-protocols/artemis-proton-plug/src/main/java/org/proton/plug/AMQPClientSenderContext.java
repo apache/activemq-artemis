@@ -21,4 +21,7 @@ import org.apache.qpid.proton.message.ProtonJMessage;
 public interface AMQPClientSenderContext {
 
    void send(ProtonJMessage message);
+
+   String getAddress();
+
 }

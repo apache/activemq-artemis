@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +52,10 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.ProtonJMessage;
+import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,6 +64,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.AMQPClientReceiverContext;
+import org.proton.plug.AMQPClientSenderContext;
 import org.proton.plug.AMQPClientSessionContext;
 import org.proton.plug.test.Constants;
 import org.proton.plug.test.minimalclient.SimpleAMQPConnector;
@@ -196,7 +201,7 @@ public class ProtonTest extends ActiveMQTestBase {
    }
 
    @Test
-      public void testReplyToNonJMS() throws Throwable {
+   public void testReplyToNonJMS() throws Throwable {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       TemporaryQueue queue = session.createTemporaryQueue();
@@ -351,6 +356,40 @@ public class ProtonTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testDynamicSenderLink() throws Exception {
+
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      SimpleAMQPConnector connector = new SimpleAMQPConnector();
+      connector.start();
+      AMQPClientConnectionContext clientConnection = connector.connect("127.0.0.1", Constants.PORT);
+
+      clientConnection.clientOpen(null);
+
+      AMQPClientSessionContext csession = clientConnection.createClientSession();
+      AMQPClientSenderContext sender = csession.createDynamicSender(false);
+
+      String address = sender.getAddress();
+
+      AMQPClientReceiverContext receiver = csession.createReceiver(address);
+      receiver.flow(1);
+
+      // Send one on the dynamic address
+      MessageImpl message = (MessageImpl) org.apache.qpid.proton.message.Message.Factory.create();
+
+      Properties props = new Properties();
+      Map<Object, Object> map = new HashMap<>();
+
+      map.put("some-property", 1);
+      AmqpValue value = new AmqpValue(map);
+      message.setBody(value);
+      message.setProperties(props);
+      sender.send(message);
+
+      ProtonJMessage protonJMessage = receiver.receiveMessage(500, TimeUnit.MILLISECONDS);
+      Assert.assertNotNull(protonJMessage);
+   }
 
    @Test
    public void testConnection() throws Exception {

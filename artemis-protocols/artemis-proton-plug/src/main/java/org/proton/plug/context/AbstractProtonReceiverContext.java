@@ -32,7 +32,7 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
 
    protected final Receiver receiver;
 
-   protected final String address;
+   protected String address;
 
    protected final AMQPSessionCallback sessionSPI;
 
@@ -43,12 +43,6 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
       this.connection = connection;
       this.protonSession = protonSession;
       this.receiver = receiver;
-      if (receiver.getRemoteTarget() != null) {
-         this.address = receiver.getRemoteTarget().getAddress();
-      }
-      else {
-         this.address = null;
-      }
       this.sessionSPI = sessionSPI;
    }
 

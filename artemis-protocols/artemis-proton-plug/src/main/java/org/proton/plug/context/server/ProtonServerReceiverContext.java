@@ -61,20 +61,20 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
          if (target.getDynamic()) {
             //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
-            String queue = sessionSPI.tempQueueName();
+            address = sessionSPI.tempQueueName();
 
             try {
-               sessionSPI.createTemporaryQueue(queue);
+               sessionSPI.createTemporaryQueue(address);
             }
             catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
-            target.setAddress(queue);
+            target.setAddress(address);
          }
          else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
-            String address = target.getAddress();
+            address = target.getAddress();
             if (address == null) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
             }
