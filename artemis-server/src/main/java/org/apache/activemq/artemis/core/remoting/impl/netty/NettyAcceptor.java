@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-
+import javax.net.ssl.SSLHandshakeException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.AccessController;
@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -53,7 +54,6 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -74,8 +74,8 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
-import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
@@ -289,6 +289,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled) {
                pipeline.addLast("ssl", getSslHandler());
+               pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
          }
@@ -715,6 +716,34 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       public synchronized void cancel() {
          cancelled = true;
+      }
+   }
+
+   /**
+    * Deal with SSL handshake exceptions which otherwise would not be handled and would result in a lengthy stack-trace
+    * in the log.
+    */
+   private class SslHandshakeExceptionHandler implements ChannelHandler {
+
+      @Override
+      public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+
+      }
+
+      @Override
+      public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+
+      }
+
+      @Override
+      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+         if (cause.getMessage() != null && cause.getMessage().startsWith(SSLHandshakeException.class.getName())) {
+            ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), cause.getMessage());
+
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+               ActiveMQServerLogger.LOGGER.debug("SSL handshake failed", cause);
+            }
+         }
       }
    }
 }
