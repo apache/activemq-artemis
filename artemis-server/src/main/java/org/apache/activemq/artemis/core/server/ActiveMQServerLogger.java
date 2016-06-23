@@ -1214,6 +1214,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void slowReplicationResponse();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222208, value = "SSL handshake failed for client from {0}: {1}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void sslHandshakeFailed(String clientAddress, String cause);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
