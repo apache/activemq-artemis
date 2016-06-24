@@ -33,6 +33,21 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute(required = true)
    public String path;
 
+   @XmlAttribute
+   public Boolean clientAuth;
+
+   @XmlAttribute
+   public String keyStorePath;
+
+   @XmlAttribute
+   public String keyStorePassword;
+
+   @XmlAttribute
+   public String trustStorePath;
+
+   @XmlAttribute
+   public String trustStorePassword;
+
    @XmlElementRef
    public List<AppDTO> apps;
 

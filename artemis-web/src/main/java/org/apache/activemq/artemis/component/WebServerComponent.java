@@ -22,11 +22,16 @@ import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
@@ -47,7 +52,33 @@ public class WebServerComponent implements ExternalComponent {
       webServerConfig = (WebServerDTO) config;
       uri = new URI(webServerConfig.bind);
       server = new Server();
-      ServerConnector connector = new ServerConnector(server);
+      String scheme = uri.getScheme();
+      ServerConnector connector = null;
+
+      if ("https".equals(scheme)) {
+         SslContextFactory sslFactory = new SslContextFactory();
+         sslFactory.setKeyStorePath(webServerConfig.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : webServerConfig.keyStorePath);
+         sslFactory.setKeyStorePassword(webServerConfig.keyStorePassword == null ? "password" : webServerConfig.keyStorePassword);
+         if (webServerConfig.clientAuth != null) {
+            sslFactory.setNeedClientAuth(webServerConfig.clientAuth);
+            if (webServerConfig.clientAuth) {
+               sslFactory.setTrustStorePath(webServerConfig.trustStorePath);
+               sslFactory.setTrustStorePassword(webServerConfig.trustStorePassword);
+            }
+         }
+
+         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
+
+         HttpConfiguration https = new HttpConfiguration();
+         https.addCustomizer(new SecureRequestCustomizer());
+         HttpConnectionFactory httpFactory = new HttpConnectionFactory(https);
+
+         connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
+
+      }
+      else {
+         connector = new ServerConnector(server);
+      }
       connector.setPort(uri.getPort());
       connector.setHost(uri.getHost());
 

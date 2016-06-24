@@ -72,6 +72,7 @@ public class Create extends InputAbstract {
    public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
    public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
    public static final String ETC_BROKER_XML = "etc/broker.xml";
+   public static final String ETC_WEB_KEYSTORE = "etc/keystore.jks";
 
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
@@ -623,6 +624,9 @@ public class Create extends InputAbstract {
       else {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
+
+      //keystore
+      write(ETC_WEB_KEYSTORE);
 
       if (noAmqpAcceptor) {
          filters.put("${amqp-acceptor}", "");
