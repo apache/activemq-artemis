@@ -1116,6 +1116,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Producer flow control
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="user" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1337,6 +1345,14 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the window used for confirming data from the server connected to.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Producer flow control
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

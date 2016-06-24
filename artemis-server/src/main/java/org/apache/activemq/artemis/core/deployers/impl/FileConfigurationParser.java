@@ -1314,6 +1314,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       int confirmationWindowSize = getInteger(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(), Validators.GT_ZERO);
 
+      int producerWindowSize = getInteger(e, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(), Validators.MINUS_ONE_OR_GT_ZERO);
+
       long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
 
       int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
@@ -1343,7 +1345,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setDuplicateDetection(duplicateDetection).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(confirmationWindowSize).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setClusterNotificationInterval(clusterNotificationInterval).setClusterNotificationAttempts(clusterNotificationAttempts);
+      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
+         .setName(name)
+         .setAddress(address)
+         .setConnectorName(connectorName)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setRetryInterval(retryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setInitialConnectAttempts(initialConnectAttempts)
+         .setReconnectAttempts(reconnectAttempts)
+         .setCallTimeout(callTimeout)
+         .setCallFailoverTimeout(callFailoverTimeout)
+         .setDuplicateDetection(duplicateDetection)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
+         .setMaxHops(maxHops)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setProducerindowSize(producerWindowSize)
+         .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
+         .setClusterNotificationInterval(clusterNotificationInterval)
+         .setClusterNotificationAttempts(clusterNotificationAttempts);
 
       if (discoveryGroupName == null) {
          config.setStaticConnectors(staticConnectorNames);
@@ -1376,6 +1399,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       // Default bridge conf
       int confirmationWindowSize = getInteger(brNode, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(), Validators.GT_ZERO);
+
+      int producerWindowSize = getInteger(brNode, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(), Validators.GT_ZERO);
 
       long retryInterval = getLong(brNode, "retry-interval", ActiveMQClient.DEFAULT_RETRY_INTERVAL, Validators.GT_ZERO);
 
@@ -1444,7 +1469,27 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setMaxRetryInterval(maxRetryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
+      BridgeConfiguration config = new BridgeConfiguration()
+         .setName(name)
+         .setQueueName(queueName)
+         .setForwardingAddress(forwardingAddress)
+         .setFilterString(filterString)
+         .setTransformerClassName(transformerClassName)
+         .setMinLargeMessageSize(minLargeMessageSize)
+         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+         .setConnectionTTL(connectionTTL)
+         .setRetryInterval(retryInterval)
+         .setMaxRetryInterval(maxRetryInterval)
+         .setRetryIntervalMultiplier(retryIntervalMultiplier)
+         .setInitialConnectAttempts(initialConnectAttempts)
+         .setReconnectAttempts(reconnectAttempts)
+         .setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode)
+         .setUseDuplicateDetection(useDuplicateDetection)
+         .setConfirmationWindowSize(confirmationWindowSize)
+         .setProducerWindowSize(producerWindowSize)
+         .setHA(ha)
+         .setUser(user)
+         .setPassword(password);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);

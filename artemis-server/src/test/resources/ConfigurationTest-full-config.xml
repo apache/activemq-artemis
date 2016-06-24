@@ -142,6 +142,7 @@
             <reconnect-attempts>2</reconnect-attempts>
             <failover-on-server-shutdown>false</failover-on-server-shutdown>
             <use-duplicate-detection>true</use-duplicate-detection>
+            <producer-window-size>444</producer-window-size>
             <static-connectors>
                <connector-ref>connector1</connector-ref>
             </static-connectors>
@@ -149,6 +150,7 @@
          <bridge name="bridge2">
             <queue-name>queue2</queue-name>
             <forwarding-address>bridge-forwarding-address2</forwarding-address>
+            <producer-window-size>555</producer-window-size>
             <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
@@ -180,6 +182,7 @@
             <use-duplicate-detection>true</use-duplicate-detection>
             <message-load-balancing>ON_DEMAND</message-load-balancing>
             <max-hops>1</max-hops>
+            <producer-window-size>222</producer-window-size>
             <call-failover-timeout>123</call-failover-timeout>
             <static-connectors>
                <connector-ref>connector1</connector-ref>
@@ -194,6 +197,7 @@
             <use-duplicate-detection>false</use-duplicate-detection>
             <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>2</max-hops>
+            <producer-window-size>333</producer-window-size>
             <call-failover-timeout>456</call-failover-timeout>
             <discovery-group-ref discovery-group-name="dg1"/>
          </cluster-connection>
