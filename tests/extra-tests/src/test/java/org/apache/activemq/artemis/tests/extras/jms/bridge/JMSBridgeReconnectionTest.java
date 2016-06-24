@@ -107,7 +107,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
    public void testRetryConnectionOnStartup() throws Exception {
       jmsServer1.stop();
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
       bridge.setTransactionManager(newTransactionManager());
       addActiveMQComponent(bridge);
       bridge.start();
@@ -133,7 +133,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
    public void testStopBridgeWithFailureWhenStarted() throws Exception {
       jmsServer1.stop();
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 500, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 500, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
       bridge.setTransactionManager(newTransactionManager());
 
       bridge.start();
@@ -168,7 +168,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
          factInUse1 = cff1xa;
       }
 
-      bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, qosMode, 10, -1, null, null, false);
+      bridge = new JMSBridgeImpl("test-bridge",factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, qosMode, 10, -1, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
@@ -223,7 +223,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
    public void performCrashDestinationStopBridge() throws Exception {
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      final JMSBridgeImpl bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
+      final JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
 
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
@@ -294,7 +294,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       DummyTransaction tx = new DummyTransaction();
       tm.tx = tx;
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(tm);
 
@@ -379,7 +379,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
     * Verify all messages are received
     */
    private void performCrashAndReconnectDestCrashBeforePrepare(final boolean persistent) throws Exception {
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
 

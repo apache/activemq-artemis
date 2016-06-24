@@ -48,58 +48,58 @@ public interface ActiveMQJMSBridgeLogger extends BasicLogger {
    ActiveMQJMSBridgeLogger LOGGER = Logger.getMessageLogger(ActiveMQJMSBridgeLogger.class, ActiveMQJMSBridgeLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341000, value = "Failed to set up JMS bridge connections. Most probably the source or target servers are unavailable." + " Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
-   void failedToSetUpBridge(long failureRetryInterval);
+   @Message(id = 341000, value = "Failed to set up JMS bridge {1} connections. Most probably the source or target servers are unavailable." + " Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
+   void failedToSetUpBridge(long failureRetryInterval,String bridgeName);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341001, value = "JMS Bridge Succeeded in reconnecting to servers", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeReconnected();
+   @Message(id = 341001, value = "JMS Bridge {0} succeeded in reconnecting to servers", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeReconnected(String bridgeName);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341002, value = "Succeeded in connecting to servers", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeConnected();
+   @Message(id = 341002, value = "JMSBridge {0} succeeded in connecting to servers", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeConnected(String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342000, value = "Attempt to start JMS Bridge, but is already started", format = Message.Format.MESSAGE_FORMAT)
-   void errorBridgeAlreadyStarted();
+   @Message(id = 342000, value = "Attempt to start JMS Bridge {0}, but is already started", format = Message.Format.MESSAGE_FORMAT)
+   void errorBridgeAlreadyStarted(String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342001, value = "Failed to start JMS Bridge", format = Message.Format.MESSAGE_FORMAT)
-   void errorStartingBridge();
+   @Message(id = 342001, value = "Failed to start JMS Bridge {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorStartingBridge(String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342002, value = "Failed to unregisted JMS Bridge {0}", format = Message.Format.MESSAGE_FORMAT)
-   void errorUnregisteringBridge(ObjectName objectName);
+   @Message(id = 342002, value = "Failed to unregisted JMS Bridge {0} - {1}", format = Message.Format.MESSAGE_FORMAT)
+   void errorUnregisteringBridge(ObjectName objectName,String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342003, value = "JMS Bridge unable to set up connections, bridge will be stopped", format = Message.Format.MESSAGE_FORMAT)
-   void errorConnectingBridge();
+   @Message(id = 342003, value = "JMS Bridge {0} unable to set up connections, bridge will be stopped", format = Message.Format.MESSAGE_FORMAT)
+   void errorConnectingBridge(String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342004, value = "JMS Bridge Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeRetry(long failureRetryInterval);
+   @Message(id = 342004, value = "JMS Bridge {1}, will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeRetry(long failureRetryInterval,String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342005, value = "JMS Bridge unable to set up connections, bridge will not be started", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeNotStarted();
+   @Message(id = 342005, value = "JMS Bridge {0} unable to set up connections, bridge will not be started", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeNotStarted(String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342006, value = "Detected failure on bridge connection", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeFailure(@Cause Exception e);
+   @Message(id = 342006, value = "JMS Bridge {0}, detected failure on bridge connection", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeFailure(@Cause Exception e,String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342009, value = "JMS Bridge failed to send + acknowledge batch, closing JMS objects", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeAckError(@Cause Exception e);
+   @Message(id = 342009, value = "JMS Bridge {0} failed to send + acknowledge batch, closing JMS objects", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeAckError(@Cause Exception e,String bridgeName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342010, value = "Failed to connect JMS Bridge", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeConnectError(@Cause Exception e);
+   @Message(id = 342010, value = "Failed to connect JMS Bridge {0}", format = Message.Format.MESSAGE_FORMAT)
+   void bridgeConnectError(@Cause Exception e,String bridgeName);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 344001, value = "Failed to start source connection", format = Message.Format.MESSAGE_FORMAT)
-   void jmsBridgeSrcConnectError(@Cause Exception e);
+   @Message(id = 344001, value = "JMS Bridge {0}, failed to start source connection", format = Message.Format.MESSAGE_FORMAT)
+   void jmsBridgeSrcConnectError(@Cause Exception e,String bridgeName);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 344002, value = "Failed to start JMS Bridge.  QoS Mode: {0} requires a Transaction Manager, none found", format = Message.Format.MESSAGE_FORMAT)
-   void jmsBridgeTransactionManagerMissing(QualityOfServiceMode qosMode);
+   @Message(id = 344002, value = "Failed to start JMS Bridge {1}.  QoS Mode: {0} requires a Transaction Manager, none found", format = Message.Format.MESSAGE_FORMAT)
+   void jmsBridgeTransactionManagerMissing(QualityOfServiceMode qosMode,String bridgeName);
 }
