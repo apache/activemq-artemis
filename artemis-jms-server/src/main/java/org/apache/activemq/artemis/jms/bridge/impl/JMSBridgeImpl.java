@@ -84,6 +84,8 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private final Object lock = new Object();
 
+   private String jmsBridgename;
+
    private String sourceUsername;
 
    private String sourcePassword;
@@ -193,7 +195,8 @@ public final class JMSBridgeImpl implements JMSBridge {
       executor = createExecutor();
    }
 
-   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final String jmsBridgename,
+                        final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -211,10 +214,11 @@ public final class JMSBridgeImpl implements JMSBridge {
                         final String clientID,
                         final boolean addMessageIDInHeader) {
 
-      this(sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, null, null);
+      this(jmsBridgename, sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, null, null);
    }
 
-   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final String jmsBridgename,
+                        final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -233,10 +237,11 @@ public final class JMSBridgeImpl implements JMSBridge {
                         final boolean addMessageIDInHeader,
                         final MBeanServer mbeanServer,
                         final String objectName) {
-      this(sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, mbeanServer, objectName, DEFAULT_FAILOVER_TIMEOUT);
+      this(jmsBridgename, sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, mbeanServer, objectName, DEFAULT_FAILOVER_TIMEOUT);
    }
 
-   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final String jmsBridgename,
+                        final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -257,6 +262,8 @@ public final class JMSBridgeImpl implements JMSBridge {
                         final String objectName,
                         final long failoverTimeout) {
       this();
+
+      this.jmsBridgename = jmsBridgename;
 
       this.sourceCff = sourceCff;
 
@@ -305,19 +312,19 @@ public final class JMSBridgeImpl implements JMSBridge {
                this.objectName = ObjectName.getInstance(objectName);
                StandardMBean mbean = new StandardMBean(controlBean, JMSBridgeControl.class);
                mbeanServer.registerMBean(mbean, this.objectName);
-               ActiveMQJMSBridgeLogger.LOGGER.debug("Registered JMSBridge instance as: " + this.objectName.getCanonicalName());
+               ActiveMQJMSBridgeLogger.LOGGER.debug("[" + jmsBridgename + "]  " + "Registered JMSBridge instance as: " + this.objectName.getCanonicalName());
             }
             catch (Exception e) {
-               throw new IllegalStateException("Failed to register JMSBridge MBean", e);
+               throw new IllegalStateException("[" + jmsBridgename + "]  " + "Failed to register JMSBridge MBean", e);
             }
          }
          else {
-            throw new IllegalArgumentException("objectName is required when specifying an MBeanServer");
+            throw new IllegalArgumentException("[" + jmsBridgename + "]  " + "objectName is required when specifying an MBeanServer");
          }
       }
 
       if (JMSBridgeImpl.trace) {
-         ActiveMQJMSBridgeLogger.LOGGER.trace("Created " + this);
+         ActiveMQJMSBridgeLogger.LOGGER.trace("Created " + this + "jms bridge name is:" + "[" + jmsBridgename + "]  ");
       }
    }
 
@@ -344,7 +351,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       if (JMSBridgeImpl.trace) {
-         ActiveMQJMSBridgeLogger.LOGGER.trace("Starting " + this);
+         ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Starting " + this);
       }
 
       // bridge has been stopped and is restarted
@@ -464,7 +471,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       synchronized (this) {
          if (JMSBridgeImpl.trace) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Stopping " + this);
+            ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Stopping " + this);
          }
          if (!connectedSource && sourceConn != null) {
             sourceConn.close();
@@ -481,7 +488,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          boolean ok = executor.awaitTermination(60, TimeUnit.SECONDS);
 
          if (!ok) {
-            throw new Exception("fail to stop JMS Bridge");
+            throw new Exception("[" + jmsBridgename + "]  " + "fail to stop JMS Bridge");
          }
 
          if (tx != null) {
@@ -526,7 +533,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          }
 
          if (JMSBridgeImpl.trace) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Stopped " + this);
+            ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Stopped " + this);
          }
       }
    }
@@ -562,14 +569,14 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       if (JMSBridgeImpl.trace) {
-         ActiveMQJMSBridgeLogger.LOGGER.trace("Paused " + this);
+         ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Paused " + this);
       }
    }
 
    @Override
    public synchronized void resume() throws Exception {
       if (JMSBridgeImpl.trace) {
-         ActiveMQJMSBridgeLogger.LOGGER.trace("Resuming " + this);
+         ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Resuming " + this);
       }
 
       synchronized (lock) {
@@ -579,7 +586,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       if (JMSBridgeImpl.trace) {
-         ActiveMQJMSBridgeLogger.LOGGER.trace("Resumed " + this);
+         ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Resumed " + this);
       }
    }
 
@@ -1493,7 +1500,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          }
 
          if (JMSBridgeImpl.trace) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Sending message " + msg);
+            ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Sending message " + msg);
          }
 
          // Make sure the correct time to live gets propagated
@@ -1513,7 +1520,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          if (msg != null)
             messageCount++;
          if (JMSBridgeImpl.trace) {
-            ActiveMQJMSBridgeLogger.LOGGER.trace("Sent message " + msg);
+            ActiveMQJMSBridgeLogger.LOGGER.trace("[" + jmsBridgename + "]  " + "Sent message " + msg);
          }
       }
    }

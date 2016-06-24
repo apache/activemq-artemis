@@ -39,6 +39,8 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
 
    private String sourceQueueName = "SourceQueue";
    private String targetQueueName = "TargetQueue";
+   
+   private String JMS_BRIDGE_NAME="JMS_BRDIGE_NAME";
 
    @Override
    @Before
@@ -95,7 +97,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
 
          //even number
          final int batchSize = 4;
-         bridge = new JMSBridgeImpl(sourceCFF, targetCFF, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, mode, batchSize, -1, null, null, false);
+         bridge = new JMSBridgeImpl(JMS_BRIDGE_NAME, sourceCFF, targetCFF, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, mode, batchSize, -1, null, null, false);
 
          txMgr = newTransactionManager();
          bridge.setTransactionManager(txMgr);
@@ -154,7 +156,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
          DestinationFactory sourceQueueFactory = sourceServer.getDestinationFactory(sourceQueueName);
          DestinationFactory targetQueueFactory = targetServer.getDestinationFactory(targetQueueName);
 
-         bridge = new JMSBridgeImpl(sourceCFF, targetCFF, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, mode, 10, 1000, null, null, false);
+         bridge = new JMSBridgeImpl(JMS_BRIDGE_NAME, sourceCFF, targetCFF, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, mode, 10, 1000, null, null, false);
 
          txMgr = newTransactionManager();
          bridge.setTransactionManager(txMgr);
