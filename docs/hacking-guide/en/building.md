@@ -49,7 +49,7 @@ To install it to your local maven repo:
 
 ## Build the distribution without docs
 
-It is possible to build a distribution with out the manuals and Javadocs.
+It is possible to build a distribution without the manuals and Javadocs.
 simply run
 
     $ mvn package
