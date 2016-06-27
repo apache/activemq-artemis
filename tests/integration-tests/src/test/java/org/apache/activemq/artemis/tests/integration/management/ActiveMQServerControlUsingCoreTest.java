@@ -656,6 +656,29 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   int reconnectAttempts,
                                   boolean useDuplicateDetection,
                                   int confirmationWindowSize,
+                                  int producerWindowSize,
+                                  long clientFailureCheckPeriod,
+                                  String connectorNames,
+                                  boolean useDiscovery,
+                                  boolean ha,
+                                  String user,
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
+         }
+
+
+         @Override
+         public void createBridge(String name,
+                                  String queueName,
+                                  String forwardingAddress,
+                                  String filterString,
+                                  String transformerClassName,
+                                  long retryInterval,
+                                  double retryIntervalMultiplier,
+                                  int initialConnectAttempts,
+                                  int reconnectAttempts,
+                                  boolean useDuplicateDetection,
+                                  int confirmationWindowSize,
                                   long clientFailureCheckPeriod,
                                   String connectorNames,
                                   boolean useDiscovery,

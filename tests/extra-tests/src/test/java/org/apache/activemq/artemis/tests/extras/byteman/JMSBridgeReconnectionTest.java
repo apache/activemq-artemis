@@ -55,7 +55,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       activeMQServer = jmsServer1;
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      final JMSBridgeImpl bridge = new JMSBridgeImpl("test-bridge",factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
+      final JMSBridgeImpl bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false).setBridgeName("test-bridge");
 
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());

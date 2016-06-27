@@ -84,7 +84,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private final Object lock = new Object();
 
-   private String bridgeName;
+   private String bridgeName = "N/A";
 
    private String sourceUsername;
 
@@ -195,8 +195,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       executor = createExecutor();
    }
 
-   public JMSBridgeImpl(final String bridgeName,
-                        final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -214,11 +213,10 @@ public final class JMSBridgeImpl implements JMSBridge {
                         final String clientID,
                         final boolean addMessageIDInHeader) {
 
-      this(bridgeName,sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, null, null);
+      this(sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, null, null);
    }
 
-   public JMSBridgeImpl(final String bridgeName,
-                        final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -237,11 +235,10 @@ public final class JMSBridgeImpl implements JMSBridge {
                         final boolean addMessageIDInHeader,
                         final MBeanServer mbeanServer,
                         final String objectName) {
-      this(bridgeName,sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, mbeanServer, objectName, DEFAULT_FAILOVER_TIMEOUT);
+      this(sourceCff, targetCff, sourceDestinationFactory, targetDestinationFactory, sourceUsername, sourcePassword, targetUsername, targetPassword, selector, failureRetryInterval, maxRetries, qosMode, maxBatchSize, maxBatchTime, subName, clientID, addMessageIDInHeader, mbeanServer, objectName, DEFAULT_FAILOVER_TIMEOUT);
    }
 
-   public JMSBridgeImpl(final String bridgeName,
-                        final ConnectionFactoryFactory sourceCff,
+   public JMSBridgeImpl(final ConnectionFactoryFactory sourceCff,
                         final ConnectionFactoryFactory targetCff,
                         final DestinationFactory sourceDestinationFactory,
                         final DestinationFactory targetDestinationFactory,
@@ -299,8 +296,6 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       this.failoverTimeout = failoverTimeout;
 
-      this.bridgeName = bridgeName;
-
       checkParams();
 
       if (mbeanServer != null) {
@@ -329,6 +324,17 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    // ActiveMQComponent overrides --------------------------------------------------
+
+   @Override
+   public JMSBridgeImpl setBridgeName(String name) {
+      this.bridgeName = name;
+      return this;
+   }
+
+   @Override
+   public String getBridgeName() {
+      return bridgeName;
+   }
 
    @Override
    public synchronized void start() throws Exception {

@@ -108,4 +108,8 @@ public interface JMSBridge extends ActiveMQComponent {
 
    void setPasswordCodec(String codec);
 
+   JMSBridge setBridgeName(String name);
+
+   String getBridgeName();
+
 }
