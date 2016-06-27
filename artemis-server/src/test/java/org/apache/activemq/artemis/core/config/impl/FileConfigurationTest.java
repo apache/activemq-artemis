@@ -215,6 +215,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(true, bc.isUseDuplicateDetection());
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
+            Assert.assertEquals(444, bc.getProducerWindowSize());
          }
          else {
             Assert.assertEquals("bridge2", bc.getName());
@@ -224,6 +225,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(null, bc.getTransformerClassName());
             Assert.assertEquals(null, bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
+            Assert.assertEquals(555, bc.getProducerWindowSize());
          }
       }
 
@@ -256,6 +258,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("connector1", ccc.getStaticConnectors().get(0));
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
             Assert.assertEquals(null, ccc.getDiscoveryGroupName());
+            Assert.assertEquals(222, ccc.getProducerWindowSize());
          }
          else {
             Assert.assertEquals("cluster-connection2", ccc.getName());
@@ -268,6 +271,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(2, ccc.getMaxHops());
             Assert.assertEquals(Collections.emptyList(), ccc.getStaticConnectors());
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());
+            Assert.assertEquals(333, ccc.getProducerWindowSize());
          }
       }
 

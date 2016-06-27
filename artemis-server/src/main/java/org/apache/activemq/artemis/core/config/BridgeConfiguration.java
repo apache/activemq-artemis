@@ -56,6 +56,9 @@ public final class BridgeConfiguration implements Serializable {
 
    private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
+   // disable flow control
+   private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
+
    private long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
    private String user = ActiveMQDefaultConfiguration.getDefaultClusterUser();
@@ -267,6 +270,18 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
+   public int getProducerWindowSize() {
+      return producerWindowSize;
+   }
+
+   /**
+    * @param producerWindowSize the producerWindowSize to set
+    */
+   public BridgeConfiguration setProducerWindowSize(final int producerWindowSize) {
+      this.producerWindowSize = producerWindowSize;
+      return this;
+   }
+
    public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
@@ -340,6 +355,7 @@ public final class BridgeConfiguration implements Serializable {
       result = prime * result + (int) (callTimeout ^ (callTimeout >>> 32));
       result = prime * result + (int) (clientFailureCheckPeriod ^ (clientFailureCheckPeriod >>> 32));
       result = prime * result + confirmationWindowSize;
+      result = prime * result + producerWindowSize;
       result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
       result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
       result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
@@ -377,6 +393,8 @@ public final class BridgeConfiguration implements Serializable {
       if (clientFailureCheckPeriod != other.clientFailureCheckPeriod)
          return false;
       if (confirmationWindowSize != other.confirmationWindowSize)
+         return false;
+      if (producerWindowSize != other.producerWindowSize)
          return false;
       if (connectionTTL != other.connectionTTL)
          return false;

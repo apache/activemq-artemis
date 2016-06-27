@@ -698,6 +698,7 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "reconnectAttempts", desc = "Number of reconnection attempts") int reconnectAttempts,
                      @Parameter(name = "useDuplicateDetection", desc = "Use duplicate detection") boolean useDuplicateDetection,
                      @Parameter(name = "confirmationWindowSize", desc = "Confirmation window size") int confirmationWindowSize,
+                     @Parameter(name = "producerWindowSize", desc = "Producer window size") int producerWindowSize,
                      @Parameter(name = "clientFailureCheckPeriod", desc = "Period to check client failure") long clientFailureCheckPeriod,
                      @Parameter(name = "staticConnectorNames", desc = "comma separated list of connector names or name of discovery group if 'useDiscoveryGroup' is set to true") String connectorNames,
                      @Parameter(name = "useDiscoveryGroup", desc = "use discovery  group") boolean useDiscoveryGroup,
