@@ -23,9 +23,23 @@ Install `NPM` using the instructions below
 
 The new npm-shrinkwrap.json should be written, commit it.
 
+### gitbook
+
+Artemis will automate the execution and download of npm. But it may be useful to install it on your system. Simply type:
+
+    $ npm install -g gitbook gitbook-cli
+
+If you don't have `npm` installed then you would need to install it first.
+
 #### Install npm On Fedora
 
     $ yum install npm
+
+#### Install npm On Fedora 24
+
+This is what you should do if you are using Fedora 24+.
+
+    $ dnf install nodejs
 
 #### Install npm On Mac-OS
 
@@ -49,7 +63,7 @@ To install it to your local maven repo:
 
 ## Build the distribution without docs
 
-It is possible to build a distribution with out the manuals and Javadocs.
+It is possible to build a distribution without the manuals and Javadocs.
 simply run
 
     $ mvn package
