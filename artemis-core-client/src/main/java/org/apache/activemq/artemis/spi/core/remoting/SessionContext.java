@@ -150,6 +150,13 @@ public abstract class SessionContext {
                                              int reconnectID,
                                              SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
+   public abstract int sendServerLargeMessageChunk(MessageInternal msgI,
+                                                   long messageBodySize,
+                                                   boolean sendBlocking,
+                                                   boolean lastChunk,
+                                                   byte[] chunk,
+                                                   SendAcknowledgementHandler messageHandler) throws ActiveMQException;
+
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
 
    public abstract void createSharedQueue(SimpleString address,
