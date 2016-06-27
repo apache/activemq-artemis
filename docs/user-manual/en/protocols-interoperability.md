@@ -414,14 +414,13 @@ Apache ActiveMQ Artemis also support Stomp over [Web
 Sockets](http://dev.w3.org/html5/websockets/). Modern web browser which
 support Web Sockets can send and receive Stomp messages from Apache ActiveMQ Artemis.
 
-To enable Stomp over Web Sockets, you must configure a `NettyAcceptor`
-with a `protocol` parameter set to `stomp_ws`:
+Stomp over Web Sockets is supported via the normal Stomp acceptor:
 
-    <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP_WS</acceptor>
+    <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP</acceptor>
 
 With this configuration, Apache ActiveMQ Artemis will accept Stomp connections over Web
-Sockets on the port `61614` with the URL path `/stomp`. Web browser can
-then connect to `ws://<server>:61614/stomp` using a Web Socket to send
+Sockets on the port `61614`. Web browser can
+then connect to `ws://<server>:61614` using a Web Socket to send
 and receive Stomp messages.
 
 A companion JavaScript library to ease client-side development is

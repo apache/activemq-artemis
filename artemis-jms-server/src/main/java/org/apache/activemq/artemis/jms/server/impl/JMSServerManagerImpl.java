@@ -1719,7 +1719,18 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
 
          if (address.toString().startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX) && settings.isAutoDeleteJmsTopics() && bindings.size() == 1 && queue != null && queue.isAutoCreated()) {
-            destroyTopic(address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()));
+            try {
+               destroyTopic(address.toString().substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length()));
+            }
+            catch (IllegalStateException e) {
+               /*
+                * During shutdown the callback can be invoked after the JMSServerManager is already shut down so we just
+                * ignore the exception in that case
+                */
+               if (ActiveMQJMSServerLogger.LOGGER.isDebugEnabled()) {
+                  ActiveMQJMSServerLogger.LOGGER.debug("Failed to destroy topic", e);
+               }
+            }
          }
       }
    }

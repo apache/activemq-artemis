@@ -16,11 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Date;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -28,8 +25,8 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 
 /**
- * An example where a client will send a JMS message to a Topic.
- * Browser clients connected using Web Sockets will be able to receive the message.
+ * An example where browser-based clients can send JMS messages to a Topic.
+ * The clients will be able to exchange messages with each other.
  */
 public class StompWebSocketExample {
 
@@ -44,22 +41,11 @@ public class StompWebSocketExample {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageProducer producer = session.createProducer(topic);
-         MessageConsumer consumer = session.createConsumer(topic);
 
-         // use JMS bytes message with UTF-8 String to send a text to Stomp clients
-         String text = "message sent from a Java application at " + new Date();
-         //BytesMessage message = session.createBytesMessage();
-         //message.writeBytes(text.getBytes(StandardCharsets.UTF_8));
-         TextMessage message = session.createTextMessage(text);
-         System.out.println("Sent message: " + text);
-         System.out.println("Open up the chat/index.html file in a browser and press enter");
+         System.out.println("Open up the chat/index.html file in a browser...press enter when finished");
          System.in.read();
+         TextMessage message = session.createTextMessage("Server stopping!");
          producer.send(message);
-
-         connection.start();
-
-         message = (TextMessage) consumer.receive();
-         System.out.println("Received message: " + message.getText());
       }
       finally {
          if (connection != null) {
