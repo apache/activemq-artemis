@@ -1297,6 +1297,10 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException {
+      waitForServerToStart(server, true);
+   }
+
+   protected void waitForServerToStart(ActiveMQServer server, boolean activation) throws InterruptedException {
       if (server == null)
          return;
       final long wait = 5000;
@@ -1310,9 +1314,12 @@ public abstract class ActiveMQTestBase extends Assert {
          fail("server didn't start: " + server);
       }
 
-      if (!server.getHAPolicy().isBackup()) {
-         if (!server.waitForActivation(wait, TimeUnit.MILLISECONDS))
-            fail("Server didn't initialize: " + server);
+
+      if (activation) {
+         if (!server.getHAPolicy().isBackup()) {
+            if (!server.waitForActivation(wait, TimeUnit.MILLISECONDS))
+               fail("Server didn't initialize: " + server);
+         }
       }
    }
 

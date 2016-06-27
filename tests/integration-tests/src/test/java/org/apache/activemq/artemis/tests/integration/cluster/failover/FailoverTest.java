@@ -44,8 +44,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
@@ -53,9 +51,12 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.impl.FileMoveManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -518,10 +519,12 @@ public class FailoverTest extends FailoverTestBase {
       boolean doFailBack = true;
       HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
       if (haPolicy instanceof ReplicaPolicy) {
-         ((ReplicaPolicy) haPolicy).setMaxSavedReplicatedJournalsSize(0);
+         ((ReplicaPolicy) haPolicy).setMaxSavedReplicatedJournalsSize(1);
       }
 
-      simpleReplication(doFailBack);
+      simpleFailover(haPolicy instanceof ReplicaPolicy, doFailBack);
+      tearDown();
+      setUp();
    }
 
    @Test
@@ -571,9 +574,10 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   public void testSimpleReplication() throws Exception {
-      boolean doFailBack = false;
-      simpleReplication(doFailBack);
+   public void testSimpleFailover() throws Exception {
+      HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
+
+      simpleFailover(haPolicy instanceof ReplicaPolicy, false);
    }
 
    @Test
@@ -628,7 +632,7 @@ public class FailoverTest extends FailoverTestBase {
     * @param doFailBack
     * @throws Exception
     */
-   private void simpleReplication(boolean doFailBack) throws Exception {
+   private void simpleFailover(boolean isReplicated, boolean doFailBack) throws Exception {
       locator.setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
@@ -660,10 +664,16 @@ public class FailoverTest extends FailoverTestBase {
          liveServer.start();
          Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
          int i = 0;
-         while (backupServer.isStarted() && i++ < 100) {
+         while (!backupServer.isStarted() && i++ < 100) {
             Thread.sleep(100);
          }
-         Assert.assertFalse("Backup should stop!", backupServer.isStarted());
+         liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+         Assert.assertTrue(backupServer.isStarted());
+
+         if (isReplicated) {
+            FileMoveManager moveManager = new FileMoveManager(backupServer.getServer().getConfiguration().getJournalLocation(), 0);
+            Assert.assertEquals(1, moveManager.getNumberOfFolders());
+         }
       }
       else {
          backupServer.stop();
@@ -886,35 +896,49 @@ public class FailoverTest extends FailoverTestBase {
 
    @Test
    public void testTransactedMessagesNotSentSoNoRollback() throws Exception {
-      createSessionFactory();
+      try {
+         createSessionFactory();
 
-      ClientSession session = createSessionAndQueue();
+         ClientSession session = createSessionAndQueue();
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+         ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
-      sendMessagesSomeDurable(session, producer);
+         sendMessagesSomeDurable(session, producer);
 
-      session.commit();
+         session.commit();
 
-      crash(session);
+         crash(session);
 
-      // committing again should work since didn't send anything since last commit
+         // committing again should work since didn't send anything since last commit
 
-      Assert.assertFalse(session.isRollbackOnly());
+         Assert.assertFalse(session.isRollbackOnly());
 
-      session.commit();
+         session.commit();
 
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+         ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
 
-      session.start();
+         session.start();
 
-      receiveDurableMessages(consumer);
+         receiveDurableMessages(consumer);
 
-      Assert.assertNull(consumer.receiveImmediate());
+         Assert.assertNull(consumer.receiveImmediate());
 
-      session.commit();
+         session.commit();
 
-      session.close();
+         session.close();
+      }
+      finally {
+         try {
+            liveServer.getServer().stop();
+         }
+         catch (Throwable ignored) {
+         }
+         try {
+            backupServer.getServer().stop();
+         }
+         catch (Throwable ignored) {
+         }
+      }
    }
 
    @Test
