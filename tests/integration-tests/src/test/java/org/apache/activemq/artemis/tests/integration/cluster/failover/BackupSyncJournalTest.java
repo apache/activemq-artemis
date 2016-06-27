@@ -41,14 +41,19 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.FileMoveManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.UUID;
+import org.jboss.logging.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class BackupSyncJournalTest extends FailoverTestBase {
+
+   private static final Logger logger = Logger.getLogger(BackupSyncJournalTest.class);
 
    protected static final int BACKUP_WAIT_TIME = 60;
    private ServerLocatorInternal locator;
@@ -283,17 +288,28 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       sendMessages(session, producer, 2 * n_msgs);
       assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
       adaptLiveConfigForReplicatedFailBack(liveServer);
-      liveServer.start();
+      FileMoveManager liveMoveManager = new FileMoveManager(liveServer.getServer().getConfiguration().getJournalLocation(), -1);
+      liveServer.getServer().lockActivation();
+      try {
+         liveServer.start();
+         assertTrue("must have become a backup", liveServer.getServer().getHAPolicy().isBackup());
+         Assert.assertEquals(0, liveMoveManager.getNumberOfFolders());
+      }
+      finally {
+         liveServer.getServer().unlockActivation();
+      }
       waitForServerToStart(liveServer.getServer());
-      assertTrue("must have become a backup", liveServer.getServer().getHAPolicy().isBackup());
+      liveServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
+      Assert.assertEquals(1, liveMoveManager.getNumberOfFolders());
+      assertTrue("must be active now", !liveServer.getServer().getHAPolicy().isBackup());
 
       assertTrue("Fail-back must initialize live!", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
       assertFalse("must be LIVE!", liveServer.getServer().getHAPolicy().isBackup());
       int i = 0;
-      while (backupServer.isStarted() && i++ < 100) {
+      while (!backupServer.isStarted() && i++ < 100) {
          Thread.sleep(100);
       }
-      assertFalse("Backup should stop!", backupServer.getServer().isStarted());
+      assertTrue(backupServer.getServer().isStarted());
       assertTrue(liveServer.getServer().isStarted());
       receiveMsgsInRange(0, 2 * n_msgs);
       assertNoMoreMessages();

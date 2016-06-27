@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
@@ -98,21 +100,30 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          liveServer.start();
 
-         waitForRemoteBackupSynchronization(liveServer.getServer());
-
          waitForServerToStart(liveServer.getServer());
 
-         //this will give the backup time to stop fully
-         waitForServerToStop(backupServer.getServer());
+         backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
-         assertFalse(backupServer.getServer().isStarted());
+         waitForRemoteBackupSynchronization(liveServer.getServer());
 
-         //the server wouldnt have reset to backup
-         assertFalse(backupServer.getServer().getHAPolicy().isBackup());
+         waitForServerToStart(backupServer.getServer());
+
+         assertTrue(backupServer.getServer().isStarted());
+
       }
       finally {
          if (sf != null) {
             sf.close();
+         }
+         try {
+            liveServer.getServer().stop();
+         }
+         catch (Throwable ignored) {
+         }
+         try {
+            backupServer.getServer().stop();
+         }
+         catch (Throwable ignored) {
          }
       }
    }

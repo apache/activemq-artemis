@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.impl.FileMoveManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -147,7 +148,11 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
             final File addressFile = new File(file, PagingStoreFactoryNIO.ADDRESS_FILE);
 
             if (!addressFile.exists()) {
-               ActiveMQServerLogger.LOGGER.pageStoreFactoryNoIdFile(file.toString(), PagingStoreFactoryNIO.ADDRESS_FILE);
+
+               // This means this folder is from a replication copy, nothing to worry about it, we just skip it
+               if (!file.getName().contains(FileMoveManager.PREFIX)) {
+                  ActiveMQServerLogger.LOGGER.pageStoreFactoryNoIdFile(file.toString(), PagingStoreFactoryNIO.ADDRESS_FILE);
+               }
                continue;
             }
 

@@ -51,7 +51,7 @@ handler.TEST.formatter=PATTERN
 # Formatter pattern configuration
 formatter.PATTERN=org.jboss.logmanager.formatters.PatternFormatter
 formatter.PATTERN.properties=pattern
-formatter.PATTERN.pattern=[%t] %d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
+#formatter.PATTERN.pattern=[%t] %d{HH:mm:ss,SSS} %-5p [%c] %s%E%n
 
 # Alternate format useful when debugging
-#formatter.PATTERN.pattern=*** [%t] ***\n%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n\n
+formatter.PATTERN.pattern=*** [%t] ***\n%d{HH:mm:ss,SSS} %-5p [%c] %s%E%n\n
