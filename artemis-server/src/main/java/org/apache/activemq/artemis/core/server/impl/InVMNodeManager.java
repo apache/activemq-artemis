@@ -23,6 +23,7 @@ import java.util.concurrent.Semaphore;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -126,7 +127,7 @@ public final class InVMNodeManager extends NodeManager {
                state = LIVE;
             }
             catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
       };

@@ -187,7 +187,7 @@ public class FileLockNodeManager extends NodeManager {
                setLive();
             }
             catch (Exception e) {
-               e.printStackTrace();
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
       };

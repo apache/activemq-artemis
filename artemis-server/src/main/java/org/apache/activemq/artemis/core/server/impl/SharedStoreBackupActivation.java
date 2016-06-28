@@ -238,8 +238,8 @@ public final class SharedStoreBackupActivation extends Activation {
                            }
                         }
                         catch (Exception e) {
+                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(),e);
                            ActiveMQServerLogger.LOGGER.serverRestartWarning();
-                           e.printStackTrace();
                         }
                      }
                   });

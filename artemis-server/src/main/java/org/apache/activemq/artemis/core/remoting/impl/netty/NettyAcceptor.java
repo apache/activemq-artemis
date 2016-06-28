@@ -77,6 +77,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleLi
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 /**
  * A Netty TCP Acceptor that is embedding Netty.
@@ -170,6 +171,9 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final long connectionsAllowed;
 
    private Map<String, Object> extraConfigs;
+
+   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
+
 
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
@@ -520,8 +524,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             notificationService.sendNotification(notification);
          }
          catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("failed to send notification",e.getMessage(),e);
          }
       }
 

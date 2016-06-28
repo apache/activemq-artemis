@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
+import org.jboss.logging.Logger;
 
 public final class InVMAcceptor extends AbstractAcceptor {
 
@@ -68,6 +69,9 @@ public final class InVMAcceptor extends AbstractAcceptor {
    private final long connectionsAllowed;
 
    private final String name;
+
+   private static final Logger logger = Logger.getLogger(InVMAcceptor.class);
+
 
    public InVMAcceptor(final String name,
                        final ClusterConnection clusterConnection,
@@ -164,8 +168,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
             notificationService.sendNotification(notification);
          }
          catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("failed to send notification",e.getMessage(),e);
          }
       }
 

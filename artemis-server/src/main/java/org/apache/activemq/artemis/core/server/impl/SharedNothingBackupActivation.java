@@ -353,7 +353,6 @@ public final class SharedNothingBackupActivation extends Activation {
             // do not log these errors if the server is being stopped.
             return;
          ActiveMQServerLogger.LOGGER.initializationError(e);
-         e.printStackTrace();
       }
    }
 

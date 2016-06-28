@@ -716,7 +716,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          }
       }
       catch (IntrospectionException e) {
-         e.printStackTrace();
+         ActiveMQRALogger.LOGGER.unableToValidateProperties(e);
       }
 
       if (propsNotSet.size() > 0) {

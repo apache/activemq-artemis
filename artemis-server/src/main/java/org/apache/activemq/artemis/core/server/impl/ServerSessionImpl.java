@@ -874,8 +874,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             storageManager.deleteHeuristicCompletion(id);
          }
          catch (Exception e) {
-            e.printStackTrace();
-
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             throw new ActiveMQXAException(XAException.XAER_RMFAIL);
          }
       }
