@@ -2030,31 +2030,26 @@ public abstract class ActiveMQTestBase extends Assert {
 
       long timeout = System.currentTimeMillis() + 15000;
 
-      //      while (AsynchronousFileImpl.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout)
-      //      {
-      //         try
-      //         {
-      //            Thread.sleep(100);
-      //         }
-      //         catch (Exception ignored)
-      //         {
-      //         }
-      //      }
-      //
-      //      int invmSize = InVMRegistry.instance.size();
-      //      if (invmSize > 0)
-      //      {
-      //         InVMRegistry.instance.clear();
-      //         log.info(threadDump("Thread dump"));
-      //         fail("invm registry still had acceptors registered");
-      //      }
-      //
-      //      final int totalMaxIO = AsynchronousFileImpl.getTotalMaxIO();
-      //      if (totalMaxIO != 0)
-      //      {
-      //         AsynchronousFileImpl.resetMaxAIO();
-      //         Assert.fail("test did not close all its files " + totalMaxIO);
-      //      }
+      while (LibaioContext.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout) {
+         try {
+            Thread.sleep(100);
+         }
+         catch (Exception ignored) {
+         }
+      }
+
+      int invmSize = InVMRegistry.instance.size();
+      if (invmSize > 0) {
+         InVMRegistry.instance.clear();
+         log.info(threadDump("Thread dump"));
+         fail("invm registry still had acceptors registered");
+      }
+
+      final long totalMaxIO = LibaioContext.getTotalMaxIO();
+      if (totalMaxIO != 0) {
+         LibaioContext.resetMaxAIO();
+         Assert.fail("test did not close all its files " + totalMaxIO);
+      }
    }
 
    private void cleanupPools() {
