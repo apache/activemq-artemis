@@ -24,6 +24,7 @@ import java.util.TimerTask;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -37,7 +38,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 @Command(name = "run", description = "runs the broker instance")
-public class Run extends Configurable {
+public class Run extends LockAbstract {
 
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
@@ -65,8 +66,6 @@ public class Run extends Configurable {
       super.execute(context);
 
       FileConfiguration fileConfiguration = getFileConfiguration();
-
-      lockCLI(getLockPlace());
 
       Artemis.printBanner();
 

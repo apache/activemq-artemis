@@ -92,7 +92,7 @@ import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataExporter extends LockAbstract {
+public final class XmlDataExporter extends OptionalLocking {
 
    private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
 

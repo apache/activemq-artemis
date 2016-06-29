@@ -28,9 +28,10 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.cli.Artemis;
-import org.apache.activemq.artemis.cli.commands.Configurable;
+import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Run;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
@@ -76,7 +77,7 @@ public class ArtemisTest {
          System.setProperty("java.security.auth.login.config", original);
       }
 
-      Configurable.unlock();
+      LockAbstract.unlock();
    }
 
    @Test
@@ -139,6 +140,14 @@ public class ArtemisTest {
                Assert.assertTrue("Couldn't find topic " + str, queryResult.isExists());
             }
          }
+
+         try {
+            Artemis.internalExecute("data", "print");
+            Assert.fail("Exception expected");
+         }
+         catch (CLIException expected) {
+         }
+         Artemis.internalExecute("data", "print", "--f");
 
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("producer", "--message-count", "100", "--verbose", "--user", "admin", "--password", "admin"));
          Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
