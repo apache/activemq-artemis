@@ -58,7 +58,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
-public class PrintData extends LockAbstract {
+public class PrintData extends OptionalLocking {
 
    @Override
    public Object execute(ActionContext context) throws Exception {

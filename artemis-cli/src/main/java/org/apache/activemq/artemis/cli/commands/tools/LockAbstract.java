@@ -17,10 +17,47 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+
+import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 public abstract class LockAbstract  extends DataAbstract implements Action {
+   // There should be one lock per VM
+   // These will be locked as long as the VM is running
+   private static RandomAccessFile serverLockFile = null;
+   private static FileLock serverLockLock = null;
+
+   protected File getLockPlace() throws Exception {
+      String brokerInstance = getBrokerInstance();
+      if (brokerInstance != null) {
+         return new File(new File(brokerInstance),"lock");
+      }
+      else {
+         return null;
+      }
+   }
+
+   public static void unlock() {
+      try {
+         if (serverLockFile != null) {
+            serverLockFile.close();
+            serverLockFile = null;
+         }
+
+         if (serverLockLock != null) {
+            serverLockLock.close();
+            serverLockLock = null;
+         }
+      }
+      catch (Exception ignored) {
+      }
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
@@ -34,6 +71,27 @@ public abstract class LockAbstract  extends DataAbstract implements Action {
       }
 
       return null;
+   }
+
+
+   protected void lockCLI(File lockPlace) throws Exception {
+      if (lockPlace != null) {
+         lockPlace.mkdirs();
+         if (serverLockFile == null) {
+            File fileLock = new File(lockPlace, "cli.lock");
+            serverLockFile = new RandomAccessFile(fileLock, "rw");
+         }
+         try {
+            FileLock lock = serverLockFile.getChannel().tryLock();
+            if (lock == null) {
+               throw new CLIException("Error: There is another process using the server at " + lockPlace + ". Cannot start the process!");
+            }
+            serverLockLock = lock;
+         }
+         catch (OverlappingFileLockException e) {
+            throw new CLIException("Error: There is another process using the server at " + lockPlace + ". Cannot start the process!");
+         }
+      }
    }
 
 
