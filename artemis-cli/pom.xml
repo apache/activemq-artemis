@@ -59,6 +59,11 @@
          <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.jboss.logmanager</groupId>
+         <artifactId>jboss-logmanager</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>io.airlift</groupId>
          <artifactId>airline</artifactId>
       </dependency>
