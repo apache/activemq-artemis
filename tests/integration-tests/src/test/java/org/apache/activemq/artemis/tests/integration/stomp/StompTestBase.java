@@ -30,6 +30,7 @@ import java.net.Socket;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -50,8 +51,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
@@ -59,6 +58,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -69,6 +69,9 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 
@@ -116,7 +119,12 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          connectionFactory = createConnectionFactory();
          createBootstrap();
 
-         connection = connectionFactory.createConnection();
+         if (isSecurityEnabled()) {
+            connection = connectionFactory.createConnection("brianm", "wombats");
+         }
+         else {
+            connection = connectionFactory.createConnection();
+         }
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          queue = session.createQueue(getQueueName());
          topic = session.createTopic(getTopicName());
@@ -185,10 +193,22 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
       TransportConfiguration allTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName());
 
-      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createBasicConfig().setSecurityEnabled(isSecurityEnabled()).setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       config.addAcceptorConfiguration(allTransport);
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
+
+      if (isSecurityEnabled()) {
+         ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) activeMQServer.getSecurityManager();
+
+         final String role = "testRole";
+         securityManager.getConfiguration().addRole(defUser, role);
+         config.getSecurityRoles().put("#", new HashSet<Role>() {
+            {
+               add(new Role(role, true, true, true, true, true, true, true));
+            }
+         });
+      }
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setDurable(false).setBindings(getQueueName()));
@@ -317,6 +337,10 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       // another option would be to force some kind of receipt to be returned
       // from the frame
       Thread.sleep(500);
+   }
+
+   public boolean isSecurityEnabled() {
+      return false;
    }
 
    class StompClientHandler extends SimpleChannelInboundHandler<String> {

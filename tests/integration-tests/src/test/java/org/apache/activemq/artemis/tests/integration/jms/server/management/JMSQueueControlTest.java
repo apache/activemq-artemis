@@ -236,8 +236,8 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       CompositeData[] data = queueControl.browse();
       Assert.assertEquals(1, data.length);
-      Assert.assertNotNull(data[0].get("JMSCorrelationID"));
-      Assert.assertEquals("foo", data[0].get("JMSCorrelationID"));
+      Assert.assertNotNull(data[0].get(MessageUtil.CORRELATIONID_HEADER_NAME.toString()));
+      Assert.assertEquals("foo", data[0].get(MessageUtil.CORRELATIONID_HEADER_NAME.toString()));
       System.out.println(data[0]);
 
       JMSUtil.consumeMessages(1, queue);
@@ -248,8 +248,8 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       data = queueControl.browse();
       Assert.assertEquals(1, data.length);
-      Assert.assertNotNull(data[0].get("JMSXGroupID"));
-      Assert.assertEquals("myGroupID", data[0].get("JMSXGroupID"));
+      Assert.assertNotNull(data[0].get(MessageUtil.JMSXGROUPID.toString()));
+      Assert.assertEquals("myGroupID", data[0].get(MessageUtil.JMSXGROUPID.toString()));
       System.out.println(data[0]);
 
       JMSUtil.consumeMessages(1, queue);
@@ -266,14 +266,14 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       JMSUtil.consumeMessages(1, queue);
 
-      JMSUtil.sendMessageWithProperty(session, queue, "JMSXUserID", "theheadhonch");
+      JMSUtil.sendMessageWithProperty(session, queue, MessageUtil.JMSXUSERID.toString(), "theheadhonch");
 
       Assert.assertEquals(1, getMessageCount(queueControl));
 
       data = queueControl.browse();
       Assert.assertEquals(1, data.length);
-      Assert.assertNotNull(data[0].get("JMSXUserID"));
-      Assert.assertEquals("theheadhonch", data[0].get("JMSXUserID"));
+      Assert.assertNotNull(data[0].get(MessageUtil.JMSXUSERID.toString()));
+      Assert.assertEquals("theheadhonch", data[0].get(MessageUtil.JMSXUSERID.toString()));
       System.out.println(data[0]);
 
       JMSUtil.consumeMessages(1, queue);

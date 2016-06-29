@@ -81,6 +81,7 @@ Name | Description
 [scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
 [security-enabled](security.md "Security")  |  true means that security is enabled. Default=true
 [security-invalidation-interval](security.md "Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
+[populate-validated-user](security.md "Security")                                          |  whether or not to add the name of the validated user to the messages that user sends. Default=false
 [security-settings](security.md "Role based security for addresses")                             |  [a list of security-setting](#security-setting-type)
 [thread-pool-max-size](thread-pooling.md "Server Scheduled Thread Pool")                       |  Maximum number of threads to use for the thread pool. -1 means 'no limits'.. Default=30
 [transaction-timeout](transaction-config.md "Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000

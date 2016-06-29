@@ -390,6 +390,9 @@ public final class ActiveMQDefaultConfiguration {
    // Will this backup server come live on a normal server shutdown
    private static boolean DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN = false;
 
+   // Will the broker populate the message with the name of the validated user
+   private static boolean DEFAULT_POPULATE_VALIDATED_USER = false;
+
    // its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
    private static boolean DEFAULT_SCALE_DOWN_ENABLED = true;
 
@@ -1058,6 +1061,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultFailoverOnServerShutdown() {
       return DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN;
+   }
+
+   /**
+    * Will the broker populate the message with the name of the validated user
+    */
+   public static boolean isDefaultPopulateValidatedUser() {
+      return DEFAULT_POPULATE_VALIDATED_USER;
    }
 
    /**

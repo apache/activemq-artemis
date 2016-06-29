@@ -274,6 +274,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPasswordCodec(getString(e, "password-codec", DefaultSensitiveStringCodec.class.getName(), Validators.NOT_NULL_OR_EMPTY));
 
+      config.setPopulateValidatedUser(getBoolean(e, "populate-validated-user", config.isPopulateValidatedUser()));
+
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);
 

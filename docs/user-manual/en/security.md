@@ -10,6 +10,13 @@ long. To change this period set the property
 `security-invalidation-interval`, which is in milliseconds. The default
 is `10000` ms.
 
+To assist in security auditing the `populate-validated-user` option exists. If this is `true` then
+the server will add the name of the validated user to the message using the key `_AMQ_VALIDATED_USER`.
+For JMS and Stomp clients this is mapped to the key `JMSXUserID`. For users authenticated based on
+their SSL certificate this name is the name to which their certificate's DN maps. If `security-enabled`
+is `false` and `populate-validated-user` is `true` then the server will simply use whatever user name
+(if any) the client provides. This option is `false` by default.
+
 ## Role based security for addresses
 
 Apache ActiveMQ Artemis contains a flexible role-based security model for applying

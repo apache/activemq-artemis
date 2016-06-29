@@ -581,6 +581,9 @@ public class ActiveMQMessage implements javax.jms.Message {
          if (MessageUtil.JMSXGROUPID.equals(name)) {
             return message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID);
          }
+         else if (MessageUtil.JMSXUSERID.equals(name)) {
+            return message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER);
+         }
          else {
             return message.getStringProperty(new SimpleString(name));
          }
@@ -656,7 +659,10 @@ public class ActiveMQMessage implements javax.jms.Message {
    public void setStringProperty(final String name, final String value) throws JMSException {
       checkProperty(name);
 
-      if (handleGroupID(name, value)) {
+      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
+         return;
+      }
+      else if (handleCoreProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
          return;
       }
       else {
@@ -666,7 +672,11 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
-      if (handleGroupID(name, value)) {
+      if (handleCoreProperty(name, value, MessageUtil.JMSXGROUPID, org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID)) {
+         return;
+      }
+
+      if (handleCoreProperty(name, value, MessageUtil.JMSXUSERID, org.apache.activemq.artemis.api.core.Message.HDR_VALIDATED_USER)) {
          return;
       }
 
@@ -954,11 +964,11 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
-   private boolean handleGroupID(final String name, final Object value) {
+   private boolean handleCoreProperty(final String name, final Object value, String jmsPropertyName, SimpleString corePropertyName) {
       boolean result = false;
 
-      if (MessageUtil.JMSXGROUPID.equals(name)) {
-         message.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, SimpleString.toSimpleString(value.toString()));
+      if (jmsPropertyName.equals(name)) {
+         message.putStringProperty(corePropertyName, SimpleString.toSimpleString(value.toString()));
 
          result = true;
       }

@@ -105,6 +105,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final String password;
 
+   protected final String validatedUser;
+
    private final int minLargeMessageSize;
 
    protected boolean autoCommitSends;
@@ -176,6 +178,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public ServerSessionImpl(final String name,
                             final String username,
                             final String password,
+                            final String validatedUser,
                             final int minLargeMessageSize,
                             final boolean autoCommitSends,
                             final boolean autoCommitAcks,
@@ -197,6 +200,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       this.username = username;
 
       this.password = password;
+
+      this.validatedUser = validatedUser;
 
       this.minLargeMessageSize = minLargeMessageSize;
 
@@ -1228,6 +1233,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          message.setMessageID(id);
          message.encodeMessageIDToBuffer();
+      }
+
+      if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
+         message.putStringProperty(Message.HDR_VALIDATED_USER, SimpleString.toSimpleString(validatedUser));
       }
 
       SimpleString address = message.getAddress();

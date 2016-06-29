@@ -577,6 +577,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       protected ServerSessionImpl internalCreateSession(String name,
                                                         String username,
                                                         String password,
+                                                        String validatedUser,
                                                         int minLargeMessageSize,
                                                         RemotingConnection connection,
                                                         boolean autoCommitSends,
@@ -587,7 +588,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
                                                         SessionCallback callback,
                                                         OperationContext context,
                                                         boolean autoCreateQueue) throws Exception {
-         return new ServerSessionImpl(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), new MyCallback(callback), context, null);
+         return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), new MyCallback(callback), context, null);
       }
    }
 
