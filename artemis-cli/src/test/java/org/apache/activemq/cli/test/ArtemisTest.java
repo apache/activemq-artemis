@@ -20,7 +20,12 @@ import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,6 +48,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
@@ -113,6 +121,81 @@ public class ArtemisTest {
       System.out.println("nanoTime avg = " + nanoTime);
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
+   }
+
+   @Test
+   public void testWebConfig() throws Exception {
+      Run.setEmbedded(true);
+      //instance1: default using http
+      File instance1 = new File(temporaryFolder.getRoot(), "instance1");
+      Artemis.main("create", instance1.getAbsolutePath(), "--silent");
+      File bootstrapFile = new File(new File(instance1, "etc"), "bootstrap.xml");
+      Assert.assertTrue(bootstrapFile.exists());
+      Document config = parseXml(bootstrapFile);
+      Element webElem = (Element)config.getElementsByTagName("web").item(0);
+
+      String bindAttr = webElem.getAttribute("bind");
+      String bindStr = "http://localhost:" + Create.HTTP_PORT;
+
+      Assert.assertEquals(bindAttr, bindStr);
+      //no any of those
+      Assert.assertFalse(webElem.hasAttribute("keyStorePath"));
+      Assert.assertFalse(webElem.hasAttribute("keyStorePassword"));
+      Assert.assertFalse(webElem.hasAttribute("clientAuth"));
+      Assert.assertFalse(webElem.hasAttribute("trustStorePath"));
+      Assert.assertFalse(webElem.hasAttribute("trustStorePassword"));
+
+      //instance2: https
+      File instance2 = new File(temporaryFolder.getRoot(), "instance2");
+      Artemis.main("create", instance2.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore", "--ssl-key-password", "password1");
+      bootstrapFile = new File(new File(instance2, "etc"), "bootstrap.xml");
+      Assert.assertTrue(bootstrapFile.exists());
+      config = parseXml(bootstrapFile);
+      webElem = (Element)config.getElementsByTagName("web").item(0);
+
+      bindAttr = webElem.getAttribute("bind");
+      bindStr = "https://localhost:" + Create.HTTP_PORT;
+      Assert.assertEquals(bindAttr, bindStr);
+
+      String keyStr = webElem.getAttribute("keyStorePath");
+      Assert.assertEquals("etc/keystore", keyStr);
+      String keyPass = webElem.getAttribute("keyStorePassword");
+      Assert.assertEquals("password1", keyPass);
+
+      Assert.assertFalse(webElem.hasAttribute("clientAuth"));
+      Assert.assertFalse(webElem.hasAttribute("trustStorePath"));
+      Assert.assertFalse(webElem.hasAttribute("trustStorePassword"));
+
+      //instance3: https with clientAuth
+      File instance3 = new File(temporaryFolder.getRoot(), "instance3");
+      Artemis.main("create", instance3.getAbsolutePath(), "--silent", "--ssl-key", "etc/keystore",
+              "--ssl-key-password", "password1",
+              "--use-client-auth", "--ssl-trust", "etc/truststore", "--ssl-trust-password", "password2");
+      bootstrapFile = new File(new File(instance3, "etc"), "bootstrap.xml");
+      Assert.assertTrue(bootstrapFile.exists());
+
+      byte[] contents = Files.readAllBytes(bootstrapFile.toPath());
+      String cfgText = new String(contents);
+      System.out.println("confg: " + cfgText);
+
+      config = parseXml(bootstrapFile);
+      webElem = (Element)config.getElementsByTagName("web").item(0);
+
+      bindAttr = webElem.getAttribute("bind");
+      bindStr = "https://localhost:" + Create.HTTP_PORT;
+      Assert.assertEquals(bindAttr, bindStr);
+
+      keyStr = webElem.getAttribute("keyStorePath");
+      Assert.assertEquals("etc/keystore", keyStr);
+      keyPass = webElem.getAttribute("keyStorePassword");
+      Assert.assertEquals("password1", keyPass);
+
+      String clientAuthAttr = webElem.getAttribute("clientAuth");
+      Assert.assertEquals("true", clientAuthAttr);
+      String trustPathAttr = webElem.getAttribute("trustStorePath");
+      Assert.assertEquals("etc/truststore", trustPathAttr);
+      String trustPass = webElem.getAttribute("trustStorePassword");
+      Assert.assertEquals("password2", trustPass);
    }
 
    @Test
@@ -230,5 +313,10 @@ public class ArtemisTest {
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
+   private static Document parseXml(File xmlFile) throws ParserConfigurationException, IOException, SAXException {
+      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+      return domBuilder.parse(xmlFile);
+   }
 
 }
