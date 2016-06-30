@@ -59,11 +59,6 @@ public class MessagePriorityExample {
 
          // Step 6. Create a JMS Message Producer
          MessageProducer producer = session.createProducer(queue);
-
-         // Step 7. Create a JMS Message Consumer
-         MessageConsumer redConsumer = session.createConsumer(queue);
-         redConsumer.setMessageListener(new SimpleMessageListener(msgReceived, result));
-
          // Step 8. Create three messages
          TextMessage[] sentMessages = new TextMessage[3];
          sentMessages[0] = session.createTextMessage("first message");
@@ -83,6 +78,11 @@ public class MessagePriorityExample {
          System.out.println("Message sent: " + sentMessages[2].getText() +
                                "with priority: " +
                                sentMessages[2].getJMSPriority());
+
+
+         MessageConsumer redConsumer = session.createConsumer(queue);
+         redConsumer.setMessageListener(new SimpleMessageListener(msgReceived, result));
+
 
          // Step 10. Start the connection now.
          connection.start();
