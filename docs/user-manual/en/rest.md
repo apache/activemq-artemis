@@ -69,7 +69,7 @@ This section should be used when you want to use the Apache ActiveMQ Artemis RES
 
        <listener>
           <listener-class>
-             org.apache.activemq.rest.integration.RestMessagingBootstrapListener
+             org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener
           </listener-class>
        </listener>
 
@@ -139,13 +139,13 @@ You can bootstrap Apache ActiveMQ Artemis within your WAR as well. To do this, y
 
        <listener>
           <listener-class>
-             org.apache.activemq.rest.integration.ActiveMQBootstrapListener
+             org.apache.activemq.artemis.rest.integration.ActiveMQBootstrapListener
           </listener-class>
        </listener>
 
        <listener>
           <listener-class>
-             org.apache.activemq.rest.integration.RestMessagingBootstrapListener
+             org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener
           </listener-class>
        </listener>
 
