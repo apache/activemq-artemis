@@ -820,6 +820,51 @@
    <build>
       <pluginManagement>
          <plugins>
+			<plugin>
+				<groupId>org.eclipse.m2e</groupId>
+				<artifactId>lifecycle-mapping</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<lifecycleMappingMetadata>
+						<pluginExecutions>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>org.apache.rat</groupId>
+									<artifactId>apache-rat-plugin</artifactId>
+									<versionRange>[0.12,)</versionRange>
+									<goals>
+										<goal>check</goal>
+									</goals>
+								</pluginExecutionFilter>
+								<action>
+									<ignore />
+								</action>
+							</pluginExecution>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>
+										org.apache.servicemix.tooling
+									</groupId>
+									<artifactId>
+										depends-maven-plugin
+									</artifactId>
+									<versionRange>
+										[1.2,)
+									</versionRange>
+									<goals>
+										<goal>
+											generate-depends-file
+										</goal>
+									</goals>
+								</pluginExecutionFilter>
+								<action>
+									<ignore></ignore>
+								</action>
+							</pluginExecution>
+						</pluginExecutions>
+					</lifecycleMappingMetadata>
+				</configuration>
+			</plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-enforcer-plugin</artifactId>
@@ -1025,7 +1070,7 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>1.7.0</version>
+                     <version>1.8.0</version>
                    </requireJavaVersion>
                  </rules>
                </configuration>
