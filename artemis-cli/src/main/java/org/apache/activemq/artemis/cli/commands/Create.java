@@ -58,7 +58,7 @@ public class Create extends InputAbstract {
 
    private static final Integer HQ_PORT = 5445;
 
-   private static final Integer HTTP_PORT = 8161;
+   public static final Integer HTTP_PORT = 8161;
 
    private static final Integer MQTT_PORT = 1883;
 
@@ -72,7 +72,6 @@ public class Create extends InputAbstract {
    public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
    public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
    public static final String ETC_BROKER_XML = "etc/broker.xml";
-   public static final String ETC_WEB_KEYSTORE = "etc/keystore.jks";
 
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
@@ -102,6 +101,21 @@ public class Create extends InputAbstract {
 
    @Option(name = "--http-port", description = "The port number to use for embedded web server (Default: 8161)")
    int httpPort = HTTP_PORT;
+
+   @Option(name = "--ssl-key", description = "The key store path for embedded web server")
+   String sslKey;
+
+   @Option(name = "--ssl-key-password", description = "The key store password")
+   String sslKeyPassword;
+
+   @Option(name = "--use-client-auth", description = "If the embedded server requires client authentication")
+   boolean useClientAuth;
+
+   @Option(name = "--ssl-trust", description = "The trust store path in case of client authentication")
+   String sslTrust;
+
+   @Option(name = "--ssl-trust-password", description = "The trust store password")
+   String sslTrustPassword;
 
    @Option(name = "--name", description = "The name of the broker (Default: same as host)")
    String name;
@@ -347,6 +361,27 @@ public class Create extends InputAbstract {
       return clusterPassword;
    }
 
+   public String getSslKeyPassword() {
+      if (sslKeyPassword == null) {
+         sslKeyPassword = inputPassword("--ssl-key-password", "Please enter the keystore password:", "password");
+      }
+      return sslKeyPassword;
+   }
+
+   public String getSslTrust() {
+      if (sslTrust == null) {
+         sslTrust = input("--ssl-trust", "Please enter the trust store path:", "/etc/truststore.jks");
+      }
+      return sslTrust;
+   }
+
+   public String getSslTrustPassword() {
+      if (sslTrustPassword == null) {
+         sslTrustPassword = inputPassword("--ssl-key-password", "Please enter the keystore password:", "password");
+      }
+      return sslTrustPassword;
+   }
+
    public void setClusterPassword(String clusterPassword) {
       this.clusterPassword = clusterPassword;
    }
@@ -522,6 +557,21 @@ public class Create extends InputAbstract {
          filters.put("${journal.settings}", "ASYNCIO");
       }
 
+      if (sslKey != null) {
+         filters.put("${web.protocol}", "https");
+         getSslKeyPassword();
+         String extraWebAttr = " keyStorePath=\"" + sslKey + "\" keyStorePassword=\"" + sslKeyPassword + "\"";
+         if (useClientAuth) {
+            getSslTrust();
+            getSslTrustPassword();
+            extraWebAttr += " clientAuth=\"true\" trustStorePath=\"" + sslTrust + "\" trustStorePassword=\"" + sslTrustPassword + "\"";
+         }
+         filters.put("${extra.web.attributes}", extraWebAttr);
+      }
+      else {
+         filters.put("${web.protocol}", "http");
+         filters.put("${extra.web.attributes}", "");
+      }
       filters.put("${user}", System.getProperty("user.name", ""));
       filters.put("${default.port}", String.valueOf(defaultPort + portOffset));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
@@ -624,9 +674,6 @@ public class Create extends InputAbstract {
       else {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
-
-      //keystore
-      write(ETC_WEB_KEYSTORE);
 
       if (noAmqpAcceptor) {
          filters.put("${amqp-acceptor}", "");

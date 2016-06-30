@@ -648,3 +648,35 @@ they use for this should always be changed from the installation default
 to prevent a security risk.
 
 Please see [Management](management.md) for instructions on how to do this.
+
+
+## Securing the console
+
+Artemis comes with a web console that allows user to browse Artemis documentation via an embedded server. By default the
+web access is plain HTTP. It is configured in `bootstrap.xml`:
+
+    <web bind="http://localhost:8161" path="web">
+        <app url="jolokia" war="jolokia-war-1.3.3.war"/>
+    </web>
+
+Alternatively you can edit the above configuration to enable secure access using HTTPS protocol. e.g.:
+
+    <web bind="https://localhost:8443"
+        path="web"
+        keyStorePath="${artemis.instance}/etc/keystore.jks"
+        keyStorePassword="password">
+        <app url="jolokia" war="jolokia-war-1.3.3.war"/>
+    </web>
+
+As shown in the example, to enable https the first thing to do is config the `bind` to be an `https` url. In addition,
+You will have to configure a few extra properties desribed as below.
+
+-   `keyStorePath` - The path of the key store file.
+
+-   `keyStorePassword` - The key store's password.
+
+-   `clientAuth` - The boolean flag indicates whether or not client authentication is required. Default is `false`.
+
+-   `trustStorePath` - The path of the trust store file. This is needed only if `clientAuth` is `true`.
+
+-   `trustStorePassword` - The trust store's password.
