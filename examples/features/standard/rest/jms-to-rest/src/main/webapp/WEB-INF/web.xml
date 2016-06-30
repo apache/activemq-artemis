@@ -41,11 +41,11 @@ under the License.
     </listener>
 
     <listener>
-        <listener-class>org.apache.activemq.rest.integration.ActiveMQBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq.artemis.rest.integration.ActiveMQBootstrapListener</listener-class>
     </listener>
 
     <listener>
-        <listener-class>org.apache.activemq.rest.integration.RestMessagingBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq.artemis.rest.integration.RestMessagingBootstrapListener</listener-class>
     </listener>
 
 </web-app>

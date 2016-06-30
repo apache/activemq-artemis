@@ -1,5 +1,5 @@
 System Requirements:
-You will need JDK 1.6 and Maven to run this example.  This example has been tested with Maven 2.2.1.  It may or may not work 
+You will need JDK 1.8 and Maven to run this example.  This example has been tested with Maven 3.3.3.  It may or may not work
 with earlier or later versions of Maven.
 
 
