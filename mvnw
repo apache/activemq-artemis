@@ -226,6 +226,10 @@ export MAVEN_CMD_LINE_ARGS
 
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
+if [ ! -f $MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar ]; then
+    curl -o $MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar http://central.maven.org/maven2/io/takari/maven-wrapper/0.1.4/maven-wrapper-0.1.4.jar
+fi
+
 exec "$JAVACMD" \
   $MAVEN_OPTS \
   -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
