@@ -91,45 +91,5 @@ cd xa-heuristic; mvn verify; cd ..
 cd xa-receive; mvn verify; cd ..
 cd xa-send; mvn verify; cd ..
 
-
-cd $ARTEMIS_HOME/examples/features/clustered/
-
-
-cd client-side-load-balancing; mvn verify; cd ..
-cd clustered-durable-subscription; mvn verify; cd ..
-cd clustered-grouping; mvn verify; cd ..
-cd clustered-jgroups; mvn verify; cd ..
-cd clustered-queue; mvn verify; cd ..
-cd clustered-static-oneway; mvn verify; cd ..
-cd clustered-static-discovery; mvn verify; cd ..
-cd clustered-static-discovery-uri; mvn verify; cd ..
-cd clustered-topic; mvn verify; cd ..
-cd clustered-topic-uri; mvn verify; cd ..
-cd queue-message-redistribution; mvn verify; cd ..
-cd symmetric-cluster; mvn verify; cd ..
-
-
-# TODO: these will hung eventually when ran in series
-
-#cd $ARTEMIS_HOME/examples/features/ha/
-#
-#cd application-layer-failover; mvn verify; cd ..
-#cd client-side-failoverlistener; mvn verify; cd ..
-#cd colocated-failover; mvn verify; cd ..
-#cd colocated-failover-scale-down; mvn verify; cd ..
-#cd ha-policy-autobackup; mvn verify; cd ..
-#cd multiple-failover; mvn verify; cd ..
-#cd multiple-failover-failback; mvn verify; cd ..
-#cd non-transaction-failover; mvn verify; cd ..
-#cd replicated-failback; mvn verify; cd ..
-#cd replicated-failback-static; mvn verify; cd ..
-
-#cd replicated-multiple-failover; mvn verify; cd ..
-
-#cd replicated-transaction-failover; mvn verify; cd ..
-#cd scale-down; mvn verify; cd ..
-#cd transaction-failover; mvn verify; cd ..
-
-
 cd $CURRENT_DIR
 rm -rf target

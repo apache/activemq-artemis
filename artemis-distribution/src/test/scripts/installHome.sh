@@ -16,56 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# This script will validate the distribution works with folders with spaces on Linux machines
-
-rm -rf target
-mkdir target
-mkdir target/with\ space
-
-
 # Setting the script to fail if anything goes wrong
 set -e
 
+export CURRENT_DIR=`pwd`
 
-export TEST_TARGET="./target/with space"
+export LOCAL_USED=`ls ../../../target/apache-artemis-*bin.tar.gz`
+echo Unziping $LOCAL_USED
 
-. ./installHome.sh
+if [ -z "$LOCAL_USED" ] ; then
+   echo "Couldn't find distribution file"
+   exit -1
+fi
 
+echo $LOCAL_USED
 
-export ARTEMIS_INSTANCE="$CURRENT_DIR/target/with space/artemis_instance"
-echo home used is $ARTEMIS_HOME
-echo artemis instance is $ARTEMIS_HOME
-
-
-cd "$ARTEMIS_HOME/bin"
-./artemis create --silent --force "$ARTEMIS_INSTANCE"
-
-cd "$ARTEMIS_INSTANCE/bin"
-pwd
-
-./artemis run &
-
-sleep 5
-
-./artemis producer
-./artemis consumer
-
-./artemis stop
-
-sleep 5
-./artemis data print > data.log
-./artemis data compact
-./artemis data exp
-
-
-./artemis-service start
-
-sleep 5
-
-./artemis producer
-./artemis consumer
-
-./artemis-service stop
+tar -zxf $LOCAL_USED -C "$TEST_TARGET"
+cd "$TEST_TARGET"
+export ARTEMIS_HOME="`pwd`/`ls`"
+echo home is $ARTEMIS_HOME
 
 cd $CURRENT_DIR
-rm -rf target
