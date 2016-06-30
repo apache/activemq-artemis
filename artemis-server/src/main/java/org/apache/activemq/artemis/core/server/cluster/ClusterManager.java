@@ -520,7 +520,7 @@ public final class ClusterManager implements ActiveMQComponent {
                         manager.stop();
                      }
                      catch (Exception e) {
-                        e.printStackTrace();
+                        ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                      }
                   }
 
@@ -562,7 +562,7 @@ public final class ClusterManager implements ActiveMQComponent {
             clusterConnection.stop();
          }
          catch (Exception e) {
-            e.printStackTrace();
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
       clearClusterConnections();

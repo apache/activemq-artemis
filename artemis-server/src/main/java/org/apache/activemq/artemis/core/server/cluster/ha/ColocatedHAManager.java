@@ -70,8 +70,7 @@ public class ColocatedHAManager implements HAManager {
             activeMQServer.stop();
          }
          catch (Exception e) {
-            e.printStackTrace();
-            //todo
+            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
       backupServers.clear();

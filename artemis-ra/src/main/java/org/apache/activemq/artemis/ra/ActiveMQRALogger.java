@@ -109,6 +109,10 @@ public interface ActiveMQRALogger extends BasicLogger {
    @Message(id = 152008, value = "Error interrupting handler on endpoint {0} handler = {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorInterruptingHandler(String endpoint, String handler, @Cause Throwable cause);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 152009, value = "Unable to validate properties", format = Message.Format.MESSAGE_FORMAT)
+   void unableToValidateProperties(@Cause Exception e);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 154000, value = "Error while creating object Reference.", format = Message.Format.MESSAGE_FORMAT)
    void errorCreatingReference(@Cause Exception e);

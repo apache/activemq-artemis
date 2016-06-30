@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequ
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResponseMessage;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedHAManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
@@ -126,7 +127,7 @@ public class ColocatedActivation extends LiveActivation {
                   started = colocatedHAManager.activateBackup(backupRequestMessage.getBackupSize(), backupRequestMessage.getJournalDirectory(), backupRequestMessage.getBindingsDirectory(), backupRequestMessage.getLargeMessagesDirectory(), backupRequestMessage.getPagingDirectory(), backupRequestMessage.getNodeID());
                }
                catch (Exception e) {
-                  e.printStackTrace();
+                  ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                }
                channel.send(new BackupResponseMessage(started));
             }
@@ -222,8 +223,7 @@ public class ColocatedActivation extends LiveActivation {
                }
             }
             catch (Exception e) {
-               e.printStackTrace();
-               //todo
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
          else {
