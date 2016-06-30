@@ -28,32 +28,11 @@ under the License.
    </jms>
 
    <core xmlns="urn:activemq:core">
-
       <persistence-enabled>false</persistence-enabled>
-      <!-- Connectors -->
-
-      <connectors>
-         <connector name="in-vm">vm://0</connector>
-      </connectors>
+      <security-enabled>false</security-enabled>
 
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>
-         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
       </acceptors>
-
-      <!-- Other config -->
-
-      <security-settings>
-         <!--security for example queue-->
-         <security-setting match="#">
-            <permission type="createDurableQueue" roles="guest"/>
-            <permission type="deleteDurableQueue" roles="guest"/>
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="send" roles="guest"/>
-         </security-setting>
-      </security-settings>
-
    </core>
 </configuration>

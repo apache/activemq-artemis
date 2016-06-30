@@ -33,13 +33,6 @@ under the License.
       <activemq.basedir>${project.basedir}/../../../../..</activemq.basedir>
    </properties>
 
-   <repositories>
-      <repository>
-         <id>jboss</id>
-         <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      </repository>
-   </repositories>
-
    <profiles>
       <profile>
          <id>example</id>
@@ -91,21 +84,13 @@ under the License.
                   </executions>
                </plugin>
                <plugin>
-                  <groupId>org.mortbay.jetty</groupId>
-                  <artifactId>maven-jetty-plugin</artifactId>
-                  <version>6.1.15</version>
+                  <groupId>org.eclipse.jetty</groupId>
+                  <artifactId>jetty-maven-plugin</artifactId>
+                  <version>${jetty.version}</version>
                   <configuration>
-                     <!-- By default the artifactId is taken, override it with something simple -->
-                     <contextPath>/</contextPath>
                      <scanIntervalSeconds>2</scanIntervalSeconds>
                      <stopKey>foo</stopKey>
                      <stopPort>9999</stopPort>
-                     <connectors>
-                        <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                           <port>9095</port>
-                           <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                     </connectors>
                   </configuration>
                   <executions>
                      <execution>

@@ -51,6 +51,8 @@
       <dependency>
          <groupId>org.eclipse.jetty.aggregate</groupId>
          <artifactId>jetty-all</artifactId>
+         <type>jar</type>
+         <classifier>uber</classifier>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

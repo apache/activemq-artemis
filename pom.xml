@@ -76,7 +76,7 @@
       <fuse.mqtt.client.version>1.10</fuse.mqtt.client.version>
       <guava.version>18.0</guava.version>
       <jboss.logging.version>3.3.0.Final</jboss.logging.version>
-      <jetty.version>9.2.11.v20150529</jetty.version>
+      <jetty.version>9.3.10.v20160621</jetty.version>
       <jgroups.version>3.6.9.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
       <netty.version>4.0.32.Final</netty.version>
@@ -517,6 +517,8 @@
             <groupId>org.eclipse.jetty.aggregate</groupId>
             <artifactId>jetty-all</artifactId>
             <version>${jetty.version}</version>
+            <type>jar</type>
+            <classifier>uber</classifier>
             <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
         </dependency>
          <dependency>

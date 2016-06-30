@@ -16,6 +16,7 @@
  */
 
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.rest.Jms;
 
 import javax.jms.Connection;
@@ -29,7 +30,7 @@ import javax.jms.Session;
 public class ReceiveShipping {
 
    public static void main(String[] args) throws Exception {
-      ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
+      ConnectionFactory factory = new ActiveMQJMSConnectionFactory("tcp://localhost:61616");
       Destination destination = ActiveMQDestination.fromAddress("jms.queue.shipping");
 
       try (Connection conn = factory.createConnection()) {
