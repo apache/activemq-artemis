@@ -94,7 +94,7 @@ Within your WEB-INF/lib directory you must have the Apache ActiveMQ Artemis-rest
 
        <modelVersion>4.0.0</modelVersion>
        <groupId>org.somebody</groupId>
-       <artifactId>activemq-rest</artifactId>
+       <artifactId>artemis-rest</artifactId>
        <packaging>war</packaging>
        <name>My App</name>
        <version>1.0-SNAPSHOT</version>
@@ -102,8 +102,8 @@ Within your WEB-INF/lib directory you must have the Apache ActiveMQ Artemis-rest
        <dependencies>
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
-             <artifactId>activemq-rest</artifactId>
-             <version>1.0.0.Final</version>
+             <artifactId>artemis-rest</artifactId>
+             <version>$VERSION</version>
              <exclusions>
                 <exclusion>
                    <groupId>*</groupId>
@@ -170,7 +170,7 @@ Here's a Maven pom.xml file for creating a WAR for this environment. Make sure y
 
        <modelVersion>4.0.0</modelVersion>
        <groupId>org.somebody</groupId>
-       <artifactId>activemq-rest</artifactId>
+       <artifactId>artemis-rest</artifactId>
        <packaging>war</packaging>
        <name>My App</name>
        <version>1.0-SNAPSHOT</version>
@@ -178,8 +178,8 @@ Here's a Maven pom.xml file for creating a WAR for this environment. Make sure y
        <dependencies>
           <dependency>
              <groupId>org.apache.activemq.rest</groupId>
-             <artifactId>activemq-rest</artifactId>
-             <version>1.0.0.Final</version>
+             <artifactId>artemis-rest</artifactId>
+             <version>$VERSION</version>
           </dependency>
        </dependencies>
     </project>
