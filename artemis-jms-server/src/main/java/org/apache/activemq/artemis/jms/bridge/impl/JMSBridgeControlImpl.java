@@ -176,9 +176,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       if (mode != null) {
          bridge.setQualityOfServiceMode(QualityOfServiceMode.valueOf(mode));
       }
-      else {
-         mode = null;
-      }
    }
 
    @Override
