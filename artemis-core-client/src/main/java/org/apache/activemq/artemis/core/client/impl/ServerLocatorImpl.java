@@ -787,7 +787,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             }
             catch (ActiveMQException e) {
                factory.close();
-               factory = null;
                if (e.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
                   attempts++;
 
@@ -813,9 +812,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       // how the sendSubscription happens.
       // in case this ever changes.
       if (topology != null && !factory.waitForTopology(callTimeout, TimeUnit.MILLISECONDS)) {
-         if (factory != null) {
-            factory.cleanup();
-         }
+         factory.cleanup();
          throw ActiveMQClientMessageBundle.BUNDLE.connectionTimedOutOnReceiveTopology(discoveryGroup);
       }
 
@@ -1647,21 +1644,19 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
          initialise();
 
-         ClientSessionFactory csf = null;
-
          createConnectors();
 
          try {
 
             int retryNumber = 0;
-            while (csf == null && !isClosed()) {
+            while (!isClosed()) {
                retryNumber++;
                for (Connector conn : connectors) {
                   if (logger.isDebugEnabled()) {
                      logger.debug(this + "::Submitting connect towards " + conn);
                   }
 
-                  csf = conn.tryConnect();
+                  ClientSessionFactory csf = conn.tryConnect();
 
                   if (csf != null) {
                      csf.getConnection().addFailureListener(new FailureListener() {
