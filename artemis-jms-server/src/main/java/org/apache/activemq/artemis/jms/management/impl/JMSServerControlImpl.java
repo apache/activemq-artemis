@@ -891,10 +891,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
             ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue().getName().toString());
             obj.put("durable", true);
          }
-         catch (IllegalArgumentException e) {
-            obj.put("durable", false);
-         }
-         catch (JMSRuntimeException e) {
+         catch (IllegalArgumentException | JMSRuntimeException e) {
             obj.put("durable", false);
          }
       }
