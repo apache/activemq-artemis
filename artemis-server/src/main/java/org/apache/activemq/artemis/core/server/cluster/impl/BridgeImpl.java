@@ -956,10 +956,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                scheduleRetryConnect();
             }
          }
-         catch (ActiveMQInterruptedException e) {
-            ActiveMQServerLogger.LOGGER.errorConnectingBridge(e, this);
-         }
-         catch (InterruptedException e) {
+         catch (ActiveMQInterruptedException | InterruptedException e) {
             ActiveMQServerLogger.LOGGER.errorConnectingBridge(e, this);
          }
          catch (Exception e) {
@@ -1138,10 +1135,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             }
             ActiveMQServerLogger.LOGGER.bridgeStopped(name);
          }
-         catch (RuntimeException e) {
-            ActiveMQServerLogger.LOGGER.error("Failed to stop bridge", e);
-         }
-         catch (InterruptedException e) {
+         catch (InterruptedException | RuntimeException e) {
             ActiveMQServerLogger.LOGGER.error("Failed to stop bridge", e);
          }
       }

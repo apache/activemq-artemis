@@ -90,9 +90,7 @@ public class GuestLoginModule implements LoginModule {
                passwordCallback.clearPassword();
             }
          }
-         catch (IOException ioe) {
-         }
-         catch (UnsupportedCallbackException uce) {
+         catch (IOException | UnsupportedCallbackException e) {
          }
       }
       if (debug) {
