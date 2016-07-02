@@ -314,6 +314,65 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testJAASSecurityManagerAuthorizationSameAddressDifferentQueues() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString QUEUE_A = new SimpleString("a");
+      final SimpleString QUEUE_B = new SimpleString("b");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      Set<Role> aRoles = new HashSet<>();
+      aRoles.add(new Role(QUEUE_A.toString(), false, true, false, false, false, false, false, false));
+      server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_A).toString(), aRoles);
+      Set<Role> bRoles = new HashSet<>();
+      bRoles.add(new Role(QUEUE_B.toString(), false, true, false, false, false, false, false, false));
+      server.getConfiguration().putSecurityRoles(ADDRESS.concat(".").concat(QUEUE_B).toString(), bRoles);
+      server.start();
+      server.createQueue(ADDRESS, QUEUE_A, null, true, false);
+      server.createQueue(ADDRESS, QUEUE_B, null, true, false);
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession aSession = addClientSession(cf.createSession("a", "a", false, true, true, false, 0));
+      ClientSession bSession = addClientSession(cf.createSession("b", "b", false, true, true, false, 0));
+
+      // client A CONSUME from queue A
+      try {
+         ClientConsumer consumer = aSession.createConsumer(QUEUE_A);
+      }
+      catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
+
+      // client B CONSUME from queue A
+      try {
+         ClientConsumer consumer = bSession.createConsumer(QUEUE_A);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         assertTrue(e instanceof ActiveMQSecurityException);
+      }
+
+      // client B CONSUME from queue B
+      try {
+         ClientConsumer consumer = bSession.createConsumer(QUEUE_B);
+      }
+      catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
+
+      // client A CONSUME from queue B
+      try {
+         ClientConsumer consumer = aSession.createConsumer(QUEUE_B);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         assertTrue(e instanceof ActiveMQSecurityException);
+      }
+   }
+
+   @Test
    public void testJAASSecurityManagerAuthorizationNegativeWithCerts() throws Exception {
       final SimpleString ADDRESS = new SimpleString("address");
       final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
