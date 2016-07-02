@@ -420,10 +420,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (browseOnly) {
-         securityCheck(binding.getAddress(), CheckType.BROWSE, this);
+         try {
+            securityCheck(binding.getAddress(), CheckType.BROWSE, this);
+         }
+         catch (Exception e) {
+            securityCheck(binding.getAddress().concat(".").concat(queueName), CheckType.BROWSE, this);
+         }
       }
       else {
-         securityCheck(binding.getAddress(), CheckType.CONSUME, this);
+         try {
+            securityCheck(binding.getAddress(), CheckType.CONSUME, this);
+         }
+         catch (Exception e) {
+            securityCheck(binding.getAddress().concat(".").concat(queueName), CheckType.CONSUME, this);
+         }
       }
 
       Filter filter = FilterImpl.createFilter(filterString);
