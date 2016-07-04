@@ -22,12 +22,13 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = ProtocolManagerFactory.class)
-public class MQTTProtocolManagerFactory implements ProtocolManagerFactory<BaseInterceptor> {
+public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<MQTTInterceptor> {
 
    public static final String MQTT_PROTOCOL_NAME = "MQTT";
 
@@ -40,13 +41,12 @@ public class MQTTProtocolManagerFactory implements ProtocolManagerFactory<BaseIn
                                                 final Map<String, Object> parameters,
                                                 List<BaseInterceptor> incomingInterceptors,
                                                 List<BaseInterceptor> outgoingInterceptors) {
-      return new MQTTProtocolManager(server);
+      return new MQTTProtocolManager(server, incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
-   public List filterInterceptors(List list) {
-      // TODO Add support for interceptors.
-      return null;
+   public List<MQTTInterceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
+      return internalFilterInterceptors(MQTTInterceptor.class, interceptors);
    }
 
    @Override
