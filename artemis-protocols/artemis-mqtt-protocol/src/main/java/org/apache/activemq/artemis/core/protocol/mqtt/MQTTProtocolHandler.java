@@ -53,6 +53,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    private MQTTSession session;
 
    private ActiveMQServer server;
+   private MQTTProtocolManager protocolManager;
 
    // This Channel Handler is not sharable, therefore it can only ever be associated with a single ctx.
    private ChannelHandlerContext ctx;
@@ -61,8 +62,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    private boolean stopped = false;
 
-   public MQTTProtocolHandler(ActiveMQServer server) {
+   public MQTTProtocolHandler(ActiveMQServer server, MQTTProtocolManager protocolManager) {
       this.server = server;
+      this.protocolManager = protocolManager;
    }
 
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
@@ -188,6 +190,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handlePublish(MqttPublishMessage message) throws Exception {
+      this.protocolManager.invokeIncoming(message, this.connection);
       session.getMqttPublishManager().handleMessage(message.variableHeader().messageId(), message.variableHeader().topicName(), message.fixedHeader().qosLevel().value(), message.payload(), message.fixedHeader().isRetain());
    }
 
@@ -281,6 +284,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.PUBLISH, redelivery, MqttQoS.valueOf(qosLevel), false, 0);
       MqttPublishVariableHeader varHeader = new MqttPublishVariableHeader(topicName, messageId);
       MqttMessage publish = new MqttPublishMessage(header, varHeader, payload);
+      this.protocolManager.invokeOutgoing(publish, connection);
 
       ctx.write(publish);
       ctx.flush();

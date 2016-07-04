@@ -16,35 +16,42 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.List;
-
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
+import io.netty.handler.codec.mqtt.MqttMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
-import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * MQTTProtocolManager
  */
-class MQTTProtocolManager implements ProtocolManager, NotificationListener {
+class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterceptor,MQTTConnection>
+        implements NotificationListener {
 
    private ActiveMQServer server;
 
    private MQTTLogger log = MQTTLogger.LOGGER;
+   private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
+   private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
 
-   MQTTProtocolManager(ActiveMQServer server) {
+   MQTTProtocolManager(ActiveMQServer server, List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
       this.server = server;
+      this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
@@ -58,8 +65,12 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener {
    }
 
    @Override
-   public void updateInterceptors(List incomingInterceptors, List outgoingInterceptors) {
-      // TODO handle interceptors
+   public void updateInterceptors(List incoming, List outgoing) {
+      this.incomingInterceptors.clear();
+      this.incomingInterceptors.addAll(getFactory().filterInterceptors(incoming));
+
+      this.outgoingInterceptors.clear();
+      this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
 
    @Override
@@ -100,7 +111,7 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener {
       pipeline.addLast(new MqttEncoder());
       pipeline.addLast(new MqttDecoder(MQTTUtil.MAX_MESSAGE_SIZE));
 
-      pipeline.addLast(new MQTTProtocolHandler(server));
+      pipeline.addLast(new MQTTProtocolHandler(server, this));
    }
 
    @Override
@@ -125,5 +136,13 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener {
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
+   }
+
+   public void invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {
+      super.invokeInterceptors(this.incomingInterceptors, mqttMessage, connection);
+   }
+
+   public void invokeOutgoing(MqttMessage mqttMessage, MQTTConnection connection) {
+      super.invokeInterceptors(this.outgoingInterceptors, mqttMessage, connection);
    }
 }

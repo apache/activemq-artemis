@@ -246,7 +246,9 @@ public class MQTTTest extends MQTTTestSupport {
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveExactlyOnce() throws Exception {
+   public void testSendAndReceiveExactlyOnceWithInterceptors() throws Exception {
+      MQTTIncomingInterceptor.clear();
+      MQTTOutoingInterceptor.clear();
       final MQTTClientProvider publisher = getMQTTClientProvider();
       initializeConnection(publisher);
 
@@ -263,6 +265,8 @@ public class MQTTTest extends MQTTTestSupport {
       }
       subscriber.disconnect();
       publisher.disconnect();
+      assertEquals(NUM_MESSAGES, MQTTIncomingInterceptor.getMessageCount());
+      assertEquals(NUM_MESSAGES, MQTTOutoingInterceptor.getMessageCount());
    }
 
    @Test(timeout = 60 * 1000)
@@ -380,7 +384,8 @@ public class MQTTTest extends MQTTTestSupport {
          Message msg = connection.receive(5, TimeUnit.SECONDS);
          do {
             assertNotNull("RETAINED null " + wildcard, msg);
-            assertTrue("RETAINED prefix " + wildcard, new String(msg.getPayload()).startsWith(RETAINED));
+            String msgPayload = new String(msg.getPayload());
+            assertTrue("RETAINED prefix " + wildcard + " msg " + msgPayload, msgPayload.startsWith(RETAINED));
             assertTrue("RETAINED matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
             msg = connection.receive(5000, TimeUnit.MILLISECONDS);
