@@ -114,7 +114,7 @@ public class StompV11Test extends StompV11TestBase {
       ClientStompFrame frame = conn.connect("invaliduser", defPass);
       assertFalse(conn.isConnected());
       assertTrue("ERROR".equals(frame.getCommand()));
-      assertTrue(frame.getBody().contains("The login account is not valid."));
+      assertTrue(frame.getBody().contains("Security Error occurred"));
    }
 
    @Test
