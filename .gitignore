@@ -1,3 +1,6 @@
+# maven wrapper jar file
+.mvn/wrapper/maven-wrapper.jar
+
 **/*.iml
 **/target
 .idea/
