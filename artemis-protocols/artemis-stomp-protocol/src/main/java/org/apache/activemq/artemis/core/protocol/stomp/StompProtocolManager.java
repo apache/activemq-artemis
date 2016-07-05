@@ -37,9 +37,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
-import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -52,7 +52,7 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 /**
  * StompProtocolManager
  */
-class StompProtocolManager implements ProtocolManager<StompFrameInterceptor> {
+class StompProtocolManager extends AbstractProtocolManager<StompFrame,StompFrameInterceptor,StompConnection> {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -409,22 +409,5 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor> {
 
    public ActiveMQServer getServer() {
       return server;
-   }
-
-   private void invokeInterceptors(List<StompFrameInterceptor> interceptors,
-                                   final StompFrame frame,
-                                   final StompConnection connection) {
-      if (interceptors != null && !interceptors.isEmpty()) {
-         for (StompFrameInterceptor interceptor : interceptors) {
-            try {
-               if (!interceptor.intercept(frame, connection)) {
-                  break;
-               }
-            }
-            catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.error(e);
-            }
-         }
-      }
    }
 }

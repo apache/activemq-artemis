@@ -9,7 +9,9 @@ makes interceptors powerful, but also potentially dangerous.
 
 ## Implementing The Interceptors
 
-An interceptor must implement the `Interceptor interface`:
+All interceptors are protocol specific.
+
+An interceptor for the core protocol must implement the interface `Interceptor`:
 
 ``` java
 package org.apache.artemis.activemq.api.core.interceptor;
@@ -20,14 +22,25 @@ public interface Interceptor
 }
 ```
 
-For stomp protocol an interceptor must implement the `StompFrameInterceptor class`:
+For stomp protocol an interceptor must implement the interface `StompFrameInterceptor`:
 
 ``` java
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-public interface StompFrameInterceptor
+public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
 {
-   public abstract boolean intercept(StompFrame stompFrame, RemotingConnection connection);
+   boolean intercept(StompFrame stompFrame, RemotingConnection connection);
+}
+```
+
+Likewise for MQTT protocol, an interceptor must implement the interface `MQTTInterceptor`:
+ 
+``` java
+package org.apache.activemq.artemis.core.protocol.mqtt;
+
+public interface MQTTInterceptor extends BaseInterceptor<MqttMessage>
+{
+    boolean intercept(MqttMessage mqttMessage, RemotingConnection connection);
 }
 ```
 

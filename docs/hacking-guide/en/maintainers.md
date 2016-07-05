@@ -11,7 +11,7 @@ What does it mean to be reasonably confident? If the developer has run the same 
 builds are running they can be reasonably confident. Currently the [PR build](https://builds.apache.org/job/ActiveMQ-Artemis-PR-Build/)
 runs this command:
 
-    mvn compile test-compile javadoc:javadoc -Pfast-tests -Pextra-tests test
+    mvn -Pfast-tests -Pextra-tests install
 
 However, if the changes are significant, touches a wide area of code, or even if the developer just wants a second
 opinion they are encouraged to engage other members of the community to obtain an additional review prior to pushing.

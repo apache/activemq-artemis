@@ -29,13 +29,19 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.handler.codec.mqtt.MqttMessage;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Tracer;
@@ -46,6 +52,8 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Collections.singletonList;
 
 public class MQTTTestSupport extends ActiveMQTestBase {
 
@@ -77,11 +85,6 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    public File basedir() throws IOException {
       ProtectionDomain protectionDomain = getClass().getProtectionDomain();
       return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
-   }
-
-   public MQTTTestSupport(String connectorScheme, boolean useSSL) {
-      this.protocolScheme = connectorScheme;
-      this.useSSL = useSSL;
    }
 
    @Override
@@ -120,7 +123,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    public void startBroker() throws Exception {
       // TODO Add SSL
       super.setUp();
-      server = createServer(true, true);
+      server = createServerForMQTT();
       addCoreConnector();
       addMQTTConnector();
       AddressSettings addressSettings = new AddressSettings();
@@ -132,12 +135,19 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       server.waitForActivation(10, TimeUnit.SECONDS);
    }
 
+   private ActiveMQServer createServerForMQTT() throws Exception {
+      Configuration defaultConfig = createDefaultConfig(true)
+              .setIncomingInterceptorClassNames(singletonList(MQTTIncomingInterceptor.class.getName()))
+              .setOutgoingInterceptorClassNames(singletonList(MQTTOutoingInterceptor.class.getName()));
+      return createServer(true, defaultConfig);
+   }
+
    protected void addCoreConnector() throws Exception {
       // Overrides of this method can add additional configuration options or add multiple
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
 
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "" + 5445);
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "CORE");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -151,7 +161,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
 
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "" + port);
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "MQTT");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
@@ -334,6 +344,44 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       @Override
       public X509Certificate[] getAcceptedIssuers() {
          return new X509Certificate[0];
+      }
+   }
+
+   public static class MQTTIncomingInterceptor implements MQTTInterceptor {
+
+      private static int messageCount = 0;
+
+      @Override
+      public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
+         messageCount++;
+         return true;
+      }
+
+      public static void clear() {
+         messageCount = 0;
+      }
+
+      public static int getMessageCount() {
+         return messageCount;
+      }
+   }
+
+   public static class MQTTOutoingInterceptor implements MQTTInterceptor {
+
+      private static int messageCount = 0;
+
+      @Override
+      public boolean intercept(MqttMessage packet, RemotingConnection connection) throws ActiveMQException {
+         messageCount++;
+         return true;
+      }
+
+      public static void clear() {
+         messageCount = 0;
+      }
+
+      public static int getMessageCount() {
+         return messageCount;
       }
    }
 }
