@@ -998,7 +998,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222161, value = "Group Handler timed-out waiting for sendCondition", format = Message.Format.MESSAGE_FORMAT)
    void groupHandlerSendTimeout();
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 222162, value = "Moving data directory {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
    void backupMovingDataAway(String oldPath, String newPath);
 
@@ -1218,6 +1218,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222208, value = "SSL handshake failed for client from {0}: {1}.",
       format = Message.Format.MESSAGE_FORMAT)
    void sslHandshakeFailed(String clientAddress, String cause);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 222209, value = "There were too many old replicated folders upon startup, removing {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void removingBackupData(String path);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

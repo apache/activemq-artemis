@@ -94,6 +94,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    NodeManager getNodeManager();
 
+   /** it will release hold a lock for the activation. */
+   void unlockActivation();
+
+   /** it will hold a lock for the activation. This will prevent the activation from happening. */
+   void lockActivation();
+
    /**
     * Returns the resource to manage this ActiveMQ Artemis server.
     *
