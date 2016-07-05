@@ -1523,8 +1523,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          targetProducer.send(targetDestination, msg, msg.getJMSDeliveryMode(), msg.getJMSPriority(), timeToLive);
 
-         if (msg != null)
-            messageCount++;
+         messageCount++;
          if (JMSBridgeImpl.trace) {
             ActiveMQJMSBridgeLogger.LOGGER.trace("Sent message " + msg);
          }

@@ -102,9 +102,7 @@ public class XmlUtil {
 
       XMLStreamReader reader = factory.createXMLStreamReader(new FileInputStream(configuration));
 
-      if (props != null) {
-         reader = new PropertiesFilter(reader, props);
-      }
+      reader = new PropertiesFilter(reader, props);
 
       return clazz.cast(unmarshaller.unmarshal(reader));
    }

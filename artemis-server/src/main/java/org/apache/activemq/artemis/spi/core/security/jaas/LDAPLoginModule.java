@@ -102,11 +102,8 @@ public class LDAPLoginModule implements LoginModule {
       try {
          handler.handle(callbacks);
       }
-      catch (IOException ioe) {
-         throw (LoginException) new LoginException().initCause(ioe);
-      }
-      catch (UnsupportedCallbackException uce) {
-         throw (LoginException) new LoginException().initCause(uce);
+      catch (IOException | UnsupportedCallbackException e) {
+         throw (LoginException) new LoginException().initCause(e);
       }
 
       String password;

@@ -148,16 +148,11 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
 
          String msgId = msg.getJMSMessageID();
 
-         if (msgId != null) {
-            try {
-               props.setMessageId(AMQPMessageIdHelper.INSTANCE.toIdObject(msgId));
-            }
-            catch (ActiveMQAMQPIllegalStateException e) {
-               props.setMessageId(msgId);
-            }
+         try {
+            props.setMessageId(AMQPMessageIdHelper.INSTANCE.toIdObject(msgId));
          }
-         else {
-            props.setMessageId(msgId.toString());
+         catch (ActiveMQAMQPIllegalStateException e) {
+            props.setMessageId(msgId);
          }
       }
       if (msg.getJMSDestination() != null) {

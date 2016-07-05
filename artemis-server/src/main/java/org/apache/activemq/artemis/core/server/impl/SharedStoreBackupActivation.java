@@ -120,11 +120,8 @@ public final class SharedStoreBackupActivation extends Activation {
             startFailbackChecker();
          }
       }
-      catch (InterruptedException e) {
-         // this is ok, we are being stopped
-      }
-      catch (ClosedChannelException e) {
-         // this is ok too, we are being stopped
+      catch (ClosedChannelException | InterruptedException e) {
+         // these are ok, we are being stopped
       }
       catch (Exception e) {
          if (!(e.getCause() instanceof InterruptedException)) {
