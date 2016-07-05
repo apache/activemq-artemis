@@ -5,9 +5,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,7 +16,7 @@
 # under the License.
 import httplib, urlparse
 
-conn = httplib.HTTPConnection("localhost:9095")
+conn = httplib.HTTPConnection("localhost:8080")
 conn.request("HEAD", "/queues/jms.queue.orders")
 res = conn.getresponse()
 consumersLink = res.getheader("msg-pull-consumers")
@@ -55,9 +55,9 @@ finally:
         conn = httplib.HTTPConnection(createParsed.netloc)
         conn.request("DELETE", createParsed.path)
         res = conn.getresponse()
-        
-        
-    
+
+
+
 
 
 

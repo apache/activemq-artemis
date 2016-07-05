@@ -16,6 +16,7 @@
  */
 
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -27,7 +28,7 @@ import javax.jms.Session;
 public class JmsSend {
 
    public static void main(String[] args) throws Exception {
-      ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
+      ConnectionFactory factory = new ActiveMQJMSConnectionFactory("tcp://localhost:61616");
       Destination destination = ActiveMQDestination.fromAddress("jms.queue.orders");
 
       try (Connection conn = factory.createConnection()) {
