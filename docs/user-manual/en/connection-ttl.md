@@ -149,17 +149,26 @@ be able to detect that the server or network has failed.
 As long as the client is receiving data from the server it will consider
 the connection to be still alive.
 
-If the client does not receive any packets for
-`client-failure-check-period` milliseconds then it will consider the
-connection failed and will either initiate failover, or call any
-`FailureListener` instances (or `ExceptionListener` instances if you are
-using JMS) depending on how it has been configured.
+If the client does not receive any packets for a configurable number
+of milliseconds then it will consider the connection failed and will
+either initiate failover, or call any `FailureListener` instances (or
+`ExceptionListener` instances if you are using JMS) depending on how 
+it has been configured.
 
-If you're using JMS it's defined by the `ClientFailureCheckPeriod`
-attribute on a `ActiveMQConnectionFactory` instance..
+This is controlled by the `clientFailureCheckPeriod` attribute which can
+be set a number of ways:
+
+- If you're using the core API then you can invoke `org.apache.activemq.artemis.api.core.client.ServerLocator.setClientFailureCheckPeriod(long)`
+
+- If you're using JMS then you can invoke `org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory.setClientFailureCheckPeriod(long)`
+on your `javax.jms.ConnectionFactory`.
+
+- However, the simplest way is to just set the `clientFailureCheckPeriod`
+on the URL your client is using to connect, e.g. 
+`tcp://localhost:61616?clientFailureCheckPeriod=30000`.
 
 The default value for client failure check period on an "unreliable"
-connection (e.g. a Netty connection) is `30000`ms, i.e. 30 seconds. The
+connection (e.g. a Netty connection) is `30000` ms, i.e. 30 seconds. The
 default value for client failure check period on a "reliable" connection
 (e.g. an in-vm connection) is `-1`. A value of `-1` means the client
 will never fail the connection on the client side if no data is received
