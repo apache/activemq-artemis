@@ -53,6 +53,9 @@
             <exclude>RELEASING.md</exclude>
             <exclude>ratReport.txt</exclude>
             <exclude>.gitignore</exclude>
+            <exclude>mvnw</exclude>
+            <exclude>mvnw.cmd</exclude>
+            <exclude>.mvn/</exclude>
             <exclude>artemis_doap.rdf</exclude>
             <exclude>artemis-native/bin/</exclude>
 
