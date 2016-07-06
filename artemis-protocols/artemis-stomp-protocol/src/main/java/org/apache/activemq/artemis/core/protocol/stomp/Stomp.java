@@ -125,6 +125,8 @@ public interface Stomp {
          String ACK = "ack";
 
          String PERSISTENT = "persistent";
+
+         String VALIDATED_USER = "JMSXUserID";
       }
 
       public interface Subscribe {

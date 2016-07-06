@@ -324,6 +324,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="populate-validated-user" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that the server will add the name of the validated user to messages it sends
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

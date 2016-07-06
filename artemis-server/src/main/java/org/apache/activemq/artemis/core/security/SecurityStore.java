@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 public interface SecurityStore {
 
-   void authenticate(String user, String password, X509Certificate[] certificates) throws Exception;
+   String authenticate(String user, String password, X509Certificate[] certificates) throws Exception;
 
    void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
 

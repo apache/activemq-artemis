@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.jboss.logging.Logger;
 
@@ -43,7 +44,7 @@ import org.jboss.logging.Logger;
  * The {@link Subject} returned by the login context is expecting to have a set of {@link RolePrincipal} for each
  * role of the user.
  */
-public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
+public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager3 {
 
    private static final Logger logger = Logger.getLogger(ActiveMQJAASSecurityManager.class);
 
@@ -81,21 +82,31 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
 
    @Override
    public boolean validateUser(String user, String password) {
-      return validateUser(user, password, null);
+      throw new UnsupportedOperationException("Invoke validateUser(String, String, X509Certificate[]) instead");
    }
 
    @Override
-   public boolean validateUser(final String user, final String password, X509Certificate[] certificates) {
+   public String validateUser(final String user, final String password, X509Certificate[] certificates) {
       try {
-         getAuthenticatedSubject(user, password, certificates);
-         return true;
+         return getUserFromSubject(getAuthenticatedSubject(user, password, certificates));
       }
       catch (LoginException e) {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
-         return false;
+         return null;
       }
+   }
+
+   public String getUserFromSubject(Subject subject) {
+      String validatedUser = "";
+      Set<UserPrincipal> users = subject.getPrincipals(UserPrincipal.class);
+
+      // should only ever be 1 UserPrincipal
+      for (UserPrincipal userPrincipal : users) {
+         validatedUser = userPrincipal.getName();
+      }
+      return validatedUser;
    }
 
    @Override
@@ -104,7 +115,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
    }
 
    @Override
-   public boolean validateUserAndRole(final String user,
+   public String validateUserAndRole(final String user,
                                       final String password,
                                       final Set<Role> roles,
                                       final CheckType checkType,
@@ -122,7 +133,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          if (logger.isDebugEnabled()) {
             logger.debug("Couldn't validate user", e);
          }
-         return false;
+         return null;
       }
 
       boolean authorized = false;
@@ -155,7 +166,12 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager2 {
          }
       }
 
-      return authorized;
+      if (authorized) {
+         return getUserFromSubject(localSubject);
+      }
+      else {
+         return null;
+      }
    }
 
    private Subject getAuthenticatedSubject(final String user, final String password, final X509Certificate[] certificates) throws LoginException {

@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.reader.MessageUtil;
 
 public class StompUtils {
 
@@ -51,11 +52,10 @@ public class StompUtils {
          msg.setDurable(Boolean.parseBoolean(persistent));
       }
 
-      // FIXME should use a proper constant
-      msg.putObjectProperty("JMSCorrelationID", headers.remove(Stomp.Headers.Send.CORRELATION_ID));
-      msg.putObjectProperty("JMSType", headers.remove(Stomp.Headers.Send.TYPE));
+      msg.putObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME, headers.remove(Stomp.Headers.Send.CORRELATION_ID));
+      msg.putObjectProperty(MessageUtil.TYPE_HEADER_NAME, headers.remove(Stomp.Headers.Send.TYPE));
 
-      String groupID = headers.remove("JMSXGroupID");
+      String groupID = headers.remove(MessageUtil.JMSXGROUPID);
       if (groupID != null) {
          msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
       }
@@ -86,8 +86,8 @@ public class StompUtils {
       command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));
       command.addHeader(Stomp.Headers.Message.DESTINATION, message.getAddress().toString());
 
-      if (message.getObjectProperty("JMSCorrelationID") != null) {
-         command.addHeader(Stomp.Headers.Message.CORRELATION_ID, message.getObjectProperty("JMSCorrelationID").toString());
+      if (message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME) != null) {
+         command.addHeader(Stomp.Headers.Message.CORRELATION_ID, message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME).toString());
       }
       command.addHeader(Stomp.Headers.Message.EXPIRATION_TIME, "" + message.getExpiration());
       command.addHeader(Stomp.Headers.Message.REDELIVERED, String.valueOf(deliveryCount > 1));
@@ -98,22 +98,25 @@ public class StompUtils {
       }
       command.addHeader(Stomp.Headers.Message.TIMESTAMP, "" + message.getTimestamp());
 
-      if (message.getObjectProperty("JMSType") != null) {
-         command.addHeader(Stomp.Headers.Message.TYPE, message.getObjectProperty("JMSType").toString());
+      if (message.getObjectProperty(MessageUtil.TYPE_HEADER_NAME) != null) {
+         command.addHeader(Stomp.Headers.Message.TYPE, message.getObjectProperty(MessageUtil.TYPE_HEADER_NAME).toString());
       }
       if (message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()) != null) {
          command.addHeader(Stomp.Headers.CONTENT_TYPE, message.getStringProperty(Message.HDR_CONTENT_TYPE.toString()));
       }
+      if (message.getStringProperty(Message.HDR_VALIDATED_USER.toString()) != null) {
+         command.addHeader(Stomp.Headers.Message.VALIDATED_USER, message.getStringProperty(Message.HDR_VALIDATED_USER.toString()));
+      }
 
-      // now let's add all the message headers
+      // now let's add all the rest of the message headers
       Set<SimpleString> names = message.getPropertyNames();
       for (SimpleString name : names) {
-         String value = name.toString();
          if (name.equals(ClientMessageImpl.REPLYTO_HEADER_NAME) ||
             name.equals(Message.HDR_CONTENT_TYPE) ||
-            value.equals("JMSType") ||
-            value.equals("JMSCorrelationID") ||
-            value.equals(Stomp.Headers.Message.DESTINATION)) {
+            name.equals(Message.HDR_VALIDATED_USER) ||
+            name.equals(MessageUtil.TYPE_HEADER_NAME) ||
+            name.equals(MessageUtil.CORRELATIONID_HEADER_NAME) ||
+            name.toString().equals(Stomp.Headers.Message.DESTINATION)) {
             continue;
          }
 

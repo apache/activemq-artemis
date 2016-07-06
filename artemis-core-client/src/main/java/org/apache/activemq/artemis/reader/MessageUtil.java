@@ -49,6 +49,8 @@ public class MessageUtil {
 
    public static final String JMSXGROUPID = "JMSXGroupID";
 
+   public static final String JMSXUSERID = "JMSXUserID";
+
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
 
 //   public static ActiveMQBuffer getBodyBuffer(Message message) {
@@ -155,6 +157,7 @@ public class MessageUtil {
 
    public static boolean propertyExists(Message message, String name) {
       return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
-         MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID);
+         (MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID)) ||
+         (MessageUtil.JMSXUSERID.equals(name) && message.containsProperty(Message.HDR_VALIDATED_USER));
    }
 }

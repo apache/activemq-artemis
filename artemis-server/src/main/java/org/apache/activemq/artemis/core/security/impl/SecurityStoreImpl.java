@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.jboss.logging.Logger;
@@ -99,7 +100,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    @Override
-   public void authenticate(final String user, final String password, X509Certificate[] certificates) throws Exception {
+   public String authenticate(final String user, final String password, X509Certificate[] certificates) throws Exception {
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
@@ -115,20 +116,24 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
             }
             else {
-               return;
+               return managementClusterUser;
             }
          }
 
+         String validatedUser = null;
          boolean userIsValid = false;
 
-         if (securityManager instanceof ActiveMQSecurityManager2) {
+         if (securityManager instanceof ActiveMQSecurityManager3) {
+            validatedUser = ((ActiveMQSecurityManager3)securityManager).validateUser(user, password, certificates);
+         }
+         else if (securityManager instanceof ActiveMQSecurityManager2) {
             userIsValid = ((ActiveMQSecurityManager2)securityManager).validateUser(user, password, certificates);
          }
          else {
             userIsValid = securityManager.validateUser(user, password);
          }
 
-         if (!userIsValid) {
+         if (!userIsValid && validatedUser == null) {
             if (notificationService != null) {
                TypedProperties props = new TypedProperties();
 
@@ -139,7 +144,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
             throw ActiveMQMessageBundle.BUNDLE.unableToValidateUser();
          }
+
+         return validatedUser;
       }
+
+      return null;
    }
 
    @Override
@@ -167,7 +176,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          final boolean validated;
-         if (securityManager instanceof ActiveMQSecurityManager2) {
+         if (securityManager instanceof ActiveMQSecurityManager3) {
+            final ActiveMQSecurityManager3 securityManager3 = (ActiveMQSecurityManager3) securityManager;
+            validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
+         }
+         else if (securityManager instanceof ActiveMQSecurityManager2) {
             final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
             validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
          }

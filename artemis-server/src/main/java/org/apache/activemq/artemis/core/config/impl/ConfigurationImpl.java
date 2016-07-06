@@ -237,6 +237,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private StoreConfiguration storeConfiguration;
 
+   protected boolean populateValidatedUser = ActiveMQDefaultConfiguration.isDefaultPopulateValidatedUser();
+
    /**
     * Parent folder for all data folders.
     */
@@ -1353,6 +1355,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public boolean isPopulateValidatedUser() {
+      return populateValidatedUser;
+   }
+
+   @Override
+   public ConfigurationImpl setPopulateValidatedUser(boolean populateValidatedUser) {
+      this.populateValidatedUser = populateValidatedUser;
+      return this;
+   }
+
+   @Override
    public int hashCode() {
       final int prime = 31;
       int result = 1;
@@ -1417,6 +1430,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (runSyncSpeedTest ? 1231 : 1237);
       result = prime * result + scheduledThreadPoolMaxSize;
       result = prime * result + (securityEnabled ? 1231 : 1237);
+      result = prime * result + (populateValidatedUser ? 1231 : 1237);
       result = prime * result + (int) (securityInvalidationInterval ^ (securityInvalidationInterval >>> 32));
       result = prime * result + ((securitySettings == null) ? 0 : securitySettings.hashCode());
       result = prime * result + (int) (serverDumpInterval ^ (serverDumpInterval >>> 32));
@@ -1653,6 +1667,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (scheduledThreadPoolMaxSize != other.scheduledThreadPoolMaxSize)
          return false;
       if (securityEnabled != other.securityEnabled)
+         return false;
+      if (populateValidatedUser != other.populateValidatedUser)
          return false;
       if (securityInvalidationInterval != other.securityInvalidationInterval)
          return false;

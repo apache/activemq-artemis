@@ -948,6 +948,10 @@ public interface Configuration {
 
    Configuration setStoreConfiguration(StoreConfiguration storeConfiguration);
 
+   boolean isPopulateValidatedUser();
+
+   Configuration setPopulateValidatedUser(boolean populateValidatedUser);
+
    /** It will return all the connectors in a toString manner for debug purposes. */
    String debugConnectors();
 

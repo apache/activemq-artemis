@@ -1161,19 +1161,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final String defaultAddress,
                                       final SessionCallback callback,
                                       final boolean autoCreateQueues) throws Exception {
+      String validatedUser = "";
 
       if (securityStore != null) {
          X509Certificate[] certificates = null;
          if (connection.getTransportConnection() instanceof NettyConnection) {
             certificates = CertificateUtil.getCertsFromChannel(((NettyConnection) connection.getTransportConnection()).getChannel());
          }
-         securityStore.authenticate(username, password, certificates);
+         validatedUser = securityStore.authenticate(username, password, certificates);
       }
 
-      checkSessionLimit(username);
+      checkSessionLimit(validatedUser);
 
       final OperationContext context = storageManager.newContext(getExecutorFactory().getExecutor());
-      final ServerSessionImpl session = internalCreateSession(name, username, password, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues);
+      final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues);
 
       sessions.put(name, session);
 
@@ -1237,6 +1238,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    protected ServerSessionImpl internalCreateSession(String name,
                                                      String username,
                                                      String password,
+                                                     String validatedUser,
                                                      int minLargeMessageSize,
                                                      RemotingConnection connection,
                                                      boolean autoCommitSends,
@@ -1247,7 +1249,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      SessionCallback callback,
                                                      OperationContext context,
                                                      boolean autoCreateJMSQueues) throws Exception {
-      return new ServerSessionImpl(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, autoCreateJMSQueues ? jmsQueueCreator : null);
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, autoCreateJMSQueues ? jmsQueueCreator : null);
    }
 
    @Override

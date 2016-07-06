@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -331,7 +332,12 @@ class StompProtocolManager extends AbstractProtocolManager<StompFrame,StompFrame
       ActiveMQSecurityManager sm = server.getSecurityManager();
 
       if (sm != null && server.getConfiguration().isSecurityEnabled()) {
-         validated = sm.validateUser(login, passcode);
+         if (sm instanceof ActiveMQSecurityManager3) {
+            validated = ((ActiveMQSecurityManager3) sm).validateUser(login, passcode, null) != null;
+         }
+         else {
+            validated = sm.validateUser(login, passcode);
+         }
       }
 
       return validated;

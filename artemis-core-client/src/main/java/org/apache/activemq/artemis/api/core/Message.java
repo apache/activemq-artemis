@@ -106,6 +106,11 @@ public interface Message {
     */
    SimpleString HDR_CONTENT_TYPE = new SimpleString("_AMQ_CONTENT_TYPE");
 
+   /**
+    * The name of the validated user who sent the message. Useful for auditing.
+    */
+   SimpleString HDR_VALIDATED_USER = new SimpleString("_AMQ_VALIDATED_USER");
+
    byte DEFAULT_TYPE = 0;
 
    byte OBJECT_TYPE = 2;
