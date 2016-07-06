@@ -554,6 +554,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    @Override
+   public long getCallTimeout() {
+      return callTimeout;
+   }
+
+   @Override
    public Map<String, String> getNodes() {
       synchronized (recordsGuard) {
          Map<String, String> nodes = new HashMap<>();

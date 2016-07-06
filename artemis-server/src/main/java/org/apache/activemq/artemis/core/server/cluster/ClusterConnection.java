@@ -77,4 +77,8 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
    void removeRecord(String targetNodeID);
 
    void disconnectRecord(String targetNodeID);
+
+   long getCallTimeout();
+
+
 }
