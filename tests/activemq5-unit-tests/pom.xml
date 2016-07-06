@@ -321,12 +321,6 @@
       </dependency>
 
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-stomp-protocol</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
          <groupId>org.jboss.byteman</groupId>
          <artifactId>byteman</artifactId>
          <version>${byteman.version}</version>
