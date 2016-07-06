@@ -1215,7 +1215,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             return;
          }
          else if (limits.getMaxQueues() == 0 || getQueueCountForUser(username) >= limits.getMaxQueues()) {
-            throw ActiveMQMessageBundle.BUNDLE.queueLimitReached(username, limits.getMaxConnections());
+            throw ActiveMQMessageBundle.BUNDLE.queueLimitReached(username, limits.getMaxQueues());
          }
       }
    }

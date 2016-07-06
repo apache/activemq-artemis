@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -23,9 +26,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,10 +51,21 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       resourceLimitSettings.setMaxConnections(1);
       resourceLimitSettings.setMaxQueues(1);
 
-      Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addResourceLimitSettings(resourceLimitSettings);
+      Configuration configuration = createBasicConfig()
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .addResourceLimitSettings(resourceLimitSettings)
+         .setSecurityEnabled(true);
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       server.start();
+
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("myUser", "password");
+      securityManager.getConfiguration().addRole("myUser", "arole");
+      Role role = new Role("arole", false, false, false, false, true, true, false);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
    }
 
    @Test
