@@ -31,7 +31,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -73,7 +73,7 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
    @Override
    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       FullHttpRequest request = (FullHttpRequest) msg;
-      HttpMethod method = request.getMethod();
+      HttpMethod method = request.method();
       // if we are a post then we send upstream, otherwise we are just being prompted for a response.
       if (method.equals(HttpMethod.POST)) {
          ctx.fireChannelRead(ReferenceCountUtil.retain(((FullHttpRequest) msg).content()));
@@ -148,11 +148,11 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
          while (responseHolder == null);
          if (!bogusResponse) {
             piggyBackResponses(responseHolder.response.content());
-            responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
+            responseHolder.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
             channel.writeAndFlush(responseHolder.response, promise);
          } else {
             responseHolder.response.content().writeBytes(buffer);
-            responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
+            responseHolder.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
             channel.writeAndFlush(responseHolder.response, promise);
          }
 

@@ -36,6 +36,26 @@ import org.junit.Test;
 
 public class NettyConnectorTest extends ActiveMQTestBase {
 
+   private ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
+      @Override
+      public void connectionException(final Object connectionID, final ActiveMQException me) {
+      }
+
+      @Override
+      public void connectionDestroyed(final Object connectionID) {
+      }
+
+      @Override
+      public void connectionCreated(final ActiveMQComponent component,
+                                    final Connection connection,
+                                    final ClientProtocolManager protocol) {
+      }
+
+      @Override
+      public void connectionReadyForWrites(Object connectionID, boolean ready) {
+      }
+   };
+
    @Test
    public void testStartStop() throws Exception {
       BufferHandler handler = new BufferHandler() {
@@ -44,25 +64,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          }
       };
       Map<String, Object> params = new HashMap<>();
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -80,25 +81,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
          }
       };
       Map<String, Object> params = new HashMap<>();
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       try {
          new NettyConnector(params, null, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
@@ -130,25 +112,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -176,25 +139,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -224,25 +168,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 
@@ -263,25 +188,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
-      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
-         @Override
-         public void connectionException(final Object connectionID, final ActiveMQException me) {
-         }
-
-         @Override
-         public void connectionDestroyed(final Object connectionID) {
-         }
-
-         @Override
-         public void connectionCreated(final ActiveMQComponent component,
-                                       final Connection connection,
-                                       final ClientProtocolManager protocol) {
-         }
-
-         @Override
-         public void connectionReadyForWrites(Object connectionID, boolean ready) {
-         }
-      };
 
       NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory()), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory()));
 

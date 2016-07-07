@@ -46,6 +46,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.WriteBufferWaterMark;
@@ -55,7 +56,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFuture;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.local.LocalAddress;
-import io.netty.channel.local.LocalEventLoopGroup;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -300,7 +300,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (useInvm) {
          acceptorType = INVM_ACCEPTOR_TYPE;
          channelClazz = LocalServerChannel.class;
-         eventLoopGroup = new LocalEventLoopGroup();
+         eventLoopGroup = new DefaultEventLoopGroup();
       } else {
 
          if (remotingThreads == -1) {
