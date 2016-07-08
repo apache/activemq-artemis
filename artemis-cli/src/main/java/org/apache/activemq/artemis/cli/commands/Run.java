@@ -102,6 +102,13 @@ public class Run extends LockAbstract {
       fileConfiguration.getLargeMessagesLocation().mkdirs();
    }
 
+   private void stopServerAndComponenets() throws Exception {
+      for (ActiveMQComponent component : components) {
+         component.stop();
+      }
+      server.stop();
+   }
+
    /**
     * Add a simple shutdown hook to stop the server.
     *
@@ -139,7 +146,7 @@ public class Run extends LockAbstract {
             if (file.exists()) {
                try {
                   try {
-                     server.stop();
+                     stopServerAndComponenets();
                   }
                   catch (Exception e) {
                      e.printStackTrace();
@@ -162,7 +169,7 @@ public class Run extends LockAbstract {
          @Override
          public void run() {
             try {
-               server.stop();
+               stopServerAndComponenets();
             }
             catch (Exception e) {
                e.printStackTrace();

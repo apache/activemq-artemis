@@ -98,11 +98,6 @@ public class WebServerComponent implements ExternalComponent {
          }
       }
 
-      WebAppContext handler = new WebAppContext();
-      handler.setContextPath("/");
-      handler.setResourceBase(warDir.toString());
-      handler.setLogUrlOnStart(true);
-
       ResourceHandler resourceHandler = new ResourceHandler();
       resourceHandler.setResourceBase(warDir.toString());
       resourceHandler.setDirectoriesListed(true);
