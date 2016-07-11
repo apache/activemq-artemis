@@ -155,8 +155,8 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       // Deploy a connection factory with discovery
       List<String> bindings = new ArrayList<>();
       bindings.add("MyConnectionFactory");
-      final String groupAddress = "1.2.3.4";
-      final int port = 1234;
+      final String groupAddress = getUDPDiscoveryAddress();
+      final int port = getUDPDiscoveryPort();
       String localBindAddress = getLocalHost().getHostAddress();
 
       UDPBroadcastEndpointFactory config = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port).setLocalBindAddress(localBindAddress).setLocalBindPort(8580);
