@@ -145,12 +145,15 @@ public class LDAPLoginModule implements LoginModule {
       return true;
    }
 
-   protected void close(DirContext context) {
-      try {
-         context.close();
-      }
-      catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.error(e.toString());
+   protected void closeContext() {
+      if (context != null) {
+         try {
+            context.close();
+            context = null;
+         }
+         catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.error(e.toString());
+         }
       }
    }
 
@@ -159,13 +162,11 @@ public class LDAPLoginModule implements LoginModule {
       MessageFormat userSearchMatchingFormat;
       boolean userSearchSubtreeBool;
 
-      DirContext context = null;
-
       if (logger.isDebugEnabled()) {
          logger.debug("Create the LDAP initial context.");
       }
       try {
-         context = open();
+         openContext();
       }
       catch (NamingException ne) {
          FailedLoginException ex = new FailedLoginException("Error opening LDAP connection");
@@ -246,7 +247,7 @@ public class LDAPLoginModule implements LoginModule {
                }
             }
             catch (URISyntaxException e) {
-               close(context);
+               closeContext();
                FailedLoginException ex = new FailedLoginException("Error parsing absolute name as URI.");
                ex.initCause(e);
                throw ex;
@@ -282,12 +283,13 @@ public class LDAPLoginModule implements LoginModule {
          }
       }
       catch (CommunicationException e) {
+         closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
          ex.initCause(e);
          throw ex;
       }
       catch (NamingException e) {
-         close(context);
+         closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
          ex.initCause(e);
          throw ex;
@@ -453,34 +455,36 @@ public class LDAPLoginModule implements LoginModule {
       return values;
    }
 
-   protected DirContext open() throws NamingException {
-      try {
-         Hashtable<String, String> env = new Hashtable<>();
-         env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(INITIAL_CONTEXT_FACTORY));
-         if (isLoginPropertySet(CONNECTION_USERNAME)) {
-            env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
-         }
-         else {
-            throw new NamingException("Empty username is not allowed");
-         }
+   protected void openContext() throws NamingException {
+      if (context == null) {
+         try {
+            Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(INITIAL_CONTEXT_FACTORY));
+            if (isLoginPropertySet(CONNECTION_USERNAME)) {
+               env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
+            }
+            else {
+               throw new NamingException("Empty username is not allowed");
+            }
 
-         if (isLoginPropertySet(CONNECTION_PASSWORD)) {
-            env.put(Context.SECURITY_CREDENTIALS, getLDAPPropertyValue(CONNECTION_PASSWORD));
-         }
-         else {
-            throw new NamingException("Empty password is not allowed");
-         }
-         env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(CONNECTION_PROTOCOL));
-         env.put(Context.PROVIDER_URL, getLDAPPropertyValue(CONNECTION_URL));
-         env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
-         context = new InitialDirContext(env);
+            if (isLoginPropertySet(CONNECTION_PASSWORD)) {
+               env.put(Context.SECURITY_CREDENTIALS, getLDAPPropertyValue(CONNECTION_PASSWORD));
+            }
+            else {
+               throw new NamingException("Empty password is not allowed");
+            }
+            env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(CONNECTION_PROTOCOL));
+            env.put(Context.PROVIDER_URL, getLDAPPropertyValue(CONNECTION_URL));
+            env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
+            context = new InitialDirContext(env);
 
+         }
+         catch (NamingException e) {
+            closeContext();
+            ActiveMQServerLogger.LOGGER.error(e.toString());
+            throw e;
+         }
       }
-      catch (NamingException e) {
-         ActiveMQServerLogger.LOGGER.error(e.toString());
-         throw e;
-      }
-      return context;
    }
 
    private String getLDAPPropertyValue(String propertyName) {
