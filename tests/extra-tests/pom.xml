@@ -38,6 +38,9 @@
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <jboss-jts.version>4.17.13.Final</jboss-jts.version>
       <hornetq.version>2.4.7.Final</hornetq.version>
+      <openhft.core.version>1.4.9</openhft.core.version>
+      <openhft.affinity.version>3.0.6</openhft.affinity.version>
+      <openjdk.jmh.version>1.12</openjdk.jmh.version>
    </properties>
 
    <dependencies>
@@ -212,6 +215,34 @@
          <groupId>org.jboss.jbossts.jts</groupId>
          <artifactId>jbossjts-jacorb</artifactId>
          <version>4.17.13.Final</version>
+      </dependency>
+
+      <!-- ### Benchmark Tools -->
+      <!-- ### Java Latency Benchmarking Harness -->
+      <dependency>
+         <groupId>net.openhft</groupId>
+         <artifactId>chronicle-core</artifactId>
+         <version>${openhft.core.version}</version>
+         <!-- License: Apache 2.0 -->
+      </dependency>
+      <dependency>
+         <groupId>net.openhft</groupId>
+         <artifactId>affinity</artifactId>
+         <version>${openhft.affinity.version}</version>
+         <!-- License: LGPLv3-->
+      </dependency>
+      <!-- ### Java Microbenchmark Harness -->
+      <dependency>
+         <groupId>org.openjdk.jmh</groupId>
+         <artifactId>jmh-core</artifactId>
+         <version>${openjdk.jmh.version}</version>
+         <!-- License: GPLv2-->
+      </dependency>
+      <dependency>
+         <groupId>org.openjdk.jmh</groupId>
+         <artifactId>jmh-generator-annprocess</artifactId>
+         <version>${openjdk.jmh.version}</version>
+         <!-- License: GPLv2-->
       </dependency>
    </dependencies>
 
