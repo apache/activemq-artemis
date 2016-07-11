@@ -106,7 +106,7 @@ public class JMSServerDeployerTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration().setName("mygroup").setRefreshTimeout(5432).setDiscoveryInitialWaitTimeout(5432).setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress("243.7.7.7").setGroupPort(12345).setLocalBindAddress("172.16.8.10"));
+      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration().setName("mygroup").setRefreshTimeout(5432).setDiscoveryInitialWaitTimeout(5432).setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(getUDPDiscoveryAddress()).setGroupPort(getUDPDiscoveryPort()).setLocalBindAddress("172.16.8.10"));
 
       config = createBasicConfig().addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())).addDiscoveryGroupConfiguration("mygroup", dcg);
 

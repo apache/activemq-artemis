@@ -100,8 +100,8 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
       super.setUp();
 
       String discoveryName = RandomUtil.randomString();
-      String groupAddress = "231.7.7.7";
-      int groupPort = 9876;
+      String groupAddress = getUDPDiscoveryAddress();
+      int groupPort = getUDPDiscoveryPort();
 
       Map<String, Object> acceptorParams_1 = new HashMap<>();
       acceptorParams_1.put(TransportConstants.PORT_PROP_NAME, port_1);
