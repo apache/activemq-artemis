@@ -69,6 +69,7 @@ under the License.
                      <clientClass>org.apache.activemq.artemis.jms.example.LargeMessageExample</clientClass>
                      <args>
                         <param>${basedir}/target/server0</param>
+                        <param>true</param> <!-- delete the large files sent and received? -->
                      </args>
                   </configuration>
                </execution>

@@ -52,6 +52,9 @@ public class LargeMessageExample {
       Process server = null;
       Connection connection = null;
       InitialContext initialContext = null;
+      File inputFile = null;
+      File outputFile = null;
+      boolean deleteFiles = Boolean.parseBoolean(args[1]);
 
       try {
          server = ServerUtil.startServer(args[0], LargeMessageExample.class.getSimpleName(), 0, 5000);
@@ -80,9 +83,9 @@ public class LargeMessageExample {
                                " bytes. This may take a little while... " +
                                "If this is too big for your disk you can easily change the FILE_SIZE in the example.");
 
-         File fileInput = new File("huge_message_to_send.dat");
+         inputFile = new File("huge_message_to_send.dat");
 
-         createFile(fileInput, FILE_SIZE);
+         createFile(inputFile, FILE_SIZE);
 
          System.out.println("File created.");
 
@@ -92,7 +95,7 @@ public class LargeMessageExample {
          // Step 7. We set the InputStream on the message. When sending the message will read the InputStream
          // until it gets EOF. In this case we point the InputStream at a file on disk, and it will suck up the entire
          // file, however we could use any InputStream not just a FileInputStream.
-         FileInputStream fileInputStream = new FileInputStream(fileInput);
+         FileInputStream fileInputStream = new FileInputStream(inputFile);
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
 
          message.setObjectProperty("JMS_AMQ_InputStream", bufferedInput);
@@ -153,7 +156,7 @@ public class LargeMessageExample {
          // You may choose to use the regular BytesMessage or
          // StreamMessage interface but this method is much faster for large messages.
 
-         File outputFile = new File("huge_message_received.dat");
+         outputFile = new File("huge_message_received.dat");
 
          try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile)) {
             BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
@@ -172,6 +175,14 @@ public class LargeMessageExample {
 
          if (connection != null) {
             connection.close();
+         }
+
+         if (inputFile != null && deleteFiles) {
+            inputFile.delete();
+         }
+
+         if (outputFile != null && deleteFiles) {
+            outputFile.delete();
          }
 
          ServerUtil.killServer(server);
