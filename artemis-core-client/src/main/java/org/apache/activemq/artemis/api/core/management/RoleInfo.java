@@ -41,6 +41,8 @@ public final class RoleInfo {
 
    private final boolean manage;
 
+   private final boolean browse;
+
    /**
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link AddressControl#getRolesAsJSON()}.
@@ -50,7 +52,7 @@ public final class RoleInfo {
       RoleInfo[] roles = new RoleInfo[array.length()];
       for (int i = 0; i < array.length(); i++) {
          JSONObject r = array.getJSONObject(i);
-         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"));
+         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"));
          roles[i] = role;
       }
       return roles;
@@ -63,7 +65,8 @@ public final class RoleInfo {
                     final boolean deleteDurableQueue,
                     final boolean createNonDurableQueue,
                     final boolean deleteNonDurableQueue,
-                    final boolean manage) {
+                    final boolean manage,
+                    final boolean browse) {
       this.name = name;
       this.send = send;
       this.consume = consume;
@@ -72,6 +75,7 @@ public final class RoleInfo {
       this.createNonDurableQueue = createNonDurableQueue;
       this.deleteNonDurableQueue = deleteNonDurableQueue;
       this.manage = manage;
+      this.browse = browse;
    }
 
    /**
@@ -128,5 +132,12 @@ public final class RoleInfo {
     */
    public boolean isManage() {
       return manage;
+   }
+
+   /**
+    * Returns whether this role can browse queues bound to the address.
+    */
+   public boolean isBrowse() {
+      return browse;
    }
 }

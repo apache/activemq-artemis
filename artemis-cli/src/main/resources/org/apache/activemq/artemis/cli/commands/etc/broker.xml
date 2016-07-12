@@ -65,6 +65,7 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <permission type="createDurableQueue" roles="${role}"/>
             <permission type="deleteDurableQueue" roles="${role}"/>
             <permission type="consume" roles="${role}"/>
+            <permission type="browse" roles="${role}"/>
             <permission type="send" roles="${role}"/>
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
             <permission type="manage" roles="${role}"/>

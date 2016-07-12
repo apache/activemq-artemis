@@ -53,6 +53,9 @@ match the address. Those permissions are:
 -   `consume`. This permission allows the user to consume a message from
     a queue bound to matching addresses.
 
+-   `browse`. This permission allows the user to browse a queue bound to
+    the matching address.
+
 -   `manage`. This permission allows the user to invoke management
     operations by sending management messages to the management address.
 
@@ -225,11 +228,11 @@ may not be applied as expected to JMS destinations since Artemis always prefixes
 "jms.topic." as necessary.
 
 ActiveMQ 5.x only has 3 permission types - `read`, `write`, and `admin`. These permission types are described on their
-[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 6 permission
+[website](http://activemq.apache.org/security.html). However, as described previously, ActiveMQ Artemis has 7 permission
 types - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`,
-and `manage`. Here's how the old types are mapped to the new types:
+`browse`, and `manage`. Here's how the old types are mapped to the new types:
 
--   `read` - `consume`
+-   `read` - `consume`, `browse`
 -   `write` - `send`
 -   `admin` - `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`
 
