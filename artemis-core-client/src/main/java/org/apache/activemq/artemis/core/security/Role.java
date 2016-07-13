@@ -41,6 +41,8 @@ public class Role implements Serializable {
 
    private final boolean manage;
 
+   private final boolean browse;
+
    public Role(final String name,
                final boolean send,
                final boolean consume,
@@ -48,7 +50,8 @@ public class Role implements Serializable {
                final boolean deleteDurableQueue,
                final boolean createNonDurableQueue,
                final boolean deleteNonDurableQueue,
-               final boolean manage) {
+               final boolean manage,
+               final boolean browse) {
       if (name == null) {
          throw new NullPointerException("name is null");
       }
@@ -60,6 +63,7 @@ public class Role implements Serializable {
       this.createNonDurableQueue = createNonDurableQueue;
       this.deleteNonDurableQueue = deleteNonDurableQueue;
       this.manage = manage;
+      this.browse = browse;
    }
 
    public String getName() {
@@ -112,6 +116,12 @@ public class Role implements Serializable {
       if (deleteNonDurableQueue) {
          stringReturn.append(" deleteNonDurableQueue ");
       }
+      if (manage) {
+         stringReturn.append(" manage ");
+      }
+      if (browse) {
+         stringReturn.append(" browse ");
+      }
 
       stringReturn.append("]}");
 
@@ -147,6 +157,12 @@ public class Role implements Serializable {
       if (send != role.send) {
          return false;
       }
+      if (manage != role.manage) {
+         return false;
+      }
+      if (browse != role.browse) {
+         return false;
+      }
       if (!name.equals(role.name)) {
          return false;
       }
@@ -164,10 +180,16 @@ public class Role implements Serializable {
       result = 31 * result + (deleteDurableQueue ? 1 : 0);
       result = 31 * result + (createNonDurableQueue ? 1 : 0);
       result = 31 * result + (deleteNonDurableQueue ? 1 : 0);
+      result = 31 * result + (manage ? 1 : 0);
+      result = 31 * result + (browse ? 1 : 0);
       return result;
    }
 
    public boolean isManage() {
       return manage;
+   }
+
+   public boolean isBrowse() {
+      return browse;
    }
 }

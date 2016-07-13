@@ -379,7 +379,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                               permissionType.equalsIgnoreCase(adminPermissionValue),
                               permissionType.equalsIgnoreCase(adminPermissionValue),
                               permissionType.equalsIgnoreCase(adminPermissionValue),
-                              false); // there is no permission from ActiveMQ 5.x that corresponds to the "manage" permission in ActiveMQ Artemis
+                              false, // there is no permission from ActiveMQ 5.x that corresponds to the "manage" permission in ActiveMQ Artemis
+                              permissionType.equalsIgnoreCase(readPermissionValue)); // the "browse" permission matches "read" from ActiveMQ 5.x
          roles.add(role);
       }
 

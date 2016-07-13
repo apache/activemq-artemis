@@ -121,6 +121,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MANAGE_NAME = "manage";
 
+   private static final String BROWSE_NAME = "browse";
+
    // Address parsing
 
    private static final String DEAD_LETTER_ADDRESS_NODE_NAME = "dead-letter-address";
@@ -633,6 +635,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       ArrayList<String> createNonDurableQueue = new ArrayList<>();
       ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
       ArrayList<String> manageRoles = new ArrayList<>();
+      ArrayList<String> browseRoles = new ArrayList<>();
       ArrayList<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
@@ -670,6 +673,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                else if (MANAGE_NAME.equals(type)) {
                   manageRoles.add(role.trim());
                }
+               else if (BROWSE_NAME.equals(type)) {
+                  browseRoles.add(role.trim());
+               }
                else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
@@ -682,7 +688,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       for (String role : allRoles) {
-         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role)));
+         securityRoles.add(new Role(role, send.contains(role), consume.contains(role), createDurableQueue.contains(role), deleteDurableQueue.contains(role), createNonDurableQueue.contains(role), deleteNonDurableQueue.contains(role), manageRoles.contains(role), browseRoles.contains(role)));
       }
 
       return securityMatch;

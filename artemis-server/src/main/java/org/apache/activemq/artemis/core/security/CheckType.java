@@ -58,6 +58,12 @@ public enum CheckType {
       public boolean hasRole(final Role role) {
          return role.isManage();
       }
+   },
+   BROWSE {
+      @Override
+      public boolean hasRole(final Role role) {
+         return role.isBrowse();
+      }
    };
 
    public abstract boolean hasRole(final Role role);

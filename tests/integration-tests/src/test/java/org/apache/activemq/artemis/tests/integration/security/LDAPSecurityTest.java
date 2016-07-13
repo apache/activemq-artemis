@@ -183,7 +183,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
@@ -257,6 +257,15 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          // ignore
       }
 
+      // BROWSE
+      try {
+         ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
       session.close();
       cf.close();
    }
@@ -268,7 +277,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("admins", true, true, true, true, true, true, true));
+      roles.add(new Role("admins", true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
@@ -332,6 +341,14 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // CONSUME
+      try {
+         session.createConsumer(DURABLE_QUEUE, true);
       }
       catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");

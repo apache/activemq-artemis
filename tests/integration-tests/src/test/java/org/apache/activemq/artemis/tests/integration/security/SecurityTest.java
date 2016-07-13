@@ -229,7 +229,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
       server.createQueue(ADDRESS, DURABLE_QUEUE, null, true, false);
@@ -297,6 +297,15 @@ public class SecurityTest extends ActiveMQTestBase {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // BROWSE
+      try {
+         ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
       }
       catch (ActiveMQException e) {
@@ -324,7 +333,7 @@ public class SecurityTest extends ActiveMQTestBase {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", false, false, false, false, false, false, false));
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
 
       server.start();
@@ -407,6 +416,15 @@ public class SecurityTest extends ActiveMQTestBase {
       catch (ActiveMQException e) {
          // ignore
       }
+
+      // BROWSE
+      try {
+         ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
+         Assert.fail("should throw exception here");
+      }
+      catch (ActiveMQException e) {
+         // ignore
+      }
    }
 
    @Test
@@ -418,7 +436,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
@@ -484,6 +502,14 @@ public class SecurityTest extends ActiveMQTestBase {
       catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
+
+      // BROWSE
+      try {
+         session.createConsumer(DURABLE_QUEUE, true);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
    }
 
    @Test
@@ -506,7 +532,7 @@ public class SecurityTest extends ActiveMQTestBase {
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("programmers", true, true, true, true, true, true, true));
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
@@ -579,6 +605,14 @@ public class SecurityTest extends ActiveMQTestBase {
       catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
+
+      // BROWSE
+      try {
+         session.createConsumer(DURABLE_QUEUE, true);
+      }
+      catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
    }
 
    @Test
@@ -590,7 +624,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("GuestLogin");
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
-      roles.add(new Role("bar", true, true, true, true, true, true, true));
+      roles.add(new Role("bar", true, true, true, true, true, true, true, false));
       server.getConfiguration().putSecurityRoles("#", roles);
       server.start();
 
@@ -750,7 +784,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -769,7 +803,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -796,7 +830,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, true, false, false, false);
+      Role role = new Role("arole", false, false, true, true, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -815,7 +849,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -844,7 +878,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, true, false, false);
+      Role role = new Role("arole", false, false, false, false, true, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -863,7 +897,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -890,7 +924,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, true, true, false);
+      Role role = new Role("arole", false, false, false, false, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -909,7 +943,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, true, false, false);
+      Role role = new Role("arole", false, false, false, false, true, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -942,7 +976,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       securityManager.getConfiguration().addUser("auser", "pass");
 
-      Role role = new Role("arole", true, true, true, false, false, false, false);
+      Role role = new Role("arole", true, true, true, false, false, false, false, false);
 
       Set<Role> roles = new HashSet<>();
 
@@ -974,7 +1008,7 @@ public class SecurityTest extends ActiveMQTestBase {
 
       receivedMessage.acknowledge();
 
-      role = new Role("arole", false, false, true, false, false, false, false);
+      role = new Role("arole", false, false, true, false, false, false, false, false);
 
       roles = new HashSet<>();
 
@@ -1002,7 +1036,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -1032,7 +1066,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(SecurityTest.addressA, roles);
@@ -1058,8 +1092,8 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Role role = new Role("arole", false, true, false, false, false, false, false);
-      Role sendRole = new Role("guest", true, false, true, false, false, false, false);
+      Role role = new Role("arole", false, true, false, false, false, false, false, false);
+      Role sendRole = new Role("guest", true, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(role);
@@ -1086,8 +1120,8 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
-      Role sendRole = new Role("guest", true, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
+      Role sendRole = new Role("guest", true, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(role);
@@ -1123,9 +1157,9 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
-      Role sendRole = new Role("guest", true, false, true, false, false, false, false);
-      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
+      Role sendRole = new Role("guest", true, false, true, false, false, false, false, false);
+      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(role);
@@ -1174,9 +1208,9 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
-      Role sendRole = new Role("guest", true, false, true, false, false, false, false);
-      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
+      Role sendRole = new Role("guest", true, false, true, false, false, false, false, false);
+      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
       roles.add(role);
@@ -1234,11 +1268,11 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addUser("guest", "guest");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
-      Role role = new Role("arole", false, false, false, false, false, false, false);
+      Role role = new Role("arole", false, false, false, false, false, false, false, false);
       System.out.println("guest:" + role);
-      Role sendRole = new Role("guest", true, false, true, false, false, false, false);
+      Role sendRole = new Role("guest", true, false, true, false, false, false, false, false);
       System.out.println("guest:" + sendRole);
-      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false);
+      Role receiveRole = new Role("receiver", false, true, false, false, false, false, false, false);
       System.out.println("guest:" + receiveRole);
       Set<Role> roles = new HashSet<>();
       roles.add(sendRole);
@@ -1323,7 +1357,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, false, false, false, false, true);
+      Role role = new Role("arole", false, false, false, false, false, false, true, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
@@ -1344,7 +1378,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
@@ -1375,7 +1409,7 @@ public class SecurityTest extends ActiveMQTestBase {
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("auser", "pass");
-      Role role = new Role("arole", false, false, true, false, false, false, false);
+      Role role = new Role("arole", false, false, true, false, false, false, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       securityRepository.addMatch(configuration.getManagementAddress().toString(), roles);
@@ -1411,23 +1445,23 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("frank", "user");
       securityManager.getConfiguration().addRole("sam", "news-user");
       securityManager.getConfiguration().addRole("sam", "user");
-      Role all = new Role("all", true, true, true, true, true, true, true);
+      Role all = new Role("all", true, true, true, true, true, true, true, true);
       HierarchicalRepository<Set<Role>> repository = server.getSecurityRepository();
       Set<Role> add = new HashSet<>();
-      add.add(new Role("user", true, true, true, true, true, true, false));
+      add.add(new Role("user", true, true, true, true, true, true, false, true));
       add.add(all);
       repository.addMatch("#", add);
       Set<Role> add1 = new HashSet<>();
       add1.add(all);
-      add1.add(new Role("user", false, false, true, true, true, true, false));
-      add1.add(new Role("europe-user", true, false, false, false, false, false, false));
-      add1.add(new Role("news-user", false, true, false, false, false, false, false));
+      add1.add(new Role("user", false, false, true, true, true, true, false, true));
+      add1.add(new Role("europe-user", true, false, false, false, false, false, false, true));
+      add1.add(new Role("news-user", false, true, false, false, false, false, false, true));
       repository.addMatch("news.europe.#", add1);
       Set<Role> add2 = new HashSet<>();
       add2.add(all);
-      add2.add(new Role("user", false, false, true, true, true, true, false));
-      add2.add(new Role("us-user", true, false, false, false, false, false, false));
-      add2.add(new Role("news-user", false, true, false, false, false, false, false));
+      add2.add(new Role("user", false, false, true, true, true, true, false, true));
+      add2.add(new Role("us-user", true, false, false, false, false, false, false, true));
+      add2.add(new Role("news-user", false, true, false, false, false, false, false, true));
       repository.addMatch("news.us.#", add2);
       ClientSession billConnection = null;
       ClientSession andrewConnection = null;
@@ -1542,23 +1576,23 @@ public class SecurityTest extends ActiveMQTestBase {
       securityManager.getConfiguration().addRole("frank", "user");
       securityManager.getConfiguration().addRole("sam", "news-user");
       securityManager.getConfiguration().addRole("sam", "user");
-      Role all = new Role("all", true, true, true, true, true, true, true);
+      Role all = new Role("all", true, true, true, true, true, true, true, true);
       HierarchicalRepository<Set<Role>> repository = server.getSecurityRepository();
       Set<Role> add = new HashSet<>();
-      add.add(new Role("user", true, true, true, true, true, true, false));
+      add.add(new Role("user", true, true, true, true, true, true, false, true));
       add.add(all);
       repository.addMatch("#", add);
       Set<Role> add1 = new HashSet<>();
       add1.add(all);
-      add1.add(new Role("user", false, false, true, true, true, true, false));
-      add1.add(new Role("europe-user", true, false, false, false, false, false, false));
-      add1.add(new Role("news-user", false, true, false, false, false, false, false));
+      add1.add(new Role("user", false, false, true, true, true, true, false, true));
+      add1.add(new Role("europe-user", true, false, false, false, false, false, false, true));
+      add1.add(new Role("news-user", false, true, false, false, false, false, false, true));
       repository.addMatch("news.europe.#", add1);
       Set<Role> add2 = new HashSet<>();
       add2.add(all);
-      add2.add(new Role("user", false, false, true, true, true, true, false));
-      add2.add(new Role("us-user", true, false, false, false, false, false, false));
-      add2.add(new Role("news-user", false, true, false, false, false, false, false));
+      add2.add(new Role("user", false, false, true, true, true, true, false, true));
+      add2.add(new Role("us-user", true, false, false, false, false, false, false, true));
+      add2.add(new Role("news-user", false, true, false, false, false, false, false, true));
       repository.addMatch("news.us.#", add2);
       ClientSession billConnection = null;
       ClientSession andrewConnection = null;

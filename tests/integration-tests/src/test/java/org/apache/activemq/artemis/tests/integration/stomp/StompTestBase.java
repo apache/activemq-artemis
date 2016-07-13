@@ -205,7 +205,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole(defUser, role);
          config.getSecurityRoles().put("#", new HashSet<Role>() {
             {
-               add(new Role(role, true, true, true, true, true, true, true));
+               add(new Role(role, true, true, true, true, true, true, true, true));
             }
          });
       }

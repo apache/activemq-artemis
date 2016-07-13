@@ -1415,15 +1415,28 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String createNonDurableQueueRoles,
                                    final String deleteNonDurableQueueRoles,
                                    final String manageRoles) throws Exception {
+      addSecuritySettings(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, "");
+   }
+
+   @Override
+   public void addSecuritySettings(final String addressMatch,
+                                   final String sendRoles,
+                                   final String consumeRoles,
+                                   final String createDurableQueueRoles,
+                                   final String deleteDurableQueueRoles,
+                                   final String createNonDurableQueueRoles,
+                                   final String deleteNonDurableQueueRoles,
+                                   final String manageRoles,
+                                   final String browseRoles) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
+         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles);
 
          server.getSecurityRepository().addMatch(addressMatch, roles);
 
-         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
+         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles);
 
          storageManager.storeSecurityRoles(persistedRoles);
       }

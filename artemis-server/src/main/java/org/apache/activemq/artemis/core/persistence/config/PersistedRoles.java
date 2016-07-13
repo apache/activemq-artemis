@@ -44,6 +44,8 @@ public class PersistedRoles implements EncodingSupport {
 
    private SimpleString manageRoles;
 
+   private SimpleString browseRoles;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -60,6 +62,7 @@ public class PersistedRoles implements EncodingSupport {
     * @param createNonDurableQueueRoles
     * @param deleteNonDurableQueueRoles
     * @param manageRoles
+    * @param browseRoles
     */
    public PersistedRoles(final String addressMatch,
                          final String sendRoles,
@@ -68,7 +71,8 @@ public class PersistedRoles implements EncodingSupport {
                          final String deleteDurableQueueRoles,
                          final String createNonDurableQueueRoles,
                          final String deleteNonDurableQueueRoles,
-                         final String manageRoles) {
+                         final String manageRoles,
+                         final String browseRoles) {
       super();
       this.addressMatch = SimpleString.toSimpleString(addressMatch);
       this.sendRoles = SimpleString.toSimpleString(sendRoles);
@@ -78,6 +82,7 @@ public class PersistedRoles implements EncodingSupport {
       this.createNonDurableQueueRoles = SimpleString.toSimpleString(createNonDurableQueueRoles);
       this.deleteNonDurableQueueRoles = SimpleString.toSimpleString(deleteNonDurableQueueRoles);
       this.manageRoles = SimpleString.toSimpleString(manageRoles);
+      this.browseRoles = SimpleString.toSimpleString(browseRoles);
    }
 
    // Public --------------------------------------------------------
@@ -146,6 +151,13 @@ public class PersistedRoles implements EncodingSupport {
       return manageRoles.toString();
    }
 
+   /**
+    * @return the browseRoles
+    */
+   public String getBrowseRoles() {
+      return browseRoles.toString();
+   }
+
    @Override
    public void encode(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(addressMatch);
@@ -156,6 +168,7 @@ public class PersistedRoles implements EncodingSupport {
       buffer.writeNullableSimpleString(createNonDurableQueueRoles);
       buffer.writeNullableSimpleString(deleteNonDurableQueueRoles);
       buffer.writeNullableSimpleString(manageRoles);
+      buffer.writeNullableSimpleString(browseRoles);
    }
 
    @Override
@@ -166,7 +179,8 @@ public class PersistedRoles implements EncodingSupport {
          SimpleString.sizeofNullableString(deleteDurableQueueRoles) +
          SimpleString.sizeofNullableString(createNonDurableQueueRoles) +
          SimpleString.sizeofNullableString(deleteNonDurableQueueRoles) +
-         SimpleString.sizeofNullableString(manageRoles);
+         SimpleString.sizeofNullableString(manageRoles) +
+         SimpleString.sizeofNullableString(browseRoles);
 
    }
 
@@ -180,6 +194,7 @@ public class PersistedRoles implements EncodingSupport {
       createNonDurableQueueRoles = buffer.readNullableSimpleString();
       deleteNonDurableQueueRoles = buffer.readNullableSimpleString();
       manageRoles = buffer.readNullableSimpleString();
+      browseRoles = buffer.readNullableSimpleString();
    }
 
    /* (non-Javadoc)
@@ -196,6 +211,7 @@ public class PersistedRoles implements EncodingSupport {
       result = prime * result + ((deleteDurableQueueRoles == null) ? 0 : deleteDurableQueueRoles.hashCode());
       result = prime * result + ((deleteNonDurableQueueRoles == null) ? 0 : deleteNonDurableQueueRoles.hashCode());
       result = prime * result + ((manageRoles == null) ? 0 : manageRoles.hashCode());
+      result = prime * result + ((browseRoles == null) ? 0 : browseRoles.hashCode());
       result = prime * result + ((sendRoles == null) ? 0 : sendRoles.hashCode());
       result = prime * result + (int) (storeId ^ (storeId >>> 32));
       return result;
@@ -255,6 +271,12 @@ public class PersistedRoles implements EncodingSupport {
       }
       else if (!manageRoles.equals(other.manageRoles))
          return false;
+      if (browseRoles == null) {
+         if (other.browseRoles != null)
+            return false;
+      }
+      else if (!browseRoles.equals(other.browseRoles))
+         return false;
       if (sendRoles == null) {
          if (other.sendRoles != null)
             return false;
@@ -288,6 +310,8 @@ public class PersistedRoles implements EncodingSupport {
          deleteNonDurableQueueRoles +
          ", manageRoles=" +
          manageRoles +
+         ", browseRoles=" +
+         browseRoles +
          "]";
    }
 

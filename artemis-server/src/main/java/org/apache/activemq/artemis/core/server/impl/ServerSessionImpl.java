@@ -416,7 +416,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
-      securityCheck(binding.getAddress(), CheckType.CONSUME, this);
+      if (browseOnly) {
+         securityCheck(binding.getAddress(), CheckType.BROWSE, this);
+      }
+      else {
+         securityCheck(binding.getAddress(), CheckType.CONSUME, this);
+      }
 
       Filter filter = FilterImpl.createFilter(filterString);
 

@@ -49,6 +49,7 @@
             <permission type="createNonDurableQueue" roles="guest,def"/>
             <permission type="deleteNonDurableQueue" roles="guest,def"/>
             <permission type="consume" roles="guest,def"/>
+            <permission type="browse" roles="guest,def"/>
             <permission type="send" roles="guest,def"/>
          </security-setting>
      </security-settings>
