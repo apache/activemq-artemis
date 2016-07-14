@@ -176,7 +176,14 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          maMap.put(LEGACY_JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationAttributes(msg.getJMSReplyTo()));
       }
       if (msg.getJMSCorrelationID() != null) {
-         props.setCorrelationId(msg.getJMSCorrelationID());
+         String correlationId = msg.getJMSCorrelationID();
+
+         try {
+            props.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(correlationId));
+         }
+         catch (ActiveMQAMQPIllegalStateException e) {
+            props.setCorrelationId(correlationId);
+         }
       }
       if (msg.getJMSExpiration() != 0) {
          long ttl = msg.getJMSExpiration() - System.currentTimeMillis();
