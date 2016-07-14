@@ -107,24 +107,24 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          securityConfig.addRole("openwireSender", "sender");
          securityConfig.addUser("openwireSender", "SeNdEr");
          //sender cannot receive
-         Role senderRole = new Role("sender", true, false, false, false, true, true, false);
+         Role senderRole = new Role("sender", true, false, false, false, true, true, false, false);
 
          securityConfig.addRole("openwireReceiver", "receiver");
          securityConfig.addUser("openwireReceiver", "ReCeIvEr");
          //receiver cannot send
-         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false);
+         Role receiverRole = new Role("receiver", false, true, false, false, true, true, false, true);
 
          securityConfig.addRole("openwireGuest", "guest");
          securityConfig.addUser("openwireGuest", "GuEsT");
 
          //guest cannot do anything
-         Role guestRole = new Role("guest", false, false, false, false, false, false, false);
+         Role guestRole = new Role("guest", false, false, false, false, false, false, false, false);
 
          securityConfig.addRole("openwireDestinationManager", "manager");
          securityConfig.addUser("openwireDestinationManager", "DeStInAtIoN");
 
-         //guest cannot do anything
-         Role destRole = new Role("manager", false, false, false, false, true, true, false);
+         //manager can only manage
+         Role destRole = new Role("manager", false, false, false, false, true, true, false, false);
 
          Map<String, Set<Role>> settings = server.getConfiguration().getSecurityRoles();
          if (settings == null) {
