@@ -311,6 +311,13 @@ seconds.
 > users can use heart-beats to maintain the life cycle of stomp
 > connections.
 
+### Selector/Filter expressions
+
+Stomp subscribers can specify an expression used to select or filter
+what the subscriber receives using the `selector` header. The filter
+expression syntax follows the *core filter syntax* described in the 
+[Filter Expressions](filter-expressions.md) documentation.
+
 ### Stomp and JMS interoperability
 
 #### Using JMS destinations

@@ -31,6 +31,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -436,6 +442,35 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testSendMessageWithCustomHeadersAndHyphenatedSelector() throws Exception {
+
+      MessageConsumer consumer = session.createConsumer(queue, "hyphenated_props:b-ar = '123'");
+
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SEND\n" + "foo:abc\n" +
+         "b-ar:123\n" +
+         "destination:" +
+         getQueuePrefix() +
+         getQueueName() +
+         "\n\n" +
+         "Hello World" +
+         Stomp.NULL;
+
+      sendFrame(frame);
+
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertEquals("Hello World", message.getText());
+      Assert.assertEquals("foo", "abc", message.getStringProperty("foo"));
+      Assert.assertEquals("b-ar", "123", message.getStringProperty("b-ar"));
+   }
+
+   @Test
    public void testSendMessageWithStandardHeaders() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -746,6 +781,49 @@ public class StompTest extends StompTestBase {
 
       sendMessage("Ignored message", "foo", "1234");
       sendMessage("Real message", "foo", "zzz");
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("MESSAGE"));
+      Assert.assertTrue("Should have received the real message but got: " + frame, frame.indexOf("Real message") > 0);
+
+      frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+      sendFrame(frame);
+   }
+
+
+   @Test
+   public void testSubscribeWithAutoAckAndHyphenatedSelector() throws Exception {
+
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(100000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SUBSCRIBE\n" + "destination:" +
+         getQueuePrefix() +
+         getQueueName() +
+         "\n" +
+         "selector: hyphenated_props:foo-bar = 'zzz'\n" +
+         "ack:auto\n\n" +
+         Stomp.NULL;
+      sendFrame(frame);
+
+      ServerLocator serverLocator = addServerLocator(ActiveMQClient.createServerLocator("vm://0"));
+      ClientSessionFactory clientSessionFactory = serverLocator.createSessionFactory();
+      ClientSession clientSession = clientSessionFactory.createSession(true, true);
+      ClientProducer producer = clientSession.createProducer(getQueuePrefix() + getQueueName());
+
+      ClientMessage ignoredMessage = clientSession.createMessage(false);
+      ignoredMessage.putStringProperty("foo-bar", "1234");
+      ignoredMessage.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString("Ignored message"));
+
+      ClientMessage realMessage = clientSession.createMessage(false);
+      realMessage.putStringProperty("foo-bar", "zzz");
+      realMessage.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString("Real message"));
+
+      producer.send(ignoredMessage);
+      producer.send(realMessage);
 
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("MESSAGE"));

@@ -49,3 +49,25 @@ refer to attributes of the core message in an expression:
 
 Any other identifiers used in core filter expressions will be assumed to
 be properties of the message.
+
+The JMS spec states that a String property should not get converted to a 
+numeric when used in a selector. So for example, if a message has the `age` 
+property set to String `21` then the following selector should not match 
+it: `age > 18`. Since Apache ActiveMQ Artemis supports STOMP clients which
+can only send messages with string properties, that restriction is a bit 
+limiting. Therefore, if you want your filter expressions to auto-convert String 
+properties the the appropriate number type, just prefix it with
+`convert_string_expressions:`. If you changed the filter expression in the
+previous example to be `convert_string_expressions:age > 18`, then it would 
+match the aforementioned message.
+
+The JMS spec also states that property identifiers (and therefore the
+identifiers which are valid for use in a filter expression) are an, 
+"unlimited-length sequence of letters and digits, the first of which must be
+a letter. A letter is any character for which the method 
+`Character.isJavaLetter` returns `true`. This includes `_` and `$`. A letter
+or digit is any character for which the method `Character.isJavaLetterOrDigit`
+returns `true`." This constraint means that hyphens (i.e. `-`) cannot be used.
+However, this constraint can be overcome by using the `hyphenated_props:` 
+prefix. For example, if a message had the `foo-bar` property set to `0` then
+the filter expression `hyphenated_props:foo-bar = 0` would match it.
