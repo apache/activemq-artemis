@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueu
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage;
@@ -117,6 +118,7 @@ public class ActiveMQSessionContext extends SessionContext {
    private final int serverVersion;
    private int confirmationWindow;
    private String name;
+   private boolean killed;
 
    protected Channel getSessionChannel() {
       return sessionChannel;
@@ -160,6 +162,14 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public int getReconnectID() {
       return sessionChannel.getReconnectID();
+   }
+
+   public boolean isKilled() {
+      return killed;
+   }
+
+   public void kill() {
+      this.killed = true;
    }
 
    private final CommandConfirmationHandler confirmationHandler = new CommandConfirmationHandler() {
@@ -759,6 +769,12 @@ public class ActiveMQSessionContext extends SessionContext {
       handleReceiveProducerFailCredits(message.getAddress(), message.getCredits());
    }
 
+   protected void handleReceiveSlowConsumerKillMessage(DisconnectConsumerWithKillMessage message) {
+      if (message.getNodeID() != null) {
+         kill();
+      }
+   }
+
    class ClientSessionPacketHandler implements ChannelHandler {
 
       @Override
@@ -793,6 +809,11 @@ public class ActiveMQSessionContext extends SessionContext {
                }
                case PacketImpl.SESS_PRODUCER_FAIL_CREDITS: {
                   handleReceiveProducerFailCredits((SessionProducerCreditsFailMessage) packet);
+
+                  break;
+               }
+               case PacketImpl.DISCONNECT_CONSUMER_KILL: {
+                  handleReceiveSlowConsumerKillMessage((DisconnectConsumerWithKillMessage) packet);
 
                   break;
                }
