@@ -46,6 +46,13 @@
             <version>1.2</version>
             <!-- License: Apache: 2.0 -->
          </dependency>
+         <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>qpid-jms-client</artifactId>
+            <version>0.10.0</version>
+            <!-- License: Apache: 2.0 -->
+         </dependency>
+
          <!-- End JMS Dependencies -->
       </dependencies>
    </dependencyManagement>
@@ -122,5 +129,6 @@
       <module>soak-tests</module>
       <module>stress-tests</module>
       <module>performance-tests</module>
+      <module>artemis-test-support</module>
    </modules>
 </project>
