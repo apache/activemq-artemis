@@ -340,6 +340,11 @@
 		   <artifactId>org.apache.karaf.shell.console</artifactId>
 		   <version>${karaf.version}</version>
 	   </dependency>
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+      </dependency>
    </dependencies>
 
    <build>
