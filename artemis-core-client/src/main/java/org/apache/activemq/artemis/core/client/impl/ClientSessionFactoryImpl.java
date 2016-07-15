@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -527,6 +528,16 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                     final ActiveMQException me,
                                     String scaleDownTargetNodeID) {
       ActiveMQClientLogger.LOGGER.failoverOrReconnect(connectionID, me);
+
+      for (ClientSessionInternal session : sessions) {
+         SessionContext context = session.getSessionContext();
+         if (context instanceof ActiveMQSessionContext) {
+            ActiveMQSessionContext sessionContext = (ActiveMQSessionContext)context;
+            if (sessionContext.isKilled()) {
+               setReconnectAttempts(0);
+            }
+         }
+      }
 
       Set<ClientSessionInternal> sessionsToClose = null;
       if (!clientProtocolManager.isAlive())
@@ -1026,6 +1037,10 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    @Override
    public void setReconnectAttempts(final int attempts) {
       reconnectAttempts = attempts;
+   }
+
+   public int getReconnectAttempts() {
+      return reconnectAttempts;
    }
 
    @Override

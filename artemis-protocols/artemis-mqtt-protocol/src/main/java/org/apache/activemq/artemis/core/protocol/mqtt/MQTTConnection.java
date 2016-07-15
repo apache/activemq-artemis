@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -209,5 +210,10 @@ public class MQTTConnection implements RemotingConnection {
 
    public boolean getConnected() {
       return connected;
+   }
+
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      //unsupported
    }
 }

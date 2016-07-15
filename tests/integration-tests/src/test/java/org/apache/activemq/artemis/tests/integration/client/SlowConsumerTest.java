@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,9 +37,12 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
@@ -111,6 +115,40 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       }
       catch (ActiveMQObjectClosedException e) {
          assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
+      }
+   }
+
+   @Test
+   public void testDisableSlowConsumerReconnectWithKilled() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(false, true, true, false));
+
+      session.createQueue(QUEUE, QUEUE, null, false);
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      final int numMessages = 25;
+
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(createTextMessage(session, "m" + i));
+      }
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+
+      Thread.sleep(3000);
+
+      RemotingService service = server.getRemotingService();
+      Set<RemotingConnection> connections = service.getConnections();
+      assertTrue(connections.isEmpty());
+
+      if (sf instanceof ClientSessionFactoryImpl) {
+         int reconnectAttemps = ((ClientSessionFactoryImpl)sf).getReconnectAttempts();
+         assertEquals(0, reconnectAttemps);
+      }
+      else {
+         fail("ClientSessionFactory is not the instance of ClientSessionFactoryImpl");
       }
    }
 
