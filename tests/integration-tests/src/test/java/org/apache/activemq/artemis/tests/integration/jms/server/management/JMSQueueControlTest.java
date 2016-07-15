@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.DestinationControl;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -1451,6 +1452,8 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       JMSQueueControl control = createManagementControl(pagedQueue);
 
+      Assert.assertTrue(waitForMessages(control, 100, 5000));
+
       assertEquals(100, control.removeMessages("     "));
 
       session.start();
@@ -1665,6 +1668,18 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
    protected JMSQueueControl createManagementControl(ActiveMQQueue queueParameter) throws Exception {
       return ManagementControlHelper.createJMSQueueControl(queueParameter, mbeanServer);
+   }
+
+   protected boolean waitForMessages(DestinationControl control, int count, long timeout) throws Exception {
+      long timeToWait = System.currentTimeMillis() + timeout;
+
+      while (System.currentTimeMillis() < timeToWait) {
+         if (control.getMessageCount() == count) {
+            return true;
+         }
+         Thread.sleep(100);
+      }
+      return false;
    }
 
    // Private -------------------------------------------------------
