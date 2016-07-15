@@ -947,6 +947,12 @@ public class JMSServerControlTest extends ManagementTestBase {
       }
 
       Assert.assertTrue(failed);
+
+      // If these objects are not referenced at the end of the test, they can be destroyed by garbage collector
+      // during the test, what can lead to test failure.
+      connection.close();
+      connection2.close();
+      connection3.close();
    }
 
    // Package protected ---------------------------------------------
