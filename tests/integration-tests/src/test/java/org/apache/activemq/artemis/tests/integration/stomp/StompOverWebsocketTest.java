@@ -63,12 +63,12 @@ public class StompOverWebsocketTest extends StompTest {
    }
 
    @Override
-   protected void addChannelHandlers(SocketChannel ch) throws URISyntaxException {
+   protected void addChannelHandlers(int index, SocketChannel ch) throws URISyntaxException {
       ch.pipeline().addLast("http-codec", new HttpClientCodec());
       ch.pipeline().addLast("aggregator", new HttpObjectAggregator(8192));
       ch.pipeline().addLast(new WebsocketHandler(WebSocketClientHandshakerFactory.newHandshaker(new URI("ws://localhost:8080/websocket"), WebSocketVersion.V13, null, false, null)));
       ch.pipeline().addLast("decoder", new StringDecoder(StandardCharsets.UTF_8));
-      ch.pipeline().addLast(new StompClientHandler());
+      ch.pipeline().addLast(new StompClientHandler(index));
    }
 
    @Override

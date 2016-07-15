@@ -29,7 +29,10 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.utils.CertificateUtil;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -92,7 +95,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   response.addHeader(Stomp.Headers.Connected.HEART_BEAT, "0,0");
                }
                else {
-                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, heartBeater.getServerHeartBeatValue());
+                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, Long.toString(heartBeater.serverPingPeriod) + "," + Long.toString(heartBeater.clientPingResponse));
                }
             }
          }
@@ -231,7 +234,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    }
 
    private void startHeartBeat() {
-      if (heartBeater != null) {
+      if (heartBeater != null && heartBeater.serverPingPeriod != 0) {
          heartBeater.start();
       }
    }
@@ -242,31 +245,50 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       return frame;
    }
 
-   //server heart beat
-   //algorithm:
-   //(a) server ping: if server hasn't sent any frame within serverPing
-   //interval, send a ping.
-   //(b) accept ping: if server hasn't received any frame within
-   // 2*serverAcceptPing, disconnect!
+   /*
+    * HeartBeater functions:
+    * (a) server ping: if server hasn't sent any frame within serverPingPeriod interval, send a ping
+    * (b) configure connection ttl so that org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl.FailureCheckAndFlushThread
+    *     can deal with closing connections which go stale
+    */
    private class HeartBeater extends Thread {
 
       private static final int MIN_SERVER_PING = 500;
-      private static final int MIN_CLIENT_PING = 500;
 
-      long serverPing = 0;
-      long serverAcceptPing = 0;
+      long serverPingPeriod = 0;
+      long clientPingResponse;
       volatile boolean shutdown = false;
-      AtomicLong lastPingTime = new AtomicLong(0);
-      AtomicLong lastAccepted = new AtomicLong(0);
-      StompFrame pingFrame;
+      AtomicLong lastPingTimestamp = new AtomicLong(0);
+      ConnectionEntry connectionEntry;
 
-      private HeartBeater(long clientPing, long clientAcceptPing) {
-         if (clientPing != 0) {
-            serverAcceptPing = clientPing > MIN_CLIENT_PING ? clientPing : MIN_CLIENT_PING;
+      private HeartBeater(final long clientPing, final long clientAcceptPing) {
+         connectionEntry = ((RemotingServiceImpl)connection.getManager().getServer().getRemotingService()).getConnectionEntry(connection.getID());
+         clientPingResponse = clientPing;
+
+         String ttlMaxStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MAX);
+         long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
+
+         String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
+         long ttlMin = ttlMinStr == null ? 500 : Long.valueOf(ttlMinStr);
+
+         String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
+         double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
+
+         // The connection's TTL should be clientPing * 2, MIN_CLIENT_PING, or ttlMax set on the acceptor
+         long connectionTtl = (long) (clientPing * heartBeatToTtlModifier);
+         if (connectionTtl < ttlMin) {
+            connectionTtl = ttlMin;
+            clientPingResponse = (long) (ttlMin / heartBeatToTtlModifier);
          }
+         else if (connectionTtl > ttlMax) {
+            connectionTtl = ttlMax;
+            clientPingResponse = (long) (ttlMax / heartBeatToTtlModifier);
+         }
+         ActiveMQServerLogger.LOGGER.info("Setting TTL to: " + connectionTtl);
+         connectionEntry.ttl = connectionTtl;
 
          if (clientAcceptPing != 0) {
-            serverPing = clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING;
+            serverPingPeriod = clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING;
          }
       }
 
@@ -275,85 +297,32 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          this.notify();
       }
 
-      public String getServerHeartBeatValue() {
-         return String.valueOf(serverPing) + "," + String.valueOf(serverAcceptPing);
-      }
-
       public void pinged() {
-         lastPingTime.set(System.currentTimeMillis());
+         lastPingTimestamp.set(System.currentTimeMillis());
       }
 
       @Override
       public void run() {
-         lastAccepted.set(System.currentTimeMillis());
-         pingFrame = createPingFrame();
-
          synchronized (this) {
             while (!shutdown) {
-               long dur1 = 0;
-               long dur2 = 0;
-
-               if (serverPing != 0) {
-                  dur1 = System.currentTimeMillis() - lastPingTime.get();
-                  if (dur1 >= serverPing) {
-                     lastPingTime.set(System.currentTimeMillis());
-                     connection.ping(pingFrame);
-                     dur1 = 0;
-                  }
+               long lastPingPeriod = System.currentTimeMillis() - lastPingTimestamp.get();
+               if (lastPingPeriod >= serverPingPeriod) {
+                  lastPingTimestamp.set(System.currentTimeMillis());
+                  connection.ping(createPingFrame());
+                  lastPingPeriod = 0;
                }
-
-               if (serverAcceptPing != 0) {
-                  dur2 = System.currentTimeMillis() - lastAccepted.get();
-
-                  if (dur2 > (2 * serverAcceptPing)) {
-                     connection.disconnect(false);
-                     shutdown = true;
-                     break;
-                  }
-               }
-
-               long waitTime1 = 0;
-               long waitTime2 = 0;
-
-               if (serverPing > 0) {
-                  waitTime1 = serverPing - dur1;
-               }
-
-               if (serverAcceptPing > 0) {
-                  waitTime2 = serverAcceptPing * 2 - dur2;
-               }
-
-               long waitTime = 10L;
-
-               if ((waitTime1 > 0) && (waitTime2 > 0)) {
-                  waitTime = Math.min(waitTime1, waitTime2);
-               }
-               else if (waitTime1 > 0) {
-                  waitTime = waitTime1;
-               }
-               else if (waitTime2 > 0) {
-                  waitTime = waitTime2;
-               }
-
                try {
-                  this.wait(waitTime);
+                  this.wait(serverPingPeriod - lastPingPeriod);
                }
                catch (InterruptedException e) {
                }
             }
          }
       }
-
-      public void pingAccepted() {
-         this.lastAccepted.set(System.currentTimeMillis());
-      }
    }
 
    @Override
    public void requestAccepted(StompFrame request) {
-      if (heartBeater != null) {
-         heartBeater.pingAccepted();
-      }
    }
 
    @Override
@@ -403,10 +372,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          // either "[\r]\n"s or "\n"s)
          while (true) {
             if (workingBuffer[offset] == NEW_LINE) {
-               if (heartBeater != null) {
-                  //client ping
-                  heartBeater.pingAccepted();
-               }
+               //client ping
                nextChar = false;
             }
             else if (workingBuffer[offset] == CR) {

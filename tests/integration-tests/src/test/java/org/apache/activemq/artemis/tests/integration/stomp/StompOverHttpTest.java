@@ -37,13 +37,13 @@ import io.netty.handler.codec.string.StringEncoder;
 public class StompOverHttpTest extends StompTest {
 
    @Override
-   protected void addChannelHandlers(SocketChannel ch) {
+   protected void addChannelHandlers(int index, SocketChannel ch) {
       ch.pipeline().addLast(new HttpRequestEncoder());
       ch.pipeline().addLast(new HttpResponseDecoder());
       ch.pipeline().addLast(new HttpHandler());
       ch.pipeline().addLast("decoder", new StringDecoder(StandardCharsets.UTF_8));
       ch.pipeline().addLast("encoder", new StringEncoder(StandardCharsets.UTF_8));
-      ch.pipeline().addLast(new StompClientHandler());
+      ch.pipeline().addLast(new StompClientHandler(index));
    }
 
    @Override

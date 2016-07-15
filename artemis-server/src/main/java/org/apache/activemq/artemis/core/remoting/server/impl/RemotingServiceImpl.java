@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -76,8 +77,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    // Constants -----------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(RemotingServiceImpl.class);
-
-   public static final long CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
    // Attributes ----------------------------------------------------
 
@@ -118,6 +117,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    private boolean paused = false;
 
    private AtomicLong totalConnectionCount = new AtomicLong(0);
+
+   private long connectionTtlCheckInterval;
 
    // Static --------------------------------------------------------
 
@@ -163,6 +164,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (protocolManagerFactories != null) {
          loadProtocolManagerFactories(protocolManagerFactories);
       }
+
+      this.connectionTtlCheckInterval = config.getConnectionTtlCheckInterval();
    }
 
    private void setInterceptors(Configuration configuration) {
@@ -198,54 +201,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       threadPool = Executors.newCachedThreadPool(tFactory);
 
       for (TransportConfiguration info : acceptorsConfig) {
-         try {
-            AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
-
-            Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap<>();
-
-            @SuppressWarnings("deprecation")
-            String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
-            if (protocol != null) {
-               ActiveMQServerLogger.LOGGER.warnDeprecatedProtocol();
-               locateProtocols(protocol, info, selectedProtocolFactories);
-            }
-
-            String protocols = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOLS_PROP_NAME, null, info.getParams());
-
-            if (protocols != null) {
-               locateProtocols(protocols, info, selectedProtocolFactories);
-            }
-
-            ClusterConnection clusterConnection = lookupClusterConnection(info);
-
-            // If empty: we get the default list
-            if (selectedProtocolFactories.isEmpty()) {
-               selectedProtocolFactories = protocolMap;
-            }
-
-            Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
-            for (Map.Entry<String, ProtocolManagerFactory> entry: selectedProtocolFactories.entrySet()) {
-               selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
-            }
-
-
-            Acceptor acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
-
-            if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
-               acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
-            }
-
-            acceptors.put(info.getName(), acceptor);
-
-            if (managementService != null) {
-               acceptor.setNotificationService(managementService);
-
-               managementService.registerAcceptor(acceptor, info);
-            }
-         }
-         catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
-         }
+         createAcceptor(info);
       }
 
       /**
@@ -254,11 +210,85 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
        */
 
       // This thread checks connections that need to be closed, and also flushes confirmations
-      failureCheckAndFlushThread = new FailureCheckAndFlushThread(RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL);
+      failureCheckAndFlushThread = new FailureCheckAndFlushThread(connectionTtlCheckInterval);
 
       failureCheckAndFlushThread.start();
 
       started = true;
+   }
+
+   @Override
+   public Acceptor createAcceptor(String name, String uri) throws Exception {
+      AcceptorTransportConfigurationParser parser = new AcceptorTransportConfigurationParser();
+
+      List<TransportConfiguration> configurations = parser.newObject(parser.expandURI(uri), name);
+
+      return createAcceptor(configurations.get(0));
+   }
+
+   @Override
+   public Acceptor createAcceptor(TransportConfiguration info) {
+      Acceptor acceptor = null;
+
+      try {
+         AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
+
+         Map<String, ProtocolManagerFactory> selectedProtocolFactories = new ConcurrentHashMap<>();
+
+         @SuppressWarnings("deprecation")
+         String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
+         if (protocol != null) {
+            ActiveMQServerLogger.LOGGER.warnDeprecatedProtocol();
+            locateProtocols(protocol, info, selectedProtocolFactories);
+         }
+
+         String protocols = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOLS_PROP_NAME, null, info.getParams());
+
+         if (protocols != null) {
+            locateProtocols(protocols, info, selectedProtocolFactories);
+         }
+
+         ClusterConnection clusterConnection = lookupClusterConnection(info);
+
+         // If empty: we get the default list
+         if (selectedProtocolFactories.isEmpty()) {
+            selectedProtocolFactories = protocolMap;
+         }
+
+         Map<String, ProtocolManager> selectedProtocols = new ConcurrentHashMap<>();
+         for (Entry<String, ProtocolManagerFactory> entry: selectedProtocolFactories.entrySet()) {
+            selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getExtraParams(), incomingInterceptors, outgoingInterceptors));
+         }
+
+
+         acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
+
+         if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
+            acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
+         }
+
+         acceptors.put(info.getName(), acceptor);
+
+         if (managementService != null) {
+            acceptor.setNotificationService(managementService);
+
+            managementService.registerAcceptor(acceptor, info);
+         }
+      }
+      catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
+      }
+
+      return acceptor;
+   }
+
+   @Override
+   public void destroyAcceptor(String name) throws Exception {
+      Acceptor acceptor = acceptors.get(name);
+      if (acceptor != null) {
+         acceptor.stop();
+         acceptors.remove(name);
+      }
    }
 
    @Override
@@ -419,6 +449,17 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       else {
          ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
+         return null;
+      }
+   }
+
+   public ConnectionEntry getConnectionEntry(final Object remotingConnectionID) {
+      ConnectionEntry entry = connections.get(remotingConnectionID);
+
+      if (entry != null) {
+         return entry;
+      }
+      else {
          return null;
       }
    }
@@ -647,6 +688,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       @Override
       public void run() {
          while (!closed) {
+            ActiveMQServerLogger.LOGGER.info("Checking...");
             try {
                long now = System.currentTimeMillis();
 

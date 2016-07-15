@@ -741,6 +741,220 @@ public class StompV11Test extends StompV11TestBase {
    }
 
    @Test
+   public void testHeartBeatToTTL() throws Exception {
+      ClientStompFrame frame;
+      ClientStompFrame reply;
+      int port = 61614;
+
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000&connectionTtlMin=5000&connectionTtlMax=10000").start();
+      StompClientConnection connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+
+      //no heart beat at all if heat-beat absent
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      Thread.sleep(3000);
+
+      assertEquals(0, connection.getFrameQueueSize());
+
+      try {
+         connection.disconnect();
+         fail("Channel should be closed here already due to TTL");
+      }
+      catch (Exception e) {
+         // ignore
+      }
+
+      //no heart beat for (0,0)
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "0,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      IntegrationTestLogger.LOGGER.info("Reply: " + reply);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,0", reply.getHeader("heart-beat"));
+
+      Thread.sleep(3000);
+
+      assertEquals(0, connection.getFrameQueueSize());
+
+      try {
+         connection.disconnect();
+         fail("Channel should be closed here already due to TTL");
+      }
+      catch (Exception e) {
+         // ignore
+      }
+
+      //heart-beat (1,0), should receive a min client ping accepted by server
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "1,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,2500", reply.getHeader("heart-beat"));
+
+      Thread.sleep(7000);
+
+      //now server side should be disconnected because we didn't send ping for 2 sec
+      frame = connection.createFrame("SEND");
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.setBody("Hello World");
+
+      //send will fail
+      try {
+         connection.sendFrame(frame);
+         fail("connection should have been destroyed by now");
+      }
+      catch (IOException e) {
+         //ignore
+      }
+
+      //heart-beat (1,0), start a ping, then send a message, should be ok.
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "1,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,2500", reply.getHeader("heart-beat"));
+
+      System.out.println("========== start pinger!");
+
+      connection.startPinger(2500);
+
+      Thread.sleep(7000);
+
+      //now server side should be disconnected because we didn't send ping for 2 sec
+      frame = connection.createFrame("SEND");
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.setBody("Hello World");
+
+      //send will be ok
+      connection.sendFrame(frame);
+
+      connection.stopPinger();
+
+      connection.disconnect();
+
+      //heart-beat (20000,0), should receive a max client ping accepted by server
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "20000,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,5000", reply.getHeader("heart-beat"));
+
+      Thread.sleep(12000);
+
+      //now server side should be disconnected because we didn't send ping for 2 sec
+      frame = connection.createFrame("SEND");
+      frame.addHeader("destination", getQueuePrefix() + getQueueName());
+      frame.addHeader("content-type", "text/plain");
+      frame.setBody("Hello World");
+
+      //send will fail
+      try {
+         connection.sendFrame(frame);
+         fail("connection should have been destroyed by now");
+      }
+      catch (IOException e) {
+         //ignore
+      }
+   }
+
+   @Test
+   public void testHeartBeatToConnectionTTLModifier() throws Exception {
+      ClientStompFrame frame;
+      ClientStompFrame reply;
+      StompClientConnection connection;
+      int port = 61614;
+
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1").start();
+
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "5000,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,5000", reply.getHeader("heart-beat"));
+
+      Thread.sleep(6000);
+
+      try {
+         connection.disconnect();
+         fail("Connection should be closed here already due to TTL");
+      }
+      catch (Exception e) {
+         // ignore
+      }
+
+      server.getActiveMQServer().getRemotingService().destroyAcceptor("test");
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?heartBeatToConnectionTtlModifier=1.5").start();
+
+      connection = StompClientConnectionFactory.createClientConnection("1.1", "localhost", port);
+      frame = connection.createFrame("CONNECT");
+      frame.addHeader("host", "127.0.0.1");
+      frame.addHeader("login", this.defUser);
+      frame.addHeader("passcode", this.defPass);
+      frame.addHeader("heart-beat", "5000,0");
+      frame.addHeader("accept-version", "1.0,1.1");
+
+      reply = connection.sendFrame(frame);
+
+      assertEquals("CONNECTED", reply.getCommand());
+
+      assertEquals("0,5000", reply.getHeader("heart-beat"));
+
+      Thread.sleep(6000);
+
+      connection.disconnect();
+   }
+
+   @Test
    public void testNack() throws Exception {
       connV11.connect(defUser, defPass);
 

@@ -187,6 +187,12 @@ public class TransportConstants {
 
    public static final String CONNECTION_TTL = "connectionTtl";
 
+   public static final String CONNECTION_TTL_MAX = "connectionTtlMax";
+
+   public static final String CONNECTION_TTL_MIN = "connectionTtlMin";
+
+   public static final String HEART_BEAT_TO_CONNECTION_TTL_MODIFIER = "heartBeatToConnectionTtlModifier";
+
    public static final String STOMP_ENABLE_MESSAGE_ID = "stomp-enable-message-id";
 
    public static final String STOMP_MIN_LARGE_MESSAGE_SIZE = "stomp-min-large-message-size";
@@ -230,6 +236,9 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.STOMP_CONSUMERS_CREDIT);
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL);
+      allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL_MAX);
+      allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL_MIN);
+      allowableAcceptorKeys.add(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
       allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID);
       allowableAcceptorKeys.add(TransportConstants.CONNECTIONS_ALLOWED);
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());

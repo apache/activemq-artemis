@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -99,4 +100,9 @@ public interface RemotingService {
     */
    Acceptor getAcceptor(String name);
 
+   Acceptor createAcceptor(String name, String uri) throws Exception;
+
+   Acceptor createAcceptor(TransportConfiguration transportConfiguration);
+
+   void destroyAcceptor(String name) throws Exception;
 }
