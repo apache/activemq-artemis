@@ -1246,7 +1246,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224006, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void invalidFilter(@Cause Throwable t, SimpleString filter);
+   void invalidFilter(SimpleString filter);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224007, value = "page subscription = {0} error={1}", format = Message.Format.MESSAGE_FORMAT)
