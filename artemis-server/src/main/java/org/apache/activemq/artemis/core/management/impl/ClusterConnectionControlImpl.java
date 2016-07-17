@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl {
 
@@ -143,18 +143,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
    public String getStaticConnectorsAsJSON() throws Exception {
       clearIO();
       try {
-         List<String> connectors = configuration.getStaticConnectors();
-
-         if (connectors == null) {
-            return null;
-         }
-
-         JSONArray array = new JSONArray();
-
-         for (String connector : connectors) {
-            array.put(connector);
-         }
-         return array.toString();
+         return JsonUtil.toJsonArray(configuration.getStaticConnectors()).toString();
       }
       finally {
          blockOnIO();

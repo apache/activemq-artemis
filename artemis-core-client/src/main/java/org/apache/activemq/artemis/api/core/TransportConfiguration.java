@@ -25,6 +25,9 @@ import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+
 /**
  * A TransportConfiguration is used by a client to specify connections to a server and its backup if
  * one exists.
@@ -60,6 +63,15 @@ public class TransportConfiguration implements Serializable {
    private static final byte TYPE_LONG = 2;
 
    private static final byte TYPE_STRING = 3;
+
+   public JsonObject toJson() {
+      return Json.createObjectBuilder()
+            .add("name", name)
+            .add("factoryClassName", factoryClassName)
+            .add("params", JsonUtil.toJsonObject(params))
+            .add("extraProps", JsonUtil.toJsonObject(extraProps))
+            .build();
+   }
 
    /**
     * Utility method for splitting a comma separated list of hosts

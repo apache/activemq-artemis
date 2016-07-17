@@ -22,9 +22,9 @@ import javax.management.MBeanOperationInfo;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl {
 
@@ -94,12 +94,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
    public String getConnectorPairsAsJSON() throws Exception {
       clearIO();
       try {
-         JSONArray array = new JSONArray();
-
-         for (String connector : configuration.getConnectorInfos()) {
-            array.put(connector);
-         }
-         return array.toString();
+         return JsonUtil.toJsonArray(configuration.getConnectorInfos()).toString();
       }
       finally {
          blockOnIO();

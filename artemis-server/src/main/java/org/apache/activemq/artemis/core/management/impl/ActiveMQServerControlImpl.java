@@ -22,14 +22,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
@@ -88,8 +91,6 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TypedProperties;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
@@ -974,7 +975,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          });
 
-         JSONArray txDetailListJson = new JSONArray();
+         JsonArrayBuilder txDetailListJson = Json.createArrayBuilder();
          for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
             Xid xid = entry.getKey();
 
@@ -986,9 +987,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
             TransactionDetail detail = new CoreTransactionDetail(xid, tx, entry.getValue());
 
-            txDetailListJson.put(detail.toJSON());
+            txDetailListJson.add(detail.toJSON());
          }
-         return txDetailListJson.toString();
+         return txDetailListJson.build().toString();
       }
       finally {
          blockOnIO();
@@ -1029,7 +1030,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
             TransactionDetail detail = new CoreTransactionDetail(xid, tx, entry.getValue());
 
-            JSONObject txJson = detail.toJSON();
+            JsonObject txJson = detail.toJSON();
 
             html.append("<table border=\"1\">");
             html.append("<tr><th>creation_time</th>");
@@ -1047,14 +1048,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             html.append("<tr><td colspan=\"6\">");
             html.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">");
 
-            JSONArray msgs = txJson.getJSONArray(TransactionDetail.KEY_TX_RELATED_MESSAGES);
-            for (int i = 0; i < msgs.length(); i++) {
-               JSONObject msgJson = msgs.getJSONObject(i);
-               JSONObject props = msgJson.getJSONObject(TransactionDetail.KEY_MSG_PROPERTIES);
+            JsonArray msgs = txJson.getJsonArray(TransactionDetail.KEY_TX_RELATED_MESSAGES);
+            for (int i = 0; i < msgs.size(); i++) {
+               JsonObject msgJson = msgs.getJsonObject(i);
+               JsonObject props = msgJson.getJsonObject(TransactionDetail.KEY_MSG_PROPERTIES);
                StringBuilder propstr = new StringBuilder();
-               Iterator<String> propkeys = props.keys();
-               while (propkeys.hasNext()) {
-                  String key = propkeys.next();
+               Set<String> keys = props.keySet();
+               for (String key : keys) {
                   propstr.append(key);
                   propstr.append("=");
                   propstr.append(props.get(key));
@@ -1350,13 +1350,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    */
    @Override
    public String listProducersInfoAsJSON() throws Exception {
-      JSONArray producers = new JSONArray();
+      JsonArrayBuilder producers = Json.createArrayBuilder();
 
       for (ServerSession session : server.getSessions()) {
          session.describeProducersInfo(producers);
       }
 
-      return producers.toString();
+      return producers.build().toString();
    }
 
    @Override
@@ -1393,13 +1393,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         JSONArray array = new JSONArray();
+         JsonArrayBuilder array = Json.createArrayBuilder();
 
          for (TransportConfiguration config : configuration.getConnectorConfigurations().values()) {
-            array.put(new JSONObject(config));
+            array.add(config.toJson());
          }
 
-         return array.toString();
+         return array.build().toString();
       }
       finally {
          blockOnIO();
@@ -1488,13 +1488,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         JSONArray json = new JSONArray();
+         JsonArrayBuilder json = Json.createArrayBuilder();
          Set<Role> roles = server.getSecurityRepository().getMatch(addressMatch);
 
          for (Role role : roles) {
-            json.put(new JSONObject(role));
+            json.add(role.toJson());
          }
-         return json.toString();
+         return json.build().toString();
       }
       finally {
          blockOnIO();
@@ -1506,37 +1506,36 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
-      Map<String, Object> settings = new HashMap<>();
+      String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP" : "FAIL";
+      String consumerPolicy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY" : "KILL";
+      JsonObjectBuilder settings = Json.createObjectBuilder();
       if (addressSettings.getDeadLetterAddress() != null) {
-         settings.put("DLA", addressSettings.getDeadLetterAddress());
+         settings.add("DLA", addressSettings.getDeadLetterAddress().toString());
       }
       if (addressSettings.getExpiryAddress() != null) {
-         settings.put("expiryAddress", addressSettings.getExpiryAddress());
+         settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
       }
-      settings.put("expiryDelay", addressSettings.getExpiryDelay());
-      settings.put("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts());
-      settings.put("pageCacheMaxSize", addressSettings.getPageCacheMaxSize());
-      settings.put("maxSizeBytes", addressSettings.getMaxSizeBytes());
-      settings.put("pageSizeBytes", addressSettings.getPageSizeBytes());
-      settings.put("redeliveryDelay", addressSettings.getRedeliveryDelay());
-      settings.put("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier());
-      settings.put("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay());
-      settings.put("redistributionDelay", addressSettings.getRedistributionDelay());
-      settings.put("lastValueQueue", addressSettings.isLastValueQueue());
-      settings.put("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute());
-      String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP" : "FAIL";
-      settings.put("addressFullMessagePolicy", policy);
-      settings.put("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold());
-      settings.put("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod());
-      policy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY" : "KILL";
-      settings.put("slowConsumerPolicy", policy);
-      settings.put("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues());
-      settings.put("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues());
-      settings.put("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics());
-      settings.put("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics());
-
-      JSONObject jsonObject = new JSONObject(settings);
-      return jsonObject.toString();
+      return settings
+         .add("expiryDelay", addressSettings.getExpiryDelay())
+         .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
+         .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
+         .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
+         .add("pageSizeBytes", addressSettings.getPageSizeBytes())
+         .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
+         .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
+         .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
+         .add("redistributionDelay", addressSettings.getRedistributionDelay())
+         .add("lastValueQueue", addressSettings.isLastValueQueue())
+         .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
+         .add("addressFullMessagePolicy", policy)
+         .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
+         .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
+         .add("slowConsumerPolicy", consumerPolicy)
+         .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
+         .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
+         .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
+         .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics())
+         .build().toString();
    }
 
    @Override

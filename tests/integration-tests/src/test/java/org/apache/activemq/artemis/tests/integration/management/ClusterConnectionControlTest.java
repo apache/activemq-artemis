@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 import org.junit.After;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonArray;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
@@ -48,7 +50,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public class ClusterConnectionControlTest extends ManagementTestBase {
 
@@ -91,8 +92,8 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       String jsonString = clusterConnectionControl.getStaticConnectorsAsJSON();
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
       Assert.assertEquals(clusterConnectionConfig1.getStaticConnectors().get(0), array.getString(0));
 
       Assert.assertNull(clusterConnectionControl.getDiscoveryGroupName());

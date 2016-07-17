@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import javax.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,6 @@ import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public interface ServerSession extends SecurityAuth {
 
@@ -166,7 +166,7 @@ public interface ServerSession extends SecurityAuth {
     * @param objs
     * @throws Exception
     */
-   void describeProducersInfo(JSONArray objs) throws Exception;
+   void describeProducersInfo(JsonArrayBuilder objs) throws Exception;
 
    String getLastSentMessageID(String address);
 

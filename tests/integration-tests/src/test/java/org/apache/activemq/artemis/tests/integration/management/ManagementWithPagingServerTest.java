@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -31,11 +32,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.json.JsonArray;
 import java.nio.ByteBuffer;
 
 /**
@@ -77,9 +78,9 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
       String result = queueControl.listMessagesAsJSON(null);
 
-      JSONArray array = new JSONArray(result);
+      JsonArray array = JsonUtil.readJsonArray(result);
 
-      assertEquals(num, array.length());
+      assertEquals(num, array.size());
 
       //kick off receiver
       receiver.start();
@@ -88,9 +89,9 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
       result = queueControl.listMessagesAsJSON(null);
 
-      array = new JSONArray(result);
+      array = JsonUtil.readJsonArray(result);
 
-      assertEquals(0, array.length());
+      assertEquals(0, array.size());
    }
 
    @Test
@@ -129,9 +130,9 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
       String jsonString = queueControl.listMessagesAsJSON(filter);
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(num / 2, array.length());
-      Assert.assertEquals(matchingValue, array.getJSONObject(0).get("key"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(num / 2, array.size());
+      Assert.assertEquals(matchingValue, array.getJsonObject(0).getJsonNumber("key").longValue());
 
       long n = queueControl.countMessages(filter);
       assertEquals(num / 2, n);

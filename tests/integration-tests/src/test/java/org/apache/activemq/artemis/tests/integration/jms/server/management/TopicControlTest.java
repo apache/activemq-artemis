@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
@@ -37,7 +38,6 @@ import org.apache.activemq.artemis.tests.integration.management.ManagementContro
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +51,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TopicSubscriber;
+import javax.json.JsonArray;
 import javax.management.Notification;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -159,9 +160,9 @@ public class TopicControlTest extends ManagementTestBase {
 
       String json = topicControl.listAllSubscriptionsAsJSON();
       System.out.println("Json: " + json);
-      JSONArray jsonArray = new JSONArray(json);
+      JsonArray jsonArray = JsonUtil.readJsonArray(json);
 
-      Assert.assertEquals(3, jsonArray.length());
+      Assert.assertEquals(3, jsonArray.size());
 
       connection_1.close();
       connection_2.close();
@@ -221,17 +222,17 @@ public class TopicControlTest extends ManagementTestBase {
       SubscriptionInfo[] infos = SubscriptionInfo.from(jsonString);
       Assert.assertEquals(2, infos.length);
 
-      Assert.assertTrue(infos[0].getClientID().length() == 0);
+      Assert.assertNull(infos[0].getClientID());
       Assert.assertTrue(infos[0].getName().equals(subscriptionName));
 
-      Assert.assertTrue(infos[1].getClientID().length() == 0);
+      Assert.assertNull(infos[1].getClientID());
       Assert.assertTrue(infos[1].getName().equals(subscriptionName + "2"));
 
       jsonString = topicControl.listNonDurableSubscriptionsAsJSON();
       infos = SubscriptionInfo.from(jsonString);
       Assert.assertEquals(1, infos.length);
-      Assert.assertEquals(null, infos[0].getClientID());
-      Assert.assertEquals(null, infos[0].getName());
+      Assert.assertNull(infos[0].getClientID());
+      Assert.assertNull(infos[0].getName());
 
       jsonString = topicControl.listAllSubscriptionsAsJSON();
       infos = SubscriptionInfo.from(jsonString);
@@ -442,10 +443,10 @@ public class TopicControlTest extends ManagementTestBase {
       TopicControl topicControl = createManagementControl();
       String jsonString = topicControl.listMessagesForSubscriptionAsJSON(ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName));
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(3, array.length());
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(3, array.size());
       for (int i = 0; i < 3; i++) {
-         Assert.assertEquals(ids[i], array.getJSONObject(i).get("JMSMessageID"));
+         Assert.assertEquals(ids[i], array.getJsonObject(i).getString("JMSMessageID"));
       }
 
       connection.close();

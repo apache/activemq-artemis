@@ -73,6 +73,16 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-json_1.0_spec</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.johnzon</groupId>
+         <artifactId>johnzon-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
          <version>${project.version}</version>
