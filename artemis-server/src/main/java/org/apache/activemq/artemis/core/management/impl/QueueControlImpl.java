@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
@@ -55,9 +60,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.UUID;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONException;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
@@ -81,33 +83,28 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    // Static --------------------------------------------------------
 
    private static String toJSON(final Map<String, Object>[] messages) {
-      JSONArray array = toJSONMsgArray(messages);
+      JsonArray array = toJSONMsgArray(messages);
       return array.toString();
    }
 
-   private static JSONArray toJSONMsgArray(final Map<String, Object>[] messages) {
-      JSONArray array = new JSONArray();
+   private static JsonArray toJSONMsgArray(final Map<String, Object>[] messages) {
+      JsonArrayBuilder array = Json.createArrayBuilder();
       for (Map<String, Object> message : messages) {
-         array.put(new JSONObject(message));
+         array.add(JsonUtil.toJsonObject(message));
       }
-      return array;
+      return array.build();
    }
 
    private static String toJSON(final Map<String, Map<String, Object>[]> messages) {
-      try {
-         JSONArray arrayReturn = new JSONArray();
-         for (Map.Entry<String, Map<String, Object>[]> entry : messages.entrySet()) {
-            JSONObject objectItem = new JSONObject();
-            objectItem.put("consumerName", entry.getKey());
-            objectItem.put("elements", toJSONMsgArray(entry.getValue()));
-            arrayReturn.put(objectItem);
-         }
+      JsonArrayBuilder arrayReturn = Json.createArrayBuilder();
+      for (Map.Entry<String, Map<String, Object>[]> entry : messages.entrySet()) {
+         JsonObjectBuilder objectItem = Json.createObjectBuilder();
+         objectItem.add("consumerName", entry.getKey());
+         objectItem.add("elements", toJSONMsgArray(entry.getValue()));
+         arrayReturn.add(objectItem);
+      }
 
-         return arrayReturn.toString();
-      }
-      catch (JSONException e) {
-         return "Invalid conversion " + e.toString();
-      }
+      return arrayReturn.build().toString();
    }
 
    // Constructors --------------------------------------------------
@@ -950,26 +947,26 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Collection<Consumer> consumers = queue.getConsumers();
 
-         JSONArray jsonArray = new JSONArray();
+         JsonArrayBuilder jsonArray = Json.createArrayBuilder();
 
          for (Consumer consumer : consumers) {
 
             if (consumer instanceof ServerConsumer) {
                ServerConsumer serverConsumer = (ServerConsumer) consumer;
 
-               JSONObject obj = new JSONObject();
-               obj.put("consumerID", serverConsumer.getID());
-               obj.put("connectionID", serverConsumer.getConnectionID().toString());
-               obj.put("sessionID", serverConsumer.getSessionID());
-               obj.put("browseOnly", serverConsumer.isBrowseOnly());
-               obj.put("creationTime", serverConsumer.getCreationTime());
+               JsonObjectBuilder obj = Json.createObjectBuilder()
+                  .add("consumerID", serverConsumer.getID())
+                  .add("connectionID", serverConsumer.getConnectionID().toString())
+                  .add("sessionID", serverConsumer.getSessionID())
+                  .add("browseOnly", serverConsumer.isBrowseOnly())
+                  .add("creationTime", serverConsumer.getCreationTime());
 
-               jsonArray.put(obj);
+               jsonArray.add(obj);
             }
 
          }
 
-         return jsonArray.toString();
+         return jsonArray.build().toString();
       }
       finally {
          blockOnIO();

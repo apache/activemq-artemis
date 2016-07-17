@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import java.util.Arrays;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONException;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 /**
  * Helper class to create Java Objects from the
@@ -34,31 +36,35 @@ public final class DayCounterInfo {
 
    // Static --------------------------------------------------------
 
-   public static String toJSON(final DayCounterInfo[] infos) throws JSONException {
-      JSONObject json = new JSONObject();
-      JSONArray counters = new JSONArray();
+   public static String toJSON(final DayCounterInfo[] infos) {
+      JsonObjectBuilder json = Json.createObjectBuilder();
+      JsonArrayBuilder counters = Json.createArrayBuilder();
       for (DayCounterInfo info : infos) {
-         JSONObject counter = new JSONObject();
-         counter.put("date", info.getDate());
-         counter.put("counters", Arrays.asList(info.getCounters()));
-         counters.put(counter);
+         JsonArrayBuilder counter = Json.createArrayBuilder();
+         for (int c : info.getCounters()) {
+            counter.add(c);
+         }
+         JsonObjectBuilder dci = Json.createObjectBuilder()
+            .add("date", info.getDate())
+            .add("counters", counter);
+         counters.add(dci);
       }
-      json.put("dayCounters", counters);
-      return json.toString();
+      json.add("dayCounters", counters);
+      return json.build().toString();
    }
 
    /**
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link QueueControl#listMessageCounterHistory()}.
     */
-   public static DayCounterInfo[] fromJSON(final String jsonString) throws JSONException {
-      JSONObject json = new JSONObject(jsonString);
-      JSONArray dayCounters = json.getJSONArray("dayCounters");
-      DayCounterInfo[] infos = new DayCounterInfo[dayCounters.length()];
-      for (int i = 0; i < dayCounters.length(); i++) {
+   public static DayCounterInfo[] fromJSON(final String jsonString) {
+      JsonObject json = JsonUtil.readJsonObject(jsonString);
+      JsonArray dayCounters = json.getJsonArray("dayCounters");
+      DayCounterInfo[] infos = new DayCounterInfo[dayCounters.size()];
+      for (int i = 0; i < dayCounters.size(); i++) {
 
-         JSONObject counter = (JSONObject) dayCounters.get(i);
-         JSONArray hour = (JSONArray) counter.getJSONArray("counters").get(0);
+         JsonObject counter = (JsonObject) dayCounters.get(i);
+         JsonArray hour = counter.getJsonArray("counters");
          int[] hourCounters = new int[24];
          for (int j = 0; j < 24; j++) {
             hourCounters[j] = hour.getInt(j);

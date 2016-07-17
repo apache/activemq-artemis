@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 public class JMSConnectionInfo {
 
@@ -34,14 +36,16 @@ public class JMSConnectionInfo {
    // Static --------------------------------------------------------
 
    public static JMSConnectionInfo[] from(final String jsonString) throws Exception {
-      JSONArray array = new JSONArray(jsonString);
-      JMSConnectionInfo[] infos = new JMSConnectionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++) {
-         JSONObject obj = array.getJSONObject(i);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      JMSConnectionInfo[] infos = new JMSConnectionInfo[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject obj = array.getJsonObject(i);
          String cid = obj.isNull("clientID") ? null : obj.getString("clientID");
          String uname = obj.isNull("principal") ? null : obj.getString("principal");
 
-         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"), obj.getLong("creationTime"), cid, uname);
+         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"),
+               obj.getJsonNumber("creationTime").longValue(),
+               cid, uname);
          infos[i] = info;
       }
       return infos;

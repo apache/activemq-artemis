@@ -16,22 +16,11 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.artemis.utils.Base64;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
+import javax.json.JsonArray;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -138,7 +127,7 @@ public final class ManagementHelper {
       String paramString;
 
       if (parameters != null) {
-         JSONArray jsonArray = ManagementHelper.toJSONArray(parameters);
+         JsonArray jsonArray = JsonUtil.toJSONArray(parameters);
 
          paramString = jsonArray.toString();
       }
@@ -149,151 +138,6 @@ public final class ManagementHelper {
       message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(paramString));
    }
 
-   private static JSONArray toJSONArray(final Object[] array) throws Exception {
-      JSONArray jsonArray = new JSONArray();
-
-      for (Object parameter : array) {
-         if (parameter instanceof Map) {
-            Map<String, Object> map = (Map<String, Object>) parameter;
-
-            JSONObject jsonObject = new JSONObject();
-
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-               String key = entry.getKey();
-
-               Object val = entry.getValue();
-
-               if (val != null) {
-                  if (val.getClass().isArray()) {
-                     val = ManagementHelper.toJSONArray((Object[]) val);
-                  }
-                  else {
-                     ManagementHelper.checkType(val);
-                  }
-               }
-
-               jsonObject.put(key, val);
-            }
-
-            jsonArray.put(jsonObject);
-         }
-         else {
-            if (parameter != null) {
-               Class<?> clz = parameter.getClass();
-
-               if (clz.isArray()) {
-                  Object[] innerArray = (Object[]) parameter;
-
-                  if (innerArray instanceof CompositeData[]) {
-                     JSONArray jsonArray1 = new JSONArray();
-                     for (Object data : innerArray) {
-                        String s = Base64.encodeObject((CompositeDataSupport)data);
-                        jsonArray1.put(s);
-                     }
-                     JSONObject jsonObject = new JSONObject();
-                     jsonObject.put(CompositeData.class.getName(), jsonArray1);
-                     jsonArray.put(jsonObject);
-                     System.out.println("ManagementHelper.toJSONArray");
-                  }
-                  else {
-                     jsonArray.put(ManagementHelper.toJSONArray(innerArray));
-                  }
-               }
-               else {
-                  ManagementHelper.checkType(parameter);
-
-                  jsonArray.put(parameter);
-               }
-            }
-            else {
-               jsonArray.put((Object) null);
-            }
-         }
-      }
-
-      return jsonArray;
-   }
-
-   private static Object[] fromJSONArray(final JSONArray jsonArray) throws Exception {
-      Object[] array = new Object[jsonArray.length()];
-
-      for (int i = 0; i < jsonArray.length(); i++) {
-         Object val = jsonArray.get(i);
-
-         if (val instanceof JSONArray) {
-            Object[] inner = ManagementHelper.fromJSONArray((JSONArray) val);
-
-            array[i] = inner;
-         }
-         else if (val instanceof JSONObject) {
-            JSONObject jsonObject = (JSONObject) val;
-
-            Map<String, Object> map = new HashMap<>();
-
-            Iterator<String> iter = jsonObject.keys();
-
-            while (iter.hasNext()) {
-               String key = iter.next();
-
-               Object innerVal = jsonObject.get(key);
-
-               if (innerVal instanceof JSONArray) {
-                  innerVal = ManagementHelper.fromJSONArray(((JSONArray) innerVal));
-               }
-               else if (innerVal instanceof JSONObject) {
-                  Map<String, Object> innerMap = new HashMap<>();
-                  JSONObject o = (JSONObject) innerVal;
-                  Iterator it = o.keys();
-                  while (it.hasNext()) {
-                     String k = (String) it.next();
-                     innerMap.put(k, o.get(k));
-                  }
-                  innerVal = innerMap;
-               }
-               else if (innerVal instanceof Integer) {
-                  innerVal = ((Integer) innerVal).longValue();
-               }
-
-               if (CompositeData.class.getName().equals(key)) {
-                  Object[] data = (Object[]) innerVal;
-                  CompositeData[] cds = new CompositeData[data.length];
-                  for (int i1 = 0; i1 < data.length; i1++) {
-                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode((data[i1].toString()))));
-                     cds[i1] = (CompositeDataSupport) ois.readObject();
-                  }
-                  innerVal = cds;
-               }
-
-               map.put(key, innerVal);
-            }
-
-            array[i] = map;
-         }
-         else {
-            if (val == JSONObject.NULL) {
-               array[i] = null;
-            }
-            else {
-               array[i] = val;
-            }
-         }
-      }
-
-      return array;
-   }
-
-   private static void checkType(final Object param) {
-      if (param instanceof Integer == false && param instanceof Long == false &&
-         param instanceof Double == false &&
-         param instanceof String == false &&
-         param instanceof Boolean == false &&
-         param instanceof Map == false &&
-         param instanceof Byte == false &&
-         param instanceof Short == false) {
-         throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
-      }
-   }
-
    /**
     * Used by ActiveMQ Artemis management service.
     */
@@ -302,9 +146,9 @@ public final class ManagementHelper {
       String jsonString = (sstring == null) ? null : sstring.toString();
 
       if (jsonString != null) {
-         JSONArray jsonArray = new JSONArray(jsonString);
+         JsonArray jsonArray = JsonUtil.readJsonArray(jsonString);
 
-         return ManagementHelper.fromJSONArray(jsonArray);
+         return JsonUtil.fromJsonArray(jsonArray);
       }
       else {
          return null;
@@ -334,7 +178,7 @@ public final class ManagementHelper {
       if (result != null) {
          // Result is stored in body, also encoded as JSON array of length 1
 
-         JSONArray jsonArray = ManagementHelper.toJSONArray(new Object[]{result});
+         JsonArray jsonArray = JsonUtil.toJSONArray(new Object[]{result});
 
          resultString = jsonArray.toString();
       }
@@ -356,11 +200,8 @@ public final class ManagementHelper {
       String jsonString = (sstring == null) ? null : sstring.toString();
 
       if (jsonString != null) {
-         JSONArray jsonArray = new JSONArray(jsonString);
-
-         Object[] res = ManagementHelper.fromJSONArray(jsonArray);
-
-         return res;
+         JsonArray jsonArray = JsonUtil.readJsonArray(jsonString);
+         return JsonUtil.fromJsonArray(jsonArray);
       }
       else {
          return null;
@@ -395,38 +236,6 @@ public final class ManagementHelper {
          return message.getBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED);
       }
       return false;
-   }
-
-   /**
-    * Used by ActiveMQ Artemis management service.
-    */
-   public static Map<String, Object> fromCommaSeparatedKeyValues(final String str) throws Exception {
-      if (str == null || str.trim().length() == 0) {
-         return Collections.emptyMap();
-      }
-
-      // create a JSON array with 1 object:
-      JSONArray array = new JSONArray("[{" + str + "}]");
-      Map<String, Object> params = (Map<String, Object>) ManagementHelper.fromJSONArray(array)[0];
-      return params;
-   }
-
-   /**
-    * Used by ActiveMQ Artemis management service.
-    */
-   public static Object[] fromCommaSeparatedArrayOfCommaSeparatedKeyValues(final String str) throws Exception {
-      if (str == null || str.trim().length() == 0) {
-         return new Object[0];
-      }
-
-      String s = str;
-
-      // if there is a single item, we wrap it in to make it a JSON object
-      if (!s.trim().startsWith("{")) {
-         s = "{" + s + "}";
-      }
-      JSONArray array = new JSONArray("[" + s + "]");
-      return ManagementHelper.fromJSONArray(array);
    }
 
    private ManagementHelper() {

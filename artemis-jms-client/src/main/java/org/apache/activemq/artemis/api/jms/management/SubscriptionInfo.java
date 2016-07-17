@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 /**
  * Helper class to create Java Objects from the
@@ -46,11 +49,13 @@ public class SubscriptionInfo {
     * by {@link TopicControl#listAllSubscriptionsAsJSON()} and related methods.
     */
    public static SubscriptionInfo[] from(final String jsonString) throws Exception {
-      JSONArray array = new JSONArray(jsonString);
-      SubscriptionInfo[] infos = new SubscriptionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++) {
-         JSONObject sub = array.getJSONObject(i);
-         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"), sub.optString("clientID", null), sub.optString("name", null), sub.getBoolean("durable"), sub.optString("selector", null), sub.getInt("messageCount"), sub.getInt("deliveringCount"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      SubscriptionInfo[] infos = new SubscriptionInfo[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject sub = array.getJsonObject(i);
+         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"), sub.getString("clientID", null),
+               sub.getString("name", null), sub.getBoolean("durable"), sub.getString("selector", null),
+               sub.getInt("messageCount"), sub.getInt("deliveringCount"));
          infos[i] = info;
       }
 

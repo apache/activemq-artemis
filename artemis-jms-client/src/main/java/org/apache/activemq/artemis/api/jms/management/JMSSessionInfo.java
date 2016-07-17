@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONException;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 public class JMSSessionInfo {
 
@@ -31,13 +32,14 @@ public class JMSSessionInfo {
       this.creationTime = creationTime;
    }
 
-   public static JMSSessionInfo[] from(final String jsonString) throws JSONException {
-      JSONArray array = new JSONArray(jsonString);
-      JMSSessionInfo[] infos = new JMSSessionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++) {
-         JSONObject obj = array.getJSONObject(i);
+   public static JMSSessionInfo[] from(final String jsonString) {
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      JMSSessionInfo[] infos = new JMSSessionInfo[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject obj = array.getJsonObject(i);
 
-         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"), obj.getLong("creationTime"));
+         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"),
+               obj.getJsonNumber("creationTime").longValue());
          infos[i] = info;
       }
       return infos;

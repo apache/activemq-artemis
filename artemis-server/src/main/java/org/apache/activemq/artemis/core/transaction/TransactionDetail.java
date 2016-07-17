@@ -21,13 +21,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.transaction.xa.Xid;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public abstract class TransactionDetail {
 
@@ -61,27 +64,24 @@ public abstract class TransactionDetail {
       this.creationTime = creation;
    }
 
-   public JSONObject toJSON() throws Exception {
+   public JsonObject toJSON() throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-      JSONObject detailJson = new JSONObject();
+      JsonObjectBuilder detailJson = Json.createObjectBuilder()
+         .add(KEY_CREATION_TIME, dateFormat.format(new Date(this.creationTime)))
+         .add(KEY_XID_AS_BASE64, XidImpl.toBase64String(this.xid))
+         .add(KEY_XID_FORMAT_ID, this.xid.getFormatId())
+         .add(KEY_XID_GLOBAL_TXID, new String(this.xid.getGlobalTransactionId()))
+         .add(KEY_XID_BRANCH_QUAL, new String(this.xid.getBranchQualifier()));
 
-      detailJson.put(KEY_CREATION_TIME, dateFormat.format(new Date(this.creationTime)));
-      detailJson.put(KEY_XID_AS_BASE64, XidImpl.toBase64String(this.xid));
-      detailJson.put(KEY_XID_FORMAT_ID, this.xid.getFormatId());
-      detailJson.put(KEY_XID_GLOBAL_TXID, new String(this.xid.getGlobalTransactionId()));
-      detailJson.put(KEY_XID_BRANCH_QUAL, new String(this.xid.getBranchQualifier()));
-
-      JSONArray msgsJson = new JSONArray();
+      JsonArrayBuilder msgsJson = Json.createArrayBuilder();
 
       List<TransactionOperation> txops = null;
 
       if (this.transaction != null) {
          txops = this.transaction.getAllOperations();
       }
-
-      detailJson.put(KEY_TX_RELATED_MESSAGES, msgsJson);
       if (txops == null) {
-         return detailJson;
+         return detailJson.build();
       }
 
       for (TransactionOperation op : txops) {
@@ -100,18 +100,19 @@ public abstract class TransactionDetail {
          }
 
          for (MessageReference ref : msgs) {
-            JSONObject msgJson = new JSONObject();
-            msgsJson.put(msgJson);
+            JsonObjectBuilder msgJson = Json.createObjectBuilder();
 
-            msgJson.put(KEY_MSG_OP_TYPE, opType);
+            msgJson.add(KEY_MSG_OP_TYPE, opType);
 
             ServerMessage msg = ref.getMessage().copy();
 
-            msgJson.put(KEY_MSG_TYPE, decodeMessageType(msg));
-            msgJson.put(KEY_MSG_PROPERTIES, decodeMessageProperties(msg));
+            msgJson.add(KEY_MSG_TYPE, decodeMessageType(msg));
+            JsonUtil.addToObject(KEY_MSG_PROPERTIES, decodeMessageProperties(msg), msgJson);
+            msgsJson.add(msgJson);
          }
       }
-      return detailJson;
+      detailJson.add(KEY_TX_RELATED_MESSAGES, msgsJson);
+      return detailJson.build();
    }
 
    public abstract String decodeMessageType(ServerMessage msg);

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressSettingsInfo;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
@@ -47,8 +50,6 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,12 +155,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String jsonString = serverControl.getConnectorsAsJSON();
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
-      JSONObject data = array.getJSONObject(0);
-      Assert.assertEquals(connectorConfig.getName(), data.optString("name"));
-      Assert.assertEquals(connectorConfig.getFactoryClassName(), data.optString("factoryClassName"));
-      Assert.assertEquals(connectorConfig.getParams().size(), data.getJSONObject("params").length());
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
+      JsonObject data = array.getJsonObject(0);
+      Assert.assertEquals(connectorConfig.getName(), data.getString("name"));
+      Assert.assertEquals(connectorConfig.getFactoryClassName(), data.getString("factoryClassName"));
+      Assert.assertEquals(connectorConfig.getParams().size(), data.getJsonObject("params").size());
    }
 
    @Test
@@ -755,10 +756,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
 
-      JSONArray jsonArray = new JSONArray(serverControl.listProducersInfoAsJSON());
+      JsonArray jsonArray = JsonUtil.readJsonArray(serverControl.listProducersInfoAsJSON());
 
-      assertEquals(1, jsonArray.length());
-      assertEquals(4, ((JSONObject) jsonArray.get(0)).getInt("msgSent"));
+      assertEquals(1, jsonArray.size());
+      assertEquals(4, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
 
       clientSession.close();
       locator.close();

@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 /**
  * Helper class to create Java Objects from the
@@ -48,11 +50,14 @@ public class JMSConsumerInfo {
     * by {@link TopicControl#listAllSubscriptionsAsJSON()} and related methods.
     */
    public static JMSConsumerInfo[] from(final String jsonString) throws Exception {
-      JSONArray array = new JSONArray(jsonString);
-      JMSConsumerInfo[] infos = new JMSConsumerInfo[array.length()];
-      for (int i = 0; i < array.length(); i++) {
-         JSONObject sub = array.getJSONObject(i);
-         JMSConsumerInfo info = new JMSConsumerInfo(sub.getString("consumerID"), sub.getString("connectionID"), sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"), sub.getLong("creationTime"), sub.getBoolean("durable"), sub.optString("filter", null));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      JMSConsumerInfo[] infos = new JMSConsumerInfo[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject sub = array.getJsonObject(i);
+         JMSConsumerInfo info = new JMSConsumerInfo(sub.getString("consumerID"), sub.getString("connectionID"),
+               sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"),
+               sub.getJsonNumber("creationTime").longValue(),
+               sub.getBoolean("durable"), sub.getString("filter", null));
          infos[i] = info;
       }
 

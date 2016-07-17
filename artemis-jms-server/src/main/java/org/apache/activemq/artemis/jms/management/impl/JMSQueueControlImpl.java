@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.jms.InvalidSelectorException;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
@@ -33,6 +35,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionExcep
 import org.apache.activemq.artemis.api.core.FilterConstants;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -47,8 +50,6 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl {
 
@@ -74,11 +75,11 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    static String toJSON(final Map<String, Object>[] messages) {
-      JSONArray array = new JSONArray();
+      JsonArrayBuilder array = Json.createArrayBuilder();
       for (Map<String, Object> message : messages) {
-         array.put(new JSONObject(message));
+         array.add(JsonUtil.toJsonObject(message));
       }
-      return array.toString();
+      return array.build().toString();
    }
 
    // Constructors --------------------------------------------------
