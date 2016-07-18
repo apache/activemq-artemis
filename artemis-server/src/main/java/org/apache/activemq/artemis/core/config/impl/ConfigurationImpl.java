@@ -239,6 +239,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected boolean populateValidatedUser = ActiveMQDefaultConfiguration.isDefaultPopulateValidatedUser();
 
+   private long connectionTtlCheckInterval = ActiveMQDefaultConfiguration.getDefaultConnectionTtlCheckInterval();
+
    /**
     * Parent folder for all data folders.
     */
@@ -1366,6 +1368,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public long getConnectionTtlCheckInterval() {
+      return connectionTtlCheckInterval;
+   }
+
+   @Override
+   public ConfigurationImpl setConnectionTtlCheckInterval(long connectionTtlCheckInterval) {
+      this.connectionTtlCheckInterval = connectionTtlCheckInterval;
+      return this;
+   }
+
+   @Override
    public int hashCode() {
       final int prime = 31;
       int result = 1;
@@ -1440,6 +1453,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       result = prime * result + (wildcardRoutingEnabled ? 1231 : 1237);
       result = prime * result + (resolveProtocols ? 1231 : 1237);
       result = prime * result + (int) (journalLockAcquisitionTimeout ^ (journalLockAcquisitionTimeout >>> 32));
+      result = prime * result + (int) (connectionTtlCheckInterval ^ (connectionTtlCheckInterval >>> 32));
       return result;
    }
 
@@ -1691,6 +1705,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (resolveProtocols != other.resolveProtocols)
          return false;
       if (journalLockAcquisitionTimeout != other.journalLockAcquisitionTimeout)
+         return false;
+      if (connectionTtlCheckInterval != other.connectionTtlCheckInterval)
          return false;
       return true;
    }

@@ -35,6 +35,7 @@ Name | Description
 [cluster-password](clusters.md "Clusters")                                                                                              |   Cluster password. It applies to all cluster configurations.
 [cluster-user](clusters.md "Clusters")                                                                                                  |   Cluster username. It applies to all cluster configurations.
 [connection-ttl-override](connection-ttl.md)                                                                                                        |   if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this setting. Default -1
+[connection-ttl-check-period](connection-ttl.md)                                                                                                    |   how often (in ms) to check connections for ttl violation. Default 2000
 [connectors.connector](configuring-transports.md "Understanding Connectors") | The URL for the connector. This is a list
 [create-bindings-dir](persistence.md "Configuring the bindings journal") |  true means that the server will create the bindings directory on start up. Default=true
 [create-journal-dir](persistence.md)                                             |  true means that the journal directory will be created. Default=true

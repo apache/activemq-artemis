@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
-import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -475,7 +474,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session = sf.createSession(false, true, true);
 
       session.createTemporaryQueue(address, queue);
-      assertTrue("server has not received any ping from the client", pingOnServerLatch.await(2 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL, TimeUnit.MILLISECONDS));
+      assertTrue("server has not received any ping from the client", pingOnServerLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval(), TimeUnit.MILLISECONDS));
       assertEquals(1, server.getConnectionCount());
 
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
@@ -490,7 +489,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
       // let some time for the server to clean the connections
-      assertTrue("server has not closed the connection", serverCloseLatch.await(2 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
+      assertTrue("server has not closed the connection", serverCloseLatch.await(2 * server.getConfiguration().getConnectionTtlCheckInterval() + 2 * TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
 
       // The next getCount will be asynchronously done at the end of failure. We will wait some time until it has reached there.
       for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && server.getConnectionCount() > 0; ) {

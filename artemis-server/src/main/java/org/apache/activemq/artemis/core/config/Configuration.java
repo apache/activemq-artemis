@@ -955,4 +955,8 @@ public interface Configuration {
    /** It will return all the connectors in a toString manner for debug purposes. */
    String debugConnectors();
 
+   Configuration setConnectionTtlCheckInterval(long connectionTtlCheckInterval);
+
+   long getConnectionTtlCheckInterval();
+
 }
