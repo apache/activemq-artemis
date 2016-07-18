@@ -19,7 +19,6 @@ package org.proton.plug.context.server;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
@@ -39,7 +38,14 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
 
    private static final Logger log = Logger.getLogger(ProtonServerReceiverContext.class);
 
-   private final int numberOfCredits = 100;
+   /*
+    The maximum number of credits we will allocate to clients.
+    This number is also used by the broker when refresh client credits.
+     */
+   private static int maxCreditAllocation = 100;
+
+   // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
+   private static int minCreditRefresh = 30;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AbstractConnectionContext connection,
@@ -50,6 +56,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
 
    @Override
    public void onFlow(int credits, boolean drain) {
+      flow(Math.min(credits, maxCreditAllocation), maxCreditAllocation);
    }
 
    @Override
@@ -86,10 +93,10 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
             catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorFindingTemporaryQueue(e.getMessage());
             }
+
          }
       }
-
-      flow(numberOfCredits);
+      flow(maxCreditAllocation, minCreditRefresh);
    }
 
    /*
@@ -117,12 +124,8 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
                receiver.advance();
 
                sessionSPI.serverSend(receiver, delivery, address, delivery.getMessageFormat(), buffer);
-               delivery.disposition(Accepted.getInstance());
-               delivery.settle();
 
-               if (receiver.getRemoteCredit() < numberOfCredits / 2) {
-                  flow(numberOfCredits);
-               }
+               flow(maxCreditAllocation, minCreditRefresh);
             }
          }
          finally {

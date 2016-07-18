@@ -39,8 +39,8 @@ import org.proton.plug.handler.ProtonHandler;
 import org.proton.plug.handler.impl.DefaultEventHandler;
 import org.proton.plug.util.ByteUtil;
 
-import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_CHANNEL_MAX;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
 import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
 
 public abstract class AbstractConnectionContext extends ProtonInitializable implements AMQPConnectionContext {
