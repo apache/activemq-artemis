@@ -69,7 +69,6 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
          }
          else {
             protonSession.addReceiver(receiver);
-            receiver.flow(100);
          }
       }
       else {

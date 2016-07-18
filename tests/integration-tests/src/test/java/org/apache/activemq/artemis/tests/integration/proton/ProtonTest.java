@@ -157,6 +157,30 @@ public class ProtonTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testCreditsAreAllocatedOnlyOnceOnLinkCreate() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      // Only allow 1 credit to be submitted at a time.
+      Field maxCreditAllocation = ProtonServerReceiverContext.class.getDeclaredField("maxCreditAllocation");
+      maxCreditAllocation.setAccessible(true);
+      int originalMaxCreditAllocation = maxCreditAllocation.getInt(null);
+      maxCreditAllocation.setInt(null, 1);
+
+      String destinationAddress = address + 1;
+      AmqpClient client = new AmqpClient(new URI("tcp://localhost:5672"), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender(destinationAddress);
+         assertTrue(sender.getSender().getCredit() == 1);
+      }
+      finally {
+         amqpConnection.close();
+         maxCreditAllocation.setInt(null, originalMaxCreditAllocation);
+      }
+   }
+
+   @Test
    public void testTemporaryQueue() throws Throwable {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
