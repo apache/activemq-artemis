@@ -57,13 +57,12 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
       close(false);
    }
 
-   public void flow(int credits) {
+   public void flow(int credits, int threshold) {
       synchronized (connection.getLock()) {
-         receiver.flow(credits);
+         sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
       }
       connection.flush();
    }
-
 
    public void drain(int credits) {
       synchronized (connection.getLock()) {

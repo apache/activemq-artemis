@@ -84,4 +84,9 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
       return queues.poll(time, unit);
    }
 
+   @Override
+   public void flow(int credits) {
+      flow(credits, Integer.MAX_VALUE);
+   }
+
 }

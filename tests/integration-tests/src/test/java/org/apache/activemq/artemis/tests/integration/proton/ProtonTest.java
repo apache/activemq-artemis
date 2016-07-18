@@ -29,11 +29,15 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.QueueBrowser;
+import javax.jms.ResourceAllocationException;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,9 +52,17 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Properties;
@@ -66,11 +78,20 @@ import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.AMQPClientReceiverContext;
 import org.proton.plug.AMQPClientSenderContext;
 import org.proton.plug.AMQPClientSessionContext;
+import org.proton.plug.context.server.ProtonServerReceiverContext;
 import org.proton.plug.test.Constants;
 import org.proton.plug.test.minimalclient.SimpleAMQPConnector;
 
 @RunWith(Parameterized.class)
 public class ProtonTest extends ActiveMQTestBase {
+
+   private static final String amqpConnectionUri = "amqp://localhost:5672";
+
+   private static final String tcpAmqpConnectionUri = "tcp://localhost:5672";
+
+   private static final String userName = "guest";
+
+   private static final String password = "guest";
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -106,6 +127,7 @@ public class ProtonTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       disableCheckThread();
+
       server = this.createServer(true, true);
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "5672");
@@ -113,6 +135,12 @@ public class ProtonTest extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
+
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      addressSettings.setMaxSizeBytes(1 * 1024 * 1024);
+      server.getConfiguration().getAddressesSettings().put("#", addressSettings);
+
       server.start();
       server.createQueue(new SimpleString(coreAddress), new SimpleString(coreAddress), null, true, false);
       server.createQueue(new SimpleString(coreAddress + "1"), new SimpleString(coreAddress + "1"), null, true, false);
@@ -167,7 +195,7 @@ public class ProtonTest extends ActiveMQTestBase {
       maxCreditAllocation.setInt(null, 1);
 
       String destinationAddress = address + 1;
-      AmqpClient client = new AmqpClient(new URI("tcp://localhost:5672"), userName, password);
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       AmqpConnection amqpConnection = client.connect();
       try {
          AmqpSession session = amqpConnection.createSession();
@@ -197,9 +225,158 @@ public class ProtonTest extends ActiveMQTestBase {
 
       message = (TextMessage) cons.receive(5000);
       Assert.assertNotNull(message);
-
    }
 
+   @Test
+   public void testResourceLimitExceptionOnAddressFull() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+      fillAddress(address + 1);
+   }
+
+   @Test
+   public void testAddressIsBlockedForOtherProdudersWhenFull() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+      String destinationAddress = address + 1;
+      fillAddress(destinationAddress);
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Exception e = null;
+      try {
+         Destination d = session.createQueue(destinationAddress);
+         MessageProducer p = session.createProducer(d);
+         p.send(session.createBytesMessage());
+      }
+      catch (ResourceAllocationException rae) {
+         e = rae;
+      }
+      assertTrue(e instanceof ResourceAllocationException);
+      assertTrue(e.getMessage().contains("resource-limit-exceeded"));
+   }
+
+   @Test
+   public void testCreditsAreNotAllocatedWhenAddressIsFull() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      // Only allow 1 credit to be submitted at a time.
+      Field maxCreditAllocation = ProtonServerReceiverContext.class.getDeclaredField("maxCreditAllocation");
+      maxCreditAllocation.setAccessible(true);
+      int originalMaxCreditAllocation = maxCreditAllocation.getInt(null);
+      maxCreditAllocation.setInt(null, 1);
+
+      String destinationAddress = address + 1;
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender(destinationAddress);
+         sender.setSendTimeout(1000);
+         sendUntilFull(sender);
+         assertTrue(sender.getSender().getCredit() <= 0);
+      }
+      finally {
+         amqpConnection.close();
+         maxCreditAllocation.setInt(null, originalMaxCreditAllocation);
+      }
+   }
+
+   @Test
+   public void testCreditsAreRefreshedWhenAddressIsUnblocked() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      String destinationAddress = address + 1;
+      int messagesSent = fillAddress(destinationAddress);
+
+      AmqpConnection amqpConnection = null;
+      try {
+         amqpConnection = AmqpClient.connect(new URI(tcpAmqpConnectionUri));
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender(destinationAddress);
+
+         // Wait for a potential flow frame.
+         Thread.sleep(500);
+         assertEquals(0, sender.getSender().getCredit());
+
+         // Empty Address except for 1 message used later.
+         AmqpReceiver receiver = session.createReceiver(destinationAddress);
+         receiver.flow(100);
+
+         AmqpMessage m;
+         for (int i = 0; i < messagesSent - 1; i++) {
+            m = receiver.receive();
+            m.accept();
+         }
+
+         // Wait for address to unblock and flow frame to arrive
+         Thread.sleep(500);
+         assertTrue(sender.getSender().getCredit() > 0);
+         assertNotNull(receiver.receive());
+      }
+      finally {
+         amqpConnection.close();
+      }
+   }
+
+   @Test
+   public void testNewLinkAttachAreNotAllocatedCreditsWhenAddressIsBlocked() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      fillAddress(address + 1);
+      AmqpConnection amqpConnection = null;
+      try {
+         amqpConnection = AmqpClient.connect(new URI(tcpAmqpConnectionUri));
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender(address + 1);
+         // Wait for a potential flow frame.
+         Thread.sleep(1000);
+         assertEquals(0, sender.getSender().getCredit());
+      }
+      finally {
+         amqpConnection.close();
+      }
+   }
+
+   /**
+    * Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
+    * @param address
+    * @return
+    * @throws Exception
+    */
+   private int fillAddress(String address) throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender(address);
+         return sendUntilFull(sender);
+      }
+      finally {
+         amqpConnection.close();
+      }
+   }
+
+   private int sendUntilFull(AmqpSender sender) throws IOException {
+      AmqpMessage message = new AmqpMessage();
+      byte[] payload = new byte[50 * 1024];
+
+      int sentMessages = 0;
+      int maxMessages = 50;
+
+      Exception e = null;
+      try {
+         for (int i = 0; i < maxMessages; i++) {
+            message.setBytes(payload);
+            sender.send(message);
+            sentMessages++;
+         }
+      }
+      catch (IOException ioe) {
+         e = ioe;
+      }
+
+      assertNotNull(e);
+      assertTrue(e.getMessage().contains("amqp:resource-limit-exceeded"));
+      return sentMessages;
+   }
 
    @Test
    public void testReplyTo() throws Throwable {
@@ -918,7 +1095,7 @@ public class ProtonTest extends ActiveMQTestBase {
    private javax.jms.Connection createConnection() throws JMSException {
       Connection connection;
       if (protocol == 3) {
-         factory = new JmsConnectionFactory("amqp://localhost:5672");
+         factory = new JmsConnectionFactory(amqpConnectionUri);
          connection = factory.createConnection();
          connection.setExceptionListener(new ExceptionListener() {
             @Override
@@ -929,7 +1106,7 @@ public class ProtonTest extends ActiveMQTestBase {
          connection.start();
       }
       else if (protocol == 0) {
-         factory = new JmsConnectionFactory("guest", "guest", "amqp://localhost:5672");
+         factory = new JmsConnectionFactory(userName, password, amqpConnectionUri);
          connection = factory.createConnection();
          connection.setExceptionListener(new ExceptionListener() {
             @Override
@@ -950,7 +1127,7 @@ public class ProtonTest extends ActiveMQTestBase {
             factory = new ActiveMQConnectionFactory();
          }
 
-         connection = factory.createConnection("guest", "guest");
+         connection = factory.createConnection(userName, password);
          connection.setExceptionListener(new ExceptionListener() {
             @Override
             public void onException(JMSException exception) {

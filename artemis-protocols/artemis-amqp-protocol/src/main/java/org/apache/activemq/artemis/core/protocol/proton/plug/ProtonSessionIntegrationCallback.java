@@ -20,33 +20,37 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
 import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.messaging.Accepted;
+import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.ProtonJMessage;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
-import org.apache.activemq.artemis.utils.ByteUtil;
-import org.apache.activemq.artemis.utils.IDGenerator;
-import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
@@ -65,7 +69,6 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    private final AMQPConnectionContext connection;
 
    private final Connection transportConnection;
-
 
    private ServerSession serverSession;
 
@@ -347,13 +350,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
       recoverContext();
 
+      PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddress());
+      if (store.isFull() && store.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK) {
+         ErrorCondition ec = new ErrorCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + message.getAddress());
+         Rejected rejected = new Rejected();
+         rejected.setError(ec);
+         delivery.disposition(rejected);
+         connection.flush();
+      }
+      else {
+         serverSend(message, delivery, receiver);
+      }
+   }
+
+   private void serverSend(final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {
       try {
          serverSession.send(message, false);
-
+         // FIXME Potential race here...
          manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
             @Override
             public void done() {
                synchronized (connection.getLock()) {
+                  delivery.disposition(Accepted.getInstance());
                   delivery.settle();
                   connection.flush();
                }
@@ -376,6 +394,24 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    @Override
    public String getPubSubPrefix() {
       return manager.getPubSubPrefix();
+   }
+
+   @Override
+   public void offerProducerCredit(final String address, final int credits, final int threshold, final Receiver receiver) {
+      try {
+         final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
+         store.checkMemory(new Runnable() {
+            @Override
+            public void run() {
+               if (receiver.getRemoteCredit() < threshold) {
+                  receiver.flow(credits);
+               }
+            }
+         });
+      }
+      catch (Exception e) {
+         throw new RuntimeException(e);
+      }
    }
 
    @Override
