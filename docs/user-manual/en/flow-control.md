@@ -198,12 +198,19 @@ size can be set via the
 `ActiveMQConnectionFactory.setProducerWindowSize(int
                   producerWindowSize)` method.
 
-#### Blocking producer window based flow control
+#### Blocking producer window based flow control using CORE protocol
 
-Normally the server will always give the same number of credits as have
-been requested. However, it is also possible to set a maximum size on
-any address, and the server will never send more credits than could
-cause the address's upper memory limit to be exceeded.
+When using the CORE protocol (used by both the Artemis Core Client and Artemis JMS Client)
+the server will always aim give the same number of credits as have been requested.
+However, it is also possible to set a maximum size on any address, and the server
+will never send more credits to any one producer than what is available according to
+the address's upper memory limit.  Although a single producer will be issued more
+credits than available (at the time of issue) it is possible that more than 1
+producer be associated with the same address and so it is theoretically possible
+that more credits are allocated across total producers than what is available.
+It is therefore possible to go over the address limit by approximately:
+
+ '''total number of producers on address * producer window size'''
 
 For example, if I have a JMS queue called "myqueue", I could set the
 maximum memory size to 10MiB, and the the server will control the number
@@ -256,6 +263,15 @@ control.
 > it being consumed before the producers will be blocked. If you do not
 > want this behaviour increase the `max-size-bytes` parameter or change
 > the address full message policy.
+
+> **Note**
+>
+> Producer credits are allocated from the broker to the client.  Flow control
+> credit checking (i.e. checking a producer has enough credit) is done on the
+> client side only.  It is possible for the broker to over allocate credits, like
+> in the multiple producer scenario outlined above.  It is also possible for
+> a misbehaving client to ignore the flow control credits issued by the broker
+> and continue sending with out sufficient credit.
 
 ### Rate limited flow control
 
