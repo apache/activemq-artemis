@@ -53,10 +53,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       super(tableName, jdbcConnectionUrl, jdbcDriverClass);
    }
 
-   public void start() throws Exception {
-      super.start();
-   }
-
    @Override
    protected void createSchema() throws SQLException {
       createTable(sqlProvider.getCreateFileTableSQL());
