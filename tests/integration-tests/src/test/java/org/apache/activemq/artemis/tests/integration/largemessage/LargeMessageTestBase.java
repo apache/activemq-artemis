@@ -79,6 +79,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       this.storeType = storeType;
    }
 
+   @Override
    public void tearDown() throws Exception {
       super.tearDown();
       if (storeType == StoreConfiguration.StoreType.DATABASE) {

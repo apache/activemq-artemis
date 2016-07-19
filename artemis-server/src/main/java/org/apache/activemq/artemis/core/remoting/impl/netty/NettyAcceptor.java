@@ -370,6 +370,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       channel.pipeline().addLast(protocolHandler.getProtocolDecoder());
    }
 
+   @Override
    public void reload() {
       serverChannelGroup.disconnect();
       serverChannelGroup.clear();

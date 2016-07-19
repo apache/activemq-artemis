@@ -55,6 +55,7 @@ public class StompTestWithSecurity extends StompTestBase {
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1000);
    }
 
+   @Override
    public boolean isSecurityEnabled() {
       return true;
    }

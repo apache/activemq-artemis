@@ -708,6 +708,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       };
    }
 
+   @Override
    public boolean usingCore() {
       return true;
    }
