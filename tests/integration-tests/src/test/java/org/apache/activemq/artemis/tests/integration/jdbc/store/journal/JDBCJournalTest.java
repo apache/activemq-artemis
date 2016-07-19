@@ -125,6 +125,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
       journal.destroy();
    }

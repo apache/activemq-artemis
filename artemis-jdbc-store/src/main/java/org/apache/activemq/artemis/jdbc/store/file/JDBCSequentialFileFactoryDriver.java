@@ -290,6 +290,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
    /**
     * Drop all tables and data
     */
+   @Override
    public synchronized void destroy() throws SQLException {
       try {
          connection.setAutoCommit(false);

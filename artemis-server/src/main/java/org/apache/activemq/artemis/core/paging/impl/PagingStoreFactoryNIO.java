@@ -100,6 +100,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
    }
 
+   @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
       return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);

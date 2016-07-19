@@ -40,6 +40,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -47,6 +48,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
       try {
          server.stop();
