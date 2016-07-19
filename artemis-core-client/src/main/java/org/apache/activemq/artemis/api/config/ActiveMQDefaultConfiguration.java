@@ -423,6 +423,9 @@ public final class ActiveMQDefaultConfiguration {
    // Default large messages table name, used with Database storage type
    private static final String DEFAULT_LARGE_MESSAGES_TABLE_NAME = "LARGE_MESSAGES";
 
+   // Default period to wait between connection TTL checks
+   public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1129,5 +1132,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultLargeMessagesTableName() {
       return DEFAULT_LARGE_MESSAGES_TABLE_NAME;
+   }
+
+   public static long getDefaultConnectionTtlCheckInterval() {
+      return DEFAULT_CONNECTION_TTL_CHECK_INTERVAL;
    }
 }

@@ -238,6 +238,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="connection-ttl-check-interval" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how often (in ms) to check connections for ttl violation
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="async-connection-execution-enabled" type="xsd:boolean" default="true" maxOccurs="1"
                       minOccurs="0">
             <xsd:annotation>

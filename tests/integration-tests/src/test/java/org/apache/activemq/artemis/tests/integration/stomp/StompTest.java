@@ -52,6 +52,24 @@ public class StompTest extends StompTestBase {
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
+   public void testConnectionTTL() throws Exception {
+      int index = 1;
+      int port = 61614;
+
+      server.getActiveMQServer().getRemotingService().createAcceptor("test", "tcp://127.0.0.1:" + port + "?connectionTtl=1000").start();
+      createBootstrap(index, port);
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(index, frame);
+      frame = receiveFrame(index, 10000);
+
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      Thread.sleep(5000);
+
+      assertChannelClosed(index);
+   }
+
+   @Test
    public void testSendManyMessages() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 

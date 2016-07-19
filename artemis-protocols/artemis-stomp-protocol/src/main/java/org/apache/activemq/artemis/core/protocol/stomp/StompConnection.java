@@ -269,7 +269,7 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   Acceptor getAcceptorUsed() {
+   public Acceptor getAcceptorUsed() {
       return acceptorUsed;
    }
 
@@ -718,6 +718,10 @@ public final class StompConnection implements RemotingConnection {
 
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
+   }
+
+   public StompProtocolManager getManager() {
+      return manager;
    }
 
 }

@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -97,13 +99,15 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    protected boolean autoCreateServer = true;
 
-   private Bootstrap bootstrap;
+   private List<Bootstrap> bootstraps = new ArrayList<>();
 
-   private Channel channel;
+//   private Channel channel;
 
-   private BlockingQueue<String> priorityQueue;
+   private List<BlockingQueue<String>> priorityQueues = new ArrayList<>();
 
-   private EventLoopGroup group;
+   private List<EventLoopGroup> groups = new ArrayList<>();
+
+   private List<Channel> channels = new ArrayList<>();
 
    // Implementation methods
    // -------------------------------------------------------------------------
@@ -111,7 +115,6 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      priorityQueue = new ArrayBlockingQueue<>(1000);
       if (autoCreateServer) {
          server = createServer();
          addServer(server.getActiveMQServer());
@@ -133,18 +136,27 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    private void createBootstrap() {
-      group = new NioEventLoopGroup();
-      bootstrap = new Bootstrap();
-      bootstrap.group(group).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
+      createBootstrap(0, port);
+   }
+
+   protected void createBootstrap(int port) {
+      createBootstrap(0, port);
+   }
+
+   protected void createBootstrap(final int index, int port) {
+      priorityQueues.add(index, new ArrayBlockingQueue<String>(1000));
+      groups.add(index, new NioEventLoopGroup());
+      bootstraps.add(index, new Bootstrap());
+      bootstraps.get(index).group(groups.get(index)).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
          @Override
          public void initChannel(SocketChannel ch) throws Exception {
-            addChannelHandlers(ch);
+            addChannelHandlers(index, ch);
          }
       });
 
       // Start the client.
       try {
-         channel = bootstrap.connect("localhost", port).sync().channel();
+         channels.add(index, bootstraps.get(index).connect("localhost", port).sync().channel());
          handshake();
       }
       catch (InterruptedException e) {
@@ -156,10 +168,10 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    protected void handshake() throws InterruptedException {
    }
 
-   protected void addChannelHandlers(SocketChannel ch) throws URISyntaxException {
+   protected void addChannelHandlers(int index, SocketChannel ch) throws URISyntaxException {
       ch.pipeline().addLast("decoder", new StringDecoder(StandardCharsets.UTF_8));
       ch.pipeline().addLast("encoder", new StringEncoder(StandardCharsets.UTF_8));
-      ch.pipeline().addLast(new StompClientHandler());
+      ch.pipeline().addLast(new StompClientHandler(index));
    }
 
    protected void setUpAfterServer() throws Exception {
@@ -224,9 +236,13 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       if (autoCreateServer) {
          connection.close();
 
-         if (group != null) {
-            channel.close();
-            group.shutdownGracefully(0, 5000, TimeUnit.MILLISECONDS);
+         for (EventLoopGroup group : groups) {
+            if (group != null) {
+               for (Channel channel : channels) {
+                  channel.close();
+               }
+               group.shutdownGracefully(0, 5000, TimeUnit.MILLISECONDS);
+            }
          }
       }
       super.tearDown();
@@ -234,8 +250,8 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
    protected void cleanUp() throws Exception {
       connection.close();
-      if (group != null) {
-         group.shutdown();
+      if (groups.get(0) != null) {
+         groups.get(0).shutdown();
       }
    }
 
@@ -244,7 +260,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    protected void reconnect(long sleep) throws Exception {
-      group.shutdown();
+      groups.get(0).shutdown();
 
       if (sleep > 0) {
          Thread.sleep(sleep);
@@ -278,22 +294,38 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    protected void assertChannelClosed() throws InterruptedException {
-      boolean closed = channel.closeFuture().await(5000);
+      assertChannelClosed(0);
+   }
+
+   protected void assertChannelClosed(int index) throws InterruptedException {
+      boolean closed = channels.get(index).closeFuture().await(5000);
       assertTrue("channel not closed", closed);
    }
 
    public void sendFrame(String data) throws Exception {
-      channel.writeAndFlush(data);
+      sendFrame(0, data);
+   }
+
+   public void sendFrame(int index, String data) throws Exception {
+      channels.get(index).writeAndFlush(data);
    }
 
    public void sendFrame(byte[] data) throws Exception {
+      sendFrame(0, data);
+   }
+
+   public void sendFrame(int index, byte[] data) throws Exception {
       ByteBuf buffer = Unpooled.buffer(data.length);
       buffer.writeBytes(data);
-      channel.writeAndFlush(buffer);
+      channels.get(index).writeAndFlush(buffer);
    }
 
    public String receiveFrame(long timeOut) throws Exception {
-      String msg = priorityQueue.poll(timeOut, TimeUnit.MILLISECONDS);
+      return receiveFrame(0, timeOut);
+   }
+
+   public String receiveFrame(int index, long timeOut) throws Exception {
+      String msg = priorityQueues.get(index).poll(timeOut, TimeUnit.MILLISECONDS);
       return msg;
    }
 
@@ -344,6 +376,11 @@ public abstract class StompTestBase extends ActiveMQTestBase {
    }
 
    class StompClientHandler extends SimpleChannelInboundHandler<String> {
+      int index = 0;
+
+      StompClientHandler(int index) {
+         this.index = index;
+      }
 
       StringBuffer currentMessage = new StringBuffer("");
 
@@ -356,7 +393,12 @@ public abstract class StompTestBase extends ActiveMQTestBase {
             String actualMessage = fullMessage.substring(0, messageEnd);
             fullMessage = fullMessage.substring(messageEnd + 2);
             currentMessage = new StringBuffer("");
-            priorityQueue.add(actualMessage);
+            BlockingQueue queue = priorityQueues.get(index);
+            if (queue == null) {
+               queue = new ArrayBlockingQueue(1000);
+               priorityQueues.add(index, queue);
+            }
+            queue.add(actualMessage);
             if (fullMessage.length() > 0) {
                channelRead(ctx, fullMessage);
             }

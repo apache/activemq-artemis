@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
@@ -162,7 +161,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
             fail("Invalid Exception type:" + e.getType());
          }
          long start = System.currentTimeMillis();
-         while (System.currentTimeMillis() < start + 3 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL) {
+         while (System.currentTimeMillis() < start + 3 * server.getConfiguration().getConnectionTtlCheckInterval()) {
             if (server.getConnectionCount() == 0) {
                break;
             }

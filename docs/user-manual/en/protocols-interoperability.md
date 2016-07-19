@@ -256,15 +256,6 @@ set).
 Apache ActiveMQ Artemis currently doesn't support virtual hosting, which means the
 'host' header in CONNECT fram will be ignored.
 
-#### Heart-beating
-
-Apache ActiveMQ Artemis specifies a minimum value for both client and server heart-beat
-intervals. The minimum interval for both client and server heartbeats is
-500 milliseconds. That means if a client sends a CONNECT frame with
-heartbeat values lower than 500, the server will defaults the value to
-500 milliseconds regardless the values of the 'heart-beat' header in the
-frame.
-
 ### Mapping Stomp destinations to Apache ActiveMQ Artemis addresses and queues
 
 Stomp clients deals with *destinations* when sending messages and
@@ -278,7 +269,14 @@ specified destination is mapped to an address. When a Stomp client
 subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
 `UNSUBSCRIBE` frame), the destination is mapped to an Apache ActiveMQ Artemis queue.
 
-### STOMP and connection-ttl
+### STOMP heart-beating and connection-ttl
+
+Apache ActiveMQ Artemis specifies a minimum value for both client and server heart-beat
+intervals. The minimum interval for both client and server heartbeats is
+500 milliseconds. That means if a client sends a CONNECT frame with
+heartbeat values lower than 500, the server will defaults the value to
+500 milliseconds regardless the values of the 'heart-beat' header in the
+frame.
 
 Well behaved STOMP clients will always send a DISCONNECT frame before
 closing their connections. In this case the server will clear up any
@@ -288,19 +286,50 @@ they crash the server will have no way of knowing immediately whether
 the client is still alive or not. STOMP connections therefore default to
 a connection-ttl value of 1 minute (see chapter on
 [connection-ttl](#connection-ttl) for more information. This value can
-be overridden using connection-ttl-override.
-
-If you need a specific connectionTtl for your stomp connections without
-affecting the connectionTtlOverride setting, you can configure your
-stomp acceptor with the "connectionTtl" property, which is used to set
-the ttl for connections that are created from that acceptor. For
-example:
+be overridden using the `connection-ttl-override` property or if you 
+need a specific connectionTtl for your stomp connections without
+affecting the broker-wide `connection-ttl-override` setting, you can 
+configure your stomp acceptor with the "connectionTtl" property, which 
+is used to set the ttl for connections that are created from that acceptor.
+For example:
 
     <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
 
 The above configuration will make sure that any stomp connection that is
 created from that acceptor will have its connection-ttl set to 20
-seconds.
+seconds. The `connectionTtl` set on an acceptor will take precedence over
+`connection-ttl-override`.
+
+Since Stomp 1.0 doesn't support heart-beating then all connections from
+Stomp 1.0 clients will have a connection TTL imposed upon them by the broker
+based on the aforementioned configuration options. Likewise, any Stomp 1.1
+or 1.2 clients that don't specify a heart-beat or disable heart-beating
+(e.g. by sending `0,0` in the `heart-beat` header) will have a connection
+TTL imposed upon them by the broker.
+
+For Stomp 1.1 and 1.2 clients which send a valid `heart-beat` header then
+their connection TTL will be set accordingly. However, the broker will not
+set the connection TTL to the same value as the specified in the `heart-beat`
+since even small network delays could then cause spurious disconnects. Instead,
+the value in the heart-beat will be multiplied by the `heartBeatConnectionTtlModifer`
+specified on the acceptor. The `heartBeatConnectionTtlModifer` is a decimal 
+value that defaults to 2.0 so for example, if a client sends a `heart-beat`
+frame of `1000,0` the the connection TTL will be set to `2000` so that the
+ping frames sent every 1000 milliseconds will have a sufficient cushion so as
+not to be considered late and trigger a disconnect.
+
+The minimum and maximum connection TTL allowed can also be specified on the
+acceptor via the `connectionTtlMin` and `connectionTtlMax` properties respectively.
+The default `connectionTtlMin` is 500 and the default `connectionTtlMax` is Java's
+`Long.MAX_VALUE` meaning there essentially is no max connection TTL by default.
+Keep in mind that the `heartBeatConnectionTtlModifer` is relevant here. For
+example, if a client sends a `heart-beat` header of `20000,0` and the acceptor
+is using a `connectionTtlMax` of `30000` and a default `heartBeatConnectionTtlModifer`
+of `2.0` then the connection TTL would be `40000` (i.e. `20000` * `2.0`) which would
+exceed the `connectionTtlMax`. In this case the server would respond to the client
+with a `heart-beat` header of `0,15000` (i.e. `30000` / `2.0`). As described
+previously, this is to make sure there is a sufficient cushion for the client
+heart-beats. The same kind of calculation is done for `connectionTtlMin`.
 
 > **Note**
 >

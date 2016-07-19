@@ -114,6 +114,11 @@ server side. This can be done by specifying the
 The default value for `connection-ttl-override` is `-1` which means "do
 not override" (i.e. let clients use their own values).
 
+The logic to check connections for TTL violations runs periodically on
+the broker. By default, the checks are done every 2,000 milliseconds.
+However, this can be changed if necessary by using the 
+`connection-ttl-check-interval` attribute.
+
 ## Closing core sessions or JMS connections that you have failed to close
 
 As previously discussed, it's important that all core client sessions
