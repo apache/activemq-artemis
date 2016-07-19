@@ -200,6 +200,7 @@ final class MappedByteBufferCache implements AutoCloseable {
       return closed;
    }
 
+   @Override
    public void close() {
       if (!closed) {
          //TO_FIX: unmap in this way is not portable BUT required on Windows that can't resize a memory mapped file!

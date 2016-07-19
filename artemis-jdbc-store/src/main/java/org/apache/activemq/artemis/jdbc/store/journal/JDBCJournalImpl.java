@@ -92,6 +92,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       started = true;
    }
 
+   @Override
    protected void createSchema() throws SQLException {
       createTable(sqlProvider.getCreateJournalTableSQL());
    }
@@ -118,6 +119,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
    }
 
+   @Override
    public synchronized void destroy() throws Exception {
       super.destroy();
       stop();

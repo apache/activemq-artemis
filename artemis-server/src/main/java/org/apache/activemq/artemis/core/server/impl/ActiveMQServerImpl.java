@@ -2339,6 +2339,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.runnable = runnable;
       }
 
+      @Override
       public void run() {
          lockActivation();
          try {

@@ -292,6 +292,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       getContext().executeOnCompletion(run);
    }
 
+   @Override
    public void afterStoreOperations(IOCallback run) {
       getContext().executeOnCompletion(run, true);
    }
