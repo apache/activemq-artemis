@@ -384,18 +384,18 @@ destinations, the Stomp destinations must follow the same convention:
 Stomp is mainly a text-orientated protocol. To make it simpler to
 interoperate with JMS and Apache ActiveMQ Artemis Core API, our Stomp implementation
 checks for presence of the `content-length` header to decide how to map
-a Stomp message to a JMS Message or a Core message.
+a Stomp 1.0 message to a JMS Message or a Core message.
 
-If the Stomp message does *not* have a `content-length` header, it will
+If the Stomp 1.0 message does *not* have a `content-length` header, it will
 be mapped to a JMS *TextMessage* or a Core message with a *single
 nullable SimpleString in the body buffer*.
 
-Alternatively, if the Stomp message *has* a `content-length` header, it
+Alternatively, if the Stomp 1.0 message *has* a `content-length` header, it
 will be mapped to a JMS *BytesMessage* or a Core message with a *byte[]
 in the body buffer*.
 
 The same logic applies when mapping a JMS message or a Core message to
-Stomp. A Stomp client can check the presence of the `content-length`
+Stomp. A Stomp 1.0 client can check the presence of the `content-length`
 header to determine the type of the message body (String or bytes).
 
 #### Message IDs for Stomp messages

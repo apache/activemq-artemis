@@ -595,6 +595,10 @@ public class StompTest extends StompTestBase {
       Assert.assertTrue(frame.indexOf("destination:") > 0);
       Assert.assertTrue(frame.indexOf(getName()) > 0);
 
+      Pattern cl = Pattern.compile("Content-length:\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+      Matcher cl_matcher = cl.matcher(frame);
+      Assert.assertFalse(cl_matcher.find());
+
       frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
       sendFrame(frame);
 
