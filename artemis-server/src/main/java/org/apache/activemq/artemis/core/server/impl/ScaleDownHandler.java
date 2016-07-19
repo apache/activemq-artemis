@@ -578,7 +578,7 @@ public class ScaleDownHandler {
                   }
 
                   if (initialRef == null) {
-                     lastRef = initialRef;
+                     initialRef = lastRef;
                   }
                   else {
                      if (initialRef.equals(lastRef)) {
