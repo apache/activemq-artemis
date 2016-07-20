@@ -27,9 +27,9 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
+import org.proton.plug.SASLResult;
 import org.proton.plug.context.ProtonPlugSender;
 import org.proton.plug.context.server.ProtonServerSessionContext;
-import org.proton.plug.SASLResult;
 import org.proton.plug.util.ProtonServerMessage;
 
 public class MinimalSessionSPI implements AMQPSessionCallback {
@@ -72,6 +72,11 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
 
    @Override
    public void createDurableQueue(String address, String queueName) throws Exception {
+
+   }
+
+   @Override
+   public void offerProducerCredit(String address, int credits, int threshold, Receiver receiver) {
 
    }
 

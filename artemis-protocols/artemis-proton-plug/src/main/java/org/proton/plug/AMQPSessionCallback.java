@@ -44,6 +44,8 @@ public interface AMQPSessionCallback {
 
    void createDurableQueue(String address, String queueName) throws Exception;
 
+   void offerProducerCredit(String address, int credits, int threshold, Receiver receiver);
+
    void deleteQueue(String address) throws Exception;
 
    boolean queueQuery(String queueName) throws Exception;
