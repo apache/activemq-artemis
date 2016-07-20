@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameV10;
 
 /**
  * Represents all the data in a STOMP frame.
@@ -107,7 +108,7 @@ public class StompFrame {
          head.append(Stomp.NEWLINE);
          // Output the headers.
          encodeHeaders(head);
-         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
+         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH) && !(this instanceof StompFrameV10)) {
             head.append(Stomp.Headers.CONTENT_LENGTH);
             head.append(Stomp.Headers.SEPARATOR);
             head.append(bytesBody.length);

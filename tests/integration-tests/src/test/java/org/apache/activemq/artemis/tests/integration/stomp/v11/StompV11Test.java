@@ -2002,6 +2002,8 @@ public class StompV11Test extends StompV11TestBase {
 
       ClientStompFrame frame = connV11.receiveFrame();
 
+      assertEquals(getName().length(), Integer.parseInt(frame.getHeader("content-length")));
+
       this.ack(connV11, "sub1", frame);
 
       connV11.disconnect();
