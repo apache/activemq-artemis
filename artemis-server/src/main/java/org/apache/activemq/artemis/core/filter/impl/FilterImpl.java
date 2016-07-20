@@ -169,6 +169,9 @@ public class FilterImpl implements Filter {
       else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName)) {
          return msg.getEncodeSize();
       }
+      else if (FilterConstants.ACTIVEMQ_ADDRESS.equals(fieldName)) {
+         return msg.getAddress();
+      }
       else {
          return null;
       }
