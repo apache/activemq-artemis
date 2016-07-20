@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.jms.management;
 
 import javax.management.MBeanOperationInfo;
 
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
@@ -30,31 +31,37 @@ public interface DestinationControl {
    /**
     * Returns the name of this destination.
     */
+   @Attribute(desc = "the name of this destination")
    String getName();
 
    /**
-    * Returns the ActiveMQ Artemis address corresponding to this destination.
+    * Returns the address corresponding to this destination.
     */
+   @Attribute(desc = "the address corresponding to this destination")
    String getAddress();
 
    /**
     * Returns whether this destination is temporary.
     */
+   @Attribute(desc = "whether this destination is temporary")
    boolean isTemporary();
 
    /**
     * Returns the number of messages currently in this destination.
     */
+   @Attribute(desc = "the number of messages currently in this destination")
    long getMessageCount() throws Exception;
 
    /**
     * Returns the number of messages that this queue is currently delivering to its consumers.
     */
+   @Attribute(desc = "the number of messages that this queue is currently delivering to its consumers")
    int getDeliveringCount();
 
    /**
     * Returns the number of messages added to this queue since it was created.
     */
+   @Attribute(desc = "the number of messages added to this queue since it was created")
    long getMessagesAdded();
 
    // Operations ----------------------------------------------------

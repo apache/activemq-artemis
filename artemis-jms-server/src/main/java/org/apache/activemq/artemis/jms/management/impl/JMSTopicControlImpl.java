@@ -365,7 +365,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
    @Override
    public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), MBeanInfoHelper.getMBeanOperationsInfo(TopicControl.class), info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), MBeanInfoHelper.getMBeanAttributesInfo(TopicControl.class), info.getConstructors(), MBeanInfoHelper.getMBeanOperationsInfo(TopicControl.class), info.getNotifications());
    }
 
    // Inner classes -------------------------------------------------
