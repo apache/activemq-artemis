@@ -23,8 +23,8 @@ grant {
         permission java.net.SocketPermission "*:1024-", "connect";
         // Note1: normally, we don't need this permission since the applet allows reading jars loaded by the applet
         // Note2: Which of the following two java.io.FilePermission is necessary depends on the exact Maven command
-        permission java.io.FilePermission "${user.dir}/artemis-core-client/target/classes/-", "read";
-        permission java.io.FilePermission "${user.dir}/artemis-core-client/target/artemis-core-client-${project.version}.jar", "read";
+        permission java.io.FilePermission "${activemq.basedir}/artemis-core-client/target/classes/-", "read";
+        permission java.io.FilePermission "${activemq.basedir}/artemis-core-client/target/artemis-core-client-${project.version}.jar", "read";
         permission java.util.PropertyPermission "activemq.version.property.filename", "read";
         permission java.util.PropertyPermission "activemq.artemis.client.global.thread.pool.max.size", "read";
         permission java.util.PropertyPermission "activemq.artemis.client.global.scheduled.thread.pool.core.size", "read";
