@@ -320,7 +320,7 @@ not to be considered late and trigger a disconnect.
 
 The minimum and maximum connection TTL allowed can also be specified on the
 acceptor via the `connectionTtlMin` and `connectionTtlMax` properties respectively.
-The default `connectionTtlMin` is 500 and the default `connectionTtlMax` is Java's
+The default `connectionTtlMin` is 1000 and the default `connectionTtlMax` is Java's
 `Long.MAX_VALUE` meaning there essentially is no max connection TTL by default.
 Keep in mind that the `heartBeatConnectionTtlModifer` is relevant here. For
 example, if a client sends a `heart-beat` header of `20000,0` and the acceptor

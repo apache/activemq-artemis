@@ -269,7 +269,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
 
          String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
-         long ttlMin = ttlMinStr == null ? 500 : Long.valueOf(ttlMinStr);
+         long ttlMin = ttlMinStr == null ? 1000 : Long.valueOf(ttlMinStr);
 
          String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
          double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
