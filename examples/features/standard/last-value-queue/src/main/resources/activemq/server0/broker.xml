@@ -53,6 +53,7 @@ under the License.
             <permission type="deleteNonDurableQueue" roles="guest"/>
             <permission type="consume" roles="guest"/>
             <permission type="send" roles="guest"/>
+            <permission type="browse" roles="guest"/>
          </security-setting>
       </security-settings>
 
