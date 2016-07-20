@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
@@ -691,7 +692,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
             try {
                long now = System.currentTimeMillis();
 
-               Set<Object> idsToRemove = new HashSet<>();
+               Set<Pair<Object, Long>> toRemove = new HashSet<>();
 
                for (ConnectionEntry entry : connections.values()) {
                   final RemotingConnection conn = entry.connection;
@@ -701,7 +702,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                   if (entry.ttl != -1) {
                      if (!conn.checkDataReceived()) {
                         if (now >= entry.lastCheck + entry.ttl) {
-                           idsToRemove.add(conn.getID());
+                           toRemove.add(new Pair<>(conn.getID(), entry.ttl));
 
                            flush = false;
                         }
@@ -730,8 +731,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                   }
                }
 
-               for (Object id : idsToRemove) {
-                  final RemotingConnection conn = getConnection(id);
+               for (final Pair<Object, Long> pair : toRemove) {
+                  final RemotingConnection conn = getConnection(pair.getA());
                   if (conn != null) {
                      // In certain cases (replicationManager for instance) calling fail could take some time
                      // We can't pause the FailureCheckAndFlushThread as that would lead other clients to fail for
@@ -739,10 +740,10 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                      flushExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                           conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
+                           conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress(), pair.getB()));
                         }
                      });
-                     removeConnection(id);
+                     removeConnection(pair.getA());
                   }
                }
 
