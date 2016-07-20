@@ -284,7 +284,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             connectionTtl = ttlMax;
             clientPingResponse = (long) (ttlMax / heartBeatToTtlModifier);
          }
-         ActiveMQServerLogger.LOGGER.info("Setting TTL to: " + connectionTtl);
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+            ActiveMQServerLogger.LOGGER.debug("Setting STOMP client TTL to: " + connectionTtl);
+         }
          connectionEntry.ttl = connectionTtl;
 
          if (clientAcceptPing != 0) {

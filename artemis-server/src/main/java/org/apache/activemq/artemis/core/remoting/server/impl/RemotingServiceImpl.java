@@ -688,7 +688,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       @Override
       public void run() {
          while (!closed) {
-            ActiveMQServerLogger.LOGGER.info("Checking...");
             try {
                long now = System.currentTimeMillis();
 
