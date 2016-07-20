@@ -79,7 +79,7 @@
       <jetty.version>9.3.10.v20160621</jetty.version>
       <jgroups.version>3.6.9.Final</jgroups.version>
       <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
-      <netty.version>4.0.32.Final</netty.version>
+      <netty.version>4.0.39.Final</netty.version>
       <proton.version>0.12.2</proton.version>
       <resteasy.version>3.0.17.Final</resteasy.version>
       <slf4j.version>1.7.12</slf4j.version>
