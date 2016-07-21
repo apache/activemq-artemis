@@ -398,6 +398,48 @@ The same logic applies when mapping a JMS message or a Core message to
 Stomp. A Stomp 1.0 client can check the presence of the `content-length`
 header to determine the type of the message body (String or bytes).
 
+#### Durable Subscriptions
+
+The `SUBSCRIBE` and `UNSUBSCRIBE` frames can be augmented with special headers to create
+and destroy durable subscriptions respectively.
+
+To create a durable subscription the `client-id` header must be set on the `CONNECT` frame
+and the `durable-subscription-name` must be set on the `SUBSCRIBE` frame. The combination
+of these two headers will form the identity of the durable subscription.
+
+To delete a durable subscription the `client-id` header must be set on the `CONNECT` frame
+and the `durable-subscription-name` must be set on the `UNSUBSCRIBE` frame. The values for
+these headers should match what was set on the `SUBSCRIBE` frame to delete the corresponding
+durable subscription.
+
+It is possible to pre-configure durable subscriptions since the Stomp implementation creates
+the queue used for the durable subscription in a deterministic way (i.e. using the format of 
+`client-id`.`subscription-name`). For example, if you wanted to configure a durable 
+subscription on the JMS topic `myTopic` with a client-id of `myclientid` and a subscription 
+name of `mysubscriptionname` then first you'd configure the topic:
+
+~~~
+   <jms xmlns="urn:activemq:jms">
+      ...
+      <topic name="myTopic"/>
+      ...
+   </jms>
+~~~
+
+Then configure the durable subscription:
+
+~~~
+   <core xmlns="urn:activemq:core">
+      ...
+      <queues>
+         <queue name="myclientid.mysubscription">
+            <address>jms.topic.myTopic</address>
+         </queue>
+      </queues>
+      ...
+   </core>
+~~~
+
 #### Message IDs for Stomp messages
 
 When receiving Stomp messages via a JMS consumer or a QueueBrowser, the
