@@ -100,12 +100,8 @@ public interface ActiveMQMessageBundle {
    ActiveMQInternalErrorException bindingNotDivert(SimpleString name);
 
    @Message(id = 119014,
-      value = "Did not receive data from {0}. It is likely the client has exited or crashed without " +
-         "closing its connection, or the network between the server and client has failed. " +
-         "You also might have configured connection-ttl and client-failure-check-period incorrectly. " +
-         "Please check user manual for more information." +
-         " The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQConnectionTimedOutException clientExited(String remoteAddress);
+      value = "Did not receive data from {0} within the {1}ms connection TTL. The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQConnectionTimedOutException clientExited(String remoteAddress, long ttl);
 
    @Message(id = 119017, value = "Queue {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQNonExistentQueueException noSuchQueue(SimpleString queueName);

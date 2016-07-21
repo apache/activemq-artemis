@@ -66,6 +66,8 @@ public class StompTest extends StompTestBase {
 
       Thread.sleep(5000);
 
+      assertTrue(receiveFrame(index, 10000).indexOf(Stomp.Responses.ERROR) != -1);
+
       assertChannelClosed(index);
    }
 

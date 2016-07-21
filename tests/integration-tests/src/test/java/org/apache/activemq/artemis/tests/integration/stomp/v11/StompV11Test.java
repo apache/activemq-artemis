@@ -761,6 +761,8 @@ public class StompV11Test extends StompV11TestBase {
 
       Thread.sleep(3000);
 
+      assertEquals(Stomp.Responses.ERROR, connection.receiveFrame(1000).getCommand());
+
       assertEquals(0, connection.getFrameQueueSize());
 
       try {
@@ -789,6 +791,8 @@ public class StompV11Test extends StompV11TestBase {
       assertEquals("0,0", reply.getHeader("heart-beat"));
 
       Thread.sleep(3000);
+
+      assertEquals(Stomp.Responses.ERROR, connection.receiveFrame(1000).getCommand());
 
       assertEquals(0, connection.getFrameQueueSize());
 
