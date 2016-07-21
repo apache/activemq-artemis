@@ -63,9 +63,15 @@ public final class FilterConstants {
    public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("AMQSize");
 
    /**
+    * Name of the ActiveMQ Artemis Address header
+    */
+   public static final SimpleString ACTIVEMQ_ADDRESS = new SimpleString("AMQAddress");
+
+   /**
     * All ActiveMQ Artemis headers are prepended by this prefix.
     */
    public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
+
 
    private FilterConstants() {
       // Utility class

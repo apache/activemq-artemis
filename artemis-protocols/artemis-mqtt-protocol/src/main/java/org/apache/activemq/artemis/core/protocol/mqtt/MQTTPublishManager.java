@@ -90,16 +90,7 @@ public class MQTTPublishManager {
    }
 
    private int generateMqttId(int qos) {
-      if (qos == 1) {
-         return session.getSessionState().generateId();
-      }
-      else {
-         Integer mqttid = session.getSessionState().generateId();
-         if (mqttid == null) {
-            mqttid = (int) session.getServer().getStorageManager().generateID();
-         }
-         return mqttid;
-      }
+      return session.getSessionState().generateId();
    }
 
    /**
