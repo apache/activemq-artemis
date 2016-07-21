@@ -153,19 +153,22 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       StompFrame response = null;
       //unsubscribe in 1.1 only needs id header
       String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
-      String durableSubscriberName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
+      String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
+      }
 
       String subscriptionID = null;
       if (id != null) {
          subscriptionID = id;
       }
-      else {
+      else if (durableSubscriptionName == null) {
          response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
       try {
-         connection.unsubscribe(subscriptionID, durableSubscriberName);
+         connection.unsubscribe(subscriptionID, durableSubscriptionName);
       }
       catch (ActiveMQStompException e) {
          response = e.getFrame();

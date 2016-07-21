@@ -655,9 +655,9 @@ public final class StompConnection implements RemotingConnection {
       }
    }
 
-   public void unsubscribe(String subscriptionID, String durableSubscriberName) throws ActiveMQStompException {
+   public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
-         manager.unsubscribe(this, subscriptionID, durableSubscriberName);
+         manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
       }
       catch (ActiveMQStompException e) {
          throw e;

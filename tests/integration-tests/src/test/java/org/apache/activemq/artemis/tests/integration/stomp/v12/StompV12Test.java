@@ -31,6 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
@@ -38,7 +41,6 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV12;
 import org.apache.activemq.artemis.tests.integration.stomp.v11.StompV11TestBase;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,6 +52,7 @@ import org.junit.Test;
 public class StompV12Test extends StompV11TestBase {
 
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   public static final String CLIENT_ID = "myclientid";
 
    private StompClientConnectionV12 connV12;
 
@@ -1325,7 +1328,7 @@ public class StompV12Test extends StompV11TestBase {
 
    @Test
    public void testTwoSubscribers() throws Exception {
-      connV12.connect(defUser, defPass, "myclientid");
+      connV12.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV12, "sub1", "auto", null);
 
@@ -1529,7 +1532,7 @@ public class StompV12Test extends StompV11TestBase {
 
    @Test
    public void testDurableSubscriberWithReconnection() throws Exception {
-      connV12.connect(defUser, defPass, "myclientid");
+      connV12.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV12, "sub1", "auto", getName());
 
@@ -1547,7 +1550,7 @@ public class StompV12Test extends StompV11TestBase {
 
       connV12.destroy();
       connV12 = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
-      connV12.connect(defUser, defPass, "myclientid");
+      connV12.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV12, "sub1", "auto", getName());
 
@@ -1559,6 +1562,30 @@ public class StompV12Test extends StompV11TestBase {
       Assert.assertEquals(getName(), frame.getBody());
 
       this.unsubscribe(connV12, "sub1");
+
+      connV12.disconnect();
+   }
+
+   @Test
+   public void testDurableUnSubscribe() throws Exception {
+      connV12.connect(defUser, defPass, CLIENT_ID);
+
+      this.subscribeTopic(connV12, null, "auto", getName());
+
+      connV12.disconnect();
+      connV12.destroy();
+      connV12 = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
+      connV12.connect(defUser, defPass, CLIENT_ID);
+
+      this.unsubscribe(connV12, getName(), false, true);
+
+      long start = System.currentTimeMillis();
+      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
+      while (server.getActiveMQServer().locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
+         Thread.sleep(100);
+      }
+
+      assertNull(server.getActiveMQServer().locateQueue(queueName));
 
       connV12.disconnect();
    }
@@ -2403,8 +2430,10 @@ public class StompV12Test extends StompV11TestBase {
                                boolean receipt,
                                boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", subId);
       subFrame.addHeader("destination", getTopicPrefix() + getTopicName());
+      if (subId != null) {
+         subFrame.addHeader("id", subId);
+      }
       if (ack != null) {
          subFrame.addHeader("ack", ack);
       }
@@ -2425,18 +2454,14 @@ public class StompV12Test extends StompV11TestBase {
       }
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException {
-      ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
-      subFrame.addHeader("id", subId);
-
-      conn.sendFrame(subFrame);
-   }
-
-   private void unsubscribe(StompClientConnection conn,
-                            String subId,
-                            boolean receipt) throws IOException, InterruptedException {
-      ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
-      subFrame.addHeader("id", subId);
+   private void unsubscribe(StompClientConnection conn, String subId, boolean receipt, boolean durable) throws IOException, InterruptedException {
+      ClientStompFrame subFrame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
+      if (durable) {
+         subFrame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subId);
+      }
+      else {
+         subFrame.addHeader(Stomp.Headers.Unsubscribe.ID, subId);
+      }
 
       if (receipt) {
          subFrame.addHeader("receipt", "4321");
@@ -2446,9 +2471,19 @@ public class StompV12Test extends StompV11TestBase {
 
       if (receipt) {
          System.out.println("response: " + f);
-         Assert.assertEquals("RECEIPT", f.getCommand());
-         Assert.assertEquals("4321", f.getHeader("receipt-id"));
+         assertEquals("RECEIPT", f.getCommand());
+         assertEquals("4321", f.getHeader("receipt-id"));
       }
+   }
+
+   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException {
+      unsubscribe(conn, subId, false, false);
+   }
+
+   private void unsubscribe(StompClientConnection conn,
+                            String subId,
+                            boolean receipt) throws IOException, InterruptedException {
+      unsubscribe(conn, subId, receipt, false);
    }
 
    protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {

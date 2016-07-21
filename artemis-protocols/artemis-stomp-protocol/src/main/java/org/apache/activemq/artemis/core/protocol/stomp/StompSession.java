@@ -306,8 +306,10 @@ public class StompSession implements SessionCallback {
       session.start();
    }
 
-   public boolean unsubscribe(String id, String durableSubscriptionName) throws Exception {
+   public boolean unsubscribe(String id, String durableSubscriptionName, String clientID) throws Exception {
+      boolean result = false;
       Iterator<Entry<Long, StompSubscription>> iterator = subscriptions.entrySet().iterator();
+
       while (iterator.hasNext()) {
          Map.Entry<Long, StompSubscription> entry = iterator.next();
          long consumerID = entry.getKey();
@@ -315,21 +317,25 @@ public class StompSession implements SessionCallback {
          if (id != null && id.equals(sub.getID())) {
             iterator.remove();
             session.closeConsumer(consumerID);
-            SimpleString queueName;
-            if (durableSubscriptionName != null && durableSubscriptionName.trim().length() != 0) {
-               queueName = SimpleString.toSimpleString(id + "." + durableSubscriptionName);
-            }
-            else {
-               queueName = SimpleString.toSimpleString(id);
-            }
+            SimpleString queueName = SimpleString.toSimpleString(id);
             QueueQueryResult query = session.executeQueueQuery(queueName);
             if (query.isExists()) {
                session.deleteQueue(queueName);
             }
-            return true;
+            result = true;
          }
       }
-      return false;
+
+      if (!result && durableSubscriptionName != null && clientID != null) {
+         SimpleString queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
+         QueueQueryResult query = session.executeQueueQuery(queueName);
+         if (query.isExists()) {
+            session.deleteQueue(queueName);
+         }
+         result = true;
+      }
+
+      return result;
    }
 
    boolean containsSubscription(String subscriptionID) {
