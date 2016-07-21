@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
@@ -48,6 +49,7 @@ import org.junit.Test;
 public class StompV11Test extends StompV11TestBase {
 
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+   public static final String CLIENT_ID = "myclientid";
 
    private StompClientConnection connV11;
 
@@ -1333,7 +1335,7 @@ public class StompV11Test extends StompV11TestBase {
 
    @Test
    public void testTwoSubscribers() throws Exception {
-      connV11.connect(defUser, defPass, "myclientid");
+      connV11.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV11, "sub1", "auto", null);
 
@@ -1535,7 +1537,7 @@ public class StompV11Test extends StompV11TestBase {
 
    @Test
    public void testDurableSubscriberWithReconnection() throws Exception {
-      connV11.connect(defUser, defPass, "myclientid");
+      connV11.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV11, "sub1", "auto", getName());
 
@@ -1553,7 +1555,7 @@ public class StompV11Test extends StompV11TestBase {
 
       connV11.destroy();
       connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
-      connV11.connect(defUser, defPass, "myclientid");
+      connV11.connect(defUser, defPass, CLIENT_ID);
 
       this.subscribeTopic(connV11, "sub1", "auto", getName());
 
@@ -1565,6 +1567,30 @@ public class StompV11Test extends StompV11TestBase {
       Assert.assertEquals(getName(), frame.getBody());
 
       this.unsubscribe(connV11, "sub1");
+
+      connV11.disconnect();
+   }
+
+   @Test
+   public void testDurableUnSubscribe() throws Exception {
+      connV11.connect(defUser, defPass, CLIENT_ID);
+
+      this.subscribeTopic(connV11, null, "auto", getName());
+
+      connV11.disconnect();
+      connV11.destroy();
+      connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
+      connV11.connect(defUser, defPass, CLIENT_ID);
+
+      this.unsubscribe(connV11, getName(), false, true);
+
+      long start = System.currentTimeMillis();
+      SimpleString queueName = SimpleString.toSimpleString(CLIENT_ID + "." + getName());
+      while (server.getActiveMQServer().locateQueue(queueName) != null && (System.currentTimeMillis() - start) < 5000) {
+         Thread.sleep(100);
+      }
+
+      assertNull(server.getActiveMQServer().locateQueue(queueName));
 
       connV11.disconnect();
    }
@@ -2364,8 +2390,10 @@ public class StompV11Test extends StompV11TestBase {
                                boolean receipt,
                                boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
-      subFrame.addHeader("id", subId);
       subFrame.addHeader("destination", getTopicPrefix() + getTopicName());
+      if (subId != null) {
+         subFrame.addHeader("id", subId);
+      }
       if (ack != null) {
          subFrame.addHeader("ack", ack);
       }
@@ -2386,18 +2414,14 @@ public class StompV11Test extends StompV11TestBase {
       }
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException {
-      ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
-      subFrame.addHeader("id", subId);
-
-      conn.sendFrame(subFrame);
-   }
-
-   private void unsubscribe(StompClientConnection conn,
-                            String subId,
-                            boolean receipt) throws IOException, InterruptedException {
-      ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
-      subFrame.addHeader("id", subId);
+   private void unsubscribe(StompClientConnection conn, String subId, boolean receipt, boolean durable) throws IOException, InterruptedException {
+      ClientStompFrame subFrame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
+      if (durable) {
+         subFrame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subId);
+      }
+      else {
+         subFrame.addHeader(Stomp.Headers.Unsubscribe.ID, subId);
+      }
 
       if (receipt) {
          subFrame.addHeader("receipt", "4321");
@@ -2410,6 +2434,16 @@ public class StompV11Test extends StompV11TestBase {
          assertEquals("RECEIPT", f.getCommand());
          assertEquals("4321", f.getHeader("receipt-id"));
       }
+   }
+
+   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException {
+      unsubscribe(conn, subId, false, false);
+   }
+
+   private void unsubscribe(StompClientConnection conn,
+                            String subId,
+                            boolean receipt) throws IOException, InterruptedException {
+      unsubscribe(conn, subId, receipt, false);
    }
 
    protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {

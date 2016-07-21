@@ -92,7 +92,10 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       StompFrame response = null;
       String destination = request.getHeader(Stomp.Headers.Unsubscribe.DESTINATION);
       String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
-      String durableSubscriberName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
+      String durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME);
+      }
 
       String subscriptionID = null;
       if (id != null) {
@@ -108,7 +111,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       }
 
       try {
-         connection.unsubscribe(subscriptionID, durableSubscriberName);
+         connection.unsubscribe(subscriptionID, durableSubscriptionName);
       }
       catch (ActiveMQStompException e) {
          return e.getFrame();

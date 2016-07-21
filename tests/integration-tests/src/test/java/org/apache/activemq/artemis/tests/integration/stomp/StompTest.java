@@ -1433,6 +1433,60 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testDurableUnSubscribe() throws Exception {
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n" + "client-id: myclientid\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(1000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      String subscribeFrame = "SUBSCRIBE\n" + "destination:" +
+         getTopicPrefix() +
+         getTopicName() +
+         "\n" +
+         "receipt: 12\n" +
+         "durable-subscriber-name: " +
+         getName() +
+         "\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(subscribeFrame);
+      // wait for SUBSCRIBE's receipt
+      frame = receiveFrame(1000);
+      Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+      sendFrame(frame);
+      waitForFrameToTakeEffect();
+
+      assertNotNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+
+      reconnect(100);
+      frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n" + "client-id: myclientid\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(1000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      String unsubscribeFrame = "UNSUBSCRIBE\n" + "destination:" +
+         getTopicPrefix() +
+         getTopicName() +
+         "\n" +
+         "durable-subscriber-name: " +
+         getName() +
+         "\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(unsubscribeFrame);
+
+      frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+      sendFrame(frame);
+      waitForFrameToTakeEffect();
+
+      assertNull(server.getActiveMQServer().locateQueue(SimpleString.toSimpleString("myclientid." + getName())));
+   }
+
+   @Test
    public void testSubscribeToTopicWithNoLocal() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;

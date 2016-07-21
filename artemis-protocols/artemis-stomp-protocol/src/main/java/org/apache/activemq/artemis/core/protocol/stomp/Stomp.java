@@ -139,7 +139,10 @@ public interface Stomp {
 
          String SELECTOR = "selector";
 
+         @Deprecated
          String DURABLE_SUBSCRIBER_NAME = "durable-subscriber-name";
+
+         String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
 
          String NO_LOCAL = "no-local";
 
@@ -159,7 +162,10 @@ public interface Stomp {
 
          String ID = "id";
 
+         @Deprecated
          String DURABLE_SUBSCRIBER_NAME = "durable-subscriber-name";
+
+         String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
       }
 
       public interface Connect {

@@ -385,15 +385,14 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
-      String clientID = (connection.getClientID() != null) ? connection.getClientID() : null;
-      stompSession.addSubscription(consumerID, subscriptionID, clientID, durableSubscriptionName, destination, selector, ack);
+      stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack);
    }
 
    public void unsubscribe(StompConnection connection,
                            String subscriptionID,
                            String durableSubscriberName) throws Exception {
       StompSession stompSession = getSession(connection);
-      boolean unsubscribed = stompSession.unsubscribe(subscriptionID, durableSubscriberName);
+      boolean unsubscribed = stompSession.unsubscribe(subscriptionID, durableSubscriberName, connection.getClientID());
       if (!unsubscribed) {
          throw new ActiveMQStompException(connection, "Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
       }
