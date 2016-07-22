@@ -1329,6 +1329,12 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    }
 
    @Override
+   public String listSessionsAsJSON(final String connectionID) throws Exception {
+      checkInitialised();
+      return server.getActiveMQServerControl().listSessionsAsJSON(connectionID);
+   }
+
+   @Override
    public String listPreparedTransactionDetailsAsJSON() throws Exception {
       ResourceManager resourceManager = server.getResourceManager();
       Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
