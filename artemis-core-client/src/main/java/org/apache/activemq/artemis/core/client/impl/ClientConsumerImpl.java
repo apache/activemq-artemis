@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
@@ -640,7 +641,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       //sets the packet
       ActiveMQBuffer qbuff = clMessage.getBodyBuffer();
       int bytesToRead = qbuff.writerIndex() - qbuff.readerIndex();
-      final byte[] body = qbuff.readBytes(bytesToRead).toByteBuffer().array();
+      final byte[] body = ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer());
 
       largeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
       currentLargeMessageController.addPacket(body, body.length, false);
