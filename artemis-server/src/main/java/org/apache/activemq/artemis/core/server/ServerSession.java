@@ -186,4 +186,6 @@ public interface ServerSession extends SecurityAuth {
                           SimpleString filterString) throws Exception;
 
    List<MessageReference> getInTXMessagesForConsumer(long consumerId);
+
+   String getValidatedUser();
 }

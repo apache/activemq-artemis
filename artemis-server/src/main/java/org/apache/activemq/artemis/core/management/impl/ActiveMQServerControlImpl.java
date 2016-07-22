@@ -16,18 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -43,14 +31,25 @@ import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
-import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -67,10 +66,10 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -1357,6 +1356,130 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       return producers.build().toString();
+   }
+
+   @Override
+   public String listConnectionsAsJSON() throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         JsonArrayBuilder array = Json.createArrayBuilder();
+
+         Set<RemotingConnection> connections = server.getRemotingService().getConnections();
+
+         for (RemotingConnection connection : connections) {
+            JsonObjectBuilder obj = Json.createObjectBuilder()
+               .add("connectionID", connection.getID().toString())
+               .add("clientAddress", connection.getRemoteAddress())
+               .add("creationTime", connection.getCreationTime())
+               .add("implementation", connection.getClass().getSimpleName())
+               .add("sessionCount", server.getSessions(connection.getID().toString()).size());
+            array.add(obj);
+         }
+         return array.build().toString();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listSessionsAsJSON(final String connectionID) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      JsonArrayBuilder array = Json.createArrayBuilder();
+      try {
+         List<ServerSession> sessions = server.getSessions(connectionID);
+         for (ServerSession sess : sessions) {
+            JsonObjectBuilder obj = Json.createObjectBuilder()
+               .add("sessionID", sess.getName())
+               .add("creationTime", sess.getCreationTime())
+               .add("principal", sess.getValidatedUser())
+               .add("consumerCount", sess.getServerConsumers().size());
+            array.add(obj);
+         }
+      }
+      finally {
+         blockOnIO();
+      }
+      return array.build().toString();
+   }
+
+   @Override
+   public String listConsumersAsJSON(String connectionID) throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         JsonArrayBuilder array = Json.createArrayBuilder();
+
+         Set<RemotingConnection> connections = server.getRemotingService().getConnections();
+         for (RemotingConnection connection : connections) {
+            if (connectionID.equals(connection.getID().toString())) {
+               List<ServerSession> sessions = server.getSessions(connectionID);
+               for (ServerSession session : sessions) {
+                  Set<ServerConsumer> consumers = session.getServerConsumers();
+                  for (ServerConsumer consumer : consumers) {
+                     JsonObject obj = toJSONObject(consumer);
+                     if (obj != null) {
+                        array.add(obj);
+                     }
+                  }
+               }
+            }
+         }
+         return array.build().toString();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public String listAllConsumersAsJSON() throws Exception {
+      checkStarted();
+
+      clearIO();
+
+      try {
+         JsonArrayBuilder array = Json.createArrayBuilder();
+
+         Set<ServerSession> sessions = server.getSessions();
+         for (ServerSession session : sessions) {
+            Set<ServerConsumer> consumers = session.getServerConsumers();
+            for (ServerConsumer consumer : consumers) {
+               JsonObject obj = toJSONObject(consumer);
+               if (obj != null) {
+                  array.add(obj);
+               }
+            }
+         }
+         return array.build().toString();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   private JsonObject toJSONObject(ServerConsumer consumer) throws Exception {
+      JsonObjectBuilder obj = Json.createObjectBuilder()
+         .add("consumerID", consumer.getID())
+         .add("connectionID", consumer.getConnectionID().toString())
+         .add("sessionID", consumer.getSessionID())
+         .add("queueName", consumer.getQueue().getName().toString())
+         .add("browseOnly", consumer.isBrowseOnly())
+         .add("creationTime", consumer.getCreationTime())
+         .add("deliveringCount", consumer.getDeliveringMessages().size());
+      if (consumer.getFilter() != null) {
+         obj.add("filter", consumer.getFilter().getFilterString().toString());
+      }
+
+      return obj.build();
    }
 
    @Override

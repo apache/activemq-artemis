@@ -796,20 +796,12 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       clearIO();
 
-      JsonArrayBuilder array = Json.createArrayBuilder();
       try {
-         List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
-         for (ServerSession sess : sessions) {
-            JsonObjectBuilder obj = Json.createObjectBuilder()
-                  .add("sessionID", sess.getName())
-                  .add("creationTime", sess.getCreationTime());
-            array.add(obj);
-         }
+         return server.listSessionsAsJSON(connectionID);
       }
       finally {
          blockOnIO();
       }
-      return array.toString();
    }
 
    @Override

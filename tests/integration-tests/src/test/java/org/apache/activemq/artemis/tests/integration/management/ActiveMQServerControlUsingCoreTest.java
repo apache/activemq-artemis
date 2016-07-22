@@ -705,6 +705,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public String listProducersInfoAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listProducersInfoAsJSON");
          }
+
+         @Override
+         public String listConsumersAsJSON(String connectionID) throws Exception {
+            return (String) proxy.invokeOperation("listConsumersAsJSON");
+         }
+
+         @Override
+         public String listAllConsumersAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listAllConsumersAsJSON");
+         }
+
+         @Override
+         public String listConnectionsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listConnectionsAsJSON");
+         }
+
+         @Override
+         public String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception {
+            return (String) proxy.invokeOperation("listSessionsAsJSON");
+         }
       };
    }
 
