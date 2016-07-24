@@ -271,13 +271,6 @@ subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
 
 ### STOMP heart-beating and connection-ttl
 
-Apache ActiveMQ Artemis specifies a minimum value for both client and server heart-beat
-intervals. The minimum interval for both client and server heartbeats is
-500 milliseconds. That means if a client sends a CONNECT frame with
-heartbeat values lower than 500, the server will defaults the value to
-500 milliseconds regardless the values of the 'heart-beat' header in the
-frame.
-
 Well behaved STOMP clients will always send a DISCONNECT frame before
 closing their connections. In this case the server will clear up any
 server side resources such as sessions and consumers synchronously.
@@ -295,28 +288,33 @@ For example:
 
     <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;connectionTtl=20000</acceptor>
 
-The above configuration will make sure that any stomp connection that is
-created from that acceptor will have its connection-ttl set to 20
-seconds. The `connectionTtl` set on an acceptor will take precedence over
-`connection-ttl-override`.
+The above configuration will make sure that any Stomp connection that is
+created from that acceptor and does not include a `heart-beat` header
+or disables client-to-server heart-beats by specifying a `0` value will
+have its connection-ttl set to 20 seconds. The `connectionTtl` set on an
+acceptor will take precedence over `connection-ttl-override`. The default
+`connectionTtl` is 60,000 milliseconds.
 
-Since Stomp 1.0 doesn't support heart-beating then all connections from
+Since Stomp 1.0 does not support heart-beating then all connections from
 Stomp 1.0 clients will have a connection TTL imposed upon them by the broker
 based on the aforementioned configuration options. Likewise, any Stomp 1.1
-or 1.2 clients that don't specify a heart-beat or disable heart-beating
-(e.g. by sending `0,0` in the `heart-beat` header) will have a connection
-TTL imposed upon them by the broker.
+or 1.2 clients that don't specify a `heart-beat` header or disable client-to-server
+heart-beating (e.g. by sending `0,X` in the `heart-beat` header) will have 
+a connection TTL imposed upon them by the broker.
 
-For Stomp 1.1 and 1.2 clients which send a valid `heart-beat` header then
-their connection TTL will be set accordingly. However, the broker will not
-set the connection TTL to the same value as the specified in the `heart-beat`
-since even small network delays could then cause spurious disconnects. Instead,
-the value in the heart-beat will be multiplied by the `heartBeatConnectionTtlModifer`
-specified on the acceptor. The `heartBeatConnectionTtlModifer` is a decimal 
-value that defaults to 2.0 so for example, if a client sends a `heart-beat`
-frame of `1000,0` the the connection TTL will be set to `2000` so that the
-ping frames sent every 1000 milliseconds will have a sufficient cushion so as
-not to be considered late and trigger a disconnect.
+For Stomp 1.1 and 1.2 clients which send a non-zero client-to-server `heart-beat`
+header value then their connection TTL will be set accordingly. However, the broker
+will not strictly set the connection TTL to the same value as the specified in the
+`heart-beat` since even small network delays could then cause spurious disconnects.
+Instead, the client-to-server value in the `heart-beat` will be multiplied by the
+`heartBeatConnectionTtlModifer` specified on the acceptor. The
+`heartBeatConnectionTtlModifer` is a decimal value that defaults to `2.0` so for
+example, if a client sends a `heart-beat` header of `1000,0` the the connection TTL
+will be set to `2000` so that the data or ping frames sent every 1000 milliseconds will
+have a sufficient cushion so as not to be considered late and trigger a disconnect.
+This is also in accordance with the Stomp 1.1 and 1.2 specifications which both state,
+"because of timing inaccuracies, the receiver SHOULD be tolerant and take into account
+an error margin."
 
 The minimum and maximum connection TTL allowed can also be specified on the
 acceptor via the `connectionTtlMin` and `connectionTtlMax` properties respectively.
@@ -329,12 +327,15 @@ of `2.0` then the connection TTL would be `40000` (i.e. `20000` * `2.0`) which w
 exceed the `connectionTtlMax`. In this case the server would respond to the client
 with a `heart-beat` header of `0,15000` (i.e. `30000` / `2.0`). As described
 previously, this is to make sure there is a sufficient cushion for the client
-heart-beats. The same kind of calculation is done for `connectionTtlMin`.
+heart-beats in accordance with the Stomp 1.1 and 1.2 specifications. The same kind
+of calculation is done for `connectionTtlMin`.
+
+The minimum server-to-client heart-beat value is 500ms.
 
 > **Note**
 >
 > Please note that the STOMP protocol version 1.0 does not contain any
-> heartbeat frame. It is therefore the user's responsibility to make
+> heart-beat frame. It is therefore the user's responsibility to make
 > sure data is sent within connection-ttl or the server will assume the
 > client is dead and clean up server side resources. With `Stomp 1.1`
 > users can use heart-beats to maintain the life cycle of stomp
