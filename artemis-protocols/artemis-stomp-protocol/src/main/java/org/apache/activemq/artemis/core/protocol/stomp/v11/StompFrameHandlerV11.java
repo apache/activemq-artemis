@@ -95,7 +95,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   response.addHeader(Stomp.Headers.Connected.HEART_BEAT, "0,0");
                }
                else {
-                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, Long.toString(heartBeater.serverPingPeriod) + "," + Long.toString(heartBeater.clientPingResponse));
+                  response.addHeader(Stomp.Headers.Connected.HEART_BEAT, heartBeater.serverPingPeriod + "," + heartBeater.clientPingResponse);
                }
             }
          }
@@ -116,8 +116,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       return response;
    }
 
-   //ping parameters, hard-code for now
-   //the server can support min 20 milliseconds and receive ping at 100 milliseconds (20,100)
    private void handleHeartBeat(String heartBeatHeader) throws ActiveMQStompException {
       String[] params = heartBeatHeader.split(",");
       if (params.length != 2) {
@@ -129,9 +127,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       //client receive ping
       long minAcceptInterval = Long.valueOf(params[1]);
 
-      if ((minPingInterval != 0) || (minAcceptInterval != 0)) {
-         heartBeater = new HeartBeater(minPingInterval, minAcceptInterval);
-      }
+      heartBeater = new HeartBeater(minPingInterval, minAcceptInterval);
    }
 
    @Override
@@ -266,31 +262,42 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       private HeartBeater(final long clientPing, final long clientAcceptPing) {
          connectionEntry = ((RemotingServiceImpl)connection.getManager().getServer().getRemotingService()).getConnectionEntry(connection.getID());
-         clientPingResponse = clientPing;
 
-         String ttlMaxStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MAX);
-         long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
+         if (connectionEntry != null) {
+            String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
+            double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
 
-         String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
-         long ttlMin = ttlMinStr == null ? 1000 : Long.valueOf(ttlMinStr);
+            // the default response to the client
+            clientPingResponse = (long) (connectionEntry.ttl / heartBeatToTtlModifier);
 
-         String heartBeatToTtlModifierStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.HEART_BEAT_TO_CONNECTION_TTL_MODIFIER);
-         double heartBeatToTtlModifier = heartBeatToTtlModifierStr == null ? 2 : Double.valueOf(heartBeatToTtlModifierStr);
+            if (clientPing != 0) {
+               clientPingResponse = clientPing;
+               String ttlMaxStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MAX);
+               long ttlMax = ttlMaxStr == null ? Long.MAX_VALUE : Long.valueOf(ttlMaxStr);
 
-         // The connection's TTL should be clientPing * 2, MIN_CLIENT_PING, or ttlMax set on the acceptor
-         long connectionTtl = (long) (clientPing * heartBeatToTtlModifier);
-         if (connectionTtl < ttlMin) {
-            connectionTtl = ttlMin;
-            clientPingResponse = (long) (ttlMin / heartBeatToTtlModifier);
+               String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
+               long ttlMin = ttlMinStr == null ? 1000 : Long.valueOf(ttlMinStr);
+
+               /* The connection's TTL should be one of the following:
+                *   1) clientPing * heartBeatToTtlModifier
+                *   2) ttlMin
+                *   3) ttlMax
+                */
+               long connectionTtl = (long) (clientPing * heartBeatToTtlModifier);
+               if (connectionTtl < ttlMin) {
+                  connectionTtl = ttlMin;
+                  clientPingResponse = (long) (ttlMin / heartBeatToTtlModifier);
+               }
+               else if (connectionTtl > ttlMax) {
+                  connectionTtl = ttlMax;
+                  clientPingResponse = (long) (ttlMax / heartBeatToTtlModifier);
+               }
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                  ActiveMQServerLogger.LOGGER.debug("Setting STOMP client TTL to: " + connectionTtl);
+               }
+               connectionEntry.ttl = connectionTtl;
+            }
          }
-         else if (connectionTtl > ttlMax) {
-            connectionTtl = ttlMax;
-            clientPingResponse = (long) (ttlMax / heartBeatToTtlModifier);
-         }
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Setting STOMP client TTL to: " + connectionTtl);
-         }
-         connectionEntry.ttl = connectionTtl;
 
          if (clientAcceptPing != 0) {
             serverPingPeriod = clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING;

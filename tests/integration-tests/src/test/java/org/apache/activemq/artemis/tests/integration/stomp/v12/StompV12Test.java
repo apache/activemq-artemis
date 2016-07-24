@@ -596,7 +596,7 @@ public class StompV12Test extends StompV11TestBase {
 
       Assert.assertEquals("CONNECTED", reply.getCommand());
 
-      Assert.assertEquals("0,0", reply.getHeader("heart-beat"));
+      Assert.assertEquals("0,30000", reply.getHeader("heart-beat"));
 
       Thread.sleep(5000);
 
