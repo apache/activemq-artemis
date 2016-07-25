@@ -407,7 +407,7 @@ public class StompV11Test extends StompV11TestBase {
 
       connV11.disconnect();
 
-      //no heart beat for (0,0)
+      //default heart beat for (0,0) which is default connection TTL (60000) / default heartBeatToTtlModifier (2.0) = 30000
       connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
       frame = connV11.createFrame("CONNECT");
       frame.addHeader("host", "127.0.0.1");
@@ -420,7 +420,7 @@ public class StompV11Test extends StompV11TestBase {
 
       assertEquals("CONNECTED", reply.getCommand());
 
-      assertEquals("0,0", reply.getHeader("heart-beat"));
+      assertEquals("0,30000", reply.getHeader("heart-beat"));
 
       Thread.sleep(5000);
 
@@ -790,7 +790,7 @@ public class StompV11Test extends StompV11TestBase {
 
       assertEquals("CONNECTED", reply.getCommand());
 
-      assertEquals("0,0", reply.getHeader("heart-beat"));
+      assertEquals("0,500", reply.getHeader("heart-beat"));
 
       Thread.sleep(3000);
 
