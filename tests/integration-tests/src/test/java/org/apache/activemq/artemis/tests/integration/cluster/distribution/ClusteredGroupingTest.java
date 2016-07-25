@@ -1225,15 +1225,28 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 2, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
+      sendInRange(1, "queues.testaddress", 0, 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
+
+      int consumer = 0;
+      if (consumers[0].consumer.receive(5000) != null) {
+         consumer = 0;
+      }
+      else if (consumers[2].consumer.receive(5000) != null) {
+         consumer = 2;
+      }
+      else {
+         fail("Message was not received.");
+      }
+
       sendInRange(1, "queues.testaddress", 0, 10, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
 
-      verifyReceiveAllInRange(0, 10, 0);
+      verifyReceiveAllInRange(0, 10, consumer);
       sendInRange(2, "queues.testaddress", 10, 20, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
 
-      verifyReceiveAllInRange(10, 20, 0);
+      verifyReceiveAllInRange(10, 20, consumer);
       sendInRange(0, "queues.testaddress", 20, 30, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
 
-      verifyReceiveAllInRange(20, 30, 0);
+      verifyReceiveAllInRange(20, 30, consumer);
 
    }
 
