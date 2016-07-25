@@ -540,7 +540,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          // if the topologyArray is null, we will use the initialConnectors
          if (usedTopology != null) {
             if (logger.isTraceEnabled()) {
-               logger.trace("Selecting connector from toplogy.");
+               logger.trace("Selecting connector from topology.");
             }
             int pos = loadBalancingPolicy.select(usedTopology.length);
             Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
@@ -1844,7 +1844,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return clone;
    }
 
-   public boolean isReceivedToplogy() {
+   public boolean isReceivedTopology() {
       return receivedTopology;
    }
 

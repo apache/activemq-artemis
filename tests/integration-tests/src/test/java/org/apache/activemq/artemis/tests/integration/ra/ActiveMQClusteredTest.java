@@ -145,7 +145,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
          long timeout = 10000;
          long now = System.currentTimeMillis();
 
-         while (!((ServerLocatorImpl)cf1.getServerLocator()).isReceivedToplogy()) {
+         while (!((ServerLocatorImpl)cf1.getServerLocator()).isReceivedTopology()) {
             Thread.sleep(50);
          }
 
