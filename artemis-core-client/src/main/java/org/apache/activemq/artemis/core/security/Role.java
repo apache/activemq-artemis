@@ -43,6 +43,31 @@ public class Role implements Serializable {
 
    private final boolean browse;
 
+   /**
+    * @deprecated Use {@link #Role(String, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)}
+    * @param name
+    * @param send
+    * @param consume
+    * @param createDurableQueue
+    * @param deleteDurableQueue
+    * @param createNonDurableQueue
+    * @param deleteNonDurableQueue
+    * @param manage
+    */
+   @Deprecated
+   public Role(final String name,
+               final boolean send,
+               final boolean consume,
+               final boolean createDurableQueue,
+               final boolean deleteDurableQueue,
+               final boolean createNonDurableQueue,
+               final boolean deleteNonDurableQueue,
+               final boolean manage) {
+      // This constructor exists for version compatibility on the API.
+      // it will pass the consume as a browse
+      this(name, send, consume, createDurableQueue, deleteDurableQueue, createNonDurableQueue, deleteNonDurableQueue, manage, consume);
+   }
+
    public Role(final String name,
                final boolean send,
                final boolean consume,
