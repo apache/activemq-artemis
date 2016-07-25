@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.nio.ByteBuffer;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -88,6 +90,18 @@ public class ByteUtil {
          c = buffer.readChar();
       }
       return sb.toString();
+   }
+
+   public static byte[] getActiveArray(ByteBuffer buffer) {
+      byte[] ret = new byte[buffer.remaining()];
+      if (buffer.hasArray()) {
+         byte[] array = buffer.array();
+         System.arraycopy(array, buffer.arrayOffset() + buffer.position(), ret, 0, ret.length);
+      }
+      else {
+         buffer.slice().get(ret);
+      }
+      return ret;
    }
 
 }
