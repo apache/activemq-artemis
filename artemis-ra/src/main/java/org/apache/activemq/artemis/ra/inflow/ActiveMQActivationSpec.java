@@ -769,7 +769,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       StringBuffer buffer = new StringBuffer();
       buffer.append(ActiveMQActivationSpec.class.getName()).append('(');
       buffer.append("ra=").append(ra);
-      if (messageSelector != null) {
+      if (connectionFactoryLookup != null) {
          buffer.append(" connectionFactoryLookup=").append(connectionFactoryLookup);
       }
       buffer.append(" destination=").append(destination);
