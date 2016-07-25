@@ -251,6 +251,9 @@ public abstract class VersionedStompFrameHandler {
       String ack = request.getHeader(Stomp.Headers.Subscribe.ACK_MODE);
       String id = request.getHeader(Stomp.Headers.Subscribe.ID);
       String durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
+      if (durableSubscriptionName == null) {
+         durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIPTION_NAME);
+      }
       boolean noLocal = false;
 
       if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
