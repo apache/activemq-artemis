@@ -58,10 +58,17 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
    }
 
    public void flow(int credits, int threshold) {
-      synchronized (connection.getLock()) {
+      // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
+      if (sessionSPI != null) {
          sessionSPI.offerProducerCredit(address, credits, threshold, receiver);
       }
-      connection.flush();
+      else {
+         synchronized (connection.getLock()) {
+            receiver.flow(credits);
+            connection.flush();
+         }
+      }
+
    }
 
    public void drain(int credits) {
