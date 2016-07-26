@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
@@ -721,6 +722,9 @@ public class ManagementServiceImpl implements ManagementService {
                if (params[i] == null) {
                   continue;
                }
+
+               params[i] = JsonUtil.convertJsonValue(params[i], paramTypes[i]);
+
                if (paramTypes[i].isAssignableFrom(params[i].getClass()) || paramTypes[i] == Long.TYPE && params[i].getClass() == Integer.class ||
                   paramTypes[i] == Double.TYPE && params[i].getClass() == Integer.class ||
                   paramTypes[i] == Long.TYPE && params[i].getClass() == Long.class ||

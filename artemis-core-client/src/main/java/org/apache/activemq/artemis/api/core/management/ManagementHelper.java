@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 import javax.json.JsonArray;
-import javax.json.JsonNumber;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -216,15 +215,20 @@ public final class ManagementHelper {
     * and the result will be a String corresponding to the server exception.
     */
    public static Object getResult(final Message message) throws Exception {
+      return getResult(message, null);
+   }
+
+      /**
+       * Returns the result of an operation invocation or an attribute value.
+       * <br>
+       * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
+       * and the result will be a String corresponding to the server exception.
+       */
+   public static Object getResult(final Message message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
 
       if (res != null) {
-         if (res[0] instanceof JsonNumber) {
-            return ((JsonNumber)res[0]).longValue();
-         }
-         else {
-            return res[0];
-         }
+         return JsonUtil.convertJsonValue(res[0], desiredType);
       }
       else {
          return null;

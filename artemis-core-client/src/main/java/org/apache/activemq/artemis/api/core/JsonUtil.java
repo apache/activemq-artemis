@@ -260,6 +260,44 @@ public final class JsonUtil {
       return Json.createReader(new StringReader(jsonString)).readObject();
    }
 
+   public static Object convertJsonValue(Object jsonValue, Class desiredType) {
+      if (jsonValue instanceof JsonNumber) {
+         JsonNumber number = (JsonNumber) jsonValue;
+
+         if (desiredType == null || desiredType == Long.class || desiredType == Long.TYPE) {
+            return number.longValue();
+         }
+         else if (desiredType == Integer.class || desiredType == Integer.TYPE) {
+            return number.intValue();
+         }
+         else if (desiredType == Double.class || desiredType == Double.TYPE) {
+            return number.doubleValue();
+         }
+         else {
+            return number.longValue();
+         }
+      }
+      else if (jsonValue instanceof JsonString) {
+         return ((JsonString) jsonValue).getString();
+      }
+      else if (jsonValue instanceof JsonValue) {
+         if (jsonValue == JsonValue.TRUE) {
+            return true;
+         }
+         else if (jsonValue == JsonValue.FALSE) {
+            return false;
+         }
+         else {
+            return jsonValue.toString();
+         }
+      }
+      else {
+         return jsonValue;
+      }
+   }
+
+
+
    private JsonUtil() {
    }
 
