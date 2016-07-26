@@ -257,6 +257,19 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public long getMessagesExpired() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.getMessagesExpired();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getID() {
       checkStarted();
 
@@ -1004,6 +1017,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          queue.resetMessagesAcknowledged();
+      }
+      finally {
+         blockOnIO();
+      }
+
+   }
+
+   @Override
+   public void resetMessagesExpired() throws Exception {
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.resetMessagesExpired();
       }
       finally {
          blockOnIO();

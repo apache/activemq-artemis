@@ -167,6 +167,8 @@ public class QueueImpl implements Queue {
 
    private long messagesAcknowledged;
 
+   private long messagesExpired;
+
    protected final AtomicInteger deliveringCount = new AtomicInteger(0);
 
    private boolean paused;
@@ -962,6 +964,10 @@ public class QueueImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref) throws Exception {
+      acknowledge(ref, OperationType.NORMAL);
+   }
+
+   private void acknowledge(final MessageReference ref, OperationType type) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ack((PagedReference) ref);
          postAcknowledge(ref);
@@ -977,12 +983,21 @@ public class QueueImpl implements Queue {
          postAcknowledge(ref);
       }
 
-      messagesAcknowledged++;
+      if (type == OperationType.EXPIRED) {
+         messagesExpired++;
+      }
+      else {
+         messagesAcknowledged++;
+      }
 
    }
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
+      acknowledge(tx, ref, OperationType.NORMAL);
+   }
+
+   private void acknowledge(final Transaction tx, final MessageReference ref, OperationType type) throws Exception {
       if (ref.isPaged()) {
          pageSubscription.ackTx(tx, (PagedReference) ref);
 
@@ -1002,7 +1017,12 @@ public class QueueImpl implements Queue {
          getRefsOperation(tx).addAck(ref);
       }
 
-      messagesAcknowledged++;
+      if (type == OperationType.EXPIRED) {
+         messagesExpired++;
+      }
+      else {
+         messagesAcknowledged++;
+      }
    }
 
    @Override
@@ -1075,13 +1095,13 @@ public class QueueImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + expiryAddress + " from queue=" + this.getName());
          }
-         move(null, expiryAddress, ref, true, false);
+         move(null, expiryAddress, ref, true, false, OperationType.EXPIRED);
       }
       else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
-         acknowledge(ref);
+         acknowledge(ref, OperationType.EXPIRED);
       }
    }
 
@@ -1125,6 +1145,11 @@ public class QueueImpl implements Queue {
    @Override
    public long getMessagesAcknowledged() {
       return messagesAcknowledged;
+   }
+
+   @Override
+   public long getMessagesExpired() {
+      return messagesExpired;
    }
 
    @Override
@@ -1508,7 +1533,7 @@ public class QueueImpl implements Queue {
                refRemoved(ref);
                incDelivering();
                try {
-                  move(null, toAddress, ref, false, rejectDuplicate);
+                  move(null, toAddress, ref, false, rejectDuplicate, OperationType.NORMAL);
                }
                catch (Exception e) {
                   decDelivering();
@@ -2353,7 +2378,7 @@ public class QueueImpl implements Queue {
          }
          else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            move(tx, deadLetterAddress, ref, false, false);
+            move(tx, deadLetterAddress, ref, false, false, OperationType.NORMAL);
          }
       }
       else {
@@ -2367,7 +2392,8 @@ public class QueueImpl implements Queue {
                      final SimpleString address,
                      final MessageReference ref,
                      final boolean expiry,
-                     final boolean rejectDuplicate) throws Exception {
+                     final boolean rejectDuplicate,
+                     final OperationType type) throws Exception {
       Transaction tx;
 
       if (originalTX != null) {
@@ -2384,7 +2410,7 @@ public class QueueImpl implements Queue {
 
       postOffice.route(copyMessage, null, tx, false, rejectDuplicate);
 
-      acknowledge(tx, ref);
+      acknowledge(tx, ref, type);
 
       if (originalTX == null) {
          tx.commit();
@@ -2631,6 +2657,11 @@ public class QueueImpl implements Queue {
    @Override
    public synchronized void resetMessagesAcknowledged() {
       messagesAcknowledged = 0;
+   }
+
+   @Override
+   public synchronized void resetMessagesExpired() {
+      messagesExpired = 0;
    }
 
    @Override
@@ -2987,6 +3018,10 @@ public class QueueImpl implements Queue {
             }
          }
       }
+   }
+
+   private enum OperationType {
+      EXPIRED, NORMAL
    }
 }
 

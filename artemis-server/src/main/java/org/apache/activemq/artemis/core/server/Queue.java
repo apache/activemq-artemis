@@ -121,6 +121,8 @@ public interface Queue extends Bindable {
 
    long getMessagesAcknowledged();
 
+   long getMessagesExpired();
+
    MessageReference removeReferenceWithID(long id) throws Exception;
 
    MessageReference getReference(long id) throws ActiveMQException;
@@ -233,6 +235,8 @@ public interface Queue extends Bindable {
    void resetMessagesAdded();
 
    void resetMessagesAcknowledged();
+
+   void resetMessagesExpired();
 
    void incrementMesssagesAdded();
 

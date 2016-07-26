@@ -1984,6 +1984,46 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(queue);
    }
 
+   @Test
+   public void testResetMessagesExpired() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getMessagesExpired());
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+      producer.send(message);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      Assert.assertEquals(1, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      queueControl.expireMessage(messageID);
+      Assert.assertEquals(1, queueControl.getMessagesExpired());
+
+      message = session.createMessage(false);
+      producer.send(message);
+
+      // the message IDs are set on the server
+      messages = queueControl.listMessages(null);
+      Assert.assertEquals(1, messages.length);
+      messageID = (Long) messages[0].get("messageID");
+
+      queueControl.expireMessage(messageID);
+      Assert.assertEquals(2, queueControl.getMessagesExpired());
+
+      queueControl.resetMessagesExpired();
+
+      Assert.assertEquals(0, queueControl.getMessagesExpired());
+
+      session.deleteQueue(queue);
+   }
+
    //make sure notifications are always received no matter whether
    //a Queue is created via QueueControl or by JMSServerManager directly.
    @Test

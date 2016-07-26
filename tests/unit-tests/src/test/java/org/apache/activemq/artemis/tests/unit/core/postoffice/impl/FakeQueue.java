@@ -312,6 +312,12 @@ public class FakeQueue implements Queue {
    }
 
    @Override
+   public long getMessagesExpired() {
+      // no-op
+      return 0;
+   }
+
+   @Override
    public void resetMessagesAdded() {
       // no-op
 
@@ -319,6 +325,12 @@ public class FakeQueue implements Queue {
 
    @Override
    public void resetMessagesAcknowledged() {
+      // no-op
+
+   }
+
+   @Override
+   public void resetMessagesExpired() {
       // no-op
 
    }

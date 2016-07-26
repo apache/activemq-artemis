@@ -1047,6 +1047,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public long getMessagesExpired() {
+         return 0;
+      }
+
+      @Override
       public MessageReference removeReferenceWithID(long id) throws Exception {
          return null;
       }
@@ -1252,6 +1257,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
       @Override
       public void resetMessagesAcknowledged() {
+
+      }
+
+      @Override
+      public void resetMessagesExpired() {
 
       }
 
