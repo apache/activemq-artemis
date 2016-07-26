@@ -54,7 +54,7 @@ public class JMSConsumerInfo {
       JMSConsumerInfo[] infos = new JMSConsumerInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject sub = array.getJsonObject(i);
-         JMSConsumerInfo info = new JMSConsumerInfo(sub.getString("consumerID"), sub.getString("connectionID"),
+         JMSConsumerInfo info = new JMSConsumerInfo(sub.getJsonNumber("consumerID").toString(), sub.getString("connectionID"),
                sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"),
                sub.getJsonNumber("creationTime").longValue(),
                sub.getBoolean("durable"), sub.getString("filter", null));
