@@ -84,6 +84,8 @@
       <resteasy.version>3.0.17.Final</resteasy.version>
       <slf4j.version>1.7.12</slf4j.version>
       <qpid.jms.version>0.9.0</qpid.jms.version>
+      <johnzon.version>0.9.4</johnzon.version>
+      <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -91,9 +93,7 @@
       <activemq.version.microVersion>0</activemq.version.microVersion>
       <activemq.version.incrementingVersion>127,126,125,124,123,122</activemq.version.incrementingVersion>
       <activemq.version.versionTag>${project.version}</activemq.version.versionTag>
-      <ActiveMQ-Version>
-         ${project.version}(${activemq.version.incrementingVersion})
-      </ActiveMQ-Version>
+      <ActiveMQ-Version>${project.version}(${activemq.version.incrementingVersion})</ActiveMQ-Version>
 
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
@@ -435,6 +435,17 @@
            <artifactId>slf4j-api</artifactId>
            <version>${slf4j.version}</version>
            <!-- License: MIT -->
+         </dependency>
+         <!-- json -->
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-json_1.0_spec</artifactId>
+            <version>${json-p.spec.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon.version}</version>
          </dependency>
 
          <!--needed for the rest support-->

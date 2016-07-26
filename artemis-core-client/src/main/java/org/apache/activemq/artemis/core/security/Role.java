@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.security;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.Serializable;
 
 /**
@@ -42,6 +44,20 @@ public class Role implements Serializable {
    private final boolean manage;
 
    private final boolean browse;
+
+   public JsonObject toJson() {
+      return Json.createObjectBuilder()
+            .add("name", name)
+            .add("send", send)
+            .add("consume", consume)
+            .add("createDurableQueue", createDurableQueue)
+            .add("deleteDurableQueue", deleteDurableQueue)
+            .add("createNonDurableQueue", createNonDurableQueue)
+            .add("deleteNonDurableQueue", deleteNonDurableQueue)
+            .add("manage", manage)
+            .add("browse", browse)
+            .build();
+   }
 
    /**
     * @deprecated Use {@link #Role(String, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)}

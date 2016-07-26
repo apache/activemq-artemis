@@ -19,8 +19,13 @@ package org.apache.activemq.artemis.api.core.management;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Helper class to create Java Objects from the
@@ -55,27 +60,33 @@ public final class MessageCounterInfo {
     */
    public static String toJSon(final MessageCounter counter) throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-
-      JSONObject json = new JSONObject(counter);
       String lastAddTimestamp = dateFormat.format(new Date(counter.getLastAddedMessageTime()));
-      json.put("lastAddTimestamp", lastAddTimestamp);
       String updateTimestamp = dateFormat.format(new Date(counter.getLastUpdate()));
-      json.put("updateTimestamp", updateTimestamp);
-
-      return json.toString();
+      return Json.createObjectBuilder()
+         .add("destinationName", nullSafe(counter.getDestinationName()))
+         .add("destinationSubscription", nullSafe(counter.getDestinationSubscription()))
+         .add("destinationDurable", counter.isDestinationDurable())
+         .add("count", counter.getCount())
+         .add("countDelta", counter.getCountDelta())
+         .add("messageCount", counter.getMessageCount())
+         .add("messageCountDelta", counter.getMessageCountDelta())
+         .add("lastAddTimestamp", lastAddTimestamp)
+         .add("updateTimestamp", updateTimestamp)
+         .build()
+         .toString();
    }
 
    /**
-    * Returns an array of RoleInfo corresponding to the JSON serialization returned
+    * Returns a MessageCounterInfo corresponding to the JSON serialization returned
     * by {@link QueueControl#listMessageCounter()}.
     */
    public static MessageCounterInfo fromJSON(final String jsonString) throws Exception {
-      JSONObject data = new JSONObject(jsonString);
+      JsonObject data = JsonUtil.readJsonObject(jsonString);
       String name = data.getString("destinationName");
-      String subscription = data.getString("destinationSubscription");
+      String subscription = data.getString("destinationSubscription", null);
       boolean durable = data.getBoolean("destinationDurable");
-      long count = data.getLong("count");
-      long countDelta = data.getLong("countDelta");
+      long count = data.getJsonNumber("count").longValue();
+      long countDelta = data.getJsonNumber("countDelta").longValue();
       int depth = data.getInt("messageCount");
       int depthDelta = data.getInt("messageCountDelta");
       String lastAddTimestamp = data.getString("lastAddTimestamp");

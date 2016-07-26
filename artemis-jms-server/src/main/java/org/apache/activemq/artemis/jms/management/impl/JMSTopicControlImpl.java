@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
 
@@ -37,8 +40,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
@@ -289,7 +292,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
    private String listSubscribersInfosAsJSON(final DurabilityType durability) throws Exception {
       try {
          List<QueueControl> queues = getQueues(durability);
-         JSONArray array = new JSONArray();
+         JsonArrayBuilder array = Json.createArrayBuilder();
 
          for (QueueControl queue : queues) {
             String clientID = null;
@@ -310,20 +313,21 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
             String filter = queue.getFilter() != null ? queue.getFilter() : null;
 
-            JSONObject info = new JSONObject();
+            JsonObject info = Json.createObjectBuilder()
+               .add("queueName", queue.getName())
+               .add("clientID", nullSafe(clientID))
+               .add("selector", nullSafe(filter))
+               .add("name", nullSafe(subName))
+               .add("durable", queue.isDurable())
+               .add("messageCount", queue.getMessageCount())
+               .add("deliveringCount", queue.getDeliveringCount())
+               .add("consumers", queue.listConsumersAsJSON())
+               .build();
 
-            info.put("queueName", queue.getName());
-            info.put("clientID", clientID);
-            info.put("selector", filter);
-            info.put("name", subName);
-            info.put("durable", queue.isDurable());
-            info.put("messageCount", queue.getMessageCount());
-            info.put("deliveringCount", queue.getDeliveringCount());
-            info.put("consumers", new JSONArray(queue.listConsumersAsJSON()));
-            array.put(info);
+            array.add(info);
          }
 
-         return array.toString();
+         return array.build().toString();
       }
       catch (Exception e) {
          e.printStackTrace();

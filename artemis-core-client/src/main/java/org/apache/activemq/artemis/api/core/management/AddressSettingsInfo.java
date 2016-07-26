@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonObject;
 
 // XXX no javadocs
 public final class AddressSettingsInfo {
@@ -63,9 +65,21 @@ public final class AddressSettingsInfo {
 
    // Static --------------------------------------------------------
 
-   public static AddressSettingsInfo from(final String jsonString) throws Exception {
-      JSONObject object = new JSONObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getLong("maxSizeBytes"), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getLong("redeliveryDelay"), object.getDouble("redeliveryMultiplier"), object.getLong("maxRedeliveryDelay"), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getLong("redistributionDelay"), object.getBoolean("sendToDLAOnNoRoute"), object.getLong("slowConsumerThreshold"), object.getLong("slowConsumerCheckPeriod"), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoCreateJmsTopics"), object.getBoolean("autoDeleteJmsTopics"));
+   public static AddressSettingsInfo from(final String jsonString) {
+      JsonObject object = JsonUtil.readJsonObject(jsonString);
+      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"),
+            object.getJsonNumber("maxSizeBytes").longValue(), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"),
+            object.getInt("maxDeliveryAttempts"),
+            object.getJsonNumber("redeliveryDelay").longValue(),
+            object.getJsonNumber("redeliveryMultiplier").doubleValue(),
+            object.getJsonNumber("maxRedeliveryDelay").longValue(),
+            object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"),
+            object.getJsonNumber("redistributionDelay").longValue(), object.getBoolean("sendToDLAOnNoRoute"),
+            object.getJsonNumber("slowConsumerThreshold").longValue(),
+            object.getJsonNumber("slowConsumerCheckPeriod").longValue(),
+            object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"),
+            object.getBoolean("autoDeleteJmsQueues"), object.getBoolean("autoCreateJmsTopics"),
+            object.getBoolean("autoDeleteJmsTopics"));
    }
 
    // Constructors --------------------------------------------------

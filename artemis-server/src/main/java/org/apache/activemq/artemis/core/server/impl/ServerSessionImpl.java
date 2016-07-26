@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
@@ -83,9 +86,9 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Server side Session implementation
@@ -1402,17 +1405,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void describeProducersInfo(JSONArray array) throws Exception {
+   public void describeProducersInfo(JsonArrayBuilder array) throws Exception {
       Map<SimpleString, Pair<UUID, AtomicLong>> targetCopy = cloneTargetAddresses();
 
       for (Map.Entry<SimpleString, Pair<UUID, AtomicLong>> entry : targetCopy.entrySet()) {
-         JSONObject producerInfo = new JSONObject();
-         producerInfo.put("connectionID", this.getConnectionID().toString());
-         producerInfo.put("sessionID", this.getName());
-         producerInfo.put("destination", entry.getKey().toString());
-         producerInfo.put("lastUUIDSent", entry.getValue().getA());
-         producerInfo.put("msgSent", entry.getValue().getB().longValue());
-         array.put(producerInfo);
+         String uuid = null;
+         if (entry.getValue().getA() != null) {
+            uuid = entry.getValue().getA().toString();
+         }
+         JsonObjectBuilder producerInfo = Json.createObjectBuilder()
+            .add("connectionID", this.getConnectionID().toString())
+            .add("sessionID", this.getName())
+            .add("destination", entry.getKey().toString())
+            .add("lastUUIDSent", nullSafe(uuid))
+            .add("msgSent", entry.getValue().getB().longValue());
+         array.add(producerInfo);
       }
    }
 

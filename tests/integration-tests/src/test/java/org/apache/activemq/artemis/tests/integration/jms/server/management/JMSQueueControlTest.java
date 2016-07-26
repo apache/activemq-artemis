@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -68,10 +69,10 @@ import org.apache.activemq.artemis.tests.integration.management.ManagementTestBa
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import javax.json.JsonArray;
 
 /**
  * A QueueControlTest
@@ -111,9 +112,9 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       Assert.assertEquals(1, queueControl.getConsumerCount());
 
-      JSONArray jsonArray = new JSONArray(queueControl.listConsumersAsJSON());
+      JsonArray jsonArray = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
 
-      assertEquals(1, jsonArray.length());
+      assertEquals(1, jsonArray.size());
 
       JMSUtil.sendMessages(queue, 2);
 
@@ -433,17 +434,17 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
       String jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(2, array.length());
-      Assert.assertEquals(ids[0], array.getJSONObject(0).get("JMSMessageID"));
-      Assert.assertEquals(ids[1], array.getJSONObject(1).get("JMSMessageID"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(2, array.size());
+      Assert.assertEquals(ids[0], array.getJsonObject(0).getString("JMSMessageID"));
+      Assert.assertEquals(ids[1], array.getJsonObject(1).getString("JMSMessageID"));
 
       JMSUtil.consumeMessages(2, queue);
 
       jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
-      array = new JSONArray(jsonString);
-      Assert.assertEquals(0, array.length());
+      array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(0, array.size());
    }
 
    @Test

@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -48,7 +49,6 @@ import org.apache.activemq.artemis.tests.integration.management.ManagementTestBa
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +66,7 @@ import javax.jms.Topic;
 import javax.jms.XAConnection;
 import javax.jms.XAConnectionFactory;
 import javax.jms.XASession;
+import javax.json.JsonArray;
 import javax.naming.NamingException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -627,15 +628,15 @@ public class JMSServerControlTest extends ManagementTestBase {
       // create a consumer will create a Core queue bound to the topic address
       MessageConsumer cons = session.createConsumer(topic);
 
-      JSONArray jsonArray = new JSONArray(control.listAllConsumersAsJSON());
+      JsonArray jsonArray = JsonUtil.readJsonArray(control.listAllConsumersAsJSON());
 
-      Assert.assertEquals(1 + getNumberOfConsumers(), jsonArray.length());
+      Assert.assertEquals(1 + getNumberOfConsumers(), jsonArray.size());
 
       cons.close();
 
-      jsonArray = new JSONArray(control.listAllConsumersAsJSON());
+      jsonArray = JsonUtil.readJsonArray(control.listAllConsumersAsJSON());
 
-      Assert.assertEquals(getNumberOfConsumers(), jsonArray.length());
+      Assert.assertEquals(getNumberOfConsumers(), jsonArray.size());
 
       String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
       AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress);

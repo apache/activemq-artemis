@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -49,8 +52,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -219,16 +220,16 @@ public class QueueControlTest extends ManagementTestBase {
 
       System.out.println("Consumers: " + queueControl.listConsumersAsJSON());
 
-      JSONArray obj = new JSONArray(queueControl.listConsumersAsJSON());
+      JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
 
-      assertEquals(1, obj.length());
+      assertEquals(1, obj.size());
 
       consumer.close();
       Assert.assertEquals(0, queueControl.getConsumerCount());
 
-      obj = new JSONArray(queueControl.listConsumersAsJSON());
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
 
-      assertEquals(0, obj.length());
+      assertEquals(0, obj.size());
 
       session.deleteQueue(queue);
    }
@@ -562,16 +563,16 @@ public class QueueControlTest extends ManagementTestBase {
 
       String jsonString = queueControl.listScheduledMessagesAsJSON();
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
-      Assert.assertEquals(intValue, array.getJSONObject(0).get("key"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
+      Assert.assertEquals(intValue, array.getJsonObject(0).getJsonNumber("key").intValue());
 
       Thread.sleep(delay + 500);
 
       jsonString = queueControl.listScheduledMessagesAsJSON();
       Assert.assertNotNull(jsonString);
-      array = new JSONArray(jsonString);
-      Assert.assertEquals(0, array.length());
+      array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(0, array.size());
 
       consumeMessages(2, session, queue);
 
@@ -620,16 +621,16 @@ public class QueueControlTest extends ManagementTestBase {
 
       String jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
-      Assert.assertEquals(intValue, array.getJSONObject(0).get("key"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
+      Assert.assertEquals(intValue, array.getJsonObject(0).getInt("key"));
 
       consumeMessages(1, session, queue);
 
       jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
-      array = new JSONArray(jsonString);
-      Assert.assertEquals(0, array.length());
+      array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(0, array.size());
 
       session.deleteQueue(queue);
    }
@@ -736,16 +737,16 @@ public class QueueControlTest extends ManagementTestBase {
 
       String jsonString = queueControl.listMessagesAsJSON(filter);
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
-      Assert.assertEquals(matchingValue, array.getJSONObject(0).get("key"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
+      Assert.assertEquals(matchingValue, array.getJsonObject(0).getJsonNumber("key").longValue());
 
       consumeMessages(2, session, queue);
 
       jsonString = queueControl.listMessagesAsJSON(filter);
       Assert.assertNotNull(jsonString);
-      array = new JSONArray(jsonString);
-      Assert.assertEquals(0, array.length());
+      array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(0, array.size());
 
       session.deleteQueue(queue);
    }
@@ -2099,8 +2100,8 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    protected long getFirstMessageId(final QueueControl queueControl) throws Exception {
-      JSONArray array = new JSONArray(queueControl.getFirstMessageAsJSON());
-      JSONObject object = (JSONObject)array.get(0);
-      return object.getLong("messageID");
+      JsonArray array = JsonUtil.readJsonArray(queueControl.getFirstMessageAsJSON());
+      JsonObject object = (JsonObject) array.get(0);
+      return object.getJsonNumber("messageID").longValue();
    }
 }

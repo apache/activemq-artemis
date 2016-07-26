@@ -20,15 +20,16 @@ import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.json.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +55,8 @@ public class BroadcastGroupControlTest extends ManagementTestBase {
       Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
       String jsonString = broadcastGroupControl.getConnectorPairsAsJSON();
       Assert.assertNotNull(jsonString);
-      JSONArray array = new JSONArray(jsonString);
-      Assert.assertEquals(1, array.length());
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(1, array.size());
       Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), array.getString(0));
 
       Assert.assertTrue(broadcastGroupControl.isStarted());

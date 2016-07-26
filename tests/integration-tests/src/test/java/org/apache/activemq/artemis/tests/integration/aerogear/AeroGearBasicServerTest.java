@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -31,9 +32,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConstants;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONException;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +40,8 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -118,7 +118,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       assertNotNull(aeroGearHandler.jsonObject);
-      JSONObject body = (JSONObject) aeroGearHandler.jsonObject.get("message");
+      JsonObject body = aeroGearHandler.jsonObject.getJsonObject("message");
       assertNotNull(body);
       String prop1 = body.getString("AEROGEAR_PROP1");
       assertNotNull(prop1);
@@ -132,25 +132,24 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
       String sound = body.getString("sound");
       assertNotNull(sound);
       assertEquals(sound, "sound1");
-      String badge = body.getString("badge");
+      int badge = body.getInt("badge");
       assertNotNull(badge);
-      assertEquals(badge, "99");
-      JSONArray jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("variants");
+      assertEquals(badge, 99);
+      JsonArray jsonArray = aeroGearHandler.jsonObject.getJsonArray("variants");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "variant1");
       assertEquals(jsonArray.getString(1), "variant2");
-      jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("alias");
+      jsonArray = aeroGearHandler.jsonObject.getJsonArray("alias");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "me");
       assertEquals(jsonArray.getString(1), "him");
       assertEquals(jsonArray.getString(2), "them");
-      jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("deviceType");
+      jsonArray = aeroGearHandler.jsonObject.getJsonArray("deviceType");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "android");
       assertEquals(jsonArray.getString(1), "ipad");
-      Integer ttl = (Integer) aeroGearHandler.jsonObject.get("ttl");
-      assertNotNull(ttl);
-      assertEquals(ttl.intValue(), 3600);
+      int ttl = aeroGearHandler.jsonObject.getInt("ttl");
+      assertEquals(ttl, 3600);
       latch = new CountDownLatch(1);
       aeroGearHandler.resetLatch(latch);
 
@@ -167,7 +166,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
       producer.send(m);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       assertNotNull(aeroGearHandler.jsonObject);
-      body = (JSONObject) aeroGearHandler.jsonObject.get("message");
+      body = aeroGearHandler.jsonObject.getJsonObject("message");
       assertNotNull(body);
       alert = body.getString("alert");
       assertNotNull(alert);
@@ -175,24 +174,22 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
       sound = body.getString("sound");
       assertNotNull(sound);
       assertEquals(sound, "s1");
-      badge = body.getString("badge");
-      assertNotNull(badge);
-      assertEquals(badge, "111");
-      jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("variants");
+      badge = body.getInt("badge");
+      assertEquals(badge, 111);
+      jsonArray = aeroGearHandler.jsonObject.getJsonArray("variants");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "v1");
       assertEquals(jsonArray.getString(1), "v2");
-      jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("alias");
+      jsonArray = aeroGearHandler.jsonObject.getJsonArray("alias");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "alias1");
       assertEquals(jsonArray.getString(1), "alias2");
-      jsonArray = (JSONArray) aeroGearHandler.jsonObject.get("deviceType");
+      jsonArray = aeroGearHandler.jsonObject.getJsonArray("deviceType");
       assertNotNull(jsonArray);
       assertEquals(jsonArray.getString(0), "dev1");
       assertEquals(jsonArray.getString(1), "dev2");
-      ttl = (Integer) aeroGearHandler.jsonObject.get("ttl");
-      assertNotNull(ttl);
-      assertEquals(ttl.intValue(), 10000);
+      ttl = aeroGearHandler.jsonObject.getInt("ttl");
+      assertEquals(ttl, 10000);
       session.start();
       ClientMessage message = session.createConsumer("testQueue").receiveImmediate();
       assertNull(message);
@@ -200,7 +197,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
 
    class AeroGearHandler extends AbstractHandler {
 
-      JSONObject jsonObject;
+      JsonObject jsonObject;
       private CountDownLatch latch;
 
       AeroGearHandler(CountDownLatch latch) {
@@ -219,12 +216,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase {
          byte[] bytes = new byte[httpServletRequest.getContentLength()];
          httpServletRequest.getInputStream().read(bytes);
          String json = new String(bytes);
-         try {
-            jsonObject = new JSONObject(json);
-         }
-         catch (JSONException e) {
-            jsonObject = null;
-         }
+         jsonObject = JsonUtil.readJsonObject(json);
          latch.countDown();
       }
 

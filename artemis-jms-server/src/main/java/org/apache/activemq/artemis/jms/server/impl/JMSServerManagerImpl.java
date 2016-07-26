@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.server.impl;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
 import java.net.InetAddress;
@@ -87,8 +91,6 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.apache.activemq.artemis.utils.TypedProperties;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
 
 /**
  * A Deployer used to create and add to Bindings queues, topics and connection
@@ -1343,7 +1345,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          }
       });
 
-      JSONArray txDetailListJson = new JSONArray();
+      JsonArrayBuilder txDetailListJson = Json.createArrayBuilder();
       for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
          Xid xid = entry.getKey();
          Transaction tx = resourceManager.getTransaction(xid);
@@ -1351,7 +1353,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             continue;
          }
          TransactionDetail detail = new JMSTransactionDetail(xid, tx, entry.getValue());
-         txDetailListJson.put(detail.toJSON());
+         txDetailListJson.add(detail.toJSON());
       }
       return txDetailListJson.toString();
    }
@@ -1383,7 +1385,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
             continue;
          }
          TransactionDetail detail = new JMSTransactionDetail(xid, tx, entry.getValue());
-         JSONObject txJson = detail.toJSON();
+         JsonObject txJson = detail.toJSON();
 
          html.append("<table border=\"1\">");
          html.append("<tr><th>creation_time</th>");
@@ -1401,14 +1403,13 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          html.append("<tr><td colspan=\"6\">");
          html.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">");
 
-         JSONArray msgs = txJson.getJSONArray(TransactionDetail.KEY_TX_RELATED_MESSAGES);
-         for (int i = 0; i < msgs.length(); i++) {
-            JSONObject msgJson = msgs.getJSONObject(i);
-            JSONObject props = msgJson.getJSONObject(TransactionDetail.KEY_MSG_PROPERTIES);
+         JsonArray msgs = txJson.getJsonArray(TransactionDetail.KEY_TX_RELATED_MESSAGES);
+         for (int i = 0; i < msgs.size(); i++) {
+            JsonObject msgJson = msgs.getJsonObject(i);
+            JsonObject props = msgJson.getJsonObject(TransactionDetail.KEY_MSG_PROPERTIES);
             StringBuilder propstr = new StringBuilder();
-            Iterator<String> propkeys = props.keys();
-            while (propkeys.hasNext()) {
-               String key = propkeys.next();
+
+            for (String key : props.keySet()) {
                propstr.append(key);
                propstr.append("=");
                propstr.append(props.get(key));

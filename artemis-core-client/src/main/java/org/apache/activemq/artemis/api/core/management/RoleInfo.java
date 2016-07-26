@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.apache.activemq.artemis.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.JsonUtil;
+
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 /**
  * Helper class to create Java Objects from the
@@ -48,11 +50,14 @@ public final class RoleInfo {
     * by {@link AddressControl#getRolesAsJSON()}.
     */
    public static RoleInfo[] from(final String jsonString) throws Exception {
-      JSONArray array = new JSONArray(jsonString);
-      RoleInfo[] roles = new RoleInfo[array.length()];
-      for (int i = 0; i < array.length(); i++) {
-         JSONObject r = array.getJSONObject(i);
-         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"));
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      RoleInfo[] roles = new RoleInfo[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject r = array.getJsonObject(i);
+         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"),
+               r.getBoolean("consume"), r.getBoolean("createDurableQueue"),
+               r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"),
+               r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"));
          roles[i] = role;
       }
       return roles;
