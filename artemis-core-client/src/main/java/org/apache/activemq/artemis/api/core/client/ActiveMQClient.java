@@ -269,7 +269,7 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Allows programatically configuration of global thread pools properties.  This method will update the global
+    * Allows programmatical configuration of global thread pools properties.  This method will update the global
     * thread pool configuration based on the provided values notifying all globalThreadPoolListeners.
     *
     * Note: If global thread pools have already been created, they will not be updated with these new values.

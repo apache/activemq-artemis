@@ -191,7 +191,7 @@ public class StompTest extends StompTestBase {
       frame = "SEND\n" + "destination:" + address + "\n\n" + stompPayload + Stomp.NULL;
       sendFrame(frame);
 
-      // Recieve MQTT Message
+      // Receive MQTT Message
       byte[] mqttPayload = clientProvider.receive(10000);
       clientProvider.disconnect();
 

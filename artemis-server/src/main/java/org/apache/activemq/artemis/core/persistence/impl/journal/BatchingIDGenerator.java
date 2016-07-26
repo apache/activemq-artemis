@@ -124,7 +124,7 @@ public final class BatchingIDGenerator implements IDGenerator {
 
          if (!storageManager.isStarted()) {
             // This could happen after the server is stopped
-            // while notifications are being sent and ID gerated.
+            // while notifications are being sent and ID generated.
             // If the ID is intended to the journal you would know soon enough
             // so we just ignore this for now
             logger.debug("The journalStorageManager is not loaded. " + "This is probably ok as long as it's a notification being sent after shutdown");

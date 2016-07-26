@@ -32,7 +32,7 @@ import org.junit.Test;
 public class JmsAutoAckTest extends BasicOpenWireTest {
 
    /**
-    * Tests if acknowleged messages are being consumed.
+    * Tests if acknowledged messages are being consumed.
     *
     * @throws javax.jms.JMSException
     */

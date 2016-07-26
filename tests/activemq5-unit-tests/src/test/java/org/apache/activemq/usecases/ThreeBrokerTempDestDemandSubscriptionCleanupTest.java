@@ -102,7 +102,7 @@ public class ThreeBrokerTempDestDemandSubscriptionCleanupTest extends JmsMultipl
                   assertNotNull("We should have gotten a response, but didn't for iter: " + i, response);
                   assertEquals("We got the wrong response from the echo service", "Iteration: " + i, response.getText());
 
-                  // so we close the consumer so that an actual RemoveInfo command gets propogated through the
+                  // so we close the consumer so that an actual RemoveInfo command gets propagated through the
                   // network
                   responseConsumer.close();
                   conn.close();

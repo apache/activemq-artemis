@@ -51,7 +51,7 @@ public class JmsClientAckListenerTest extends TestSupport implements MessageList
    }
 
    /**
-    * Tests if acknowleged messages are being consumed.
+    * Tests if acknowledged messages are being consumed.
     *
     * @throws javax.jms.JMSException
     */
@@ -82,7 +82,7 @@ public class JmsClientAckListenerTest extends TestSupport implements MessageList
    }
 
    /**
-    * Tests if unacknowleged messages are being redelivered when the consumer
+    * Tests if unacknowledged messages are being redelivered when the consumer
     * connects again.
     *
     * @throws javax.jms.JMSException

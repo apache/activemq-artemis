@@ -103,7 +103,7 @@ public interface Server extends Remote {
    // int downCacheSize, boolean manageConfirmations) throws Exception;
    //
    // /**
-   // * Creates a topic programatically.
+   // * Creates a topic programmatically.
    // */
    // void deployTopicProgrammatically(String name, String jndiName) throws Exception;
    //
@@ -119,7 +119,7 @@ public interface Server extends Remote {
    // int downCacheSize, boolean manageConfirmations) throws Exception;
    //
    // /**
-   // * Creates a queue programatically.
+   // * Creates a queue programmatically.
    // */
    // void deployQueueProgrammatically(String name, String jndiName) throws Exception;
 
@@ -130,7 +130,7 @@ public interface Server extends Remote {
    // void undeployDestination(boolean isQueue, String name) throws Exception;
 
    /**
-    * Destroys a programatically created destination.
+    * Destroys a programmatically created destination.
     */
    // boolean undeployDestinationProgrammatically(boolean isQueue, String name) throws Exception;
    void deployConnectionFactory(String clientId,

@@ -139,7 +139,7 @@ public class NetworkLoadTest extends TestCase {
 
       forwardingClients = new ForwardingClient[BROKER_COUNT - 1];
       for (int i = 0; i < forwardingClients.length; i++) {
-         LOG.info("Starting fowarding client " + i);
+         LOG.info("Starting forwarding client " + i);
          forwardingClients[i] = new ForwardingClient(i, i + 1);
          forwardingClients[i].start();
       }
@@ -148,11 +148,11 @@ public class NetworkLoadTest extends TestCase {
    @Override
    protected void tearDown() throws Exception {
       for (int i = 0; i < forwardingClients.length; i++) {
-         LOG.info("Stoping fowarding client " + i);
+         LOG.info("Stopping forwarding client " + i);
          forwardingClients[i].close();
       }
       for (int i = 0; i < brokers.length; i++) {
-         LOG.info("Stoping broker " + i);
+         LOG.info("Stopping broker " + i);
          brokers[i].stop();
       }
    }

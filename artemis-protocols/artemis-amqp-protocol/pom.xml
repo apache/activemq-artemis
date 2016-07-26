@@ -30,7 +30,7 @@
    </properties>
 
    <dependencies>
-      <!-- JMS Client because of some Convertions that are done -->
+      <!-- JMS Client because of some conversions that are done -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>

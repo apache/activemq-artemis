@@ -50,7 +50,7 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
    }
 
    /**
-    * Tests if acknowleged messages are being consumed.
+    * Tests if acknowledged messages are being consumed.
     *
     * @throws javax.jms.JMSException
     */
