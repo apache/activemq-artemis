@@ -175,7 +175,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getConnectionCount() {
-            return (Integer) proxy.retrieveAttributeValue("connectionCount");
+            return (Integer) proxy.retrieveAttributeValue("connectionCount", Integer.class);
          }
 
          @Override
@@ -245,7 +245,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getIDCacheSize() {
-            return (Integer) proxy.retrieveAttributeValue("IDCacheSize");
+            return (Integer) proxy.retrieveAttributeValue("IDCacheSize", Integer.class);
          }
 
          public String[] getInterceptorClassNames() {
@@ -269,17 +269,17 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getJournalFileSize() {
-            return (Integer) proxy.retrieveAttributeValue("journalFileSize");
+            return (Integer) proxy.retrieveAttributeValue("journalFileSize", Integer.class);
          }
 
          @Override
          public int getJournalMaxIO() {
-            return (Integer) proxy.retrieveAttributeValue("journalMaxIO");
+            return (Integer) proxy.retrieveAttributeValue("journalMaxIO", Integer.class);
          }
 
          @Override
          public int getJournalMinFiles() {
-            return (Integer) proxy.retrieveAttributeValue("journalMinFiles");
+            return (Integer) proxy.retrieveAttributeValue("journalMinFiles", Integer.class);
          }
 
          @Override
@@ -329,12 +329,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getScheduledThreadPoolMaxSize() {
-            return (Integer) proxy.retrieveAttributeValue("scheduledThreadPoolMaxSize");
+            return (Integer) proxy.retrieveAttributeValue("scheduledThreadPoolMaxSize", Integer.class);
          }
 
          @Override
          public int getThreadPoolMaxSize() {
-            return (Integer) proxy.retrieveAttributeValue("threadPoolMaxSize");
+            return (Integer) proxy.retrieveAttributeValue("threadPoolMaxSize", Integer.class);
          }
 
          @Override
@@ -354,7 +354,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String getVersion() {
-            return (String) proxy.retrieveAttributeValue("version");
+            return proxy.retrieveAttributeValue("version").toString();
          }
 
          @Override
@@ -517,22 +517,22 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getJournalBufferSize() {
-            return (Integer) proxy.retrieveAttributeValue("JournalBufferSize");
+            return (Integer) proxy.retrieveAttributeValue("JournalBufferSize", Integer.class);
          }
 
          @Override
          public int getJournalBufferTimeout() {
-            return (Integer) proxy.retrieveAttributeValue("JournalBufferTimeout");
+            return (Integer) proxy.retrieveAttributeValue("JournalBufferTimeout", Integer.class);
          }
 
          @Override
          public int getJournalCompactMinFiles() {
-            return (Integer) proxy.retrieveAttributeValue("JournalCompactMinFiles");
+            return (Integer) proxy.retrieveAttributeValue("JournalCompactMinFiles", Integer.class);
          }
 
          @Override
          public int getJournalCompactPercentage() {
-            return (Integer) proxy.retrieveAttributeValue("JournalCompactPercentage");
+            return (Integer) proxy.retrieveAttributeValue("JournalCompactPercentage", Integer.class);
          }
 
          @Override

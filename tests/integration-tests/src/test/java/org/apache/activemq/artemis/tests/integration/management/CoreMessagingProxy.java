@@ -63,16 +63,7 @@ public class CoreMessagingProxy {
       ClientMessage reply;
       try {
          reply = requestor.request(m);
-         Object result = ManagementHelper.getResult(reply);
-
-         if (desiredType != null && desiredType != result.getClass()) {
-            // Conversions
-            if (desiredType == Long.class && result.getClass() == Integer.class) {
-               Integer in = (Integer) result;
-
-               result = new Long(in.intValue());
-            }
-         }
+         Object result = ManagementHelper.getResult(reply, desiredType);
 
          return result;
       }
