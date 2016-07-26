@@ -99,6 +99,12 @@ public interface QueueControl {
    long getMessagesAcknowledged();
 
    /**
+    * Returns the number of messages expired from this queue since it was created.
+    */
+   @Attribute(desc = "number of messages expired from this queue since it was created")
+   long getMessagesExpired();
+
+   /**
     * Returns the first message on the queue as JSON
     */
    @Attribute(desc = "first message on the queue as JSON")
@@ -433,6 +439,12 @@ public interface QueueControl {
     */
    @Operation(desc = "Resets the MessagesAcknowledged property", impact = MBeanOperationInfo.ACTION)
    void resetMessagesAcknowledged() throws Exception;
+
+   /**
+    * Resets the MessagesExpired property
+    */
+   @Operation(desc = "Resets the MessagesExpired property", impact = MBeanOperationInfo.ACTION)
+   void resetMessagesExpired() throws Exception;
 
    /**
     * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you call

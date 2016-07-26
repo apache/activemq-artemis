@@ -56,6 +56,12 @@ public interface JMSQueueControl extends DestinationControl {
    int getConsumerCount();
 
    /**
+    * Returns the number of messages expired from this queue since it was created.
+    */
+   @Attribute(desc = "the number of messages expired from this queue since it was created")
+   long getMessagesExpired();
+
+   /**
     * returns the selector for the queue
     */
    @Attribute(desc = "selector for the queue")
