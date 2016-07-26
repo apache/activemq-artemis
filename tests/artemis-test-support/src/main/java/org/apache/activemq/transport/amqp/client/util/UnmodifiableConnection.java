@@ -100,13 +100,13 @@ public class UnmodifiableConnection implements Connection {
 
    @Override
    public Link linkHead(EnumSet<EndpointState> local, EnumSet<EndpointState> remote) {
-      // TODO - If implemented this method should return an unmodifiable link isntance.
+      // TODO - If implemented this method should return an unmodifiable link instance.
       return null;
    }
 
    @Override
    public Delivery getWorkHead() {
-      // TODO - If implemented this method should return an unmodifiable delivery isntance.
+      // TODO - If implemented this method should return an unmodifiable delivery instance.
       return null;
    }
 

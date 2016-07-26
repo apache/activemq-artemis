@@ -120,7 +120,7 @@ public class MultipleProducersTest extends JMSTestBase {
       }
 
       // send 5 message to queueTwo
-      // there shoudl be 5 messages on queueTwo
+      // there should be 5 messages on queueTwo
       for (int i = 0; i < 5; i++) {
          sendMessage(queueTwo, session);
       }
@@ -137,7 +137,7 @@ public class MultipleProducersTest extends JMSTestBase {
          sendMessage(queueOne, session);
       }
 
-      // at the end of the test there shoudl be 5 message on queueOne and 5 messages on queueTwo
+      // at the end of the test there should be 5 message on queueOne and 5 messages on queueTwo
 
       session.close();
 

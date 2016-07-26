@@ -792,7 +792,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return buffer.toString();
    }
 
-   // here for backwards compatibilty
+   // here for backwards compatibility
    public void setUseDLQ(final boolean b) {
    }
 

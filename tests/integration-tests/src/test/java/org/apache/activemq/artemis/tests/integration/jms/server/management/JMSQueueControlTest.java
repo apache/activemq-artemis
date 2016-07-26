@@ -1517,7 +1517,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
 
    @Test
    public void testMoveMessageToUnknownQueue() throws Exception {
-      String unknwonQueue = RandomUtil.randomString();
+      String unknownQueue = RandomUtil.randomString();
 
       String[] messageIDs = JMSUtil.sendMessages(queue, 1);
 
@@ -1525,7 +1525,7 @@ public class JMSQueueControlTest extends ManagementTestBase {
       Assert.assertEquals(1, getMessageCount(queueControl));
 
       try {
-         queueControl.moveMessage(messageIDs[0], unknwonQueue);
+         queueControl.moveMessage(messageIDs[0], unknownQueue);
          Assert.fail();
       }
       catch (Exception e) {

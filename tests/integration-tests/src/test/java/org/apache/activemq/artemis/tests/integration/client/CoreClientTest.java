@@ -117,7 +117,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
          // One way around the setting destination problem is as follows -
          // Remove destination as an attribute from client producer.
-         // The destination always has to be set explicity before sending a message
+         // The destination always has to be set explicitly before sending a message
 
          message.setAddress(QUEUE);
 

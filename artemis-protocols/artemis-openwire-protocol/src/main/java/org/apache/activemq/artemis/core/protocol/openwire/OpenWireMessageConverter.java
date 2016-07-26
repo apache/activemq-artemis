@@ -448,7 +448,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       return md;
    }
 
-   private static ActiveMQMessage toAMQMessage(MessageReference refernce, ServerMessage coreMessage, WireFormat marshaller, ActiveMQDestination actualDestination) throws IOException {
+   private static ActiveMQMessage toAMQMessage(MessageReference reference, ServerMessage coreMessage, WireFormat marshaller, ActiveMQDestination actualDestination) throws IOException {
       ActiveMQMessage amqMsg = null;
       byte coreType = coreMessage.getType();
       switch (coreType) {
@@ -748,7 +748,7 @@ public class OpenWireMessageConverter implements MessageConverter {
          amqMsg.setMarshalledProperties(new ByteSequence(marshalledBytes));
       }
 
-      amqMsg.setRedeliveryCounter(refernce.getDeliveryCount() - 1);
+      amqMsg.setRedeliveryCounter(reference.getDeliveryCount() - 1);
 
       byte[] replyToBytes = (byte[]) coreMessage.getObjectProperty(AMQ_MSG_REPLY_TO);
       if (replyToBytes != null) {

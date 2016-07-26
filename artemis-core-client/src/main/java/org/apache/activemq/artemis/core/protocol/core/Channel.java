@@ -40,7 +40,7 @@ public interface Channel {
    long getID();
 
    /**
-    * This number increases every time the channel reconnects succesfully.
+    * This number increases every time the channel reconnects successfully.
     * This is used to guarantee the integrity of the channel on sequential commands such as large messages.
     * @return
     */

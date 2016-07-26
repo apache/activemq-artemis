@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
- * Auto-acknowleged consumer
+ * Auto-acknowledged consumer
  */
 public class QueueConsumer {
 

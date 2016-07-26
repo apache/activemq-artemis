@@ -62,7 +62,7 @@ public class ActiveMQXAResourceRecovery {
 
    public boolean initialise(final String config) {
       if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
-         ActiveMQXARecoveryLogger.LOGGER.trace(this + " intialise: " + config);
+         ActiveMQXARecoveryLogger.LOGGER.trace(this + " initialise: " + config);
       }
 
       String[] configs = config.split(";");

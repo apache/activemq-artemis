@@ -38,7 +38,7 @@ public class MQTTSubscriptionManager {
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   // We filter out Artemis managment messages and notifications
+   // We filter out Artemis management messages and notifications
    private SimpleString managementFilter;
 
    public MQTTSubscriptionManager(MQTTSession session) {

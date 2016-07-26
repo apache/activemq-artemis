@@ -42,7 +42,7 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference referece, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference reference, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
       try {
          session.getMqttPublishManager().sendMessage(message, consumer, deliveryCount);
       }

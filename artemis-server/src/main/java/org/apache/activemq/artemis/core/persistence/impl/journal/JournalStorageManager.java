@@ -192,7 +192,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       latch.await(30, TimeUnit.SECONDS);
 
       // We cache the variable as the replicator could be changed between here and the time we call stop
-      // since sendLiveIsStoping my issue a close back from the channel
+      // since sendLiveIsStopping may issue a close back from the channel
       // and we want to ensure a stop here just in case
       ReplicationManager replicatorInUse = replicator;
       if (replicatorInUse != null) {

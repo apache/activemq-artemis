@@ -74,12 +74,12 @@ public abstract class AutoFailTestSupport extends TestCase {
             @Override
             public void run() {
                 try {
-                    // Wait for test to finish succesfully
+                    // Wait for test to finish successfully
                     Thread.sleep(getMaxTestTime());
                 } catch (InterruptedException e) {
                     // This usually means the test was successful
                 } finally {
-                    // Check if the test was able to tear down succesfully,
+                    // Check if the test was able to tear down successfully,
                     // which usually means, it has finished its run.
                     if (!isTestSuccess.get()) {
                         LOG.error("Test case has exceeded the maximum allotted time to run of: " + getMaxTestTime() + " ms.");
