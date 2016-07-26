@@ -230,6 +230,98 @@ public class ProtonTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testCommitProducer() throws Throwable {
+
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = createQueue(address);
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.commit();
+      session.close();
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
+      Assert.assertEquals(q.getMessageCount(), 10);
+   }
+
+   @Test
+   public void testRollbackProducer() throws Throwable {
+
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue queue = createQueue(address);
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.rollback();
+      session.close();
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
+      Assert.assertEquals(q.getMessageCount(), 0);
+   }
+
+   @Test
+   public void testCommitConsumer() throws Throwable {
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = createQueue(address);
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.close();
+
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = (TextMessage) cons.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("Message:" + i, message.getText());
+      }
+      session.commit();
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
+      Assert.assertEquals(q.getMessageCount(), 0);
+   }
+
+   @Test
+   public void testRollbackConsumer() throws Throwable {
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = createQueue(address);
+      System.out.println("queue:" + queue.getQueueName());
+      MessageProducer p = session.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session.createTextMessage();
+         message.setText("Message:" + i);
+         p.send(message);
+      }
+      session.close();
+
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = (TextMessage) cons.receive(5000);
+         Assert.assertNotNull(message);
+         Assert.assertEquals("Message:" + i, message.getText());
+      }
+      session.rollback();
+      Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
+      Assert.assertEquals(q.getMessageCount(), 10);
+   }
+
+   @Test
    public void testResourceLimitExceptionOnAddressFull() throws Exception {
       if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
       setAddressFullBlockPolicy();
