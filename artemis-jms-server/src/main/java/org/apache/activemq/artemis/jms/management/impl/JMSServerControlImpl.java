@@ -631,7 +631,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                array.add(obj);
             }
          }
-         return array.toString();
+         return array.build().toString();
       }
       finally {
          blockOnIO();
@@ -833,7 +833,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                }
             }
          }
-         return brokers.toString();
+         return brokers.build().toString();
       }
       finally {
          blockOnIO();

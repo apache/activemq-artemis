@@ -451,8 +451,8 @@ public class ScaleDownHandler {
       logger.debug("Requesting ID for: " + queueName);
       ClientMessage reply = requestor.request(managementMessage);
       Object result = ManagementHelper.getResult(reply);
-      if (result != null && result instanceof Integer) {
-         queueID = (Integer) result;
+      if (result != null && result instanceof Number) {
+         queueID = ((Number) result).intValue();
       }
       requestor.close();
       return queueID;

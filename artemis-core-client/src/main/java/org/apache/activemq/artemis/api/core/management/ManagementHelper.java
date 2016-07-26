@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -218,7 +219,12 @@ public final class ManagementHelper {
       Object[] res = ManagementHelper.getResults(message);
 
       if (res != null) {
-         return res[0];
+         if (res[0] instanceof JsonNumber) {
+            return ((JsonNumber)res[0]).longValue();
+         }
+         else {
+            return res[0];
+         }
       }
       else {
          return null;
