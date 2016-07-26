@@ -620,15 +620,20 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          for (RemotingConnection connection : connections) {
             ServerSession session = jmsSessions.get(connection.getID());
             if (session != null) {
-               JsonObject obj = Json.createObjectBuilder()
+               JsonObjectBuilder objectBuilder = Json.createObjectBuilder()
                   .add("connectionID", connection.getID().toString())
                   .add("clientAddress", connection.getRemoteAddress())
-                  .add("creationTime", connection.getCreationTime())
-                  // Notice: this will be null when the user haven't set the client-id
-                  .add("clientID", session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY))
-                  .add("principal", session.getUsername())
-                  .build();
-               array.add(obj);
+                  .add("creationTime", connection.getCreationTime());
+
+               if (session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY) != null) {
+                  objectBuilder.add("clientID", session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY));
+               }
+
+               if (session.getUsername() != null) {
+                  objectBuilder.add("principal", session.getUsername());
+               }
+
+               array.add(objectBuilder.build());
             }
          }
          return array.build().toString();
@@ -651,8 +656,15 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          for (RemotingConnection connection : connections) {
             if (connectionID.equals(connection.getID().toString())) {
                List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
-               JsonArray jsonSessions = toJsonArray(sessions);
-               array.add(jsonSessions);
+               for (ServerSession session : sessions) {
+                  Set<ServerConsumer> consumers = session.getServerConsumers();
+                  for (ServerConsumer consumer : consumers) {
+                     JsonObject obj = toJSONObject(consumer);
+                     if (obj != null) {
+                        array.add(obj);
+                     }
+                  }
+               }
             }
          }
          return array.build().toString();
