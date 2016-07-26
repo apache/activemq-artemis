@@ -40,8 +40,8 @@ public class JMSConnectionInfo {
       JMSConnectionInfo[] infos = new JMSConnectionInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject obj = array.getJsonObject(i);
-         String cid = obj.isNull("clientID") ? null : obj.getString("clientID");
-         String uname = obj.isNull("principal") ? null : obj.getString("principal");
+         String cid = obj.containsKey("clientID") ? obj.getString("clientID") : null;
+         String uname = obj.containsKey("principal") ? obj.getString("principal") : null;
 
          JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"),
                obj.getJsonNumber("creationTime").longValue(),
