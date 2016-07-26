@@ -604,6 +604,82 @@ public interface ActiveMQServerControl {
    String listProducersInfoAsJSON() throws Exception;
 
    /**
+    * Lists all the connections connected to this server.
+    * The returned String is a JSON string containing details about each connection, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "creationTime": 1469240429671,
+    *     "sessionCount": 1,
+    *     "implementation": "RemotingConnectionImpl",
+    *     "connectionID": "1648309901",
+    *     "clientAddress": "\/127.0.0.1:57649"
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List all connections as a JSON string")
+   String listConnectionsAsJSON() throws Exception;
+
+   /**
+    * Lists all the consumers which belongs to the connection specified by the connectionID.
+    * The returned String is a JSON string containing details about each consumer, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "filter": "color = 'RED'",
+    *     "queueName": "2ea5b050-28bf-4ee2-9b24-b73f5983192a",
+    *     "creationTime": 1469239602459,
+    *     "deliveringCount": 0,
+    *     "consumerID": 1,
+    *     "browseOnly": true,
+    *     "connectionID": "1963ece3-507a-11e6-94ff-e8b1fc439540",
+    *     "sessionID": "19676f55-507a-11e6-94ff-e8b1fc439540"
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List all consumers associated with a connection as a JSON string")
+   String listConsumersAsJSON(String connectionID) throws Exception;
+
+   /**
+    * Lists all the consumers connected to this server.
+    * The returned String is a JSON string containing details about each consumer, e.g.:
+    *<pre>
+    * [
+    *   {
+    *     "queueName": "fa87c64c-0a38-4697-8421-72e34d17429d",
+    *     "creationTime": 1469235956168,
+    *     "deliveringCount": 0,
+    *     "consumerID": 0,
+    *     "browseOnly": false,
+    *     "connectionID": "9c0d42e7-5071-11e6-9e29-e8b1fc439540",
+    *     "sessionID": "9c0d9109-5071-11e6-9e29-e8b1fc439540"
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List all consumers as a JSON string")
+   String listAllConsumersAsJSON() throws Exception;
+
+   /**
+    * Lists details about all the sessions for the specified connection ID.
+    * The returned String is a JSON string containing details about each session associated with the specified ID, e.g.:
+    * <pre>
+    * [
+    *   {
+    *     "principal": "myUser",
+    *     "creationTime": 1469240773157,
+    *     "consumerCount": 0,
+    *     "sessionID": "d33d10db-507c-11e6-9e47-e8b1fc439540"
+    *   }
+    * ]
+    * </pre>
+    */
+   @Operation(desc = "List the sessions for the given connectionID as a JSON string", impact = MBeanOperationInfo.INFO)
+   String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
+
+   /**
     * Lists all the sessions IDs for the specified connection ID.
     */
    @Operation(desc = "List the sessions for the given connectionID", impact = MBeanOperationInfo.INFO)

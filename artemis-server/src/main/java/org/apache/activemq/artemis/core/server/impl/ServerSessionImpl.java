@@ -1424,6 +1424,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
+   public String getValidatedUser() {
+      return validatedUser;
+   }
+
+   @Override
    public String toString() {
       StringBuffer buffer = new StringBuffer();
       if (this.metaData != null) {

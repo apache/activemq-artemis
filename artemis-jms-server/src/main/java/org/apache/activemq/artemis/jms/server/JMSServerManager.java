@@ -292,6 +292,8 @@ public interface JMSServerManager extends ActiveMQComponent {
 
    String[] listSessions(String connectionID) throws Exception;
 
+   String listSessionsAsJSON(String connectionID) throws Exception;
+
    String listPreparedTransactionDetailsAsJSON() throws Exception;
 
    String listPreparedTransactionDetailsAsHTML() throws Exception;
