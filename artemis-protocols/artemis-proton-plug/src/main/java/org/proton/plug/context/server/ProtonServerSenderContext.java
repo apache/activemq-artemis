@@ -24,11 +24,13 @@ import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
+import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
+import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -294,7 +296,31 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       DeliveryState remoteState = delivery.getRemoteState();
 
       if (remoteState != null) {
-         if (remoteState instanceof Accepted) {
+         // If we are transactional then we need ack if the msg has been accepted
+         if (remoteState instanceof TransactionalState) {
+            TransactionalState txState = (TransactionalState) remoteState;
+            if (txState.getOutcome() != null) {
+               Outcome outcome = txState.getOutcome();
+               if (outcome instanceof Accepted) {
+                  if (!delivery.remotelySettled()) {
+                     TransactionalState txAccepted = new TransactionalState();
+                     txAccepted.setOutcome(Accepted.getInstance());
+                     txAccepted.setTxnId(txState.getTxnId());
+
+                     delivery.disposition(txAccepted);
+                  }
+                  //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
+                  // from dealer, a perf hit but a must
+                  try {
+                     sessionSPI.ack(brokerConsumer, message);
+                  }
+                  catch (Exception e) {
+                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
+                  }
+               }
+            }
+         }
+         else if (remoteState instanceof Accepted) {
             //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
             // from dealer, a perf hit but a must
             try {

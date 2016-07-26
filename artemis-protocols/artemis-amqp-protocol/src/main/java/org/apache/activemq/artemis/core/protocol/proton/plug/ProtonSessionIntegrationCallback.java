@@ -311,7 +311,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    public void ack(Object brokerConsumer, Object message) throws Exception {
       recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualAcknowledge(null, ((ServerMessage) message).getMessageID());
+         ((ServerConsumer) brokerConsumer).individualAcknowledge(serverSession.getCurrentTransaction(), ((ServerMessage) message).getMessageID());
       }
       finally {
          resetContext();
