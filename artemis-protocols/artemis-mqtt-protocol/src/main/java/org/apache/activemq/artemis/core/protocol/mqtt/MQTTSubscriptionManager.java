@@ -92,7 +92,7 @@ public class MQTTSubscriptionManager {
 
       Queue q = session.getServer().locateQueue(queue);
       if (q == null) {
-         session.getServerSession().createQueue(new SimpleString(address), queue, null, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
+         session.getServerSession().createQueue(new SimpleString(address), queue, managementFilter, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
       }
       return queue;
    }
@@ -102,7 +102,7 @@ public class MQTTSubscriptionManager {
     */
    private void createConsumerForSubscriptionQueue(SimpleString queue, String topic, int qos) throws Exception {
       long cid = session.getServer().getStorageManager().generateID();
-      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue, managementFilter, false, true, -1);
+      ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue, null, false, true, -1);
       consumer.setStarted(true);
 
       consumers.put(topic, consumer);
