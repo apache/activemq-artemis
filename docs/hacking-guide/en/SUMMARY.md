@@ -8,4 +8,5 @@
 * [Code Formatting](formatting.md)
 * [Validating releases](validating-releases.md)
 * [Notes for Maintainers](maintainers.md)
+* [History](history.md)
 
