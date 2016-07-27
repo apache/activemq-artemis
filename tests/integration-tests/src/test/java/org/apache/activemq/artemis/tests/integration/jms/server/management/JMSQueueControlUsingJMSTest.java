@@ -125,6 +125,11 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          }
 
          @Override
+         public long getMessagesKilled() {
+            return ((Number) proxy.retrieveAttributeValue("messagesKilled")).longValue();
+         }
+
+         @Override
          public String getDeadLetterAddress() {
             return (String) proxy.retrieveAttributeValue("deadLetterAddress");
          }

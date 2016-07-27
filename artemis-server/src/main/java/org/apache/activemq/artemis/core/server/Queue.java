@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
@@ -74,7 +75,11 @@ public interface Queue extends Bindable {
 
    void acknowledge(MessageReference ref) throws Exception;
 
+   void acknowledge(final MessageReference ref, AckReason reason) throws Exception;
+
    void acknowledge(Transaction tx, MessageReference ref) throws Exception;
+
+   void acknowledge(final Transaction tx, final MessageReference ref, AckReason reason) throws Exception;
 
    void reacknowledge(Transaction tx, MessageReference ref) throws Exception;
 
@@ -122,6 +127,8 @@ public interface Queue extends Bindable {
    long getMessagesAcknowledged();
 
    long getMessagesExpired();
+
+   long getMessagesKilled();
 
    MessageReference removeReferenceWithID(long id) throws Exception;
 
@@ -237,6 +244,8 @@ public interface Queue extends Bindable {
    void resetMessagesAcknowledged();
 
    void resetMessagesExpired();
+
+   void resetMessagesKilled();
 
    void incrementMesssagesAdded();
 

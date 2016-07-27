@@ -130,6 +130,11 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    @Override
+   public long getMessagesKilled() {
+      return coreQueueControl.getMessagesKilled();
+   }
+
+   @Override
    public int getConsumerCount() {
       return coreQueueControl.getConsumerCount();
    }
