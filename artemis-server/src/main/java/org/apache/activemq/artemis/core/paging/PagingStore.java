@@ -128,6 +128,8 @@ public interface PagingStore extends ActiveMQComponent {
 
    boolean isFull();
 
+   boolean isRejectingMessages();
+
    /**
     * Write lock the PagingStore.
     *
