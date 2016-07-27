@@ -122,6 +122,9 @@ public final class JsonUtil {
                if (innerVal instanceof JsonArray) {
                   innerVal = fromJsonArray(((JsonArray) innerVal));
                }
+               else if (innerVal instanceof JsonString) {
+                  innerVal = ((JsonString)innerVal).getString();
+               }
                else if (innerVal instanceof JsonObject) {
                   Map<String, Object> innerMap = new HashMap<>();
                   JsonObject o = (JsonObject) innerVal;
@@ -139,7 +142,8 @@ public final class JsonUtil {
                   Object[] data = (Object[]) innerVal;
                   CompositeData[] cds = new CompositeData[data.length];
                   for (int i1 = 0; i1 < data.length; i1++) {
-                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode((data[i1].toString()))));
+                     String dataConverted  = convertJsonValue(data[i1], String.class).toString();
+                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(dataConverted)));
                      cds[i1] = (CompositeDataSupport) ois.readObject();
                   }
                   innerVal = cds;
@@ -191,7 +195,7 @@ public final class JsonUtil {
          jsonObjectBuilder.add(key, (Short) param);
       }
       else if (param instanceof Byte) {
-         //??
+         jsonObjectBuilder.add(key, ((Byte) param).shortValue());
       }
       else if (param instanceof SimpleString) {
          jsonObjectBuilder.add(key, param.toString());
@@ -225,7 +229,7 @@ public final class JsonUtil {
          jsonArrayBuilder.add((Short) param);
       }
       else if (param instanceof Byte) {
-         //??
+         jsonArrayBuilder.add(((Byte) param).shortValue());
       }
       else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());

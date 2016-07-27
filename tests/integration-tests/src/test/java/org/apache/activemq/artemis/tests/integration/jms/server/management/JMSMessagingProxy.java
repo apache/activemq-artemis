@@ -57,23 +57,30 @@ public class JMSMessagingProxy {
    // Protected -----------------------------------------------------
 
    public Object retrieveAttributeValue(final String attributeName) {
+      return retrieveAttributeValue(attributeName, null);
+   }
+
+   public Object retrieveAttributeValue(final String attributeName, final Class desiredType) {
       try {
          Message m = session.createMessage();
          JMSManagementHelper.putAttribute(m, resourceName, attributeName);
          Message reply = requestor.request(m);
-         return JMSManagementHelper.getResult(reply);
+         return JMSManagementHelper.getResult(reply, desiredType);
       }
       catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
-
    public Object invokeOperation(final String operationName, final Object... args) throws Exception {
+      return invokeOperation(null, operationName, args);
+   }
+
+   public Object invokeOperation(final Class desiredType, final String operationName, final Object... args) throws Exception {
       Message m = session.createMessage();
       JMSManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       Message reply = requestor.request(m);
       if (JMSManagementHelper.hasOperationSucceeded(reply)) {
-         return JMSManagementHelper.getResult(reply);
+         return JMSManagementHelper.getResult(reply, desiredType);
       }
       else {
          throw new Exception((String) JMSManagementHelper.getResult(reply));
