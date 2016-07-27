@@ -105,6 +105,12 @@ public interface QueueControl {
    long getMessagesExpired();
 
    /**
+    * Returns the number of messages removed from this queue since it was created due to exceeding the max delivery attempts.
+    */
+   @Attribute(desc = "number of messages removed from this queue since it was created due to exceeding the max delivery attempts")
+   long getMessagesKilled();
+
+   /**
     * Returns the first message on the queue as JSON
     */
    @Attribute(desc = "first message on the queue as JSON")
@@ -445,6 +451,12 @@ public interface QueueControl {
     */
    @Operation(desc = "Resets the MessagesExpired property", impact = MBeanOperationInfo.ACTION)
    void resetMessagesExpired() throws Exception;
+
+   /**
+    * Resets the MessagesExpired property
+    */
+   @Operation(desc = "Resets the MessagesKilled property", impact = MBeanOperationInfo.ACTION)
+   void resetMessagesKilled() throws Exception;
 
    /**
     * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you call

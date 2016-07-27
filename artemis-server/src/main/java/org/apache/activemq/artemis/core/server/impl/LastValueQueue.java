@@ -263,6 +263,11 @@ public class LastValueQueue extends QueueImpl {
       }
 
       @Override
+      public void acknowledge(Transaction tx, AckReason reason) throws Exception {
+         ref.acknowledge(tx, reason);
+      }
+
+      @Override
       public void setPersistedCount(int count) {
          ref.setPersistedCount(count);
       }

@@ -126,6 +126,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getMessagesKilled() {
+            return ((Number) proxy.retrieveAttributeValue("messagesKilled")).longValue();
+         }
+
+         @Override
          public void resetMessagesAdded() throws Exception {
             proxy.invokeOperation("resetMessagesAdded");
          }
@@ -138,6 +143,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          @Override
          public void resetMessagesExpired() throws Exception {
             proxy.invokeOperation("resetMessagesExpired");
+         }
+
+         @Override
+         public void resetMessagesKilled() throws Exception {
+            proxy.invokeOperation("resetMessagesKilled");
          }
 
          @Override

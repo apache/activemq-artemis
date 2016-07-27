@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
@@ -72,6 +73,8 @@ public interface MessageReference {
    void acknowledge() throws Exception;
 
    void acknowledge(Transaction tx) throws Exception;
+
+   void acknowledge(Transaction tx, AckReason reason) throws Exception;
 
    void setConsumerId(Long consumerID);
 

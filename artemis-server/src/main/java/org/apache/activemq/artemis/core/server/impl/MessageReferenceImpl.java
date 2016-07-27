@@ -192,11 +192,16 @@ public class MessageReferenceImpl implements MessageReference {
 
    @Override
    public void acknowledge(Transaction tx) throws Exception {
+      acknowledge(tx, AckReason.NORMAL);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason) throws Exception {
       if (tx == null) {
-         getQueue().acknowledge(this);
+         getQueue().acknowledge(this, reason);
       }
       else {
-         getQueue().acknowledge(tx, this);
+         getQueue().acknowledge(tx, this, reason);
       }
    }
 
