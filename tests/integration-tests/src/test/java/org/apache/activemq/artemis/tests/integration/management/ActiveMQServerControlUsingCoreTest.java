@@ -16,13 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Before;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
@@ -46,33 +42,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    // ActiveMQServerControlTest overrides --------------------------
 
-   private ClientSession session;
-   private ServerLocator locator;
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-
-      locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      session.start();
-   }
-
-   @Override
-   protected void restartServer() throws Exception {
-      session.close();
-
-      super.restartServer();
-
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      session.start();
-
-   }
-
    // the core messaging proxy doesn't work when the server is stopped so we cant run these 2 tests
    @Override
    public void testScaleDownWithOutConnector() throws Exception {
@@ -95,7 +64,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             throw new UnsupportedOperationException();
          }
 
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_SERVER);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_SERVER);
 
          @Override
          public boolean isSharedStore() {
@@ -225,7 +194,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String[] getQueueNames() {
-            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames"));
+            return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames", String.class));
          }
 
          @Override
@@ -304,7 +273,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public int getMessageCounterMaxDayCount() {
-            return (Integer) proxy.retrieveAttributeValue("messageCounterMaxDayCount");
+            return (Integer) proxy.retrieveAttributeValue("messageCounterMaxDayCount", Integer.class);
          }
 
          @Override
@@ -708,7 +677,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String listConsumersAsJSON(String connectionID) throws Exception {
-            return (String) proxy.invokeOperation("listConsumersAsJSON");
+            return (String) proxy.invokeOperation("listConsumersAsJSON", connectionID);
          }
 
          @Override
@@ -723,7 +692,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
          @Override
          public String listSessionsAsJSON(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception {
-            return (String) proxy.invokeOperation("listSessionsAsJSON");
+            return (String) proxy.invokeOperation("listSessionsAsJSON", connectionID);
          }
       };
    }

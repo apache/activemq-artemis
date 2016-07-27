@@ -81,6 +81,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    private static boolean contains(final String name, final String[] strings) {
       boolean found = false;
       for (String str : strings) {
+         IntegrationTestLogger.LOGGER.info("Does " + str + " match " + name);
          if (name.equals(str)) {
             found = true;
             break;
@@ -900,7 +901,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @Test
    public void testForceFailover() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
-      serverControl.forceFailover();
+      try {
+         serverControl.forceFailover();
+      }
+      catch (Exception e) {
+         if (!usingCore()) {
+            fail(e.getMessage());
+         }
+      }
       assertFalse(server.isStarted());
    }
 
@@ -948,7 +956,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       assertEquals(CONNECTION_COUNT + (usingCore() ? 1 : 0), serverControl.getTotalConnectionCount());
-      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getConnectionCount());
+      assertEquals((usingCore() ? 1 : 0), serverControl.getConnectionCount());
 
       locator.close();
    }
@@ -986,7 +994,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAdded());
-      assertEquals(0 + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
+      assertEquals(0, serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1032,7 +1040,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.commit();
 
       assertEquals(2, serverControl.getTotalMessagesAcknowledged());
-      assertEquals(0  + (usingCore() ? 1 : 0), serverControl.getTotalMessageCount());
+      assertEquals(0, serverControl.getTotalMessageCount());
 
       consumer1.close();
       consumer2.close();
@@ -1064,7 +1072,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientConsumer consumer1 = session.createConsumer(random1);
       ClientConsumer consumer2 = session.createConsumer(random2);
 
-      assertEquals(2 + (usingCore() ? 1 : 0), serverControl.getTotalConsumerCount());
+      assertEquals(usingCore() ? 3 : 2, serverControl.getTotalConsumerCount());
       assertEquals(1, queueControl1.getConsumerCount());
       assertEquals(1, queueControl2.getConsumerCount());
 
@@ -1086,6 +1094,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       factories.add(createSessionFactory(locator));
+      Thread.sleep(200);
       factories.add(createSessionFactory(locator));
       addClientSession(factories.get(1).createSession());
 
@@ -1093,17 +1102,34 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       IntegrationTestLogger.LOGGER.info(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2, array.size());
-      JsonObject first;
-      JsonObject second;
-      if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
-         first = array.getJsonObject(0);
-         second = array.getJsonObject(1);
+      Assert.assertEquals(usingCore() ? 3 : 2, array.size());
+
+      String key = "creationTime";
+      JsonObject[] sorted = new JsonObject[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         sorted[i] = array.getJsonObject(i);
       }
-      else {
-         first = array.getJsonObject(1);
-         second = array.getJsonObject(0);
+
+      if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
+         JsonObject o = sorted[1];
+         sorted[1] = sorted[0];
+         sorted[0] = o;
       }
+      if (usingCore()) {
+         if (sorted[1].getJsonNumber(key).longValue() > sorted[2].getJsonNumber(key).longValue()) {
+            JsonObject o = sorted[2];
+            sorted[2] = sorted[1];
+            sorted[1] = o;
+         }
+         if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
+            JsonObject o = sorted[1];
+            sorted[1] = sorted[0];
+            sorted[0] = o;
+         }
+      }
+
+      JsonObject first = sorted[0];
+      JsonObject second = sorted[1];
 
       Assert.assertTrue(first.getString("connectionID").length() > 0);
       Assert.assertTrue(first.getString("clientAddress").length() > 0);
@@ -1186,23 +1212,41 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.createQueue(queueName, queueName, null, false, false);
 
       addClientConsumer(session.createConsumer(queueName));
+      Thread.sleep(200);
       addClientConsumer(session2.createConsumer(queueName));
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       IntegrationTestLogger.LOGGER.info(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
-      Assert.assertEquals(2, array.size());
-      JsonObject first;
-      JsonObject second;
-      if (array.getJsonObject(0).getJsonNumber("creationTime").longValue() < array.getJsonObject(1).getJsonNumber("creationTime").longValue()) {
-         first = array.getJsonObject(0);
-         second = array.getJsonObject(1);
+      Assert.assertEquals(usingCore() ? 3 : 2, array.size());
+
+      String key = "creationTime";
+      JsonObject[] sorted = new JsonObject[array.size()];
+      for (int i = 0; i < array.size(); i++) {
+         sorted[i] = array.getJsonObject(i);
       }
-      else {
-         first = array.getJsonObject(1);
-         second = array.getJsonObject(0);
+
+      if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
+         JsonObject o = sorted[1];
+         sorted[1] = sorted[0];
+         sorted[0] = o;
       }
+      if (usingCore()) {
+         if (sorted[1].getJsonNumber(key).longValue() > sorted[2].getJsonNumber(key).longValue()) {
+            JsonObject o = sorted[2];
+            sorted[2] = sorted[1];
+            sorted[1] = o;
+         }
+         if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
+            JsonObject o = sorted[1];
+            sorted[1] = sorted[0];
+            sorted[0] = o;
+         }
+      }
+
+      JsonObject first = sorted[0];
+      JsonObject second = sorted[1];
 
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(first.getJsonNumber("consumerID").longValue());

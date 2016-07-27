@@ -16,23 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Before;
-
-import java.util.Map;
 
 public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
-
-   private ClientSession session;
-   private ServerLocator locator;
 
    // Static --------------------------------------------------------
 
@@ -42,12 +35,8 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
 
    @Override
    protected ClusterConnectionControl createManagementControl(final String name) throws Exception {
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      session.start();
-
       return new ClusterConnectionControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_CLUSTER_CONNECTION + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_CLUSTER_CONNECTION + name);
 
          @Override
          public Object[] getStaticConnectors() {
@@ -71,12 +60,12 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
 
          @Override
          public int getMaxHops() {
-            return (Integer) proxy.retrieveAttributeValue("maxHops");
+            return (Integer) proxy.retrieveAttributeValue("maxHops", Integer.class);
          }
 
          @Override
          public long getRetryInterval() {
-            return (Long) proxy.retrieveAttributeValue("retryInterval");
+            return (Long) proxy.retrieveAttributeValue("retryInterval", Long.class);
          }
 
          @Override
@@ -91,7 +80,7 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
 
          @Override
          public boolean isDuplicateDetection() {
-            return (Boolean) proxy.retrieveAttributeValue("duplicateDetection");
+            return (Boolean) proxy.retrieveAttributeValue("duplicateDetection", Boolean.class);
          }
 
          @Override
@@ -111,7 +100,7 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
 
          @Override
          public boolean isStarted() {
-            return (Boolean) proxy.retrieveAttributeValue("started");
+            return (Boolean) proxy.retrieveAttributeValue("started", Boolean.class);
          }
 
          @Override
@@ -132,14 +121,6 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-
-      locator = createInVMNonHALocator();
-   }
 
    // Private -------------------------------------------------------
 
