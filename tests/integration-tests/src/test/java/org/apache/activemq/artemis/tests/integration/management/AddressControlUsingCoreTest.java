@@ -136,7 +136,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase {
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 
-      roles = (Object[]) proxy.retrieveAttributeValue("roles");
+      roles = (Object[]) proxy.retrieveAttributeValue("roles", String.class);
       Assert.assertEquals(1, roles.length);
       Object[] r = (Object[]) roles[0];
       Assert.assertEquals(role.getName(), r[0]);
