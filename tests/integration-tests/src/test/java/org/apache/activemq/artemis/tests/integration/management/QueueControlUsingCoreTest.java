@@ -16,29 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.management.openmbean.CompositeData;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Before;
-
-import javax.management.openmbean.CompositeData;
 
 public class QueueControlUsingCoreTest extends QueueControlTest {
-
-   protected ClientSession session;
-   private ServerLocator locator;
 
    @Override
    protected QueueControl createManagementControl(final SimpleString address,
                                                   final SimpleString queue) throws Exception {
       return new QueueControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_QUEUE + queue);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_QUEUE + queue);
 
          @Override
          public void flushExecutor() {
@@ -394,16 +386,5 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (String) proxy.invokeOperation("listDeliveringMessagesAsJSON");
          }
       };
-   }
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-
-      locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      session.start();
    }
 }

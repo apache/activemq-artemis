@@ -17,9 +17,12 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 
 public class CoreMessagingProxy {
@@ -30,21 +33,16 @@ public class CoreMessagingProxy {
 
    private final String resourceName;
 
-   private final ClientSession session;
-
-   private final ClientRequestor requestor;
+   private final ServerLocator locator;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public CoreMessagingProxy(final ClientSession session, final String resourceName) throws Exception {
-      this.session = session;
+   public CoreMessagingProxy(final ServerLocator locator, final String resourceName) throws Exception {
+      this.locator = locator;
 
       this.resourceName = resourceName;
-
-      requestor = new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
-
    }
 
    // Public --------------------------------------------------------
@@ -58,10 +56,12 @@ public class CoreMessagingProxy {
    }
 
    public Object retrieveAttributeValue(final String attributeName, final Class desiredType) {
-      ClientMessage m = session.createMessage(false);
-      ManagementHelper.putAttribute(m, resourceName, attributeName);
-      ClientMessage reply;
-      try {
+      try (ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = getSession(sessionFactory);
+           ClientRequestor requestor = getClientRequestor(session)) {
+         ClientMessage m = session.createMessage(false);
+         ManagementHelper.putAttribute(m, resourceName, attributeName);
+         ClientMessage reply;
          reply = requestor.request(m);
          Object result = ManagementHelper.getResult(reply, desiredType);
 
@@ -77,23 +77,37 @@ public class CoreMessagingProxy {
    }
 
    public Object invokeOperation(final Class desiredType, final String operationName, final Object... args) throws Exception {
-      ClientMessage m = session.createMessage(false);
-      ManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
-      ClientMessage reply = requestor.request(m);
-      if (reply != null) {
-         if (ManagementHelper.hasOperationSucceeded(reply)) {
-            return ManagementHelper.getResult(reply, desiredType);
+      try (ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = getSession(sessionFactory);
+           ClientRequestor requestor = getClientRequestor(session)) {
+         ClientMessage m = session.createMessage(false);
+         ManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
+         ClientMessage reply = requestor.request(m);
+         if (reply != null) {
+            if (ManagementHelper.hasOperationSucceeded(reply)) {
+               return ManagementHelper.getResult(reply, desiredType);
+            }
+            else {
+               throw new Exception((String) ManagementHelper.getResult(reply));
+            }
          }
          else {
-            throw new Exception((String) ManagementHelper.getResult(reply));
+            return null;
          }
-      }
-      else {
-         return null;
       }
    }
 
    // Private -------------------------------------------------------
+
+   private ClientSession getSession(ClientSessionFactory sessionFactory) throws ActiveMQException {
+      ClientSession session = sessionFactory.createSession(false, true, true);
+      session.start();
+      return session;
+   }
+
+   private ClientRequestor getClientRequestor(ClientSession session) throws Exception {
+      return new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
+   }
 
    // Inner classes -------------------------------------------------
 

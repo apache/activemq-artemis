@@ -16,21 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Before;
 
 public class DivertControlUsingCoreTest extends DivertControlTest {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
-
-   private ClientSession session;
-   private ServerLocator locator;
 
    // Static --------------------------------------------------------
 
@@ -40,12 +33,8 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
 
    @Override
    protected DivertControl createManagementControl(final String name) throws Exception {
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      session.start();
-
       return new DivertControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_DIVERT + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_DIVERT + name);
 
          @Override
          public String getAddress() {
@@ -90,14 +79,6 @@ public class DivertControlUsingCoreTest extends DivertControlTest {
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
-
-   @Override
-   @Before
-   public void setUp() throws Exception {
-      super.setUp();
-
-      locator = createInVMNonHALocator();
-   }
 
    // Private -------------------------------------------------------
 
