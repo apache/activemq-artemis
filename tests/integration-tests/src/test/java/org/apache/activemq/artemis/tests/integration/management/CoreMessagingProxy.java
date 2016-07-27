@@ -73,12 +73,16 @@ public class CoreMessagingProxy {
    }
 
    public Object invokeOperation(final String operationName, final Object... args) throws Exception {
+      return invokeOperation(null, operationName, args);
+   }
+
+   public Object invokeOperation(final Class desiredType, final String operationName, final Object... args) throws Exception {
       ClientMessage m = session.createMessage(false);
       ManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       ClientMessage reply = requestor.request(m);
       if (reply != null) {
          if (ManagementHelper.hasOperationSucceeded(reply)) {
-            return ManagementHelper.getResult(reply);
+            return ManagementHelper.getResult(reply, desiredType);
          }
          else {
             throw new Exception((String) ManagementHelper.getResult(reply));

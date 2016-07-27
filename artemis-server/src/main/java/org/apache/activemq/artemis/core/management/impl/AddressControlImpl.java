@@ -146,7 +146,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          for (Role role : roles) {
             json.add(role.toJson());
          }
-         return json.toString();
+         return json.build().toString();
       }
       finally {
          blockOnIO();
