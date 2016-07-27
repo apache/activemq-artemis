@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
 
@@ -215,11 +216,16 @@ public class PagedReferenceImpl implements PagedReference {
 
    @Override
    public void acknowledge(Transaction tx) throws Exception {
+      acknowledge(tx, AckReason.NORMAL);
+   }
+
+   @Override
+   public void acknowledge(Transaction tx, AckReason reason) throws Exception {
       if (tx == null) {
-         getQueue().acknowledge(this);
+         getQueue().acknowledge(this, reason);
       }
       else {
-         getQueue().acknowledge(tx, this);
+         getQueue().acknowledge(tx, this, reason);
       }
    }
 

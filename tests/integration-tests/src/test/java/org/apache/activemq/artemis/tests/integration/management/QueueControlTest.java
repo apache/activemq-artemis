@@ -2024,6 +2024,51 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(queue);
    }
 
+   @Test
+   public void testResetMessagesKilled() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, null, false);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertEquals(0, queueControl.getMessagesExpired());
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage message = session.createMessage(false);
+      producer.send(message);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      Assert.assertEquals(1, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      queueControl.sendMessageToDeadLetterAddress(messageID);
+      Assert.assertEquals(1, queueControl.getMessagesKilled());
+
+      message = session.createMessage(false);
+      producer.send(message);
+
+      // send to DLA the old-fashioned way
+      ClientConsumer consumer = session.createConsumer(queue);
+      for (int i = 0; i < server.getAddressSettingsRepository().getMatch(queue.toString()).getMaxDeliveryAttempts(); i++) {
+         message = consumer.receive(500);
+         assertNotNull(message);
+         message.acknowledge();
+         session.rollback();
+      }
+
+      consumer.close();
+
+      Assert.assertEquals(2, queueControl.getMessagesKilled());
+
+      queueControl.resetMessagesKilled();
+
+      Assert.assertEquals(0, queueControl.getMessagesKilled());
+
+      session.deleteQueue(queue);
+   }
+
    //make sure notifications are always received no matter whether
    //a Queue is created via QueueControl or by JMSServerManager directly.
    @Test
