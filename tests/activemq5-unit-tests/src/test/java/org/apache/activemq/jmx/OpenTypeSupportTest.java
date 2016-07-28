@@ -104,9 +104,7 @@ public class OpenTypeSupportTest {
    private String extractText(CompositeData message) {
       Byte content[] = (Byte[]) message.get(CompositeDataConstants.BODY_PREVIEW);
       byte out[] = new byte[content.length];
-      for (int i = 0; i < content.length; i++) {
-         out[i] = content[i];
-      }
+      System.arraycopy(content, 0, out, 0, content.length);
       return new String(out);
    }
 
