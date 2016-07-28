@@ -123,6 +123,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public long getMessagesKilled() {
+            return ((Number) proxy.retrieveAttributeValue("messagesKilled")).longValue();
+         }
+
+         @Override
          public void resetMessagesAdded() throws Exception {
             proxy.invokeOperation("resetMessagesAdded");
          }
