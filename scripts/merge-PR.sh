@@ -16,9 +16,11 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Setting the script to fail if anything goes wrong
+set -e
 
 # Use this to simplify the rebasing of PRs. PRs will be rebased during the merge on this process.
-# use: ./rebase-PR <PRID> textual description
+# use: ./merge-PR <PRID> textual description
 
 # this script assumes the following remote entries on your config
 #
