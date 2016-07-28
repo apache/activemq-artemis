@@ -295,6 +295,13 @@ public final class JsonUtil {
             return jsonValue.toString();
          }
       }
+      else if (jsonValue instanceof Object[]) {
+         Object[] array = (Object[]) jsonValue;
+         for (int i = 0; i < array.length; i++) {
+            array[i] = convertJsonValue(array[i], desiredType);
+         }
+         return array;
+      }
       else {
          return jsonValue;
       }

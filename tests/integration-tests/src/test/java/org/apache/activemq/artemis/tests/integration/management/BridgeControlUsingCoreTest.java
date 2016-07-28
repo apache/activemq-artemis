@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.management.MBeanServerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -35,12 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.management.MBeanServerFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class BridgeControlUsingCoreTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
@@ -52,8 +49,6 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
    private BridgeConfiguration bridgeConfig;
 
    private ActiveMQServer server_1;
-
-   private ClientSession session;
 
    // Constructors --------------------------------------------------
 
@@ -69,10 +64,10 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
       Assert.assertEquals(bridgeConfig.getQueueName(), proxy.retrieveAttributeValue("queueName"));
       Assert.assertEquals(bridgeConfig.getForwardingAddress(), proxy.retrieveAttributeValue("forwardingAddress"));
       Assert.assertEquals(bridgeConfig.getFilterString(), proxy.retrieveAttributeValue("filterString"));
-      Assert.assertEquals(bridgeConfig.getRetryInterval(), ((Long) proxy.retrieveAttributeValue("retryInterval")).longValue());
-      Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), proxy.retrieveAttributeValue("retryIntervalMultiplier"));
-      Assert.assertEquals(bridgeConfig.getReconnectAttempts(), ((Integer) proxy.retrieveAttributeValue("reconnectAttempts")).intValue());
-      Assert.assertEquals(bridgeConfig.isUseDuplicateDetection(), ((Boolean) proxy.retrieveAttributeValue("useDuplicateDetection")).booleanValue());
+      Assert.assertEquals(bridgeConfig.getRetryInterval(), proxy.retrieveAttributeValue("retryInterval", Long.class));
+      Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), proxy.retrieveAttributeValue("retryIntervalMultiplier", Double.class));
+      Assert.assertEquals(bridgeConfig.getReconnectAttempts(), proxy.retrieveAttributeValue("reconnectAttempts", Integer.class));
+      Assert.assertEquals(bridgeConfig.isUseDuplicateDetection(), proxy.retrieveAttributeValue("useDuplicateDetection", Boolean.class));
 
       Object[] data = (Object[]) proxy.retrieveAttributeValue("staticConnectors");
       Assert.assertEquals(bridgeConfig.getStaticConnectors().get(0), data[0]);
@@ -125,14 +120,10 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
 
       server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server_0.start();
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = addClientSession(sf.createSession(false, true, true));
-      session.start();
    }
 
    protected CoreMessagingProxy createProxy(final String name) throws Exception {
-      CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_BRIDGE + name);
+      CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_BRIDGE + name);
 
       return proxy;
    }

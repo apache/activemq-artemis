@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
  * The ClientRequestor constructor is given a ClientSession and a request address.
  * It creates a temporary queue for the responses and provides a request method that sends the request message and waits for its reply.
  */
-public final class ClientRequestor {
+public final class ClientRequestor implements AutoCloseable {
 
    private final ClientSession queueSession;
 

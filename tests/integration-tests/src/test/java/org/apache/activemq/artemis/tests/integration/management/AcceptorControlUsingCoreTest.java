@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.junit.Test;
-
-import java.util.Map;
 
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 
@@ -37,20 +34,11 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 
    // AcceptorControlTest overrides --------------------------------
 
-   private ClientSession session;
-
    @Override
    protected AcceptorControl createManagementControl(final String name) throws Exception {
-      ServerLocator locator = createInVMNonHALocator();
-      addServerLocator(locator);
-      ClientSessionFactory sf = createSessionFactory(locator);
-      session = sf.createSession(false, true, true);
-      addClientSession(session);
-      session.start();
-
       return new AcceptorControl() {
 
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_ACCEPTOR + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_ACCEPTOR + name);
 
          @Override
          public String getFactoryClassName() {
