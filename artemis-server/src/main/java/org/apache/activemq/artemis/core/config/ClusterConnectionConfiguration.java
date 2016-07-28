@@ -290,7 +290,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return producerWindowSize;
    }
 
-   public ClusterConnectionConfiguration setProducerindowSize(int producerWindowSize) {
+   public ClusterConnectionConfiguration setProducerWindowSize(int producerWindowSize) {
       this.producerWindowSize = producerWindowSize;
       return this;
    }
