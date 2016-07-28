@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.StringEscapeUtils;
 
 import javax.json.Json;
@@ -40,13 +41,13 @@ import java.util.Set;
 
 public final class JsonUtil {
    public static JsonArray toJSONArray(final Object[] array) throws Exception {
-      JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+      JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
 
       for (Object parameter : array) {
          if (parameter instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) parameter;
 
-            JsonObjectBuilder jsonObject = Json.createObjectBuilder();
+            JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
 
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                String key = entry.getKey();
@@ -73,12 +74,12 @@ public final class JsonUtil {
                   Object[] innerArray = (Object[]) parameter;
 
                   if (innerArray instanceof CompositeData[]) {
-                     JsonArrayBuilder innerJsonArray = Json.createArrayBuilder();
+                     JsonArrayBuilder innerJsonArray = JsonLoader.createArrayBuilder();
                      for (Object data : innerArray) {
                         String s = Base64.encodeObject((CompositeDataSupport) data);
                         innerJsonArray.add(s);
                      }
-                     JsonObjectBuilder jsonObject = Json.createObjectBuilder();
+                     JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
                      jsonObject.add(CompositeData.class.getName(), innerJsonArray);
                      jsonArray.add(jsonObject);
                   }
@@ -237,7 +238,7 @@ public final class JsonUtil {
    }
 
    public static JsonArray toJsonArray(List<String> strings) {
-      JsonArrayBuilder array = Json.createArrayBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       if (strings != null) {
          for (String connector : strings) {
             array.add(connector);
@@ -247,7 +248,7 @@ public final class JsonUtil {
    }
 
    public static JsonObject toJsonObject(Map<String, Object> map) {
-      JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
       if (map != null) {
          for (Map.Entry<String, Object> entry : map.entrySet()) {
             addToObject(entry.getKey(), entry.getValue(), jsonObjectBuilder);

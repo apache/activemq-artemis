@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.api.core.management;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.utils.JsonLoader;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -37,14 +37,14 @@ public final class DayCounterInfo {
    // Static --------------------------------------------------------
 
    public static String toJSON(final DayCounterInfo[] infos) {
-      JsonObjectBuilder json = Json.createObjectBuilder();
-      JsonArrayBuilder counters = Json.createArrayBuilder();
+      JsonObjectBuilder json = JsonLoader.createObjectBuilder();
+      JsonArrayBuilder counters = JsonLoader.createArrayBuilder();
       for (DayCounterInfo info : infos) {
-         JsonArrayBuilder counter = Json.createArrayBuilder();
+         JsonArrayBuilder counter = JsonLoader.createArrayBuilder();
          for (int c : info.getCounters()) {
             counter.add(c);
          }
-         JsonObjectBuilder dci = Json.createObjectBuilder()
+         JsonObjectBuilder dci = JsonLoader.createObjectBuilder()
             .add("date", info.getDate())
             .add("counters", counter);
          counters.add(dci);

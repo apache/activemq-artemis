@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.jms.InvalidSelectorException;
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
@@ -48,6 +47,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.management.impl.openmbean.JMSOpenTypeSupport;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -75,7 +75,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    static String toJSON(final Map<String, Object>[] messages) {
-      JsonArrayBuilder array = Json.createArrayBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       for (Map<String, Object> message : messages) {
          array.add(JsonUtil.toJsonObject(message));
       }

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.server.impl;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -88,6 +87,7 @@ import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 import org.apache.activemq.artemis.jms.server.management.impl.JMSManagementServiceImpl;
 import org.apache.activemq.artemis.jms.transaction.JMSTransactionDetail;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.apache.activemq.artemis.utils.TypedProperties;
@@ -1351,7 +1351,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          }
       });
 
-      JsonArrayBuilder txDetailListJson = Json.createArrayBuilder();
+      JsonArrayBuilder txDetailListJson = JsonLoader.createArrayBuilder();
       for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
          Xid xid = entry.getKey();
          Transaction tx = resourceManager.getTransaction(xid);

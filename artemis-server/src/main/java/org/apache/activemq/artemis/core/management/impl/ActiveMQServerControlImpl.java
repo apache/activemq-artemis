@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -88,6 +87,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
@@ -974,7 +974,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          });
 
-         JsonArrayBuilder txDetailListJson = Json.createArrayBuilder();
+         JsonArrayBuilder txDetailListJson = JsonLoader.createArrayBuilder();
          for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
             Xid xid = entry.getKey();
 
@@ -1349,7 +1349,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    */
    @Override
    public String listProducersInfoAsJSON() throws Exception {
-      JsonArrayBuilder producers = Json.createArrayBuilder();
+      JsonArrayBuilder producers = JsonLoader.createArrayBuilder();
 
       for (ServerSession session : server.getSessions()) {
          session.describeProducersInfo(producers);
@@ -1365,12 +1365,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          Set<RemotingConnection> connections = server.getRemotingService().getConnections();
 
          for (RemotingConnection connection : connections) {
-            JsonObjectBuilder obj = Json.createObjectBuilder()
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
                .add("connectionID", connection.getID().toString())
                .add("clientAddress", connection.getRemoteAddress())
                .add("creationTime", connection.getCreationTime())
@@ -1391,11 +1391,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      JsonArrayBuilder array = Json.createArrayBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       try {
          List<ServerSession> sessions = server.getSessions(connectionID);
          for (ServerSession sess : sessions) {
-            JsonObjectBuilder obj = Json.createObjectBuilder()
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
                .add("sessionID", sess.getName())
                .add("creationTime", sess.getCreationTime())
                .add("consumerCount", sess.getServerConsumers().size());
@@ -1420,7 +1420,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          Set<RemotingConnection> connections = server.getRemotingService().getConnections();
          for (RemotingConnection connection : connections) {
@@ -1451,7 +1451,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          Set<ServerSession> sessions = server.getSessions();
          for (ServerSession session : sessions) {
@@ -1471,7 +1471,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    private JsonObject toJSONObject(ServerConsumer consumer) throws Exception {
-      JsonObjectBuilder obj = Json.createObjectBuilder()
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add("consumerID", consumer.getID())
          .add("connectionID", consumer.getConnectionID().toString())
          .add("sessionID", consumer.getSessionID())
@@ -1520,7 +1520,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          for (TransportConfiguration config : configuration.getConnectorConfigurations().values()) {
             array.add(config.toJson());
@@ -1615,7 +1615,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         JsonArrayBuilder json = Json.createArrayBuilder();
+         JsonArrayBuilder json = JsonLoader.createArrayBuilder();
          Set<Role> roles = server.getSecurityRepository().getMatch(addressMatch);
 
          for (Role role : roles) {
@@ -1635,7 +1635,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
       String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP" : "FAIL";
       String consumerPolicy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY" : "KILL";
-      JsonObjectBuilder settings = Json.createObjectBuilder();
+      JsonObjectBuilder settings = JsonLoader.createObjectBuilder();
       if (addressSettings.getDeadLetterAddress() != null) {
          settings.add("DLA", addressSettings.getDeadLetterAddress().toString());
       }

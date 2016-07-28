@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -31,6 +30,7 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.utils.JsonLoader;
 
 public abstract class TransactionDetail {
 
@@ -66,14 +66,14 @@ public abstract class TransactionDetail {
 
    public JsonObject toJSON() throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-      JsonObjectBuilder detailJson = Json.createObjectBuilder()
+      JsonObjectBuilder detailJson = JsonLoader.createObjectBuilder()
          .add(KEY_CREATION_TIME, dateFormat.format(new Date(this.creationTime)))
          .add(KEY_XID_AS_BASE64, XidImpl.toBase64String(this.xid))
          .add(KEY_XID_FORMAT_ID, this.xid.getFormatId())
          .add(KEY_XID_GLOBAL_TXID, new String(this.xid.getGlobalTransactionId()))
          .add(KEY_XID_BRANCH_QUAL, new String(this.xid.getBranchQualifier()));
 
-      JsonArrayBuilder msgsJson = Json.createArrayBuilder();
+      JsonArrayBuilder msgsJson = JsonLoader.createArrayBuilder();
 
       List<TransactionOperation> txops = null;
 
@@ -100,7 +100,7 @@ public abstract class TransactionDetail {
          }
 
          for (MessageReference ref : msgs) {
-            JsonObjectBuilder msgJson = Json.createObjectBuilder();
+            JsonObjectBuilder msgJson = JsonLoader.createObjectBuilder();
 
             msgJson.add(KEY_MSG_OP_TYPE, opType);
 

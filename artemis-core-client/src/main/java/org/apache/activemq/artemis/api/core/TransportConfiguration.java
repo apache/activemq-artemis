@@ -23,9 +23,9 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 
 /**
@@ -65,7 +65,7 @@ public class TransportConfiguration implements Serializable {
    private static final byte TYPE_STRING = 3;
 
    public JsonObject toJson() {
-      return Json.createObjectBuilder()
+      return JsonLoader.createObjectBuilder()
             .add("name", name)
             .add("factoryClassName", factoryClassName)
             .add("params", JsonUtil.toJsonObject(params))

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.transaction.xa.XAException;
@@ -84,6 +83,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.UUID;
 import org.jboss.logging.Logger;
@@ -1413,7 +1413,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (entry.getValue().getA() != null) {
             uuid = entry.getValue().getA().toString();
          }
-         JsonObjectBuilder producerInfo = Json.createObjectBuilder()
+         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder()
             .add("connectionID", this.getConnectionID().toString())
             .add("sessionID", this.getName())
             .add("destination", entry.getKey().toString())

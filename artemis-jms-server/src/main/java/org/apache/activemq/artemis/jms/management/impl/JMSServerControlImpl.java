@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.jms.JMSRuntimeException;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -65,6 +64,7 @@ import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfigurat
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
@@ -602,7 +602,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       clearIO();
 
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
 
@@ -620,7 +620,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          for (RemotingConnection connection : connections) {
             ServerSession session = jmsSessions.get(connection.getID());
             if (session != null) {
-               JsonObjectBuilder objectBuilder = Json.createObjectBuilder()
+               JsonObjectBuilder objectBuilder = JsonLoader.createObjectBuilder()
                   .add("connectionID", connection.getID().toString())
                   .add("clientAddress", connection.getRemoteAddress())
                   .add("creationTime", connection.getCreationTime());
@@ -650,7 +650,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       clearIO();
 
       try {
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
          for (RemotingConnection connection : connections) {
@@ -822,7 +822,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
       clearIO();
       try {
-         JsonArrayBuilder brokers = Json.createArrayBuilder();
+         JsonArrayBuilder brokers = JsonLoader.createArrayBuilder();
          ClusterManager clusterManager = server.getActiveMQServer().getClusterManager();
          if (clusterManager != null) {
             Set<ClusterConnection> clusterConnections = clusterManager.getClusterConnections();
@@ -831,7 +831,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                Collection<TopologyMemberImpl> members = topology.getMembers();
                for (TopologyMemberImpl member : members) {
 
-                  JsonObjectBuilder obj = Json.createObjectBuilder();
+                  JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
                   TransportConfiguration live = member.getLive();
                   if (live != null) {
                      obj.add("nodeID", member.getNodeId())
@@ -862,7 +862,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       if (destinationInfo == null) {
          return null;
       }
-      JsonObjectBuilder obj = Json.createObjectBuilder()
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add("consumerID", consumer.getID())
          .add("connectionID", consumer.getConnectionID().toString())
          .add("sessionID", consumer.getSessionID())
@@ -905,7 +905,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    }
 
    private JsonArray toJsonArray(Collection<ServerSession> sessions) {
-      JsonArrayBuilder array = Json.createArrayBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
       for (ServerSession session : sessions) {
          Set<ServerConsumer> consumers = session.getServerConsumers();

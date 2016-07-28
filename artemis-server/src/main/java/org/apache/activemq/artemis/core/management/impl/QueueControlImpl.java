@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
@@ -58,6 +57,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.UUID;
 
@@ -88,7 +88,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    private static JsonArray toJSONMsgArray(final Map<String, Object>[] messages) {
-      JsonArrayBuilder array = Json.createArrayBuilder();
+      JsonArrayBuilder array = JsonLoader.createArrayBuilder();
       for (Map<String, Object> message : messages) {
          array.add(JsonUtil.toJsonObject(message));
       }
@@ -96,9 +96,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    private static String toJSON(final Map<String, Map<String, Object>[]> messages) {
-      JsonArrayBuilder arrayReturn = Json.createArrayBuilder();
+      JsonArrayBuilder arrayReturn = JsonLoader.createArrayBuilder();
       for (Map.Entry<String, Map<String, Object>[]> entry : messages.entrySet()) {
-         JsonObjectBuilder objectItem = Json.createObjectBuilder();
+         JsonObjectBuilder objectItem = JsonLoader.createObjectBuilder();
          objectItem.add("consumerName", entry.getKey());
          objectItem.add("elements", toJSONMsgArray(entry.getValue()));
          arrayReturn.add(objectItem);
@@ -973,14 +973,14 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          Collection<Consumer> consumers = queue.getConsumers();
 
-         JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+         JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
 
          for (Consumer consumer : consumers) {
 
             if (consumer instanceof ServerConsumer) {
                ServerConsumer serverConsumer = (ServerConsumer) consumer;
 
-               JsonObjectBuilder obj = Json.createObjectBuilder()
+               JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
                   .add("consumerID", serverConsumer.getID())
                   .add("connectionID", serverConsumer.getConnectionID().toString())
                   .add("sessionID", serverConsumer.getSessionID())
