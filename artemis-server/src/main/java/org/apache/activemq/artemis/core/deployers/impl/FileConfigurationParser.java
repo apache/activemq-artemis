@@ -1373,7 +1373,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(confirmationWindowSize)
-         .setProducerindowSize(producerWindowSize)
+         .setProducerWindowSize(producerWindowSize)
          .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
          .setClusterNotificationInterval(clusterNotificationInterval)
          .setClusterNotificationAttempts(clusterNotificationAttempts);
