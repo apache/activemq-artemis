@@ -60,9 +60,9 @@ public interface TopicControl extends DestinationControl {
    int getNonDurableMessageCount();
 
    /**
-    * Returns the Registry bindings associated  to this connection factory.
+    * Returns the Registry bindings associated with this topic.
     */
-   @Operation(desc = "Returns the list of Registry bindings associated")
+   @Attribute(desc = "the list of Registry bindings associated with this topic")
    String[] getRegistryBindings();
 
    /**
