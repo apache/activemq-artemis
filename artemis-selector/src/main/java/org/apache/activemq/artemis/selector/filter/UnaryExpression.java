@@ -262,7 +262,7 @@ public abstract class UnaryExpression implements Expression {
          return false;
       }
 
-      final BinaryExpression that = (BinaryExpression) o;
+      final UnaryExpression that = (UnaryExpression) o;
 
       if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
          return false;

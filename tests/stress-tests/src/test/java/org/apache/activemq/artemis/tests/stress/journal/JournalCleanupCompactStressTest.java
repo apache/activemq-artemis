@@ -486,7 +486,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
             while (running) {
                long[] ids = new long[5];
                // Append
-               for (int i = 0; running & i < ids.length; i++) {
+               for (int i = 0; running && i < ids.length; i++) {
                   System.out.println("append slow");
                   ids[i] = JournalCleanupCompactStressTest.idGen.generateID();
                   maxRecords.acquire();
@@ -500,7 +500,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
                   rwLock.readLock().lock();
                }
                // Delete
-               for (int i = 0; running & i < ids.length; i++) {
+               for (int i = 0; running && i < ids.length; i++) {
                   System.out.println("Deleting");
                   maxRecords.release();
                   journal.appendDeleteRecord(ids[i], false);

@@ -671,12 +671,10 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
                   if (tm == null) {
                      failed = true;
                   }
-
-                  if (!tm.getText().equals("testing" + i)) {
+                  else if (!tm.getText().equals("testing" + i)) {
                      failed = true;
                   }
-
-                  if (tm.getIntProperty("JMSXDeliveryCount") != j + 1) {
+                  else if (tm.getIntProperty("JMSXDeliveryCount") != j + 1) {
                      failed = true;
                   }
                }

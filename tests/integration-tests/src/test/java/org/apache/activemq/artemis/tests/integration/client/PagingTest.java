@@ -323,7 +323,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       HashMap<Integer, AtomicInteger> counts = countJournalLivingRecords(server.getConfiguration());
 
-      AtomicInteger pgComplete = counts.get(JournalRecordIds.PAGE_CURSOR_COMPLETE);
+      AtomicInteger pgComplete = counts.get((int) JournalRecordIds.PAGE_CURSOR_COMPLETE);
 
       assertTrue(pgComplete == null || pgComplete.get() == 0);
 

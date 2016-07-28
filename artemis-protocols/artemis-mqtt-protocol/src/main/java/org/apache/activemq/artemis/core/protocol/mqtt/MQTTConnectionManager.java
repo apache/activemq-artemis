@@ -106,8 +106,11 @@ public class MQTTConnectionManager {
    }
 
    void disconnect() {
+      if (session == null) {
+         return;
+      }
       try {
-         if (session != null && session.getSessionState() != null) {
+         if (session.getSessionState() != null) {
             String clientId = session.getSessionState().getClientId();
             if (clientId != null)
                CONNECTED_CLIENTS.remove(clientId);

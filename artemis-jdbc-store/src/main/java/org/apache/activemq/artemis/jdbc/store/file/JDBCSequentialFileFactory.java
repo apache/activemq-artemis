@@ -81,7 +81,9 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    @Override
    public SequentialFile createSequentialFile(String fileName) {
       try {
-         fileLocks.putIfAbsent(fileName, new Object());
+         if (fileLocks.get(fileName) == null) {
+            fileLocks.put(fileName, new Object());
+         }
          JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, dbDriver, fileLocks.get(fileName));
          files.add(file);
          return file;

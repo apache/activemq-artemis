@@ -108,10 +108,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
    }
 
    public void sendMessages(final int start, final int end) throws Exception {
-      ClientSession session = null;
-      try {
-
-         session = factory.createSession(false, false);
+      try (ClientSession session = factory.createSession(false, false)) {
 
          try {
             session.createQueue(QUEUE, QUEUE, true);
@@ -132,9 +129,6 @@ public class JournalCrashTest extends ActiveMQTestBase {
          session.close();
          // server.stop(); -- this test was not supposed to stop the server, it should crash
       }
-      finally {
-         session.close();
-      }
    }
 
    @Test
@@ -146,11 +140,10 @@ public class JournalCrashTest extends ActiveMQTestBase {
 
       printJournal();
 
-      ClientSession session = null;
-      try {
-         startServer();
+      startServer();
 
-         session = factory.createSession(true, true);
+      try (ClientSession session = factory.createSession(true, true)) {
+
          ClientConsumer consumer = session.createConsumer(QUEUE);
          session.start();
 
@@ -165,14 +158,6 @@ public class JournalCrashTest extends ActiveMQTestBase {
          }
          session.close();
       }
-      finally {
-         try {
-            session.close();
-         }
-         catch (Throwable ignored) {
-         }
-      }
-
    }
 
    /**

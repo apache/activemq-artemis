@@ -71,7 +71,7 @@ public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase {
    // Private -------------------------------------------------------
 
    private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2) {
-      if (bytes1 == null | bytes2 == null) {
+      if (bytes1 == null || bytes2 == null) {
          ProxyAssertSupport.fail();
       }
 
