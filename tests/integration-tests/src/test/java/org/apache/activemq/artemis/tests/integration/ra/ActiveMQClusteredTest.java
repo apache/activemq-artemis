@@ -142,9 +142,6 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
          managedConnections.add(mc);
          ActiveMQConnectionFactory cf1 = mc.getConnectionFactory();
 
-         long timeout = 10000;
-         long now = System.currentTimeMillis();
-
          while (!((ServerLocatorImpl)cf1.getServerLocator()).isReceivedTopology()) {
             Thread.sleep(50);
          }

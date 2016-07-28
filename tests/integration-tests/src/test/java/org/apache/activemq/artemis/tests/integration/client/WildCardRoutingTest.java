@@ -484,7 +484,6 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
    public void testWildcardRoutingWithHashMultiLengthAddresses() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c.f");
       SimpleString addressAC = new SimpleString("a.c.f");
-      SimpleString addressAD = new SimpleString("a.d");
       SimpleString address = new SimpleString("a.#.f");
       SimpleString queueName1 = new SimpleString("Q1");
       SimpleString queueName2 = new SimpleString("Q2");

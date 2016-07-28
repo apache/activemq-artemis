@@ -31,7 +31,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -78,8 +77,6 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
 
-         Map<Long, Queue> queues = new HashMap<>();
-
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
          journal.stop();
@@ -87,8 +84,6 @@ public class RestartSMTest extends ActiveMQTestBase {
          deleteDirectory(testdir);
 
          journal.start();
-
-         queues = new HashMap<>();
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 

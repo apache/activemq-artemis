@@ -133,7 +133,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
       final double retryIntervalMultiplier = 1.0;
       final int reconnectAttempts = -1;
       final int callTimeout = 30000;
-      final boolean ha = false;
       List<String> connectorNames = registerConnectors(server, connectorConfigs);
 
       String cfName = name.getMethodName();

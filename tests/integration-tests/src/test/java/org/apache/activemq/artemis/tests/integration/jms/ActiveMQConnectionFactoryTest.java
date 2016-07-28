@@ -215,9 +215,6 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private void testSettersThrowException(final ActiveMQConnectionFactory cf) {
 
-      String discoveryAddress = RandomUtil.randomString();
-      int discoveryPort = RandomUtil.randomPositiveInt();
-      long discoveryRefreshTimeout = RandomUtil.randomPositiveLong();
       String clientID = RandomUtil.randomString();
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
@@ -235,14 +232,12 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       String loadBalancingPolicyClassName = RandomUtil.randomString();
       int dupsOKBatchSize = RandomUtil.randomPositiveInt();
       int transactionBatchSize = RandomUtil.randomPositiveInt();
-      long initialWaitTimeout = RandomUtil.randomPositiveLong();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();
       int threadPoolMaxSize = RandomUtil.randomPositiveInt();
       long retryInterval = RandomUtil.randomPositiveLong();
       double retryIntervalMultiplier = RandomUtil.randomDouble();
       int reconnectAttempts = RandomUtil.randomPositiveInt();
-      boolean failoverOnServerShutdown = RandomUtil.randomBoolean();
 
       try {
          cf.setClientID(clientID);

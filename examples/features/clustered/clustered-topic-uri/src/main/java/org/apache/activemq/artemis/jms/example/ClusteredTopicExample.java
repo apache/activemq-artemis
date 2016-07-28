@@ -39,10 +39,6 @@ public class ClusteredTopicExample {
 
       Connection connection1 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
       try {
 
          // Step 1. Instantiate topic
@@ -115,14 +111,6 @@ public class ClusteredTopicExample {
 
          if (connection1 != null) {
             connection1.close();
-         }
-
-         if (ic0 != null) {
-            ic0.close();
-         }
-
-         if (ic1 != null) {
-            ic1.close();
          }
       }
    }

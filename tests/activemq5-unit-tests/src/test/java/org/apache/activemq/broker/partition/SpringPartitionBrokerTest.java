@@ -35,7 +35,6 @@ public class SpringPartitionBrokerTest extends TestCase {
       Partitioning config = plugin.getConfig();
       assertEquals(2, config.getBrokers().size());
 
-      Object o;
       String json = "{\n" +
          "  \"by_client_id\":{\n" +
          "    \"client1\":{\"ids\":[\"broker1\"]},\n" +
