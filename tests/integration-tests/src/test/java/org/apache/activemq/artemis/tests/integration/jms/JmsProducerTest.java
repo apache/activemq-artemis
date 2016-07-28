@@ -161,7 +161,7 @@ public class JmsProducerTest extends JMSTestBase {
             byte value1 = producer.getByteProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertEquals("value0: " + value0 + " value1: " + value1, value1 == value0);
+               assertTrue("value0: " + value0 + " value1: " + value1, value1 == value0);
             }
             else {
                fail("non existent byte property expects exception, but got value: " + value1);
