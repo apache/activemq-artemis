@@ -25,10 +25,10 @@ import org.apache.qpid.proton.amqp.UnsignedLong;
  */
 public class AmqpUnknownFilterType implements DescribedType {
 
-   public static final AmqpUnknownFilterType UNKOWN_FILTER = new AmqpUnknownFilterType();
+   public static final AmqpUnknownFilterType UNKNOWN_FILTER = new AmqpUnknownFilterType();
 
    public static final UnsignedLong UNKNOWN_FILTER_CODE = UnsignedLong.valueOf(0x0000468C00000099L);
-   public static final Symbol UNKNOWN_FILTER_NAME = Symbol.valueOf("apache.org:unkown-filter:string");
+   public static final Symbol UNKNOWN_FILTER_NAME = Symbol.valueOf("apache.org:unknown-filter:string");
    public static final Object[] UNKNOWN_FILTER_IDS = new Object[]{UNKNOWN_FILTER_CODE, UNKNOWN_FILTER_NAME};
 
    private final String payload;

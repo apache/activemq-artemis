@@ -169,7 +169,7 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
 
          @Override
          public void destroy() {
-         };
+         }
 
          @Override
          public void gc() {

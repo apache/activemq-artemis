@@ -374,7 +374,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          for (long pos = 0; pos < bodySize; ) {
             final boolean lastChunk;
 
-            final int chunkLength = (int) Math.min((bodySize - pos), (long) minLargeMessageSize);
+            final int chunkLength = (int) Math.min((bodySize - pos), minLargeMessageSize);
 
             final ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(chunkLength);
 

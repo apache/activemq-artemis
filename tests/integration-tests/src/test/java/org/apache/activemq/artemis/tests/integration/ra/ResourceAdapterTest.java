@@ -133,7 +133,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       String testBalancer = "testBalancer";
       String testParams = "key=val";
       String testaddress = "testaddress";
-      String loadbalancer = "loadbalancer";
       String testpass = "testpass";
       String testuser = "testuser";
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
@@ -153,7 +152,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       String testBalancer = "testBalancer2";
       String testParams = "key=val2";
       String testaddress = "testaddress2";
-      String loadbalancer = "loadbalancer2";
       String testpass = "testpass2";
       String testuser = "testuser2";
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();

@@ -153,7 +153,6 @@ public class TimeoutTask implements Runnable {
 
          // Finally, freely shutdown all expired consumers.
          if (expiredCallbacks.size() > 0) {
-            long startTime = System.currentTimeMillis();
             List<String> tokens = new ArrayList<>(expiredCallbacks.size());
             for (String token : expiredCallbacks.keySet()) {
                tokens.add(token);

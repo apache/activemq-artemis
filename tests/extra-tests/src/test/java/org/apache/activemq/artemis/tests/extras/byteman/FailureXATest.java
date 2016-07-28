@@ -88,7 +88,7 @@ public class FailureXATest extends ActiveMQTestBase {
 
    private void doTestCrashServerAfterXACommit(boolean onePhase) throws Exception {
       ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-      XAConnection connection = (XAConnection) connectionFactory.createXAConnection();
+      XAConnection connection = connectionFactory.createXAConnection();
 
       try {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);

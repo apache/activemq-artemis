@@ -367,7 +367,7 @@ application state) using a database.  N.B. Address full policy Paging (See: [The
 supported with the JDBC persistence layer.
 
 Using the ActiveMQ Artemis File Journal is the recommended configuration as it offers higher levels of performance and is
-more mature.  The JDBC persistence layer is targetted to those users who must use a database e.g. due to internal company
+more mature.  The JDBC persistence layer is targeted to those users who must use a database e.g. due to internal company
 policy.
 
 ActiveMQ Artemis currently has support for a limited number of database vendors (older versions may work but mileage may
