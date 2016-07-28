@@ -82,14 +82,12 @@ public class NonHATopologyTest extends ActiveMQTestBase {
 
          factory.close();
 
-         if (!isNetty) {
-            TopologyMemberImpl member = topology.getMembers().iterator().next();
-            if (isNetty) {
-               assertEquals(NettyConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
-            }
-            else {
-               assertEquals(InVMConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
-            }
+         TopologyMemberImpl member = topology.getMembers().iterator().next();
+         if (isNetty) {
+            assertEquals(NettyConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
+         }
+         else {
+            assertEquals(InVMConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
          }
 
       }
