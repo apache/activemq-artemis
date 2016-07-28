@@ -94,9 +94,9 @@ public interface JMSQueueControl extends DestinationControl {
    // Operations ----------------------------------------------------
 
    /**
-    * Returns the Registry bindings associated  to this connection factory.
+    * Returns the Registry bindings associated with this queue.
     */
-   @Operation(desc = "Returns the list of Registry bindings associated")
+   @Attribute(desc = "Returns the list of Registry bindings associated with this queue")
    String[] getRegistryBindings();
 
    /**
@@ -373,7 +373,7 @@ public interface JMSQueueControl extends DestinationControl {
    /**
     * Returns whether the queue is paused.
     */
-   @Operation(desc = "Returns true if the queue is paused.", impact = MBeanOperationInfo.INFO)
+   @Attribute(desc = "Returns true if the queue is paused.")
    boolean isPaused() throws Exception;
 
    /**

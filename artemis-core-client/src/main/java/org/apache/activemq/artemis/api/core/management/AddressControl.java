@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import javax.management.MBeanOperationInfo;
-
 /**
  * An AddressControl is used to manage an address.
  */
@@ -44,18 +42,22 @@ public interface AddressControl {
    @Attribute(desc = "roles  (name and permissions) associated with this address using JSON serialization")
    String getRolesAsJSON() throws Exception;
 
-   @Operation(desc = "returns the number of estimated bytes being used by the queue, used to control paging and blocking",
-      impact = MBeanOperationInfo.INFO)
+   /**
+    * Returns the number of estimated bytes being used by the queue(s), used to control paging and blocking.
+    */
+   @Attribute(desc = "the number of estimated bytes being used by the queue(s), used to control paging and blocking")
    long getAddressSize() throws Exception;
 
-   @Operation(desc = "Returns the sum of messages on queues, including messages in delivery",
-      impact = MBeanOperationInfo.INFO)
+   /**
+    * Returns the sum of messages on queue(s), including messages in delivery.
+    */
+   @Attribute(desc = "the sum of messages on queue(s), including messages in delivery")
    long getNumberOfMessages() throws Exception;
 
    /**
     * Returns the names of the queues bound to this address.
     */
-   @Attribute(desc = "names of the queues bound to this address")
+   @Attribute(desc = "names of the queue(s) bound to this address")
    String[] getQueueNames() throws Exception;
 
    /**
