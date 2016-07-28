@@ -67,8 +67,9 @@ public class StompV12Test extends StompV11TestBase {
    @After
    public void tearDown() throws Exception {
       try {
-         log.debug("Connection 1.2 : " + connV12.isConnected());
-         if (connV12 != null && connV12.isConnected()) {
+         boolean connected = connV12 != null && connV12.isConnected();
+         log.debug("Connection 1.2 : " + connected);
+         if (connected) {
             connV12.disconnect();
          }
       }

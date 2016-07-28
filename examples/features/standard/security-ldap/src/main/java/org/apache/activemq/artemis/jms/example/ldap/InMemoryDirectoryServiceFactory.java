@@ -89,7 +89,7 @@ public class InMemoryDirectoryServiceFactory implements DirectoryServiceFactory 
     */
    @Override
    public void init(String name) throws Exception {
-      if ((directoryService != null) && directoryService.isStarted()) {
+      if ((directoryService == null) || directoryService.isStarted()) {
          return;
       }
 
