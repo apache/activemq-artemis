@@ -286,11 +286,9 @@ public final class StompConnection implements RemotingConnection {
             return;
          }
 
-         if (me != null) {
-            StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
-            frame.addHeader(Stomp.Headers.Error.MESSAGE, me.getMessage());
-            sendFrame(frame);
-         }
+         StompFrame frame = frameHandler.createStompFrame(Stomp.Responses.ERROR);
+         frame.addHeader(Stomp.Headers.Error.MESSAGE, me.getMessage());
+         sendFrame(frame);
 
          destroyed = true;
       }
