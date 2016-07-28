@@ -76,7 +76,7 @@ public class InitalReconnectDelayTest extends OpenwireArtemisBaseTest {
       producer.send(session.createTextMessage("TEST"));
       end = (new Date()).getTime();
 
-      //Inital reconnection should kick in and be darned close to what we expected
+      //Initial reconnection should kick in and be darned close to what we expected
       LOG.info("Failover took " + (end - start) + " ms.");
       assertTrue("Failover took " + (end - start) + " ms and should be > 14000.", (end - start) > 14000);
       connection.close();

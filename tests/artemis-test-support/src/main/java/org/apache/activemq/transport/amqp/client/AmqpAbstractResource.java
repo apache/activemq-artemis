@@ -293,7 +293,7 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
    }
 
    /**
-    * When aborting the open operation, and there isnt an error condition,
+    * When aborting the open operation, and there isn't an error condition,
     * provided by the peer, the returned exception will be used instead.
     * A subclass may override this method to provide alternative behaviour.
     */

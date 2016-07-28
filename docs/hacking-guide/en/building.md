@@ -11,7 +11,7 @@ still unsolved. This is specially true for the ['site' plugin](https://maven.apa
 
 #### Upgrading the `gitbook` version and regenerating the `npm-shrinkwrap.json` file
 The full release uses `gitbook` to build a static website from the documentation. This is automatically installed using
-an `NPM` plugin and is controled via a package.json file.
+an `NPM` plugin and is controlled via a package.json file.
 
 Install `NPM` using the instructions below
 
