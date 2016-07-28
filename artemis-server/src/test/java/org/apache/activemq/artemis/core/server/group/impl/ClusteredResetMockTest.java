@@ -158,8 +158,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
             if (response == null) {
                ex = new NullPointerException("expected value on " + getName());
             }
-
-            if (!response.getGroupId().equals(code)) {
+            else if (!response.getGroupId().equals(code)) {
                ex = new IllegalStateException("expected code=" + code + " but it was " + response.getGroupId());
             }
          }
