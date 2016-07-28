@@ -87,7 +87,7 @@ public class ManagementExample {
          Message reply = requestor.request(m);
 
          // Step 15. Use a helper class to retrieve the operation result
-         int messageCount = (Integer) JMSManagementHelper.getResult(reply);
+         int messageCount = (Integer) JMSManagementHelper.getResult(reply, Integer.class);
          System.out.println(queue.getQueueName() + " contains " + messageCount + " messages");
 
          // Step 16. Create another JMS message to use as a management message
