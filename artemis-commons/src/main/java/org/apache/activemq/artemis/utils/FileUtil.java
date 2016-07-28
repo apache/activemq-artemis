@@ -63,10 +63,15 @@ public class FileUtil {
             attempts++;
          }
 
-         for (String file : files) {
-            File f = new File(directory, file);
-            if (!deleteDirectory(f)) {
-               logger.warn("Failed to clean up file: " + f.getAbsolutePath());
+         if (files == null) {
+            logger.warn("Could not list files to clean up in: " + directory.getAbsolutePath());
+         }
+         else {
+            for (String file : files) {
+               File f = new File(directory, file);
+               if (!deleteDirectory(f)) {
+                  logger.warn("Failed to clean up file: " + f.getAbsolutePath());
+               }
             }
          }
       }
