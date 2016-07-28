@@ -89,7 +89,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    private static String createMessage(int messageSize) {
       final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       Random rnd = new Random();
-      StringBuilder sb = new StringBuilder((int) messageSize);
+      StringBuilder sb = new StringBuilder(messageSize);
       for (int j = 0; j < messageSize; j++ ) {
          sb.append(AB.charAt(rnd.nextInt(AB.length())));
       }

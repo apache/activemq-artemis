@@ -146,7 +146,7 @@ final class MappedFile implements AutoCloseable {
     * then the position is updated with the number of bytes actually read.
     */
    public int read(ByteBuf dst, int dstStart, int dstLength) throws IOException {
-      final int remaining = (int) Math.min(this.length - this.position, (long) Integer.MAX_VALUE);
+      final int remaining = (int) Math.min(this.length - this.position, Integer.MAX_VALUE);
       final int read = Math.min(remaining, dstLength);
       final int bufferPosition = checkOffset(position, read);
       final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;
@@ -172,7 +172,7 @@ final class MappedFile implements AutoCloseable {
     * then the position is updated with the number of bytes actually read.
     */
    public int read(ByteBuffer dst, int dstStart, int dstLength) throws IOException {
-      final int remaining = (int) Math.min(this.length - this.position, (long) Integer.MAX_VALUE);
+      final int remaining = (int) Math.min(this.length - this.position, Integer.MAX_VALUE);
       final int read = Math.min(remaining, dstLength);
       final int bufferPosition = checkOffset(position, read);
       final long srcAddress = PlatformDependent.directBufferAddress(lastMapped) + bufferPosition;

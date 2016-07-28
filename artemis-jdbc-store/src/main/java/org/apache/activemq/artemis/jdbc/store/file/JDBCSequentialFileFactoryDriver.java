@@ -254,7 +254,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          if (rs.next()) {
             Blob blob = rs.getBlob(1);
             readLength = (int) calculateReadLength(blob.length(), bytes.remaining(), file.position());
-            byte[] data = blob.getBytes(file.position() + 1, (int) readLength);
+            byte[] data = blob.getBytes(file.position() + 1, readLength);
             bytes.put(data);
          }
          connection.commit();
