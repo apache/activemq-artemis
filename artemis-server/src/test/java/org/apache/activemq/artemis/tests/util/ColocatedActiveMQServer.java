@@ -68,7 +68,6 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl {
    @Override
    protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
       if (replicatingBackup) {
-         NodeManager manager;
          if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
             return new AIOFileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
          }

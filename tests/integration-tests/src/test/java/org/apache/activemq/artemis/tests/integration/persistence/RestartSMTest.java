@@ -20,7 +20,6 @@ import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
@@ -31,9 +30,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public class RestartSMTest extends ActiveMQTestBase {
@@ -78,8 +75,6 @@ public class RestartSMTest extends ActiveMQTestBase {
 
          journal.loadBindingJournal(queueBindingInfos, new ArrayList<GroupingInfo>());
 
-         Map<Long, Queue> queues = new HashMap<>();
-
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 
          journal.stop();
@@ -87,8 +82,6 @@ public class RestartSMTest extends ActiveMQTestBase {
          deleteDirectory(testdir);
 
          journal.start();
-
-         queues = new HashMap<>();
 
          journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new FakeJournalLoader());
 

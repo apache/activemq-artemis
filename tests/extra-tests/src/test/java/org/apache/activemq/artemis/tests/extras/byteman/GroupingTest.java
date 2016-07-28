@@ -91,8 +91,6 @@ public class GroupingTest extends JMSTestBase {
          connection.start();
          connection2.start();
 
-         final String jmsxgroupID = null;
-
          Thread t = new Thread(new Runnable() {
             @Override
             public void run() {

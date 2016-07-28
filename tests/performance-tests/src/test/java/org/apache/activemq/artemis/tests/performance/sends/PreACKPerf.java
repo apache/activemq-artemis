@@ -60,8 +60,6 @@ public class PreACKPerf extends AbstractSendReceivePerfTest {
 
       }
 
-      long end = System.currentTimeMillis();
-
       printMsgsSec(start, nmessages);
    }
 
