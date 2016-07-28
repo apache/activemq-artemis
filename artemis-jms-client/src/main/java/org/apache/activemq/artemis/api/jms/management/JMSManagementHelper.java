@@ -138,7 +138,17 @@ public class JMSManagementHelper {
     * and the result will be a String corresponding to the server exception.
     */
    public static Object getResult(final Message message) throws Exception {
-      return ManagementHelper.getResult(JMSManagementHelper.getCoreMessage(message));
+      return getResult(message, null);
+   }
+
+   /**
+    * Returns the result of an operation invocation or an attribute value.
+    * <br>
+    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
+    * and the result will be a String corresponding to the server exception.
+    */
+   public static Object getResult(final Message message, Class desiredType) throws Exception {
+      return ManagementHelper.getResult(JMSManagementHelper.getCoreMessage(message), desiredType);
    }
 
    private JMSManagementHelper() {

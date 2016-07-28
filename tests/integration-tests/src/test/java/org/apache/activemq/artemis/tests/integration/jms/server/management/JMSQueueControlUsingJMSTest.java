@@ -96,7 +96,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int changeMessagesPriority(final String filter, final int newPriority) throws Exception {
-            return (Integer) proxy.invokeOperation("changeMessagesPriority", filter, newPriority);
+            return (Integer) proxy.invokeOperation(Integer.class, "changeMessagesPriority", filter, newPriority);
          }
 
          @Override
@@ -111,12 +111,12 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int expireMessages(final String filter) throws Exception {
-            return (Integer) proxy.invokeOperation("expireMessages", filter);
+            return (Integer) proxy.invokeOperation(Integer.class, "expireMessages", filter);
          }
 
          @Override
          public int getConsumerCount() {
-            return (Integer) proxy.retrieveAttributeValue("consumerCount");
+            return (Integer) proxy.retrieveAttributeValue("consumerCount", Integer.class);
          }
 
          @Override
@@ -136,7 +136,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int getDeliveringCount() {
-            return (Integer) proxy.retrieveAttributeValue("deliveringCount");
+            return (Integer) proxy.retrieveAttributeValue("deliveringCount", Integer.class);
          }
 
          @Override
@@ -166,7 +166,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public long getMessagesAdded() {
-            return (Integer) proxy.retrieveAttributeValue("messagesAdded");
+            return (Integer) proxy.retrieveAttributeValue("messagesAdded", Integer.class);
          }
 
          @Override
@@ -210,7 +210,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int retryMessages() throws Exception {
-            return (Integer) proxy.invokeOperation("retryMessages");
+            return (Integer) proxy.invokeOperation("retryMessages", Integer.class);
          }
 
          @Override
@@ -267,12 +267,12 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int moveMessages(String filter, String otherQueueName, boolean rejectDuplicates) throws Exception {
-            return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName, rejectDuplicates);
+            return (Integer) proxy.invokeOperation(Integer.class, "moveMessages", filter, otherQueueName, rejectDuplicates);
          }
 
          @Override
          public int moveMessages(final String filter, final String otherQueueName) throws Exception {
-            return (Integer) proxy.invokeOperation("moveMessages", filter, otherQueueName);
+            return (Integer) proxy.invokeOperation(Integer.class, "moveMessages", filter, otherQueueName);
          }
 
          @Override
@@ -282,7 +282,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int removeMessages(final String filter) throws Exception {
-            return (Integer) proxy.invokeOperation("removeMessages", filter);
+            return (Integer) proxy.invokeOperation(Integer.class, "removeMessages", filter);
          }
 
          @Override
@@ -297,7 +297,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
-            return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
+            return (Integer) proxy.invokeOperation(Integer.class, "sendMessagesToDeadLetterAddress", filterStr);
          }
 
          @Override
