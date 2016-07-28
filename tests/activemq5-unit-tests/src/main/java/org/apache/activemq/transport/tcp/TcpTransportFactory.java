@@ -31,7 +31,6 @@ import org.apache.activemq.TransportLoggerSupport;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.broker.BrokerRegistry;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.transport.*;
 import org.apache.activemq.util.IOExceptionSupport;

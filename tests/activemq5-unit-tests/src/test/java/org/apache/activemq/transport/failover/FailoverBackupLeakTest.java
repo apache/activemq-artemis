@@ -22,8 +22,6 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;

@@ -29,16 +29,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import junit.framework.TestCase;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
-import org.apache.activemq.network.NetworkConnector;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;

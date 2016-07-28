@@ -23,14 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.TransactionRolledBackException;
 
-import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
-import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.transaction.Synchronization;
 import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TransactionContextTest {
