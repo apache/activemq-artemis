@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
@@ -26,17 +23,12 @@ public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTes
 
    @Override
    protected BroadcastGroupControl createManagementControl(final String name) throws Exception {
-      ServerLocator locator = createInVMNonHALocator();
-      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
-      final ClientSession session = addClientSession(sf.createSession(false, true, true));
-      session.start();
-
       return new BroadcastGroupControl() {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_BROADCAST_GROUP + name);
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.CORE_BROADCAST_GROUP + name);
 
          @Override
          public long getBroadcastPeriod() {
-            return ((Integer) proxy.retrieveAttributeValue("broadcastPeriod")).longValue();
+            return (Long) proxy.retrieveAttributeValue("broadcastPeriod", Long.class);
          }
 
          @Override
@@ -56,12 +48,12 @@ public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTes
 
          @Override
          public int getGroupPort() {
-            return (Integer) proxy.retrieveAttributeValue("groupPort");
+            return (Integer) proxy.retrieveAttributeValue("groupPort", Integer.class);
          }
 
          @Override
          public int getLocalBindPort() {
-            return (Integer) proxy.retrieveAttributeValue("localBindPort");
+            return (Integer) proxy.retrieveAttributeValue("localBindPort", Integer.class);
          }
 
          @Override
