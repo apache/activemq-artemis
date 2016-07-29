@@ -155,7 +155,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
             if (context != null && context.decRefCount() == 0) {
                //connection is still there and need to close
                context.getConnection().disconnect(error != null);
-               this.connections.remove(this);//what's that for?
+               this.connections.remove(context.getConnection());
                this.clientIdSet.remove(clientId);
             }
          }
