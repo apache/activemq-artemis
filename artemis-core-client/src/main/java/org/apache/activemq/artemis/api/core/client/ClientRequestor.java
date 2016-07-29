@@ -94,6 +94,7 @@ public final class ClientRequestor implements AutoCloseable {
     *
     * @throws Exception if an exception occurs while closing the ClientRequestor
     */
+   @Override
    public void close() throws Exception {
       replyConsumer.close();
       requestProducer.close();
