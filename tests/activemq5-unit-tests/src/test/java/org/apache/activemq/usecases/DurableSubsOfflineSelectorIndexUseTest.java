@@ -185,7 +185,7 @@ public class DurableSubsOfflineSelectorIndexUseTest extends org.apache.activemq.
       con.close();
 
       PersistenceAdapter persistenceAdapter = broker.getPersistenceAdapter();
-      if (persistenceAdapter instanceof KahaDBStore) {
+      if (persistenceAdapter instanceof KahaDBPersistenceAdapter) {
          final KahaDBStore store = ((KahaDBPersistenceAdapter) persistenceAdapter).getStore();
          LOG.info("Store page count: " + store.getPageFile().getPageCount());
          LOG.info("Store free page count: " + store.getPageFile().getFreePageCount());
