@@ -641,30 +641,15 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
    private ClientMessage receiveFromQueue(String queueName) throws Exception {
       ClientMessage msg = null;
 
-      ServerLocator locator = null;
-      ClientSessionFactory sf = null;
-      ClientSession session = null;
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory sf = createSessionFactory(locator);
+           ClientSession session = sf.createSession(false, true, true)) {
 
-      try {
-         locator = createInVMNonHALocator();
-
-         sf = createSessionFactory(locator);
-
-         session = sf.createSession(false, true, true);
          ClientConsumer consumer = session.createConsumer(queueName);
          session.start();
          msg = consumer.receive(60 * 1000);
          msg.acknowledge();
-      }
-      finally {
-         if (session != null) {
-            session.commit();
-            session.close();
-         }
-         if (sf != null)
-            sf.close();
-         if (locator != null)
-            locator.close();
+         session.commit();
       }
       return msg;
    }

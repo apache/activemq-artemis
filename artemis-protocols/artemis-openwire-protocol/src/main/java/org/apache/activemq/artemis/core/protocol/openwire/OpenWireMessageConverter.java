@@ -164,10 +164,8 @@ public class OpenWireMessageConverter implements MessageConverter {
                break;
             case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
                if (messageCompressed) {
-                  InputStream ois = new ByteArrayInputStream(contents);
-                  ois = new InflaterInputStream(ois);
-
-                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
+                  try (InputStream ois = new InflaterInputStream(new ByteArrayInputStream(contents));
+                       org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
                      byte[] buf = new byte[1024];
                      int n = ois.read(buf);
                      while (n != -1) {
@@ -258,8 +256,7 @@ public class OpenWireMessageConverter implements MessageConverter {
             case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
                if (messageCompressed) {
                   Inflater inflater = new Inflater();
-                  org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream();
-                  try {
+                  try (org.apache.activemq.util.ByteArrayOutputStream decompressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
                      int length = ByteSequenceData.readIntBig(contents);
                      contents.offset = 0;
                      byte[] data = Arrays.copyOfRange(contents.getData(), 4, contents.getLength());
@@ -275,7 +272,6 @@ public class OpenWireMessageConverter implements MessageConverter {
                   }
                   finally {
                      inflater.end();
-                     decompressed.close();
                   }
                }
                body.writeBytes(contents.data, contents.offset, contents.length);
@@ -506,10 +502,10 @@ public class OpenWireMessageConverter implements MessageConverter {
                   if (isCompressed) {
                      out = new DeflaterOutputStream(out);
                   }
-                  DataOutputStream dataOut = new DataOutputStream(out);
-                  MarshallingSupport.writeUTF8(dataOut, text.toString());
-                  bytes = bytesOut.toByteArray();
-                  out.close();
+                  try (DataOutputStream dataOut = new DataOutputStream(out)) {
+                     MarshallingSupport.writeUTF8(dataOut, text.toString());
+                     bytes = bytesOut.toByteArray();
+                  }
                }
             }
             else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
@@ -522,9 +518,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                if (isCompressed) {
                   os = new DeflaterOutputStream(os);
                }
-               DataOutputStream dataOut = new DataOutputStream(os);
-               MarshallingSupport.marshalPrimitiveMap(map, dataOut);
-               dataOut.close();
+               try (DataOutputStream dataOut = new DataOutputStream(os)) {
+                  MarshallingSupport.marshalPrimitiveMap(map, dataOut);
+               }
                bytes = out.toByteArray();
             }
             else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
@@ -545,61 +541,61 @@ public class OpenWireMessageConverter implements MessageConverter {
                if (isCompressed) {
                   out = new DeflaterOutputStream(bytesOut);
                }
-               DataOutputStream dataOut = new DataOutputStream(out);
+               try (DataOutputStream dataOut = new DataOutputStream(out)) {
 
-               boolean stop = false;
-               while (!stop && buffer.readable()) {
-                  byte primitiveType = buffer.readByte();
-                  switch (primitiveType) {
-                     case DataConstants.BOOLEAN:
-                        MarshallingSupport.marshalBoolean(dataOut, buffer.readBoolean());
-                        break;
-                     case DataConstants.BYTE:
-                        MarshallingSupport.marshalByte(dataOut, buffer.readByte());
-                        break;
-                     case DataConstants.BYTES:
-                        int len = buffer.readInt();
-                        byte[] bytesData = new byte[len];
-                        buffer.readBytes(bytesData);
-                        MarshallingSupport.marshalByteArray(dataOut, bytesData);
-                        break;
-                     case DataConstants.CHAR:
-                        char ch = (char) buffer.readShort();
-                        MarshallingSupport.marshalChar(dataOut, ch);
-                        break;
-                     case DataConstants.DOUBLE:
-                        double doubleVal = Double.longBitsToDouble(buffer.readLong());
-                        MarshallingSupport.marshalDouble(dataOut, doubleVal);
-                        break;
-                     case DataConstants.FLOAT:
-                        Float floatVal = Float.intBitsToFloat(buffer.readInt());
-                        MarshallingSupport.marshalFloat(dataOut, floatVal);
-                        break;
-                     case DataConstants.INT:
-                        MarshallingSupport.marshalInt(dataOut, buffer.readInt());
-                        break;
-                     case DataConstants.LONG:
-                        MarshallingSupport.marshalLong(dataOut, buffer.readLong());
-                        break;
-                     case DataConstants.SHORT:
-                        MarshallingSupport.marshalShort(dataOut, buffer.readShort());
-                        break;
-                     case DataConstants.STRING:
-                        String string = buffer.readNullableString();
-                        if (string == null) {
-                           MarshallingSupport.marshalNull(dataOut);
-                        }
-                        else {
-                           MarshallingSupport.marshalString(dataOut, string);
-                        }
-                        break;
-                     default:
-                        //now we stop
-                        stop = true;
-                        break;
+                  boolean stop = false;
+                  while (!stop && buffer.readable()) {
+                     byte primitiveType = buffer.readByte();
+                     switch (primitiveType) {
+                        case DataConstants.BOOLEAN:
+                           MarshallingSupport.marshalBoolean(dataOut, buffer.readBoolean());
+                           break;
+                        case DataConstants.BYTE:
+                           MarshallingSupport.marshalByte(dataOut, buffer.readByte());
+                           break;
+                        case DataConstants.BYTES:
+                           int len = buffer.readInt();
+                           byte[] bytesData = new byte[len];
+                           buffer.readBytes(bytesData);
+                           MarshallingSupport.marshalByteArray(dataOut, bytesData);
+                           break;
+                        case DataConstants.CHAR:
+                           char ch = (char) buffer.readShort();
+                           MarshallingSupport.marshalChar(dataOut, ch);
+                           break;
+                        case DataConstants.DOUBLE:
+                           double doubleVal = Double.longBitsToDouble(buffer.readLong());
+                           MarshallingSupport.marshalDouble(dataOut, doubleVal);
+                           break;
+                        case DataConstants.FLOAT:
+                           Float floatVal = Float.intBitsToFloat(buffer.readInt());
+                           MarshallingSupport.marshalFloat(dataOut, floatVal);
+                           break;
+                        case DataConstants.INT:
+                           MarshallingSupport.marshalInt(dataOut, buffer.readInt());
+                           break;
+                        case DataConstants.LONG:
+                           MarshallingSupport.marshalLong(dataOut, buffer.readLong());
+                           break;
+                        case DataConstants.SHORT:
+                           MarshallingSupport.marshalShort(dataOut, buffer.readShort());
+                           break;
+                        case DataConstants.STRING:
+                           String string = buffer.readNullableString();
+                           if (string == null) {
+                              MarshallingSupport.marshalNull(dataOut);
+                           }
+                           else {
+                              MarshallingSupport.marshalString(dataOut, string);
+                           }
+                           break;
+                        default:
+                           //now we stop
+                           stop = true;
+                           break;
+                     }
                   }
                }
-               dataOut.close();
                bytes = bytesOut.toByteArray();
             }
             else if (coreType == org.apache.activemq.artemis.api.core.Message.BYTES_TYPE) {
@@ -608,10 +604,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                buffer.readBytes(bytes);
                if (isCompressed) {
                   int length = bytes.length;
-                  org.apache.activemq.util.ByteArrayOutputStream compressed = new org.apache.activemq.util.ByteArrayOutputStream();
-                  compressed.write(new byte[4]);
                   Deflater deflater = new Deflater();
-                  try {
+                  try (org.apache.activemq.util.ByteArrayOutputStream compressed = new org.apache.activemq.util.ByteArrayOutputStream()) {
+                     compressed.write(new byte[4]);
                      deflater.setInput(bytes);
                      deflater.finish();
                      byte[] bytesBuf = new byte[1024];
@@ -625,7 +620,6 @@ public class OpenWireMessageConverter implements MessageConverter {
                   }
                   finally {
                      deflater.end();
-                     compressed.close();
                   }
                }
             }

@@ -135,9 +135,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          return null;
       }
 
-      try {
-         ByteArrayInputStream bais = new ByteArrayInputStream(data);
-         ObjectInputStream ois = new ObjectInputStreamWithClassLoader(bais);
+      try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(data))) {
          Serializable object = (Serializable) ois.readObject();
          return object;
       }
