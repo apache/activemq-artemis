@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.management.MBeanInfo;
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
@@ -292,7 +292,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
    private String listSubscribersInfosAsJSON(final DurabilityType durability) throws Exception {
       try {
          List<QueueControl> queues = getQueues(durability);
-         JsonArrayBuilder array = Json.createArrayBuilder();
+         JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
          for (QueueControl queue : queues) {
             String clientID = null;
@@ -313,7 +313,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
             String filter = queue.getFilter() != null ? queue.getFilter() : null;
 
-            JsonObject info = Json.createObjectBuilder()
+            JsonObject info = JsonLoader.createObjectBuilder()
                .add("queueName", queue.getName())
                .add("clientID", nullSafe(clientID))
                .add("selector", nullSafe(filter))

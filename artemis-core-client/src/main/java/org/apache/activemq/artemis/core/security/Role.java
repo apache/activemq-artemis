@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.Serializable;
+
+import org.apache.activemq.artemis.utils.JsonLoader;
 
 /**
  * A role is used by the security store to define access rights and is configured on a connection factory or an address.
@@ -46,7 +47,7 @@ public class Role implements Serializable {
    private final boolean browse;
 
    public JsonObject toJson() {
-      return Json.createObjectBuilder()
+      return JsonLoader.createObjectBuilder()
             .add("name", name)
             .add("send", send)
             .add("consume", consume)

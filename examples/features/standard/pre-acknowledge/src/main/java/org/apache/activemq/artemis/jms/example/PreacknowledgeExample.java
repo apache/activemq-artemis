@@ -118,7 +118,7 @@ public class PreacknowledgeExample {
 
       Message response = requestor.request(m);
 
-      int messageCount = (Integer) JMSManagementHelper.getResult(response);
+      int messageCount = (Integer) JMSManagementHelper.getResult(response, Integer.class);
 
       return messageCount;
    }

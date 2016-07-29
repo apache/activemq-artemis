@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
@@ -36,6 +35,7 @@ import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
 
@@ -140,7 +140,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    public String getRolesAsJSON() throws Exception {
       clearIO();
       try {
-         JsonArrayBuilder json = Json.createArrayBuilder();
+         JsonArrayBuilder json = JsonLoader.createArrayBuilder();
          Set<Role> roles = securityRepository.getMatch(address.toString());
 
          for (Role role : roles) {
