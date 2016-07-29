@@ -156,7 +156,7 @@ public final class JsonUtil {
             array[i] = map;
          }
          else {
-            if (val == JsonObject.NULL) {
+            if (val == JsonValue.NULL) {
                array[i] = null;
             }
             else {

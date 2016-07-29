@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
+import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -76,7 +76,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          // We could execute the maven plugins over and over on examples
          // For that reason we just unlock the server here
          // Notice this has no implementations if you are using spawn
-         OptionalLocking.unlock();
+         LockAbstract.unlock();
       }
    }
 

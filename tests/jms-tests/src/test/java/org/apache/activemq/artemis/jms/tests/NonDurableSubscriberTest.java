@@ -20,7 +20,6 @@ import javax.jms.InvalidSelectorException;
 import javax.jms.Session;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
@@ -34,8 +33,6 @@ public class NonDurableSubscriberTest extends JMSTestCase {
    // Static --------------------------------------------------------
 
    // Attributes ----------------------------------------------------
-
-   protected InitialContext ic;
 
    // Constructors --------------------------------------------------
 
