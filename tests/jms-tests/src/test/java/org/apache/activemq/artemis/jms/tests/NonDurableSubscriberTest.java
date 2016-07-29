@@ -35,8 +35,6 @@ public class NonDurableSubscriberTest extends JMSTestCase {
 
    // Attributes ----------------------------------------------------
 
-   protected InitialContext ic;
-
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
