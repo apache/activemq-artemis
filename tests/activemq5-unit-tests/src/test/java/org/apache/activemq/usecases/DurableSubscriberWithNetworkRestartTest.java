@@ -161,11 +161,10 @@ public class DurableSubscriberWithNetworkRestartTest extends JmsMultipleBrokersT
    private void logAllMbeans(BrokerService broker) throws MalformedURLException {
       try {
          // trace all existing MBeans
-         Set<?> all = broker.getManagementContext().queryNames(null, null);
+         Set<ObjectName> all = broker.getManagementContext().queryNames(null, null);
          LOG.info("Total MBean count=" + all.size());
-         for (Object o : all) {
-            //ObjectInstance bean = (ObjectInstance)o;
-            LOG.info(o);
+         for (ObjectName on : all) {
+            LOG.info(on);
          }
       }
       catch (Exception ignored) {

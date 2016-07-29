@@ -22,7 +22,6 @@ import static org.junit.Assume.assumeNotNull;
 import java.net.MalformedURLException;
 import java.util.Set;
 
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.apache.activemq.broker.BrokerService;
@@ -162,11 +161,10 @@ public class DuplexNetworkMBeanTest {
    private void logAllMbeans(BrokerService broker) throws MalformedURLException {
       try {
          // trace all existing MBeans
-         Set<?> all = broker.getManagementContext().queryNames(null, null);
+         Set<ObjectName> all = broker.getManagementContext().queryNames(null, null);
          LOG.info("Total MBean count=" + all.size());
-         for (Object o : all) {
-            ObjectInstance bean = (ObjectInstance) o;
-            LOG.info(bean.getObjectName().toString());
+         for (ObjectName on : all) {
+            LOG.info(on.toString());
          }
       }
       catch (Exception ignored) {
