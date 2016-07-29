@@ -1195,7 +1195,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
          }
          else {
-            txMap.remove(info);
+            txMap.remove(txID);
             clearOpeartionContext();
          }
 
