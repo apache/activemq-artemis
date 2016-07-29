@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -1790,7 +1791,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       System.out.println("File created at: " + fileInput.getAbsolutePath());
 
-      ClientMessage message = session.createMessage(ClientMessage.BYTES_TYPE, true);
+      ClientMessage message = session.createMessage(Message.BYTES_TYPE, true);
 
       FileInputStream fileInputStream = new FileInputStream(fileInput);
       BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
