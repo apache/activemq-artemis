@@ -142,8 +142,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
    @Test
    public void testReceiveImmediateWithZeroWindow2() throws Exception {
       ActiveMQServer server = createServer(true);
-      ServerLocator locator = createInVMNonHALocator();
-      try {
+      try (ServerLocator locator = createInVMNonHALocator()) {
          server.start();
 
          locator.setConsumerWindowSize(0);
@@ -182,9 +181,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
          session.close();
          session1.close();
          sessionProd.close();
-      }
-      finally {
-         locator.close();
       }
    }
 

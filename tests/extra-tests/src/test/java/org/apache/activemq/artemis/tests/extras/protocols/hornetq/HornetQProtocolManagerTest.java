@@ -88,12 +88,11 @@ public class HornetQProtocolManagerTest extends ActiveMQTestBase {
       manager.register(connectionFactory2, null, null, new ConcurrentHashMap<String, String>());
 
       for (XARecoveryConfig resource :manager.getResources()) {
-         ServerLocator locator = resource.createServerLocator();
-         ClientSessionFactory factory = locator.createSessionFactory();
-         ClientSession session = factory.createSession();
-         session.close();
-         factory.close();
-         locator.close();
+         try (ServerLocator locator = resource.createServerLocator();
+             ClientSessionFactory factory = locator.createSessionFactory();
+             ClientSession session = factory.createSession())         {
+            // Nothing
+         }
       }
 
    }

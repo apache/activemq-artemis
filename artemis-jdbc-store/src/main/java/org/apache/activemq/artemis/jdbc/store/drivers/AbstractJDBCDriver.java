@@ -84,9 +84,9 @@ public abstract class AbstractJDBCDriver {
    public void destroy() throws Exception {
       try {
          connection.setAutoCommit(false);
-         Statement statement = connection.createStatement();
-         statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
-         statement.close();
+         try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DROP TABLE " + sqlProvider.getTableName());
+         }
          connection.commit();
       }
       catch (SQLException e) {
