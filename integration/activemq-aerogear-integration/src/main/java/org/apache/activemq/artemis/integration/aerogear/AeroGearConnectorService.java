@@ -258,9 +258,10 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
       Set<SimpleString> propertyNames = message.getPropertyNames();
 
       for (SimpleString propertyName : propertyNames) {
-         if (propertyName.toString().startsWith("AEROGEAR_") && !AeroGearConstants.ALLOWABLE_PROPERTIES.contains(propertyName)) {
+         String nameString = propertyName.toString();
+         if (nameString.startsWith("AEROGEAR_") && !AeroGearConstants.ALLOWABLE_PROPERTIES.contains(nameString)) {
             Object property = message.getTypedProperties().getProperty(propertyName);
-            builder.attribute(propertyName.toString(), property.toString());
+            builder.attribute(nameString, property.toString());
          }
       }
 
