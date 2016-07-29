@@ -81,7 +81,7 @@ public class JDBCJournalLoaderCallback implements LoaderCallback {
 
    @Override
    public synchronized void deleteRecord(final long id) {
-      for (Integer i : deleteReferences.get(id)) {
+      for (int i : deleteReferences.get(id)) {
          committedRecords.remove(i);
       }
    }
