@@ -69,7 +69,7 @@ public class ManagementHelperTest extends Assert {
       String resource = RandomUtil.randomString();
       String operationName = RandomUtil.randomString();
 
-      int i = RandomUtil.randomInt();
+      long i = RandomUtil.randomInt();
       String s = RandomUtil.randomString();
       double d = RandomUtil.randomDouble();
       boolean b = RandomUtil.randomBoolean();
@@ -192,7 +192,7 @@ public class ManagementHelperTest extends Assert {
       ManagementHelperTest.log.info("val1 type is " + Arrays.toString(val1));
 
       String key2 = RandomUtil.randomString();
-      Integer[] val2 = new Integer[]{1, 2, 3, 4, 5};
+      Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
       ManagementHelperTest.log.info("val2 type is " + Arrays.toString(val2));
 
