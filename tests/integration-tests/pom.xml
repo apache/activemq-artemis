@@ -334,12 +334,6 @@
 		   <scope>test</scope>
 	   </dependency>
 	   <dependency>
-		   <groupId>org.apache.geronimo.specs</groupId>
-		   <artifactId>geronimo-atinject_1.0_spec</artifactId>
-		   <version>1.0</version>
-		   <scope>provided</scope>
-	   </dependency>
-	   <dependency>
 		   <groupId>org.apache.karaf</groupId>
 		   <artifactId>apache-karaf</artifactId>
 		   <version>${karaf.version}</version>

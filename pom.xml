@@ -347,19 +347,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
 
-         <!-- Required for: JMS Injection -->
-         <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
          <!-- End JMS Injection -->
 
          <!-- ## Examples Dependencies ## -->
