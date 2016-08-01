@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 /**
  * This is an extension to use libaio.
  */
-public final class LibaioFile<Callback extends SubmitInfo> {
+public final class LibaioFile<Callback extends SubmitInfo> implements AutoCloseable {
 
    protected boolean open;
    /**
