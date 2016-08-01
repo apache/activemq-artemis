@@ -126,6 +126,21 @@ public final class JsonUtil {
                else if (innerVal instanceof JsonString) {
                   innerVal = ((JsonString)innerVal).getString();
                }
+               else if (innerVal == JsonValue.FALSE) {
+                  innerVal = Boolean.FALSE;
+               }
+               else if (innerVal == JsonValue.TRUE) {
+                  innerVal = Boolean.TRUE;
+               }
+               else if (innerVal instanceof JsonNumber) {
+                  JsonNumber jsonNumber = (JsonNumber)innerVal;
+                  if (jsonNumber.isIntegral()) {
+                     innerVal = jsonNumber.longValue();
+                  }
+                  else {
+                     innerVal = jsonNumber.doubleValue();
+                  }
+               }
                else if (innerVal instanceof JsonObject) {
                   Map<String, Object> innerMap = new HashMap<>();
                   JsonObject o = (JsonObject) innerVal;
@@ -134,10 +149,6 @@ public final class JsonUtil {
                      innerMap.put(k, o.get(k));
                   }
                   innerVal = innerMap;
-               }
-               else if (innerVal instanceof JsonNumber) {
-                  JsonNumber jsonNumber = (JsonNumber)innerVal;
-                  innerVal = jsonNumber.longValue();
                }
                if (CompositeData.class.getName().equals(key)) {
                   Object[] data = (Object[]) innerVal;
@@ -154,6 +165,24 @@ public final class JsonUtil {
             }
 
             array[i] = map;
+         }
+         else if (val instanceof JsonString) {
+            array[i] = ((JsonString)val).getString();
+         }
+         else if (val == JsonValue.FALSE) {
+            array[i] = Boolean.FALSE;
+         }
+         else if (val == JsonValue.TRUE) {
+            array[i] = Boolean.TRUE;
+         }
+         else if (val instanceof JsonNumber) {
+            JsonNumber jsonNumber = (JsonNumber)val;
+            if (jsonNumber.isIntegral()) {
+               array[i] = jsonNumber.longValue();
+            }
+            else {
+               array[i] = jsonNumber.doubleValue();
+            }
          }
          else {
             if (val == JsonValue.NULL) {
