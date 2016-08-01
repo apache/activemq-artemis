@@ -130,15 +130,20 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private ActiveMQConnectionFactory factoryReference;
 
+   private final ConnectionFactoryOptions options;
+
    // Constructors ---------------------------------------------------------------------------------
 
-   public ActiveMQConnection(final String username,
+   public ActiveMQConnection(final ConnectionFactoryOptions options,
+                             final String username,
                              final String password,
                              final int connectionType,
                              final String clientID,
                              final int dupsOKBatchSize,
                              final int transactionBatchSize,
                              final ClientSessionFactory sessionFactory) {
+      this.options = options;
+
       this.username = username;
 
       this.password = password;
@@ -651,10 +656,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
                                               ClientSession session,
                                               int type) {
       if (isXA) {
-         return new ActiveMQXASession(this, transacted, true, acknowledgeMode, session, type);
+         return new ActiveMQXASession(options, this, transacted, true, acknowledgeMode, session, type);
       }
       else {
-         return new ActiveMQSession(this, transacted, false, acknowledgeMode, session, type);
+         return new ActiveMQSession(options, this, transacted, false, acknowledgeMode, session, type);
       }
    }
 
@@ -691,6 +696,14 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    public boolean isStarted() {
       return started;
+   }
+
+   public String getDeserializationBlackList() {
+      return this.factoryReference.getDeserializationBlackList();
+   }
+
+   public String getDeserializationWhiteList() {
+      return this.factoryReference.getDeserializationWhiteList();
    }
 
    // Inner classes --------------------------------------------------------------------------------

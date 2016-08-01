@@ -34,14 +34,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
  */
 public final class ActiveMQXAConnection extends ActiveMQConnection implements XATopicConnection, XAQueueConnection {
 
-   public ActiveMQXAConnection(final String username,
+   public ActiveMQXAConnection(final ConnectionFactoryOptions options,
+                               final String username,
                                final String password,
                                final int connectionType,
                                final String clientID,
                                final int dupsOKBatchSize,
                                final int transactionBatchSize,
                                final ClientSessionFactory sessionFactory) {
-      super(username, password, connectionType, clientID, dupsOKBatchSize, transactionBatchSize, sessionFactory);
+      super(options, username, password, connectionType, clientID, dupsOKBatchSize, transactionBatchSize, sessionFactory);
    }
 
    @Override

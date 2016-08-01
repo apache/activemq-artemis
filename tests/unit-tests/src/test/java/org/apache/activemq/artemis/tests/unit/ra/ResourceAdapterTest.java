@@ -475,6 +475,43 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testActivationDeserializationParameters() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.setDeserializationWhiteList("a.b.c.d.e");
+         ra.setDeserializationBlackList("f.g.h.i.j");
+         ra.start(new BootstrapContext());
+
+         ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+         assertEquals("a.b.c.d.e", factory.getDeserializationWhiteList());
+         assertEquals("f.g.h.i.j", factory.getDeserializationBlackList());
+
+         ConnectionFactoryProperties overrides = new ConnectionFactoryProperties();
+         overrides.setDeserializationWhiteList("k.l.m.n");
+         overrides.setDeserializationBlackList("o.p.q.r");
+
+         factory = ra.newConnectionFactory(overrides);
+         assertEquals("k.l.m.n", factory.getDeserializationWhiteList());
+         assertEquals("o.p.q.r", factory.getDeserializationBlackList());
+
+         ra.stop();
+
+      }
+      finally {
+         server.stop();
+      }
+   }
+
+   @Test
    public void testForConnectionLeakDuringActivationWhenSessionCreationFails() throws Exception {
       ActiveMQServer server = createServer(false);
       ActiveMQResourceAdapter ra = null;
