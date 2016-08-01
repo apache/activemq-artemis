@@ -46,6 +46,28 @@ public class LibaioTest {
    @BeforeClass
    public static void testAIO() {
       Assume.assumeTrue(LibaioContext.isLoaded());
+
+      File parent = new File("./target");
+      File file = new File(parent, "testFile");
+
+      try {
+         parent.mkdirs();
+
+
+         boolean failed = false;
+         try (LibaioContext control = new LibaioContext<>(1, true); LibaioFile fileDescriptor = control.openFile(file, true)) {
+            fileDescriptor.fallocate(4 * 1024);
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+            failed = true;
+         }
+
+         Assume.assumeFalse("There is not enough support to libaio", failed);
+      }
+      finally {
+         file.delete();
+      }
    }
 
    /**
