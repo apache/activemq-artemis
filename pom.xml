@@ -54,6 +54,7 @@
       <module>integration/activemq-spring-integration</module>
       <module>integration/activemq-aerogear-integration</module>
       <module>integration/activemq-vertx-integration</module>
+      <module>integration/artemis-cdi-integration</module>
       <module>artemis-distribution</module>
       <module>tests</module>
       <module>artemis-features</module>
@@ -96,6 +97,10 @@
       <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
       <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
       <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
+      <weld.version>2.4.0.Final</weld.version>
+      <arquillian-weld-embedded.version>2.0.0.Beta3</arquillian-weld-embedded.version>
+      <owb.version>1.7.0</owb.version>
+      <arquillian.version>1.1.11.Final</arquillian.version>
 
       <owasp.version>1.4.3</owasp.version>
 
@@ -155,6 +160,8 @@
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
 
       <directory-version>1.5.7</directory-version>
+      <cdi-api.version>1.2</cdi-api.version>
+      <geronimo-annotation_1.2_spec.version>1.0</geronimo-annotation_1.2_spec.version>
    </properties>
 
    <scm>
@@ -586,7 +593,60 @@
             <!-- License: Apache 2.0 -->
          </dependency>
 
-
+         <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-impl</artifactId>
+            <version>${owb.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-spi</artifactId>
+            <version>${owb.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-resource</artifactId>
+            <version>${owb.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.openwebbeans.arquillian</groupId>
+            <artifactId>owb-arquillian-standalone</artifactId>
+            <version>${owb.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.2_spec</artifactId>
+            <version>${geronimo-annotation_1.2_spec.version}</version>
+            <scope>provided</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se</artifactId>
+            <version>${weld.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-weld-embedded</artifactId>
+            <version>${arquillian-weld-embedded.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>${arquillian.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>${cdi-api.version}</version>
+            <scope>provided</scope>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 
