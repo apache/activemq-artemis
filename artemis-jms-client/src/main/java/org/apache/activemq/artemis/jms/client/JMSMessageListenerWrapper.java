@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 
 public class JMSMessageListenerWrapper implements MessageHandler {
 
+   private final ConnectionFactoryOptions options;
    private final ActiveMQConnection connection;
 
    private final ActiveMQSession session;
@@ -40,11 +41,14 @@ public class JMSMessageListenerWrapper implements MessageHandler {
 
    private final boolean individualACK;
 
-   protected JMSMessageListenerWrapper(final ActiveMQConnection connection,
+   protected JMSMessageListenerWrapper(final ConnectionFactoryOptions options,
+                                       final ActiveMQConnection connection,
                                        final ActiveMQSession session,
                                        final ClientConsumer consumer,
                                        final MessageListener listener,
                                        final int ackMode) {
+      this.options = options;
+
       this.connection = connection;
 
       this.session = session;
@@ -64,7 +68,7 @@ public class JMSMessageListenerWrapper implements MessageHandler {
     */
    @Override
    public void onMessage(final ClientMessage message) {
-      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession());
+      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession(), options);
 
       if (individualACK) {
          msg.setIndividualAcknowledge();

@@ -31,12 +31,13 @@ public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession
     * @param session
     * @param sessionType
     */
-   protected ActiveMQXASession(ActiveMQConnection connection,
+   protected ActiveMQXASession(final ConnectionFactoryOptions options,
+                               ActiveMQConnection connection,
                                boolean transacted,
                                boolean xa,
                                int ackMode,
                                ClientSession session,
                                int sessionType) {
-      super(connection, transacted, xa, ackMode, session, sessionType);
+      super(options, connection, transacted, xa, ackMode, session, sessionType);
    }
 }
