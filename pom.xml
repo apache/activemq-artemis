@@ -349,16 +349,9 @@
 
          <!-- Required for: JMS Injection -->
          <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-            <!-- License: Apache 2.0 -->
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-atinject_1.0_spec</artifactId>
+            <version>1.0</version>
          </dependency>
          <!-- End JMS Injection -->
 
