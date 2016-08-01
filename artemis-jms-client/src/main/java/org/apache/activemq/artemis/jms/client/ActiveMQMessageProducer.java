@@ -49,6 +49,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
 
+   private final ConnectionFactoryOptions options;
+
    private final ActiveMQConnection connection;
 
    private final SimpleString connID;
@@ -71,7 +73,9 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    protected ActiveMQMessageProducer(final ActiveMQConnection connection,
                                      final ClientProducer producer,
                                      final ActiveMQDestination defaultDestination,
-                                     final ClientSession clientSession) throws JMSException {
+                                     final ClientSession clientSession,
+                                     final ConnectionFactoryOptions options) throws JMSException {
+      this.options = options;
       this.connection = connection;
 
       connID = connection.getClientID() != null ? new SimpleString(connection.getClientID()) : connection.getUID();
@@ -434,7 +438,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             activeMQJmsMessage = new ActiveMQMapMessage((MapMessage) jmsMessage, clientSession);
          }
          else if (jmsMessage instanceof ObjectMessage) {
-            activeMQJmsMessage = new ActiveMQObjectMessage((ObjectMessage) jmsMessage, clientSession);
+            activeMQJmsMessage = new ActiveMQObjectMessage((ObjectMessage) jmsMessage, clientSession, options);
          }
          else if (jmsMessage instanceof StreamMessage) {
             activeMQJmsMessage = new ActiveMQStreamMessage((StreamMessage) jmsMessage, clientSession);
