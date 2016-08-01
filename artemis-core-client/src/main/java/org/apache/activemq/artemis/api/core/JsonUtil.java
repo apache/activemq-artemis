@@ -325,6 +325,24 @@ public final class JsonUtil {
             return jsonValue.toString();
          }
       }
+      else if (jsonValue instanceof  Number) {
+         Number jsonNumber = (Number)jsonValue;
+         if (desiredType == Integer.TYPE || desiredType == Integer.class) {
+            return  jsonNumber.intValue();
+         }
+         else if (desiredType == Long.TYPE || desiredType == Long.class) {
+            return jsonNumber.longValue();
+         }
+         else if (desiredType == Double.TYPE || desiredType == Double.class) {
+            return jsonNumber.doubleValue();
+         }
+         else if (desiredType == Short.TYPE || desiredType == Short.class) {
+            return jsonNumber.shortValue();
+         }
+         else {
+            return jsonValue;
+         }
+      }
       else if (jsonValue instanceof Object[]) {
          Object[] array = (Object[]) jsonValue;
          for (int i = 0; i < array.length; i++) {
