@@ -37,16 +37,17 @@ public class ProtonServerConnectionContextFactory extends AMQPConnectionContextF
 
    @Override
    public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback, Executor dispatchExecutor, ScheduledExecutorService scheduledPool) {
-      return createConnection(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
+      return createConnection(connectionCallback, null, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
    }
 
    @Override
    public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback,
+                                                       String containerId,
                                                        int idleTimeout,
                                                        int maxFrameSize,
                                                        int channelMax,
                                                        Executor dispatchExecutor,
                                                        ScheduledExecutorService scheduledPool) {
-      return new ProtonServerConnectionContext(connectionCallback, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
+      return new ProtonServerConnectionContext(connectionCallback, containerId, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
    }
 }

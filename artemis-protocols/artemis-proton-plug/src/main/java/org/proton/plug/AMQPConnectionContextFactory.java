@@ -25,6 +25,7 @@ public abstract class AMQPConnectionContextFactory {
     * @return
     */
    public abstract AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback,
+                                                          String containerId,
                                                           int idleTimeout,
                                                           int maxFrameSize,
                                                           int channelMax,
