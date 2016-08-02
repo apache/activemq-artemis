@@ -39,12 +39,13 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
    }
 
    public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback,
+                                        String containerId,
                                         int idleTimeout,
                                         int maxFrameSize,
                                         int channelMax,
                                         Executor dispatchExecutor,
                                         ScheduledExecutorService scheduledPool) {
-      super(connectionCallback, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
+      super(connectionCallback, containerId, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
    }
 
    // Maybe a client interface?

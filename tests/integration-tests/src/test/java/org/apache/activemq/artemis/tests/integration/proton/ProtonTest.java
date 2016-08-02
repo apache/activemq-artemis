@@ -95,6 +95,8 @@ public class ProtonTest extends ActiveMQTestBase {
 
    private static final String password = "guest";
 
+   private static final String brokerName = "my-broker";
+
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "{0}")
@@ -137,6 +139,7 @@ public class ProtonTest extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
+      server.getConfiguration().setName(brokerName);
 
       // Default Page
       AddressSettings addressSettings = new AddressSettings();
@@ -183,6 +186,20 @@ public class ProtonTest extends ActiveMQTestBase {
       }
       finally {
          super.tearDown();
+      }
+   }
+
+   @Test
+   public void testBrokerContainerId() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         assertTrue(brokerName.equals(amqpConnection.getEndpoint().getRemoteContainer()));
+      }
+      finally {
+         amqpConnection.close();
       }
    }
 

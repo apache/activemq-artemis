@@ -38,12 +38,13 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
    }
 
    public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP,
+                                        String containerId,
                                         int idleTimeout,
                                         int maxFrameSize,
                                         int channelMax,
                                         Executor dispatchExecutor,
                                         ScheduledExecutorService scheduledPool) {
-      super(connectionSP, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
+      super(connectionSP, containerId, idleTimeout, maxFrameSize, channelMax, dispatchExecutor, scheduledPool);
    }
 
    @Override
