@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -149,7 +150,7 @@ public class StompSession implements SessionCallback {
             ActiveMQBuffer qbuff = newServerMessage.getBodyBuffer();
             int bytesToRead = qbuff.writerIndex() - MessageImpl.BODY_OFFSET;
             Inflater inflater = new Inflater();
-            inflater.setInput(qbuff.readBytes(bytesToRead).toByteBuffer().array());
+            inflater.setInput(ByteUtil.getActiveArray(qbuff.readBytes(bytesToRead).toByteBuffer()));
 
             //get the real size of large message
             long sizeBody = newServerMessage.getLongProperty(Message.HDR_LARGE_BODY_SIZE);
@@ -193,6 +194,9 @@ public class StompSession implements SessionCallback {
          return length;
       }
       catch (Exception e) {
+         if (ActiveMQStompProtocolLogger.LOGGER.isDebugEnabled()) {
+            ActiveMQStompProtocolLogger.LOGGER.debug(e);
+         }
          return 0;
       }
       finally {
