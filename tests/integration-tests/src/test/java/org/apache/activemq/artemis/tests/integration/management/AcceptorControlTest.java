@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
@@ -42,6 +43,10 @@ public class AcceptorControlTest extends ManagementTestBase {
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
+
+   public boolean usingCore() {
+      return false;
+   }
 
    @Test
    public void testAttributes() throws Exception {
@@ -113,12 +118,13 @@ public class AcceptorControlTest extends ManagementTestBase {
    @Test
    public void testNotifications() throws Exception {
       TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
-      Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
+      TransportConfiguration acceptorConfig2 = new TransportConfiguration(NettyAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
+      Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig).addAcceptorConfiguration(acceptorConfig2);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
 
-      AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
+      AcceptorControl acceptorControl = createManagementControl(acceptorConfig2.getName());
 
       SimpleNotificationService.Listener notifListener = new SimpleNotificationService.Listener();
 
@@ -128,17 +134,17 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       acceptorControl.stop();
 
-      Assert.assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
+      Assert.assertEquals(usingCore() ? 5 : 1, notifListener.getNotifications().size());
+      Notification notif = notifListener.getNotifications().get(usingCore() ? 2 : 0);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
-      Assert.assertEquals(InVMAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
 
       acceptorControl.start();
 
-      Assert.assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
+      Assert.assertEquals(usingCore() ? 10 : 2, notifListener.getNotifications().size());
+      notif = notifListener.getNotifications().get(usingCore() ? 7 : 1);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
-      Assert.assertEquals(InVMAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
    }
 
    // Package protected ---------------------------------------------
