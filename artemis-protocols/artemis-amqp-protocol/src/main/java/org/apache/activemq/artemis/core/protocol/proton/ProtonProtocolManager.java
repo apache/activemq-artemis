@@ -106,8 +106,9 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
          ttl = server.getConfiguration().getConnectionTTLOverride();
       }
 
+      String id = server.getConfiguration().getName();
       AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().
-         createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
+         createConnection(connectionCallback, id, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
 
       Executor executor = server.getExecutorFactory().getExecutor();
 

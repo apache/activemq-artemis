@@ -17,6 +17,7 @@
 package org.proton.plug.context;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,10 +48,12 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
    private static final Logger log = Logger.getLogger(AbstractConnectionContext.class);
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
+   public static final String AMQP_CONTAINER_ID = "amqp-container-id";
 
    protected final ProtonHandler handler;
 
    protected AMQPConnectionCallback connectionCallback;
+   private final String containerId;
    private final ScheduledExecutorService scheduledPool;
 
    private final Map<Session, AbstractProtonSessionContext> sessions = new ConcurrentHashMap<>();
@@ -58,16 +61,18 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
    protected LocalListener listener = new LocalListener();
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback, Executor dispatchExecutor, ScheduledExecutorService scheduledPool) {
-      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
+      this(connectionCallback, null, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, dispatchExecutor, scheduledPool);
    }
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback,
+                                    String containerId,
                                     int idleTimeout,
                                     int maxFrameSize,
                                     int channelMax,
                                     Executor dispatchExecutor,
                                     ScheduledExecutorService scheduledPool) {
       this.connectionCallback = connectionCallback;
+      this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
       this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
@@ -190,6 +195,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       public void onRemoteOpen(Connection connection) throws Exception {
          synchronized (getLock()) {
             connection.setContext(AbstractConnectionContext.this);
+            connection.setContainer(containerId);
             connection.open();
          }
          initialise();
