@@ -30,6 +30,7 @@ import org.proton.plug.context.AbstractProtonReceiverContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
+import org.proton.plug.exceptions.ActiveMQAMQPNotFoundException;
 import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
@@ -85,15 +86,18 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
             if (address == null) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
             }
+
             try {
                if (!sessionSPI.queueQuery(address)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                }
             }
-            catch (Exception e) {
-               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorFindingTemporaryQueue(e.getMessage());
+            catch (ActiveMQAMQPNotFoundException e) {
+               throw e;
             }
-
+            catch (Exception e) {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
          }
       }
       flow(maxCreditAllocation, minCreditRefresh);

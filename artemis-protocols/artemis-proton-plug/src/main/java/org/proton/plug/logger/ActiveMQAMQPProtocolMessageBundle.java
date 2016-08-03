@@ -22,6 +22,7 @@ import org.proton.plug.exceptions.ActiveMQAMQPInvalidFieldException;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
+import org.proton.plug.exceptions.ActiveMQAMQPNotFoundException;
 
 /**
  * Logger Code 11
@@ -44,10 +45,10 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    ActiveMQAMQPInternalErrorException errorCreatingTemporaryQueue(String message);
 
    @Message(id = 219002, value = "target address does not exist")
-   ActiveMQAMQPIllegalStateException addressDoesntExist();
+   ActiveMQAMQPNotFoundException addressDoesntExist();
 
    @Message(id = 219003, value = "error finding temporary queue, {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQAMQPInternalErrorException errorFindingTemporaryQueue(String message);
+   ActiveMQAMQPNotFoundException errorFindingTemporaryQueue(String message);
 
    @Message(id = 219005, value = "error creating consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPInternalErrorException errorCreatingConsumer(String message);
@@ -62,7 +63,7 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    ActiveMQAMQPIllegalStateException errorCancellingMessage(String messageID, String message);
 
    @Message(id = 219010, value = "source address does not exist")
-   ActiveMQAMQPInvalidFieldException sourceAddressDoesntExist();
+   ActiveMQAMQPNotFoundException sourceAddressDoesntExist();
 
    @Message(id = 219011, value = "source address not set")
    ActiveMQAMQPInvalidFieldException sourceAddressNotSet();

@@ -527,6 +527,25 @@ public class ProtonTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      AmqpSession session = amqpConnection.createSession();
+
+      Exception expectedException = null;
+      try {
+         session.createSender("AnAddressThatDoesNotExist");
+      }
+      catch (Exception e) {
+         expectedException = e;
+      }
+
+      assertNotNull(expectedException);
+      assertTrue(expectedException.getMessage().contains("amqp:not-found"));
+      assertTrue(expectedException.getMessage().contains("target address does not exist"));
+   }
+
+   @Test
    public void testReplyTo() throws Throwable {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
