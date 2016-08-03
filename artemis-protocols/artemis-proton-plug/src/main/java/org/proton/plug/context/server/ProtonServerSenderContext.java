@@ -46,6 +46,7 @@ import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.context.ProtonPlugSender;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
+import org.proton.plug.exceptions.ActiveMQAMQPNotFoundException;
 import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.AmqpSupport.JMS_SELECTOR_FILTER_IDS;
@@ -222,6 +223,9 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                if (!sessionSPI.queueQuery(queue)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
+            }
+            catch (ActiveMQAMQPNotFoundException e) {
+               throw e;
             }
             catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
