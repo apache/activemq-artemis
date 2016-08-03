@@ -1412,4 +1412,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return xaException;
    }
 
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      //unsupported
+   }
+
 }

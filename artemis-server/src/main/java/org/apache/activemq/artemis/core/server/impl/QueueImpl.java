@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
@@ -2989,7 +2990,8 @@ public class QueueImpl implements Queue {
                }
                else if (consumerRate < threshold) {
                   RemotingConnection connection = null;
-                  RemotingService remotingService = ((PostOfficeImpl) postOffice).getServer().getRemotingService();
+                  ActiveMQServer server = ((PostOfficeImpl) postOffice).getServer();
+                  RemotingService remotingService = server.getRemotingService();
 
                   for (RemotingConnection potentialConnection : remotingService.getConnections()) {
                      if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
@@ -3002,6 +3004,7 @@ public class QueueImpl implements Queue {
                   if (connection != null) {
                      ActiveMQServerLogger.LOGGER.slowConsumerDetected(serverConsumer.getSessionID(), serverConsumer.getID(), getName().toString(), connection.getRemoteAddress(), threshold, consumerRate);
                      if (policy.equals(SlowConsumerPolicy.KILL)) {
+                        connection.killMessage(server.getNodeID());
                         remotingService.removeConnection(connection.getID());
                         connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(connection.getRemoteAddress()));
                      }

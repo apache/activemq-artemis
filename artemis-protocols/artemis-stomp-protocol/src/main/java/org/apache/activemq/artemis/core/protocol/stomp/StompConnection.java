@@ -728,4 +728,9 @@ public final class StompConnection implements RemotingConnection {
       return manager;
    }
 
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      //unsupported
+   }
+
 }
