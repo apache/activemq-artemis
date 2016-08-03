@@ -1498,4 +1498,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224068, value = "Unable to stop component: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorStoppingComponent(@Cause Throwable t, String componentClassName);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 224069, value = "Change detected in broker configuration file, but reload failed", format = Message.Format.MESSAGE_FORMAT)
+   void configurationReloadFailed(@Cause Throwable t);
 }

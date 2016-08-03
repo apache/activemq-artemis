@@ -147,6 +147,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     */
    @Override
    public void addMatch(final String match, final T value, final boolean immutableMatch) {
+      addMatch(match, value, immutableMatch, true);
+   }
+
+   private void addMatch(final String match, final T value, final boolean immutableMatch, boolean notifyListeners) {
       lock.writeLock().lock();
       try {
          clearCache();
@@ -164,7 +168,9 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
 
       // Calling the onChange outside of the wrieLock as some listeners may be doing reads on the matches
-      onChange();
+      if (notifyListeners) {
+         onChange();
+      }
    }
 
    @Override
@@ -315,6 +321,24 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       finally {
          lock.writeLock().unlock();
       }
+   }
+
+   @Override
+   public void swap(Set<Map.Entry<String, T>> entries) {
+      lock.writeLock().lock();
+      try {
+         clearCache();
+         immutables.clear();
+         matches.clear();
+         for (Map.Entry<String, T> entry : entries) {
+            addMatch(entry.getKey(), entry.getValue(), true, false);
+         }
+      }
+      finally {
+         lock.writeLock().unlock();
+      }
+
+      onChange();
    }
 
    @Override

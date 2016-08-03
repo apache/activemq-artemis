@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.settings;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
@@ -84,6 +86,8 @@ public interface HierarchicalRepository<T> {
     * clear the repository
     */
    void clear();
+
+   void swap(Set<Map.Entry<String, T>> entries);
 
    /**
     * Removes all listeners.

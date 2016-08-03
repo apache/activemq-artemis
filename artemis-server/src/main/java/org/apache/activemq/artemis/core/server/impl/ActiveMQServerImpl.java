@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -450,6 +452,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // start connector service
          connectorsService = new ConnectorsService(configuration, storageManager, scheduledPool, postOffice, serviceRegistry);
          connectorsService.start();
+
+         if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
+            getScheduledPool().scheduleWithFixedDelay(new ConfigurationFileReloader(this), configuration.getConfigurationFileRefreshPeriod(), configuration.getConfigurationFileRefreshPeriod(), TimeUnit.MILLISECONDS);
+         }
       }
       finally {
          // this avoids embedded applications using dirty contexts from startup
@@ -2350,5 +2356,39 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
+   }
+
+   private final class ConfigurationFileReloader extends Thread {
+      long lastModified;
+      boolean first = true;
+      ActiveMQServer server;
+
+      ConfigurationFileReloader(ActiveMQServer server) {
+         this.server = server;
+      }
+
+      public void run() {
+         try {
+            URL url = server.getConfiguration().getConfigurationUrl();
+            long currentLastModified = new File(url.toURI()).lastModified();
+            if (first) {
+               first = false;
+               lastModified = currentLastModified;
+               return;
+            }
+            if (currentLastModified > lastModified) {
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                  ActiveMQServerLogger.LOGGER.debug("Configuration file change detected. Reloading...");
+               }
+               Configuration config = new FileConfigurationParser().parseMainConfig(url.openStream());
+               securityRepository.swap(config.getSecurityRoles().entrySet());
+
+               lastModified = currentLastModified;
+            }
+         }
+         catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.configurationReloadFailed(e);
+         }
+      }
    }
 }

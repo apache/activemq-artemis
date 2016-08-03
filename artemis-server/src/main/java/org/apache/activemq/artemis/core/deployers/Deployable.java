@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.w3c.dom.Element;
 
 import javax.management.MBeanServer;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -32,7 +33,7 @@ public interface Deployable {
    /*
    * parse the element from the xml configuration
    */
-   void parse(Element config) throws Exception;
+   void parse(Element config, URL url) throws Exception;
 
    /*
    * has this Deployable been parsed
