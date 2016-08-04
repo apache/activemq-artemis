@@ -14,30 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.rest.integration;
+package org.apache.activemq.artemis.tests.integration.rest.util;
 
-import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
 
-public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ {
+import java.io.IOException;
 
-   public EmbeddedRestActiveMQJMS(ConnectionFactoryOptions jmsOptions) {
-      super(jmsOptions);
+public class ResponseUtil {
+   public static int getHttpCode(CloseableHttpResponse response) {
+      return response.getStatusLine().getStatusCode();
    }
 
-   @Override
-   protected void initEmbeddedActiveMQ() {
-      embeddedActiveMQ = new EmbeddedJMS();
-   }
-
-   public BindingRegistry getRegistry() {
-      if (embeddedActiveMQ == null)
-         return null;
-      return ((EmbeddedJMS) embeddedActiveMQ).getRegistry();
-   }
-
-   public EmbeddedJMS getEmbeddedJMS() {
-      return (EmbeddedJMS) embeddedActiveMQ;
+   public static String getDetails(CloseableHttpResponse response) throws IOException {
+      HttpEntity entity = response.getEntity();
+      return EntityUtils.toString(entity);
    }
 }

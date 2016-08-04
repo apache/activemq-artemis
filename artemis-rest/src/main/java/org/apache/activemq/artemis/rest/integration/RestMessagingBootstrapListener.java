@@ -20,22 +20,28 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.MessageServiceManager;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.jboss.resteasy.spi.Registry;
 
-public class RestMessagingBootstrapListener implements ServletContextListener {
+public class RestMessagingBootstrapListener implements ServletContextListener, ConnectionFactoryOptions {
 
    MessageServiceManager manager;
+   private String deserializationBlackList;
+   private String deserializationWhiteList;
 
    @Override
    public void contextInitialized(ServletContextEvent contextEvent) {
       ServletContext context = contextEvent.getServletContext();
-      String configfile = context.getInitParameter("rest.messaging.config.file");
       Registry registry = (Registry) context.getAttribute(Registry.class.getName());
       if (registry == null) {
          throw new RuntimeException("You must install RESTEasy as a Bootstrap Listener and it must be listed before this class");
       }
-      manager = new MessageServiceManager();
+      String configfile = context.getInitParameter("rest.messaging.config.file");
+      deserializationBlackList = context.getInitParameter(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
+      deserializationWhiteList = context.getInitParameter(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
+      manager = new MessageServiceManager(this);
 
       if (configfile != null) {
          manager.setConfigResourcePath(configfile);
@@ -55,5 +61,25 @@ public class RestMessagingBootstrapListener implements ServletContextListener {
       if (manager != null) {
          manager.stop();
       }
+   }
+
+   @Override
+   public String getDeserializationBlackList() {
+      return deserializationBlackList;
+   }
+
+   @Override
+   public void setDeserializationBlackList(String blackList) {
+      deserializationBlackList = blackList;
+   }
+
+   @Override
+   public String getDeserializationWhiteList() {
+      return deserializationWhiteList;
+   }
+
+   @Override
+   public void setDeserializationWhiteList(String whiteList) {
+      deserializationWhiteList = whiteList;
    }
 }

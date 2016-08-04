@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
@@ -46,6 +47,12 @@ public class PushSubscriptionsResource {
    protected final String startup = Long.toString(System.currentTimeMillis());
    protected final AtomicLong sessionCounter = new AtomicLong(1);
    protected TopicPushStore pushStore;
+
+   private ConnectionFactoryOptions jmsOptions;
+
+   public PushSubscriptionsResource(ConnectionFactoryOptions jmsOptions) {
+      this.jmsOptions = jmsOptions;
+   }
 
    public void stop() {
       for (PushConsumer consumer : consumers.values()) {
@@ -92,7 +99,7 @@ public class PushSubscriptionsResource {
       if (!query.isExists()) {
          createSession = createSubscription(destination, reg.isDurable());
       }
-      PushSubscription consumer = new PushSubscription(sessionFactory, reg.getDestination(), reg.getId(), reg, pushStore);
+      PushSubscription consumer = new PushSubscription(sessionFactory, reg.getDestination(), reg.getId(), reg, pushStore, jmsOptions);
       try {
          consumer.start();
       }
@@ -133,7 +140,7 @@ public class PushSubscriptionsResource {
       registration.setTopic(destination);
       ClientSession createSession = createSubscription(genId, registration.isDurable());
       try {
-         PushSubscription consumer = new PushSubscription(sessionFactory, genId, genId, registration, pushStore);
+         PushSubscription consumer = new PushSubscription(sessionFactory, genId, genId, registration, pushStore, jmsOptions);
          try {
             consumer.start();
             if (registration.isDurable() && pushStore != null) {

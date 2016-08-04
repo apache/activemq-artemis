@@ -257,21 +257,21 @@ For more information on configuring the SSL transport, please see [Configuring t
 ## User credentials
 
 Apache ActiveMQ Artemis ships with two security manager implementations:
- 
--   The legacy, deprecated `ActiveMQSecurityManager` that reads user credentials, i.e. user names, passwords and role 
+
+-   The legacy, deprecated `ActiveMQSecurityManager` that reads user credentials, i.e. user names, passwords and role
 information from properties files on the classpath called `artemis-users.properties` and `artemis-roles.properties`.
 
--   The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any standard JAAS login module. Artemis ships 
+-   The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any standard JAAS login module. Artemis ships
 with several login modules which will be discussed further down. This is the default security manager.
 
 ### JAAS Security Manager
 
 When using JAAS much of the configuration depends on which login module is used. However, there are a few commonalities
-for every case. The first place to look is in `bootstrap.xml`. Here is an example using the `PropertiesLogin` JAAS login 
+for every case. The first place to look is in `bootstrap.xml`. Here is an example using the `PropertiesLogin` JAAS login
 module which reads user, password, and role information from properties files:
 
     <jaas-security domain="PropertiesLogin"/>
-    
+
 No matter what login module you're using, you'll need to specify it here in `bootstrap.xml`. The `domain` attribute
 here refers to the relevant login module entry in `login.config`. For example:
 
@@ -282,7 +282,7 @@ here refers to the relevant login module entry in `login.config`. For example:
             org.apache.activemq.jaas.properties.role="artemis-roles.properties";
     };
 
-The `login.config` file is a standard JAAS configuration file. You can read more about this file on 
+The `login.config` file is a standard JAAS configuration file. You can read more about this file on
 [Oracle's website](https://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html).
 In short, the file defines:
 
@@ -295,18 +295,18 @@ In short, the file defines:
 
 -   a list of configuration options specific to the login module implementation
 
-By default, the location and name of `login.config` is specified on the Artemis command-line which is set by 
+By default, the location and name of `login.config` is specified on the Artemis command-line which is set by
 `etc/artemis.profile` on linux and `etc\artemis.profile.cmd` on Windows.
 
 #### Dual Authentication
 
-The JAAS Security Manager also supports another configuration parameter - `certificate-domain`. This is useful when you 
+The JAAS Security Manager also supports another configuration parameter - `certificate-domain`. This is useful when you
 want to authenticate clients connecting with SSL connections based on their SSL certificates (e.g. using the `CertificateLoginModule`
 discussed below) but you still want to authenticate clients connecting with non-SSL connections with, e.g., username and
 password. Here's an example of what would go in `bootstrap.xml`:
 
     <jaas-security domain="PropertiesLogin" certificate-domain="CertLogin"/>
-    
+
 And here's the corresponding `login.config`:
 
     PropertiesLogin {
@@ -315,7 +315,7 @@ And here's the corresponding `login.config`:
            org.apache.activemq.jaas.properties.user="artemis-users.properties"
            org.apache.activemq.jaas.properties.role="artemis-roles.properties";
     };
-    
+
     CertLogin {
        org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule required
            debug=true
@@ -329,8 +329,8 @@ using `CertLogin` and any client connecting without SSL will be authenticated us
 ### JAAS Login Modules
 
 #### GuestLoginModule
-Allows users without credentials (and, depending on how it is configured, possibly also users with invalid credentials) 
-to access the broker. Normally, the guest login module is chained with another login module, such as a properties login 
+Allows users without credentials (and, depending on how it is configured, possibly also users with invalid credentials)
+to access the broker. Normally, the guest login module is chained with another login module, such as a properties login
 module. It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas.GuestLoginModule`.
 
 -   `org.apache.activemq.jaas.guest.user` - the user name to assign; default is "guest"
@@ -340,7 +340,7 @@ module. It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas
 -   `credentialsInvalidate` - boolean flag; if `true`, reject login requests that include a password (i.e. guest login
 succeeds only when the user does not provide a password); default is `false`
 
--   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it 
+-   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
 should be set to `false`, or omitted; default is `false`
 
 There are two basic use cases for the guest login module, as follows:
@@ -349,8 +349,8 @@ There are two basic use cases for the guest login module, as follows:
 
 -   Guests with no credentials only.
 
-The following snippet shows how to configure a JAAS login entry for the use case where users with no credentials or 
-invalid credentials are logged in as guests. In this example, the guest login module is used in combination with the 
+The following snippet shows how to configure a JAAS login entry for the use case where users with no credentials or
+invalid credentials are logged in as guests. In this example, the guest login module is used in combination with the
 properties login module.
 
     activemq-domain {
@@ -358,7 +358,7 @@ properties login module.
           debug=true
           org.apache.activemq.jaas.properties.user="artemis-users.properties"
           org.apache.activemq.jaas.properties.role="artemis-roles.properties";
-    
+
       org.apache.activemq.artemis.spi.core.security.jaas.GuestLoginModule sufficient
           debug=true
           org.apache.activemq.jaas.guest.user="anyone"
@@ -367,18 +367,18 @@ properties login module.
 
 Depending on the user login data, authentication proceeds as follows:
 
--   User logs in with a valid password — the properties login module successfully authenticates the user and returns 
+-   User logs in with a valid password — the properties login module successfully authenticates the user and returns
     immediately. The guest login module is not invoked.
 
--   User logs in with an invalid password — the properties login module fails to authenticate the user, and authentication 
+-   User logs in with an invalid password — the properties login module fails to authenticate the user, and authentication
     proceeds to the guest login module. The guest login module successfully authenticates the user and returns the guest principal.
 
--   User logs in with a blank password — the properties login module fails to authenticate the user, and authentication 
+-   User logs in with a blank password — the properties login module fails to authenticate the user, and authentication
     proceeds to the guest login module. The guest login module successfully authenticates the user and returns the guest principal.
 
-The following snipped shows how to configure a JAAS login entry for the use case where only those users with no 
-credentials are logged in as guests. To support this use case, you must set the credentialsInvalidate option to true in 
-the configuration of the guest login module. You should also note that, compared with the preceding example, the order 
+The following snipped shows how to configure a JAAS login entry for the use case where only those users with no
+credentials are logged in as guests. To support this use case, you must set the credentialsInvalidate option to true in
+the configuration of the guest login module. You should also note that, compared with the preceding example, the order
 of the login modules is reversed and the flag attached to the properties login module is changed to requisite.
 
     activemq-guest-when-no-creds-only-domain {
@@ -387,7 +387,7 @@ of the login modules is reversed and the flag attached to the properties login m
            credentialsInvalidate=true
            org.apache.activemq.jaas.guest.user="guest"
            org.apache.activemq.jaas.guest.role="guests";
-    
+
         org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule requisite
             debug=true
             org.apache.activemq.jaas.properties.user="artemis-users.properties"
@@ -396,20 +396,20 @@ of the login modules is reversed and the flag attached to the properties login m
 
 Depending on the user login data, authentication proceeds as follows:
 
--   User logs in with a valid password — the guest login module fails to authenticate the user (because the user has 
-    presented a password while the credentialsInvalidate option is enabled) and authentication proceeds to the properties 
+-   User logs in with a valid password — the guest login module fails to authenticate the user (because the user has
+    presented a password while the credentialsInvalidate option is enabled) and authentication proceeds to the properties
     login module. The properties login module successfully authenticates the user and returns.
 
 -   User logs in with an invalid password — the guest login module fails to authenticate the user and authentication proceeds
-    to the properties login module. The properties login module also fails to authenticate the user. The nett result is 
+    to the properties login module. The properties login module also fails to authenticate the user. The nett result is
     authentication failure.
- 
+
 -   User logs in with a blank password — the guest login module successfully authenticates the user and returns immediately.
     The properties login module is not invoked.
-    
+
 #### PropertiesLoginModule
-The JAAS properties login module provides a simple store of authentication data, where the relevant user data is stored 
-in a pair of flat files. This is convenient for demonstrations and testing, but for an enterprise system, the integration 
+The JAAS properties login module provides a simple store of authentication data, where the relevant user data is stored
+in a pair of flat files. This is convenient for demonstrations and testing, but for an enterprise system, the integration
 with LDAP is preferable. It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule`.
 
 -   `org.apache.activemq.jaas.properties.user` - the path to the file which contains user and password properties
@@ -418,148 +418,148 @@ with LDAP is preferable. It is implemented by `org.apache.activemq.artemis.spi.c
 
 -   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
 
--   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it 
+-   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
 should be set to `false`, or omitted; default is `false`
 
-In the context of the properties login module, the `artemis-users.properties` file consists of a list of properties of the 
-form, `UserName=Password`. For example, to define the users `system`, `user`, and `guest`, you could create a file like 
+In the context of the properties login module, the `artemis-users.properties` file consists of a list of properties of the
+form, `UserName=Password`. For example, to define the users `system`, `user`, and `guest`, you could create a file like
 the following:
 
     system=manager
     user=password
     guest=password
 
-The `artemis-roles.properties` file consists of a list of properties of the form, `Role=UserList`, where UserList is a 
-comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file 
+The `artemis-roles.properties` file consists of a list of properties of the form, `Role=UserList`, where UserList is a
+comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file
 like the following:
 
     admins=system
     users=system,user
     guests=guest
-    
+
 #### LDAPLoginModule
-The LDAP login module enables you to perform authentication and authorization by checking the incoming credentials against 
-user data stored in a central X.500 directory server. For systems that already have an X.500 directory server in place, 
-this means that you can rapidly integrate ActiveMQ Artemis with the existing security database and user accounts can be 
+The LDAP login module enables you to perform authentication and authorization by checking the incoming credentials against
+user data stored in a central X.500 directory server. For systems that already have an X.500 directory server in place,
+this means that you can rapidly integrate ActiveMQ Artemis with the existing security database and user accounts can be
 managed using the X.500 system. It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule`.
 
--   `initialContextFactory` - must always be set to `com.sun.jndi.ldap.LdapCtxFactory`    
+-   `initialContextFactory` - must always be set to `com.sun.jndi.ldap.LdapCtxFactory`
 
--   `connectionURL` - specify the location of the directory server using an ldap URL, ldap://Host:Port. You can 
+-   `connectionURL` - specify the location of the directory server using an ldap URL, ldap://Host:Port. You can
     optionally qualify this URL, by adding a forward slash, `/`, followed by the DN of a particular node in the directory
-    tree. For example, ldap://ldapserver:10389/ou=system.    
-        
--   `authentication` - specifies the authentication method used when binding to the LDAP server. Can take either of 
-    the values, `simple` (username and password) or `none` (anonymous). 
-            
--   `connectionUsername` - the DN of the user that opens the connection to the directory server. For example, 
+    tree. For example, ldap://ldapserver:10389/ou=system.
+
+-   `authentication` - specifies the authentication method used when binding to the LDAP server. Can take either of
+    the values, `simple` (username and password) or `none` (anonymous).
+
+-   `connectionUsername` - the DN of the user that opens the connection to the directory server. For example,
     `uid=admin,ou=system`. Directory servers generally require clients to present username/password credentials in order
-    to open a connection.      
-      
--   `connectionPassword` - the password that matches the DN from `connectionUsername`. In the directory server, 
-    in the DIT, the password is normally stored as a `userPassword` attribute in the corresponding directory entry.    
-         
--   `connectionProtocol` - currently, the only supported value is a blank string. In future, this option will allow 
-    you to select the Secure Socket Layer (SSL) for the connection to the directory server. This option must be set 
-    explicitly to an empty string, because it has no default value.        
-    
--   `userBase` - selects a particular subtree of the DIT to search for user entries. The subtree is specified by a 
+    to open a connection.
+
+-   `connectionPassword` - the password that matches the DN from `connectionUsername`. In the directory server,
+    in the DIT, the password is normally stored as a `userPassword` attribute in the corresponding directory entry.
+
+-   `connectionProtocol` - currently, the only supported value is a blank string. In future, this option will allow
+    you to select the Secure Socket Layer (SSL) for the connection to the directory server. This option must be set
+    explicitly to an empty string, because it has no default value.
+
+-   `userBase` - selects a particular subtree of the DIT to search for user entries. The subtree is specified by a
     DN, which specifes the base node of the subtree. For example, by setting this option to `ou=User,ou=ActiveMQ,ou=system`,
-    the search for user entries is restricted to the subtree beneath the `ou=User,ou=ActiveMQ,ou=system` node.   
-         
--   `userSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `userBase`. 
-    Before passing to the LDAP search operation, the string value you provide here is subjected to string substitution, 
-    as implemented by the `java.text.MessageFormat` class. Essentially, this means that the special string, `{0}`, is 
-    substituted by the username, as extracted from the incoming client credentials.  
-      
-    After substitution, the string is interpreted as an LDAP search filter, where the LDAP search filter syntax is 
-    defined by the IETF standard, RFC 2254. A short introduction to the search filter syntax is available from Oracle's 
-    JNDI tutorial, [Search Filters](http://download.oracle.com/javase/jndi/tutorial/basics/directory/filter.html). 
-       
+    the search for user entries is restricted to the subtree beneath the `ou=User,ou=ActiveMQ,ou=system` node.
+
+-   `userSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `userBase`.
+    Before passing to the LDAP search operation, the string value you provide here is subjected to string substitution,
+    as implemented by the `java.text.MessageFormat` class. Essentially, this means that the special string, `{0}`, is
+    substituted by the username, as extracted from the incoming client credentials.
+
+    After substitution, the string is interpreted as an LDAP search filter, where the LDAP search filter syntax is
+    defined by the IETF standard, RFC 2254. A short introduction to the search filter syntax is available from Oracle's
+    JNDI tutorial, [Search Filters](http://download.oracle.com/javase/jndi/tutorial/basics/directory/filter.html).
+
     For example, if this option is set to `(uid={0})` and the received username is `jdoe`, the search filter becomes
-    `(uid=jdoe)` after string substitution. If the resulting search filter is applied to the subtree selected by the 
+    `(uid=jdoe)` after string substitution. If the resulting search filter is applied to the subtree selected by the
     user base, `ou=User,ou=ActiveMQ,ou=system`, it would match the entry, `uid=jdoe,ou=User,ou=ActiveMQ,ou=system`
-    (and possibly more deeply nested entries, depending on the specified search depth—see the `userSearchSubtree` option). 
-           
--   `userSearchSubtree` - specify the search depth for user entries, relative to the node specified by `userBase`. 
-    This option is a boolean. `false` indicates it will try to match one of the child entries of the `userBase` node 
-    (maps to `javax.naming.directory.SearchControls.ONELEVEL_SCOPE`). `true` indicates it will try to match any entry 
-    belonging to the subtree of the `userBase` node (maps to `javax.naming.directory.SearchControls.SUBTREE_SCOPE`). 
-           
--   `userRoleName` - specifies the name of the multi-valued attribute of the user entry that contains a list of 
+    (and possibly more deeply nested entries, depending on the specified search depth—see the `userSearchSubtree` option).
+
+-   `userSearchSubtree` - specify the search depth for user entries, relative to the node specified by `userBase`.
+    This option is a boolean. `false` indicates it will try to match one of the child entries of the `userBase` node
+    (maps to `javax.naming.directory.SearchControls.ONELEVEL_SCOPE`). `true` indicates it will try to match any entry
+    belonging to the subtree of the `userBase` node (maps to `javax.naming.directory.SearchControls.SUBTREE_SCOPE`).
+
+-   `userRoleName` - specifies the name of the multi-valued attribute of the user entry that contains a list of
     role names for the user (where the role names are interpreted as group names by the broker's authorization plug-in).
-    If you omit this option, no role names are extracted from the user entry.         
-    
--   `roleBase` - if you want to store role data directly in the directory server, you can use a combination of role 
-    options (`roleBase`, `roleSearchMatching`, `roleSearchSubtree`, and `roleName`) as an alternative to (or in addition 
-    to) specifying the `userRoleName` option. This option selects a particular subtree of the DIT to search for role/group 
-    entries. The subtree is specified by a DN, which specifes the base node of the subtree. For example, by setting this 
-    option to `ou=Group,ou=ActiveMQ,ou=system`, the search for role/group entries is restricted to the subtree beneath 
-    the `ou=Group,ou=ActiveMQ,ou=system` node.        
-    
+    If you omit this option, no role names are extracted from the user entry.
+
+-   `roleBase` - if you want to store role data directly in the directory server, you can use a combination of role
+    options (`roleBase`, `roleSearchMatching`, `roleSearchSubtree`, and `roleName`) as an alternative to (or in addition
+    to) specifying the `userRoleName` option. This option selects a particular subtree of the DIT to search for role/group
+    entries. The subtree is specified by a DN, which specifes the base node of the subtree. For example, by setting this
+    option to `ou=Group,ou=ActiveMQ,ou=system`, the search for role/group entries is restricted to the subtree beneath
+    the `ou=Group,ou=ActiveMQ,ou=system` node.
+
 -   `roleName` - specifies the attribute type of the role entry that contains the name of the role/group (e.g. C, O,
-    OU, etc.). If you omit this option, the role search feature is effectively disabled.        
-    
--   `roleSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `roleBase`. 
+    OU, etc.). If you omit this option, the role search feature is effectively disabled.
+
+-   `roleSearchMatching` - specifies an LDAP search filter, which is applied to the subtree selected by `roleBase`.
     This works in a similar manner to the `userSearchMatching` option, except that it supports two substitution strings,
-    as follows:        
-    
-    -   `{0}` - substitutes the full DN of the matched user entry (that is, the result of the user search). For 
+    as follows:
+
+    -   `{0}` - substitutes the full DN of the matched user entry (that is, the result of the user search). For
         example, for the user, `jdoe`, the substituted string could be `uid=jdoe,ou=User,ou=ActiveMQ,ou=system`.
-        
-    -   `{1}` - substitutes the received username. For example, `jdoe`.    
-    
-    For example, if this option is set to `(member=uid={1})` and the received username is `jdoe`, the search filter 
-    becomes `(member=uid=jdoe)` after string substitution (assuming ApacheDS search filter syntax). If the resulting 
-    search filter is applied to the subtree selected by the role base, `ou=Group,ou=ActiveMQ,ou=system`, it matches all 
-    role entries that have a `member` attribute equal to `uid=jdoe` (the value of a `member` attribute is a DN).  
-      
-    This option must always be set, even if role searching is disabled, because it has no default value. 
-       
+
+    -   `{1}` - substitutes the received username. For example, `jdoe`.
+
+    For example, if this option is set to `(member=uid={1})` and the received username is `jdoe`, the search filter
+    becomes `(member=uid=jdoe)` after string substitution (assuming ApacheDS search filter syntax). If the resulting
+    search filter is applied to the subtree selected by the role base, `ou=Group,ou=ActiveMQ,ou=system`, it matches all
+    role entries that have a `member` attribute equal to `uid=jdoe` (the value of a `member` attribute is a DN).
+
+    This option must always be set, even if role searching is disabled, because it has no default value.
+
     If you use OpenLDAP, the syntax of the search filter is `(member:=uid=jdoe)`.
-    
--   `roleSearchSubtree` - specify the search depth for role entries, relative to the node specified by `roleBase`. 
+
+-   `roleSearchSubtree` - specify the search depth for role entries, relative to the node specified by `roleBase`.
     This option can take boolean values, as follows:
-    
-    -   `false` (default) - try to match one of the child entries of the roleBase node (maps to 
-        `javax.naming.directory.SearchControls.ONELEVEL_SCOPE`).    
-                                   
-    -   `true` — try to match any entry belonging to the subtree of the roleBase node (maps to 
+
+    -   `false` (default) - try to match one of the child entries of the roleBase node (maps to
+        `javax.naming.directory.SearchControls.ONELEVEL_SCOPE`).
+
+    -   `true` — try to match any entry belonging to the subtree of the roleBase node (maps to
         `javax.naming.directory.SearchControls.SUBTREE_SCOPE`).
 
--   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it 
+-   `debug` - boolean flag; if `true`, enable debugging; this is used only for testing or debugging; normally, it
     should be set to `false`, or omitted; default is `false`
 
-Add user entries under the node specified by the `userBase` option. When creating a new user entry in the directory, 
-choose an object class that supports the `userPassword` attribute (for example, the `person` or `inetOrgPerson` object 
-classes are typically suitable). After creating the user entry, add the `userPassword` attribute, to hold the user's 
+Add user entries under the node specified by the `userBase` option. When creating a new user entry in the directory,
+choose an object class that supports the `userPassword` attribute (for example, the `person` or `inetOrgPerson` object
+classes are typically suitable). After creating the user entry, add the `userPassword` attribute, to hold the user's
 password.
 
-If you want to store role data in dedicated role entries (where each node represents a particular role), create a role 
-entry as follows. Create a new child of the `roleBase` node, where the `objectClass` of the child is `groupOfNames`. Set 
-the `cn` (or whatever attribute type is specified by `roleName`) of the new child node equal to the name of the 
-role/group. Define a `member` attribute for each member of the role/group, setting the `member` value to the DN of the 
-corresponding user (where the DN is specified either fully, `uid=jdoe,ou=User,ou=ActiveMQ,ou=system`, or partially, 
+If you want to store role data in dedicated role entries (where each node represents a particular role), create a role
+entry as follows. Create a new child of the `roleBase` node, where the `objectClass` of the child is `groupOfNames`. Set
+the `cn` (or whatever attribute type is specified by `roleName`) of the new child node equal to the name of the
+role/group. Define a `member` attribute for each member of the role/group, setting the `member` value to the DN of the
+corresponding user (where the DN is specified either fully, `uid=jdoe,ou=User,ou=ActiveMQ,ou=system`, or partially,
 `uid=jdoe`).
 
-If you want to add roles to user entries, you would need to customize the directory schema, by adding a suitable 
+If you want to add roles to user entries, you would need to customize the directory schema, by adding a suitable
 attribute type to the user entry's object class. The chosen attribute type must be capable of handling multiple values.
 
 #### CertificateLoginModule
 
 The JAAS certificate authentication login module must be used in combination with SSL and the clients must be configured
-with their own certificate. In this scenario, authentication is actually performed during the SSL/TLS handshake, not 
+with their own certificate. In this scenario, authentication is actually performed during the SSL/TLS handshake, not
 directly by the JAAS certificate authentication plug-in. The role of the plug-in is as follows:
 
--   To further constrain the set of acceptable users, because only the user DNs explicitly listed in the relevant 
+-   To further constrain the set of acceptable users, because only the user DNs explicitly listed in the relevant
     properties file are eligible to be authenticated.
 
 -   To associate a list of groups with the received user identity, facilitating integration with the authorization feature.
 
--   To require the presence of an incoming certificate (by default, the SSL/TLS layer is configured to treat the 
+-   To require the presence of an incoming certificate (by default, the SSL/TLS layer is configured to treat the
     presence of a client certificate as optional).
 
-The JAAS certificate login module stores a collection of certificate DNs in a pair of flat files. The files associate a 
+The JAAS certificate login module stores a collection of certificate DNs in a pair of flat files. The files associate a
 username and a list of group IDs with each DN.
 
 The certificate login module is implemented by the following class:
@@ -578,13 +578,13 @@ The following `CertLogin` login entry shows how to configure certificate login m
 In the preceding example, the JAAS realm is configured to use a single `org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule`
 login module. The options supported by this login module are as follows:
 
--   `debug` - boolean flag; if true, enable debugging; this is used only for testing or debugging; normally, 
+-   `debug` - boolean flag; if true, enable debugging; this is used only for testing or debugging; normally,
     it should be set to `false`, or omitted; default is `false`
 
--   `org.apache.activemq.jaas.textfiledn.user` - specifies the location of the user properties file (relative to the 
+-   `org.apache.activemq.jaas.textfiledn.user` - specifies the location of the user properties file (relative to the
      directory containing the login configuration file).
 
--   `org.apache.activemq.jaas.textfiledn.role` - specifies the location of the role properties file (relative to the 
+-   `org.apache.activemq.jaas.textfiledn.role` - specifies the location of the role properties file (relative to the
     directory containing the login configuration file).
 
 -   `reload` - boolean flag; whether or not to reload the properties files when a modification occurs; default is `false`
@@ -597,29 +597,29 @@ the following:
     user=CN=humble user,O=Progress,C=US
     guest=CN=anon,O=Progress,C=DE
 
-Each username is mapped to a subject DN, encoded as a string (where the string encoding is specified by RFC 2253). For 
+Each username is mapped to a subject DN, encoded as a string (where the string encoding is specified by RFC 2253). For
 example, the system username is mapped to the `CN=system,O=Progress,C=US` subject DN. When performing authentication,
-the plug-in extracts the subject DN from the received certificate, converts it to the standard string format, and 
-compares it with the subject DNs in the `users.properties` file by testing for string equality. Consequently, you must 
+the plug-in extracts the subject DN from the received certificate, converts it to the standard string format, and
+compares it with the subject DNs in the `users.properties` file by testing for string equality. Consequently, you must
 be careful to ensure that the subject DNs appearing in the `users.properties` file are an exact match for the subject
 DNs extracted from the user certificates.
 
 Note: Technically, there is some residual ambiguity in the DN string format. For example, the `domainComponent` attribute
-could be represented in a string either as the string, `DC`, or as the OID, `0.9.2342.19200300.100.1.25`. Normally, you do 
-not need to worry about this ambiguity. But it could potentially be a problem, if you changed the underlying 
+could be represented in a string either as the string, `DC`, or as the OID, `0.9.2342.19200300.100.1.25`. Normally, you do
+not need to worry about this ambiguity. But it could potentially be a problem, if you changed the underlying
 implementation of the Java security layer.
 
-The easiest way to obtain the subject DNs from the user certificates is by invoking the `keytool` utility to print the 
+The easiest way to obtain the subject DNs from the user certificates is by invoking the `keytool` utility to print the
 certificate contents. To print the contents of a certificate in a keystore, perform the following steps:
 
-1.   Export the certificate from the keystore file into a temporary file. For example, to export the certificate with 
+1.   Export the certificate from the keystore file into a temporary file. For example, to export the certificate with
      alias `broker-localhost` from the `broker.ks` keystore file, enter the following command:
 
         keytool -export -file broker.export -alias broker-localhost -keystore broker.ks -storepass password
 
      After running this command, the exported certificate is in the file, `broker.export`.
 
-1.   Print out the contents of the exported certificate. For example, to print out the contents of `broker.export`, 
+1.   Print out the contents of the exported certificate. For example, to print out the contents of `broker.export`,
      enter the following command:
 
         keytool -printcert -file broker.export
@@ -634,11 +634,11 @@ certificate contents. To print the contents of a certificate in a keystore, perf
                  MD5:  3F:6C:0C:89:A8:80:29:CC:F5:2D:DA:5C:D7:3F:AB:37
                  SHA1: F0:79:0D:04:38:5A:46:CE:86:E1:8A:20:1F:7B:AB:3A:46:E4:34:5C
 
-     The string following `Owner:` gives the subject DN. The format used to enter the subject DN depends on your 
+     The string following `Owner:` gives the subject DN. The format used to enter the subject DN depends on your
      platform. The `Owner:` string above could be represented as either `CN=localhost,\ OU=broker,\ O=Unknown,\ L=Unknown,\ ST=Unknown,\ C=Unknown`
      or `CN=localhost,OU=broker,O=Unknown,L=Unknown,ST=Unknown,C=Unknown`.
 
-The `roles.properties` file consists of a list of properties of the form, `Role=UserList`, where `UserList` is a 
+The `roles.properties` file consists of a list of properties of the form, `Role=UserList`, where `UserList` is a
 comma-separated list of users. For example, to define the roles `admins`, `users`, and `guests`, you could create a file
 like the following:
 
@@ -646,7 +646,7 @@ like the following:
     users=system,user
     guests=guest
 
-The simplest way to make the login configuration available to JAAS is to add the directory containing the file, 
+The simplest way to make the login configuration available to JAAS is to add the directory containing the file,
 `login.config`, to your CLASSPATH.
 
 
@@ -699,12 +699,12 @@ can be deserialized without problem, whereas those from 'not trusted' packages w
 deserialization.
 
 Artemis keeps a `black list` to keep track of packages that are not trusted and a `white list`
-for trusted packages. By default both lists are empty, meaning any serializable object is 
+for trusted packages. By default both lists are empty, meaning any serializable object is
 allowed to be deserialized. If an object whose class matches one of the packages in black list,
 it is not allowed to be deserialized. If it matches one in the white list
-the object can be deserialized. If a package appears in both black list and white list, 
-the one in black list takes precedence. If a class neither matches with `black list` 
-nor with the `white list`, the class deserialization will be denied 
+the object can be deserialized. If a package appears in both black list and white list,
+the one in black list takes precedence. If a class neither matches with `black list`
+nor with the `white list`, the class deserialization will be denied
 unless the white list is empty (meaning the user doesn't specify the white list at all).
 
 A class is considered as a 'match' if
@@ -734,7 +734,7 @@ You can also set the values via ActiveMQConnectionFactory's API:
 
     public void setDeserializationBlackList(String blackList);
     public void setDeserializationWhiteList(String whiteList);
-   
+
 Again the parameters are comma separated list of package/class names.
 
 ### Specifying black list and white list via system properties
@@ -757,10 +757,24 @@ properties for their resource adapters. There are two properties that you can co
 
 These properties, once specified, are eventually set on the corresponding internal factories.
 
+### Specifying black list and white list for REST interface
 
+Apache Artemis REST interface ([Rest](rest.md)) allows interactions between jms client and rest clients.
+It uses JMS ObjectMessage to wrap the actual user data between the 2 types of clients and deserialization
+is needed during this process. If you want to control the deserialization for REST, you need to set the
+black/white lists for it separately as Apache Artemis REST Interface is deployed as a web application.
+You need to put the black/white lists in its web.xml, as context parameters, as follows
 
+    <web-app>
+        <context-param>
+            <param-name>org.apache.activemq.artemis.jms.deserialization.whitelist</param-name>
+            <param-value>some.allowed.class</param-value>
+        </context-param>
+        <context-param>
+            <param-name>org.apache.activemq.artemis.jms.deserialization.blacklist</param-name>
+            <param-value>some.forbidden.class</param-value>
+        </context-param>
+    ...
+    </web-app>
 
-
-
-
-
+The param-value for each list is a comma separated string value representing the list.

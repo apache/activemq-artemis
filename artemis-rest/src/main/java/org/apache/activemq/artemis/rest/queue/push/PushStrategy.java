@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.rest.queue.push;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public interface PushStrategy {
@@ -36,4 +37,6 @@ public interface PushStrategy {
    void start() throws Exception;
 
    void stop() throws Exception;
+
+   void setJmsOptions(ConnectionFactoryOptions jmsOptions);
 }
