@@ -77,6 +77,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
     */
    ActiveMQServerLogger LOGGER = Logger.getMessageLogger(ActiveMQServerLogger.class, ActiveMQServerLogger.class.getPackage().getName());
 
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 223000, value = "Received Interrupt Exception whilst waiting for component to shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void interruptWhilstStoppingComponent(String componentClassName);
+
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221000, value = "{0} Message Broker is starting with configuration {1}", format = Message.Format.MESSAGE_FORMAT)
    void serverStarting(String type, Configuration configuration);
@@ -314,6 +318,15 @@ public interface ActiveMQServerLogger extends BasicLogger {
       value = "Disallowing use of vulnerable protocol ''{0}'' on acceptor ''{1}''. See http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html for more details.",
       format = Message.Format.MESSAGE_FORMAT)
    void disallowedProtocol(String protocol, String acceptorName);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221054, value = "libaio was found but the filesystem does not support AIO. Switching the configuration into NIO. Journal path: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void switchingNIOonPath(String journalPath);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221055, value = "There were too many old replicated folders upon startup, removing {0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void removingBackupData(String path);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
@@ -1219,10 +1232,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void sslHandshakeFailed(String clientAddress, String cause);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 222209, value = "There were too many old replicated folders upon startup, removing {0}",
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222209, value = "Could not contact group handler coordinator after 10 retries, message being routed without grouping information",
       format = Message.Format.MESSAGE_FORMAT)
-   void removingBackupData(String path);
+   void impossibleToRouteGrouped();
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
@@ -1454,11 +1467,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224060, value = "Invalid protocol specified. Supported protocols are: {0}", format = Message.Format.MESSAGE_FORMAT)
    void invalidProtocol(String validProtocols);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 224069, value = "Could not contact group handler coordinator after 10 retries, message being routed without grouping information",
-      format = Message.Format.MESSAGE_FORMAT)
-   void impossibleToRouteGrouped();
-
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224061, value = "Setting both <{0}> and <ha-policy> is invalid. Please use <ha-policy> exclusively as <{0}> is deprecated. Ignoring <{0}> value.", format = Message.Format.MESSAGE_FORMAT)
    void incompatibleWithHAPolicy(String parameter);
@@ -1490,13 +1498,4 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224068, value = "Unable to stop component: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorStoppingComponent(@Cause Throwable t, String componentClassName);
-
-   @LogMessage(level = Logger.Level.DEBUG)
-   @Message(id = 224070, value = "Received Interrupt Exception whilst waiting for component to shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void interruptWhilstStoppingComponent(String componentClassName);
-
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 224072, value = "libaio was found but the filesystem does not support AIO. Switching the configuration into NIO. Journal path: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void switchingNIOonPath(String journalPath);
-
 }
