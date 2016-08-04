@@ -201,7 +201,8 @@ public enum ActiveMQExceptionType {
          return new ActiveMQClusterSecurityException(msg);
       }
 
-   };
+   },
+   NOT_IMPLEMTNED_EXCEPTION(213);
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 

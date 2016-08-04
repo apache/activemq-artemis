@@ -16,12 +16,13 @@
  */
 package org.proton.plug.exceptions;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
 public class ActiveMQAMQPTimeoutException extends ActiveMQAMQPException {
 
    public ActiveMQAMQPTimeoutException(String message) {
-      super(AmqpError.ILLEGAL_STATE, message);
+      super(AmqpError.ILLEGAL_STATE, message, ActiveMQExceptionType.CONNECTION_TIMEDOUT);
    }
 
 }
