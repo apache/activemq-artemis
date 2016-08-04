@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
@@ -39,6 +40,12 @@ public abstract class DestinationServiceManager {
    protected long producerTimeToLive;
    protected LinkStrategy linkStrategy;
    protected BindingRegistry registry;
+
+   protected ConnectionFactoryOptions jmsOptions;
+
+   public DestinationServiceManager(ConnectionFactoryOptions jmsOptions) {
+      this.jmsOptions = jmsOptions;
+   }
 
    public BindingRegistry getRegistry() {
       return registry;
@@ -157,4 +164,8 @@ public abstract class DestinationServiceManager {
    public abstract void start() throws Exception;
 
    public abstract void stop();
+
+   public ConnectionFactoryOptions getJmsOptions() {
+      return jmsOptions;
+   }
 }

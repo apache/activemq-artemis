@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
@@ -38,16 +39,20 @@ public class PushConsumer {
    protected PushStrategy strategy;
    protected PushStore store;
 
+   private ConnectionFactoryOptions jmsOptions;
+
    public PushConsumer(ClientSessionFactory factory,
                        String destination,
                        String id,
                        PushRegistration registration,
-                       PushStore store) {
+                       PushStore store,
+                       ConnectionFactoryOptions jmsOptions) {
       this.factory = factory;
       this.destination = destination;
       this.id = id;
       this.registration = registration;
       this.store = store;
+      this.jmsOptions = jmsOptions;
    }
 
    public PushStrategy getStrategy() {
@@ -79,6 +84,7 @@ public class PushConsumer {
          strategy = new UriStrategy();
       }
       strategy.setRegistration(registration);
+      strategy.setJmsOptions(jmsOptions);
       strategy.start();
 
       sessions = new ArrayList<>();

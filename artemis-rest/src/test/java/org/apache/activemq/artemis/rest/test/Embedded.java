@@ -29,7 +29,7 @@ import org.jboss.resteasy.test.TestPortProvider;
 
 public class Embedded {
 
-   protected MessageServiceManager manager = new MessageServiceManager();
+   protected MessageServiceManager manager = new MessageServiceManager(null);
    protected MessageServiceConfiguration config = new MessageServiceConfiguration();
    protected ActiveMQServer activeMQServer;
    protected TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
