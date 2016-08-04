@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.rest.topic;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
 
 import java.util.ArrayList;
@@ -28,6 +29,10 @@ public class TopicServiceManager extends DestinationServiceManager {
    protected TopicPushStore pushStore;
    protected List<TopicDeployment> topics = new ArrayList<>();
    protected TopicDestinationsResource destination;
+
+   public TopicServiceManager(ConnectionFactoryOptions jmsOptions) {
+      super(jmsOptions);
+   }
 
    public TopicPushStore getPushStore() {
       return pushStore;

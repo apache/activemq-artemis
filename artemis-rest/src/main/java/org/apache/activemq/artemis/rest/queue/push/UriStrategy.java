@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.rest.queue.push;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.xml.BasicAuth;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
@@ -58,6 +59,8 @@ public class UriStrategy implements PushStrategy {
    protected UriBuilder targetUri;
    protected String method;
    protected String contentType;
+
+   protected ConnectionFactoryOptions jmsOptions;
 
    UriStrategy() {
       connManager.setDefaultMaxPerRoute(100);
@@ -106,6 +109,11 @@ public class UriStrategy implements PushStrategy {
    }
 
    @Override
+   public void setJmsOptions(ConnectionFactoryOptions jmsOptions) {
+      this.jmsOptions = jmsOptions;
+   }
+
+   @Override
    public boolean push(ClientMessage message) {
       ActiveMQRestLogger.LOGGER.debug("Pushing " + message);
       String uri = createUri(message);
@@ -120,7 +128,7 @@ public class UriStrategy implements PushStrategy {
             ActiveMQRestLogger.LOGGER.debug("Setting XmlHttpHeader: " + header.getName() + "=" + header.getValue());
             request.header(header.getName(), header.getValue());
          }
-         HttpMessageHelper.buildMessage(message, request, contentType);
+         HttpMessageHelper.buildMessage(message, request, contentType, jmsOptions);
          ClientResponse<?> res = null;
          try {
             ActiveMQRestLogger.LOGGER.debug(method + " " + uri);
