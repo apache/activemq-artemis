@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.rest.topic;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
@@ -30,8 +31,9 @@ public class PushSubscription extends PushConsumer {
                            String destination,
                            String id,
                            PushRegistration registration,
-                           PushStore store) {
-      super(factory, destination, id, registration, store);
+                           PushStore store,
+                           ConnectionFactoryOptions jmsOptions) {
+      super(factory, destination, id, registration, store, jmsOptions);
    }
 
    @Override

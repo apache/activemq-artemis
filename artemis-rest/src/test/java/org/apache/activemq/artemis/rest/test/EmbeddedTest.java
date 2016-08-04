@@ -48,7 +48,7 @@ public class EmbeddedTest {
 
    @BeforeClass
    public static void startEmbedded() throws Exception {
-      server = new EmbeddedRestActiveMQJMS();
+      server = new EmbeddedRestActiveMQJMS(null);
       server.getManager().setConfigResourcePath("activemq-rest.xml");
       SecurityConfiguration securityConfiguration = new SecurityConfiguration();
       securityConfiguration.addUser("guest", "guest");
