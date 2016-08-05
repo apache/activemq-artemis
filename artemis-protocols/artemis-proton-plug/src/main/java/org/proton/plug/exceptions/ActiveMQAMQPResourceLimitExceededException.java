@@ -19,9 +19,9 @@ package org.proton.plug.exceptions;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
-public class ActiveMQAMQPNotFoundException extends ActiveMQAMQPException {
+public class ActiveMQAMQPResourceLimitExceededException extends ActiveMQAMQPException {
 
-   public ActiveMQAMQPNotFoundException(String message) {
-      super(AmqpError.NOT_FOUND, message, ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST);
+   public ActiveMQAMQPResourceLimitExceededException(String message) {
+      super(AmqpError.RESOURCE_LIMIT_EXCEEDED, message, ActiveMQExceptionType.ADDRESS_FULL);
    }
 }

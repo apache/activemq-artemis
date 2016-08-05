@@ -275,25 +275,25 @@ control.
 
 #### Blocking producer window based flow control using AMQP
 
-Apache ActiveMQ Artemis ships with out of the box with 2 protocols that support
-flow control.  Artemis CORE protocol and AMQP.  Both protocols implement flow
-control slightly differently and therefore address full BLOCK policy behaves
-slightly different for clients uses each protocol respectively.
+Apache ActiveMQ Artemis ships with out of the box with 2 protocols that support flow control. Artemis CORE protocol and
+AMQP. Both protocols implement flow control slightly differently and therefore address full BLOCK policy behaves slightly
+different for clients that use each protocol respectively.
 
-As explained earlier in this chapter the CORE protocol uses a producer window size
-flow control system.  Where credits (representing bytes) are allocated to producers,
-if a producer wants to send a message it should wait until it has enough bytes available
-to send it.  AMQP flow control credits are not representative of bytes but instead represent
-the number of messages a producer is permitted to send (regardless of size).
+As explained earlier in this chapter the CORE protocol uses a producer window size flow control system. Where credits
+(representing bytes) are allocated to producers, if a producer wants to send a message it should wait until it has
+enough byte credits available for it to send. AMQP flow control credits are not representative of bytes but instead
+represent the number of messages a producer is permitted to send (regardless of the message size).
 
-BLOCK for AMQP works mostly in the same way as the producer window size mechanism above.  Artemis
-will issue 100 credits to a client at a time and refresh them when the clients credits reaches 30.
-The broker will stop issuing credits once an address is full.  However, since AMQP credits represent
-whole messages and not bytes, it would be possible for an AMQP client to significantly exceed an
-address upper bound should the broker continue accepting messages until the clients credits are exhausted.
-For this reason once an address has reached it's upper bound and is blocked (when using AMQP) Artemis
-will start rejecting messages until the address becomes unblocked.  This should be taken into consideration when writing
-application code.
+BLOCK for AMQP works mostly in the same way as the producer window size mechanism above. Artemis will issue 100 credits
+to a client at a time and refresh them when the clients credits reaches 30. The broker will stop issuing credits once an
+address is full. However, since AMQP credits represent whole messages and not bytes, it would be possible in some
+scenarios for an AMQP client to significantly exceed an address upper bound should the broker continue accepting
+messages until the clients credits are exhausted. For this reason there is an additional parameter available on address
+settings that specifies an upper bound on an address size in bytes. Once this upper bound is reach Artemis will start
+rejecting AMQP messages. This limit is the max-size-bytes-reject-threshold and is by default set to -1 (or no limit).
+This is additional parameter allows a kind of soft and hard limit, in normal circumstances the broker will utilize the
+max-size-bytes parameter using using flow control to put back pressure on the client, but will protect the broker by
+rejecting messages once the address size is reached.
 
 ### Rate limited flow control
 

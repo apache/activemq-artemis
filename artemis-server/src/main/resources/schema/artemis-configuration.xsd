@@ -2220,7 +2220,15 @@
             <xsd:element name="max-size-bytes" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     the maximum size (in bytes) to use in paging for an address (-1 means no limits)
+                     the maximum size (in bytes) for an address (-1 means no limits).  This is used in PAGING, BLOCK and FAIL policies.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before messages start getting rejected.  Works in combination with max-size-bytes for AMQP protocol only.  Default = -1 (no limit).
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

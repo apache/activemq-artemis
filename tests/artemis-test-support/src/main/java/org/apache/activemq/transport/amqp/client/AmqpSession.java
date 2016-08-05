@@ -412,7 +412,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       return txContext.getTransactionId();
    }
 
-   AmqpTransactionContext getTransactionContext() {
+   public AmqpTransactionContext getTransactionContext() {
       return txContext;
    }
 

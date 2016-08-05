@@ -123,6 +123,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private volatile AtomicBoolean blocking = new AtomicBoolean(false);
 
+   private long rejectThreshold;
+
    public PagingStoreImpl(final SimpleString address,
                           final ScheduledExecutorService scheduledExecutor,
                           final long syncTimeout,
@@ -186,6 +188,8 @@ public class PagingStoreImpl implements PagingStore {
       pageSize = addressSettings.getPageSizeBytes();
 
       addressFullMessagePolicy = addressSettings.getAddressFullMessagePolicy();
+
+      rejectThreshold = addressSettings.getMaxSizeBytesRejectThreshold();
 
       if (cursorProvider != null) {
          cursorProvider.setCacheMaxSize(addressSettings.getPageCacheMaxSize());
@@ -1070,6 +1074,14 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public boolean isFull() {
       return maxSize > 0 && getAddressSize() > maxSize;
+   }
+
+   @Override
+   public boolean isRejectingMessages() {
+      if (addressFullMessagePolicy != AddressFullMessagePolicy.BLOCK) {
+         return false;
+      }
+      return rejectThreshold != AddressSettings.DEFAULT_ADDRESS_REJECT_THRESHOLD && getAddressSize() > rejectThreshold;
    }
 
    @Override

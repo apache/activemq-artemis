@@ -59,6 +59,8 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setMessageCounterHistoryDayLimit(1002);
       addressSettingsToMerge.setRedeliveryDelay(1003);
       addressSettingsToMerge.setPageSizeBytes(1004);
+      addressSettingsToMerge.setMaxSizeBytesRejectThreshold(10 * 1024);
+
       addressSettings.merge(addressSettingsToMerge);
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       Assert.assertEquals(addressSettings.getExpiryAddress(), exp);
@@ -68,6 +70,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(addressSettings.getRedeliveryDelay(), 1003);
       Assert.assertEquals(addressSettings.getPageSizeBytes(), 1004);
       Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+      Assert.assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
    }
 
    @Test
@@ -82,6 +85,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setMaxSizeBytes(1001);
       addressSettingsToMerge.setMessageCounterHistoryDayLimit(1002);
       addressSettingsToMerge.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
+      addressSettingsToMerge.setMaxSizeBytesRejectThreshold(10 * 1024);
       addressSettings.merge(addressSettingsToMerge);
 
       AddressSettings addressSettingsToMerge2 = new AddressSettings();
@@ -100,6 +104,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(addressSettings.getRedeliveryDelay(), 2003);
       Assert.assertEquals(addressSettings.getRedeliveryMultiplier(), 2.5, 0.000001);
       Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+      Assert.assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
    }
 
    @Test

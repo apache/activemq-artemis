@@ -213,7 +213,7 @@ public class AmqpTransactionContext {
 
    //----- Internal access to context properties ----------------------------//
 
-   AmqpTransactionCoordinator getCoordinator() {
+   public AmqpTransactionCoordinator getCoordinator() {
       return coordinator;
    }
 

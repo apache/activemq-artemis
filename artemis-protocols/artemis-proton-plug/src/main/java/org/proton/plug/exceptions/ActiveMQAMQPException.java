@@ -16,9 +16,11 @@
  */
 package org.proton.plug.exceptions;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.qpid.proton.amqp.Symbol;
 
-public class ActiveMQAMQPException extends Exception {
+public class ActiveMQAMQPException extends ActiveMQException {
 
    private static final String ERROR_PREFIX = "amqp:";
 
@@ -28,13 +30,13 @@ public class ActiveMQAMQPException extends Exception {
 
    private final Symbol amqpError;
 
-   public ActiveMQAMQPException(Symbol amqpError, String message, Throwable e) {
-      super(message, e);
+   public ActiveMQAMQPException(Symbol amqpError, String message, Throwable e, ActiveMQExceptionType t) {
+      super(message, e, t);
       this.amqpError = amqpError;
    }
 
-   public ActiveMQAMQPException(Symbol amqpError, String message) {
-      super(message);
+   public ActiveMQAMQPException(Symbol amqpError, String message, ActiveMQExceptionType t) {
+      super(message, t);
       this.amqpError = amqpError;
    }
 }
