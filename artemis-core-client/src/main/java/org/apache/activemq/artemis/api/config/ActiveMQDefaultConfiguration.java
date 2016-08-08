@@ -426,6 +426,9 @@ public final class ActiveMQDefaultConfiguration {
    // Default period to wait between connection TTL checks
    public static final long DEFAULT_CONNECTION_TTL_CHECK_INTERVAL = 2000;
 
+   // Default period to wait between configuration file checks
+   public static final long DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD = 5000;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1136,5 +1139,9 @@ public final class ActiveMQDefaultConfiguration {
 
    public static long getDefaultConnectionTtlCheckInterval() {
       return DEFAULT_CONNECTION_TTL_CHECK_INTERVAL;
+   }
+
+   public static long getDefaultConfigurationFileRefreshPeriod() {
+      return DEFAULT_CONFIGURATION_FILE_REFRESH_PERIOD;
    }
 }

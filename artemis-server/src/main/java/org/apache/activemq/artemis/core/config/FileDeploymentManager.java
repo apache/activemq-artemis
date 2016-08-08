@@ -83,7 +83,7 @@ public class FileDeploymentManager {
          if (root != null && children.getLength() > 0) {
             Node item = children.item(0);
             XMLUtil.validate(item, deployable.getSchema());
-            deployable.parse((Element) item);
+            deployable.parse((Element) item, url);
          }
       }
    }

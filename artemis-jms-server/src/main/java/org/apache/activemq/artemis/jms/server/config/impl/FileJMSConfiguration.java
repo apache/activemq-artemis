@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.management.MBeanServer;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    private boolean parsed = false;
 
    @Override
-   public void parse(Element config) throws Exception {
+   public void parse(Element config, URL url) throws Exception {
       parseConfiguration(config);
       parsed = true;
    }

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -958,5 +959,13 @@ public interface Configuration {
    Configuration setConnectionTtlCheckInterval(long connectionTtlCheckInterval);
 
    long getConnectionTtlCheckInterval();
+
+   URL getConfigurationUrl();
+
+   Configuration setConfigurationUrl(URL configurationUrl);
+
+   long getConfigurationFileRefreshPeriod();
+
+   Configuration setConfigurationFileRefreshPeriod(long configurationFileRefreshPeriod);
 
 }
