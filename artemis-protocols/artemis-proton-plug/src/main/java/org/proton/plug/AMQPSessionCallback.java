@@ -50,6 +50,8 @@ public interface AMQPSessionCallback {
 
    boolean queueQuery(String queueName) throws Exception;
 
+   boolean bindingQuery(String address) throws Exception;
+
    void closeSender(Object brokerConsumer) throws Exception;
 
    // This one can be a lot improved

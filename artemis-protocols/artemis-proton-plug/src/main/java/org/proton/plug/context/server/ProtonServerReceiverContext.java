@@ -88,7 +88,7 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
             }
 
             try {
-               if (!sessionSPI.queueQuery(address)) {
+               if (!sessionSPI.bindingQuery(address)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                }
             }
