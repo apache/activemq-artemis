@@ -216,4 +216,9 @@ public class MQTTConnection implements RemotingConnection {
    public void killMessage(SimpleString nodeID) {
       //unsupported
    }
+
+   @Override
+   public boolean isSupportReconnect() {
+      return false;
+   }
 }
