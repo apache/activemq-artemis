@@ -105,6 +105,11 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
+   public boolean bindingQuery(String address) throws Exception {
+      return true;
+   }
+
+   @Override
    public void closeSender(Object brokerConsumer) {
       ((Consumer) brokerConsumer).close();
    }

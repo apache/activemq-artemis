@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
 import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -213,6 +214,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       else {
          if (queueQuery.isAutoCreateJmsQueues()) {
             serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
+            queryResult = true;
+         }
+         else {
+            queryResult = false;
+         }
+      }
+
+      return queryResult;
+   }
+
+   @Override
+   public boolean bindingQuery(String address) throws Exception {
+      boolean queryResult = false;
+
+      BindingQueryResult queueQuery = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
+
+      if (queueQuery.isExists()) {
+         queryResult = true;
+      }
+      else {
+         if (queueQuery.isAutoCreateJmsQueues()) {
+            serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
             queryResult = true;
          }
          else {
