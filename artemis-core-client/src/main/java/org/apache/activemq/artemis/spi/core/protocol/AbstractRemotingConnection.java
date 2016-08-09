@@ -201,6 +201,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return res;
    }
 
+   @Override
+   public boolean isSupportReconnect() {
+      return false;
+   }
+
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */

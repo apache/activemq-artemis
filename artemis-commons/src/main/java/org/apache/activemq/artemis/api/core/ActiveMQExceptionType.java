@@ -172,6 +172,12 @@ public enum ActiveMQExceptionType {
          return new ActiveMQInvalidTransientQueueUseException(msg);
       }
    },
+   REMOTE_DISCONNECT(119) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQRemoteDisconnectException(msg);
+      }
+   },
 
    GENERIC_EXCEPTION(999),
    NATIVE_ERROR_INTERNAL(200),

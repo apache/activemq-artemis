@@ -189,4 +189,11 @@ public interface RemotingConnection extends BufferHandler {
     *if slow consumer is killed,send the msessage to client.
     */
    void killMessage(SimpleString nodeID);
+
+   /**
+    * This will check if reconnects are supported on the protocol and configuration.
+    * In case it's not supported a connection failure could remove messages right away from pending deliveries.
+    * @return
+    */
+   boolean isSupportReconnect();
 }

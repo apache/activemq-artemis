@@ -40,13 +40,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
-import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -57,7 +57,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
-import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
@@ -536,29 +535,10 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       ConnectionEntry conn = connections.get(connectionID);
 
-      if (conn != null) {
-         // Bit of a hack - find a better way to do this
+      if (conn != null && !conn.connection.isSupportReconnect()) {
+         removeConnection(connectionID);
 
-         List<FailureListener> failureListeners = conn.connection.getFailureListeners();
-
-         boolean empty = true;
-
-         for (FailureListener listener : failureListeners) {
-            if (listener instanceof ServerSessionImpl) {
-               empty = false;
-
-               break;
-            }
-         }
-
-         // We only destroy the connection if the connection has no sessions attached to it
-         // Otherwise it means the connection has died without the sessions being closed first
-         // so we need to keep them for ttl, in case re-attachment occurs
-         if (empty) {
-            removeConnection(connectionID);
-
-            conn.connection.destroy();
-         }
+         conn.connection.fail(new ActiveMQRemoteDisconnectException());
       }
    }
 

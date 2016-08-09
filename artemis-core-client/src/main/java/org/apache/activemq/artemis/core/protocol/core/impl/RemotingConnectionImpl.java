@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -191,7 +192,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      }
 
       try {
          transportConnection.forceClose();
@@ -327,6 +330,17 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    @Override
    public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return getTransportConnection().getDefaultActiveMQPrincipal();
+   }
+
+   @Override
+   public boolean isSupportReconnect() {
+      for (Channel channel : channels.values()) {
+         if (channel.getConfirmationWindowSize() > 0) {
+            return true;
+         }
+      }
+
+      return false;
    }
 
    // Buffer Handler implementation
