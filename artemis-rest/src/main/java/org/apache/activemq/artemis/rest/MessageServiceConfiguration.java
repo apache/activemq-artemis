@@ -34,6 +34,9 @@ public class MessageServiceConfiguration {
    private String inVmId = "0";
    private boolean useLinkHeaders = false;
 
+   private String deserializationWhiteList;
+   private String deserializationBlackList;
+
    @XmlElement(name = "server-in-vm-id")
    public String getInVmId() {
       return inVmId;
@@ -131,5 +134,21 @@ public class MessageServiceConfiguration {
 
    public void setConsumerWindowSize(int consumerWindowSize) {
       this.consumerWindowSize = consumerWindowSize;
+   }
+
+   public String getDeserializationWhiteList() {
+      return deserializationWhiteList;
+   }
+
+   public void setDeserializationWhiteList(String deserializationWhiteList) {
+      this.deserializationWhiteList = deserializationWhiteList;
+   }
+
+   public String getDeserializationBlackList() {
+      return deserializationBlackList;
+   }
+
+   public void setDeserializationBlackList(String deserializationBlackList) {
+      this.deserializationBlackList = deserializationBlackList;
    }
 }

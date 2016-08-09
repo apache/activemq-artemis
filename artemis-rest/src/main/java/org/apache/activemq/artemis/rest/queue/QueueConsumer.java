@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.util.Constants;
 import org.apache.activemq.artemis.rest.util.LinkStrategy;
@@ -179,7 +180,7 @@ public class QueueConsumer {
             return builder.build();
          }
          previousIndex = index;
-         lastConsumed = ConsumedMessage.createConsumedMessage(message);
+         lastConsumed = ConsumedMessage.createConsumedMessage(message, this.getJmsOptions());
          String token = Long.toString(lastConsumed.getMessageID());
          Response response = getMessageResponse(lastConsumed, info, basePath, token).build();
          if (autoAck)
@@ -187,7 +188,9 @@ public class QueueConsumer {
          return response;
       }
       catch (Exception e) {
-         throw new RuntimeException(e);
+         Response errorResponse = Response.serverError().entity(e.getMessage())
+                 .status(Response.Status.INTERNAL_SERVER_ERROR).build();
+         return errorResponse;
       }
    }
 
@@ -263,5 +266,9 @@ public class QueueConsumer {
       builder.path(basePath);
       String uri = builder.build().toString();
       serviceManager.getLinkStrategy().setLinkHeader(response, "consumer", "consumer", uri, MediaType.APPLICATION_XML);
+   }
+
+   public ConnectionFactoryOptions getJmsOptions() {
+      return serviceManager.getJmsOptions();
    }
 }

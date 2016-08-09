@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.ra;
 import java.util.List;
 import java.util.Map;
 
-public class ConnectionFactoryProperties {
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+
+public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    /**
     * Trace enabled
@@ -119,6 +121,10 @@ public class ConnectionFactoryProperties {
    private String groupID;
 
    private String protocolManagerFactoryStr;
+
+   private String deserializationBlackList;
+
+   private String deserializationWhiteList;
 
    /**
     * @return the transportType
@@ -689,6 +695,28 @@ public class ConnectionFactoryProperties {
       this.protocolManagerFactoryStr = protocolManagerFactoryStr;
    }
 
+   @Override
+   public String getDeserializationBlackList() {
+      return deserializationBlackList;
+   }
+
+   @Override
+   public void setDeserializationBlackList(String deserializationBlackList) {
+      this.deserializationBlackList = deserializationBlackList;
+      hasBeenUpdated = true;
+   }
+
+   @Override
+   public String getDeserializationWhiteList() {
+      return this.deserializationWhiteList;
+   }
+
+   @Override
+   public void setDeserializationWhiteList(String deserializationWhiteList) {
+      this.deserializationWhiteList = deserializationWhiteList;
+      hasBeenUpdated = true;
+   }
+
    public boolean isHasBeenUpdated() {
       return hasBeenUpdated;
    }
@@ -960,6 +988,20 @@ public class ConnectionFactoryProperties {
       }
       else if (!connectionParameters.equals(other.connectionParameters))
          return false;
+
+      if (deserializationBlackList == null) {
+         if (other.deserializationBlackList != null)
+            return false;
+      }
+      else if (!deserializationBlackList.equals(other.deserializationBlackList))
+         return false;
+
+      if (deserializationWhiteList == null) {
+         if (other.deserializationWhiteList != null)
+            return false;
+      }
+      else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
+         return false;
       return true;
    }
 
@@ -1010,6 +1052,8 @@ public class ConnectionFactoryProperties {
       result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
       result = prime * result + ((connectorClassName == null) ? 0 : connectorClassName.hashCode());
       result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
+      result = prime * result + ((deserializationBlackList == null) ? 0 : deserializationBlackList.hashCode());
+      result = prime * result + ((deserializationWhiteList == null) ? 0 : deserializationWhiteList.hashCode());
       return result;
    }
 }

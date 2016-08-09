@@ -21,7 +21,6 @@ import javax.jms.MessageFormatException;
 import javax.jms.ObjectMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -48,25 +47,30 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    // keep a snapshot of the Serializable Object as a byte[] to provide Object isolation
    private byte[] data;
 
+   private final ConnectionFactoryOptions options;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   protected ActiveMQObjectMessage(final ClientSession session) {
+   protected ActiveMQObjectMessage(final ClientSession session, ConnectionFactoryOptions options) {
       super(ActiveMQObjectMessage.TYPE, session);
+      this.options = options;
    }
 
-   protected ActiveMQObjectMessage(final ClientMessage message, final ClientSession session) {
+   protected ActiveMQObjectMessage(final ClientMessage message, final ClientSession session, ConnectionFactoryOptions options) {
       super(message, session);
+      this.options = options;
    }
 
    /**
     * A copy constructor for foreign JMS ObjectMessages.
     */
-   public ActiveMQObjectMessage(final ObjectMessage foreign, final ClientSession session) throws JMSException {
+   public ActiveMQObjectMessage(final ObjectMessage foreign, final ClientSession session, ConnectionFactoryOptions options) throws JMSException {
       super(foreign, ActiveMQObjectMessage.TYPE, session);
 
       setObject(foreign.getObject());
+      this.options = options;
    }
 
    // Public --------------------------------------------------------
@@ -135,7 +139,15 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          return null;
       }
 
-      try (ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(data))) {
+      try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(data))) {
+         String blackList = getDeserializationBlackList();
+         if (blackList != null) {
+            ois.setBlackList(blackList);
+         }
+         String whiteList = getDeserializationWhiteList();
+         if (whiteList != null) {
+            ois.setWhiteList(whiteList);
+         }
          Serializable object = (Serializable) ois.readObject();
          return object;
       }
@@ -172,6 +184,24 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       }
       catch (JMSException e) {
          return false;
+      }
+   }
+
+   private String getDeserializationBlackList() {
+      if (options == null) {
+         return null;
+      }
+      else {
+         return options.getDeserializationBlackList();
+      }
+   }
+
+   private String getDeserializationWhiteList() {
+      if (options == null) {
+         return null;
+      }
+      else {
+         return options.getDeserializationWhiteList();
       }
    }
 }

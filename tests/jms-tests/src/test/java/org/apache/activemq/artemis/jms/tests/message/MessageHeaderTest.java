@@ -739,7 +739,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
 
       ObjectMessage foreignObjectMessage = new SimpleJMSObjectMessage();
 
-      ActiveMQObjectMessage copy = new ActiveMQObjectMessage(foreignObjectMessage, session);
+      ActiveMQObjectMessage copy = new ActiveMQObjectMessage(foreignObjectMessage, session, null);
 
       MessageHeaderTestBase.ensureEquivalent(foreignObjectMessage, copy);
    }

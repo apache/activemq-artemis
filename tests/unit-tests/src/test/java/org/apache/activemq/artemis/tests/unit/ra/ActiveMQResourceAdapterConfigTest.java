@@ -390,6 +390,18 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-name>ProtocolManagerFactoryStr</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>List of package/class names against which matching objects are permitted to be deserilized</description>" +
+      "         <config-property-name>DeserializationWhiteList</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>List of package/classe names against which matching objects are forbidden to be deserialized</description>" +
+      "         <config-property-name>DeserializationBlackList</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
       "      </config-property>";
 
    private static String rootConfig = "<root>" + config + commentedOutConfigs + "</root>";

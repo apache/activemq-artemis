@@ -121,6 +121,10 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    public static ActiveMQMessage createMessage(final ClientMessage message, final ClientSession session) {
+      return createMessage(message, session, null);
+   }
+
+   public static ActiveMQMessage createMessage(final ClientMessage message, final ClientSession session, final ConnectionFactoryOptions options) {
       int type = message.getType();
 
       ActiveMQMessage msg;
@@ -142,7 +146,7 @@ public class ActiveMQMessage implements javax.jms.Message {
             break;
          }
          case ActiveMQObjectMessage.TYPE: {
-            msg = new ActiveMQObjectMessage(message, session);
+            msg = new ActiveMQObjectMessage(message, session, options);
             break;
          }
          case ActiveMQStreamMessage.TYPE: // 6
@@ -202,7 +206,6 @@ public class ActiveMQMessage implements javax.jms.Message {
     */
    protected ActiveMQMessage(final byte type, final ClientSession session) {
       message = session.createMessage(type, true, 0, System.currentTimeMillis(), (byte) 4);
-
    }
 
    protected ActiveMQMessage(final ClientSession session) {
