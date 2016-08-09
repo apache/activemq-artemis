@@ -16,6 +16,7 @@
  */
 package org.proton.plug.context;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
@@ -54,6 +56,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    protected AMQPConnectionCallback connectionCallback;
    private final String containerId;
+   private final Map<Symbol, Object> connectionProperties = new HashMap<>();
    private final ScheduledExecutorService scheduledPool;
 
    private final Map<Session, AbstractProtonSessionContext> sessions = new ConcurrentHashMap<>();
@@ -73,6 +76,8 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
                                     ScheduledExecutorService scheduledPool) {
       this.connectionCallback = connectionCallback;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
+      connectionProperties.put(Symbol.valueOf("product"), "apache-activemq-artemis");
+      connectionProperties.put(Symbol.valueOf("version"), VersionLoader.getVersion().getFullVersion());
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
       this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
@@ -196,6 +201,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
          synchronized (getLock()) {
             connection.setContext(AbstractConnectionContext.this);
             connection.setContainer(containerId);
+            connection.setProperties(connectionProperties);
             connection.open();
          }
          initialise();
