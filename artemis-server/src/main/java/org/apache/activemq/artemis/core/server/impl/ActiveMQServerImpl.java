@@ -2358,7 +2358,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    }
 
-   private final class ConfigurationFileReloader extends Thread {
+   private final class ConfigurationFileReloader implements Runnable {
       long lastModified;
       boolean first = true;
       ActiveMQServer server;
@@ -2371,7 +2371,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       public void run() {
          try {
             URL url = server.getConfiguration().getConfigurationUrl();
-            long currentLastModified = new File(url.toURI()).lastModified();
+            long currentLastModified = new File(url.getPath()).lastModified();
             if (first) {
                first = false;
                lastModified = currentLastModified;
