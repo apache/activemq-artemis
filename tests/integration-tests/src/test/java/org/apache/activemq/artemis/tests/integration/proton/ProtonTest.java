@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -66,6 +67,7 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.message.ProtonJMessage;
@@ -204,6 +206,25 @@ public class ProtonTest extends ActiveMQTestBase {
       AmqpConnection amqpConnection = client.connect();
       try {
          assertTrue(brokerName.equals(amqpConnection.getEndpoint().getRemoteContainer()));
+      }
+      finally {
+         amqpConnection.close();
+      }
+   }
+
+   @Test
+   public void testBrokerConnectionProperties() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         Map<Symbol, Object> properties = amqpConnection.getEndpoint().getRemoteProperties();
+         assertTrue(properties != null);
+         if (properties != null) {
+            assertTrue("apache-activemq-artemis".equals(properties.get(Symbol.valueOf("product"))));
+            assertTrue(VersionLoader.getVersion().getFullVersion().equals(properties.get(Symbol.valueOf("version"))));
+         }
       }
       finally {
          amqpConnection.close();
