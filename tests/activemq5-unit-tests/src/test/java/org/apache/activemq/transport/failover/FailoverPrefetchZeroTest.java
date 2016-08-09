@@ -71,7 +71,6 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
       broker.start();
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    @BMRules(
       rules = {@BMRule(
