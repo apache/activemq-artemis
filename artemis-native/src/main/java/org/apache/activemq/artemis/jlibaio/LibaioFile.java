@@ -48,6 +48,7 @@ public final class LibaioFile<Callback extends SubmitInfo> implements AutoClosea
       return LibaioContext.lock(fd);
    }
 
+   @Override
    public void close() throws IOException {
       open = false;
       LibaioContext.close(fd);
