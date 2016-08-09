@@ -366,7 +366,6 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
       assertEquals("Client for " + broker2 + " should have received 50% of the messages.", (int) (MESSAGE_COUNT * 0.50), msgsClient2);
    }
 
-   @SuppressWarnings("unchecked")
    public void testDuplicateSend() throws Exception {
       broker1 = "BrokerA";
       broker2 = "BrokerB";
@@ -441,7 +440,6 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
       }));
    }
 
-   @SuppressWarnings("unchecked")
    public void testDuplicateSendWithNoAuditEnqueueCountStat() throws Exception {
       broker1 = "BrokerA";
       broker2 = "BrokerB";

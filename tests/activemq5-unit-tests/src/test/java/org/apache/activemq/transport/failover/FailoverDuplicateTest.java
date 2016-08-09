@@ -86,7 +86,6 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
       factory.setOptimizeAcknowledge(true);
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    @BMRules(
            rules = {
