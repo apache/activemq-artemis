@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.api.core;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.StringEscapeUtils;
 
 import javax.json.Json;
@@ -32,7 +33,6 @@ import javax.json.JsonValue;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
@@ -155,7 +155,8 @@ public final class JsonUtil {
                   CompositeData[] cds = new CompositeData[data.length];
                   for (int i1 = 0; i1 < data.length; i1++) {
                      String dataConverted  = convertJsonValue(data[i1], String.class).toString();
-                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(dataConverted)));
+                     ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(Base64.decode(dataConverted)));
+                     ois.setWhiteList("java.util,java.lang,javax.management");
                      cds[i1] = (CompositeDataSupport) ois.readObject();
                   }
                   innerVal = cds;

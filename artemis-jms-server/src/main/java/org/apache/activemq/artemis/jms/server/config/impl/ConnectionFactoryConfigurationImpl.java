@@ -118,6 +118,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private JMSFactoryType factoryType = JMSFactoryType.CF;
 
+   private String deserializationBlackList;
+
+   private String deserializationWhiteList;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -614,6 +618,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       factoryType = JMSFactoryType.valueOf(buffer.readInt());
 
       protocolManagerFactoryStr = BufferHelper.readNullableSimpleStringAsString(buffer);
+
+      deserializationBlackList = BufferHelper.readNullableSimpleStringAsString(buffer);
+
+      deserializationWhiteList = BufferHelper.readNullableSimpleStringAsString(buffer);
    }
 
    @Override
@@ -700,6 +708,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       buffer.writeInt(factoryType.intValue());
 
       BufferHelper.writeAsNullableSimpleString(buffer, protocolManagerFactoryStr);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, deserializationBlackList);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, deserializationWhiteList);
    }
 
    @Override
@@ -809,7 +821,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
          DataConstants.SIZE_INT +
           // factoryType
 
-         BufferHelper.sizeOfNullableSimpleString(protocolManagerFactoryStr);
+         BufferHelper.sizeOfNullableSimpleString(protocolManagerFactoryStr) +
+
+         BufferHelper.sizeOfNullableSimpleString(deserializationBlackList) +
+
+         BufferHelper.sizeOfNullableSimpleString(deserializationWhiteList);
 
       return size;
    }
@@ -823,6 +839,26 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public JMSFactoryType getFactoryType() {
       return factoryType;
+   }
+
+   @Override
+   public String getDeserializationBlackList() {
+      return deserializationBlackList;
+   }
+
+   @Override
+   public void setDeserializationBlackList(String blackList) {
+      this.deserializationBlackList = blackList;
+   }
+
+   @Override
+   public String getDeserializationWhiteList() {
+      return this.deserializationWhiteList;
+   }
+
+   @Override
+   public void setDeserializationWhiteList(String whiteList) {
+      this.deserializationWhiteList = whiteList;
    }
 
    @Override

@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -40,6 +41,8 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
 public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
+
+   private final ConnectionFactoryOptions options;
 
    private final ClientConsumer consumer;
 
@@ -63,13 +66,16 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // Constructors --------------------------------------------------
 
-   protected ActiveMQMessageConsumer(final ActiveMQConnection connection,
+   protected ActiveMQMessageConsumer(final ConnectionFactoryOptions options,
+                                     final ActiveMQConnection connection,
                                      final ActiveMQSession session,
                                      final ClientConsumer consumer,
                                      final boolean noLocal,
                                      final ActiveMQDestination destination,
                                      final String selector,
                                      final SimpleString autoDeleteQueueName) throws JMSException {
+      this.options = options;
+
       this.connection = connection;
 
       this.session = session;
@@ -107,7 +113,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
    public void setMessageListener(final MessageListener listener) throws JMSException {
       this.listener = listener;
 
-      coreListener = listener == null ? null : new JMSMessageListenerWrapper(connection, session, consumer, listener, ackMode);
+      coreListener = listener == null ? null : new JMSMessageListenerWrapper(options, connection, session, consumer, listener, ackMode);
 
       try {
          consumer.setMessageHandler(coreListener);
@@ -211,8 +217,11 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
          ActiveMQMessage jmsMsg = null;
 
          if (coreMessage != null) {
-            boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE || ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE;
-            jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? session.getCoreSession() : null);
+            ClientSession coreSession = session.getCoreSession();
+            boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE ||
+                                             ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE ||
+                                             coreMessage.getType() == ActiveMQObjectMessage.TYPE;
+            jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? coreSession : null, options);
 
             try {
                jmsMsg.doBeforeReceive();

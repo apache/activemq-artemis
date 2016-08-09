@@ -145,6 +145,7 @@ public class QueueDestinationsResource {
       PushConsumerResource push = new PushConsumerResource();
       push.setDestination(queueName);
       push.setSessionFactory(manager.getConsumerSessionFactory());
+      push.setJmsOptions(manager.getJmsOptions());
       queueResource.setPushConsumers(push);
 
       PostMessage sender = null;

@@ -26,15 +26,23 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.Session;
 import javax.resource.ResourceException;
 import javax.resource.spi.InvalidPropertyException;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +80,103 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
       assertNotNull(endpoint.lastMessage);
       assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+
+      qResourceAdapter.endpointDeactivation(endpointFactory, spec);
+
+      qResourceAdapter.stop();
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl() throws Exception {
+      String blackList = "org.apache.activemq.artemis.tests.integration.ra";
+      String whiteList = "*";
+      testDeserialization(blackList, whiteList, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl1() throws Exception {
+      String blackList = "some.other.pkg";
+      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(blackList, whiteList, true);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl2() throws Exception {
+      String blackList = "*";
+      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(blackList, whiteList, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl3() throws Exception {
+      String blackList = "org.apache.activemq.artemis.tests";
+      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(blackList, whiteList, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl4() throws Exception {
+      String blackList = null;
+      String whiteList = "some.other.pkg";
+      testDeserialization(blackList, whiteList, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl5() throws Exception {
+      String blackList = null;
+      String whiteList = null;
+      testDeserialization(blackList, whiteList, true);
+   }
+
+   private void testDeserialization(String blackList, String whiteList, boolean shouldSucceed) throws Exception {
+      ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
+      qResourceAdapter.setDeserializationBlackList(blackList);
+      qResourceAdapter.setDeserializationWhiteList(whiteList);
+
+      MyBootstrapContext ctx = new MyBootstrapContext();
+      qResourceAdapter.start(ctx);
+
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setResourceAdapter(qResourceAdapter);
+      spec.setUseJNDI(false);
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestination(MDBQUEUE);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      CountDownLatch latch = new CountDownLatch(1);
+      DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
+      DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
+      qResourceAdapter.endpointActivation(endpointFactory, spec);
+
+      //send using jms
+      ActiveMQConnectionFactory jmsFactory = new ActiveMQConnectionFactory("vm://0");
+      Connection connection = jmsFactory.createConnection();
+
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue jmsQueue = session.createQueue(MDBQUEUE);
+         ObjectMessage objMsg = session.createObjectMessage();
+         objMsg.setObject(new DummySerializable());
+         MessageProducer producer = session.createProducer(jmsQueue);
+         producer.send(objMsg);
+      }
+      finally {
+         connection.close();
+      }
+
+      latch.await(5, TimeUnit.SECONDS);
+
+      assertNotNull(endpoint.lastMessage);
+
+      ObjectMessage objMsg = (ObjectMessage) endpoint.lastMessage;
+
+      try {
+         Object obj = objMsg.getObject();
+         assertTrue("deserialization should fail but got: " + obj, shouldSucceed);
+         assertTrue(obj instanceof DummySerializable);
+      }
+      catch (JMSException e) {
+         assertFalse("got unexpected exception: " + e, shouldSucceed);
+      }
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -862,5 +967,8 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
             }
          }
       }
+   }
+
+   static class DummySerializable implements Serializable {
    }
 }
