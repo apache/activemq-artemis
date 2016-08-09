@@ -217,7 +217,6 @@ public class URISupport {
       return uri;
    }
 
-   @SuppressWarnings("unchecked")
    private static Map<String, String> emptyMap() {
       return Collections.EMPTY_MAP;
    }

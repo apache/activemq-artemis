@@ -36,7 +36,7 @@ under the License.
          This listener will then be called by ActiveMQ Artemis in the event that connection failure is detected.</p>
      <p>User code in the ExceptionListener can then recreate any JMS Connection, Session, etc on another node and the application
      can continue.</p>
-     <p>Application-Layer failover is an alternative approach to High Availabilty (HA).</p>
+     <p>Application-Layer failover is an alternative approach to High Availability (HA).</p>
      <p>Application-Layer failover differs from automatic failover in that some client side coding is required in order
      to implement this. Also, with Application-Layer failover, since the old Session object dies and a new is created, any uncommitted
      work in the old Session will be lost, and any unacknowledged messages might be redelivered.</p>

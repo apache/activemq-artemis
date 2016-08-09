@@ -91,7 +91,6 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       doTestFailoverConsumerDups(true);
    }
 
-   @SuppressWarnings("unchecked")
    public void doTestFailoverConsumerDups(final boolean watchTopicAdvisories) throws Exception {
 
       server = createBroker();
@@ -204,7 +203,6 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       doTestFailoverConsumerOutstandingSendTx(true);
    }
 
-   @SuppressWarnings("unchecked")
    public void doTestFailoverConsumerOutstandingSendTx(final boolean doActualBrokerCommit) throws Exception {
       final boolean watchTopicAdvisories = true;
       server = createBroker();
