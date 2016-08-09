@@ -76,6 +76,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final int DEFAULT_QUEUE_PREFETCH = 1000;
 
+   // Default address drop threshold, applied to address settings with BLOCK policy.  -1 means no threshold enabled.
+   public static final long DEFAULT_ADDRESS_REJECT_THRESHOLD = -1;
+
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
@@ -124,6 +127,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
 
+   private Long maxSizeBytesRejectThreshold = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -154,6 +159,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.autoDeleteJmsTopics = other.autoDeleteJmsTopics;
       this.managementBrowsePageSize = other.managementBrowsePageSize;
       this.queuePrefetch = other.queuePrefetch;
+      this.maxSizeBytesRejectThreshold = other.maxSizeBytesRejectThreshold;
    }
 
    public AddressSettings() {
@@ -377,6 +383,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public long getMaxSizeBytesRejectThreshold() {
+      return (maxSizeBytesRejectThreshold == null) ? AddressSettings.DEFAULT_ADDRESS_REJECT_THRESHOLD : maxSizeBytesRejectThreshold;
+   }
+
+   public AddressSettings setMaxSizeBytesRejectThreshold(long maxSizeBytesRejectThreshold) {
+      this.maxSizeBytesRejectThreshold = maxSizeBytesRejectThreshold;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -456,6 +471,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (queuePrefetch == null) {
          queuePrefetch = merged.queuePrefetch;
       }
+      if (maxSizeBytesRejectThreshold == null) {
+         maxSizeBytesRejectThreshold = merged.maxSizeBytesRejectThreshold;
+      }
    }
 
    @Override
@@ -521,6 +539,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       autoDeleteJmsTopics = BufferHelper.readNullableBoolean(buffer);
 
       managementBrowsePageSize = BufferHelper.readNullableInteger(buffer);
+
+      maxSizeBytesRejectThreshold = BufferHelper.readNullableLong(buffer);
    }
 
    @Override
@@ -549,7 +569,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(autoDeleteJmsQueues) +
          BufferHelper.sizeOfNullableBoolean(autoCreateJmsTopics) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteJmsTopics) +
-         BufferHelper.sizeOfNullableInteger(managementBrowsePageSize);
+         BufferHelper.sizeOfNullableInteger(managementBrowsePageSize) +
+         BufferHelper.sizeOfNullableLong(maxSizeBytesRejectThreshold);
    }
 
    @Override
@@ -601,6 +622,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, autoDeleteJmsTopics);
 
       BufferHelper.writeNullableInteger(buffer, managementBrowsePageSize);
+
+      BufferHelper.writeNullableLong(buffer, maxSizeBytesRejectThreshold);
    }
 
    /* (non-Javadoc)
@@ -635,6 +658,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((autoDeleteJmsTopics == null) ? 0 : autoDeleteJmsTopics.hashCode());
       result = prime * result + ((managementBrowsePageSize == null) ? 0 : managementBrowsePageSize.hashCode());
       result = prime * result + ((queuePrefetch == null) ? 0 : queuePrefetch.hashCode());
+      result = prime * result + ((maxSizeBytesRejectThreshold == null) ? 0 : queuePrefetch.hashCode());
       return result;
    }
 
@@ -802,6 +826,13 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       else if (!queuePrefetch.equals(other.queuePrefetch))
          return false;
+
+      if (maxSizeBytesRejectThreshold == null) {
+         if (other.maxSizeBytesRejectThreshold != null)
+            return false;
+      }
+      else if (!maxSizeBytesRejectThreshold.equals(other.maxSizeBytesRejectThreshold))
+         return false;
       return true;
    }
 
@@ -825,6 +856,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          maxDeliveryAttempts +
          ", maxSizeBytes=" +
          maxSizeBytes +
+         ", maxSizeBytesRejectThreshold=" +
+         maxSizeBytesRejectThreshold +
          ", messageCounterHistoryDayLimit=" +
          messageCounterHistoryDayLimit +
          ", pageSizeBytes=" +

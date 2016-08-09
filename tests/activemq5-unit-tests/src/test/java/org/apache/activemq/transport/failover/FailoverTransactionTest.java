@@ -220,7 +220,6 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       connection.close();
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    public void testFailoverCommitReplyLostWithDestinationPathSeparator() throws Exception {
       //the original test validates destinations using forward slash (/) as
@@ -230,7 +229,6 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       //Artemis doesn't support "/" so far and this test doesn't make sense therefore.
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    @BMRules(
            rules = {
@@ -316,7 +314,6 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
       connection.close();
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    @BMRules(
            rules = {
@@ -550,7 +547,6 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
 //      }
 //   }
 //
-   @SuppressWarnings("unchecked")
    public void doTestFailoverConsumerAckLost(final int pauseSeconds) throws Exception {
       broker = createBroker();
       broker.start();

@@ -16,11 +16,12 @@
  */
 package org.proton.plug.exceptions;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
 public class ActiveMQAMQPInvalidFieldException extends ActiveMQAMQPException {
 
    public ActiveMQAMQPInvalidFieldException(String message) {
-      super(AmqpError.INVALID_FIELD, message);
+      super(AmqpError.INVALID_FIELD, message, ActiveMQExceptionType.ILLEGAL_STATE);
    }
 }

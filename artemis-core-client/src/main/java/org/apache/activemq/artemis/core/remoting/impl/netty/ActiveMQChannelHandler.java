@@ -77,6 +77,8 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler {
             active = false;
          }
       }
+
+      super.channelInactive(ctx);
    }
 
    @Override

@@ -34,6 +34,16 @@ public class ActiveMQException extends Exception {
       type = ActiveMQExceptionType.GENERIC_EXCEPTION;
    }
 
+   public ActiveMQException(String msg, ActiveMQExceptionType t) {
+      super(msg);
+      type = t;
+   }
+
+   public ActiveMQException(String message, Throwable t, ActiveMQExceptionType type) {
+      super(message, t);
+      this.type = type;
+   }
+
    /*
    * This constructor is needed only for the native layer
    */

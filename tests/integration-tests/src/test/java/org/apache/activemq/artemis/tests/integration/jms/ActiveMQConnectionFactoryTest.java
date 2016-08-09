@@ -16,22 +16,34 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.junit.Before;
 
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 import org.junit.Assert;
 
@@ -211,6 +223,217 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       Assert.assertEquals(reconnectAttempts, cf.getReconnectAttempts());
 
       cf.close();
+   }
+
+   @Test
+   public void testDeserializationOptions() throws Exception {
+      testDeserializationOptions(false, false);
+   }
+
+   @Test
+   public void testDeserializationOptionsJndi() throws Exception {
+      testDeserializationOptions(true, false);
+   }
+
+   @Test
+   public void testDeserializationOptionsBrowser() throws Exception {
+      testDeserializationOptions(false, true);
+   }
+
+   @Test
+   public void testDeserializationOptionsJndiBrowser() throws Exception {
+      testDeserializationOptions(true, true);
+   }
+
+   private void testDeserializationOptions(boolean useJndi, boolean useBrowser) throws Exception {
+      String qname = "SerialTestQueue";
+      SimpleString qaddr = new SimpleString("jms.queue." + qname);
+      liveService.createQueue(qaddr, qaddr, null, true, false);
+
+      //default ok
+      String blackList = null;
+      String whiteList = null;
+      Object obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      //not in the white list
+      blackList = "java.lang";
+      whiteList = "some.other.package1";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+      //but String always trusted
+      obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), useJndi, useBrowser);
+      assertTrue("java.lang.String always trusted ", "hello".equals(obj));
+
+      //in the blacklist
+      blackList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+
+      //black list parent package
+      blackList = "org.apache.activemq.artemis";
+      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+
+      //in white list
+      blackList = "some.other.package";
+      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      //parent in white list
+      blackList = "some.other.package";
+      whiteList = "org.apache.activemq.artemis.tests.integration.jms";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      //sub package in white list
+      blackList = "some.other.package";
+      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables.pkg1";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+
+      //wild card white list but black listed
+      blackList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      whiteList = "*";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+
+      //wild card white list and not black listed
+      blackList = "some.other.package";
+      whiteList = "*";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      //wild card black list
+      blackList = "*";
+      whiteList = "*";
+      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+   }
+
+   @Test
+   public void testSystemPropertyBlackWhiteListDefault() throws Exception {
+      System.setProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY, "*");
+      System.setProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "some.other.package");
+
+      String qname = "SerialTestQueue";
+      SimpleString qaddr = new SimpleString("jms.queue." + qname);
+      liveService.createQueue(qaddr, qaddr, null, true, false);
+
+      try {
+         String blackList = null;
+         String whiteList = null;
+         Object obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), false, false);
+         assertTrue("Object is " + obj, obj instanceof JMSException);
+         //but String always trusted
+         obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), false, false);
+         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+
+         //override
+         blackList = "some.other.package";
+         whiteList = "org.apache.activemq.artemis.tests.integration";
+         obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), false, false);
+         assertTrue("Object is " + obj, obj instanceof TestClass1);
+         //but String always trusted
+         obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), false, false);
+         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+      }
+      finally {
+         System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
+         System.clearProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
+      }
+   }
+
+   private Object receiveObjectMessage(String blackList, String whiteList, String qname,
+                                       Serializable obj, boolean useJndi, boolean useBrowser) throws Exception {
+      sendObjectMessage(qname, obj);
+
+      StringBuilder query = new StringBuilder("");
+      if (blackList != null) {
+         query.append("?");
+         query.append("deserializationBlackList=");
+         query.append(blackList);
+
+         if (whiteList != null) {
+            query.append("&");
+            query.append("deserializationWhiteList=");
+            query.append(whiteList);
+         }
+      }
+      else {
+         if (whiteList != null) {
+            query.append("?deserializationWhiteList=");
+            query.append(whiteList);
+         }
+      }
+
+      System.out.println("query string: " + query);
+      ActiveMQConnectionFactory factory = null;
+      if (useJndi) {
+         Hashtable<String, Object> props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+         props.put("connectionFactory.VmConnectionFactory", "vm://0" + query);
+         Context ctx = new InitialContext(props);
+         factory = (ActiveMQConnectionFactory) ctx.lookup("VmConnectionFactory");
+      }
+      else {
+         factory = new ActiveMQConnectionFactory("vm://0" + query);
+      }
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(qname);
+         Object result = null;
+         if (useBrowser) {
+            QueueBrowser browser = session.createBrowser(queue);
+            ObjectMessage objMessage = (ObjectMessage) browser.getEnumeration().nextElement();
+            //drain message before triggering deserialization
+            MessageConsumer consumer = session.createConsumer(queue);
+            consumer.receive(5000);
+            result = objMessage.getObject();
+         }
+         else {
+            MessageConsumer consumer = session.createConsumer(queue);
+            ObjectMessage objMessage = (ObjectMessage) consumer.receive(5000);
+            assertNotNull(objMessage);
+            result = objMessage.getObject();
+         }
+         return result;
+      }
+      catch (Exception e) {
+         return e;
+      }
+      finally {
+         if (connection != null) {
+            try {
+               connection.close();
+            }
+            catch (JMSException e) {
+               return e;
+            }
+         }
+      }
+   }
+
+   private void sendObjectMessage(String qname, Serializable obj) throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
+      Connection connection = factory.createConnection();
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue q = session.createQueue(qname);
+         MessageProducer producer = session.createProducer(q);
+         ObjectMessage objMessage = session.createObjectMessage();
+         objMessage.setObject(obj);
+         producer.send(objMessage);
+      }
+      finally {
+         connection.close();
+      }
    }
 
    private void testSettersThrowException(final ActiveMQConnectionFactory cf) {

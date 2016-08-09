@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 
@@ -29,6 +30,10 @@ public class QueueServiceManager extends DestinationServiceManager {
    protected PushStore pushStore;
    protected List<QueueDeployment> queues = new ArrayList<>();
    protected QueueDestinationsResource destination;
+
+   public QueueServiceManager(ConnectionFactoryOptions jmsOptions) {
+      super(jmsOptions);
+   }
 
    public List<QueueDeployment> getQueues() {
       return queues;

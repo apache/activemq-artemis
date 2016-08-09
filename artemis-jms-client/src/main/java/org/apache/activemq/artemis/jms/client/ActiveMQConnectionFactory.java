@@ -61,7 +61,7 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
  * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
  * <p>This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
  */
-public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
+public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
 
    private ServerLocator serverLocator;
 
@@ -78,6 +78,10 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
    private String password;
 
    private String protocolManagerFactoryStr;
+
+   private String deserializationBlackList;
+
+   private String deserializationWhiteList;
 
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
@@ -148,6 +152,22 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
          this.protocolManagerFactoryStr = protocolManagerFactoryStr;
       }
+   }
+
+   public String getDeserializationBlackList() {
+      return deserializationBlackList;
+   }
+
+   public void setDeserializationBlackList(String blackList) {
+      this.deserializationBlackList = blackList;
+   }
+
+   public String getDeserializationWhiteList() {
+      return deserializationWhiteList;
+   }
+
+   public void setDeserializationWhiteList(String whiteList) {
+      this.deserializationWhiteList = whiteList;
    }
 
    @Override
@@ -744,24 +764,24 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
       if (isXA) {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
          else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQXAConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
          else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
       }
       else {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
-            connection = new ActiveMQConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
          else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
-            connection = new ActiveMQConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
          else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQConnection(username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+            connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
       }
 

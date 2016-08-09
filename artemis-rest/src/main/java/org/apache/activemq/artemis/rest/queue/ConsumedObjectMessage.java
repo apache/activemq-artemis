@@ -18,19 +18,22 @@ package org.apache.activemq.artemis.rest.queue;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 
 public class ConsumedObjectMessage extends ConsumedMessage {
 
    protected Object readObject;
+   private ConnectionFactoryOptions options;
 
-   public ConsumedObjectMessage(ClientMessage message) {
+   public ConsumedObjectMessage(ClientMessage message, ConnectionFactoryOptions options) {
       super(message);
       if (message.getType() != Message.OBJECT_TYPE)
          throw new IllegalArgumentException("Client message must be an OBJECT_TYPE");
+      this.options = options;
    }
 
    @Override
@@ -43,7 +46,11 @@ public class ConsumedObjectMessage extends ConsumedMessage {
             message.getBodyBuffer().readBytes(body);
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
             try {
-               ObjectInputStream ois = new ObjectInputStream(bais);
+               ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
+               if (options != null) {
+                  ois.setWhiteList(options.getDeserializationWhiteList());
+                  ois.setBlackList(options.getDeserializationBlackList());
+               }
                readObject = ois.readObject();
             }
             catch (Exception e) {

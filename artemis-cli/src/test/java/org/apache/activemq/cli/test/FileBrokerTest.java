@@ -16,13 +16,30 @@
  */
 package org.apache.activemq.cli.test;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.FileBroker;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 public class FileBrokerTest {
 
@@ -70,5 +87,64 @@ public class FileBrokerTest {
          assert broker != null;
          broker.stop();
       }
+   }
+
+   @Test
+   public void testConfigFileReload() throws Exception {
+      ServerDTO serverDTO = new ServerDTO();
+      serverDTO.configuration = "broker-reload.xml";
+      FileBroker broker = null;
+      String path = null;
+      try {
+         SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+         securityConfiguration.addUser("myUser", "myPass");
+         securityConfiguration.addRole("myUser", "guest");
+         ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+         broker = new FileBroker(serverDTO, securityManager);
+         broker.start();
+         ActiveMQServerImpl activeMQServer = (ActiveMQServerImpl) broker.getComponents().get("core");
+         Assert.assertNotNull(activeMQServer);
+         Assert.assertTrue(activeMQServer.isStarted());
+         Assert.assertTrue(broker.isStarted());
+         path = activeMQServer.getConfiguration().getConfigurationUrl().getPath();
+         Assert.assertNotNull(activeMQServer.getConfiguration().getConfigurationUrl());
+
+         Thread.sleep(activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod() * 2);
+
+         ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+         ClientSessionFactory sf = locator.createSessionFactory();
+         ClientSession session = sf.createSession("myUser", "myPass", false, true, false, false, 0);
+         ClientProducer producer = session.createProducer("jms.queue.DLQ");
+         producer.send(session.createMessage(true));
+
+         replacePatternInFile(path, "guest", "X");
+
+         Thread.sleep(activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod() * 2);
+
+         try {
+            producer.send(session.createMessage(true));
+            fail("Should throw a security exception");
+         }
+         catch (Exception e) {
+         }
+
+         locator.close();
+      }
+      finally {
+         assert broker != null;
+         broker.stop();
+         if (path != null) {
+            replacePatternInFile(path, "X", "guest");
+         }
+      }
+   }
+
+   private void replacePatternInFile(String file, String regex, String replacement) throws IOException {
+      Path path = Paths.get(file);
+      Charset charset = StandardCharsets.UTF_8;
+      String content = new String(Files.readAllBytes(path), charset);
+      String replaced = content.replaceAll(regex, replacement);
+      Files.write(path, replaced.getBytes(charset));
+      Files.setLastModifiedTime(path, FileTime.fromMillis(System.currentTimeMillis()));
    }
 }

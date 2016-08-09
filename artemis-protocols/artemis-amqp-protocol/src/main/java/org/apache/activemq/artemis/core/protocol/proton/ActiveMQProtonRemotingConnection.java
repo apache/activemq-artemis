@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -132,5 +133,10 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    private void internalClose() {
       // We close the underlying transport connection
       getTransportConnection().close();
+   }
+
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      //unsupported
    }
 }

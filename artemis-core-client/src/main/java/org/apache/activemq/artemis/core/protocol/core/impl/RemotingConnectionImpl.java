@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -32,6 +33,7 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -190,7 +192,9 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      if (!(me instanceof ActiveMQRemoteDisconnectException)) {
+         ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      }
 
       try {
          transportConnection.forceClose();
@@ -328,6 +332,17 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return getTransportConnection().getDefaultActiveMQPrincipal();
    }
 
+   @Override
+   public boolean isSupportReconnect() {
+      for (Channel channel : channels.values()) {
+         if (channel.getConfirmationWindowSize() > 0) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    // Buffer Handler implementation
    // ----------------------------------------------------
    @Override
@@ -386,5 +401,16 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    public String getClientID() {
       return clientID;
+   }
+
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      if (clientVersion < DisconnectConsumerWithKillMessage.VERSION_INTRODUCED) {
+         return;
+      }
+      Channel clientChannel = getChannel(1, -1);
+      DisconnectConsumerWithKillMessage response = new DisconnectConsumerWithKillMessage(nodeID);
+
+      clientChannel.send(response, -1);
    }
 }

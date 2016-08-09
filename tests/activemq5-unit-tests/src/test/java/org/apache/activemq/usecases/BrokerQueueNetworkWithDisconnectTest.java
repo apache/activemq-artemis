@@ -85,7 +85,6 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
                     " must be received, duplicates are expected, count=" + msgs.getMessageCount(), MESSAGE_COUNT <= msgs.getMessageCount());
    }
 
-   @SuppressWarnings("unchecked")
    public void testNoStuckConnectionsWithTransportDisconnect() throws Exception {
       inactiveDuration = 60000L;
       useDuplexNetworkBridge = true;

@@ -24,18 +24,18 @@ import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
-import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSObjectMessage;
-import org.apache.activemq.artemis.core.protocol.proton.converter.message.JMSVendor;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerDestination;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.message.JMSVendor;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
 public class ActiveMQJMSVendor implements JMSVendor {
@@ -116,12 +116,9 @@ public class ActiveMQJMSVendor implements JMSVendor {
             return new ServerJMSMapMessage(wrapped, deliveryCount);
          case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
             return new ServerJMSTextMessage(wrapped, deliveryCount);
-         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
-            return new ServerJMSObjectMessage(wrapped, deliveryCount);
          default:
             return new ServerJMSMessage(wrapped, deliveryCount);
       }
-
    }
 
    @Override

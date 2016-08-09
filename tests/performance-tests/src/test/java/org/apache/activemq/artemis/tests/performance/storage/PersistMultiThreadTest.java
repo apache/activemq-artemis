@@ -307,6 +307,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean isRejectingMessages() {
+         return false;
+      }
+
+      @Override
       public void applySetting(AddressSettings addressSettings) {
 
       }

@@ -177,4 +177,12 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
    String getProtocolManagerFactoryStr();
 
    JMSFactoryType getFactoryType();
+
+   String getDeserializationBlackList();
+
+   void setDeserializationBlackList(String blackList);
+
+   String getDeserializationWhiteList();
+
+   void setDeserializationWhiteList(String whiteList);
 }

@@ -16,15 +16,16 @@
  */
 package org.proton.plug.exceptions;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
 public class ActiveMQAMQPInternalErrorException extends ActiveMQAMQPException {
 
    public ActiveMQAMQPInternalErrorException(String message, Throwable e) {
-      super(AmqpError.INTERNAL_ERROR, message, e);
+      super(AmqpError.INTERNAL_ERROR, message, e, ActiveMQExceptionType.INTERNAL_ERROR);
    }
 
    public ActiveMQAMQPInternalErrorException(String message) {
-      super(AmqpError.INTERNAL_ERROR, message);
+      super(AmqpError.INTERNAL_ERROR, message, ActiveMQExceptionType.INTERNAL_ERROR);
    }
 }

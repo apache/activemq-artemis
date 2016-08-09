@@ -40,6 +40,8 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    // Attributes -----------------------------------------------------------------------------------
 
+   private final ConnectionFactoryOptions options;
+
    private final ClientSession session;
 
    private ClientConsumer consumer;
@@ -50,9 +52,11 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    // Constructors ---------------------------------------------------------------------------------
 
-   protected ActiveMQQueueBrowser(final ActiveMQQueue queue,
+   protected ActiveMQQueueBrowser(final ConnectionFactoryOptions options,
+                                  final ActiveMQQueue queue,
                                   final String messageSelector,
                                   final ClientSession session) throws JMSException {
+      this.options = options;
       this.session = session;
       this.queue = queue;
       if (messageSelector != null) {
@@ -137,7 +141,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
          if (hasMoreElements()) {
             ClientMessage next = current;
             current = null;
-            msg = ActiveMQMessage.createMessage(next, session);
+            msg = ActiveMQMessage.createMessage(next, session, options);
             try {
                msg.doBeforeReceive();
             }

@@ -108,7 +108,6 @@ public abstract class InboundTransformer {
       this.vendor = vendor;
    }
 
-   @SuppressWarnings("unchecked")
    protected void populateMessage(Message jms, org.apache.qpid.proton.message.Message amqp) throws Exception {
       Header header = amqp.getHeader();
       if (header == null) {

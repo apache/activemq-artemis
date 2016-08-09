@@ -20,19 +20,20 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
 import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -56,6 +57,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
 import org.proton.plug.SASLResult;
 import org.proton.plug.context.ProtonPlugSender;
+import org.proton.plug.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.proton.plug.sasl.PlainSASLResult;
 
 public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, SessionCallback {
@@ -223,6 +225,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
+   public boolean bindingQuery(String address) throws Exception {
+      boolean queryResult = false;
+
+      BindingQueryResult queueQuery = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
+
+      if (queueQuery.isExists()) {
+         queryResult = true;
+      }
+      else {
+         if (queueQuery.isAutoCreateJmsQueues()) {
+            serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
+            queryResult = true;
+         }
+         else {
+            queryResult = false;
+         }
+      }
+
+      return queryResult;
+   }
+
+   @Override
    public void closeSender(final Object brokerConsumer) throws Exception {
       Runnable runnable = new Runnable() {
          @Override
@@ -351,16 +375,31 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       recoverContext();
 
       PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddress());
-      if (store.isFull() && store.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK) {
-         ErrorCondition ec = new ErrorCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + message.getAddress());
-         Rejected rejected = new Rejected();
-         rejected.setError(ec);
-         delivery.disposition(rejected);
-         connection.flush();
+      if (store.isRejectingMessages()) {
+         // We drop pre-settled messages (and abort any associated Tx)
+         if (delivery.remotelySettled()) {
+            if (serverSession.getCurrentTransaction() != null) {
+               String amqpAddress = delivery.getLink().getTarget().getAddress();
+               ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
+               serverSession.getCurrentTransaction().markAsRollbackOnly(e);
+            }
+         }
+         else {
+            rejectMessage(delivery);
+         }
       }
       else {
          serverSend(message, delivery, receiver);
       }
+   }
+
+   private void rejectMessage(Delivery delivery) {
+      String address = delivery.getLink().getTarget().getAddress();
+      ErrorCondition ec = new ErrorCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED, "Address is full: " + address);
+      Rejected rejected = new Rejected();
+      rejected.setError(ec);
+      delivery.disposition(rejected);
+      connection.flush();
    }
 
    private void serverSend(final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {

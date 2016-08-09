@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.net.URI;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -240,6 +241,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    protected boolean populateValidatedUser = ActiveMQDefaultConfiguration.isDefaultPopulateValidatedUser();
 
    private long connectionTtlCheckInterval = ActiveMQDefaultConfiguration.getDefaultConnectionTtlCheckInterval();
+
+   private URL configurationUrl;
+
+   private long configurationFileRefreshPeriod = ActiveMQDefaultConfiguration.getDefaultConfigurationFileRefreshPeriod();
 
    /**
     * Parent folder for all data folders.
@@ -1756,6 +1761,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setHAPolicyConfiguration(HAPolicyConfiguration haPolicyConfiguration) {
       this.haPolicyConfiguration = haPolicyConfiguration;
+      return this;
+   }
+
+   @Override
+   public URL getConfigurationUrl() {
+      return configurationUrl;
+   }
+
+   @Override
+   public ConfigurationImpl setConfigurationUrl(URL configurationUrl) {
+      this.configurationUrl = configurationUrl;
+      return this;
+   }
+
+   @Override
+   public long getConfigurationFileRefreshPeriod() {
+      return configurationFileRefreshPeriod;
+   }
+
+   @Override
+   public ConfigurationImpl setConfigurationFileRefreshPeriod(long configurationFileRefreshPeriod) {
+      this.configurationFileRefreshPeriod = configurationFileRefreshPeriod;
       return this;
    }
 

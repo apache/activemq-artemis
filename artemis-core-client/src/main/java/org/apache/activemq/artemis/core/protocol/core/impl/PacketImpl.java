@@ -46,6 +46,8 @@ public class PacketImpl implements Packet {
 
    public static final byte DISCONNECT_CONSUMER = 12;
 
+   public static final byte DISCONNECT_CONSUMER_KILL = 13;
+
    // Miscellaneous
    public static final byte EXCEPTION = 20;
 

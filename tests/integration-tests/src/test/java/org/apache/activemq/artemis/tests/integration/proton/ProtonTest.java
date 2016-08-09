@@ -95,6 +95,15 @@ public class ProtonTest extends ActiveMQTestBase {
 
    private static final String password = "guest";
 
+
+   private static final String brokerName = "my-broker";
+
+   private static final long maxSizeBytes = 1 * 1024 * 1024;
+
+   private static final long maxSizeBytesRejectThreshold = 2 * 1024 * 1024;
+
+   private int messagesSent = 0;
+
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "{0}")
@@ -137,6 +146,7 @@ public class ProtonTest extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
+      server.getConfiguration().setName(brokerName);
 
       // Default Page
       AddressSettings addressSettings = new AddressSettings();
@@ -183,6 +193,20 @@ public class ProtonTest extends ActiveMQTestBase {
       }
       finally {
          super.tearDown();
+      }
+   }
+
+   @Test
+   public void testBrokerContainerId() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         assertTrue(brokerName.equals(amqpConnection.getEndpoint().getRemoteContainer()));
+      }
+      finally {
+         amqpConnection.close();
       }
    }
 
@@ -293,6 +317,7 @@ public class ProtonTest extends ActiveMQTestBase {
       Assert.assertEquals(q.getMessageCount(), 0);
    }
 
+
    @Test
    public void testRollbackConsumer() throws Throwable {
 
@@ -325,8 +350,11 @@ public class ProtonTest extends ActiveMQTestBase {
    public void testResourceLimitExceptionOnAddressFull() throws Exception {
       if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
       setAddressFullBlockPolicy();
+      String destinationAddress = address + 1;
+      fillAddress(destinationAddress);
 
-      fillAddress(address + 1);
+      long addressSize = server.getPagingManager().getPageStore(new SimpleString(destinationAddress)).getAddressSize();
+      assertTrue(addressSize >= maxSizeBytesRejectThreshold);
    }
 
    @Test
@@ -350,6 +378,9 @@ public class ProtonTest extends ActiveMQTestBase {
       }
       assertTrue(e instanceof ResourceAllocationException);
       assertTrue(e.getMessage().contains("resource-limit-exceeded"));
+
+      long addressSize = server.getPagingManager().getPageStore(new SimpleString(destinationAddress)).getAddressSize();
+      assertTrue(addressSize >= maxSizeBytesRejectThreshold);
    }
 
    @Test
@@ -372,10 +403,13 @@ public class ProtonTest extends ActiveMQTestBase {
 
          // Use blocking send to ensure buffered messages do not interfere with credit.
          sender.setSendTimeout(-1);
-         sendUntilFull(sender, destinationAddress);
+         sendUntilFull(sender);
 
          // This should be -1. A single message is buffered in the client, and 0 credit has been allocated.
          assertTrue(sender.getSender().getCredit() == -1);
+
+         long addressSize = server.getPagingManager().getPageStore(new SimpleString(destinationAddress)).getAddressSize();
+         assertTrue(addressSize >= maxSizeBytes && addressSize <= maxSizeBytesRejectThreshold);
       }
       finally {
          amqpConnection.close();
@@ -389,7 +423,7 @@ public class ProtonTest extends ActiveMQTestBase {
       setAddressFullBlockPolicy();
 
       String destinationAddress = address + 1;
-      int messagesSent = fillAddress(destinationAddress);
+      fillAddress(destinationAddress);
 
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       AmqpConnection amqpConnection = amqpConnection = client.connect();
@@ -414,8 +448,7 @@ public class ProtonTest extends ActiveMQTestBase {
          // Wait for address to unblock and flow frame to arrive
          Thread.sleep(500);
 
-         assertTrue(sender.getSender().getCredit() == 0);
-         assertNotNull(receiver.receive());
+         assertTrue(sender.getSender().getCredit() >= 0);
       }
       finally {
          amqpConnection.close();
@@ -429,7 +462,7 @@ public class ProtonTest extends ActiveMQTestBase {
 
       fillAddress(address + 1);
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
-      AmqpConnection amqpConnection = amqpConnection = client.connect();
+      AmqpConnection amqpConnection = client.connect();
       try {
          AmqpSession session = amqpConnection.createSession();
          AmqpSender sender = session.createSender(address + 1);
@@ -442,21 +475,57 @@ public class ProtonTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testTxIsRolledBackOnRejectedPreSettledMessage() throws Throwable {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+      setAddressFullBlockPolicy();
+
+      // Create the link attach before filling the address to ensure the link is allocated credit.
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+
+      AmqpSession session = amqpConnection.createSession();
+      AmqpSender sender = session.createSender(address);
+      sender.setPresettle(true);
+
+      fillAddress(address);
+
+      final AmqpMessage message = new AmqpMessage();
+      byte[] payload = new byte[50 * 1024];
+      message.setBytes(payload);
+
+      Exception expectedException = null;
+      try {
+         session.begin();
+         sender.send(message);
+         session.commit();
+      }
+      catch (Exception e) {
+         expectedException = e;
+      }
+      finally {
+         amqpConnection.close();
+      }
+
+      assertNotNull(expectedException);
+      assertTrue(expectedException.getMessage().contains("resource-limit-exceeded"));
+      assertTrue(expectedException.getMessage().contains("Address is full: " + address));
+   }
+
    /**
     * Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
     * @param address
     * @return
     * @throws Exception
     */
-   private int fillAddress(String address) throws Exception {
+   private void fillAddress(String address) throws Exception {
       AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
       AmqpConnection amqpConnection = client.connect();
-      int messagesSent = 0;
       Exception exception = null;
       try {
          AmqpSession session = amqpConnection.createSession();
          AmqpSender sender = session.createSender(address);
-         messagesSent = sendUntilFull(sender, null);
+         sendUntilFull(sender);
       }
       catch (Exception e) {
          exception = e;
@@ -468,11 +537,9 @@ public class ProtonTest extends ActiveMQTestBase {
       // Should receive a rejected error
       assertNotNull(exception);
       assertTrue(exception.getMessage().contains("amqp:resource-limit-exceeded"));
-
-      return messagesSent;
    }
 
-   private int sendUntilFull(final AmqpSender sender, String expectedErrorMessage) throws Exception {
+   private void sendUntilFull(final AmqpSender sender) throws Exception {
       final AmqpMessage message = new AmqpMessage();
       byte[] payload = new byte[50 * 1024];
       message.setBytes(payload);
@@ -503,18 +570,58 @@ public class ProtonTest extends ActiveMQTestBase {
 
       timeout.await(5, TimeUnit.SECONDS);
 
+      messagesSent = sentMessages.get();
       if (errors[0] != null) {
          throw errors[0];
       }
-      return sentMessages.get();
+   }
+
+   @Test
+   public void testLinkDetatchErrorIsCorrectWhenQueueDoesNotExists() throws Exception {
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      AmqpSession session = amqpConnection.createSession();
+
+      Exception expectedException = null;
+      try {
+         session.createSender("AnAddressThatDoesNotExist");
+      }
+      catch (Exception e) {
+         expectedException = e;
+      }
+
+      assertNotNull(expectedException);
+      assertTrue(expectedException.getMessage().contains("amqp:not-found"));
+      assertTrue(expectedException.getMessage().contains("target address does not exist"));
+   }
+
+   @Test
+   public void testSendingAndReceivingToQueueWithDifferentAddressAndQueueName() throws Exception {
+
+      String queueName = "TestQueueName";
+      String address = "TestAddress";
+
+      server.createQueue(new SimpleString(address), new SimpleString(queueName), null, true, false);
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      AmqpSession session = amqpConnection.createSession();
+      AmqpSender sender = session.createSender(address);
+      AmqpReceiver receiver = session.createReceiver(queueName);
+      receiver.flow(1);
+
+      AmqpMessage message = new AmqpMessage();
+      message.setText("TestPayload");
+      sender.send(message);
+
+      AmqpMessage receivedMessage = receiver.receive();
+      assertNotNull(receivedMessage);
    }
 
    @Test
    public void testReplyTo() throws Throwable {
-
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       TemporaryQueue queue = session.createTemporaryQueue();
-      System.out.println("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
 
       TextMessage message = session.createTextMessage();
@@ -1277,7 +1384,8 @@ public class ProtonTest extends ActiveMQTestBase {
       // For BLOCK tests
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch("#");
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-      addressSettings.setMaxSizeBytes(1 * 1024 * 1024);
+      addressSettings.setMaxSizeBytes(maxSizeBytes);
+      addressSettings.setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
    }
 

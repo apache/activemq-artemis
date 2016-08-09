@@ -52,6 +52,7 @@
       <persist-id-cache>true</persist-id-cache>
       <populate-validated-user>true</populate-validated-user>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
+      <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>

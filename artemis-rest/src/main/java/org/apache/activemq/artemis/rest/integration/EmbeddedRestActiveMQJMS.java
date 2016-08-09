@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.artemis.rest.integration;
 
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ {
+
+   public EmbeddedRestActiveMQJMS(ConnectionFactoryOptions jmsOptions) {
+      super(jmsOptions);
+   }
 
    @Override
    protected void initEmbeddedActiveMQ() {

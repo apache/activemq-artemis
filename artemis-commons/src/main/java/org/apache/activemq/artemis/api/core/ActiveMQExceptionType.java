@@ -172,6 +172,12 @@ public enum ActiveMQExceptionType {
          return new ActiveMQInvalidTransientQueueUseException(msg);
       }
    },
+   REMOTE_DISCONNECT(119) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQRemoteDisconnectException(msg);
+      }
+   },
 
    GENERIC_EXCEPTION(999),
    NATIVE_ERROR_INTERNAL(200),
@@ -201,7 +207,8 @@ public enum ActiveMQExceptionType {
          return new ActiveMQClusterSecurityException(msg);
       }
 
-   };
+   },
+   NOT_IMPLEMTNED_EXCEPTION(213);
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 

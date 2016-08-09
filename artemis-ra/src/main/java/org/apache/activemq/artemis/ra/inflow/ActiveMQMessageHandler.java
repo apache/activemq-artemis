@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
@@ -68,6 +69,8 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
     */
    private MessageEndpoint endpoint;
 
+   private final ConnectionFactoryOptions options;
+
    private final ActiveMQActivation activation;
 
    private boolean useLocalTx;
@@ -84,11 +87,13 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    private volatile boolean connected;
 
-   public ActiveMQMessageHandler(final ActiveMQActivation activation,
+   public ActiveMQMessageHandler(final ConnectionFactoryOptions options,
+                                 final ActiveMQActivation activation,
                                  final TransactionManager tm,
                                  final ClientSessionInternal session,
                                  final ClientSessionFactory cf,
                                  final int sessionNr) {
+      this.options = options;
       this.activation = activation;
       this.session = session;
       this.cf = cf;
@@ -286,7 +291,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          ActiveMQRALogger.LOGGER.trace("onMessage(" + message + ")");
       }
 
-      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session);
+      ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session, options);
       boolean beforeDelivery = false;
 
       try {

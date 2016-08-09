@@ -91,40 +91,49 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                try {
                   sessionSPI.commitCurrentTX();
                }
+               catch (ActiveMQAMQPException amqpE) {
+                  throw amqpE;
+               }
                catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
                }
             }
-            delivery.settle();
          }
 
       }
+      catch (ActiveMQAMQPException amqpE) {
+         delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
+      }
       catch (Exception e) {
          log.warn(e.getMessage(), e);
-         Rejected rejected = new Rejected();
-         ErrorCondition condition = new ErrorCondition();
-         condition.setCondition(Symbol.valueOf("failed"));
-         condition.setDescription(e.getMessage());
-         rejected.setError(condition);
-         delivery.disposition(rejected);
+         delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
       }
       finally {
+         delivery.settle();
          buffer.release();
       }
    }
 
+   private Rejected createRejected(Symbol amqpError, String message) {
+      Rejected rejected = new Rejected();
+      ErrorCondition condition = new ErrorCondition();
+      condition.setCondition(amqpError);
+      condition.setDescription(message);
+      rejected.setError(condition);
+      return rejected;
+   }
+
    @Override
    public void onFlow(int credits, boolean drain) {
-
    }
 
    @Override
    public void close(boolean linkRemoteClose) throws ActiveMQAMQPException {
-      //noop
+      // no op
    }
 
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
-      //noop
+      // no op
    }
 }

@@ -96,6 +96,11 @@ public final class StompConnection implements RemotingConnection {
 
    private final int minLargeMessageSize;
 
+   @Override
+   public boolean isSupportReconnect() {
+      return false;
+   }
+
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       StompFrame frame = null;
       try {
@@ -726,6 +731,11 @@ public final class StompConnection implements RemotingConnection {
 
    public StompProtocolManager getManager() {
       return manager;
+   }
+
+   @Override
+   public void killMessage(SimpleString nodeID) {
+      //unsupported
    }
 
 }

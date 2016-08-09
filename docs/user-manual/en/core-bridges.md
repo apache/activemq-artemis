@@ -44,7 +44,7 @@ with an example (this is actually from the bridge example):
     <bridge name="my-bridge">
        <queue-name>jms.queue.sausage-factory</queue-name>
        <forwarding-address>jms.queue.mincing-machine</forwarding-address>
-       <filter-string="name='aardvark'"/>
+       <filter string="name='aardvark'"/>
        <transformer-class-name>
           org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
        </transformer-class-name>

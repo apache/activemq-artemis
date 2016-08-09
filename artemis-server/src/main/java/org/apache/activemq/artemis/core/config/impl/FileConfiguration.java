@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.net.URL;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.deployers.Deployable;
@@ -44,7 +45,7 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
    private boolean parsed = false;
 
    @Override
-   public void parse(Element config) throws Exception {
+   public void parse(Element config, URL url) throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
       // https://jira.jboss.org/browse/HORNETQ-478 - We only want to validate AIO when
@@ -53,6 +54,8 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
       parser.setValidateAIO(true);
 
       parser.parseMainConfig(config, this);
+
+      setConfigurationUrl(url);
 
       parsed = true;
    }

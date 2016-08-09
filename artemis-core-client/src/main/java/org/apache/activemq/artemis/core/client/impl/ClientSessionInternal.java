@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
 public interface ClientSessionInternal extends ClientSession {
 
@@ -130,4 +131,6 @@ public interface ClientSessionInternal extends ClientSession {
    String getNodeId();
 
    boolean isWritable(ReadyListener callback);
+
+   SessionContext getSessionContext();
 }
