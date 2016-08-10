@@ -87,10 +87,6 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void failedToConnectToServer(Integer reconnectAttempts);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212006, value = "Waiting {0} milliseconds before next retry. RetryInterval={1} and multiplier={2}", format = Message.Format.MESSAGE_FORMAT)
-   void waitingForRetry(Long interval, Long retryInterval, Double multiplier);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212007,
       value = "connector.create or connectorFactory.createConnector should never throw an exception, implementation is badly behaved, but we will deal with it anyway.",
       format = Message.Format.MESSAGE_FORMAT)

@@ -121,12 +121,13 @@ public class ReloadManagerImpl implements ReloadManager {
    class ReloadRegistry {
       private final File file;
       private final URL uri;
-      private volatile long lastModified;
+      private long lastModified;
 
       private final List<ReloadCallback> callbacks = new LinkedList<>();
 
       ReloadRegistry(URL uri) {
          this.file = new File(uri.getPath());
+         this.lastModified = file.lastModified();
          this.uri = uri;
       }
 

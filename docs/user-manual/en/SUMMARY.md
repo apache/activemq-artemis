@@ -17,6 +17,7 @@
 * [Filter Expressions](filter-expressions.md)
 * [Persistence](persistence.md)
 * [Configuring Transports](configuring-transports.md)
+* [Configuration Reload](config-reload.md)
 * [Detecting Dead Connections](connection-ttl.md)
 * [Detecting Slow Consumers](slow-consumers.md)
 * [Resource Manager Configuration](transaction-config.md)

@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.destination;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 import javax.jms.Message;
 
@@ -63,31 +64,31 @@ public class CreateDestination extends DestinationAction {
       performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
-            JMSManagementHelper.putOperationInvocation(message, "jms.server", "createTopic", name, bindings);
+            JMSManagementHelper.putOperationInvocation(message, "jms.server", "createTopic", getName(), bindings);
          }
 
          @Override
          public void requestSuccessful(Message reply) throws Exception {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
-               context.out.println("Topic " + name + " created successfully.");
+               context.out.println("Topic " + getName() + " created successfully.");
             }
             else {
-               context.err.println("Failed to create topic " + name + ".");
+               context.err.println("Failed to create topic " + getName() + ".");
             }
          }
 
          @Override
          public void requestFailed(Message reply) throws Exception {
             String errorMsg = (String) JMSManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create topic " + name + ". Reason: " + errorMsg);
+            context.err.println("Failed to create topic " + getName() + ". Reason: " + errorMsg);
          }
       });
    }
 
    public String getAddress() {
       if (address == null || "".equals(address.trim())) {
-         address = name;
+         address = getName();
       }
       return address.trim();
    }
@@ -97,18 +98,18 @@ public class CreateDestination extends DestinationAction {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
             String address = getAddress();
-            ManagementHelper.putOperationInvocation(message, "core.server", "createQueue", address, name, filter, durable);
+            ManagementHelper.putOperationInvocation(message, "core.server", "createQueue", address, getName(), filter, durable);
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Core queue " + name + " created successfully.");
+            context.out.println("Core queue " + getName() + " created successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create queue " + name + ". Reason: " + errMsg);
+            context.err.println("Failed to create queue " + getName() + ". Reason: " + errMsg);
          }
       });
    }
@@ -119,24 +120,24 @@ public class CreateDestination extends DestinationAction {
 
          @Override
          public void setUpInvocation(Message message) throws Exception {
-            JMSManagementHelper.putOperationInvocation(message, "jms.server", "createQueue", name, bindings, filter, durable);
+            JMSManagementHelper.putOperationInvocation(message, "jms.server", "createQueue", getName(), bindings, filter, durable);
          }
 
          @Override
          public void requestSuccessful(Message reply) throws Exception {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
-               context.out.println("Jms queue " + name + " created successfully.");
+               context.out.println("Jms queue " + getName() + " created successfully.");
             }
             else {
-               context.err.println("Failed to create jms queue " + name + ".");
+               context.err.println("Failed to create jms queue " + getName() + ".");
             }
          }
 
          @Override
          public void requestFailed(Message reply) throws Exception {
             String errorMsg = (String) JMSManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create jms queue " + name + ". Reason: " + errorMsg);
+            context.err.println("Failed to create jms queue " + getName() + ". Reason: " + errorMsg);
          }
       });
    }

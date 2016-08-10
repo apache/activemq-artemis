@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.messages;
 
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.commands.ActionAbstract;
 
 public class DestAbstract extends ActionAbstract {
 

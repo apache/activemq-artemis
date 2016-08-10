@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.PostQueueCreationCallback;
 import org.apache.activemq.artemis.core.server.PostQueueDeletionCallback;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -1761,6 +1762,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
    private final class JMSReloader implements ReloadCallback {
       @Override
       public void reload(URL url) throws Exception {
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("jms");
+
          InputStream input = url.openStream();
          Reader reader = new InputStreamReader(input);
          String xml = XMLUtil.readerToString(reader);

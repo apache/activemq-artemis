@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -23,6 +23,7 @@ import javax.jms.Session;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.util.ConsumerThread;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
