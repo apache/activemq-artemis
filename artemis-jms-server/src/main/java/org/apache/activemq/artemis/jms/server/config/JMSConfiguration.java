@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.server.config;
 
+import java.net.URL;
 import java.util.List;
 
 public interface JMSConfiguration {
@@ -35,4 +36,9 @@ public interface JMSConfiguration {
    String getDomain();
 
    JMSConfiguration setDomain(String domain);
+
+   URL getConfigurationUrl();
+
+   JMSConfiguration setConfigurationUrl(URL configurationUrl);
+
 }
