@@ -63,10 +63,10 @@ public class StaticClusteredQueueExample {
          // Step 7. We create a JMS Connection connection1 which is a connection to server 1
          connection1 = cf0.createConnection();
 
-         // Step 6. We create a JMS Connection connection0 which is a connection to server 0
+         // Step 6. We create a JMS Connection connection0 which is a connection to server 2
          connection2 = cf0.createConnection();
 
-         // Step 7. We create a JMS Connection connection1 which is a connection to server 1
+         // Step 7. We create a JMS Connection connection1 which is a connection to server 3
          connection3 = cf0.createConnection();
 
          // Step 8. We create a JMS Session on server 0
@@ -75,10 +75,10 @@ public class StaticClusteredQueueExample {
          // Step 9. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 8. We create a JMS Session on server 0
+         // Step 8. We create a JMS Session on server 2
          Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 9. We create a JMS Session on server 1
+         // Step 9. We create a JMS Session on server 3
          Session session3 = connection3.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 10. We start the connections to ensure delivery occurs on them
@@ -90,7 +90,7 @@ public class StaticClusteredQueueExample {
 
          connection3.start();
 
-         // Step 11. We create JMS MessageConsumer objects on server 0 and server 1
+         // Step 11. We create JMS MessageConsumer objects on server 0 server 1 server 2 server 3
          MessageConsumer consumer0 = session0.createConsumer(queue);
 
          MessageConsumer consumer1 = session1.createConsumer(queue);
@@ -104,7 +104,7 @@ public class StaticClusteredQueueExample {
          // Step 12. We create a JMS MessageProducer object on server 3
          MessageProducer producer = session3.createProducer(queue);
 
-         // Step 13. We send some messages to server 0
+         // Step 13. We send some messages to server 3
 
          final int numMessages = 20;
 
@@ -116,7 +116,7 @@ public class StaticClusteredQueueExample {
             System.out.println("Sent message: " + message.getText());
          }
          Thread.sleep(2000);
-         // Step 14. We now consume those messages on *both* server 0 and server 1.
+         // Step 14. We now consume those messages on  server 0 server 1 server 2 server 3
          // We note the messages have been distributed between servers in a round robin fashion
          // JMS Queues implement point-to-point message where each message is only ever consumed by a
          // maximum of one consumer
