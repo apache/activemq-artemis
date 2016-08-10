@@ -196,6 +196,12 @@ server-out:17:30:27,476 INFO  [org.apache.activemq.artemis.core.server] AMQ22100
 [INFO] ------------------------------------------------------------------------
 ```
 
+
+List
+====
+
+This includes a preview list of a few examples that we distribute with Artemis. Please refer to the distribution for a more accurate list.
+
 Applet
 ------
 
@@ -667,20 +673,6 @@ The `producer-rte-limit` example demonstrates how, with Apache ActiveMQ Artemis,
 can specify a maximum send rate at which a JMS message producer will
 send messages.
 
-Proton Qpid
------------
-
-Apache ActiveMQ Artemis can be configured to accept requests from any AMQP client that
-supports the 1.0 version of the protocol. This `proton-j` example shows
-a simply qpid java 1.0 client example.
-
-Proton Ruby
------------
-
-Apache ActiveMQ Artemis can be configured to accept requests from any AMQP client that
-supports the 1.0 version of the protocol. This example shows a simply
-proton ruby client that sends and receives messages
-
 Queue
 -----
 
@@ -744,11 +736,6 @@ Request-Reply example
 ---------------------
 
 A simple example showing the JMS request-response pattern.
-
-Rest example
-------------
-
-An example showing how to use the Apache ActiveMQ Artemis Rest API
 
 Scheduled Message
 -----------------
