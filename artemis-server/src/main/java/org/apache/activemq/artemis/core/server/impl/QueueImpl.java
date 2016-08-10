@@ -1375,10 +1375,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized boolean expireReference(final long messageID) throws Exception {
-      if (expiryAddress != null && expiryAddress.equals(this.address)) {
-         // check expire with itself would be silly (waste of time)
-         if (logger.isDebugEnabled())
-            logger.debug("Cannot expire from " + address + " into " + expiryAddress);
+      if (isExpirationRedundant()) {
          return false;
       }
 
@@ -1400,10 +1397,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public synchronized int expireReferences(final Filter filter) throws Exception {
-      if (expiryAddress != null && expiryAddress.equals(this.address)) {
-         // check expire with itself would be silly (waste of time)
-         if (logger.isDebugEnabled())
-            logger.debug("Cannot expire from " + address + " into " + expiryAddress);
+      if (isExpirationRedundant()) {
          return 0;
       }
 
@@ -1432,10 +1426,7 @@ public class QueueImpl implements Queue {
 
    @Override
    public void expireReferences() {
-      if (expiryAddress != null && expiryAddress.equals(this.address)) {
-         // check expire with itself would be silly (waste of time)
-         if (logger.isDebugEnabled())
-            logger.debug("Cannot expire from " + address + " into " + expiryAddress);
+      if (isExpirationRedundant()) {
          return;
       }
 
@@ -1443,6 +1434,18 @@ public class QueueImpl implements Queue {
          expiryScanner.scannerRunning.incrementAndGet();
          getExecutor().execute(expiryScanner);
       }
+   }
+
+   public boolean isExpirationRedundant() {
+      if (expiryAddress != null && expiryAddress.equals(this.address)) {
+         // check expire with itself would be silly (waste of time)
+         if (logger.isTraceEnabled())
+            logger.trace("Redundant expiration from " + address + " to " + expiryAddress);
+
+         return true;
+      }
+
+      return false;
    }
 
    class ExpiryScanner implements Runnable {
