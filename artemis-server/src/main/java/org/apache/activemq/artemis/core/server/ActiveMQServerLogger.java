@@ -94,7 +94,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void serverStopped(String version, SimpleString nodeId, String uptime);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221003, value = "Trying to deploy queue {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221003, value = "Deploying queue {0}", format = Message.Format.MESSAGE_FORMAT)
    void deployQueue(SimpleString queueName);
 
    @LogMessage(level = Logger.Level.INFO)
@@ -310,7 +310,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void populatingSecurityRolesFromLDAP(String url);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221052, value = "trying to deploy topic {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221052, value = "Deploying topic {0}", format = Message.Format.MESSAGE_FORMAT)
    void deployTopic(SimpleString topicName);
 
    @LogMessage(level = Logger.Level.INFO)
