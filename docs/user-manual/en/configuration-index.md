@@ -30,6 +30,7 @@ Name | Description
 [bindings-directory](persistence.md "Configuring the bindings journal")  | The folder in use for the bindings folder
 [bridges](core-bridges.md "Core Bridges")  | [a list of bridge](#bridge-type)
 [broadcast-groups](clusters.md "Clusters")                                            | [a list of broadcast-group](#broadcast-group-type)
+[configuration-file-refresh-period](config-reload.md) |  The frequency in milliseconds the configuration file is checked for changes (default 5000)
 [check-for-live-server](ha.md)   |  Used for a live server to verify if there are other nodes with the same ID on the topology
 [cluster-connections](clusters.md "Clusters") |  [a list of cluster-connection](#cluster-connection-type)
 [cluster-password](clusters.md "Clusters")                                                                                              |   Cluster password. It applies to all cluster configurations.

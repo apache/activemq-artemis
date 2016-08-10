@@ -69,6 +69,21 @@ finally
 }
 ```
 
+
+Or with using auto-closeable feature from Java, which can save a few lines of code:
+
+``` java
+
+
+try (
+     ActiveMQConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory();
+     Connection jmsConnection = jmsConnectionFactory.createConnection())
+{
+   ... do some stuff with the connection...
+}
+```
+
+
 Unfortunately users don't always write well behaved applications, and
 sometimes clients just crash so they don't have a chance to clean up
 their resources!
