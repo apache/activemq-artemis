@@ -60,6 +60,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    @Override
    public void parse(Element config, URL url) throws Exception {
       parseConfiguration(config);
+      setConfigurationUrl(url);
       parsed = true;
    }
 

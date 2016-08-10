@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.server.config.impl;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public class JMSConfigurationImpl implements JMSConfiguration {
    private List<TopicConfiguration> topicConfigurations = new ArrayList<>();
 
    private String domain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
+
+   private URL configurationUrl;
 
    // JMSConfiguration implementation -------------------------------
 
@@ -81,6 +84,17 @@ public class JMSConfigurationImpl implements JMSConfiguration {
    @Override
    public JMSConfigurationImpl setDomain(final String domain) {
       this.domain = domain;
+      return this;
+   }
+
+   @Override
+   public URL getConfigurationUrl() {
+      return configurationUrl;
+   }
+
+   @Override
+   public JMSConfiguration setConfigurationUrl(URL configurationUrl) {
+      this.configurationUrl = configurationUrl;
       return this;
    }
 }
