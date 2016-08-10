@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import javax.security.cert.X509Certificate;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,9 +57,8 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
  * StompProtocolManager
  */
 public class StompProtocolManager extends AbstractProtocolManager<StompFrame,StompFrameInterceptor,StompConnection> {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
+   private static final List<String> websocketRegistryNames = Arrays.asList("v10.stomp", "v11.stomp", "v12.stomp");
 
    private final ActiveMQServer server;
 
@@ -190,6 +190,11 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
       //Todo move handshake to here
+   }
+
+   @Override
+   public List<String> websocketSubprotocolIdentifiers() {
+      return websocketRegistryNames;
    }
 
    // Public --------------------------------------------------------

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -48,6 +49,8 @@ import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener {
+
+   private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
    private final ActiveMQServer server;
 
@@ -145,6 +148,11 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
+   }
+
+   @Override
+   public List<String> websocketSubprotocolIdentifiers() {
+      return websocketRegistryNames;
    }
 
    public String getPubSubPrefix() {
