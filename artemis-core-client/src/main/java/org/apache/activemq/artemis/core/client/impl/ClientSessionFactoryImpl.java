@@ -825,7 +825,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                }
 
                if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
-                  ActiveMQClientLogger.LOGGER.waitingForRetry(interval, retryInterval, retryIntervalMultiplier);
+                  ClientSessionFactoryImpl.logger.trace("Waiting " + interval + " milliseconds before next retry. RetryInterval=" + retryInterval + " and multiplier=" + retryIntervalMultiplier);
                }
 
                try {
