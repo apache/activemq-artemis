@@ -328,6 +328,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void removingBackupData(String path);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 221056, value = "Reloading configuration ...{0}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void reloadingConfiguration(String module);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222000, value = "ActiveMQServer is being finalized and has not been stopped. Please remember to stop the server before letting it go out of scope",
       format = Message.Format.MESSAGE_FORMAT)
