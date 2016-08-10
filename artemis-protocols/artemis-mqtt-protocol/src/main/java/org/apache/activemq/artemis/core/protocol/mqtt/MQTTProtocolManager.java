@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
@@ -34,14 +38,13 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * MQTTProtocolManager
  */
 class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterceptor,MQTTConnection>
         implements NotificationListener {
+
+   private static final List<String> websocketRegistryNames = Arrays.asList("mqtt", "mqttv3.1");
 
    private ActiveMQServer server;
 
@@ -136,6 +139,11 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterc
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
+   }
+
+   @Override
+   public List<String> websocketSubprotocolIdentifiers() {
+      return websocketRegistryNames;
    }
 
    public void invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {

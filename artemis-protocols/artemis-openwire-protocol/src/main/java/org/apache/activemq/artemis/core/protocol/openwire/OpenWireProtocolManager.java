@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +74,8 @@ import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 
 public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, ClusterTopologyListener {
+
+   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
 
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
@@ -267,6 +270,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
 
    @Override
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
+   }
+
+   @Override
+   public List<String> websocketSubprotocolIdentifiers() {
+      return websocketRegistryNames;
    }
 
    public void addConnection(OpenWireConnection connection, ConnectionInfo info) throws Exception {
