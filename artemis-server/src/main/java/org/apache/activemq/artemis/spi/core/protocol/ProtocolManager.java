@@ -61,4 +61,12 @@ public interface ProtocolManager<P extends BaseInterceptor> {
    boolean acceptsNoHandshake();
 
    void handshake(NettyServerConnection connection, ActiveMQBuffer buffer);
+
+   /**
+    * A list of the IANA websocket subprotocol identifiers supported by this protocol manager.  These are used
+    * during the websocket subprotocol handshake.
+    *
+    * @return A list of subprotocol ids
+    */
+   List<String> websocketSubprotocolIdentifiers();
 }

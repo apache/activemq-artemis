@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +63,8 @@ import org.jboss.logging.Logger;
 public class CoreProtocolManager implements ProtocolManager<Interceptor> {
 
    private static final Logger logger = Logger.getLogger(CoreProtocolManager.class);
+
+   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
 
    private final ActiveMQServer server;
 
@@ -179,6 +182,11 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor> {
       if (isArtemis(buffer)) {
          buffer.readBytes(7);
       }
+   }
+
+   @Override
+   public List<String> websocketSubprotocolIdentifiers() {
+      return websocketRegistryNames;
    }
 
    private boolean isArtemis(ActiveMQBuffer buffer) {

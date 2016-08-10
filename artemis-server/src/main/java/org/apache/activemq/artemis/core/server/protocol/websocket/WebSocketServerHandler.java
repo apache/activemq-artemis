@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server.protocol.stomp;
+package org.apache.activemq.artemis.core.server.protocol.websocket;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -38,6 +39,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import org.apache.activemq.artemis.utils.StringUtil;
 
 import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpHeaders.setContentLength;
@@ -51,7 +53,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
    private HttpRequest httpRequest;
    private WebSocketServerHandshaker handshaker;
+   private List<String> supportedProtocols;
    private static final BinaryWebSocketEncoder BINARY_WEBSOCKET_ENCODER = new BinaryWebSocketEncoder();
+
+   public WebSocketServerHandler(List<String> supportedProtocols) {
+      this.supportedProtocols = supportedProtocols;
+   }
 
    @Override
    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -75,7 +82,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
       }
 
       // Handshake
-      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), "v10.stomp,v11.stomp", false);
+      String supportedProtocolsCSV = StringUtil.joinStringList(supportedProtocols, ",");
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), supportedProtocolsCSV,false);
       this.httpRequest = req;
       this.handshaker = wsFactory.newHandshaker(req);
       if (this.handshaker == null) {

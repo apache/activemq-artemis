@@ -95,7 +95,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
          }
       };
       pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
-      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, null);
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, new HashMap<String, ProtocolManager>());
 
       addActiveMQComponent(acceptor);
       acceptor.start();

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.PartialPooledByteBufAllocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.protocol.stomp.WebSocketServerHandler;
+import org.apache.activemq.artemis.core.server.protocol.websocket.WebSocketServerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
@@ -64,6 +65,8 @@ public class ProtocolHandler {
 
    private HttpKeepAliveRunnable httpKeepAliveRunnable;
 
+   private final List<String> websocketSubprotocolIds;
+
    public ProtocolHandler(Map<String, ProtocolManager> protocolMap,
                           NettyAcceptor nettyAcceptor,
                           final Map<String, Object> configuration,
@@ -72,6 +75,13 @@ public class ProtocolHandler {
       this.nettyAcceptor = nettyAcceptor;
       this.configuration = configuration;
       this.scheduledThreadPool = scheduledThreadPool;
+
+      websocketSubprotocolIds = new ArrayList<>();
+      for (ProtocolManager pm : protocolMap.values()) {
+         if (pm.websocketSubprotocolIdentifiers() != null) {
+            websocketSubprotocolIds.addAll(pm.websocketSubprotocolIdentifiers());
+         }
+      }
    }
 
    public ChannelHandler getProtocolDecoder() {
@@ -106,7 +116,7 @@ public class ProtocolHandler {
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
-               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler());
+               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds));
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
                ctx.pipeline().remove("http-handler");
