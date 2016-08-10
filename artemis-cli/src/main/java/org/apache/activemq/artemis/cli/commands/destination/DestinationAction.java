@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.destination;
 
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -36,7 +37,7 @@ import javax.jms.Queue;
 import javax.jms.QueueRequestor;
 import javax.jms.Session;
 
-public abstract class DestinationAction extends ActionAbstract {
+public abstract class DestinationAction extends InputAbstract {
 
    public static final String JMS_QUEUE = "jms-queue";
    public static final String JMS_TOPIC = "topic";
@@ -54,18 +55,18 @@ public abstract class DestinationAction extends ActionAbstract {
    @Option(name = "--password", description = "Password used to connect")
    String password;
 
-   @Option(name = "--name", description = "destination name", required = true)
+   @Option(name = "--name", description = "destination name")
    String name;
 
    public static void performJmsManagement(String brokerURL, String user, String password, ManagementCallback<Message> cb) throws Exception {
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
-      ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
-      ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
-      QueueRequestor requestor = new QueueRequestor(session, managementQueue);
+      try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
+           ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
+           ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
 
-      try {
+         Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
+         QueueRequestor requestor = new QueueRequestor(session, managementQueue);
+
          connection.start();
 
          Message message = session.createMessage();
@@ -83,18 +84,14 @@ public abstract class DestinationAction extends ActionAbstract {
             cb.requestFailed(reply);
          }
       }
-      finally {
-         connection.close();
-      }
    }
 
    public static void performCoreManagement(String brokerURL, String user, String password, ManagementCallback<ClientMessage> cb) throws Exception {
 
-      ServerLocator locator = ServerLocatorImpl.newLocator(brokerURL);
-      ClientSessionFactory sessionFactory = locator.createSessionFactory();
-      ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
 
-      try {
+      try (ServerLocator locator = ServerLocatorImpl.newLocator(brokerURL);
+           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
          session.start();
          ClientRequestor requestor = new ClientRequestor(session, "jms.queue.activemq.management");
          ClientMessage message = session.createMessage(false);
@@ -110,10 +107,6 @@ public abstract class DestinationAction extends ActionAbstract {
             cb.requestFailed(reply);
          }
       }
-      finally {
-         session.close();
-         sessionFactory.close();
-      }
    }
 
    public void setName(String name) {
@@ -121,6 +114,10 @@ public abstract class DestinationAction extends ActionAbstract {
    }
 
    public String getName() {
+      if (name == null) {
+         name = input("--name", "Please provide the destination name:", "");
+      }
+
       return name;
    }
 

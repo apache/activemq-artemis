@@ -23,7 +23,7 @@ import io.airlift.airline.Option;
 public abstract class ActionAbstract implements Action {
 
    @Option(name = "--verbose", description = "Adds more information on the execution")
-   boolean verbose;
+   public boolean verbose;
 
    private String brokerInstance;
 

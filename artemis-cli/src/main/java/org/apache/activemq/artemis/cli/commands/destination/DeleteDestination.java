@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.destination;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 import javax.jms.Message;
 
@@ -54,24 +55,24 @@ public class DeleteDestination extends DestinationAction {
       performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
-            JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyTopic", name, removeConsumers);
+            JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyTopic", getName(), removeConsumers);
          }
 
          @Override
          public void requestSuccessful(Message reply) throws Exception {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
-               context.out.println("Topic " + name + " deleted successfully.");
+               context.out.println("Topic " + getName() + " deleted successfully.");
             }
             else {
-               context.err.println("Failed to delete topic " + name);
+               context.err.println("Failed to delete topic " + getName());
             }
          }
 
          @Override
          public void requestFailed(Message reply) throws Exception {
             String errorMsg = (String) JMSManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete topic " + name + ". Reason: " + errorMsg);
+            context.err.println("Failed to delete topic " + getName() + ". Reason: " + errorMsg);
          }
       });
    }
@@ -80,24 +81,24 @@ public class DeleteDestination extends DestinationAction {
       performJmsManagement(brokerURL, user, password, new ManagementCallback<Message>() {
          @Override
          public void setUpInvocation(Message message) throws Exception {
-            JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyQueue", name, removeConsumers);
+            JMSManagementHelper.putOperationInvocation(message, "jms.server", "destroyQueue", getName(), removeConsumers);
          }
 
          @Override
          public void requestSuccessful(Message reply) throws Exception {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
-               context.out.println("Jms queue " + name + " deleted successfully.");
+               context.out.println("Jms queue " + getName() + " deleted successfully.");
             }
             else {
-               context.err.println("Failed to delete queue " + name);
+               context.err.println("Failed to delete queue " + getName());
             }
          }
 
          @Override
          public void requestFailed(Message reply) throws Exception {
             String errorMsg = (String) JMSManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create " + name + " with reason: " + errorMsg);
+            context.err.println("Failed to create " + getName() + " with reason: " + errorMsg);
          }
       });
    }
@@ -106,18 +107,18 @@ public class DeleteDestination extends DestinationAction {
       performCoreManagement(brokerURL, user, password, new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "core.server", "destroyQueue", name);
+            ManagementHelper.putOperationInvocation(message, "core.server", "destroyQueue", getName());
          }
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Queue " + name + " deleted successfully.");
+            context.out.println("Queue " + getName() + " deleted successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete queue " + name + ". Reason: " + errMsg);
+            context.err.println("Failed to delete queue " + getName() + ". Reason: " + errMsg);
          }
       });
    }

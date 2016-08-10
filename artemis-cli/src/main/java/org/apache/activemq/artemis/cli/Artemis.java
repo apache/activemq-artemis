@@ -24,15 +24,15 @@ import java.util.List;
 import io.airlift.airline.Cli;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.Browse;
-import org.apache.activemq.artemis.cli.commands.Consumer;
+import org.apache.activemq.artemis.cli.commands.messages.Browse;
+import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.Create;
-import org.apache.activemq.artemis.cli.commands.CreateDestination;
-import org.apache.activemq.artemis.cli.commands.DeleteDestination;
+import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
+import org.apache.activemq.artemis.cli.commands.destination.DeleteDestination;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
-import org.apache.activemq.artemis.cli.commands.HelpDestination;
+import org.apache.activemq.artemis.cli.commands.destination.HelpDestination;
 import org.apache.activemq.artemis.cli.commands.Kill;
-import org.apache.activemq.artemis.cli.commands.Producer;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.cli.commands.tools.CompactJournal;
@@ -124,6 +124,7 @@ public class Artemis {
 
       builder.withGroup("destination").withDescription("Destination tools group (create|delete) (example ./artemis destination create)").
             withDefaultCommand(HelpDestination.class).withCommands(CreateDestination.class, DeleteDestination.class);
+
       if (instance != null) {
          builder.withGroup("data").withDescription("data tools group (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);

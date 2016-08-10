@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.CreateDestination;
-import org.apache.activemq.artemis.cli.commands.DeleteDestination;
-import org.apache.activemq.artemis.cli.commands.DestinationAction;
+import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
+import org.apache.activemq.artemis.cli.commands.destination.DeleteDestination;
+import org.apache.activemq.artemis.cli.commands.destination.DestinationAction;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;

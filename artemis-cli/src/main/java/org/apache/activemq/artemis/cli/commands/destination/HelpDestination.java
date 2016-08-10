@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands;
+package org.apache.activemq.artemis.cli.commands.destination;
 
 import io.airlift.airline.Help;
+import org.apache.activemq.artemis.cli.commands.Action;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HelpDestination extends Help implements Action  {
+public class HelpDestination extends Help implements Action {
 
    @Override
    public boolean isVerbose() {
