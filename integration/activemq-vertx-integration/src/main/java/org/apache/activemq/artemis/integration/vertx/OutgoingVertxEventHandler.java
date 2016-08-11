@@ -18,12 +18,10 @@ package org.apache.activemq.artemis.integration.vertx;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ConnectorService;
@@ -43,7 +41,7 @@ import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
-public class OutgoingVertxEventHandler implements Consumer, ConnectorService {
+class OutgoingVertxEventHandler implements Consumer, ConnectorService {
 
    private final String connectorName;
 
@@ -73,11 +71,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService {
 
    private boolean isStarted = false;
 
-   public OutgoingVertxEventHandler(String connectorName,
-                                    Map<String, Object> configuration,
-                                    StorageManager storageManager,
-                                    PostOffice postOffice,
-                                    ScheduledExecutorService scheduledThreadPool) {
+   OutgoingVertxEventHandler(String connectorName, Map<String, Object> configuration, PostOffice postOffice) {
       this.connectorName = connectorName;
       this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null, configuration);
       this.postOffice = postOffice;
@@ -164,7 +158,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService {
 
          ServerMessage message = ref.getMessage();
 
-         Object vertxMsgBody = null;
+         Object vertxMsgBody;
          // extract information from message
          Integer type = message.getIntProperty(VertxConstants.VERTX_MESSAGE_TYPE);
 

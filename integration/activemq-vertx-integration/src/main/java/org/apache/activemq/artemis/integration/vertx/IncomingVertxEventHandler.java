@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.integration.vertx;
 
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -40,7 +39,7 @@ import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
-public class IncomingVertxEventHandler implements ConnectorService {
+class IncomingVertxEventHandler implements ConnectorService {
 
    private final String connectorName;
 
@@ -68,11 +67,10 @@ public class IncomingVertxEventHandler implements ConnectorService {
 
    private boolean isStarted = false;
 
-   public IncomingVertxEventHandler(String connectorName,
-                                    Map<String, Object> configuration,
-                                    StorageManager storageManager,
-                                    PostOffice postOffice,
-                                    ScheduledExecutorService scheduledThreadPool) {
+   IncomingVertxEventHandler(String connectorName,
+                             Map<String, Object> configuration,
+                             StorageManager storageManager,
+                             PostOffice postOffice) {
       this.connectorName = connectorName;
       this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null, configuration);
 
@@ -271,7 +269,6 @@ public class IncomingVertxEventHandler implements ConnectorService {
          else if (body instanceof ReplyException) {
             return VertxConstants.TYPE_REPLY_FAILURE;
          }
-
          throw new IllegalArgumentException("Type not supported: " + message);
       }
 
