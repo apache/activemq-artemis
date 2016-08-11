@@ -395,6 +395,18 @@ following additional properties:
     connecting to this acceptor that 2-way SSL is required. Valid values
     are `true` or `false`. Default is `false`.
 
+-   `verifyHost`
+
+    When used on an `acceptor` the `CN` of the connecting client's SSL certificate
+    will be compared to its hostname to verify they match. This is useful
+    only for 2-way SSL.
+
+    When used on a `connector` the `CN` of the server's SSL certificate will be
+    compared to its hostname to verify they match. This is useful for both 1-way
+    and 2-way SSL.
+
+    Valid values are `true` or `false`. Default is `false`.
+
 ## Configuring Netty HTTP
 
 Netty HTTP tunnels packets over the HTTP protocol. It can be useful in

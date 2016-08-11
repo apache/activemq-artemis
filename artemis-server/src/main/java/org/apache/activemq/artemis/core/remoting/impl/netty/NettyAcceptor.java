@@ -19,12 +19,15 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,6 +141,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean needClientAuth;
 
+   private final boolean verifyHost;
+
    private final boolean tcpNoDelay;
 
    private final int backlog;
@@ -224,6 +229,8 @@ public class NettyAcceptor extends AbstractAcceptor {
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
          needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
+
+         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
       }
       else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
@@ -235,6 +242,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
+         verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -391,7 +399,13 @@ public class NettyAcceptor extends AbstractAcceptor {
          ise.initCause(e);
          throw ise;
       }
-      SSLEngine engine = context.createSSLEngine();
+      SSLEngine engine;
+      if (verifyHost) {
+         engine = context.createSSLEngine(host, port);
+      }
+      else {
+         engine = context.createSSLEngine();
+      }
 
       engine.setUseClientMode(false);
 
@@ -439,6 +453,13 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
 
       engine.setEnabledProtocols(set.toArray(new String[set.size()]));
+
+      if (verifyHost) {
+         SSLParameters sslParameters = engine.getSSLParameters();
+         sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+         engine.setSSLParameters(sslParameters);
+      }
+
       return new SslHandler(engine);
    }
 
