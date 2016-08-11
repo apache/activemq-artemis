@@ -87,6 +87,8 @@ public class TransportConstants {
 
    public static final String NEED_CLIENT_AUTH_PROP_NAME = "needClientAuth";
 
+   public static final String VERIFY_HOST_PROP_NAME = "verifyHost";
+
    public static final String BACKLOG_PROP_NAME = "backlog";
 
    public static final String NETTY_VERSION;
@@ -154,6 +156,8 @@ public class TransportConstants {
    public static final String DEFAULT_ENABLED_PROTOCOLS = null;
 
    public static final boolean DEFAULT_NEED_CLIENT_AUTH = false;
+
+   public static final boolean DEFAULT_VERIFY_HOST = false;
 
    public static final boolean DEFAULT_TCP_NODELAY = true;
 
@@ -226,6 +230,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableAcceptorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
@@ -270,6 +275,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.VERIFY_HOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TCP_NODELAY_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME);
