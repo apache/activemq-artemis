@@ -45,7 +45,7 @@ public class InputAbstract extends ActionAbstract {
       boolean valid = false;
       System.out.println();
       do {
-         context.out.println(propertyName + ": is mandatory with this configuration:");
+         context.out.println(propertyName + ": mandatory:");
          context.out.println(prompt);
          inputStr = scanner.nextLine();
          if (inputStr.trim().equals("")) {
