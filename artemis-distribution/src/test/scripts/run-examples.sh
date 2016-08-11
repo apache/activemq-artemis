@@ -111,24 +111,24 @@ cd symmetric-cluster; mvn verify; cd ..
 
 # TODO: these will hung eventually when ran in series
 
-#cd $ARTEMIS_HOME/examples/features/ha/
-#
-#cd application-layer-failover; mvn verify; cd ..
-#cd client-side-failoverlistener; mvn verify; cd ..
-#cd colocated-failover; mvn verify; cd ..
-#cd colocated-failover-scale-down; mvn verify; cd ..
-#cd ha-policy-autobackup; mvn verify; cd ..
-#cd multiple-failover; mvn verify; cd ..
-#cd multiple-failover-failback; mvn verify; cd ..
-#cd non-transaction-failover; mvn verify; cd ..
-#cd replicated-failback; mvn verify; cd ..
-#cd replicated-failback-static; mvn verify; cd ..
+cd $ARTEMIS_HOME/examples/features/ha/
 
-#cd replicated-multiple-failover; mvn verify; cd ..
+cd application-layer-failover; mvn verify; cd ..
+cd client-side-failoverlistener; mvn verify; cd ..
+cd colocated-failover; mvn verify; cd ..
+cd colocated-failover-scale-down; mvn verify; cd ..
+cd ha-policy-autobackup; mvn verify; cd ..
+cd multiple-failover; mvn verify; cd ..
+cd multiple-failover-failback; mvn verify; cd ..
+cd non-transaction-failover; mvn verify; cd ..
+cd replicated-failback; mvn verify; cd ..
+cd replicated-failback-static; mvn verify; cd ..
 
-#cd replicated-transaction-failover; mvn verify; cd ..
-#cd scale-down; mvn verify; cd ..
-#cd transaction-failover; mvn verify; cd ..
+cd replicated-multiple-failover; mvn verify; cd ..
+
+cd replicated-transaction-failover; mvn verify; cd ..
+cd scale-down; mvn verify; cd ..
+cd transaction-failover; mvn verify; cd ..
 
 
 cd $CURRENT_DIR

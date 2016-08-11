@@ -461,12 +461,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // start connector service
          connectorsService = new ConnectorsService(configuration, storageManager, scheduledPool, postOffice, serviceRegistry);
          connectorsService.start();
-
-         this.reloadManager = new ReloadManagerImpl(getScheduledPool(), configuration.getConfigurationFileRefreshPeriod());
-
-         if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
-            reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
-         }
       }
       finally {
          // this avoids embedded applications using dirty contexts from startup
@@ -1951,6 +1945,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       deploySecurityFromConfiguration();
 
       deployGroupingHandlerConfiguration(configuration.getGroupingHandlerConfiguration());
+
+      this.reloadManager = new ReloadManagerImpl(getScheduledPool(), configuration.getConfigurationFileRefreshPeriod());
+
+      if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
+         reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
+      }
+
 
       return true;
    }

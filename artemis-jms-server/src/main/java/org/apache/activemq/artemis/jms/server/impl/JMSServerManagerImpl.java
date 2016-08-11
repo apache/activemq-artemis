@@ -274,6 +274,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
 
    @Override
    public void activationComplete() {
+      ReloadManager reloadManager = server.getReloadManager();
+      if (config != null && config.getConfigurationUrl() != null && reloadManager != null) {
+         reloadManager.addCallback(config.getConfigurationUrl(), new JMSReloader());
+      }
 
    }
 
@@ -406,11 +410,6 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
        */
       startCalled = true;
       server.start();
-      ReloadManager reloadManager = server.getReloadManager();
-      if (config != null && config.getConfigurationUrl() != null && reloadManager != null) {
-         reloadManager.addCallback(config.getConfigurationUrl(), new JMSReloader());
-      }
-
 
    }
 

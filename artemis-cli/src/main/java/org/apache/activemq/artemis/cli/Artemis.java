@@ -84,6 +84,13 @@ public class Artemis {
          System.err.println(cliException.getMessage());
          return cliException;
       }
+      catch (NullPointerException e) {
+         // Yeah.. I really meant System.err..
+         // this is the CLI and System.out and System.err are common places for interacting with the user
+         // this is a programming error that must be visualized and corrected
+         e.printStackTrace();
+         return e;
+      }
       catch (RuntimeException re) {
          System.err.println(re.getMessage());
          System.out.println();
