@@ -33,7 +33,7 @@ public class VertxOutgoingConnectorServiceFactory implements ConnectorServiceFac
                                                   StorageManager storageManager,
                                                   PostOffice postOffice,
                                                   ScheduledExecutorService scheduledThreadPool) {
-      return new OutgoingVertxEventHandler(connectorName, configuration, storageManager, postOffice, scheduledThreadPool);
+      return new OutgoingVertxEventHandler(connectorName, configuration, postOffice);
    }
 
    @Override

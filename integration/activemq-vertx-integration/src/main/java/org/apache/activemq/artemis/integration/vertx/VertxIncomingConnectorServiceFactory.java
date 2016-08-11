@@ -34,7 +34,7 @@ public class VertxIncomingConnectorServiceFactory implements ConnectorServiceFac
                                                   PostOffice postOffice,
                                                   ScheduledExecutorService scheduledThreadPool) {
 
-      return new IncomingVertxEventHandler(connectorName, configuration, storageManager, postOffice, scheduledThreadPool);
+      return new IncomingVertxEventHandler(connectorName, configuration, storageManager, postOffice);
 
    }
 
