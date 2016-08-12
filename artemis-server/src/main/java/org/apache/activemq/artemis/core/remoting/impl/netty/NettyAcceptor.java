@@ -763,12 +763,24 @@ public class NettyAcceptor extends AbstractAcceptor {
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
          if (cause.getMessage() != null && cause.getMessage().startsWith(SSLHandshakeException.class.getName())) {
-            ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), cause.getMessage());
+            Throwable rootCause = getRootCause(cause);
+            String errorMessage = rootCause.getClass().getName() + ": " + rootCause.getMessage();
+
+            ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), errorMessage);
 
             if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("SSL handshake failed", cause);
             }
          }
+      }
+
+      private Throwable getRootCause(Throwable throwable) {
+         List<Throwable> list = new ArrayList<>();
+         while (throwable != null && list.contains(throwable) == false) {
+            list.add(throwable);
+            throwable = throwable.getCause();
+         }
+         return (list.size() < 2 ? throwable : list.get(list.size() - 1));
       }
    }
 }
