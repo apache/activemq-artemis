@@ -855,8 +855,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          else if (tx.getState() == Transaction.State.ROLLEDBACK) {
             final String msg = "Cannot end, transaction is rolled back";
 
-            final long now = System.currentTimeMillis();
-            final boolean timeout = tx.hasTimedOut(now, resourceManager.getTimeoutSeconds());
+            final boolean timeout = tx.hasTimedOut();
             tx = null;
 
             if (timeout) {

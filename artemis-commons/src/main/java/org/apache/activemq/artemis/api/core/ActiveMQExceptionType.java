@@ -154,6 +154,12 @@ public enum ActiveMQExceptionType {
          return new ActiveMQTransactionOutcomeUnknownException(msg);
       }
    },
+   TRANSACTION_TIMEOUT(116) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQTranasactionTimeoutException(msg);
+      }
+   },
    ALREADY_REPLICATING(116) {
       @Override
       public ActiveMQException createException(String msg) {
