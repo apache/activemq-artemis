@@ -23,7 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQTranasactionTimeoutException;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -169,11 +171,16 @@ public class TransactionImpl implements Transaction {
          }
 
          if (timedout) {
-            markAsRollbackOnly(new ActiveMQException("TX Timeout"));
+            markAsRollbackOnly(new ActiveMQTranasactionTimeoutException());
          }
 
          return timedout;
       }
+   }
+
+   @Override
+   public boolean hasTimedOut() {
+      return state == State.ROLLBACK_ONLY && exception.getType() == ActiveMQExceptionType.TRANSACTION_TIMEOUT;
    }
 
    @Override

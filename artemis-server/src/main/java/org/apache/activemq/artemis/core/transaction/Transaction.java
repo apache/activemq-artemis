@@ -76,6 +76,10 @@ public interface Transaction {
 
    boolean hasTimedOut(long currentTime, int defaultTimeout);
 
+   /** To validate if the Transaction had previously timed out.
+    *  This is to check the reason why a TX has been rolled back. */
+   boolean hasTimedOut();
+
    void putProperty(int index, Object property);
 
    Object getProperty(int index);

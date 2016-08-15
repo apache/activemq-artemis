@@ -256,6 +256,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
          // TODO Auto-generated method stub
          return null;
       }
+
+      @Override
+      public boolean hasTimedOut() {
+         return false;
+      }
    }
 
    private final class FakeFilter implements Filter {
