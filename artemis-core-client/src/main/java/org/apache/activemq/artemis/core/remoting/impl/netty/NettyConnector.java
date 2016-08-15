@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Inet6Address;
@@ -197,6 +198,8 @@ public class NettyConnector extends AbstractConnector {
 
    private String enabledProtocols;
 
+   private boolean verifyHost;
+
    private boolean tcpNoDelay;
 
    private int tcpSendBufferSize;
@@ -306,6 +309,8 @@ public class NettyConnector extends AbstractConnector {
          enabledCipherSuites = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES, configuration);
 
          enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
+
+         verifyHost = ConfigurationHelper.getBooleanProperty(TransportConstants.VERIFY_HOST_PROP_NAME, TransportConstants.DEFAULT_VERIFY_HOST, configuration);
       }
       else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
@@ -316,6 +321,7 @@ public class NettyConnector extends AbstractConnector {
          trustStorePassword = TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD;
          enabledCipherSuites = TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES;
          enabledProtocols = TransportConstants.DEFAULT_ENABLED_PROTOCOLS;
+         verifyHost = TransportConstants.DEFAULT_VERIFY_HOST;
       }
 
       tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
@@ -462,7 +468,13 @@ public class NettyConnector extends AbstractConnector {
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
             if (sslEnabled && !useServlet) {
-               SSLEngine engine = context.createSSLEngine();
+               SSLEngine engine;
+               if (verifyHost) {
+                  engine = context.createSSLEngine(host, port);
+               }
+               else {
+                  engine = context.createSSLEngine();
+               }
 
                engine.setUseClientMode(true);
 
@@ -494,6 +506,12 @@ public class NettyConnector extends AbstractConnector {
                }
                else {
                   engine.setEnabledProtocols(originalProtocols);
+               }
+
+               if (verifyHost) {
+                  SSLParameters sslParameters = engine.getSSLParameters();
+                  sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+                  engine.setSSLParameters(sslParameters);
                }
 
                SslHandler handler = new SslHandler(engine);

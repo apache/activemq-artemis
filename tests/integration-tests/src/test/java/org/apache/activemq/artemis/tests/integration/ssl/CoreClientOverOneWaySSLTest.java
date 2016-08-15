@@ -55,7 +55,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
+      return Arrays.asList(new Object[][]{
+         {"JCEKS"},
+         {"JKS"}
+      });
    }
 
    public CoreClientOverOneWaySSLTest(String storeType) {
@@ -78,6 +81,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
     * keytool -export -keystore other-server-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore other-client-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
+    * keytool -genkey -keystore verified-server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
+    * keytool -export -keystore verified-server-side-keystore.jks -file activemq-jks.cer -storepass secureexample
+    * keytool -import -keystore verified-client-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
     * Commands to create the JCEKS artifacts:
     * keytool -genkey -keystore server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
@@ -86,6 +93,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
     * keytool -genkey -keystore other-server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=Other ActiveMQ Artemis Server, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
     * keytool -export -keystore other-server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore other-client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
+    *
+    * keytool -genkey -keystore verified-server-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=localhost, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ"
+    * keytool -export -keystore verified-server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
+    * keytool -import -keystore verified-client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
    private String storeType;
    private String SERVER_SIDE_KEYSTORE;
@@ -121,6 +132,56 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       Message m = consumer.receive(1000);
       Assert.assertNotNull(m);
       Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testOneWaySSLVerifyHost() throws Exception {
+      createCustomSslServer(null, null, true);
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "verified-" + CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.VERIFY_HOST_PROP_NAME, true);
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(CoreClientOverOneWaySSLTest.QUEUE, CoreClientOverOneWaySSLTest.QUEUE, false);
+      ClientProducer producer = addClientProducer(session.createProducer(CoreClientOverOneWaySSLTest.QUEUE));
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(CoreClientOverOneWaySSLTest.QUEUE));
+      session.start();
+
+      Message m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testOneWaySSLVerifyHostNegative() throws Exception {
+      createCustomSslServer(null, null, false);
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.VERIFY_HOST_PROP_NAME, true);
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+
+      try {
+         ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+         fail("Creating a session here should fail due to a certificate with a CN that doesn't match the host name.");
+      }
+      catch (Exception e) {
+         // ignore
+      }
    }
 
    @Test
@@ -589,11 +650,22 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    }
 
    private void createCustomSslServer(String cipherSuites, String protocols) throws Exception {
+      createCustomSslServer(cipherSuites, protocols, false);
+   }
+
+   private void createCustomSslServer(String cipherSuites, String protocols, boolean useVerifiedKeystore) throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
-      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
+
+      if (useVerifiedKeystore) {
+         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "verified-" + SERVER_SIDE_KEYSTORE);
+      }
+      else {
+         params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
+      }
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      params.put(TransportConstants.HOST_PROP_NAME, "localhost");
 
       if (cipherSuites != null) {
          params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, cipherSuites);
