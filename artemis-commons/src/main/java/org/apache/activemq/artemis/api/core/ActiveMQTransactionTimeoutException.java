@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.api.core;
 
-public class ActiveMQTranasactionTimeoutException extends ActiveMQException {
+public class ActiveMQTransactionTimeoutException extends ActiveMQException {
 
-   public ActiveMQTranasactionTimeoutException() {
+   public ActiveMQTransactionTimeoutException() {
       super(ActiveMQExceptionType.TRANSACTION_TIMEOUT);
    }
 
-   public ActiveMQTranasactionTimeoutException(String message) {
+   public ActiveMQTransactionTimeoutException(String message) {
       super(ActiveMQExceptionType.TRANSACTION_TIMEOUT, message);
    }
 }
