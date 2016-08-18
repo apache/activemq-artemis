@@ -206,7 +206,7 @@ public interface ActiveMQClientLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212035, value = "error receiving packet in discovery", format = Message.Format.MESSAGE_FORMAT)
-   void errorReceivingPAcketInDiscovery(@Cause Throwable e);
+   void errorReceivingPacketInDiscovery(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212036,
