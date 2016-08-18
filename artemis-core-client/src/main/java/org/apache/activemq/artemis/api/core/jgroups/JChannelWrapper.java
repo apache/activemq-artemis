@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
+import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 
 /**
@@ -127,6 +128,7 @@ public class JChannelWrapper {
 
    public void send(org.jgroups.Message msg) throws Exception {
       if (logger.isTraceEnabled()) logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
+      msg.setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
       channel.send(msg);
    }
 

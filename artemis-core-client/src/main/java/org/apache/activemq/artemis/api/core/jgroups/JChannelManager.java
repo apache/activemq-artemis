@@ -34,7 +34,7 @@ public class JChannelManager {
 
    private static final Logger logger = Logger.getLogger(JChannelManager.class);
 
-   private Map<String, JChannelWrapper> channels;
+   private static Map<String, JChannelWrapper> channels;
 
    public synchronized JChannelWrapper getJChannel(String channelName,
                                                    JGroupsBroadcastEndpoint endpoint) throws Exception {
