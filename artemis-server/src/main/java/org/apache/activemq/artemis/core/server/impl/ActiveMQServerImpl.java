@@ -303,6 +303,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private ServiceRegistry serviceRegistry;
 
    private Date startDate;
+
+   private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
    // Constructors
    // ---------------------------------------------------------------------------------
 
@@ -553,6 +555,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.cannotSetMBeanserver();
       }
       this.mbeanServer = mbeanServer;
+   }
+
+   @Override
+   public void addExternalComponent(ActiveMQComponent externalComponent) {
+      externalComponents.add(externalComponent);
    }
 
    public ExecutorService getThreadPool() {
@@ -935,6 +942,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       addressSettingsRepository.clearCache();
 
       scaledDownNodeIDs.clear();
+
+      for (ActiveMQComponent externalComponent : externalComponents) {
+         try {
+            externalComponent.stop();
+         }
+         catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(e, externalComponent.getClass().getName());
+         }
+      }
 
       if (identity != null) {
          ActiveMQServerLogger.LOGGER.serverStopped("identity=" + identity + ",version=" + getVersion().getFullVersion(), tempNodeID, getUptime());

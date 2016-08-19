@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,7 +26,6 @@ import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.factory.BrokerFactory;
@@ -59,8 +57,6 @@ public class Run extends LockAbstract {
 
    private Broker server;
 
-   private ArrayList<ActiveMQComponent> components = new ArrayList<>();
-
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
@@ -90,7 +86,7 @@ public class Run extends LockAbstract {
          ExternalComponent component = (ExternalComponent) clazz.newInstance();
          component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
          component.start();
-         components.add(component);
+         server.getServer().addExternalComponent(component);
       }
       return null;
    }
@@ -100,13 +96,6 @@ public class Run extends LockAbstract {
       fileConfiguration.getJournalLocation().mkdirs();
       fileConfiguration.getBindingsLocation().mkdirs();
       fileConfiguration.getLargeMessagesLocation().mkdirs();
-   }
-
-   private void stopServerAndComponenets() throws Exception {
-      for (ActiveMQComponent component : components) {
-         component.stop();
-      }
-      server.stop();
    }
 
    /**
@@ -146,7 +135,7 @@ public class Run extends LockAbstract {
             if (file.exists()) {
                try {
                   try {
-                     stopServerAndComponenets();
+                     server.stop();
                   }
                   catch (Exception e) {
                      e.printStackTrace();
@@ -169,7 +158,7 @@ public class Run extends LockAbstract {
          @Override
          public void run() {
             try {
-               stopServerAndComponenets();
+               server.stop();
             }
             catch (Exception e) {
                e.printStackTrace();
