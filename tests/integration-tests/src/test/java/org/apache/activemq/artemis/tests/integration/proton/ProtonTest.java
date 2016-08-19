@@ -78,6 +78,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import static org.junit.Assume.assumeTrue;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.AMQPClientReceiverContext;
 import org.proton.plug.AMQPClientSenderContext;
@@ -637,6 +638,42 @@ public class ProtonTest extends ActiveMQTestBase {
 
       AmqpMessage receivedMessage = receiver.receive();
       assertNotNull(receivedMessage);
+   }
+
+   @Test
+   public void testManagementQueryOverAMQP() throws Throwable {
+      assumeTrue(protocol == 0 || protocol == 3); // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      AmqpConnection amqpConnection = client.connect();
+      try {
+         String destinationAddress = address + 1;
+         AmqpSession session = amqpConnection.createSession();
+         AmqpSender sender = session.createSender("jms.queue.activemq.management");
+         AmqpReceiver receiver = session.createReceiver(destinationAddress);
+         receiver.flow(10);
+
+         //create request message for getQueueNames query
+         AmqpMessage request = new AmqpMessage();
+         request.setApplicationProperty("_AMQ_ResourceName", "core.server");
+         request.setApplicationProperty("_AMQ_OperationName", "getQueueNames");
+         request.setApplicationProperty("JMSReplyTo", destinationAddress);
+         request.setText("[]");
+
+         sender.send(request);
+         AmqpMessage response = receiver.receive();
+         assertNotNull(response);
+         Object section = response.getWrappedMessage().getBody();
+         assertTrue(section instanceof AmqpValue);
+         Object value = ((AmqpValue) section).getValue();
+         assertTrue(value instanceof String);
+         assertTrue(((String) value).length() > 0);
+         assertTrue(((String) value).contains(destinationAddress));
+         response.accept();
+      }
+      finally {
+         amqpConnection.close();
+      }
    }
 
    @Test
