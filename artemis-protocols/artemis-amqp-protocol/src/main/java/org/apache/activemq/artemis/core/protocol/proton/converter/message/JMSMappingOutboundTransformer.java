@@ -139,6 +139,13 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          body = new AmqpValue(((ObjectMessage) msg).getObject());
       }
 
+      if (body == null && msg instanceof org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage) {
+         Object s = ((org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage) msg).getInnerMessage().getBodyBuffer().readNullableSimpleString();
+         if (s != null) {
+            body = new AmqpValue(s.toString());
+         }
+      }
+
       header.setDurable(msg.getJMSDeliveryMode() == DeliveryMode.PERSISTENT ? true : false);
       header.setPriority(new UnsignedByte((byte) msg.getJMSPriority()));
       if (msg.getJMSType() != null) {
