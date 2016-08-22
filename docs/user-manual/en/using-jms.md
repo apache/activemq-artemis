@@ -124,7 +124,7 @@ factory like so, `tcp://remote-host:5445?ssl-enabled=true`.
 
 All the properties available for the `tcp` scheme are described in [the
 documentation regarding the Netty
-transport](#configuring-transports.netty).
+transport](configuring-transports.md#configuring-the-netty-transport).
 
 Note if you are using the `tcp` scheme and multiple addresses then a query
 can be applied to all the url's or just to an individual connector, so where
