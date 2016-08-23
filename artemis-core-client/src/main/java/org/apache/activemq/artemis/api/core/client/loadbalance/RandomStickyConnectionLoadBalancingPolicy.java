@@ -16,14 +16,12 @@
  */
 package org.apache.activemq.artemis.api.core.client.loadbalance;
 
-import org.apache.activemq.artemis.utils.Random;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 /**
  * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests return the same node
  */
 public final class RandomStickyConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy {
-
-   private final Random random = new Random();
 
    private int pos = -1;
 
@@ -33,7 +31,7 @@ public final class RandomStickyConnectionLoadBalancingPolicy implements Connecti
    @Override
    public int select(final int max) {
       if (pos == -1) {
-         pos = random.getRandom().nextInt(max);
+         pos = RandomUtil.randomInterval(0, max);
       }
 
       return pos;

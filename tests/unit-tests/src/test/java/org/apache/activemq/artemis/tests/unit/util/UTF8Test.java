@@ -32,7 +32,6 @@ import java.nio.ByteBuffer;
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.utils.DataConstants;
-import org.apache.activemq.artemis.utils.Random;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
@@ -44,8 +43,7 @@ public class UTF8Test extends ActiveMQTestBase {
 
       byte[] bytes = new byte[20000];
 
-      Random random = new Random();
-      random.getRandom().nextBytes(bytes);
+      RandomUtil.getRandom().nextBytes(bytes);
 
       String str = new String(bytes);
 
@@ -59,12 +57,11 @@ public class UTF8Test extends ActiveMQTestBase {
    @Test
    public void testValidateUTFOnDataInput() throws Exception {
       for (int i = 0; i < 100; i++) {
-         Random random = new Random();
 
          // Random size between 15k and 20K
          byte[] bytes = new byte[15000 + RandomUtil.randomPositiveInt() % 5000];
 
-         random.getRandom().nextBytes(bytes);
+         RandomUtil.getRandom().nextBytes(bytes);
 
          String str = new String(bytes);
 

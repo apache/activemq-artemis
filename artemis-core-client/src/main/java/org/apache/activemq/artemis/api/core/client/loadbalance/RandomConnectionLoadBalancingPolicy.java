@@ -16,15 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core.client.loadbalance;
 
-import org.apache.activemq.artemis.utils.Random;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 /**
  * {@link RandomConnectionLoadBalancingPolicy#select(int)} returns a (pseudo) random integer between
  * {@code 0} (inclusive) and {@code max} (exclusive).
  */
 public final class RandomConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy {
-
-   private final Random random = new Random();
 
    /**
     * Returns a pseudo random number between {@code 0} (inclusive) and {@code max} exclusive.
@@ -34,6 +32,6 @@ public final class RandomConnectionLoadBalancingPolicy implements ConnectionLoad
     */
    @Override
    public int select(final int max) {
-      return random.getRandom().nextInt(max);
+      return RandomUtil.randomInterval(0, max);
    }
 }
