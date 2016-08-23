@@ -272,7 +272,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
                      return;
                   }
                   else {
-                     ActiveMQClientLogger.LOGGER.errorReceivingPAcketInDiscovery(e);
+                     ActiveMQClientLogger.LOGGER.errorReceivingPacketInDiscovery(e);
                   }
                }
 

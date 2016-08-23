@@ -25,7 +25,7 @@ public class Random implements Serializable {
    private static final long serialVersionUID = 40335522290950498L;
 
    private static synchronized long getSeed() {
-      long seed = System.currentTimeMillis() + Random.extraSeed++;
+      long seed = System.currentTimeMillis() + Random.extraSeed++ + (new java.util.Random()).nextInt() ;
 
       return seed;
    }
