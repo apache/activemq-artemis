@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.integration;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 /**
  * A Broker os a set of ActiveMQComponents that create a Server, for instance core and jms.
  */
 public interface Broker extends ActiveMQComponent {
-
+   ActiveMQServer getServer();
 }

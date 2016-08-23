@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.integration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
@@ -102,5 +103,10 @@ public class FileBroker implements Broker {
       }
       activeMQComponents.add(components.get("core"));
       return activeMQComponents;
+   }
+
+   @Override
+   public ActiveMQServer getServer() {
+      return (ActiveMQServer) components.get("core");
    }
 }

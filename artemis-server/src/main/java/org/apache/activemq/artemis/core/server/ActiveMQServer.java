@@ -395,4 +395,6 @@ public interface ActiveMQServer extends ActiveMQComponent {
    void setHAPolicy(HAPolicy haPolicy);
 
    void setMBeanServer(MBeanServer mBeanServer);
+
+   void addExternalComponent(ActiveMQComponent externalComponent);
 }
