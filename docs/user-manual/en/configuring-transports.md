@@ -37,7 +37,7 @@ valid key-value pairs depends on the specific transport be used and are
 passed straight through to the underlying transport. These are set on the
 `URI` as part of the query, like so:
 
-    <acceptor name="netty">tcp://localhost:61617?sslEnabled=true;key-store-path=/path</acceptor>
+    <acceptor name="netty">tcp://localhost:61617?sslEnabled=true&keyStorePath=/path</acceptor>
 
 ## Understanding Connectors
 
