@@ -19,14 +19,28 @@ package org.apache.activemq.artemis.tests.integration.broadcast;
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.tests.util.ThreadLeakCheckRule;
 import org.jgroups.JChannel;
 import org.jgroups.conf.PlainConfigurator;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class JGroupsBroadcastTest {
+
+   @After
+   public void cleanupJChannel() {
+      JChannelManager.getInstance().clear();
+   }
+
+   @Before
+   public void prepareJChannel() {
+      JChannelManager.getInstance().setLoopbackMessages(true);
+   }
+
 
    @Rule
    public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
@@ -38,32 +35,9 @@ public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
 
    private final JChannelManager manager;
 
-   private static final Map<JChannel, JChannelManager> managers = new ConcurrentHashMap<>();
+   private static final JChannelManager singletonManager = JChannelManager.getInstance();
 
-   private static final JChannelManager singletonManager = new JChannelManager();
-//  TODO: To implement this when JForkChannel from JGroups supports multiple channels properly
-//
-//   private static JChannelManager recoverManager(JChannel channel) {
-//      JChannelManager manager = managers.get(channel);
-//      if (manager == null) {
-//         if (logger.isTraceEnabled()) {
-//            logger.trace("Creating a new JChannelManager for " + channel, new Exception("trace"));
-//         }
-//         manager = new JChannelManager();
-//         managers.put(channel, manager);
-//      }
-//      else {
-//         if (logger.isTraceEnabled()) {
-//            logger.trace("Recover an already existent channelManager for " + channel, new Exception("trace"));
-//         }
-//
-//      }
-//
-//      return manager;
-//   }
-//
    public ChannelBroadcastEndpointFactory(JChannel channel, String channelName) {
-      // TODO: use recoverManager(channel)
       this(singletonManager, channel, channelName);
    }
 

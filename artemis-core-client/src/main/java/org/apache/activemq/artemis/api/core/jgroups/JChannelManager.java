@@ -32,15 +32,43 @@ import org.jboss.logging.Logger;
  */
 public class JChannelManager {
 
-   private static final Logger logger = Logger.getLogger(JChannelManager.class);
+   private static final JChannelManager theInstance = new JChannelManager();
 
-   private static Map<String, JChannelWrapper> channels;
+   public static JChannelManager getInstance() {
+      return theInstance;
+   }
+
+   private JChannelManager() {
+   }
+
+   public synchronized JChannelManager clear() {
+      for (JChannelWrapper wrapper : channels.values()) {
+         wrapper.closeChannel();
+      }
+      channels.clear();
+      setLoopbackMessages(false);
+      return this;
+   }
+
+   // if true, messages will be loopbacked
+   // this is useful for testcases using a single channel.
+   private boolean loopbackMessages = false;
+
+   private final Logger logger = Logger.getLogger(JChannelManager.class);
+
+   private static final Map<String, JChannelWrapper> channels = new HashMap<>();
+
+   public boolean isLoopbackMessages() {
+      return loopbackMessages;
+   }
+
+   public JChannelManager setLoopbackMessages(boolean loopbackMessages) {
+      this.loopbackMessages = loopbackMessages;
+      return this;
+   }
 
    public synchronized JChannelWrapper getJChannel(String channelName,
                                                    JGroupsBroadcastEndpoint endpoint) throws Exception {
-      if (channels == null) {
-         channels = new HashMap<>();
-      }
       JChannelWrapper wrapper = channels.get(channelName);
       if (wrapper == null) {
          wrapper = new JChannelWrapper(this, channelName, endpoint.createChannel());

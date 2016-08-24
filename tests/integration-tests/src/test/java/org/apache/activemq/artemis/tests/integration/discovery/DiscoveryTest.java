@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -70,9 +72,15 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    BroadcastGroup bg = null, bg1 = null, bg2 = null, bg3 = null;
    DiscoveryGroup dg = null, dg1 = null, dg2 = null, dg3 = null;
 
+   @Before
+   public void prepareLoopback() {
+      JChannelManager.getInstance().setLoopbackMessages(true);
+   }
+
    @Override
    @After
    public void tearDown() throws Exception {
+      JChannelManager.getInstance().clear().setLoopbackMessages(false);
       /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
       deleteDirectory(new File("./target/tmp/amqtest.ping.dir"));
       for (ActiveMQComponent component : new ActiveMQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3}) {
@@ -140,47 +148,52 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       BroadcastEndpoint broadcaster = factory.createBroadcastEndpoint();
       broadcaster.openBroadcaster();
 
-      int num = 100;
-      BroadcastEndpoint[] receivers = new BroadcastEndpoint[num];
-      for (int i = 0; i < num; i++) {
-         receivers[i] = factory.createBroadcastEndpoint();
-         receivers[i].openClient();
+      try {
+
+         int num = 100;
+         BroadcastEndpoint[] receivers = new BroadcastEndpoint[num];
+         for (int i = 0; i < num; i++) {
+            receivers[i] = factory.createBroadcastEndpoint();
+            receivers[i].openClient();
+         }
+
+         final byte[] data = new byte[]{1, 2, 3, 4, 5};
+         broadcaster.broadcast(data);
+
+         for (int i = 0; i < num; i++) {
+            byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
+            assertNotNull(received);
+            assertEquals(5, received.length);
+            assertEquals(1, received[0]);
+            assertEquals(2, received[1]);
+            assertEquals(3, received[2]);
+            assertEquals(4, received[3]);
+            assertEquals(5, received[4]);
+         }
+
+         for (int i = 0; i < num - 1; i++) {
+            receivers[i].close(false);
+         }
+
+         byte[] data1 = receivers[num - 1].receiveBroadcast(5, TimeUnit.SECONDS);
+         assertNull(data1);
+
+         broadcaster.broadcast(data);
+         data1 = receivers[num - 1].receiveBroadcast(5, TimeUnit.SECONDS);
+
+         assertNotNull(data1);
+         assertEquals(5, data1.length);
+         assertEquals(1, data1[0]);
+         assertEquals(2, data1[1]);
+         assertEquals(3, data1[2]);
+         assertEquals(4, data1[3]);
+         assertEquals(5, data1[4]);
+
+         receivers[num - 1].close(false);
       }
-
-      final byte[] data = new byte[]{1, 2, 3, 4, 5};
-      broadcaster.broadcast(data);
-
-      for (int i = 0; i < num; i++) {
-         byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
-         assertNotNull(received);
-         assertEquals(5, received.length);
-         assertEquals(1, received[0]);
-         assertEquals(2, received[1]);
-         assertEquals(3, received[2]);
-         assertEquals(4, received[3]);
-         assertEquals(5, received[4]);
+      finally {
+         broadcaster.close(true);
       }
-
-      for (int i = 0; i < num - 1; i++) {
-         receivers[i].close(false);
-      }
-
-      byte[] data1 = receivers[num - 1].receiveBroadcast(5, TimeUnit.SECONDS);
-      assertNull(data1);
-
-      broadcaster.broadcast(data);
-      data1 = receivers[num - 1].receiveBroadcast(5, TimeUnit.SECONDS);
-
-      assertNotNull(data1);
-      assertEquals(5, data1.length);
-      assertEquals(1, data1[0]);
-      assertEquals(2, data1[1]);
-      assertEquals(3, data1[2]);
-      assertEquals(4, data1[3]);
-      assertEquals(5, data1[4]);
-
-      receivers[num - 1].close(false);
-      broadcaster.close(true);
    }
 
    /**
@@ -195,7 +208,6 @@ public class DiscoveryTest extends DiscoveryBaseTest {
       BroadcastEndpointFactory factory = new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE);
       BroadcastEndpoint broadcaster = factory.createBroadcastEndpoint();
       broadcaster.openBroadcaster();
-
       int num = 50;
       BroadcastEndpoint[] receivers = new BroadcastEndpoint[num];
       for (int i = 0; i < num; i++) {
@@ -203,47 +215,53 @@ public class DiscoveryTest extends DiscoveryBaseTest {
          receivers[i].openClient();
       }
 
-      final byte[] data = new byte[]{1, 2, 3, 4, 5};
-      broadcaster.broadcast(data);
 
-      for (int i = 0; i < num; i++) {
-         byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
-         assertNotNull(received);
-         assertEquals(5, received.length);
-         assertEquals(1, received[0]);
-         assertEquals(2, received[1]);
-         assertEquals(3, received[2]);
-         assertEquals(4, received[3]);
-         assertEquals(5, received[4]);
+      try {
+
+         final byte[] data = new byte[]{1, 2, 3, 4, 5};
+         broadcaster.broadcast(data);
+
+         for (int i = 0; i < num; i++) {
+            byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
+            assertNotNull(received);
+            assertEquals(5, received.length);
+            assertEquals(1, received[0]);
+            assertEquals(2, received[1]);
+            assertEquals(3, received[2]);
+            assertEquals(4, received[3]);
+            assertEquals(5, received[4]);
+         }
+
+         for (int i = 0; i < num; i++) {
+            receivers[i].close(false);
+         }
+
+         //new ones
+         for (int i = 0; i < num; i++) {
+            receivers[i] = factory.createBroadcastEndpoint();
+            receivers[i].openClient();
+         }
+
+         broadcaster.broadcast(data);
+
+         for (int i = 0; i < num; i++) {
+            byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
+            assertNotNull(received);
+            assertEquals(5, received.length);
+            assertEquals(1, received[0]);
+            assertEquals(2, received[1]);
+            assertEquals(3, received[2]);
+            assertEquals(4, received[3]);
+            assertEquals(5, received[4]);
+         }
+
       }
-
-      for (int i = 0; i < num; i++) {
-         receivers[i].close(false);
+      finally {
+         for (int i = 0; i < num; i++) {
+            receivers[i].close(false);
+         }
+         broadcaster.close(true);
       }
-
-      //new ones
-      for (int i = 0; i < num; i++) {
-         receivers[i] = factory.createBroadcastEndpoint();
-         receivers[i].openClient();
-      }
-
-      broadcaster.broadcast(data);
-
-      for (int i = 0; i < num; i++) {
-         byte[] received = receivers[i].receiveBroadcast(5000, TimeUnit.MILLISECONDS);
-         assertNotNull(received);
-         assertEquals(5, received.length);
-         assertEquals(1, received[0]);
-         assertEquals(2, received[1]);
-         assertEquals(3, received[2]);
-         assertEquals(4, received[3]);
-         assertEquals(5, received[4]);
-      }
-
-      for (int i = 0; i < num; i++) {
-         receivers[i].close(false);
-      }
-      broadcaster.close(true);
    }
 
    /**
