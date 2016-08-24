@@ -25,7 +25,7 @@ public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFac
 
    private String channelName;
 
-   private final JChannelManager manager = new JChannelManager();
+   private final JChannelManager manager = JChannelManager.getInstance();
 
    @Override
    public BroadcastEndpoint createBroadcastEndpoint() throws Exception {

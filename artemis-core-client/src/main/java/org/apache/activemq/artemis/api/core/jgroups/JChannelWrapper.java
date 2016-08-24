@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
+import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 
 /**
@@ -85,13 +86,19 @@ public class JChannelWrapper {
       if (logger.isTraceEnabled()) logger.trace(this + "::RefCount-- " + refCount + " on channel " + channelName, new Exception("Trace"));
       if (refCount == 0) {
          if (closeWrappedChannel) {
-            connected = false;
-            channel.setReceiver(null);
-            logger.trace(this + "::Closing Channel: " + channelName, new Exception("Trace"));
-            channel.close();
-            manager.removeChannel(channelName);
+            closeChannel();
          }
+         manager.removeChannel(channelName);
       }
+   }
+
+   public synchronized void closeChannel() {
+      connected = false;
+      channel.setReceiver(null);
+      if (logger.isTraceEnabled()) {
+         logger.trace(this + "::Closing Channel: " + channelName, new Exception("Trace"));
+      }
+      channel.close();
    }
 
    public void removeReceiver(JGroupsReceiver receiver) {
@@ -127,6 +134,9 @@ public class JChannelWrapper {
 
    public void send(org.jgroups.Message msg) throws Exception {
       if (logger.isTraceEnabled()) logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
+      if (!manager.isLoopbackMessages()) {
+         msg.setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
+      }
       channel.send(msg);
    }
 
