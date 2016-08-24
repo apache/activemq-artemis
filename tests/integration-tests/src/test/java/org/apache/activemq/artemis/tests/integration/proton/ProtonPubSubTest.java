@@ -17,10 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.proton;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.message.ProtonJMessage;
@@ -45,36 +41,27 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
-public class ProtonPubSubTest extends ActiveMQTestBase {
+public class ProtonPubSubTest extends ProtonTestBase {
    private final String prefix = "foo.bar.";
    private final String pubAddress = "pubAddress";
    private final String prefixedPubAddress = prefix + "pubAddress";
    private final SimpleString ssPubAddress = new SimpleString(pubAddress);
    private final SimpleString ssprefixedPubAddress = new SimpleString(prefixedPubAddress);
-   private ActiveMQServer server;
    private Connection connection;
    private JmsConnectionFactory factory;
 
+   protected void configureAmqp(Map<String, Object> params) {
+      params.put("pubSubPrefix", prefix);
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      disableCheckThread();
-      server = this.createServer(true, true);
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "5672");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
-      HashMap<String, Object> extraParams = new HashMap<>();
-      extraParams.put("pubSubPrefix", prefix);
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, "foo", extraParams);
-
-      server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
-      server.start();
       server.createQueue(ssPubAddress, ssPubAddress, new SimpleString("foo=bar"), false, true);
       server.createQueue(ssprefixedPubAddress, ssprefixedPubAddress, new SimpleString("foo=bar"), false, true);
       factory = new JmsConnectionFactory("amqp://localhost:5672");
@@ -97,8 +84,6 @@ public class ProtonPubSubTest extends ActiveMQTestBase {
          if (connection != null) {
             connection.close();
          }
-
-         server.stop();
       }
       finally {
          super.tearDown();
