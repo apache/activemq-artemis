@@ -26,7 +26,11 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 public class RandomUtil {
    // Constants -----------------------------------------------------
 
-   protected static final Random random = new Random(System.currentTimeMillis());
+   protected static final Random random = new Random();
+
+   public static Random getRandom() {
+      return random;
+   }
 
    // Attributes ----------------------------------------------------
 
@@ -75,7 +79,7 @@ public class RandomUtil {
    }
 
    public static int randomInterval(final int min, final int max) {
-      return min + randomMax(max - min);
+      return min + random.nextInt(max - min);
    }
 
    public static int randomMax(final int max) {
