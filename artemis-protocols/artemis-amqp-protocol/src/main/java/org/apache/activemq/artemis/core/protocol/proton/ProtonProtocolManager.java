@@ -64,6 +64,8 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    * */
    private String pubSubPrefix = ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX;
 
+   private int maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
+
    public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
       this.server = server;
@@ -111,7 +113,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
       String id = server.getConfiguration().getName();
       AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().
-         createConnection(connectionCallback, id, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
+         createConnection(connectionCallback, id, (int) ttl, getMaxFrameSize(), DEFAULT_CHANNEL_MAX, server.getExecutorFactory().getExecutor(), server.getScheduledPool());
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
@@ -164,4 +166,11 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    }
 
 
+   public int getMaxFrameSize() {
+      return maxFrameSize;
+   }
+
+   public void setMaxFrameSize(int maxFrameSize) {
+      this.maxFrameSize = maxFrameSize;
+   }
 }
