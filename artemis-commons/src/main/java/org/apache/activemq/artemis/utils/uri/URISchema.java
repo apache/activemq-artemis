@@ -106,16 +106,16 @@ public abstract class URISchema<T, P> {
          Map<String, String> rc = new HashMap<>();
          if (uri != null && !uri.isEmpty()) {
             String[] parameters = uri.split("&");
-            for (int i = 0; i < parameters.length; i++) {
-               int p = parameters[i].indexOf("=");
+            for (String parameter : parameters) {
+               int p = parameter.indexOf("=");
                if (p >= 0) {
-                  String name = BeanSupport.decodeURI(parameters[i].substring(0, p));
-                  String value = BeanSupport.decodeURI(parameters[i].substring(p + 1));
+                  String name = BeanSupport.decodeURI(parameter.substring(0, p));
+                  String value = BeanSupport.decodeURI(parameter.substring(p + 1));
                   rc.put(name, value);
                }
                else {
-                  if (!parameters[i].trim().isEmpty()) {
-                     rc.put(parameters[i], null);
+                  if (!parameter.trim().isEmpty()) {
+                     rc.put(parameter, null);
                   }
                }
             }

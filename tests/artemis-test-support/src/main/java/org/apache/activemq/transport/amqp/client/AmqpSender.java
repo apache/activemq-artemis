@@ -95,7 +95,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
     * Create a new sender instance using the given Target when creating the link.
     *
     * @param session  The parent session that created the session.
-    * @param address  The address that this sender produces to.
+    * @param target   The target that this sender produces to.
     * @param senderId The unique ID assigned to this sender.
     */
    public AmqpSender(AmqpSession session, Target target, String senderId) {

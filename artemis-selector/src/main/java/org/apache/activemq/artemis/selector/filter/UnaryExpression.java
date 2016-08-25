@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.selector.filter;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -98,8 +97,7 @@ public abstract class UnaryExpression implements Expression {
             answer.append(" ( ");
 
             int count = 0;
-            for (Iterator<Object> i = inList.iterator(); i.hasNext(); ) {
-               Object o = i.next();
+            for (Object o : inList) {
                if (count != 0) {
                   answer.append(", ");
                }

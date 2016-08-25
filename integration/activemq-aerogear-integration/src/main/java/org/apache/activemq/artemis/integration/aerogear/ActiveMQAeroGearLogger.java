@@ -57,7 +57,7 @@ public interface ActiveMQAeroGearLogger extends BasicLogger {
    void reply404();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 232005, value = "removing aerogear connector as unexpected respone {0} returned", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 232005, value = "removing aerogear connector as unexpected response {0} returned", format = Message.Format.MESSAGE_FORMAT)
    void replyUnknown(int status);
 
    @LogMessage(level = Logger.Level.WARN)

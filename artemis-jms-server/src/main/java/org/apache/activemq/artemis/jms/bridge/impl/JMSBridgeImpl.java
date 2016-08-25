@@ -1602,11 +1602,8 @@ public final class JMSBridgeImpl implements JMSBridge {
       msg.clearProperties();
 
       if (oldProps != null) {
-         Iterator<Entry<String, Object>> oldPropsIter = oldProps.entrySet().iterator();
 
-         while (oldPropsIter.hasNext()) {
-            Entry<String, Object> entry = oldPropsIter.next();
-
+         for (Entry<String, Object> entry : oldProps.entrySet()) {
             String propName = entry.getKey();
 
             Object val = entry.getValue();

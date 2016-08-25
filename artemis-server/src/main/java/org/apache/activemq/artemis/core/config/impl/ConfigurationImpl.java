@@ -1332,14 +1332,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public String debugConnectors() {
       StringWriter stringWriter = new StringWriter();
-      PrintWriter writer = new PrintWriter(stringWriter);
 
-
-      for (Map.Entry<String, TransportConfiguration> connector : getConnectorConfigurations().entrySet()) {
-         writer.println("Connector::" + connector.getKey() + " value = " + connector.getValue());
+      try (PrintWriter writer = new PrintWriter(stringWriter)) {
+         for (Map.Entry<String, TransportConfiguration> connector : getConnectorConfigurations().entrySet()) {
+            writer.println("Connector::" + connector.getKey() + " value = " + connector.getValue());
+         }
       }
-
-      writer.close();
 
       return stringWriter.toString();
 

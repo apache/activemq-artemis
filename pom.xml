@@ -198,7 +198,7 @@
 
    <dependencyManagement>
       <dependencies>
-         <!-- ## Test Dependenices ## Note: Junit is required in certain module tests.  We should control versions from here. -->
+         <!-- ## Test Dependencies ## Note: Junit is required in certain module tests.  We should control versions from here. -->
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

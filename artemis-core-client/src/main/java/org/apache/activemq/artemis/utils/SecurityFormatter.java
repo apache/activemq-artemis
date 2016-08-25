@@ -65,8 +65,8 @@ public class SecurityFormatter {
          return list;
       }
       String[] values = commaSeparatedString.split(",");
-      for (int i = 0; i < values.length; i++) {
-         list.add(values[i].trim());
+      for (String value : values) {
+         list.add(value.trim());
       }
       return list;
    }

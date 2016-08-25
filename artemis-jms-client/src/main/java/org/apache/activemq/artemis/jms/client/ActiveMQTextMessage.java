@@ -120,7 +120,8 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
+   @SuppressWarnings("unchecked")
+   public boolean isBodyAssignableTo(ctiClass c) {
       if (text == null)
          return true;
       return c.isAssignableFrom(java.lang.String.class);

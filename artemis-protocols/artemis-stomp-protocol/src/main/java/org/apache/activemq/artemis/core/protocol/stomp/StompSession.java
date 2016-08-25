@@ -343,9 +343,7 @@ public class StompSession implements SessionCallback {
    }
 
    boolean containsSubscription(String subscriptionID) {
-      Iterator<Entry<Long, StompSubscription>> iterator = subscriptions.entrySet().iterator();
-      while (iterator.hasNext()) {
-         Map.Entry<Long, StompSubscription> entry = iterator.next();
+      for (Entry<Long, StompSubscription> entry : subscriptions.entrySet()) {
          StompSubscription sub = entry.getValue();
          if (sub.getID().equals(subscriptionID)) {
             return true;

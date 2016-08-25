@@ -274,8 +274,8 @@ public class LDAPLoginModule implements LoginModule {
             if (logger.isDebugEnabled()) {
                logger.debug("Roles " + roles + " for user " + username);
             }
-            for (int i = 0; i < roles.size(); i++) {
-               groups.add(new RolePrincipal(roles.get(i)));
+            for (String role : roles) {
+               groups.add(new RolePrincipal(role));
             }
          }
          else {
@@ -488,15 +488,15 @@ public class LDAPLoginModule implements LoginModule {
    }
 
    private String getLDAPPropertyValue(String propertyName) {
-      for (int i = 0; i < config.length; i++)
-         if (config[i].getPropertyName().equals(propertyName))
-            return config[i].getPropertyValue();
+      for (LDAPLoginProperty conf : config)
+         if (conf.getPropertyName().equals(propertyName))
+            return conf.getPropertyValue();
       return null;
    }
 
    private boolean isLoginPropertySet(String propertyName) {
-      for (int i = 0; i < config.length; i++) {
-         if (config[i].getPropertyName().equals(propertyName) && (config[i].getPropertyValue() != null && !"".equals(config[i].getPropertyValue())))
+      for (LDAPLoginProperty conf : config) {
+         if (conf.getPropertyName().equals(propertyName) && (conf.getPropertyValue() != null && !"".equals(conf.getPropertyValue())))
             return true;
       }
       return false;

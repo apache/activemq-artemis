@@ -48,7 +48,7 @@ struct io_control {
 
     pthread_mutex_t pollLock;
 
-    // a resuable pool of iocb
+    // a reusable pool of iocb
     struct iocb ** iocb;
     int queueSize;
     int iocbPut;

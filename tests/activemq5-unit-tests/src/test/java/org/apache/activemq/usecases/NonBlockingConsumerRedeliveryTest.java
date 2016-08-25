@@ -312,7 +312,7 @@ public class NonBlockingConsumerRedeliveryTest {
                   count = 0;
                }
                catch (JMSException e) {
-                  LOG.warn("Caught an unexcepted exception: " + e.getMessage());
+                  LOG.warn("Caught an unexpected exception: " + e.getMessage());
                }
             }
             else {
@@ -321,7 +321,7 @@ public class NonBlockingConsumerRedeliveryTest {
                   session.commit();
                }
                catch (JMSException e) {
-                  LOG.warn("Caught an unexcepted exception: " + e.getMessage());
+                  LOG.warn("Caught an unexpected exception: " + e.getMessage());
                }
             }
          }
@@ -388,7 +388,7 @@ public class NonBlockingConsumerRedeliveryTest {
                session.rollback();
             }
             catch (JMSException e) {
-               LOG.warn("Caught an unexcepted exception: " + e.getMessage());
+               LOG.warn("Caught an unexpected exception: " + e.getMessage());
             }
          }
       });

@@ -35,7 +35,7 @@ Shown are the required params for the connector service and are:
 
 -   `master-secret`. The secret of your mobile application in AeroGear.
 
-As well as these required paramaters there are the following optional
+As well as these required parameters there are the following optional
 parameters
 
 -   `ttl`. The time to live for the message once AeroGear receives it.

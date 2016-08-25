@@ -294,8 +294,9 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
    public synchronized void destroy() throws SQLException {
       try {
          connection.setAutoCommit(false);
-         Statement statement = connection.createStatement();
-         statement.executeUpdate(sqlProvider.getDropFileTableSQL());
+         try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sqlProvider.getDropFileTableSQL());
+         }
          connection.commit();
       }
       catch (SQLException e) {

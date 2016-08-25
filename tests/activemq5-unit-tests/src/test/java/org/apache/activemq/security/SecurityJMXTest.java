@@ -85,7 +85,7 @@ public class SecurityJMXTest extends TestCase {
       Connection c = new ActiveMQConnectionFactory("vm://localhost").createConnection("system", "manager");
       c.start();
 
-      // browser consumer will force expriation check on addConsumer
+      // browser consumer will force expiration check on addConsumer
       QueueBrowser browser = c.createSession(false, Session.AUTO_ACKNOWLEDGE).createBrowser(new ActiveMQQueue("TEST.Q"));
       assertTrue("no message in the q", !browser.getEnumeration().hasMoreElements());
 

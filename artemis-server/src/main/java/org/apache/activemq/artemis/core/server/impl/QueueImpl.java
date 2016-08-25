@@ -615,7 +615,7 @@ public class QueueImpl implements Queue {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Force delivery deliverying async");
+         logger.trace("Force delivery delivering async");
       }
 
       deliverAsync();
@@ -3045,4 +3045,3 @@ public class QueueImpl implements Queue {
       }
    }
 }
-

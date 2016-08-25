@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * implements reliable "create", "create-next" pattern defined by REST-* Messaging specificaiton
+ * implements reliable "create", "create-next" pattern defined by REST-* Messaging specification
  */
 public class PostMessageNoDups extends PostMessage {
 

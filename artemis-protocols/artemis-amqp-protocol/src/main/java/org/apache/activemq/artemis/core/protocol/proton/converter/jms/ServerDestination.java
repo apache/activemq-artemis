@@ -22,7 +22,7 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 
 /**
- * This is just here to avoid all the client checks we ned with valid JMS destinations, protocol convertors don't need to
+ * This is just here to avoid all the client checks we need with valid JMS destinations, protocol convertors don't need to
  * adhere to the jms. semantics.
  */
 public class ServerDestination extends ActiveMQDestination implements Queue {

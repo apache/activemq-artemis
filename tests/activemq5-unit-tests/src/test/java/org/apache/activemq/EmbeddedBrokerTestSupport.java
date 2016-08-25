@@ -128,7 +128,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    /**
     * Factory method to create a new {@link Destination}
     *
-    * @return newly created Destinaiton
+    * @return newly created Destination
     */
    protected ActiveMQDestination createDestination() {
       return createDestination(getDestinationString());

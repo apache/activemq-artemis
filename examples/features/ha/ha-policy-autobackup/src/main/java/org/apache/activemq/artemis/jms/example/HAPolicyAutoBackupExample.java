@@ -103,7 +103,7 @@ public class HAPolicyAutoBackupExample {
             System.out.println("Got message: " + message0.getText() + " from node 0");
          }
 
-         // Step 14.close the consumer so it doesnt get any messages
+         // Step 14.close the consumer so it doesn't get any messages
          consumer1.close();
 
          // Step 15.now kill server1, messages will be scaled down to server0

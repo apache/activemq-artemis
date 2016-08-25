@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -353,10 +352,7 @@ public class OpenWireMessageConverter implements MessageConverter {
          //unmarshall properties to core so selector will work
          Map<String, Object> props = messageSend.getProperties();
          //Map<String, Object> props = MarshallingSupport.unmarshalPrimitiveMap(new DataInputStream(new ByteArrayInputStream(propBytes)));
-         Iterator<Entry<String, Object>> iterEntries = props.entrySet().iterator();
-         while (iterEntries.hasNext()) {
-            Entry<String, Object> ent = iterEntries.next();
-
+         for (Entry<String, Object> ent : props.entrySet()) {
             Object value = ent.getValue();
             try {
                coreMessage.putObjectProperty(ent.getKey(), value);
@@ -394,9 +390,7 @@ public class OpenWireMessageConverter implements MessageConverter {
    }
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
-      Iterator<Entry<String, Object>> iter = map.entrySet().iterator();
-      while (iter.hasNext()) {
-         Entry<String, Object> entry = iter.next();
+      for (Entry<String, Object> entry : map.entrySet()) {
          SimpleString key = new SimpleString(entry.getKey());
          Object value = entry.getValue();
          if (value instanceof UTF8Buffer) {

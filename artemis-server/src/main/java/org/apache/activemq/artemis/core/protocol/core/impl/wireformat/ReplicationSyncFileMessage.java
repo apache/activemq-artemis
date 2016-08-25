@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournal
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- * Message is used to sync {@link org.apache.activemq.artemis.core.journal.SequentialFile}s to a backup server. The {@link FileType} controls
+ * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The {@link FileType} controls
  * which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl {

@@ -394,7 +394,6 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       return message.getBodyBuffer();
    }
 
-   @SuppressWarnings("rawtypes")
    @Override
    public boolean isBodyAssignableTo(Class c) {
       return false;

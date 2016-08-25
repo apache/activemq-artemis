@@ -79,7 +79,7 @@ public class XmlUtil {
       return decode(clazz, configuration, null, null);
    }
 
-   /** We offer parameters for artemisInstance and artemisHoms as they could be coming from the CLI or Maven Plugin */
+   /** We offer parameters for artemisInstance and artemisHome as they could be coming from the CLI or Maven Plugin */
    public static <T> T decode(Class<T> clazz, File configuration, String artemisHome, String artemisInstance) throws Exception {
       JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.artemis.dto");
 
