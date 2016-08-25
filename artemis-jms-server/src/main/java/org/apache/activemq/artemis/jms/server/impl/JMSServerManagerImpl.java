@@ -1764,8 +1764,10 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("jms");
 
          InputStream input = url.openStream();
-         Reader reader = new InputStreamReader(input);
-         String xml = XMLUtil.readerToString(reader);
+         String xml;
+         try (Reader reader = new InputStreamReader(input)) {
+            xml = XMLUtil.readerToString(reader);
+         }
          xml = XMLUtil.replaceSystemProps(xml);
          Element e = XMLUtil.stringToElement(xml);
 
