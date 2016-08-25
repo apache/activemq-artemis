@@ -181,7 +181,6 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
     * @throws JMSException Thrown if an error occurs
     */
    @Override
-   @SuppressWarnings("rawtypes")
    public Enumeration getMapNames() throws JMSException {
       if (ActiveMQRAMapMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getMapNames()");

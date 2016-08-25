@@ -609,7 +609,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       return val;
    }
 
-   @SuppressWarnings("rawtypes")
    @Override
    public Enumeration getPropertyNames() throws JMSException {
       return Collections.enumeration(MessageUtil.getPropertyNames(message));
@@ -771,7 +770,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
+   public boolean isBodyAssignableTo(Class c) {
       /**
        * From the specs:
        * <p>

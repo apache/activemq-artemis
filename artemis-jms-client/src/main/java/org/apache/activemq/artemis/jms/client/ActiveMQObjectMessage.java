@@ -176,7 +176,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
+   public boolean isBodyAssignableTo(Class c) {
       if (data == null) // we have no body
          return true;
       try {
