@@ -80,19 +80,9 @@ if [ -z "$JAVACMD" ] ; then
       JAVACMD="$JAVA_HOME/bin/java"
     fi
   else
-    JAVACMD=`which java 2> /dev/null `
-    if [ -z "$JAVACMD" ] ; then
-        JAVACMD=java
-    fi
+    JAVACMD=java
   fi
 fi
-
-if [ ! -x "$JAVACMD" ] ; then
-  echo "Error: JAVA_HOME is not defined correctly."
-  echo "  We cannot execute $JAVACMD"
-  exit 1
-fi
-
 
 if $cygwin ; then
   JAVA_HOME=`cygpath --windows "$JAVA_HOME"`
