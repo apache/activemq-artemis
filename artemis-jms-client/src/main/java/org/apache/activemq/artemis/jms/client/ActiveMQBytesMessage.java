@@ -378,7 +378,8 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
+   @SuppressWarnings("unchecked")
+   public boolean isBodyAssignableTo(Class c) {
       return c.isAssignableFrom(byte[].class);
    }
 
