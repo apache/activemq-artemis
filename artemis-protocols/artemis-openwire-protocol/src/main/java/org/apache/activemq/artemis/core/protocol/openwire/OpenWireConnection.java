@@ -477,7 +477,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             if (context.isReconnect() || (context.isNetworkConnection())) {
                // once implemented ARTEMIS-194, we need to set the storedSequenceID here somehow
                // We have different semantics on Artemis Journal, but we could adapt something for this
-               // TBD during the implemetnation of ARTEMIS-194
+               // TBD during the implementation of ARTEMIS-194
                result.setLastStoredSequenceId(0);
             }
             SessionState ss = state.getSessionState(id.getParentId());

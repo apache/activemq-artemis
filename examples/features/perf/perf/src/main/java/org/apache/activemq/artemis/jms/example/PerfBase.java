@@ -88,7 +88,7 @@ public abstract class PerfBase {
       boolean drainQueue = Boolean.valueOf(props.getProperty("drain-queue"));
       String destinationName = props.getProperty("destination-name");
       int throttleRate = Integer.valueOf(props.getProperty("throttle-rate"));
-      boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowlege"));
+      boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowledge"));
       boolean disableMessageID = Boolean.valueOf(props.getProperty("disable-message-id"));
       boolean disableTimestamp = Boolean.valueOf(props.getProperty("disable-message-timestamp"));
       String clientLibrary = props.getProperty("client-library", "core");

@@ -56,7 +56,7 @@ public interface ProtocolManager<P extends BaseInterceptor> {
    MessageConverter getConverter();
 
    /** If this protocols accepts connectoins without an initial handshake.
-    *  If true this protocol will be the failback case no other conenctions are made.
+    *  If true this protocol will be the failback case no other connections are made.
     *  New designed protocols should always require a handshake. This is only useful for legacy protocols. */
    boolean acceptsNoHandshake();
 

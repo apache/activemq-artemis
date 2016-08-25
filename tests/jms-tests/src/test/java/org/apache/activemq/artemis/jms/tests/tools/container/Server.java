@@ -53,7 +53,7 @@ public interface Server extends Remote {
    void kill() throws Exception;
 
    /**
-    * When kill is called you are actually schedulling the server to be killed in few milliseconds.
+    * When kill is called you are actually scheduling the server to be killed in few milliseconds.
     * There are certain cases where we need to assure the server was really killed.
     * For that we have this simple ping we can use to verify if the server still alive or not.
     */

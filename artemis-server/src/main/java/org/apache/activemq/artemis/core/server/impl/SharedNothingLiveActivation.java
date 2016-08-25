@@ -304,7 +304,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
       if (nodeManagerInUse != null) {
-         //todo does this actually make any difference, we only set a different flag in the lock file which replication doesnt use
+         //todo does this actually make any difference, we only set a different flag in the lock file which replication doesn't use
          if (permanently) {
             nodeManagerInUse.crashLiveServer();
          }

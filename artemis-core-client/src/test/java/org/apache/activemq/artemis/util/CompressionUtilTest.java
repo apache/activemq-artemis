@@ -60,10 +60,10 @@ public class CompressionUtilTest extends Assert {
       }
 
       byte[] output = new byte[30];
-      Deflater compresser = new Deflater();
-      compresser.setInput(input);
-      compresser.finish();
-      int compressedDataLength = compresser.deflate(output);
+      Deflater compressor = new Deflater();
+      compressor.setInput(input);
+      compressor.finish();
+      int compressedDataLength = compressor.deflate(output);
 
       compareByteArray(allCompressed, output, compressedDataLength);
    }
@@ -97,10 +97,10 @@ public class CompressionUtilTest extends Assert {
       }
 
       byte[] output = new byte[30];
-      Deflater compresser = new Deflater();
-      compresser.setInput(input);
-      compresser.finish();
-      int compressedDataLength = compresser.deflate(output);
+      Deflater compressor = new Deflater();
+      compressor.setInput(input);
+      compressor.finish();
+      int compressedDataLength = compressor.deflate(output);
 
       compareByteArray(allCompressed, output, compressedDataLength);
    }
@@ -110,10 +110,10 @@ public class CompressionUtilTest extends Assert {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
       byte[] output = new byte[30];
-      Deflater compresser = new Deflater();
-      compresser.setInput(input);
-      compresser.finish();
-      int compressedDataLength = compresser.deflate(output);
+      Deflater compressor = new Deflater();
+      compressor.setInput(input);
+      compressor.finish();
+      int compressedDataLength = compressor.deflate(output);
 
       byte[] zipBytes = new byte[compressedDataLength];
 
@@ -146,10 +146,10 @@ public class CompressionUtilTest extends Assert {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
       byte[] output = new byte[30];
-      Deflater compresser = new Deflater();
-      compresser.setInput(input);
-      compresser.finish();
-      int compressedDataLength = compresser.deflate(output);
+      Deflater compressor = new Deflater();
+      compressor.setInput(input);
+      compressor.finish();
+      int compressedDataLength = compressor.deflate(output);
 
       byte[] zipBytes = new byte[compressedDataLength];
 

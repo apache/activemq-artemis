@@ -49,7 +49,7 @@ imported properly.  To (re)import the "tests" Maven profile in an existing proje
 * Open the Maven Projects Tool Window: View -> Tool Windows -> Maven Projects
 * Select the "profiles" drop down
 * Unselect then reselect the checkbox next to "tests".
-* Click on the "Reimport all maven projects" button in the top left hand corner of the window. (It looks like a ciruclar
+* Click on the "Reimport all maven projects" button in the top left hand corner of the window. (It looks like a circular
 blue arrow.
 * Wait for IDEA to reload and try running a JUnit test again.  The option to run should now be present.
 
