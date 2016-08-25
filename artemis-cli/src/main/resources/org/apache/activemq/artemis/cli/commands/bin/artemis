@@ -96,9 +96,18 @@ if $cygwin ; then
   CLASSPATH=`cygpath --windows "$CLASSPATH"`
 fi
 
+
+# finding the Log Manager
+LOG_MANAGER=`ls $ARTEMIS_HOME/lib/jboss-logmanager*jar 2>/dev/null`
+
+if [ -z "$LOG_MANAGER" ] ; then
+  # this is the one found when the server was created
+  LOG_MANAGER="$ARTEMIS_HOME/lib/${logmanager}"
+fi
+
 exec "$JAVACMD" ${java-opts} \
     $JAVA_ARGS \
-    -Xbootclasspath/a:"$ARTEMIS_HOME/lib/${logmanager}" \
+    -Xbootclasspath/a:"$LOG_MANAGER" \
     -Djava.security.auth.login.config="$ARTEMIS_INSTANCE/etc/login.config" \
     $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
