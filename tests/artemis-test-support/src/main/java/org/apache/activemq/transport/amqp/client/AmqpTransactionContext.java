@@ -47,7 +47,6 @@ public class AmqpTransactionContext {
    /**
     * Begins a new transaction scoped to the target session.
     *
-    * @param txId The transaction Id to use for this new transaction.
     * @throws Exception if an error occurs while starting the transaction.
     */
    public void begin() throws Exception {
