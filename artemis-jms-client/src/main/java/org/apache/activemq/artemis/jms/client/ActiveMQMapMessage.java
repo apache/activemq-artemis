@@ -384,7 +384,8 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
+   @SuppressWarnings("unchecked")
+   public boolean isBodyAssignableTo(Class c) {
       if (hasNoBody()) {
          return true;
       }
