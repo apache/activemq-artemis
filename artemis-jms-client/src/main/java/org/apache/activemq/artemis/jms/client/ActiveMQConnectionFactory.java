@@ -154,18 +154,22 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       }
    }
 
+   @Override
    public String getDeserializationBlackList() {
       return deserializationBlackList;
    }
 
+   @Override
    public void setDeserializationBlackList(String blackList) {
       this.deserializationBlackList = blackList;
    }
 
+   @Override
    public String getDeserializationWhiteList() {
       return deserializationWhiteList;
    }
 
+   @Override
    public void setDeserializationWhiteList(String whiteList) {
       this.deserializationWhiteList = whiteList;
    }

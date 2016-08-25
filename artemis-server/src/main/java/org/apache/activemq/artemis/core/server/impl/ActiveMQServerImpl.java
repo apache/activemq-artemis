@@ -381,6 +381,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
    }
 
+   @Override
    public ReloadManager getReloadManager() {
       return reloadManager;
    }
