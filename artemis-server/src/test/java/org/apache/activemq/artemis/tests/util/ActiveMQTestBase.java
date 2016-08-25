@@ -2103,28 +2103,12 @@ public abstract class ActiveMQTestBase extends Assert {
          }
       }
       else {
-         InputStream in = null;
-
-         OutputStream out = null;
-
-         try {
-            in = new BufferedInputStream(new FileInputStream(from));
-
-            out = new BufferedOutputStream(new FileOutputStream(to));
-
+         try (InputStream in = new BufferedInputStream(new FileInputStream(from));
+              OutputStream out = new BufferedOutputStream(new FileOutputStream(to))) {
             int b;
 
             while ((b = in.read()) != -1) {
                out.write(b);
-            }
-         }
-         finally {
-            if (in != null) {
-               in.close();
-            }
-
-            if (out != null) {
-               out.close();
             }
          }
       }

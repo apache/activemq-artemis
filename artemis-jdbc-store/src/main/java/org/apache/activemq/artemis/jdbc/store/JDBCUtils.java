@@ -70,8 +70,9 @@ public class JDBCUtils {
          try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
             if (rs != null && !rs.next()) {
                logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
-               Statement statement = connection.createStatement();
-               statement.executeUpdate(sql);
+               try (Statement statement = connection.createStatement()) {
+            	   statement.executeUpdate(sql);
+               }
             }
          }
          connection.commit();
