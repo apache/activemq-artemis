@@ -295,12 +295,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
       List<String> excludes = new ArrayList<>();
 
       // Split the list into addresses to match and addresses to exclude.
-      for (int i = 0; i < list.length; i++) {
-         if (list[i].startsWith("!")) {
-            excludes.add(list[i].substring(1, list[i].length()));
+      for (String s : list) {
+         if (s.startsWith("!")) {
+            excludes.add(s.substring(1, s.length()));
          }
          else {
-            includes.add(list[i]);
+            includes.add(s);
          }
       }
 

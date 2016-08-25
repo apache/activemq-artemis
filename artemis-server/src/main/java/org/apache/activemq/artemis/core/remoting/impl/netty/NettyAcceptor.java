@@ -26,7 +26,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -513,9 +512,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          if (!future.isSuccess()) {
             ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
-            Iterator<Channel> iterator = future.group().iterator();
-            while (iterator.hasNext()) {
-               Channel channel = iterator.next();
+            for (Channel channel : future.group()) {
                if (channel.isActive()) {
                   ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
                }
@@ -573,9 +570,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          ChannelGroupFuture future = serverChannelGroup.close().awaitUninterruptibly();
          if (!future.isSuccess()) {
             ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
-            Iterator<Channel> iterator = future.group().iterator();
-            while (iterator.hasNext()) {
-               Channel channel = iterator.next();
+            for (Channel channel : future.group()) {
                if (channel.isActive()) {
                   ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
                }

@@ -366,8 +366,8 @@ public final class XMLUtil {
       for (int i = 0; i < nl.getLength(); i++) {
          Node n = nl.item(i);
          short type = n.getNodeType();
-         for (int j = 0; j < typesToFilter.length; j++) {
-            if (typesToFilter[j] == type) {
+         for (short typeToFilter : typesToFilter) {
+            if (typeToFilter == type) {
                continue outer;
             }
          }

@@ -172,15 +172,15 @@ public class PropertyUtil {
       if (queryString != null && !queryString.isEmpty()) {
          Map<String, String> rc = new HashMap<>();
          String[] parameters = queryString.split("&");
-         for (int i = 0; i < parameters.length; i++) {
-            int p = parameters[i].indexOf("=");
+         for (String parameter : parameters) {
+            int p = parameter.indexOf("=");
             if (p >= 0) {
-               String name = URLDecoder.decode(parameters[i].substring(0, p), "UTF-8");
-               String value = URLDecoder.decode(parameters[i].substring(p + 1), "UTF-8");
+               String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
+               String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
                rc.put(name, value);
             }
             else {
-               rc.put(parameters[i], null);
+               rc.put(parameter, null);
             }
          }
          return rc;
@@ -352,8 +352,7 @@ public class PropertyUtil {
       Object[] NULL_ARG = {};
       PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
       if (propertyDescriptors != null) {
-         for (int i = 0; i < propertyDescriptors.length; i++) {
-            PropertyDescriptor pd = propertyDescriptors[i];
+         for (PropertyDescriptor pd : propertyDescriptors) {
             if (pd.getReadMethod() != null && !pd.getName().equals("class") && !pd.getName().equals("properties") && !pd.getName().equals("reference")) {
                Object value = pd.getReadMethod().invoke(object, NULL_ARG);
                if (value != null) {
@@ -365,7 +364,7 @@ public class PropertyUtil {
                   }
                   else {
                      Map<String, String> inner = getProperties(value);
-                     for (Map.Entry<String, String> entry : inner.entrySet()) {
+                     for (Entry<String, String> entry : inner.entrySet()) {
                         properties.put(pd.getName() + "." + entry.getKey(), entry.getValue());
                      }
                   }
@@ -389,8 +388,7 @@ public class PropertyUtil {
       BeanInfo beanInfo = Introspector.getBeanInfo(object.getClass());
       PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
       if (propertyDescriptors != null) {
-         for (int i = 0; i < propertyDescriptors.length; i++) {
-            PropertyDescriptor pd = propertyDescriptors[i];
+         for (PropertyDescriptor pd : propertyDescriptors) {
             if (pd.getReadMethod() != null && pd.getName().equals(name)) {
                return pd.getReadMethod().invoke(object);
             }
@@ -497,8 +495,7 @@ public class PropertyUtil {
       // Build the method name.
       name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
       Method[] methods = clazz.getMethods();
-      for (int i = 0; i < methods.length; i++) {
-         Method method = methods[i];
+      for (Method method : methods) {
          Class<?>[] params = method.getParameterTypes();
          if (method.getName().equals(name) && params.length == 1) {
             return method;

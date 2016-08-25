@@ -67,8 +67,8 @@ public class SSLSupport {
    public static String parseArrayIntoCommandSeparatedList(String[] suites) {
       StringBuilder supportedSuites = new StringBuilder();
 
-      for (int i = 0; i < suites.length; i++) {
-         supportedSuites.append(suites[i]);
+      for (String suite : suites) {
+         supportedSuites.append(suite);
          supportedSuites.append(", ");
       }
 

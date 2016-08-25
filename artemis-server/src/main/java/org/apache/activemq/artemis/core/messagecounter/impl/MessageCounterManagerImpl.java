@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.messagecounter.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -141,11 +140,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
    @Override
    public void resetAllCounters() {
       synchronized (messageCounters) {
-         Iterator<MessageCounter> iter = messageCounters.values().iterator();
-
-         while (iter.hasNext()) {
-            MessageCounter counter = iter.next();
-
+         for (MessageCounter counter : messageCounters.values()) {
             counter.resetCounter();
          }
       }
@@ -154,11 +149,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
    @Override
    public void resetAllCounterHistories() {
       synchronized (messageCounters) {
-         Iterator<MessageCounter> iter = messageCounters.values().iterator();
-
-         while (iter.hasNext()) {
-            MessageCounter counter = iter.next();
-
+         for (MessageCounter counter : messageCounters.values()) {
             counter.resetHistory();
          }
       }
@@ -177,11 +168,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
          }
 
          synchronized (messageCounters) {
-            Iterator<MessageCounter> iter = messageCounters.values().iterator();
-
-            while (iter.hasNext()) {
-               MessageCounter counter = iter.next();
-
+            for (MessageCounter counter : messageCounters.values()) {
                counter.onTimer();
             }
          }

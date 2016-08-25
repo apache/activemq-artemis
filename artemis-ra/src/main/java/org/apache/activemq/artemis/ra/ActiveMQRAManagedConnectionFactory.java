@@ -27,7 +27,6 @@ import javax.resource.spi.ResourceAdapterAssociation;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -203,11 +202,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
          ActiveMQRALogger.LOGGER.trace("Looking for connection matching credentials: " + credential);
       }
 
-      Iterator<?> connections = connectionSet.iterator();
-
-      while (connections.hasNext()) {
-         Object obj = connections.next();
-
+      for (Object obj : connectionSet) {
          if (obj instanceof ActiveMQRAManagedConnection) {
             ActiveMQRAManagedConnection mc = (ActiveMQRAManagedConnection) obj;
             ManagedConnectionFactory mcf = mc.getManagedConnectionFactory();

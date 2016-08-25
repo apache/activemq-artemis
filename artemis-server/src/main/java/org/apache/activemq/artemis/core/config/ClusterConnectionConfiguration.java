@@ -382,8 +382,8 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
          List<TransportConfiguration> list = new LinkedList<>();
 
-         for (int i = 0; i < members.length; i++) {
-            list.addAll(connectorTransportConfigurationParser.newObject(members[i], null));
+         for (URI member : members) {
+            list.addAll(connectorTransportConfigurationParser.newObject(member, null));
          }
 
          return list.toArray(new TransportConfiguration[list.size()]);

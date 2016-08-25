@@ -41,8 +41,7 @@ public class JaasCallbackHandler implements CallbackHandler {
 
    @Override
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-      for (int i = 0; i < callbacks.length; i++) {
-         Callback callback = callbacks[i];
+      for (Callback callback : callbacks) {
          if (callback instanceof PasswordCallback) {
             PasswordCallback passwordCallback = (PasswordCallback) callback;
             if (password == null) {

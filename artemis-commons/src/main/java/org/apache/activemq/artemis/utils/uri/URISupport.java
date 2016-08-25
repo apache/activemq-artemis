@@ -135,15 +135,15 @@ public class URISupport {
 
    private static void parseParameters(Map<String, String> rc,
                                        String[] parameters) throws UnsupportedEncodingException {
-      for (int i = 0; i < parameters.length; i++) {
-         int p = parameters[i].indexOf("=");
+      for (String parameter : parameters) {
+         int p = parameter.indexOf("=");
          if (p >= 0) {
-            String name = URLDecoder.decode(parameters[i].substring(0, p), "UTF-8");
-            String value = URLDecoder.decode(parameters[i].substring(p + 1), "UTF-8");
+            String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
+            String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
             rc.put(name, value);
          }
          else {
-            rc.put(parameters[i], null);
+            rc.put(parameter, null);
          }
       }
    }
