@@ -71,7 +71,7 @@ public class JDBCUtils {
             if (rs != null && !rs.next()) {
                logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, sql);
                try (Statement statement = connection.createStatement()) {
-            	   statement.executeUpdate(sql);
+                  statement.executeUpdate(sql);
                }
             }
          }
