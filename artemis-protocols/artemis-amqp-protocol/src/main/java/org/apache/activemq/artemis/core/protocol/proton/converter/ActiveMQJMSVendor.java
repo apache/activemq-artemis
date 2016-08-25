@@ -81,7 +81,6 @@ public class ActiveMQJMSVendor implements JMSVendor {
    }
 
    @Override
-   @SuppressWarnings("deprecation")
    public Destination createDestination(String name) {
       return new ServerDestination(name);
    }

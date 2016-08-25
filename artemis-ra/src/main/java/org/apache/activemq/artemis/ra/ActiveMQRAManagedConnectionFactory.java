@@ -184,7 +184,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @throws ResourceException Thrown if the managed connection can not be found
     */
    @Override
-   public ManagedConnection matchManagedConnections(@SuppressWarnings("rawtypes") final Set connectionSet,
+   public ManagedConnection matchManagedConnections(final Set connectionSet,
                                                     final Subject subject,
                                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
       if (ActiveMQRAManagedConnectionFactory.trace) {

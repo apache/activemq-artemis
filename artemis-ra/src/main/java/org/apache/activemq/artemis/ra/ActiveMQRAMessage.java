@@ -384,7 +384,6 @@ public class ActiveMQRAMessage implements Message {
     * @throws JMSException Thrown if an error occurs
     */
    @Override
-   @SuppressWarnings("rawtypes")
    public Enumeration getPropertyNames() throws JMSException {
       if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getPropertyNames()");
@@ -776,7 +775,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) throws JMSException {
+   public boolean isBodyAssignableTo(Class c) throws JMSException {
       if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("isBodyAssignableTo(" + c + ")");
       }
