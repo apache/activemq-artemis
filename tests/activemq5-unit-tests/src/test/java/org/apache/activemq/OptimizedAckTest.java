@@ -69,7 +69,7 @@ public class OptimizedAckTest extends TestSupport {
       Binding binding = broker.getServer().getPostOffice().getBinding(new SimpleString("jms.queue.test"));
 
       final QueueImpl coreQueue = (QueueImpl) binding.getBindable();
-      assertTrue("deliverying count is 10", Wait.waitFor(new Wait.Condition() {
+      assertTrue("delivering count is 10", Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisified() throws Exception {
             return 10 == coreQueue.getDeliveringCount();

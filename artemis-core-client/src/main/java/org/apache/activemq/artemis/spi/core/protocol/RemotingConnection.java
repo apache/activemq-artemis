@@ -105,7 +105,7 @@ public interface RemotingConnection extends BufferHandler {
    /**
     * set the failure listeners.
     * <p>
-    * These will be called in the event of the connection being closed. Any previosuly added listeners will be removed.
+    * These will be called in the event of the connection being closed. Any previously added listeners will be removed.
     *
     * @param listeners the listeners to add.
     */

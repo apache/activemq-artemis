@@ -875,7 +875,7 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
 
          try {
             consumerSession.commit();
-            Assert.fail("expected transaciton rolledback ex");
+            Assert.fail("expected transaction rolledback ex");
          }
          catch (TransactionRolledBackException expected) {
          }

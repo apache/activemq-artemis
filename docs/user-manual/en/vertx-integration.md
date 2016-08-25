@@ -64,7 +64,7 @@ Shown are the required params for the connector service:
 
 -   `queue`. The name of the Apache ActiveMQ Artemis queue to fetch message from.
 
-As well as these required paramaters there are the following optional
+As well as these required parameters there are the following optional
 parameters
 
 -   `host`. The host name on which the vertx target container is

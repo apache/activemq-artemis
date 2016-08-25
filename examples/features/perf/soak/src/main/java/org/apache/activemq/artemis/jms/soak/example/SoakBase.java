@@ -69,7 +69,7 @@ public class SoakBase {
       String destinationLookup = props.getProperty("destination-lookup");
       String connectionFactoryLookup = props.getProperty("connection-factory-lookup");
       int throttleRate = Integer.valueOf(props.getProperty("throttle-rate"));
-      boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowlege"));
+      boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowledge"));
       boolean disableMessageID = Boolean.valueOf(props.getProperty("disable-message-id"));
       boolean disableTimestamp = Boolean.valueOf(props.getProperty("disable-message-timestamp"));
 

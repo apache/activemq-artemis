@@ -26,7 +26,7 @@ import org.objectweb.jtests.jms.framework.PubSubTestCase;
 /**
  * Test topic-specific connection features.
  *
- * Test setting of client ID which is relevant only for Durable Subscribtion
+ * Test setting of client ID which is relevant only for Durable Subscription
  */
 
 public class TopicConnectionTest extends PubSubTestCase {
