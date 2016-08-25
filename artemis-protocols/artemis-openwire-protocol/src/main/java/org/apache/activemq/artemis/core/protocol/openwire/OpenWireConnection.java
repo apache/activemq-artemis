@@ -25,7 +25,6 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -764,9 +763,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void addSessions(Set<SessionId> sessionSet) {
-      Iterator<SessionId> iter = sessionSet.iterator();
-      while (iter.hasNext()) {
-         SessionId sid = iter.next();
+      for (SessionId sid : sessionSet) {
          addSession(getState().getSessionState(sid).getInfo(), true);
       }
    }
@@ -805,10 +802,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
       else {
          Bindings bindings = server.getPostOffice().getBindingsForAddress(OpenWireUtil.toCoreAddress(dest));
-         Iterator<Binding> iterator = bindings.getBindings().iterator();
 
-         while (iterator.hasNext()) {
-            Queue b = (Queue) iterator.next().getBindable();
+         for (Binding binding : bindings.getBindings()) {
+            Queue b = (Queue) binding.getBindable();
             if (b.getConsumerCount() > 0) {
                throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
             }

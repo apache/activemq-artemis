@@ -288,9 +288,7 @@ public class MessageCounter {
          ret.append(dayCounters.size() + "\n");
 
          // following lines: day counter data
-         for (int i = 0; i < dayCounters.size(); i++) {
-            DayCounter counter = dayCounters.get(i);
-
+         for (DayCounter counter : dayCounters) {
             ret.append(counter.getDayCounterAsString() + "\n");
          }
       }

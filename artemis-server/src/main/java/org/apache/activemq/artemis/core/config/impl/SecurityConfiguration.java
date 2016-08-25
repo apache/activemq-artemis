@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,14 +46,10 @@ public class SecurityConfiguration extends Configuration {
    }
 
    public SecurityConfiguration(Map<String, String> users, Map<String, List<String>> roles) {
-      Iterator<Map.Entry<String, String>> iter = users.entrySet().iterator();
-      while (iter.hasNext()) {
-         Map.Entry<String, String> entry = iter.next();
+      for (Map.Entry<String, String> entry : users.entrySet()) {
          addUser(entry.getKey(), entry.getValue());
       }
-      Iterator<Map.Entry<String, List<String>>> iter1 = roles.entrySet().iterator();
-      while (iter1.hasNext()) {
-         Map.Entry<String, List<String>> entry = iter1.next();
+      for (Map.Entry<String, List<String>> entry : roles.entrySet()) {
          for (String role : entry.getValue()) {
             addRole(entry.getKey(), role);
          }

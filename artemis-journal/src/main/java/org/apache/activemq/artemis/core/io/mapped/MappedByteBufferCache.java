@@ -140,9 +140,7 @@ final class MappedByteBufferCache implements AutoCloseable {
    public void closeAndResize(long length) {
       if (!closed) {
          //TO_FIX: unmap in this way is not portable BUT required on Windows that can't resize a memmory mapped file!
-         final int mappedBuffers = this.byteBuffers.size();
-         for (int i = 0; i < mappedBuffers; i++) {
-            final WeakReference<MappedByteBuffer> mbbRef = byteBuffers.get(i);
+         for (final WeakReference<MappedByteBuffer> mbbRef : this.byteBuffers) {
             if (mbbRef != null) {
                final MappedByteBuffer mbb = mbbRef.get();
                if (mbb != null) {
@@ -204,9 +202,7 @@ final class MappedByteBufferCache implements AutoCloseable {
    public void close() {
       if (!closed) {
          //TO_FIX: unmap in this way is not portable BUT required on Windows that can't resize a memory mapped file!
-         final int mappedBuffers = this.byteBuffers.size();
-         for (int i = 0; i < mappedBuffers; i++) {
-            final WeakReference<MappedByteBuffer> mbbRef = byteBuffers.get(i);
+         for (final WeakReference<MappedByteBuffer> mbbRef : this.byteBuffers) {
             if (mbbRef != null) {
                final MappedByteBuffer mbb = mbbRef.get();
                if (mbb != null) {

@@ -28,7 +28,6 @@ import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
@@ -722,9 +721,9 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       if (propsNotSet.size() > 0) {
          StringBuffer b = new StringBuffer();
          b.append("Invalid settings:");
-         for (Iterator<String> iter = errorMessages.iterator(); iter.hasNext(); ) {
+         for (String errorMessage : errorMessages) {
             b.append(" ");
-            b.append(iter.next());
+            b.append(errorMessage);
          }
          InvalidPropertyException e = new InvalidPropertyException(b.toString());
          final PropertyDescriptor[] descriptors = propsNotSet.toArray(new PropertyDescriptor[propsNotSet.size()]);
