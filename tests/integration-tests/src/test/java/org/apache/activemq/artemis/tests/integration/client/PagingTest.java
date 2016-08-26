@@ -180,29 +180,22 @@ public class PagingTest extends ActiveMQTestBase {
             Assert.assertNotNull(message2);
          }
 
-         try {
-            if (ad > -1) {
-               session.commit();
-            }
-            else {
-               session.rollback();
-               for (int i = 0; i < 100; i++) {
-                  ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
-
-                  Assert.assertNotNull(message2);
-
-                  message2.acknowledge();
-
-                  Assert.assertNotNull(message2);
-               }
-               session.commit();
-
-            }
+         if (ad > -1) {
+            session.commit();
          }
-         catch (Throwable e) {
-            System.err.println("here!!!!!!!");
-            e.printStackTrace();
-            System.exit(-1);
+         else {
+            session.rollback();
+            for (int i = 0; i < 100; i++) {
+               ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
+
+               Assert.assertNotNull(message2);
+
+               message2.acknowledge();
+
+               Assert.assertNotNull(message2);
+            }
+            session.commit();
+
          }
 
          consumer.close();
