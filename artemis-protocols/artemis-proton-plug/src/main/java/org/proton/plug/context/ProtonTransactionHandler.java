@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.transaction.Declare;
@@ -82,6 +83,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             if (discharge.getFail()) {
                try {
                   sessionSPI.rollbackCurrentTX(true);
+                  delivery.disposition(new Accepted());
                }
                catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
@@ -90,6 +92,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             else {
                try {
                   sessionSPI.commitCurrentTX();
+                  delivery.disposition(new Accepted());
                }
                catch (ActiveMQAMQPException amqpE) {
                   throw amqpE;
@@ -99,7 +102,6 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                }
             }
          }
-
       }
       catch (ActiveMQAMQPException amqpE) {
          delivery.disposition(createRejected(amqpE.getAmqpError(), amqpE.getMessage()));
