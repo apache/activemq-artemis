@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
-public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
+public final class ActiveMQMessageConsumer implements BodyReceiver, QueueReceiver, TopicSubscriber {
 
    private final ConnectionFactoryOptions options;
 
@@ -125,17 +125,25 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    @Override
    public Message receive() throws JMSException {
-      return getMessage(0, false);
+      return receive(0, true);
    }
 
    @Override
    public Message receive(final long timeout) throws JMSException {
-      return getMessage(timeout, false);
+      return receive(timeout, true);
+   }
+
+   public Message receive(final long timeout, final boolean ack) throws JMSException {
+      return getMessage(timeout, false, ack);
    }
 
    @Override
    public Message receiveNoWait() throws JMSException {
-      return getMessage(0, true);
+      return receiveNoWait(true);
+   }
+
+   public Message receiveNoWait(final boolean ack) throws JMSException {
+      return getMessage(0, true, ack);
    }
 
    @Override
@@ -191,6 +199,16 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       return consumer.isClosed();
    }
 
+   public void acknowledgeCoreMessage(ActiveMQMessage message) throws JMSException {
+      try {
+         message.getCoreMessage().acknowledge();
+      }
+      catch (ActiveMQException e) {
+         ((ClientSessionInternal) session.getCoreSession()).markRollbackOnly();
+         throw JMSExceptionHelper.convertFromActiveMQException(e);
+      }
+   }
+
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
@@ -203,7 +221,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       }
    }
 
-   private ActiveMQMessage getMessage(final long timeout, final boolean noWait) throws JMSException {
+   private ActiveMQMessage getMessage(final long timeout, final boolean noWait, final boolean ack) throws JMSException {
       try {
          ClientMessage coreMessage;
 
@@ -242,8 +260,8 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
             if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
                jmsMsg.setIndividualAcknowledge();
             }
-            else {
-               coreMessage.acknowledge();
+            else if (ack) {
+               acknowledgeCoreMessage(jmsMsg);
             }
          }
 
