@@ -59,7 +59,6 @@ public class JDBCJournalTest extends ActiveMQTestBase {
          journal.appendAddRecord(i, (byte) 1, new byte[0], true);
       }
 
-      Thread.sleep(3000);
       assertEquals(noRecords, journal.getNumberOfRecords());
    }
 
