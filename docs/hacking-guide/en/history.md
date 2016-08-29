@@ -19,3 +19,13 @@ Credit should be given to those developers who contributed to the HornetQ projec
 - Adrian Brock
 
 For more information please visit the [HornetQ GitHub project](https://github.com/hornetq/hornetq/tree/apache-donation).
+
+
+Rebasing original donation
+==========================
+
+It may be useful to look at the donation history combined with the artemis history. It is the case when eventually looking at old changes.
+
+For that there is a script that will rebase master against the donation branch under master/scripts:
+
+- rebase-donation.sh
