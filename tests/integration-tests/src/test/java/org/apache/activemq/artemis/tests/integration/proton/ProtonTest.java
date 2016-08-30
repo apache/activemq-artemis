@@ -51,13 +51,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -88,7 +85,7 @@ import org.proton.plug.test.Constants;
 import org.proton.plug.test.minimalclient.SimpleAMQPConnector;
 
 @RunWith(Parameterized.class)
-public class ProtonTest extends ActiveMQTestBase {
+public class ProtonTest extends ProtonTestBase {
 
    private static final String amqpConnectionUri = "amqp://localhost:5672";
 
@@ -131,7 +128,6 @@ public class ProtonTest extends ActiveMQTestBase {
       }
    }
 
-   private ActiveMQServer server;
    private final String coreAddress;
    private final String address;
    private Connection connection;
@@ -140,23 +136,7 @@ public class ProtonTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      disableCheckThread();
 
-      server = this.createServer(true, true);
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, "5672");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "AMQP");
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
-
-      server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
-      server.getConfiguration().setName(brokerName);
-
-      // Default Page
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      server.getConfiguration().getAddressesSettings().put("#", addressSettings);
-
-      server.start();
       server.createQueue(new SimpleString(coreAddress), new SimpleString(coreAddress), null, true, false);
       server.createQueue(new SimpleString(coreAddress + "1"), new SimpleString(coreAddress + "1"), null, true, false);
       server.createQueue(new SimpleString(coreAddress + "2"), new SimpleString(coreAddress + "2"), null, true, false);
@@ -191,8 +171,6 @@ public class ProtonTest extends ActiveMQTestBase {
          if (connection != null) {
             connection.close();
          }
-
-         server.stop();
       }
       finally {
          super.tearDown();

@@ -116,7 +116,10 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
          receiver = ((Receiver) delivery.getLink());
 
          if (!delivery.isReadable()) {
-            System.err.println("!!!!! Readable!!!!!!!");
+            return;
+         }
+
+         if (delivery.isPartial()) {
             return;
          }
 
