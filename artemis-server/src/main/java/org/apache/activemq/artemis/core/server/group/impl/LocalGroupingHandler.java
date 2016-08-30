@@ -444,9 +444,9 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                      storageManager.deleteGrouping(txID, groupBinding);
 
                      if (expiredGroups >= 1000 && txID >= 0) {
+                        storageManager.commitBindings(txID);
                         expiredGroups = 0;
                         txID = -1;
-                        storageManager.commitBindings(txID);
                      }
                   }
                   catch (Exception e) {
