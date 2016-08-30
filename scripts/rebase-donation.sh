@@ -18,10 +18,15 @@
 
 # more information about this script at https://github.com/apache/activemq-artemis/blob/master/docs/hacking-guide/en/history.md
 
-git remote add hornetq https://github.com/hornetq/hornetq.git
-git fetch hornetq
-git checkout hornetq/apache-donation -B donation
-git checkout apache/master -B master-donation
+git remote add -f temp-hornetq https://github.com/hornetq/hornetq.git
+git remote add -f temp-upstream https://github.com/apache/activemq-artemis.git
+
+set -e
+git fetch temp-hornetq
+git fetch temp-upstream
+git checkout temp-hornetq/apache-donation -B donation
+git checkout temp-upstream/master -B master-donation
 git rebase donation
-git remote rm hornetq
+git remote rm temp-hornetq
+git remote rm temp-upstream
 git branch -D donation
