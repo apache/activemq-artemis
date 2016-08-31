@@ -298,8 +298,9 @@ public abstract class ActiveMQTestBase extends Assert {
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
-         for (Thread thread : threadMap.keySet()) {
-            StackTraceElement[] stack = threadMap.get(thread);
+         for (Map.Entry<Thread, StackTraceElement[]> entry : threadMap.entrySet()) {
+            Thread thread = entry.getKey();
+            StackTraceElement[] stack = entry.getValue();
             for (StackTraceElement stackTraceElement : stack) {
                if (stackTraceElement.getMethodName().contains("getConnectionWithRetry") && !alreadyFailedThread.contains(thread)) {
                   alreadyFailedThread.add(thread);
