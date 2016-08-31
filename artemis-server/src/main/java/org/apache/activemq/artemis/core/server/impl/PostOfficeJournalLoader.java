@@ -321,9 +321,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
       Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> perAddressMap = generateMapsOnPendingCount(queues, pendingNonTXPageCounter, txRecoverCounter);
 
-      for (SimpleString address : perAddressMap.keySet()) {
-         PagingStore store = pagingManager.getPageStore(address);
-         Map<Long, Map<Long, List<PageCountPending>>> perPageMap = perAddressMap.get(address);
+      for (Map.Entry<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> addressPageMapEntry : perAddressMap.entrySet()) {
+         PagingStore store = pagingManager.getPageStore(addressPageMapEntry.getKey());
+         Map<Long, Map<Long, List<PageCountPending>>> perPageMap = addressPageMapEntry.getValue();
 
          // We have already generated this before, so it can't be null
          assert (perPageMap != null);
@@ -376,7 +376,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             }
             else {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
-               logger.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
+               logger.debug("Page " + pageId + " didn't exist on address " + addressPageMapEntry.getKey() + ", so we are just removing records");
                for (List<PageCountPending> records : perQueue.values()) {
                   for (PageCountPending record : records) {
                      logger.debug("Removing pending page counter " + record.getID());
