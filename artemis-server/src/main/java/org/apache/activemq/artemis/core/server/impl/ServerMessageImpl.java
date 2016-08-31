@@ -288,9 +288,14 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage {
 
    @Override
    public String toString() {
-      return "ServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() + ", bodySize=" + this.getBodyBufferDuplicate().capacity() +
-         ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
-         ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
+      try {
+         return "ServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() + ", bodySize=" + this.getBodyBufferDuplicate().capacity() +
+            ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
+            ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
+      }
+      catch (Throwable e) {
+         return "ServerMessage[messageID=" + messageID + "]";
+      }
    }
 
    private static String toDate(long timestamp) {
