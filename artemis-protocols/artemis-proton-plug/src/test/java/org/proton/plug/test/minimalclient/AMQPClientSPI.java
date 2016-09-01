@@ -62,6 +62,16 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
       return new ServerSASL[]{new AnonymousServerSASL(), new ServerSASLPlain()};
    }
 
+   @Override
+   public boolean isSupportsAnonymous() {
+      return false;
+   }
+
+   @Override
+   public void sendSASLSupported() {
+
+   }
+
    final ReusableLatch latch = new ReusableLatch(0);
 
    @Override

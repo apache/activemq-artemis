@@ -50,6 +50,10 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
    private static final Logger log = Logger.getLogger(ProtonHandlerImpl.class);
 
+   private static final byte SASL = 0x03;
+
+   private static final byte BARE = 0x00;
+
    private final Transport transport = Proton.transport();
 
    private final Connection connection = Proton.connection();
@@ -170,8 +174,9 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
 
             if (!receivedFirstPacket) {
                try {
-                  if (buffer.getByte(4) == 0x03) {
-                     dispatchSASL();
+                  byte auth = buffer.getByte(4);
+                  if (auth == SASL || auth == BARE) {
+                     dispatchAuth(auth == SASL);
                      /*
                      * there is a chance that if SASL Handshake has been carried out that the capacity may change.
                      * */
@@ -343,9 +348,9 @@ public class ProtonHandlerImpl extends ProtonInitializable implements ProtonHand
       }
    }
 
-   private void dispatchSASL() {
+   private void dispatchAuth(boolean sasl) {
       for (EventHandler h : handlers) {
-         h.onSASLInit(this, getConnection());
+         h.onAuthInit(this, getConnection(), sasl);
       }
    }
 
