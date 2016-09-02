@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidClientIDException;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -109,6 +110,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
    private boolean rebalanceClusterClients = false;
    private boolean updateClusterClients = false;
    private boolean updateClusterClientsOnRemove = false;
+
+   //http://activemq.apache.org/activemq-inactivitymonitor.html
+   private long maxInactivityDuration = 30 * 1000L;
+   private long maxInactivityDurationInitalDelay = 10 * 1000L;
+   private boolean useKeepAlive = true;
 
    private final OpenWireMessageConverter messageConverter;
 
@@ -217,8 +223,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       OpenWireConnection owConn = new OpenWireConnection(connection, server, server.getExecutorFactory().getExecutor(), this, wf);
       owConn.sendHandshake();
 
-      // TODO CLEBERT What is this constant here? we should get it from TTL initial pings
-      return new ConnectionEntry(owConn, null, System.currentTimeMillis(), 1 * 60 * 1000);
+      //first we setup ttl to -1
+      //then when negotiation, we handle real ttl and delay
+      ConnectionEntry entry = new ConnectionEntry(owConn, null, System.currentTimeMillis(), -1);
+      owConn.setConnectionEntry(entry);
+      return entry;
    }
 
    @Override
@@ -475,6 +484,13 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       connection.dispatch(brokerInfo);
    }
 
+   public void setUpInactivityParams(OpenWireConnection connection, WireFormatInfo command) throws IOException {
+      long inactivityDurationToUse = command.getMaxInactivityDuration() > this.maxInactivityDuration ? this.maxInactivityDuration : command.getMaxInactivityDuration();
+      long inactivityDurationInitialDelayToUse = command.getMaxInactivityDurationInitalDelay() > this.maxInactivityDurationInitalDelay ? this.maxInactivityDurationInitalDelay : command.getMaxInactivityDurationInitalDelay();
+      boolean useKeepAliveToUse = this.maxInactivityDuration == 0L ? false : this.useKeepAlive;
+      connection.setUpTtl(inactivityDurationToUse, inactivityDurationInitialDelayToUse, useKeepAliveToUse);
+   }
+
    /**
     * URI property
     */
@@ -523,4 +539,30 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, Cl
       this.brokerName = name;
    }
 
+   public boolean isUseKeepAlive() {
+      return useKeepAlive;
+   }
+
+   @SuppressWarnings("unused")
+   public void setUseKeepAlive(boolean useKeepAlive) {
+      this.useKeepAlive = useKeepAlive;
+   }
+
+   public long getMaxInactivityDuration() {
+      return maxInactivityDuration;
+   }
+
+   public void setMaxInactivityDuration(long maxInactivityDuration) {
+      this.maxInactivityDuration = maxInactivityDuration;
+   }
+
+   @SuppressWarnings("unused")
+   public long getMaxInactivityDurationInitalDelay() {
+      return maxInactivityDurationInitalDelay;
+   }
+
+   @SuppressWarnings("unused")
+   public void setMaxInactivityDurationInitalDelay(long maxInactivityDurationInitalDelay) {
+      this.maxInactivityDurationInitalDelay = maxInactivityDurationInitalDelay;
+   }
 }
