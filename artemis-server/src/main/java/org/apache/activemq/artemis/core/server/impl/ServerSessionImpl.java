@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -47,6 +48,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -128,6 +130,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected boolean xa;
 
+   protected final PagingManager pagingManager;
+
    protected final StorageManager storageManager;
 
    private final ResourceManager resourceManager;
@@ -199,7 +203,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final QueueCreator queueCreator) throws Exception {
+                            final QueueCreator queueCreator,
+                            final PagingManager pagingManager) throws Exception {
       this.username = username;
 
       this.password = password;
@@ -223,6 +228,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       this.resourceManager = resourceManager;
 
       this.securityStore = securityStore;
+
+      this.pagingManager = pagingManager;
 
       timeoutSeconds = resourceManager.getTimeoutSeconds();
       this.xa = xa;
@@ -1249,6 +1256,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public RoutingStatus send(final ServerMessage message, final boolean direct, boolean noAutoCreateQueue) throws Exception {
+
+      // If the protocol doesn't support flow control, we have no choice other than fail the communication
+      if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
+         ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit();
+         this.getRemotingConnection().fail(exception);
+         throw exception;
+      }
+
       RoutingStatus result = RoutingStatus.OK;
       //large message may come from StompSession directly, in which
       //case the id header already generated.

@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.jboss.logging.Logger;
 
@@ -67,6 +68,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
 
    private SequentialFileFactory journalFF;
+
+   private SequentialFileFactory bindingsFF;
 
    SequentialFileFactory largeMessagesFactory;
 
@@ -95,7 +98,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          throw ActiveMQMessageBundle.BUNDLE.invalidJournal();
       }
 
-      SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener, config.getJournalMaxIO_NIO());
+      bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener, config.getJournalMaxIO_NIO());
 
       Journal localBindings = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalPoolFiles(), config.getJournalCompactPercentage(), bindingsFF, "activemq-bindings", "bindings", 1);
 
@@ -725,5 +728,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       finally {
          readUnLock();
       }
+   }
+
+   @Override
+   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
+      monitor.addStore(journalFF.getDirectory());
+      monitor.addStore(largeMessagesFactory.getDirectory());
+      monitor.addStore(bindingsFF.getDirectory());
    }
 }

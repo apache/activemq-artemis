@@ -53,6 +53,9 @@
       <populate-validated-user>true</populate-validated-user>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
+      <global-max-size>1234567</global-max-size>
+      <max-disk-usage>37</max-disk-usage>
+      <disk-scan-period>123</disk-scan-period>
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>

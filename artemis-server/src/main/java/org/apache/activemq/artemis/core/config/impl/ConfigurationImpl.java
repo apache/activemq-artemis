@@ -246,6 +246,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long configurationFileRefreshPeriod = ActiveMQDefaultConfiguration.getDefaultConfigurationFileRefreshPeriod();
 
+   private long globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+
+   private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
+
+   private int diskScanPeriod = ActiveMQDefaultConfiguration.getDefaultDiskScanPeriod();
+
    /**
     * Parent folder for all data folders.
     */
@@ -261,6 +267,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public boolean isPersistenceEnabled() {
       return persistenceEnabled;
+   }
+
+   @Override
+   public int getMaxDiskUsage() {
+      return maxDiskUsage;
+   }
+
+   @Override
+   public ConfigurationImpl setMaxDiskUsage(int maxDiskUsage) {
+      this.maxDiskUsage = maxDiskUsage;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl setGlobalMaxSize(long maxSize) {
+      this.globalMaxSize = maxSize;
+      return this;
+   }
+
+   @Override
+   public long getGlobalMaxSize() {
+      return globalMaxSize;
    }
 
    @Override
@@ -1781,6 +1809,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setConfigurationFileRefreshPeriod(long configurationFileRefreshPeriod) {
       this.configurationFileRefreshPeriod = configurationFileRefreshPeriod;
+      return this;
+   }
+
+   @Override
+   public int getDiskScanPeriod() {
+      return diskScanPeriod;
+   }
+
+   @Override
+   public ConfigurationImpl setDiskScanPeriod(int diskScanPeriod) {
+      this.diskScanPeriod = diskScanPeriod;
       return this;
    }
 

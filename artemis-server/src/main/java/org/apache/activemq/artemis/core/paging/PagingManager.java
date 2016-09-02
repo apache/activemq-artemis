@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 
 /**
@@ -78,6 +79,10 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    void resumeCleanup();
 
+   void addBlockedStore(PagingStore store);
+
+   void injectMonitor(FileStoreMonitor monitor) throws Exception;
+
    /**
     * Lock the manager. This method should not be called during normal PagingManager usage.
     */
@@ -89,4 +94,15 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
     * @see #lock()
     */
    void unlock();
+
+   /** Add size at the global count level.
+    *  if totalSize > globalMaxSize it will return true */
+   PagingManager addSize(int size);
+
+   boolean isUsingGlobalSize();
+
+   boolean isGlobalFull();
+
+   boolean isDiskFull();
+
 }

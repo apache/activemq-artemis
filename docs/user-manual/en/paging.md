@@ -11,8 +11,7 @@ a low memory footprint.
 Apache ActiveMQ Artemis will start paging messages to disk, when the size of all
 messages in memory for an address exceeds a configured maximum size.
 
-By default, Apache ActiveMQ Artemis does not page messages - this must be explicitly
-configured to activate it.
+The default configuration from Artemis has destinations with paging.
 
 ## Page Files
 
@@ -121,6 +120,12 @@ This is the list of available parameters on the address settings.
     </tbody>
 </table>
 
+## Global Max Size
+
+Beyond the max-size-bytes on the address you can also set the global-max-size on the main configuration. If you set max-size-bytes = -1 on paging the global-max-size can still be used.
+
+When you have more messages than what is configured global-max-size any new produced message will make that destination to go through its paging policy. 
+
 ## Dropping messages
 
 Instead of paging messages when the max size is reached, an address can
@@ -180,6 +185,12 @@ For example:
 In this example all the other 9 queues will be consuming messages from
 the page system. This may cause performance issues if this is an
 undesirable state.
+
+## Max Disk Usage
+
+The System will perform scans on the disk to determine if the disk is beyond a configured limit. 
+These are configured through 'max-disk-usage' in percentage. Once that limit is reached any 
+message will be blocked. (unless the protocol doesn't support flow control on which case there will be an exception thrown and the connection for those clients dropped).
 
 ## Example
 

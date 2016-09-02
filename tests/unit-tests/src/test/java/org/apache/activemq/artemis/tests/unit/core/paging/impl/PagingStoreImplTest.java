@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -824,6 +825,11 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       @Override
       public void stop() throws InterruptedException {
+      }
+
+      @Override
+      public void injectMonitor(FileStoreMonitor monitor) throws Exception {
+
       }
 
       public void beforePageRead() throws Exception {

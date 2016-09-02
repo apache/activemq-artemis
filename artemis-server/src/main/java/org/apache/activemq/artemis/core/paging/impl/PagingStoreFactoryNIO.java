@@ -40,7 +40,8 @@ import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.impl.FileMoveManager;
+import org.apache.activemq.artemis.core.server.files.FileMoveManager;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -93,6 +94,11 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    @Override
    public void stop() {
+   }
+
+   @Override
+   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
+      monitor.addStore(this.directory);
    }
 
    @Override

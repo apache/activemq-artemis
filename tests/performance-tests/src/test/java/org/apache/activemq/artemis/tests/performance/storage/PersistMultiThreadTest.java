@@ -448,5 +448,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       public boolean isStarted() {
          return false;
       }
+
+      @Override
+      public boolean checkReleasedMemory() {
+         return true;
+      }
    }
 }

@@ -67,6 +67,8 @@ final class PageSyncTimer {
       ctx.pageSyncLineUp();
       if (!pendingSync) {
          pendingSync = true;
+
+         // this is a single event
          scheduledExecutor.schedule(runnable, timeSync, TimeUnit.NANOSECONDS);
       }
       syncOperations.add(ctx);
