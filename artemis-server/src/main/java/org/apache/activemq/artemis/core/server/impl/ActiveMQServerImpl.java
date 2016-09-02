@@ -123,6 +123,8 @@ import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.files.FileMoveManager;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler;
@@ -248,6 +250,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private MemoryManager memoryManager;
 
    private ReloadManager reloadManager;
+
+   private FileStoreMonitor fileStoreMonitor;
 
    /**
     * This will be set by the JMS Queue Manager.
@@ -755,6 +759,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             return;
          }
          state = SERVER_STATE.STOPPING;
+
+         if (fileStoreMonitor != null) {
+            fileStoreMonitor.stop();
+            fileStoreMonitor = null;
+         }
 
          activation.sendLiveIsStopping();
 
@@ -1277,7 +1286,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                      SessionCallback callback,
                                                      OperationContext context,
                                                      boolean autoCreateJMSQueues) throws Exception {
-      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, autoCreateJMSQueues ? jmsQueueCreator : null);
+      return new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(),
+                                   xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(),
+                                   defaultAddress == null ? null : new SimpleString(defaultAddress), callback, context, autoCreateJMSQueues ? jmsQueueCreator : null,
+                                   pagingManager);
    }
 
    @Override
@@ -1771,8 +1783,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    protected PagingManager createPagingManager() {
-
-      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository);
+      return new PagingManagerImpl(getPagingStoreFactory(), addressSettingsRepository, configuration.getGlobalMaxSize());
    }
 
    protected PagingStoreFactoryNIO getPagingStoreFactory() {
@@ -2042,6 +2053,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          // We can only do this after everything is started otherwise we may get nasty races with expired messages
          postOffice.startExpiryScanner();
       }
+
+      try {
+         injectMonitor(new FileStoreMonitor(getScheduledPool(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f));
+      }
+      catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
+   }
+
+   /** This method exists for a possibility of test cases replacing the FileStoreMonitor for an extension that would for instance pretend a disk full on certain tests. */
+   public void injectMonitor(FileStoreMonitor storeMonitor) throws Exception {
+      this.fileStoreMonitor = storeMonitor;
+      pagingManager.injectMonitor(storeMonitor);
+      storageManager.injectMonitor(storeMonitor);
+      fileStoreMonitor.start();
+   }
+
+   public FileStoreMonitor getMonitor() {
+      return fileStoreMonitor;
    }
 
    public void completeActivation() throws Exception {
@@ -2075,8 +2105,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressCount++;
       }
 
+
       long maxMemory = Runtime.getRuntime().maxMemory();
-      if (totalMaxSizeBytes >= maxMemory) {
+      if (totalMaxSizeBytes >= maxMemory && configuration.getGlobalMaxSize() < 0) {
          ActiveMQServerLogger.LOGGER.potentialOOME(addressCount, totalMaxSizeBytes, maxMemory);
       }
    }

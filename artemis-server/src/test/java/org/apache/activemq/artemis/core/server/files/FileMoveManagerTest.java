@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.impl;
+package org.apache.activemq.artemis.core.server.files;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -286,7 +286,7 @@ public class FileMoveManagerTest {
                new PagingStoreFactoryNIO(storageManager, dataLocation, 100, null,
                   new OrderedExecutorFactory(threadPool), true, null);
 
-            PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
+            PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1);
 
             managerImpl.start();
 

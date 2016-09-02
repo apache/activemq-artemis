@@ -130,6 +130,9 @@ public interface PagingStore extends ActiveMQComponent {
 
    boolean isRejectingMessages();
 
+   /** It will return true if the destination is leaving blocking. */
+   boolean checkReleasedMemory();
+
    /**
     * Write lock the PagingStore.
     *

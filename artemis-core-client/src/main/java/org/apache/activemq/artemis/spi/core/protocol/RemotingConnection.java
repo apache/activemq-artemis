@@ -196,4 +196,12 @@ public interface RemotingConnection extends BufferHandler {
     * @return
     */
    boolean isSupportReconnect();
+
+   /**
+    * Return true if the protocol supports flow control.
+    * This is because in some cases we may need to hold message producers in cases like disk full.
+    * If the protocol doesn't support it we trash the connection and throw exceptions.
+    * @return
+    */
+   boolean isSupportsFlowControl();
 }

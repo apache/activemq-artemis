@@ -561,10 +561,10 @@ public interface Configuration {
     */
    Configuration setJournalCompactMinFiles(int minFiles);
 
-   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_SIZE}.*/
+   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.*/
    int getJournalPoolFiles();
 
-   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_SIZE}.*/
+   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.*/
    Configuration setJournalPoolFiles(int poolSize);
 
 
@@ -967,5 +967,17 @@ public interface Configuration {
    long getConfigurationFileRefreshPeriod();
 
    Configuration setConfigurationFileRefreshPeriod(long configurationFileRefreshPeriod);
+
+   long getGlobalMaxSize();
+
+   Configuration setGlobalMaxSize(long globalMaxSize);
+
+   int getMaxDiskUsage();
+
+   Configuration setMaxDiskUsage(int maxDiskUsage);
+
+   Configuration setDiskScanPeriod(int diskScanPeriod);
+
+   int getDiskScanPeriod();
 
 }

@@ -1420,8 +1420,14 @@ public abstract class ActiveMQTestBase extends Assert {
          }
       }
    }
-
    protected final ActiveMQServer createServer(final boolean realFiles,
+                                               final Configuration configuration,
+                                               final long pageSize,
+                                               final long maxAddressSize) {
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>)null);
+   }
+
+   protected ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
                                                final long pageSize,
                                                final long maxAddressSize,
@@ -1458,20 +1464,20 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception {
-      return createServer(realFiles, createDefaultConfig(netty), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, createDefaultConfig(netty), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
-      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
 
    protected final ActiveMQServer createServer(final Configuration configuration) {
-      return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles, boolean isNetty, StoreConfiguration.StoreType storeType) throws Exception {
       Configuration configuration = storeType == StoreConfiguration.StoreType.DATABASE ? createDefaultJDBCConfig(isNetty) : createDefaultConfig(isNetty);
-      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
    }
 
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
@@ -1559,7 +1565,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                             final boolean realFiles,
                                                             final Map<String, Object> params) throws Exception {
       String acceptor = isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY;
-      return createServer(realFiles, createDefaultConfig(index, params, acceptor), -1, -1, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, createDefaultConfig(index, params, acceptor), -1, -1);
    }
 
    protected ActiveMQServer createClusteredServerWithParams(final boolean isNetty,
@@ -1568,7 +1574,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                                             final int pageSize,
                                                             final int maxAddressSize,
                                                             final Map<String, Object> params) throws Exception {
-      return createServer(realFiles, createDefaultConfig(index, params, (isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY)), pageSize, maxAddressSize, new HashMap<String, AddressSettings>());
+      return createServer(realFiles, createDefaultConfig(index, params, (isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY)), pageSize, maxAddressSize);
    }
 
    protected ServerLocator createFactory(final boolean isNetty) throws Exception {

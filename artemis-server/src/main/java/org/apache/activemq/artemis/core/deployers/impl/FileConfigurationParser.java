@@ -175,6 +175,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_QUEUES_NODE_NAME = "max-queues";
 
+   private static final String GLOBAL_MAX_SIZE = "global-max-size";
+
+   private static final String MAX_DISK_USAGE = "max-disk-usage";
+
+   private static final String DISK_SCAN_PERIOD = "disk-scan-period";
+
    // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
@@ -281,6 +287,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setConnectionTtlCheckInterval(getLong(e, "connection-ttl-check-interval", config.getConnectionTtlCheckInterval(), Validators.GT_ZERO));
 
       config.setConfigurationFileRefreshPeriod(getLong(e, "configuration-file-refresh-period", config.getConfigurationFileRefreshPeriod(), Validators.GT_ZERO));
+
+      config.setGlobalMaxSize(getLong(e, GLOBAL_MAX_SIZE, config.getGlobalMaxSize(), Validators.MINUS_ONE_OR_GT_ZERO));
+
+      config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE));
+
+      config.setDiskScanPeriod(getInteger(e, DISK_SCAN_PERIOD, config.getDiskScanPeriod(), Validators.MINUS_ONE_OR_GT_ZERO));
 
       // parsing cluster password
       String passwordText = getString(e, "cluster-password", null, Validators.NO_CHECK);

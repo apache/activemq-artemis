@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.impl;
+package org.apache.activemq.artemis.core.server.files;
 
 import java.io.File;
 import java.io.FilenameFilter;

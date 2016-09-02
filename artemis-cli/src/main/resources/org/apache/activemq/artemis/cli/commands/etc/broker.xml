@@ -50,6 +50,17 @@ under the License.
       <journal-pool-files>-1</journal-pool-files>
 ${journal-buffer.settings}
 ${connector-config.settings}
+      <!-- how often we are looking for how many bytes are being used on the disk in ms -->
+      <disk-scan-period>5000</disk-scan-period>
+
+      <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
+           that won't support flow control. -->
+      <max-disk-usage>90</max-disk-usage>
+
+      <!-- the system will enter into page mode once you hit this limit.
+           This is an estimate in bytes of how much the messages are using in memory -->
+      <global-max-size>104857600</global-max-size>
+
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports ActiveMQ Artemis Core, OpenWire, STOMP, AMQP, MQTT, and HornetQ Core. -->
          <!-- performance tests have shown that openWire performs best with these buffer sizes -->
@@ -78,9 +89,10 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <dead-letter-address>jms.queue.DLQ</dead-letter-address>
             <expiry-address>jms.queue.ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
-            <max-size-bytes>10485760</max-size-bytes>
+            <!-- with -1 only the global-max-size is in use for limiting -->
+            <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>BLOCK</address-full-policy>
+            <address-full-policy>PAGE</address-full-policy>
          </address-setting>
       </address-settings>
    </core>
