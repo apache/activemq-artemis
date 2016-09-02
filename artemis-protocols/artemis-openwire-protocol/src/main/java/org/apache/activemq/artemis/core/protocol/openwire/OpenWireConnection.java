@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.advisory.AdvisorySupport;
@@ -68,6 +69,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -122,6 +124,8 @@ import org.apache.activemq.wireformat.WireFormat;
  */
 public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth {
 
+   private static final KeepAliveInfo PING = new KeepAliveInfo();
+
    private final OpenWireProtocolManager protocolManager;
 
    private boolean destroyed = false;
@@ -167,6 +171,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     */
    private ServerSession internalSession;
 
+   private volatile long lastSent = -1;
+   private ConnectionEntry connectionEntry;
+   private boolean useKeepAlive;
+   private long maxInactivityDuration;
+
    // TODO-NOW: check on why there are two connections created for every createConnection on the client.
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
@@ -177,6 +186,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.server = server;
       this.protocolManager = openWireProtocolManager;
       this.wireFormat = wf;
+      this.useKeepAlive = openWireProtocolManager.isUseKeepAlive();
+      this.maxInactivityDuration = openWireProtocolManager.getMaxInactivityDuration();
    }
 
    // SecurityAuth implementation
@@ -216,6 +227,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return info;
    }
 
+   //tells the connection that
+   //some bytes just sent
+   public void bufferSent() {
+      lastSent = System.currentTimeMillis();
+   }
+
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       super.bufferReceived(connectionID, buffer);
@@ -226,18 +243,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          boolean responseRequired = command.isResponseRequired();
          int commandId = command.getCommandId();
 
-         // TODO: the server should send packets to the client based on the requested times
-
-         // the connection handles pings, negotiations directly.
-         // and delegate all other commands to manager.
-         if (command.getClass() == KeepAliveInfo.class) {
-            KeepAliveInfo info = (KeepAliveInfo) command;
-            info.setResponseRequired(false);
-            // if we don't respond to KeepAlive commands then the client will think the server is dead and timeout
-            // for some reason KeepAliveInfo.isResponseRequired() is always false
-            sendCommand(info);
-         }
-         else {
+         // ignore pings
+         if (command.getClass() != KeepAliveInfo.class) {
             Response response = null;
 
             try {
@@ -345,16 +352,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    @Override
-   public boolean checkDataReceived() {
-      boolean res = dataReceived;
-
-      dataReceived = false;
-
-      return res;
+   public void flush() {
+      checkInactivity();
    }
 
-   @Override
-   public void flush() {
+   private void checkInactivity() {
+      if (!this.useKeepAlive) {
+         return;
+      }
+
+      long dur = System.currentTimeMillis() - lastSent;
+      if (dur >= this.maxInactivityDuration / 2) {
+         this.sendCommand(PING);
+      }
    }
 
    private void callFailureListeners(final ActiveMQException me) {
@@ -390,6 +400,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          synchronized (sendLock) {
             getTransportConnection().write(buffer, false, false);
          }
+         bufferSent();
       }
       catch (IOException e) {
          throw e;
@@ -508,6 +519,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void shutdown(boolean fail) {
+
       if (fail) {
          transportConnection.forceClose();
       }
@@ -521,6 +533,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (context == null || destroyed) {
          return;
       }
+
       // Don't allow things to be added to the connection state while we
       // are shutting down.
       // is it necessary? even, do we need state at all?
@@ -558,6 +571,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    @Override
    public void fail(ActiveMQException me, String message) {
+
       if (me != null) {
          ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
       }
@@ -740,6 +754,25 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          ss.addConsumer(info);
          amqSession.start();
       }
+   }
+
+   public void setConnectionEntry(ConnectionEntry connectionEntry) {
+      this.connectionEntry = connectionEntry;
+   }
+
+   public void setUpTtl(final long inactivityDuration, final long inactivityDurationInitialDelay, final boolean useKeepAlive) {
+      this.useKeepAlive = useKeepAlive;
+      this.maxInactivityDuration = inactivityDuration;
+
+      protocolManager.getScheduledPool().schedule(new Runnable() {
+         @Override
+         public void run() {
+            if (inactivityDuration >= 0) {
+               connectionEntry.ttl = inactivityDuration;
+            }
+         }
+      }, inactivityDurationInitialDelay, TimeUnit.MILLISECONDS);
+      checkInactivity();
    }
 
    class SlowConsumerDetection implements SlowConsumerDetectionListener {
@@ -1025,6 +1058,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          wireFormat.renegotiateWireFormat(command);
          //throw back a brokerInfo here
          protocolManager.sendBrokerInfo(OpenWireConnection.this);
+         protocolManager.setUpInactivityParams(OpenWireConnection.this, command);
          return null;
       }
 
