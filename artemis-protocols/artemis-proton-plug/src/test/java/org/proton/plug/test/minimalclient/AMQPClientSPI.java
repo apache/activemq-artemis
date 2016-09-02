@@ -64,7 +64,7 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
 
    @Override
    public boolean isSupportsAnonymous() {
-      return false;
+      return true;
    }
 
    @Override

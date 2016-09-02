@@ -103,7 +103,7 @@ public class AbstractConnectionContextTest {
 
       @Override
       public boolean isSupportsAnonymous() {
-         return false;
+         return true;
       }
 
       @Override

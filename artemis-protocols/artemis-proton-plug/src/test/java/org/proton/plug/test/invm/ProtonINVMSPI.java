@@ -70,7 +70,7 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    @Override
    public boolean isSupportsAnonymous() {
-      return false;
+      return true;
    }
 
    @Override
