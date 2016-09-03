@@ -136,6 +136,34 @@ Currently we support Apache ActiveMQ Artemis clients that using standard JMS API
 the future we will get more supports for some advanced, Apache ActiveMQ Artemis
 specific features into Apache ActiveMQ Artemis.
 
+### Connection Monitoring
+
+OpenWire has a few paramters to control how each connection is monitored, they are:
+
+* maxInactivityDuration:
+It specifies the time (milliseconds) after which the connection is closed by the broker if no data was received.
+Default value is 30000.
+
+* maxInactivityDurationInitalDelay:
+It specifies the maximum delay (milliseconds) before inactivity monitoring is started on the connection. 
+It can be useful if a broker is under load with many connections being created concurrently.
+Default value is 10000.
+
+* useInactivityMonitor:
+A value of false disables the InactivityMonitor completely and connections will never time out. 
+By default it is enabled. On broker side you don't neet set this. Instead you can set the 
+connection-ttl to -1.
+
+* useKeepAlive:
+Whether or not to send a KeepAliveInfo on an idle connection to prevent it from timing out. 
+Enabled by default. Disabling the keep alive will still make connections time out if no data 
+was received on the connection for the specified amount of time.
+
+Note at the beginning the InactivityMonitor negotiates the appropriate maxInactivityDuration and 
+maxInactivityDurationInitalDelay. The shortest duration is taken for the connection.
+
+More details please see [ActiveMQ InactivityMonitor](http://activemq.apache.org/activemq-inactivitymonitor.html).
+
 ## MQTT
 
 MQTT is a light weight, client to server, publish / subscribe messaging protocol.  MQTT has been specifically

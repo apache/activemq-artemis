@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -30,14 +32,20 @@ import javax.jms.XAConnection;
 import javax.jms.XASession;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -832,6 +840,45 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       }
    }
 
+   /*
+    * This test create a consumer on a connection to consume
+    * messages slowly, so the connection stay for a longer time
+    * than its configured TTL without any user data (messages)
+    * coming from broker side. It tests the working of
+    * KeepAlive mechanism without which the test will fail.
+    */
+   @Test
+   public void testSendReceiveUsingTtl() throws Exception {
+      String brokerUri = "failover://tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.maxInactivityDuration=10000&wireFormat.maxInactivityDurationInitalDelay=5000";
+      ActiveMQConnectionFactory testFactory = new ActiveMQConnectionFactory(brokerUri);
+
+      Connection sendConnection = testFactory.createConnection();
+      System.out.println("created send connection: " + sendConnection);
+      Connection receiveConnection = testFactory.createConnection();
+      System.out.println("created receive connection: " + receiveConnection);
+
+      try {
+         final int nMsg = 20;
+         final long delay = 2L;
+
+         AsyncConsumer consumer = new AsyncConsumer(queueName, receiveConnection, Session.CLIENT_ACKNOWLEDGE, delay, nMsg);
+
+         Session sendSession = sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = sendSession.createQueue(queueName);
+
+         MessageProducer producer = sendSession.createProducer(queue);
+         for (int i = 0; i < nMsg; i++) {
+            producer.send(sendSession.createTextMessage("testXX" + i));
+         }
+
+         consumer.waitFor(nMsg * delay * 2);
+      }
+      finally {
+         sendConnection.close();
+         receiveConnection.close();
+      }
+   }
+
    @Test
    public void testCommitCloseConsumerBefore() throws Exception {
       testCommitCloseConsumer(true);
@@ -1080,4 +1127,77 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    }
 
+   private void checkQueueEmpty(String qName) {
+      PostOffice po = server.getPostOffice();
+      LocalQueueBinding binding = (LocalQueueBinding) po.getBinding(SimpleString.toSimpleString("jms.queue." + qName));
+      try {
+         //waiting for last ack to finish
+         Thread.sleep(1000);
+      }
+      catch (InterruptedException e) {
+      }
+      assertEquals(0L, binding.getQueue().getMessageCount());
+   }
+
+   private class AsyncConsumer {
+
+      private List<Message> messages = new ArrayList<>();
+      private CountDownLatch latch = new CountDownLatch(1);
+      private int nMsgs;
+      private String queueName;
+
+      private MessageConsumer consumer;
+
+      AsyncConsumer(String queueName,
+                           Connection receiveConnection,
+                           final int ackMode,
+                           final long delay,
+                           final int expectedMsgs) throws JMSException {
+         this.queueName = queueName;
+         this.nMsgs = expectedMsgs;
+         Session session = receiveConnection.createSession(false, ackMode);
+         Queue queue = session.createQueue(queueName);
+         consumer = session.createConsumer(queue);
+         consumer.setMessageListener(new MessageListener() {
+            @Override
+            public void onMessage(Message message) {
+               System.out.println("received : " + message);
+
+               messages.add(message);
+
+               if (messages.size() < expectedMsgs) {
+                  //delay
+                  try {
+                     TimeUnit.SECONDS.sleep(delay);
+                  }
+                  catch (InterruptedException e) {
+                     e.printStackTrace();
+                  }
+               }
+               if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
+                  try {
+                     message.acknowledge();
+                  }
+                  catch (JMSException e) {
+                     System.err.println("Failed to acknowledge " + message);
+                     e.printStackTrace();
+                  }
+               }
+               if (messages.size() == expectedMsgs) {
+                  latch.countDown();
+               }
+            }
+         });
+         receiveConnection.start();
+      }
+
+      public void waitFor(long timeout) throws TimeoutException, InterruptedException, JMSException {
+         boolean result = latch.await(timeout, TimeUnit.SECONDS);
+         assertTrue(result);
+         //check queue empty
+         checkQueueEmpty(queueName);
+         //then check messages still the size and no dup.
+         assertEquals(nMsgs, messages.size());
+      }
+   }
 }
