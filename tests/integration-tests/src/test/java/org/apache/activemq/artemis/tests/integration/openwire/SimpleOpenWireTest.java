@@ -58,6 +58,11 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
    @Override
    @Before
    public void setUp() throws Exception {
+      //this system property is used to construct the executor in
+      //org.apache.activemq.transport.AbstractInactivityMonitor.createExecutor()
+      //and affects the pool's shutdown time. (default is 30 sec)
+      //set it to 2 to make tests shutdown quicker.
+      System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "2");
       this.realStore = true;
       super.setUp();
    }
@@ -849,7 +854,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
     */
    @Test
    public void testSendReceiveUsingTtl() throws Exception {
-      String brokerUri = "failover://tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.maxInactivityDuration=10000&wireFormat.maxInactivityDurationInitalDelay=5000";
+      String brokerUri = "failover://tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.maxInactivityDuration=5000&wireFormat.maxInactivityDurationInitalDelay=1000";
       ActiveMQConnectionFactory testFactory = new ActiveMQConnectionFactory(brokerUri);
 
       Connection sendConnection = testFactory.createConnection();
@@ -858,7 +863,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       System.out.println("created receive connection: " + receiveConnection);
 
       try {
-         final int nMsg = 20;
+         final int nMsg = 10;
          final long delay = 2L;
 
          AsyncConsumer consumer = new AsyncConsumer(queueName, receiveConnection, Session.CLIENT_ACKNOWLEDGE, delay, nMsg);
