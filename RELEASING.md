@@ -36,6 +36,16 @@ The file will be located under ./artemis-pom/RELEASE/
 Remove these files manually under Nexus while the repository is still open.
 
 
+## Checking out a new empty git repository
+
+Before starting make sure you clone a brand new git as follows as the release plugin will use the upstream for pushing the tags:
+
+```sh
+git clone git://github.com/apache/activemq-artemis.git
+cd activemq-artemis
+git remote add upstream https://git-wip-us.apache.org/repos/asf/activemq-artemis.git
+```
+
 ## Running the release
 
 You will have to use this following maven command to perform the release:
@@ -43,6 +53,13 @@ You will have to use this following maven command to perform the release:
 ```sh
 mvn clean release:prepare -DautoVersionSubmodules=true -Prelease
 ```
+
+You could optionally set pushChanges=false, so the commit and tag won't be pushed upstream (you would have to do it yourself):
+
+```sh
+mvn clean release:prepare -DautoVersionSubmodules=true -DpushChanges=false -Prelease
+```
+
 
 
 When prompted make sure the next is a major release. Example:
@@ -55,6 +72,32 @@ What is the new development version for "ActiveMQ Artemis Parent"? (org.apache.a
 ```
 
 Otherwise snapshots will be created at 1.4.1 and forgotten. (Unless we ever elease 1.4.1 on that example).
+
+For more information look at the prepare plugin:
+
+- http://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html#pushChanges
+
+
+## Uploading to nexus
+
+To upload it to nexus, perform this command:
+
+```sh
+mvn release:perform -Prelease
+```
+
+
+### Resuming release upload
+
+If something happened during the release upload to nexus, you may need to eventually redo the upload.
+
+There is a release.properties file that is generated at the root of the project during the release. In case you want to upload a previously tagged release, add this file as follows:
+
+- release.properties
+```
+scm.url=scm:git:https://github.com/apache/activemq-artemis.git
+scm.tag=1.4.0
+```
 
 
 ### Web site update:
