@@ -1154,7 +1154,7 @@
                <excludes>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
-                  <exclude>etc/org.eclipse.*</exclude>
+                  <exclude>etc/ide-settings/*</exclude>
                   <exclude>docs/**/*.json</exclude>
                   <exclude>docs/**/_book/</exclude>
                   <exclude>**/target/</exclude>

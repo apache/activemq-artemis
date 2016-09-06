@@ -1,5 +1,9 @@
 # IDE Integration
 
+There a few files useful for IDE integration under ./etc/ide-settings on a checked out folder. This folder is not part of the source distribution can it can be easily obtained:
+
+- https://github.com/apache/activemq-artemis/tree/master/etc/ide-settings
+
 ## IntelliJ IDEA
 
 ### Importing the Project
@@ -37,7 +41,7 @@ There's a [SOF Question](http://stackoverflow.com/questions/27906481/can-intelli
 We have shared the style templates that are good for this project. If you want to apply them use these steps:
 
 * File->Import Settings
-* Select the file under ./artemis-cloned-folder/etc/IDEA-style.jar
+* Select the file under ./artemis-cloned-folder/etc/ide-settings/IDEA-style.jar
 * Select both Code Style Templates and File templates (it's the default option)
 * Select OK and restart Idea
 

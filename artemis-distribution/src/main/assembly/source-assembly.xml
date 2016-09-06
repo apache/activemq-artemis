@@ -42,6 +42,9 @@
             <!-- in case some of the build generates data, this needs to be ignored -->
             <exclude>data/</exclude>
 
+            <!-- Removing ide files -->
+            <exclude>etc/ide-settings/</exclude>
+
             <!-- Exclude all docs except user manual -->
             <exclude>docs/diagrams/</exclude>
 
