@@ -24,33 +24,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.jboss.logging.Logger;
 
-public class ReloadManagerImpl implements ReloadManager {
+public class ReloadManagerImpl extends ActiveMQScheduledComponent implements ReloadManager  {
    private static final Logger logger = Logger.getLogger(ReloadManagerImpl.class);
 
-   private final ScheduledExecutorService scheduledExecutorService;
-   private final long checkPeriod;
-   private ScheduledFuture future;
    private volatile Runnable tick;
 
    private Map<URL, ReloadRegistry> registry = new HashMap<>();
 
    public ReloadManagerImpl(ScheduledExecutorService scheduledExecutorService, long checkPeriod) {
-      this.scheduledExecutorService = scheduledExecutorService;
-      this.checkPeriod = checkPeriod;
+      super(scheduledExecutorService, checkPeriod, TimeUnit.MILLISECONDS);
    }
 
-   @Override
-   public synchronized void start() {
-      if (future != null) {
-         return;
-      }
-      future = scheduledExecutorService.scheduleWithFixedDelay(new ConfigurationFileReloader(), checkPeriod, checkPeriod, TimeUnit.MILLISECONDS);
+   public void run() {
+      tick();
    }
 
    @Override
@@ -59,24 +51,8 @@ public class ReloadManagerImpl implements ReloadManager {
    }
 
    @Override
-   public synchronized void stop() {
-      if (future == null) {
-         return; // no big deal
-      }
-
-      future.cancel(false);
-      future = null;
-
-   }
-
-   @Override
-   public synchronized boolean isStarted() {
-      return future != null;
-   }
-
-   @Override
    public synchronized void addCallback(URL uri, ReloadCallback callback) {
-      if (future == null) {
+      if (!isStarted()) {
          start();
       }
       ReloadRegistry uriRegistry = getRegistry(uri);
@@ -102,20 +78,6 @@ public class ReloadManagerImpl implements ReloadManager {
       }
 
       return uriRegistry;
-   }
-
-
-
-   private final class ConfigurationFileReloader implements Runnable {
-      @Override
-      public void run() {
-         try {
-            tick();
-         }
-         catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.configurationReloadFailed(e);
-         }
-      }
    }
 
    class ReloadRegistry {

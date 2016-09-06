@@ -738,4 +738,8 @@ public final class StompConnection implements RemotingConnection {
       //unsupported
    }
 
+   @Override
+   public boolean isSupportsFlowControl() {
+      return false;
+   }
 }

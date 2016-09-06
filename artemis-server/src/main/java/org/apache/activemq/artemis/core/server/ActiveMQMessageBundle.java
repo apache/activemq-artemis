@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateMetaDataException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
@@ -370,4 +371,8 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 119118, value = "Management method not applicable for current server configuration")
    IllegalStateException methodNotApplicable();
+
+   @Message(id = 119119, value = "Disk Capacity is Low, cannot produce more messages.")
+   ActiveMQIOErrorException diskBeyondLimit();
+
 }

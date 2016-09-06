@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
 import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -296,6 +297,11 @@ public class TransactionImplTest extends ActiveMQTestBase {
       public void confirmPendingLargeMessageTX(Transaction transaction,
                                                long messageID,
                                                long recordID) throws Exception {
+
+      }
+
+      @Override
+      public void injectMonitor(FileStoreMonitor monitor) throws Exception {
 
       }
 

@@ -219,4 +219,8 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       dataReceived = true;
    }
 
+   @Override
+   public boolean isSupportsFlowControl() {
+      return true;
+   }
 }

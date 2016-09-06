@@ -23,37 +23,23 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 
 public final class FakePagingManager implements PagingManager {
 
-   public void activate() {
-   }
+   @Override
+   public void addBlockedStore(PagingStore store) {
 
-   public long addSize(final long size) {
-      return 0;
    }
 
    @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 
-   public PagingStore createPageStore(final SimpleString destination) throws Exception {
-      return null;
-   }
-
-   public long getTotalMemory() {
-      return 0;
-   }
-
    @Override
    public SimpleString[] getStoreNames() {
       return null;
-   }
-
-   public long getMaxMemory() {
-      return 0;
    }
 
    @Override
@@ -74,10 +60,6 @@ public final class FakePagingManager implements PagingManager {
       return false;
    }
 
-   public boolean isGlobalPageMode() {
-      return false;
-   }
-
    public boolean isPaging(final SimpleString destination) throws Exception {
       return false;
    }
@@ -93,6 +75,11 @@ public final class FakePagingManager implements PagingManager {
    }
 
    @Override
+   public FakePagingManager addSize(int size) {
+      return this;
+   }
+
+   @Override
    public void reloadStores() throws Exception {
    }
 
@@ -101,13 +88,9 @@ public final class FakePagingManager implements PagingManager {
 
    }
 
-   public void setGlobalPageMode(final boolean globalMode) {
-   }
-
-   public void setPostOffice(final PostOffice postOffice) {
-   }
-
-   public void resumeDepages() {
+   @Override
+   public boolean isUsingGlobalSize() {
+      return false;
    }
 
    public void sync(final Collection<SimpleString> destinationsToSync) throws Exception {
@@ -126,10 +109,15 @@ public final class FakePagingManager implements PagingManager {
    public void stop() throws Exception {
    }
 
+   @Override
+   public boolean isDiskFull() {
+      return false;
+   }
+
    /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
-    */
+       * (non-Javadoc)
+       * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
+       */
    public boolean isGlobalFull() {
       return false;
    }
@@ -177,4 +165,8 @@ public final class FakePagingManager implements PagingManager {
       // no-op
    }
 
+   @Override
+   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
+
+   }
 }

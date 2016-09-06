@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.server;
+package org.apache.activemq.artemis.tests.integration.paging;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -49,11 +49,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
    }
 
    @Test
-   /**
-    * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
-    *
-    *   -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
-    */ public void testBlockLogging() throws Exception {
+   public void testBlockLogging() throws Exception {
       final int MAX_MESSAGES = 200;
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
@@ -64,6 +60,31 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
+      internalTest(MAX_MESSAGES, MY_ADDRESS, MY_QUEUE, server);
+   }
+
+   @Test
+   public void testGlobalBlockLogging() throws Exception {
+      final int MAX_MESSAGES = 200;
+      final String MY_ADDRESS = "myAddress";
+      final String MY_QUEUE = "myQueue";
+
+      ActiveMQServer server = createServer(false);
+
+      AddressSettings defaultSetting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+      server.getConfiguration().setGlobalMaxSize(20 * 1024);
+
+      server.start();
+
+
+      internalTest(MAX_MESSAGES, MY_ADDRESS, MY_QUEUE, server);
+   }
+
+   private void internalTest(int MAX_MESSAGES,
+                             String MY_ADDRESS,
+                             String MY_QUEUE,
+                             ActiveMQServer server) throws Exception {
       ServerLocator locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = createSessionFactory(locator);

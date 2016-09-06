@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
@@ -42,5 +43,7 @@ public interface PagingStoreFactory {
    List<PagingStore> reloadStores(HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception;
 
    SequentialFileFactory newFileFactory(SimpleString address) throws Exception;
+
+   void injectMonitor(FileStoreMonitor monitor) throws Exception;
 
 }

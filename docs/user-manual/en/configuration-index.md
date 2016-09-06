@@ -41,7 +41,9 @@ Name | Description
 [create-bindings-dir](persistence.md "Configuring the bindings journal") |  true means that the server will create the bindings directory on start up. Default=true
 [create-journal-dir](persistence.md)                                             |  true means that the journal directory will be created. Default=true
 [discovery-groups](clusters.md "Clusters")                           |  [a list of discovery-group](#discovery-group-type)
+[disk-scan-period](paging.md#max-disk-usage) | The interval where the disk is scanned for percentual usage. Default=5000 ms.
 [diverts](diverts.md "Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert-type)
+[global-max-size](paging.md#global-max-size) | The amount in bytes before all addresses are considered full
 [graceful-shutdown-enabled](graceful-shutdown.md "Graceful Server Shutdown")      |  true means that graceful shutdown is enabled. Default=true
 [graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waitin for clients to disconnect before server shutdown. Default=-1
 [grouping-handler](message-grouping.md "Message Grouping")             |  Message Group configuration
@@ -65,6 +67,7 @@ Name | Description
 [management-notification-address](management.md "Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications
 [mask-password](configuration-index.md "Using Masked Passwords in Configuration Files")  |  This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. Default=false
 [max-saved-replicated-journals-size]()                                                                |    This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. Default=2
+[max-disk-usage](paging.md#max-disk-usage) | The max percentage of data we should use from disks. The System will block while the disk is full. Default=100
 [memory-measure-interval](perf-tuning.md)                                                             |  frequency to sample JVM memory in ms (or -1 to disable memory sampling). Default=-1
 [memory-warning-threshold](perf-tuning.md)                                                            |  Percentage of available memory which will trigger a warning log. Default=25
 [message-counter-enabled](management.md "Configuring Message Counters")                       |  true means that message counters are enabled. Default=false

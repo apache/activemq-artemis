@@ -356,6 +356,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertFalse(a2Role.isCreateNonDurableQueue());
       assertTrue(a2Role.isDeleteNonDurableQueue());
       assertFalse(a2Role.isManage());
+      assertEquals(1234567, conf.getGlobalMaxSize());
+      assertEquals(37, conf.getMaxDiskUsage());
+      assertEquals(123, conf.getDiskScanPeriod());
    }
 
    @Test

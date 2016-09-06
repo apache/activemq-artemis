@@ -57,7 +57,7 @@ import org.junit.Test;
 
 public class LargeMessageTest extends LargeMessageTestBase {
 
-   static final int RECEIVE_WAIT_TIME = 10000;
+   private static final int RECEIVE_WAIT_TIME = 10000;
 
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

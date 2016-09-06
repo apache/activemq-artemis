@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.nio.file.FileStore;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,8 +31,11 @@ import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.jboss.logging.Logger;
 
 public final class PagingManagerImpl implements PagingManager {
@@ -46,13 +52,21 @@ public final class PagingManagerImpl implements PagingManager {
     */
    private final ReentrantReadWriteLock syncLock = new ReentrantReadWriteLock();
 
+   private final Set<PagingStore> blockedStored = new ConcurrentHashSet<>();
+
    private final ConcurrentMap<SimpleString, PagingStore> stores = new ConcurrentHashMap<>();
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
    private final PagingStoreFactory pagingStoreFactory;
 
+   private final AtomicLong globalSizeBytes = new AtomicLong(0);
+
+   private final long maxSize;
+
    private volatile boolean cleanupEnabled = true;
+
+   private volatile boolean diskFull = false;
 
    private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions = new ConcurrentHashMap<>();
 
@@ -63,10 +77,21 @@ public final class PagingManagerImpl implements PagingManager {
    // --------------------------------------------------------------------------------------------------------------------
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
-                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
+                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                            final long maxSize) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
+      this.maxSize = maxSize;
+   }
+
+   public PagingManagerImpl(final PagingStoreFactory pagingSPI,
+                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
+      this(pagingSPI, addressSettingsRepository, -1);
+   }
+
+   public void addBlockedStore(PagingStore store) {
+      blockedStored.add(store);
    }
 
    @Override
@@ -79,6 +104,72 @@ public final class PagingManagerImpl implements PagingManager {
          AddressSettings settings = this.addressSettingsRepository.getMatch(store.getAddress().toString());
          store.applySetting(settings);
       }
+   }
+
+   @Override
+   public PagingManagerImpl addSize(int size) {
+      globalSizeBytes.addAndGet(size);
+
+      if (size < 0) {
+         checkMemoryRelease();
+      }
+      return this;
+   }
+
+   protected void checkMemoryRelease() {
+      if (!diskFull && (maxSize < 0 || globalSizeBytes.get() < maxSize) && !blockedStored.isEmpty()) {
+         Iterator<PagingStore> storeIterator = blockedStored.iterator();
+         while (storeIterator.hasNext()) {
+            PagingStore store = storeIterator.next();
+            if (store.checkReleasedMemory()) {
+               storeIterator.remove();
+            }
+         }
+      }
+   }
+
+   @Override
+   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
+      pagingStoreFactory.injectMonitor(monitor);
+      monitor.addCallback(new LocalMonitor());
+   }
+
+   class LocalMonitor implements FileStoreMonitor.Callback {
+
+      @Override
+      public void tick(FileStore store, double usage) {
+         logger.tracef("Tick from store:: %s, usage at %f", store, usage);
+      }
+
+      @Override
+      public void over(FileStore store, double usage) {
+         if (!diskFull) {
+            ActiveMQServerLogger.LOGGER.diskBeyondCapacity();
+            diskFull = true;
+         }
+      }
+
+      @Override
+      public void under(FileStore store, double usage) {
+         if (diskFull) {
+            ActiveMQServerLogger.LOGGER.diskCapacityRestored();
+            diskFull = false;
+            checkMemoryRelease();
+         }
+      }
+   }
+
+   @Override
+   public boolean isDiskFull() {
+      return diskFull;
+   }
+
+   public boolean isUsingGlobalSize() {
+      return maxSize > 0;
+   }
+
+   public boolean isGlobalFull() {
+      return diskFull || maxSize > 0 && globalSizeBytes.get() > maxSize;
    }
 
    @Override
