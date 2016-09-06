@@ -252,7 +252,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     */
    private boolean isLiveDown() {
       // we use 1 less than the max cluste size as we arent bothered about the replicated live node
-      int size = quorumManager.getMaxClusterSize() - 1;
+      int size = quorumManager.getMaxClusterSize();
 
       QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, storageManager);
 
