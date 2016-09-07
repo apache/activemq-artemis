@@ -191,7 +191,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    protected void setupHAPolicyConfiguration() {
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(0).setAllowFailBack(true);
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
 

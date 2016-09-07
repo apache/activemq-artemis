@@ -1136,6 +1136,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void activateSharedStoreSlaveFailed(@Cause Throwable e);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 222190, value = "Deleting old data directory {0} as the max folders is set to 0", format = Message.Format.MESSAGE_FORMAT)
+   void backupDeletingData(String oldPath);
+
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222191,
       value = "Could not find any configured role for user {0}.",
