@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.proton;
 
+import static org.proton.plug.AmqpSupport.contains;
+import static org.proton.plug.AmqpSupport.DELAYED_DELIVERY;
+import static org.proton.plug.AmqpSupport.PRODUCT;
+import static org.proton.plug.AmqpSupport.VERSION;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -63,6 +68,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -207,6 +213,114 @@ public class ProtonTest extends ProtonTestBase {
       }
       finally {
          amqpConnection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testConnectionCarriesExpectedCapabilities() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      assertNotNull(client);
+
+      client.setValidator(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(org.apache.qpid.proton.engine.Connection connection) {
+
+            Symbol[] offered = connection.getRemoteOfferedCapabilities();
+
+            if (!contains(offered, DELAYED_DELIVERY)) {
+               markAsInvalid("Broker did not indicate it support delayed message delivery");
+               return;
+            }
+
+            Map<Symbol, Object> properties = connection.getRemoteProperties();
+            if (!properties.containsKey(PRODUCT)) {
+               markAsInvalid("Broker did not send a queue product name value");
+               return;
+            }
+
+            if (!properties.containsKey(VERSION)) {
+               markAsInvalid("Broker did not send a queue version value");
+               return;
+            }
+         }
+      });
+
+      AmqpConnection connection = client.connect();
+      try {
+         assertNotNull(connection);
+         connection.getStateInspector().assertValid();
+      }
+      finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendWithDeliveryTimeHoldsMessage() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      assertNotNull(client);
+
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(address);
+         AmqpReceiver receiver = session.createReceiver(address);
+
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+
+         // Now try and get the message
+         receiver.flow(1);
+
+         // Shouldn't get this since we delayed the message.
+         assertNull(receiver.receive(5, TimeUnit.SECONDS));
+      }
+      finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendWithDeliveryTimeDeliversMessageAfterDelay() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+
+      AmqpClient client = new AmqpClient(new URI(tcpAmqpConnectionUri), userName, password);
+      assertNotNull(client);
+
+      AmqpConnection connection = client.connect();
+      try {
+         AmqpSession session = connection.createSession();
+
+         AmqpSender sender = session.createSender(address);
+         AmqpReceiver receiver = session.createReceiver(address);
+
+         AmqpMessage message = new AmqpMessage();
+         long deliveryTime = System.currentTimeMillis() + 2000;
+         message.setMessageAnnotation("x-opt-delivery-time", deliveryTime);
+         message.setText("Test-Message");
+         sender.send(message);
+
+         // Now try and get the message
+         receiver.flow(1);
+
+         AmqpMessage received = receiver.receive(10, TimeUnit.SECONDS);
+         assertNotNull(received);
+         received.accept();
+         Long msgDeliveryTime = (Long) received.getMessageAnnotation("x-opt-delivery-time");
+         assertNotNull(msgDeliveryTime);
+         assertEquals(deliveryTime, msgDeliveryTime.longValue());
+      }
+      finally {
+         connection.close();
       }
    }
 

@@ -16,6 +16,8 @@
  */
 package org.proton.plug;
 
+import org.apache.qpid.proton.amqp.Symbol;
+
 import io.netty.buffer.ByteBuf;
 
 public interface AMQPConnectionContext {
@@ -29,6 +31,14 @@ public interface AMQPConnectionContext {
    long getCreationTime();
 
    SASLResult getSASLResult();
+
+   /**
+    * Load and return a <code>[]Symbol</code> that contains the connection capabilities
+    * offered to new connections
+    *
+    * @return the capabilities that are offered to new remote peers on connect.
+    */
+   Symbol[] getConnectionCapabilitiesOffered();
 
    /**
     * Even though we are currently always sending packets asynchronsouly
