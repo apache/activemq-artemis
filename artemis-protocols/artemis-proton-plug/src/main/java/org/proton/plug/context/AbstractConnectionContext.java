@@ -16,6 +16,9 @@
  */
 package org.proton.plug.context;
 
+import static org.proton.plug.AmqpSupport.PRODUCT;
+import static org.proton.plug.AmqpSupport.VERSION;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -76,11 +79,13 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
                                     ScheduledExecutorService scheduledPool) {
       this.connectionCallback = connectionCallback;
       this.containerId = (containerId != null) ? containerId : UUID.randomUUID().toString();
-      connectionProperties.put(Symbol.valueOf("product"), "apache-activemq-artemis");
-      connectionProperties.put(Symbol.valueOf("version"), VersionLoader.getVersion().getFullVersion());
+
+      connectionProperties.put(PRODUCT, "apache-activemq-artemis");
+      connectionProperties.put(VERSION, VersionLoader.getVersion().getFullVersion());
+
       this.scheduledPool = scheduledPool;
       connectionCallback.setConnection(this);
-      this.handler =   ProtonHandler.Factory.create(dispatchExecutor);
+      this.handler = ProtonHandler.Factory.create(dispatchExecutor);
       Transport transport = handler.getTransport();
       transport.setEmitFlowEventOnSend(false);
       if (idleTimeout > 0) {
@@ -211,6 +216,7 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
             connection.setContext(AbstractConnectionContext.this);
             connection.setContainer(containerId);
             connection.setProperties(connectionProperties);
+            connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
             connection.open();
          }
          initialise();
@@ -326,9 +332,10 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
             System.err.println("Handler is null, can't delivery " + delivery);
          }
       }
-
    }
 
-
-
+   @Override
+   public Symbol[] getConnectionCapabilitiesOffered() {
+      return null;
+   }
 }
