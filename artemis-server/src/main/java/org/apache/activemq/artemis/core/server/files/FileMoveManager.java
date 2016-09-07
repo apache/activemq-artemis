@@ -98,16 +98,26 @@ public class FileMoveManager {
 
       int whereToMove = getMaxID() + 1;
 
-      File folderTo = getFolder(whereToMove);
-      folderTo.mkdirs();
+      if (maxFolders == 0) {
+         ActiveMQServerLogger.LOGGER.backupDeletingData(folder.getPath());
+         for (String fileMove : files) {
+            File fileFrom = new File(folder, fileMove);
+            logger.tracef("deleting %s", fileFrom);
+            deleteTree(fileFrom);
+         }
+      }
+      else {
+         File folderTo = getFolder(whereToMove);
+         folderTo.mkdirs();
 
-      ActiveMQServerLogger.LOGGER.backupMovingDataAway(folder.getPath(), folderTo.getPath());
+         ActiveMQServerLogger.LOGGER.backupMovingDataAway(folder.getPath(), folderTo.getPath());
 
-      for (String fileMove : files) {
-         File fileFrom = new File(folder, fileMove);
-         File fileTo = new File(folderTo, fileMove);
-         logger.tracef("doMove:: moving %s as %s", fileFrom, fileTo);
-         Files.move(fileFrom.toPath(), fileTo.toPath());
+         for (String fileMove : files) {
+            File fileFrom = new File(folder, fileMove);
+            File fileTo = new File(folderTo, fileMove);
+            logger.tracef("doMove:: moving %s as %s", fileFrom, fileTo);
+            Files.move(fileFrom.toPath(), fileTo.toPath());
+         }
       }
 
    }
@@ -117,8 +127,13 @@ public class FileMoveManager {
    }
 
    private void internalCheckOldFolders(int creating) {
-      if (maxFolders > 0) {
+      if (maxFolders >= 0) {
          int folders = getNumberOfFolders();
+
+         if (folders == 0) {
+            // no folders.. nothing to be done
+            return;
+         }
 
          // We are counting the next one to be created
          int foldersToDelete = folders + creating - maxFolders;
