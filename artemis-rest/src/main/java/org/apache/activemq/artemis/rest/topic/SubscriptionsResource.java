@@ -376,7 +376,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
       if (subscriptionExists(subscriptionId)) {
          QueueConsumer tmp = null;
          try {
-            tmp = createConsumer(true, autoAck, subscriptionId, null, consumerTimeoutSeconds * 1000, false);
+            tmp = createConsumer(true, autoAck, subscriptionId, null, consumerTimeoutSeconds * 1000l, false);
          }
          catch (ActiveMQException e) {
             throw new RuntimeException(e);
