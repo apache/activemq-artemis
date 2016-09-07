@@ -125,29 +125,29 @@ public final class ActiveMQMessageConsumer implements BodyReceiver, QueueReceive
 
    @Override
    public Message receive() throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("receive()");
+      ActiveMQJMSClientLogger.LOGGER.warn("receive()");
       return receive(0, true);
    }
 
    @Override
    public Message receive(final long timeout) throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("receive(" + timeout + ")");
+      ActiveMQJMSClientLogger.LOGGER.warn("receive(" + timeout + ")");
       return receive(timeout, true);
    }
 
    public Message receive(final long timeout, final boolean ack) throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("receive(" + timeout + ", " + ack + ")");
+      ActiveMQJMSClientLogger.LOGGER.warn("receive(" + timeout + ", " + ack + ")");
       return getMessage(timeout, false, ack);
    }
 
    @Override
    public Message receiveNoWait() throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("receiveNoWait()");
+      ActiveMQJMSClientLogger.LOGGER.warn("receiveNoWait()");
       return receiveNoWait(true);
    }
 
    public Message receiveNoWait(final boolean ack) throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("receiveNoWait(" + ack + ")");
+      ActiveMQJMSClientLogger.LOGGER.warn("receiveNoWait(" + ack + ")");
       return getMessage(0, true, ack);
    }
 
@@ -205,7 +205,7 @@ public final class ActiveMQMessageConsumer implements BodyReceiver, QueueReceive
    }
 
    public void acknowledgeCoreMessage(ActiveMQMessage message) throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("acknowledgeCoreMessage(" + message + ")");
+      ActiveMQJMSClientLogger.LOGGER.warn("acknowledgeCoreMessage(" + message + ")");
       try {
          message.getCoreMessage().acknowledge();
       }
@@ -228,7 +228,7 @@ public final class ActiveMQMessageConsumer implements BodyReceiver, QueueReceive
    }
 
    private ActiveMQMessage getMessage(final long timeout, final boolean noWait, final boolean ack) throws JMSException {
-      ActiveMQJMSClientLogger.LOGGER.info("getMessage(" + timeout + ", " + noWait + ", " + ack + ")");
+      ActiveMQJMSClientLogger.LOGGER.warn("getMessage(" + timeout + ", " + noWait + ", " + ack + ")");
       try {
          ClientMessage coreMessage;
 
