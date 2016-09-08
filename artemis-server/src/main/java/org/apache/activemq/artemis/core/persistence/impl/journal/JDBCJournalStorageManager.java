@@ -25,10 +25,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.Journal;
-import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
+import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
+import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
@@ -51,16 +52,43 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       try {
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
 
-         Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName(), scheduledExecutorService, executorFactory.getExecutor());
-         bindingsJournal = localBindings;
-
-         Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName(), scheduledExecutorService, executorFactory.getExecutor());
-         messageJournal = localMessage;
-
-         bindingsJournal.start();
-         messageJournal.start();
-
-         largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), dbConf.getLargeMessageTableName(), dbConf.getJdbcDriverClassName(), executorFactory.getExecutor());
+         if (dbConf.getDataSource() != null) {
+            SQLProvider.Factory sqlProviderFactory = dbConf.getSqlProviderFactory();
+            if (sqlProviderFactory == null) {
+               sqlProviderFactory = new GenericSQLProvider.Factory();
+            }
+            bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(),
+                    sqlProviderFactory.create(dbConf.getBindingsTableName()),
+                    dbConf.getBindingsTableName(),
+                    scheduledExecutorService,
+                    executorFactory.getExecutor());
+            messageJournal = new JDBCJournalImpl(dbConf.getDataSource(),
+                    sqlProviderFactory.create(dbConf.getMessageTableName()),
+                    dbConf.getMessageTableName(),
+                    scheduledExecutorService,
+                    executorFactory.getExecutor());
+            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(),
+                    sqlProviderFactory.create(dbConf.getLargeMessageTableName()),
+                    dbConf.getLargeMessageTableName(),
+                    executor);
+         }
+         else {
+            String driverClassName = dbConf.getJdbcDriverClassName();
+            bindingsJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
+                    driverClassName,
+                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getBindingsTableName()),
+                    scheduledExecutorService,
+                    executorFactory.getExecutor());
+            messageJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
+                    driverClassName,
+                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getMessageTableName()),
+                    scheduledExecutorService,
+                    executorFactory.getExecutor());
+            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(),
+                    driverClassName,
+                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getLargeMessageTableName()),
+                    executor);
+         }
          largeMessagesFactory.start();
       }
       catch (Exception e) {
@@ -111,9 +139,5 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
    @Override
    public void freeDirectBuffer(ByteBuffer buffer) {
-   }
-
-   @Override
-   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
    }
 }

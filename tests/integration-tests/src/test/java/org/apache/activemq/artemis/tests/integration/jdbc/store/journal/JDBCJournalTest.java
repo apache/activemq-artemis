@@ -29,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
@@ -75,7 +77,9 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
       executorService = Executors.newSingleThreadExecutor();
       jdbcUrl = "jdbc:derby:target/data;create=true";
-      journal = new JDBCJournalImpl(jdbcUrl, JOURNAL_TABLE_NAME, DRIVER_CLASS, scheduledExecutorService, executorService);
+      SQLProvider.Factory factory = new DerbySQLProvider.Factory();
+      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME),
+              scheduledExecutorService, executorService);
       journal.start();
    }
 
