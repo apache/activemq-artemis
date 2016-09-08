@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,7 +28,10 @@ import java.util.Map;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.core.protocol.proton.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.blacklist.ABadClass;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -50,6 +55,60 @@ import org.junit.Test;
 import org.proton.plug.util.NettyWritable;
 
 public class TestConversions extends Assert {
+
+   @Test
+   public void testObjectMessageWhiteList() throws Exception {
+      Map<String, Object> mapprop = createPropertiesMap();
+      ApplicationProperties properties = new ApplicationProperties(mapprop);
+      MessageImpl message = (MessageImpl) Message.Factory.create();
+      message.setApplicationProperties(properties);
+
+      byte[] bodyBytes = new byte[4];
+
+      for (int i = 0; i < bodyBytes.length; i++) {
+         bodyBytes[i] = (byte) 0xff;
+      }
+
+      message.setBody(new AmqpValue(new Boolean(true)));
+
+      EncodedMessage encodedMessage = encodeMessage(message);
+
+      ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      ServerJMSObjectMessage serverMessage = (ServerJMSObjectMessage) converter.inboundJMSType(encodedMessage);
+
+      verifyProperties(serverMessage);
+
+      assertEquals(true, serverMessage.getObject());
+
+      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+
+      AmqpValue value = (AmqpValue) ((Message)obj).getBody();
+      assertEquals(value.getValue(), true);
+
+   }
+
+   @Test
+   public void testObjectMessageNotOnWhiteList() throws Exception {
+
+
+      ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
+      ServerMessageImpl message = new ServerMessageImpl(1, 1024);
+      message.setType((byte) 2);
+      ServerJMSObjectMessage serverMessage = new ServerJMSObjectMessage(message, 1024);
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      ObjectOutputStream ois = new ObjectOutputStream(out);
+      ois.writeObject(new ABadClass());
+      serverMessage.getInnerMessage().getBodyBuffer().writeBytes(out.toByteArray());
+
+      try {
+         converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
+         fail("should throw ClassNotFoundException");
+      }
+      catch (ClassNotFoundException e) {
+         //ignore
+      }
+   }
+
 
    @Test
    public void testSimpleConversionBytes() throws Exception {
