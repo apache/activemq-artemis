@@ -23,6 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sql.DataSource;
+
 import org.apache.activemq.artemis.jdbc.store.drivers.derby.DerbySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.mysql.MySQLSQLProvider;
 import org.apache.activemq.artemis.jdbc.store.drivers.postgres.PostgresSQLProvider;
@@ -84,56 +86,48 @@ public class JDBCUtils {
    }
 
    public static SQLProvider getSQLProvider(String driverClass, String tableName) {
+      SQLProvider.Factory factory;
       if (driverClass.contains("derby")) {
          logger.tracef("getSQLProvider Returning Derby SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         return new DerbySQLProvider(tableName);
+         factory = new DerbySQLProvider.Factory();
       }
       else if (driverClass.contains("postgres")) {
          logger.tracef("getSQLProvider Returning postgres SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         return new PostgresSQLProvider(tableName);
+         factory = new PostgresSQLProvider.Factory();
       }
       else if (driverClass.contains("mysql")) {
          logger.tracef("getSQLProvider Returning mysql SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         return new MySQLSQLProvider(tableName);
+         factory = new MySQLSQLProvider.Factory();
       }
       else {
          logger.tracef("getSQLProvider Returning generic SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         return new GenericSQLProvider(tableName);
+         factory = new GenericSQLProvider.Factory();
       }
+      return factory.create(tableName);
    }
 
    public static JDBCSequentialFileFactoryDriver getDBFileDriver(String driverClass,
+                                                                 String jdbcConnectionUrl,
+                                                                 SQLProvider provider) throws SQLException {
+      JDBCSequentialFileFactoryDriver dbDriver = new JDBCSequentialFileFactoryDriver();
+      dbDriver.setSqlProvider(provider);
+      dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
+      dbDriver.setJdbcDriverClass(driverClass);
+      return dbDriver;
+   }
+
+   public static JDBCSequentialFileFactoryDriver getDBFileDriver(DataSource dataSource,
                                                                  String tableName,
-                                                                 String jdbcConnectionUrl) throws SQLException {
+                                                                 SQLProvider provider) throws SQLException {
       JDBCSequentialFileFactoryDriver dbDriver;
-      if (driverClass.contains("derby")) {
-         logger.tracef("getDBFileDriver Returning Derby SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         dbDriver = new JDBCSequentialFileFactoryDriver();
-         dbDriver.setSqlProvider(new DerbySQLProvider(tableName));
-         dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
-         dbDriver.setJdbcDriverClass(driverClass);
-      }
-      else if (driverClass.contains("postgres")) {
-         logger.tracef("getDBFileDriver Returning postgres SQL provider for driver::%s, tableName::%s", driverClass, tableName);
+      if (provider instanceof PostgresSQLProvider) {
          dbDriver = new PostgresSequentialSequentialFileDriver();
-         dbDriver.setSqlProvider(new PostgresSQLProvider(tableName));
-         dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
-         dbDriver.setJdbcDriverClass(driverClass);
-      }
-      else if (driverClass.contains("mysql")) {
-         logger.tracef("getDBFileDriver Returning mysql SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         dbDriver = new JDBCSequentialFileFactoryDriver();
-         dbDriver.setSqlProvider(new MySQLSQLProvider(tableName));
-         dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
-         dbDriver.setJdbcDriverClass(driverClass);
+         dbDriver.setDataSource(dataSource);
       }
       else {
-         logger.tracef("getDBFileDriver generic mysql SQL provider for driver::%s, tableName::%s", driverClass, tableName);
-         dbDriver = new JDBCSequentialFileFactoryDriver();
-         dbDriver.setSqlProvider(new GenericSQLProvider(tableName));
-         dbDriver.setJdbcConnectionUrl(jdbcConnectionUrl);
-         dbDriver.setJdbcDriverClass(driverClass);
+         dbDriver = new JDBCSequentialFileFactoryDriver(tableName, dataSource, provider);
       }
       return dbDriver;
    }
+
 }

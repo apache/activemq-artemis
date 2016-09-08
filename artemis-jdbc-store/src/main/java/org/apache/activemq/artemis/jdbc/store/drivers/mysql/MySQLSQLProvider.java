@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jdbc.store.drivers.mysql;
 
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class MySQLSQLProvider extends GenericSQLProvider {
 
@@ -28,7 +29,7 @@ public class MySQLSQLProvider extends GenericSQLProvider {
 
    private final String copyFileRecordByIdSQL;
 
-   public MySQLSQLProvider(String tName) {
+   private MySQLSQLProvider(String tName) {
       super(tName.toLowerCase());
 
       createFileTableSQL = "CREATE TABLE " + tableName +
@@ -60,5 +61,12 @@ public class MySQLSQLProvider extends GenericSQLProvider {
    @Override
    public String getCopyFileRecordByIdSQL() {
       return copyFileRecordByIdSQL;
+   }
+
+   public static class Factory implements SQLProvider.Factory {
+      @Override
+      public SQLProvider create(String tableName) {
+         return new MySQLSQLProvider(tableName);
+      }
    }
 }

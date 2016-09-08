@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jdbc.store.drivers.derby;
 
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class DerbySQLProvider extends GenericSQLProvider {
 
@@ -27,7 +28,7 @@ public class DerbySQLProvider extends GenericSQLProvider {
 
    private final String appendToFileSQL;
 
-   public DerbySQLProvider(String tableName) {
+   private DerbySQLProvider(String tableName) {
       super(tableName);
 
       createFileTableSQL = "CREATE TABLE " + tableName +
@@ -55,5 +56,13 @@ public class DerbySQLProvider extends GenericSQLProvider {
    @Override
    public boolean closeConnectionOnShutdown() {
       return false;
+   }
+
+   public static class Factory implements SQLProvider.Factory {
+
+      @Override
+      public SQLProvider create(String tableName) {
+         return new DerbySQLProvider(tableName);
+      }
    }
 }
