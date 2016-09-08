@@ -18,17 +18,26 @@ package org.apache.activemq.artemis.core.protocol.proton.converter.jms;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 
 public class ServerJMSObjectMessage  extends ServerJMSMessage implements ObjectMessage {
+   private static final String DEFAULT_WHITELIST;
+   private static final String DEFAULT_BLACKLIST;
+
+   static {
+      DEFAULT_WHITELIST = System.getProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY,
+                 "java.lang,java.math,javax.security,java.util,org.apache.activemq,org.apache.qpid.proton.amqp");
+
+      DEFAULT_BLACKLIST = System.getProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY, null);
+   }
    public static final byte TYPE = Message.STREAM_TYPE;
 
    private Serializable object;
@@ -62,7 +71,9 @@ public class ServerJMSObjectMessage  extends ServerJMSMessage implements ObjectM
       int size = getInnerMessage().getBodyBuffer().readableBytes();
       byte[] bytes = new byte[size];
       getInnerMessage().getBodyBuffer().readBytes(bytes);
-      ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+      ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bytes));
+      ois.setWhiteList(DEFAULT_WHITELIST);
+      ois.setBlackList(DEFAULT_BLACKLIST);
       object = (Serializable) ois.readObject();
    }
 }

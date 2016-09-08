@@ -126,6 +126,8 @@ public class ActiveMQJMSVendor implements JMSVendor {
             return new ServerJMSMapMessage(wrapped, deliveryCount);
          case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
             return new ServerJMSTextMessage(wrapped, deliveryCount);
+         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
+            return new ServerJMSObjectMessage(wrapped, deliveryCount);
          default:
             return new ServerJMSMessage(wrapped, deliveryCount);
       }
