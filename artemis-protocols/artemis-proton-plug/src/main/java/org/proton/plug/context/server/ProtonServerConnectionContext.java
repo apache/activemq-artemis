@@ -16,6 +16,9 @@
  */
 package org.proton.plug.context.server;
 
+import static org.proton.plug.AmqpSupport.DELAYED_DELIVERY;
+
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
@@ -79,4 +82,7 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       }
    }
 
+   public Symbol[] getConnectionCapabilitiesOffered() {
+      return new Symbol[]{DELAYED_DELIVERY};
+   }
 }
