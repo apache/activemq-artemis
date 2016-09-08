@@ -164,8 +164,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             sender.setSource(source);
          }
          else {
-            sender.setCondition(new ErrorCondition(AmqpError.NOT_FOUND, "Unknown subscription link: " + sender.getName()));
-            sender.close();
+            throw new ActiveMQAMQPNotFoundException("Unknown subscription link: " + sender.getName());
          }
       }
       else {
