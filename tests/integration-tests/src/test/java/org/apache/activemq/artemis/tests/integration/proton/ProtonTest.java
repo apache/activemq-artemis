@@ -39,6 +39,9 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -56,6 +59,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -180,6 +185,62 @@ public class ProtonTest extends ProtonTestBase {
       }
       finally {
          super.tearDown();
+      }
+   }
+
+   @Test
+   public void testDurableSubscriptionUnsubscribe() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+      Connection connection = createConnection("myClientId");
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic("amqp_testtopic");
+         TopicSubscriber myDurSub = session.createDurableSubscriber(topic, "myDurSub");
+         session.close();
+         connection.close();
+         connection = createConnection("myClientId");
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         myDurSub = session.createDurableSubscriber(topic, "myDurSub");
+         myDurSub.close();
+         Assert.assertNotNull(server.getPostOffice().getBinding(new SimpleString("myClientId:myDurSub")));
+         session.unsubscribe("myDurSub");
+         Assert.assertNull(server.getPostOffice().getBinding(new SimpleString("myClientId:myDurSub")));
+         session.close();
+         connection.close();
+      }
+      finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testTemporarySubscriptionDeleted() throws Exception {
+      if (protocol != 0 && protocol != 3) return; // Only run this test for AMQP protocol
+      try {
+         TopicSession session = (TopicSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Topic topic = session.createTopic("amqp_testtopic");
+         TopicSubscriber myDurSub = session.createSubscriber(topic);
+         Bindings bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString("amqp_testtopic"));
+         Assert.assertEquals(2, bindingsForAddress.getBindings().size());
+         session.close();
+         final CountDownLatch latch = new CountDownLatch(1);
+         server.getRemotingService().getConnections().iterator().next().addCloseListener(new CloseListener() {
+            @Override
+            public void connectionClosed() {
+               latch.countDown();
+            }
+         });
+         connection.close();
+         latch.await(5, TimeUnit.SECONDS);
+         bindingsForAddress = server.getPostOffice().getBindingsForAddress(new SimpleString("amqp_testtopic"));
+         Assert.assertEquals(1, bindingsForAddress.getBindings().size());
+      }
+      finally {
+         if (connection != null) {
+            connection.close();
+         }
       }
    }
 
@@ -1529,6 +1590,58 @@ public class ProtonTest extends ProtonTestBase {
 
       return connection;
    }
+
+   private javax.jms.Connection createConnection(String clientId) throws JMSException {
+      Connection connection;
+      if (protocol == 3) {
+         factory = new JmsConnectionFactory(amqpConnectionUri);
+         connection = factory.createConnection();
+         connection.setExceptionListener(new ExceptionListener() {
+            @Override
+            public void onException(JMSException exception) {
+               exception.printStackTrace();
+            }
+         });
+         connection.setClientID(clientId);
+         connection.start();
+      }
+      else if (protocol == 0) {
+         factory = new JmsConnectionFactory(userName, password, amqpConnectionUri);
+         connection = factory.createConnection();
+         connection.setExceptionListener(new ExceptionListener() {
+            @Override
+            public void onException(JMSException exception) {
+               exception.printStackTrace();
+            }
+         });
+         connection.setClientID(clientId);
+         connection.start();
+      }
+      else {
+         TransportConfiguration transport;
+
+         if (protocol == 1) {
+            transport = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
+            factory = new ActiveMQConnectionFactory("vm:/0");
+         }
+         else {
+            factory = new ActiveMQConnectionFactory();
+         }
+
+         connection = factory.createConnection(userName, password);
+         connection.setClientID(clientId);
+         connection.setExceptionListener(new ExceptionListener() {
+            @Override
+            public void onException(JMSException exception) {
+               exception.printStackTrace();
+            }
+         });
+         connection.start();
+      }
+
+      return connection;
+   }
+
 
    private void setAddressFullBlockPolicy() {
       // For BLOCK tests

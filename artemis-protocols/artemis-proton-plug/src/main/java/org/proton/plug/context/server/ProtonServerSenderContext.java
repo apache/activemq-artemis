@@ -272,7 +272,6 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       super.close(remoteLinkClose);
-
       try {
          sessionSPI.closeSender(brokerConsumer);
          //if this is a link close rather than a connection close or detach, we need to delete any durable resources for
@@ -284,6 +283,15 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                boolean exists = sessionSPI.queueQuery(address);
                if (exists) {
                   sessionSPI.deleteQueue(address);
+               }
+               else {
+                  String clientId = connection.getRemoteContainer();
+                  String pubId = sender.getName();
+                  String queue = clientId + ":" + pubId;
+                  exists = sessionSPI.queueQuery(queue);
+                  if (exists) {
+                     sessionSPI.deleteQueue(queue);
+                  }
                }
             }
          }
