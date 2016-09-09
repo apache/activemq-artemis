@@ -28,9 +28,9 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <karaf.version>4.0.3</karaf.version>
-	  <pax.exam.version>4.7.0</pax.exam.version>
-      <vertx.version>2.1.2</vertx.version>
+      <karaf.version>4.0.6</karaf.version>
+	  <pax.exam.version>4.9.1</pax.exam.version>
+      <vertx.version>2.1.6</vertx.version>
       <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
    </properties>
 
