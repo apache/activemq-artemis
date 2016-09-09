@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfigurat
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -106,5 +107,9 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
 
    @Override
    public void freeDirectBuffer(ByteBuffer buffer) {
+   }
+
+   @Override
+   public void injectMonitor(FileStoreMonitor monitor) throws Exception {
    }
 }
