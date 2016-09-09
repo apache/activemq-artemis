@@ -32,8 +32,9 @@ import org.apache.activemq.artemis.reader.MessageUtil;
 
 public class ServerJMSMessage implements Message {
 
+   public static final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
+
    protected final MessageInternal message;
-   private final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
 
    protected int deliveryCount;
 
