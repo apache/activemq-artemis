@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.util;
+package org.apache.activemq.artemis.utils;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.rules.ExternalResource;
 
@@ -28,6 +34,8 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
+   private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
+
    private static Set<String> knownThreads = new HashSet<>();
 
    boolean enabled = true;
@@ -68,7 +76,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
                if (failed) {
                   failedOnce = true;
-                  ActiveMQTestBase.forceGC();
+                  forceGC();
                   try {
                      Thread.sleep(500);
                   }
@@ -95,6 +103,61 @@ public class ThreadLeakCheckRule extends ExternalResource {
          previousThreads = null;
       }
 
+   }
+
+   private static int failedGCCalls = 0;
+
+   public static void forceGC() {
+
+      if (failedGCCalls >= 10) {
+         log.info("ignoring forceGC call since it seems System.gc is not working anyways");
+         return;
+      }
+      log.info("#test forceGC");
+      CountDownLatch finalized = new CountDownLatch(1);
+      WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
+
+      long timeout = System.currentTimeMillis() + 1000;
+
+      // A loop that will wait GC, using the minimal time as possible
+      while (!(dumbReference.get() == null && finalized.getCount() == 0) && System.currentTimeMillis() < timeout) {
+         System.gc();
+         System.runFinalization();
+         try {
+            finalized.await(100, TimeUnit.MILLISECONDS);
+         }
+         catch (InterruptedException e) {
+         }
+      }
+
+      if (dumbReference.get() != null) {
+         failedGCCalls++;
+         log.info("It seems that GC is disabled at your VM");
+      }
+      else {
+         // a success would reset the count
+         failedGCCalls = 0;
+      }
+      log.info("#test forceGC Done ");
+   }
+
+   public static void forceGC(final Reference<?> ref, final long timeout) {
+      long waitUntil = System.currentTimeMillis() + timeout;
+      // A loop that will wait GC, using the minimal time as possible
+      while (ref.get() != null && System.currentTimeMillis() < waitUntil) {
+         ArrayList<String> list = new ArrayList<>();
+         for (int i = 0; i < 1000; i++) {
+            list.add("Some string with garbage with concatenation " + i);
+         }
+         list.clear();
+         list = null;
+         System.gc();
+         try {
+            Thread.sleep(500);
+         }
+         catch (InterruptedException e) {
+         }
+      }
    }
 
    public static void removeKownThread(String name) {
@@ -181,16 +244,8 @@ public class ThreadLeakCheckRule extends ExternalResource {
          //another netty thread
          return true;
       }
-      else if (threadName.contains("derby")) {
-         // The derby engine is initialized once, and lasts the lifetime of the VM
-         return true;
-      }
       else if (threadName.contains("Abandoned connection cleanup thread")) {
          // MySQL Engine checks for abandoned connections
-         return true;
-      }
-      else if (threadName.contains("Timer")) {
-         // The timer threads in Derby and JDBC use daemon and shutdown once user threads exit.
          return true;
       }
       else if (threadName.contains("hawtdispatch")) {
@@ -213,4 +268,21 @@ public class ThreadLeakCheckRule extends ExternalResource {
          return false;
       }
    }
+
+
+   protected static class DumbReference {
+
+      private CountDownLatch finalized;
+
+      public DumbReference(CountDownLatch finalized) {
+         this.finalized = finalized;
+      }
+
+      @Override
+      public void finalize() throws Throwable {
+         finalized.countDown();
+         super.finalize();
+      }
+   }
+
 }

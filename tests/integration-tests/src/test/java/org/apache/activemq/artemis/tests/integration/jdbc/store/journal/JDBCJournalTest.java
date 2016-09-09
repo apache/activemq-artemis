@@ -16,9 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.journal.IOCompletion;
@@ -26,7 +31,7 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.ThreadLeakCheckRule;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,10 +50,32 @@ public class JDBCJournalTest extends ActiveMQTestBase {
 
    private String jdbcUrl;
 
+   private ScheduledExecutorService scheduledExecutorService;
+
+   private ExecutorService executorService;
+
+   @After
+   @Override
+   public void tearDown() throws Exception {
+      journal.destroy();
+      try {
+         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+      }
+      catch (Exception ignored) {
+      }
+      scheduledExecutorService.shutdown();
+      scheduledExecutorService = null;
+      executorService.shutdown();
+      executorService = null;
+
+   }
+
    @Before
    public void setup() throws Exception {
+      scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
+      executorService = Executors.newSingleThreadExecutor();
       jdbcUrl = "jdbc:derby:target/data;create=true";
-      journal = new JDBCJournalImpl(jdbcUrl, JOURNAL_TABLE_NAME, DRIVER_CLASS);
+      journal = new JDBCJournalImpl(jdbcUrl, JOURNAL_TABLE_NAME, DRIVER_CLASS, scheduledExecutorService, executorService);
       journal.start();
    }
 
@@ -59,7 +86,6 @@ public class JDBCJournalTest extends ActiveMQTestBase {
          journal.appendAddRecord(i, (byte) 1, new byte[0], true);
       }
 
-      Thread.sleep(3000);
       assertEquals(noRecords, journal.getNumberOfRecords());
    }
 
@@ -122,9 +148,4 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       assertEquals(noRecords + (noTxRecords * noTx), recordInfos.size());
    }
 
-   @After
-   @Override
-   public void tearDown() throws Exception {
-      journal.destroy();
-   }
 }

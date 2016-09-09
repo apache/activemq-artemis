@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jdbc.file;
 
 import java.nio.ByteBuffer;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
@@ -34,9 +35,11 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFile;
 import org.apache.activemq.artemis.jdbc.store.file.JDBCSequentialFileFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -45,6 +48,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class JDBCSequentialFileFactoryTest {
+
+   @Rule
+   public ThreadLeakCheckRule leakCheckRule = new ThreadLeakCheckRule();
 
    private static String connectionUrl = "jdbc:derby:target/data;create=true";
 
@@ -65,6 +71,15 @@ public class JDBCSequentialFileFactoryTest {
    @After
    public void tearDown() throws Exception {
       factory.destroy();
+   }
+
+   @After
+   public void shutdownDerby() {
+      try {
+         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+      }
+      catch (Exception ignored) {
+      }
    }
 
    @Test

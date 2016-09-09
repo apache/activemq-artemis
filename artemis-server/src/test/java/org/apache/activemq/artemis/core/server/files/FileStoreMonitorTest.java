@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileStore;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -39,16 +41,19 @@ import org.junit.Test;
 public class FileStoreMonitorTest extends ActiveMQTestBase {
 
    private ScheduledExecutorService scheduledExecutorService;
+   private ExecutorService executorService;
 
    @Before
    public void startScheduled() {
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
+      executorService = Executors.newSingleThreadExecutor();
    }
 
    @After
    public void stopScheduled() {
       scheduledExecutorService.shutdown();
       scheduledExecutorService = null;
+      executorService.shutdown();
    }
 
    @Test
@@ -91,7 +96,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       };
 
       final AtomicBoolean fakeReturn = new AtomicBoolean(false);
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, 100, TimeUnit.MILLISECONDS, 0.999) {
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999) {
          @Override
          protected double calculateUsage(FileStore store) throws IOException {
             if (fakeReturn.get()) {
@@ -123,7 +128,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
    @Test
    public void testScheduler() throws Exception {
 
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, 20, TimeUnit.MILLISECONDS, 0.9);
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 0.9);
 
       final ReusableLatch latch = new ReusableLatch(5);
       storeMonitor.addStore(getTestDirfile());

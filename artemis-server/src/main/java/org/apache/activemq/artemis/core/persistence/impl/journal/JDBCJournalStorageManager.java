@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -32,14 +33,17 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
 
-   public JDBCJournalStorageManager(Configuration config, ExecutorFactory executorFactory) {
-      super(config, executorFactory);
+   public JDBCJournalStorageManager(Configuration config,
+                                    ExecutorFactory executorFactory,
+                                    ScheduledExecutorService scheduledExecutorService) {
+      super(config, executorFactory, scheduledExecutorService);
    }
 
    public JDBCJournalStorageManager(final Configuration config,
-                                final ExecutorFactory executorFactory,
-                                final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, criticalErrorListener);
+                                    final ScheduledExecutorService scheduledExecutorService,
+                                    final ExecutorFactory executorFactory,
+                                    final IOCriticalErrorListener criticalErrorListener) {
+      super(config, executorFactory, scheduledExecutorService, criticalErrorListener);
    }
 
    @Override
@@ -47,16 +51,16 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
       try {
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) config.getStoreConfiguration();
 
-         Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName());
+         Journal localBindings = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getBindingsTableName(), dbConf.getJdbcDriverClassName(), scheduledExecutorService, executorFactory.getExecutor());
          bindingsJournal = localBindings;
 
-         Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName());
+         Journal localMessage = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), dbConf.getMessageTableName(), dbConf.getJdbcDriverClassName(), scheduledExecutorService, executorFactory.getExecutor());
          messageJournal = localMessage;
 
          bindingsJournal.start();
          messageJournal.start();
 
-         largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), dbConf.getLargeMessageTableName(), dbConf.getJdbcDriverClassName(), executor);
+         largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), dbConf.getLargeMessageTableName(), dbConf.getJdbcDriverClassName(), executorFactory.getExecutor());
          largeMessagesFactory.start();
       }
       catch (Exception e) {

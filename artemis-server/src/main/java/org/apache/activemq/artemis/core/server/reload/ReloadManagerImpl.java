@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -37,11 +38,12 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
    private Map<URL, ReloadRegistry> registry = new HashMap<>();
 
-   public ReloadManagerImpl(ScheduledExecutorService scheduledExecutorService, long checkPeriod) {
-      super(scheduledExecutorService, checkPeriod, TimeUnit.MILLISECONDS);
+   public ReloadManagerImpl(ScheduledExecutorService scheduledExecutorService, Executor executor, long checkPeriod) {
+      super(scheduledExecutorService, executor, checkPeriod, TimeUnit.MILLISECONDS, false);
    }
 
    public void run() {
+      super.run();
       tick();
    }
 

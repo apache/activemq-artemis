@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
@@ -47,6 +49,8 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    protected ExecutorFactory execFactory;
 
+   protected ScheduledExecutorService scheduledExecutorService;
+
    protected StorageManager journal;
 
    protected JMSStorageManager jmsJournal;
@@ -73,6 +77,8 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       super.setUp();
 
       execFactory = getOrderedExecutor();
+
+      scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
    }
 
    @Override
@@ -103,6 +109,8 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
          jmsJournal = null;
       }
 
+      scheduledExecutorService.shutdown();
+
       destroyTables(Arrays.asList(new String[] {"MESSAGE", "BINDINGS", "LARGE_MESSAGE"}));
       super.tearDown();
       if (exception != null)
@@ -132,7 +140,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
     * @param configuration
     */
    protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
-      JournalStorageManager jsm = new JournalStorageManager(configuration, execFactory, null);
+      JournalStorageManager jsm = new JournalStorageManager(configuration, execFactory);
       addActiveMQComponent(jsm);
       return jsm;
    }
@@ -141,7 +149,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
     * @param configuration
     */
    protected JDBCJournalStorageManager createJDBCJournalStorageManager(Configuration configuration) {
-      JDBCJournalStorageManager jsm = new JDBCJournalStorageManager(configuration, execFactory, null);
+      JDBCJournalStorageManager jsm = new JDBCJournalStorageManager(configuration, execFactory, scheduledExecutorService);
       addActiveMQComponent(jsm);
       return jsm;
    }

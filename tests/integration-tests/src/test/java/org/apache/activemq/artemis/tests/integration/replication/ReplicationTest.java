@@ -440,7 +440,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
     * @throws Exception
     */
    private JournalStorageManager getStorage() throws Exception {
-      return new JournalStorageManager(createDefaultInVMConfig(), factory, null);
+      return new JournalStorageManager(createDefaultInVMConfig(), factory);
    }
 
    /**

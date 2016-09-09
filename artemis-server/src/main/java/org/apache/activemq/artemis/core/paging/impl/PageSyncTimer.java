@@ -18,17 +18,19 @@ package org.apache.activemq.artemis.core.paging.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 
 /**
  * This will batch multiple calls waiting to perform a sync in a single call.
  */
-final class PageSyncTimer {
+final class PageSyncTimer extends ActiveMQScheduledComponent {
 
    // Constants -----------------------------------------------------
 
@@ -55,7 +57,8 @@ final class PageSyncTimer {
 
    // Constructors --------------------------------------------------
 
-   PageSyncTimer(PagingStore store, ScheduledExecutorService scheduledExecutor, long timeSync) {
+   PageSyncTimer(PagingStore store, ScheduledExecutorService scheduledExecutor, Executor executor, long timeSync) {
+      super(scheduledExecutor, executor, timeSync, TimeUnit.NANOSECONDS, true);
       this.store = store;
       this.scheduledExecutor = scheduledExecutor;
       this.timeSync = timeSync;
@@ -68,10 +71,14 @@ final class PageSyncTimer {
       if (!pendingSync) {
          pendingSync = true;
 
-         // this is a single event
-         scheduledExecutor.schedule(runnable, timeSync, TimeUnit.NANOSECONDS);
+         delay();
       }
       syncOperations.add(ctx);
+   }
+
+   public void run() {
+      super.run();
+      tick();
    }
 
    private void tick() {
