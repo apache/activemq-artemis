@@ -71,7 +71,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void createDurableQueue(String address, String queueName) throws Exception {
+   public void createDurableQueue(String address, String queueName, String filter) throws Exception {
 
    }
 
@@ -81,7 +81,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void createTemporaryQueue(String address, String queueName) throws Exception {
+   public void createTemporaryQueue(String address, String queueName, String filter) throws Exception {
 
    }
 

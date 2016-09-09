@@ -40,9 +40,9 @@ public interface AMQPSessionCallback {
 
    void createTemporaryQueue(String queueName) throws Exception;
 
-   void createTemporaryQueue(String address, String queueName) throws Exception;
+   void createTemporaryQueue(String address, String queueName, String filter) throws Exception;
 
-   void createDurableQueue(String address, String queueName) throws Exception;
+   void createDurableQueue(String address, String queueName, String filter) throws Exception;
 
    void offerProducerCredit(String address, int credits, int threshold, Receiver receiver);
 
