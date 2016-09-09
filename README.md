@@ -44,4 +44,10 @@ If you are trying to copy the examples somewhere else and modifying them. Consid
     # if trying to modify the 'topic' example:
     cd examples/jms/topic && mvn dependency:list
 
+### Open Web Application Security Project (OWASP) Report
 
+If you wish to generate the report for CCV dependencies, you may run it with the -Powasp profile
+
+    $ mvn -Powasp verify
+
+The output will be under ./target/dependency-check-report.html **for each** sub-module.
