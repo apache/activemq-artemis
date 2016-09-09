@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -193,13 +194,13 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public void createTemporaryQueue(String address, String queueName) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
+   public void createTemporaryQueue(String address, String queueName, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
    }
 
    @Override
-   public void createDurableQueue(String address, String queueName) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
+   public void createDurableQueue(String address, String queueName, String filter) throws Exception {
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
    }
 
    @Override
@@ -404,7 +405,10 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    private void serverSend(final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {
       try {
+
+         message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
          serverSession.send(message, false);
+
          // FIXME Potential race here...
          manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
             @Override
@@ -482,6 +486,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public int sendMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+
+      message.removeProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString());
 
       ProtonPlugSender plugSender = (ProtonPlugSender) consumer.getProtocolContext();
 
