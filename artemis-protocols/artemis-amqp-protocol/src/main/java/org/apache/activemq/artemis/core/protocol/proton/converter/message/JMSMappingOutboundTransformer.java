@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.proton.converter.message;
 
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -223,7 +224,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       final Enumeration<String> keys = msg.getPropertyNames();
       while (keys.hasMoreElements()) {
          String key = keys.nextElement();
-         if (key.equals(messageFormatKey) || key.equals(nativeKey)) {
+         if (key.equals(messageFormatKey) || key.equals(nativeKey) || key.equals(ServerJMSMessage.NATIVE_MESSAGE_ID)) {
             // skip..
          }
          else if (key.equals(firstAcquirerKey)) {
