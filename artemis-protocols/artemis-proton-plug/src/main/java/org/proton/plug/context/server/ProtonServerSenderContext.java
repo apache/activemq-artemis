@@ -17,7 +17,10 @@
 package org.proton.plug.context.server;
 
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
@@ -47,6 +50,7 @@ import org.proton.plug.context.AbstractProtonContextSender;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.context.ProtonPlugSender;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.exceptions.ActiveMQAMQPIllegalStateException;
 import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
 import org.proton.plug.exceptions.ActiveMQAMQPNotFoundException;
 import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
@@ -116,8 +120,6 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
       String selector = null;
 
-      String noLocalFilter = null;
-
       /*
       * even tho the filter is a map it will only return a single filter unless a nolocal is also provided
       * */
@@ -134,11 +136,6 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                return;
             }
          }
-
-         if (findFilter(source.getFilter(), AmqpSupport.NO_LOCAL_FILTER_IDS) != null) {
-            String remoteContainerId = sender.getSession().getConnection().getRemoteContainer();
-            noLocalFilter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
-         }
       }
 
       /*
@@ -147,12 +144,25 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       * */
       boolean isPubSub = hasCapabilities(TOPIC, source) || isPubSub(source);
 
+      if (isPubSub) {
+         if (findFilter(source.getFilter(), AmqpSupport.NO_LOCAL_FILTER_IDS) != null) {
+            String remoteContainerId = sender.getSession().getConnection().getRemoteContainer();
+            String noLocalFilter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
+            if (selector != null) {
+               selector += " AND " + noLocalFilter;
+            }
+            else {
+               selector = noLocalFilter;
+            }
+         }
+      }
+
       if (source == null) {
          // Attempt to recover a previous subscription happens when a link reattach happens on a subscription queue
          String clientId = connection.getRemoteContainer();
          String pubId = sender.getName();
          queue = clientId + ":" + pubId;
-         boolean exists = sessionSPI.queueQuery(queue);
+         boolean exists = sessionSPI.queueQuery(queue, false).isExists();
 
          /*
          * If it exists then we know it is a subscription so we set the capabilities on the source so we can delete on a
@@ -188,8 +198,6 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
-
-
             if (isPubSub) {
                // if we are a subscription and durable create a durable queue using the container id and link name
                if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) ||
@@ -197,23 +205,39 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
                   queue = clientId + ":" + pubId;
-                  boolean exists = sessionSPI.queueQuery(queue);
-                  if (!exists) {
-                     sessionSPI.createDurableQueue(source.getAddress(), queue, noLocalFilter);
+                  QueueQueryResult result = sessionSPI.queueQuery(queue, false);
+
+                  if (result.isExists()) {
+                     // If a client reattaches to a durable subscription with a different no-local filter value, selector
+                     // or address then we must recreate the queue (JMS semantics).
+
+                     if (!Objects.equals(result.getFilterString(), SimpleString.toSimpleString(selector)) ||
+                        (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
+                        if (result.getConsumerCount() == 0) {
+                           sessionSPI.deleteQueue(queue);
+                           sessionSPI.createDurableQueue(source.getAddress(), queue, selector);
+                        }
+                        else {
+                           throw new ActiveMQAMQPIllegalStateException("Unable to recreate subscription, consumers already exist");
+                        }
+                     }
                   }
+                  else {
+                     sessionSPI.createDurableQueue(source.getAddress(), queue, selector);
+                  }
+                  source.setAddress(queue);
                }
                //otherwise we are a volatile subscription
                else {
                   queue = java.util.UUID.randomUUID().toString();
                   try {
-                     sessionSPI.createTemporaryQueue(source.getAddress(), queue, noLocalFilter);
+                     sessionSPI.createTemporaryQueue(source.getAddress(), queue, selector);
                   }
                   catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
                   }
                   source.setAddress(queue);
                }
-
             }
             else {
                queue = source.getAddress();
@@ -223,7 +247,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             }
 
             try {
-               if (!sessionSPI.queueQuery(queue)) {
+               if (!sessionSPI.queueQuery(queue, !isPubSub).isExists()) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
             }
@@ -237,7 +261,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
          boolean browseOnly = !isPubSub && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
          try {
-            brokerConsumer = sessionSPI.createSender(this, queue, selector, browseOnly);
+            brokerConsumer = sessionSPI.createSender(this, queue, isPubSub ? null : selector, browseOnly);
          }
          catch (Exception e) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
@@ -249,7 +273,6 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       String pubSubPrefix = sessionSPI.getPubSubPrefix();
       return source != null && pubSubPrefix != null && source.getAddress() != null && source.getAddress().startsWith(pubSubPrefix);
    }
-
 
    /*
    * close the session
@@ -276,20 +299,23 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          sessionSPI.closeSender(brokerConsumer);
          //if this is a link close rather than a connection close or detach, we need to delete any durable resources for
          // say pub subs
-         if (remoteLinkClose ) {
-            Source source = (Source)sender.getSource();
+         if (remoteLinkClose) {
+            Source source = (Source) sender.getSource();
             if (source != null && source.getAddress() != null && hasCapabilities(TOPIC, source)) {
-               String address = source.getAddress();
-               boolean exists = sessionSPI.queueQuery(address);
-               if (exists) {
-                  sessionSPI.deleteQueue(address);
+               String queueName = source.getAddress();
+               QueueQueryResult result = sessionSPI.queueQuery(queueName, false);
+               if (result.isExists() && source.getDynamic()) {
+                  sessionSPI.deleteQueue(queueName);
                }
                else {
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
                   String queue = clientId + ":" + pubId;
-                  exists = sessionSPI.queueQuery(queue);
-                  if (exists) {
+                  result = sessionSPI.queueQuery(queue, false);
+                  if (result.isExists()) {
+                     if (result.getConsumerCount() > 0) {
+                        System.out.println("error");
+                     }
                      sessionSPI.deleteQueue(queue);
                   }
                }
