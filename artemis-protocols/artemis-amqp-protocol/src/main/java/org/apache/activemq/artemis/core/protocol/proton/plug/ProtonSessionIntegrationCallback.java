@@ -195,7 +195,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
    @Override
    public void createTemporaryQueue(String address, String queueName, String filter) throws Exception {
-      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
+      serverSession.createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), true, false);
    }
 
    @Override
