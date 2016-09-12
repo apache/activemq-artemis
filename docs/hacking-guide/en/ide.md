@@ -70,6 +70,13 @@ It is strongly recommended to turn off the auto-updating of .gitignore files by 
 generates new .gitignore files in many directories that are not needed due to the top level .gitignore file.  To turn
 it off, go to Preferences->Team->Git->Projects and deselect the "Automatically ignore derived resources" checkbox.
 
+### Checkstyle setup
+You can import the Artemis Checkstyle template into eclipse to do Checkstyle validation. As a prerequisite you need to make sure the Checkstyle plugin is installed into Eclipse which you can get form the Eclipse Marketplace. You also will need to configure Sevntu-Checkstyle. See http://sevntu-checkstyle.github.io/sevntu.checkstyle/ for instructions. Then to configure the template:
+
+* Open: Window -> Preferences -> Checkstyle
+* Select New -> "Project Relative Configuration" in the "Type" dropdown
+* Give the configuration a name and under location put "/artemis-pom/etc/checkstyle.xml" then hit ok
+* You should now see your new configuration in the list of Checkstyle profiles.  You can select the new configuration as the default if you want.
 
 ### Annotation Pre-Processing
 
