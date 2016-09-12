@@ -23,6 +23,7 @@ import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -44,10 +45,11 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    private double maxUsage;
 
    public FileStoreMonitor(ScheduledExecutorService scheduledExecutorService,
+                           Executor executor,
                            long checkPeriod,
                            TimeUnit timeUnit,
                            double maxUsage) {
-      super(scheduledExecutorService, checkPeriod, timeUnit);
+      super(scheduledExecutorService, executor, checkPeriod, timeUnit, false);
       this.maxUsage = maxUsage;
    }
 
@@ -57,7 +59,8 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    }
 
    public synchronized FileStoreMonitor addStore(File file) throws IOException {
-      if (file.exists()) {
+      // JDBC storage may return this as null, and we may need to ignore it
+      if (file != null && file.exists()) {
          addStore(Files.getFileStore(file.toPath()));
       }
       return this;
@@ -70,6 +73,7 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
 
    public void run() {
+      super.run();
       tick();
    }
 

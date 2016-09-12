@@ -31,6 +31,9 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion {
 
    private volatile int errorCode = 0;
 
+   public SimpleWaitIOCallback() {
+   }
+
    @Override
    public String toString() {
       return SimpleWaitIOCallback.class.getName();

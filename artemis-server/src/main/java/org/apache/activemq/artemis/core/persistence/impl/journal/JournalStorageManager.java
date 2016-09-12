@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -81,14 +82,25 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    private ReplicationManager replicator;
 
+   public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ScheduledExecutorService scheduledExecutorService) {
+      this(config, executorFactory, scheduledExecutorService, null);
+   }
+
    public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory) {
-      this(config, executorFactory, null);
+      this(config, executorFactory, null, null);
+   }
+
+   public JournalStorageManager(final Configuration config,
+                                final ExecutorFactory executorFactory,
+                                final ScheduledExecutorService scheduledExecutorService,
+                                final IOCriticalErrorListener criticalErrorListener) {
+      super(config, executorFactory, scheduledExecutorService, criticalErrorListener);
    }
 
    public JournalStorageManager(final Configuration config,
                                 final ExecutorFactory executorFactory,
                                 final IOCriticalErrorListener criticalErrorListener) {
-      super(config, executorFactory, criticalErrorListener);
+      super(config, executorFactory, null, criticalErrorListener);
    }
 
    @Override
@@ -732,8 +744,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public void injectMonitor(FileStoreMonitor monitor) throws Exception {
-      monitor.addStore(journalFF.getDirectory());
-      monitor.addStore(largeMessagesFactory.getDirectory());
-      monitor.addStore(bindingsFF.getDirectory());
+      if (journalFF != null) {
+         monitor.addStore(journalFF.getDirectory());
+      }
+      if (largeMessagesFactory != null) {
+         monitor.addStore(largeMessagesFactory.getDirectory());
+      }
+      if (bindingsFF != null) {
+         monitor.addStore(bindingsFF.getDirectory());
+      }
    }
 }

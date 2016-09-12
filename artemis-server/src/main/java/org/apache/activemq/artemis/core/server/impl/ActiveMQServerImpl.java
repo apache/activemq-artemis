@@ -1796,11 +1796,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
-            return new JDBCJournalStorageManager(configuration, executorFactory, shutdownOnCriticalIO);
+            return new JDBCJournalStorageManager(configuration, getScheduledPool(), executorFactory, shutdownOnCriticalIO);
          }
          // Default to File Based Storage Manager, (Legacy default configuration).
          else {
-            return new JournalStorageManager(configuration, executorFactory, shutdownOnCriticalIO);
+            return new JournalStorageManager(configuration, executorFactory, scheduledPool, shutdownOnCriticalIO);
          }
       }
       return new NullStorageManager();
@@ -1974,7 +1974,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       deployGroupingHandlerConfiguration(configuration.getGroupingHandlerConfiguration());
 
-      this.reloadManager = new ReloadManagerImpl(getScheduledPool(), configuration.getConfigurationFileRefreshPeriod());
+      this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configuration.getConfigurationFileRefreshPeriod());
 
       if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
          reloadManager.addCallback(configuration.getConfigurationUrl(), new ConfigurationFileReloader());
@@ -2055,7 +2055,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       try {
-         injectMonitor(new FileStoreMonitor(getScheduledPool(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f));
+         injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f));
       }
       catch (Exception e) {
          logger.warn(e.getMessage(), e);

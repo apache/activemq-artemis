@@ -17,18 +17,28 @@
 
 package org.apache.activemq.artemis.jdbc.store.journal;
 
-import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class JDBCJournalSync extends TimerTask {
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
+
+public class JDBCJournalSync extends ActiveMQScheduledComponent {
 
    private final JDBCJournalImpl journal;
 
-   public JDBCJournalSync(JDBCJournalImpl journal) {
+   public JDBCJournalSync(ScheduledExecutorService scheduledExecutorService,
+                          Executor executor,
+                          long checkPeriod,
+                          TimeUnit timeUnit,
+                          JDBCJournalImpl journal) {
+      super(scheduledExecutorService, executor, checkPeriod, timeUnit, true);
       this.journal = journal;
    }
 
    @Override
    public void run() {
+      super.run();
       if (journal.isStarted()) {
          journal.sync();
       }

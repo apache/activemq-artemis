@@ -36,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -145,6 +146,8 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected BatchingIDGenerator idGenerator;
 
+   protected final ScheduledExecutorService scheduledExecutorService;
+
    protected final ReentrantReadWriteLock storageManagerLock = new ReentrantReadWriteLock(true);
 
    protected Journal messageJournal;
@@ -156,7 +159,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    /**
     * Used to create Operation Contexts
     */
-   private final ExecutorFactory executorFactory;
+   protected final ExecutorFactory executorFactory;
 
    final Executor executor;
 
@@ -181,16 +184,19 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected final Set<Long> largeMessagesToDelete = new HashSet<>();
 
-   public AbstractJournalStorageManager(final Configuration config, final ExecutorFactory executorFactory) {
-      this(config, executorFactory, null);
+   public AbstractJournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ScheduledExecutorService scheduledExecutorService) {
+      this(config, executorFactory, scheduledExecutorService, null);
    }
 
    public AbstractJournalStorageManager(Configuration config,
                                         ExecutorFactory executorFactory,
+                                        ScheduledExecutorService scheduledExecutorService,
                                         IOCriticalErrorListener criticalErrorListener) {
       this.executorFactory = executorFactory;
 
       this.ioCriticalErrorListener = criticalErrorListener;
+
+      this.scheduledExecutorService = scheduledExecutorService;
 
       this.config = config;
 

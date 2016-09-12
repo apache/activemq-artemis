@@ -17,9 +17,11 @@
 
 package org.apache.activemq.artemis.core.server;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
 
@@ -30,14 +32,25 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    private final ScheduledExecutorService scheduledExecutorService;
    private long period;
    private TimeUnit timeUnit;
+   private final Executor executor;
    private ScheduledFuture future;
+   private final boolean onDemand;
+
+   private final AtomicInteger delayed = new AtomicInteger(0);
 
    public ActiveMQScheduledComponent(ScheduledExecutorService scheduledExecutorService,
+                                     Executor executor,
                                      long checkPeriod,
-                                     TimeUnit timeUnit) {
+                                     TimeUnit timeUnit,
+                                     boolean onDemand) {
+      this.executor = executor;
       this.scheduledExecutorService = scheduledExecutorService;
+      if (this.scheduledExecutorService == null) {
+         throw new NullPointerException("scheduled Executor is null");
+      }
       this.period = checkPeriod;
       this.timeUnit = timeUnit;
+      this.onDemand = onDemand;
    }
 
    @Override
@@ -45,11 +58,27 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       if (future != null) {
          return;
       }
+      if (onDemand) {
+         return;
+      }
       if (period >= 0) {
-         future = scheduledExecutorService.scheduleWithFixedDelay(this, period, period, timeUnit);
+         future = scheduledExecutorService.scheduleWithFixedDelay(runForScheduler, period, period, timeUnit);
       }
       else {
          logger.tracef("did not start scheduled executor on %s because period was configured as %d", this, period);
+      }
+   }
+
+   public void delay() {
+      int value = delayed.incrementAndGet();
+      if (value > 10) {
+         delayed.decrementAndGet();
+      }
+      else {
+         // We only schedule up to 10 periods upfront.
+         // this is to avoid a window where a current one would be running and a next one is coming.
+         // in theory just 2 would be enough. I'm using 10 as a precaution here.
+         scheduledExecutorService.schedule(runForScheduler, Math.min(period, period * value), timeUnit);
       }
    }
 
@@ -84,6 +113,10 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
 
    }
 
+   public void run() {
+      delayed.decrementAndGet();
+   }
+
    @Override
    public synchronized boolean isStarted() {
       return future != null;
@@ -97,5 +130,12 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
          start();
       }
    }
+
+   final Runnable runForScheduler = new Runnable() {
+      @Override
+      public void run() {
+         executor.execute(ActiveMQScheduledComponent.this);
+      }
+   };
 
 }

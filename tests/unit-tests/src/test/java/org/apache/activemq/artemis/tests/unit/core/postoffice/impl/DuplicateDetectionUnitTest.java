@@ -92,7 +92,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
 
-         journal = new JournalStorageManager(configuration, factory, null);
+         journal = new JournalStorageManager(configuration, factory);
 
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
@@ -112,7 +112,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          journal.stop();
 
-         journal = new JournalStorageManager(configuration, factory, null);
+         journal = new JournalStorageManager(configuration, factory);
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
 
@@ -135,7 +135,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          mapDups.clear();
 
-         journal = new JournalStorageManager(configuration, factory, null);
+         journal = new JournalStorageManager(configuration, factory);
          journal.start();
          journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
 

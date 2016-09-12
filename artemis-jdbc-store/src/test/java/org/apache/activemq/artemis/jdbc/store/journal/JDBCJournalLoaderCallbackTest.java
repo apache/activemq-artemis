@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.jdbc.store.journal;
 
+import java.sql.DriverManager;
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +32,8 @@ import static org.junit.Assert.assertTrue;
 
 public class JDBCJournalLoaderCallbackTest {
 
+   @Rule
+   public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
    @Test
    public void testAddDeleteRecord() throws Exception {
 
@@ -46,4 +52,14 @@ public class JDBCJournalLoaderCallbackTest {
       cb.deleteRecord(record.id);
       assertTrue(committedRecords.isEmpty());
    }
+
+   @After
+   public void shutdownDerby() {
+      try {
+         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+      }
+      catch (Exception ignored) {
+      }
+   }
+
 }

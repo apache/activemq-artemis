@@ -37,11 +37,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.ServerSocket;
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -139,6 +139,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -217,6 +218,16 @@ public abstract class ActiveMQTestBase extends Assert {
          log.info(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
       }
    };
+
+   @After
+   public void shutdownDerby() {
+      try {
+         DriverManager.getConnection("jdbc:derby:;shutdown=true");
+      }
+      catch (Exception ignored) {
+      }
+   }
+
 
    static {
       Random random = new Random();
@@ -550,60 +561,10 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   private static int failedGCCalls = 0;
-
    public static void forceGC() {
-
-      if (failedGCCalls >= 10) {
-         log.info("ignoring forceGC call since it seems System.gc is not working anyways");
-         return;
-      }
-      log.info("#test forceGC");
-      CountDownLatch finalized = new CountDownLatch(1);
-      WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
-
-      long timeout = System.currentTimeMillis() + 1000;
-
-      // A loop that will wait GC, using the minimal time as possible
-      while (!(dumbReference.get() == null && finalized.getCount() == 0) && System.currentTimeMillis() < timeout) {
-         System.gc();
-         System.runFinalization();
-         try {
-            finalized.await(100, TimeUnit.MILLISECONDS);
-         }
-         catch (InterruptedException e) {
-         }
-      }
-
-      if (dumbReference.get() != null) {
-         failedGCCalls++;
-         log.info("It seems that GC is disabled at your VM");
-      }
-      else {
-         // a success would reset the count
-         failedGCCalls = 0;
-      }
-      log.info("#test forceGC Done ");
+      ThreadLeakCheckRule.forceGC();
    }
 
-   public static void forceGC(final Reference<?> ref, final long timeout) {
-      long waitUntil = System.currentTimeMillis() + timeout;
-      // A loop that will wait GC, using the minimal time as possible
-      while (ref.get() != null && System.currentTimeMillis() < waitUntil) {
-         ArrayList<String> list = new ArrayList<>();
-         for (int i = 0; i < 1000; i++) {
-            list.add("Some string with garbage with concatenation " + i);
-         }
-         list.clear();
-         list = null;
-         System.gc();
-         try {
-            Thread.sleep(500);
-         }
-         catch (InterruptedException e) {
-         }
-      }
-   }
 
    /**
     * Verifies whether weak references are released after a few GCs.
@@ -2513,20 +2474,5 @@ public abstract class ActiveMQTestBase extends Assert {
     */
    public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
       assertTrue("Latch has got to return within a minute", latch.await(1, TimeUnit.MINUTES));
-   }
-
-   protected static class DumbReference {
-
-      private CountDownLatch finalized;
-
-      public DumbReference(CountDownLatch finalized) {
-         this.finalized = finalized;
-      }
-
-      @Override
-      public void finalize() throws Throwable {
-         finalized.countDown();
-         super.finalize();
-      }
    }
 }

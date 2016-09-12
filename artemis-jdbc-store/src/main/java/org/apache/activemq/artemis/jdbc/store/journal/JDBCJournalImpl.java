@@ -23,8 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -66,11 +68,13 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    private boolean started;
 
-   private Timer syncTimer;
+   private JDBCJournalSync syncTimer;
+
+   private final Executor completeExecutor;
 
    private final Object journalLock = new Object();
 
-   private final String timerThread;
+   private final ScheduledExecutorService scheduledExecutorService;
 
    // Track Tx Records
    private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
@@ -78,17 +82,17 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    // Sequence ID for journal records
    private AtomicLong seq = new AtomicLong(0);
 
-   public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass) {
+   public JDBCJournalImpl(String jdbcUrl, String tableName, String jdbcDriverClass, ScheduledExecutorService scheduledExecutorService, Executor completeExecutor) {
       super(tableName, jdbcUrl, jdbcDriverClass);
-      timerThread = "Timer JDBC Journal(" + tableName + ")";
       records = new ArrayList<>();
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.completeExecutor = completeExecutor;
    }
 
    @Override
    public void start() throws Exception {
       super.start();
-      syncTimer = new Timer(timerThread, true);
-      syncTimer.schedule(new JDBCJournalSync(this), SYNC_DELAY * 2, SYNC_DELAY);
+      syncTimer = new JDBCJournalSync(scheduledExecutorService, completeExecutor, SYNC_DELAY, TimeUnit.MILLISECONDS, this);
       started = true;
    }
 
@@ -111,7 +115,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    public synchronized void stop() throws SQLException {
       if (started) {
          synchronized (journalLock) {
-            syncTimer.cancel();
             sync();
             started = false;
             super.stop();
@@ -129,9 +132,12 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       if (!started)
          return 0;
 
-      List<JDBCJournalRecord> recordRef = new ArrayList<>();
+      List<JDBCJournalRecord> recordRef;
       synchronized (records) {
-         recordRef.addAll(records);
+         if (records.isEmpty()) {
+            return 0;
+         }
+         recordRef = new ArrayList<>(records);
          records.clear();
       }
 
@@ -271,14 +277,13 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
             }
          }
       };
-      Thread t = new Thread(r);
-      t.start();
+      completeExecutor.execute(r);
    }
 
    private void appendRecord(JDBCJournalRecord record) throws Exception {
 
       SimpleWaitIOCallback callback = null;
-      if (record.isSync() && record.getIoCompletion() == null) {
+      if (record.isSync() && record.getIoCompletion() == null && !record.isTransactional()) {
          callback = new SimpleWaitIOCallback();
          record.setIoCompletion(callback);
       }
@@ -292,6 +297,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
             records.add(record);
          }
       }
+
+      syncTimer.delay();
 
       if (callback != null)
          callback.waitCompletion();
