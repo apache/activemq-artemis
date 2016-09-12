@@ -16,10 +16,9 @@
  */
 package org.proton.plug.context.server;
 
-import static org.proton.plug.AmqpSupport.DELAYED_DELIVERY;
-
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
+import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
@@ -30,6 +29,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
+import org.proton.plug.handler.ExtCapability;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,6 +59,16 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
    }
 
    @Override
+   protected boolean validateConnection(Connection connection) {
+      return connectionCallback.validateConnection(connection, handler.getSASLResult());
+   }
+
+   @Override
+   protected void initInternal() throws Exception {
+      connectionCallback.init();
+   }
+
+   @Override
    protected void remoteLinkOpened(Link link) throws Exception {
 
       ProtonServerSessionContext protonSession = (ProtonServerSessionContext) getSessionExtension(link.getSession());
@@ -84,6 +94,6 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
 
    @Override
    public Symbol[] getConnectionCapabilitiesOffered() {
-      return new Symbol[]{DELAYED_DELIVERY};
+      return ExtCapability.getCapabilities();
    }
 }

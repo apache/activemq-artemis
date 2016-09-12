@@ -188,6 +188,13 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       return null;
    }
 
+   protected boolean validateConnection(Connection connection) {
+      return true;
+   }
+
+   protected void initInternal() throws Exception {
+   }
+
    // This listener will perform a bunch of things here
    class LocalListener extends DefaultEventHandler {
 
@@ -213,13 +220,25 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       @Override
       public void onRemoteOpen(Connection connection) throws Exception {
          synchronized (getLock()) {
-            connection.setContext(AbstractConnectionContext.this);
-            connection.setContainer(containerId);
-            connection.setProperties(connectionProperties);
-            connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
-            connection.open();
+            try {
+               initInternal();
+            }
+            catch (Exception e) {
+               log.error("Error init connection", e);
+            }
+            if (!validateConnection(connection)) {
+               connection.close();
+            }
+            else {
+               connection.setContext(AbstractConnectionContext.this);
+               connection.setContainer(containerId);
+               connection.setProperties(connectionProperties);
+               connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
+               connection.open();
+            }
          }
          initialise();
+
          /*
          * This can be null which is in effect an empty map, also we really dont need to check this for in bound connections
          * but its here in case we add support for outbound connections.

@@ -27,6 +27,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
+import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -1533,6 +1534,35 @@ public class ProtonTest extends ProtonTestBase {
       connection.close();
    }
 
+   @Test
+   public void testClientID() throws Exception {
+      Connection testConn1 = createConnection(false);
+      Connection testConn2 = createConnection(false);
+      try {
+         testConn1.setClientID("client-id1");
+         try {
+            testConn1.setClientID("client-id2");
+            fail("didn't get expected exception");
+         }
+         catch (javax.jms.IllegalStateException e) {
+            //expected
+         }
+
+         try {
+            testConn2.setClientID("client-id1");
+            fail("didn't get expected exception");
+         }
+         catch (InvalidClientIDException e) {
+            //expected
+         }
+      }
+      finally {
+         testConn1.close();
+         testConn2.close();
+      }
+
+   }
+
    private javax.jms.Queue createQueue(String address) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
@@ -1543,29 +1573,19 @@ public class ProtonTest extends ProtonTestBase {
       }
    }
 
-   private javax.jms.Connection createConnection() throws JMSException {
+   private Connection createConnection() throws JMSException {
+      return this.createConnection(true);
+   }
+
+   private javax.jms.Connection createConnection(boolean isStart) throws JMSException {
       Connection connection;
       if (protocol == 3) {
          factory = new JmsConnectionFactory(amqpConnectionUri);
          connection = factory.createConnection();
-         connection.setExceptionListener(new ExceptionListener() {
-            @Override
-            public void onException(JMSException exception) {
-               exception.printStackTrace();
-            }
-         });
-         connection.start();
       }
       else if (protocol == 0) {
          factory = new JmsConnectionFactory(userName, password, amqpConnectionUri);
          connection = factory.createConnection();
-         connection.setExceptionListener(new ExceptionListener() {
-            @Override
-            public void onException(JMSException exception) {
-               exception.printStackTrace();
-            }
-         });
-         connection.start();
       }
       else {
          TransportConfiguration transport;
@@ -1579,6 +1599,8 @@ public class ProtonTest extends ProtonTestBase {
          }
 
          connection = factory.createConnection(userName, password);
+      }
+      if (isStart) {
          connection.setExceptionListener(new ExceptionListener() {
             @Override
             public void onException(JMSException exception) {
