@@ -86,6 +86,7 @@
       <qpid.jms.version>0.11.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
+      <owasp.version>1.4.3</owasp.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -138,6 +139,7 @@
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
+      <skipOWASP>true</skipOWASP>
       <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
 
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
@@ -301,6 +303,19 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <!-- ### End Build Time Dependencies ### -->
+
+         <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-core</artifactId>
+            <version>${owasp.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-utils</artifactId>
+            <version>${owasp.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
 
          <!-- ### Run Time Dependencies: MUST NOT INCLUDE CAT X LICENSES ###-->
          <dependency>
@@ -607,6 +622,12 @@
                </plugin>
             </plugins>
          </build>
+      </profile>
+      <profile>
+         <id>owasp</id>
+         <properties>
+            <skipOWASP>false</skipOWASP>
+         </properties>
       </profile>
       <profile>
          <id>dev</id>
@@ -1208,6 +1229,24 @@
             <version>3.0.0</version>
             <extensions>true</extensions>
          </plugin>
+         <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${owasp.version}</version>
+            <configuration>
+                <skip>${skipOWASP}</skip>
+                <!-- <skipProvidedScope>true</skipProvidedScope>
+                <skipRuntimeScope>true</skipRuntimeScope> -->
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
       </plugins>
    </build>
 
@@ -1269,6 +1308,19 @@
             <artifactId>maven-surefire-report-plugin</artifactId>
             <version>2.14.1</version>
          </plugin>
+         <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${owasp.version}</version>
+            <reportSets>
+               <reportSet>
+                  <reports>
+                     <report>aggregate</report>
+                  </reports>
+               </reportSet>
+            </reportSets>
+         </plugin>
+
       </plugins>
    </reporting>
 
