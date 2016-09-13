@@ -17,6 +17,7 @@
 package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -48,7 +49,16 @@ public interface AMQPSessionCallback {
 
    void deleteQueue(String address) throws Exception;
 
-   boolean queueQuery(String queueName) throws Exception;
+   /**
+    * Returns true if a queue is found with matching name, if autoCreate=true and autoCreateJMSQueues is switched on then
+    * this method will auto create the queue, with name=queueName, address=queueName, filter=null.
+    *
+    * @param queueName
+    * @param autoCreate
+    * @return
+    * @throws Exception
+    */
+   QueueQueryResult queueQuery(String queueName, boolean autoCreate) throws Exception;
 
    boolean bindingQuery(String address) throws Exception;
 

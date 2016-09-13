@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -100,8 +102,8 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public boolean queueQuery(String queueName) {
-      return true;
+   public QueueQueryResult queueQuery(String queueName, boolean autoCreate) {
+      return new QueueQueryResult(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(queueName), false, false, null, 0, 0, false);
    }
 
    @Override

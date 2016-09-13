@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton.plug;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -58,6 +61,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
 import org.proton.plug.SASLResult;
 import org.proton.plug.context.ProtonPlugSender;
+import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
 import org.proton.plug.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.proton.plug.sasl.PlainSASLResult;
 
@@ -204,56 +208,39 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public boolean queueQuery(String queueName) throws Exception {
-      boolean queryResult = false;
+   public QueueQueryResult queueQuery(String queueName, boolean autoCreate) throws Exception {
+      QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
 
-      QueueQueryResult queueQuery = serverSession.executeQueueQuery(SimpleString.toSimpleString(queueName));
-
-      if (queueQuery.isExists()) {
-         queryResult = true;
-      }
-      else {
-         if (queueQuery.isAutoCreateJmsQueues()) {
+      if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateJmsQueues() && autoCreate) {
+         try {
             serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
-            queryResult = true;
+            queueQueryResult = new QueueQueryResult(queueQueryResult.getName(), queueQueryResult.getAddress(), queueQueryResult.isDurable(), queueQueryResult.isTemporary(), queueQueryResult.getFilterString(), queueQueryResult.getConsumerCount(), queueQueryResult.getMessageCount(), queueQueryResult.isAutoCreateJmsQueues(), true);
          }
-         else {
-            queryResult = false;
+         catch (ActiveMQQueueExistsException e) {
+            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
       }
-
-      return queryResult;
+      return queueQueryResult;
    }
 
    @Override
    public boolean bindingQuery(String address) throws Exception {
-      boolean queryResult = false;
-
       BindingQueryResult queueQuery = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
-
-      if (queueQuery.isExists()) {
-         queryResult = true;
-      }
-      else {
-         if (queueQuery.isAutoCreateJmsQueues()) {
-            serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
-            queryResult = true;
-         }
-         else {
-            queryResult = false;
-         }
-      }
-
-      return queryResult;
+      return queueQuery.isExists();
    }
 
    @Override
    public void closeSender(final Object brokerConsumer) throws Exception {
+
+      final ServerConsumer consumer = ((ServerConsumer) brokerConsumer);
+      final CountDownLatch latch = new CountDownLatch(1);
+
       Runnable runnable = new Runnable() {
          @Override
          public void run() {
             try {
-               ((ServerConsumer) brokerConsumer).close(false);
+               consumer.close(false);
+               latch.countDown();
             }
             catch (Exception e) {
             }
@@ -270,6 +257,13 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       }
       else {
          runnable.run();
+      }
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException e) {
+         throw new ActiveMQAMQPInternalErrorException("Unable to close consumers for queue: " + consumer.getQueue());
       }
    }
 
@@ -459,8 +453,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public void deleteQueue(String address) throws Exception {
-      manager.getServer().destroyQueue(new SimpleString(address));
+   public void deleteQueue(String queueName) throws Exception {
+      manager.getServer().destroyQueue(new SimpleString(queueName));
    }
 
    private void resetContext() {
@@ -540,5 +534,4 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
          return false;
       }
    }
-
 }
