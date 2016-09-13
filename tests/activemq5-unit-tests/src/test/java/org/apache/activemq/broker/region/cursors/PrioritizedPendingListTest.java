@@ -193,6 +193,11 @@ public class PrioritizedPendingListTest {
 
    static class TestMessageReference implements MessageReference {
 
+      @Override
+      public boolean canProcessAsExpired() {
+         return false;
+      }
+
       private static final IdGenerator id = new IdGenerator();
 
       private Message message;

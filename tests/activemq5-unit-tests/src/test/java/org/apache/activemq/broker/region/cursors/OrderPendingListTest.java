@@ -273,6 +273,11 @@ public class OrderPendingListTest {
       private final LinkedList<MessageReference> theList = new LinkedList<>();
 
       @Override
+      public long messageSize() {
+         return 0;
+      }
+
+      @Override
       public boolean isEmpty() {
          return theList.isEmpty();
       }
@@ -351,6 +356,11 @@ public class OrderPendingListTest {
 
       public TestMessageReference(int sequenceId) {
          messageId = new MessageId(id.generateId() + ":1", sequenceId);
+      }
+
+      @Override
+      public boolean canProcessAsExpired() {
+         return false;
       }
 
       @Override

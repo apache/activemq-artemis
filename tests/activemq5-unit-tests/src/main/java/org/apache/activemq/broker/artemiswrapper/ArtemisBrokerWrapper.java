@@ -39,8 +39,10 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.ConnectionContext;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.apache.activemq.broker.region.virtual.VirtualDestination;
 import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.management.MBeanServer;
@@ -156,6 +158,16 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       server.start();
 
       stopped = false;
+
+   }
+
+   @Override
+   public void virtualDestinationAdded(ConnectionContext connectionContext, VirtualDestination virtualDestination) {
+
+   }
+
+   @Override
+   public void virtualDestinationRemoved(ConnectionContext connectionContext, VirtualDestination virtualDestination) {
 
    }
 

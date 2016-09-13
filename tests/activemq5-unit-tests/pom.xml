@@ -29,7 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <activemq5.project.version>5.12.0</activemq5.project.version>
+      <activemq5.project.version>5.14.0</activemq5.project.version>
       <jmdns-version>3.4.1</jmdns-version>
       <ftpserver-version>1.0.6</ftpserver-version>
       <jmock-version>2.5.1</jmock-version>

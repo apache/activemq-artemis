@@ -17,11 +17,13 @@
 package org.apache.activemq.transport;
 
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.util.ServiceStopper;
+import org.apache.activemq.wireformat.WireFormat;
 
 /**
  *
@@ -34,6 +36,21 @@ public class StubTransport extends TransportSupport {
 
    @Override
    protected void doStop(ServiceStopper stopper) throws Exception {
+   }
+
+   @Override
+   public X509Certificate[] getPeerCertificates() {
+      return new X509Certificate[0];
+   }
+
+   @Override
+   public void setPeerCertificates(X509Certificate[] x509Certificates) {
+
+   }
+
+   @Override
+   public WireFormat getWireFormat() {
+      return null;
    }
 
    @Override

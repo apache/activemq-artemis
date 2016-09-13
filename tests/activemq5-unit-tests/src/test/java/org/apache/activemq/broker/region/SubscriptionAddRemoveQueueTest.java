@@ -180,6 +180,10 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
       List<MessageReference> dispatched =
               Collections.synchronizedList(new ArrayList<MessageReference>());
 
+      @Override
+      public long getPendingMessageSize() {
+         return 0;
+      }
 
       @Override
       public void acknowledge(ConnectionContext context, MessageAck ack)

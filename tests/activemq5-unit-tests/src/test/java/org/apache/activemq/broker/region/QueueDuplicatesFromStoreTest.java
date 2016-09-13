@@ -141,6 +141,11 @@ public class QueueDuplicatesFromStoreTest extends TestCase {
          private SubscriptionStatistics subscriptionStatistics = new SubscriptionStatistics();
 
          @Override
+         public long getPendingMessageSize() {
+            return 0;
+         }
+
+         @Override
          public void add(MessageReference node) throws Exception {
             if (enqueueCounter.get() != node.getMessageId().getProducerSequenceId()) {
                errors.add("Not in sequence at: " + enqueueCounter.get() + ", received: "
