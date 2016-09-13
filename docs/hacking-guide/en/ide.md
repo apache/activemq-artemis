@@ -85,6 +85,14 @@ code generation from Java annotations. In order for it to 'just work' in Eclipse
 _Maven Integration for Eclipse JDT Annotation Processor Toolkit_ [m2e-apt](https://github.com/jbosstools/m2e-apt). See
 this [JBoss blog post](https://community.jboss.org/en/tools/blog/2012/05/20/annotation-processing-support-in-m2e-or-m2e-apt-100-is-out)
  for details.
+ 
+### Running tests from Eclipse
+Setting up annotation pre-processing in the above section is all you need to run tests in the "unit-tests" project as that will properly add the generated logger to the source.  However, one more step is needed to run tests in other projects such as "performance-tests" or "integration-tests" that have a dependency on "unit-tests". Currently m2eclipse does not properly link the generated source annotations folder from "unit-tests" which causes the logger that is generated to not be available.  To simplest way to fix this is to manually add a project dependency on "unit-tests" to each of the projects where you want to run a test class from:
+
+* Right click on the test project (i.e. integration-tests): Properties -> Java Build Path -> Projects -> Add
+* Select the "unit-tests" project and click Ok
+
+You should now be able to run tests assuming that the annotation pre-processing was set up properly in the previous step.
 
 ### M2E Connector for Javacc-Maven-Plugin
 
