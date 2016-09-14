@@ -1100,13 +1100,17 @@ public class QueueImpl implements Queue {
       }
    }
 
-   @Override
    public void expire(final MessageReference ref) throws Exception {
-      if (expiryAddress != null) {
+      SimpleString messageExpiryAddress = expiryAddressFromMessageAddress(ref);
+      if (messageExpiryAddress == null) {
+         messageExpiryAddress = expiryAddressFromAddressSettings(ref);
+      }
+
+      if (messageExpiryAddress != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("moving expired reference " + ref + " to address = " + expiryAddress + " from queue=" + this.getName());
+            logger.trace("moving expired reference " + ref + " to address = " + messageExpiryAddress + " from queue=" + this.getName());
          }
-         move(null, expiryAddress, ref, false, AckReason.EXPIRED);
+         move(null, messageExpiryAddress, ref, false, AckReason.EXPIRED);
       }
       else {
          if (logger.isTraceEnabled()) {
@@ -1115,6 +1119,40 @@ public class QueueImpl implements Queue {
          acknowledge(ref, AckReason.EXPIRED);
       }
    }
+
+   private SimpleString expiryAddressFromMessageAddress(MessageReference ref) {
+      SimpleString messageAddress = extractAddress(ref.getMessage());
+      SimpleString expiryAddress = null;
+
+      if (messageAddress == null || messageAddress.equals(getAddress())) {
+         expiryAddress = getExpiryAddress();
+      }
+
+      return expiryAddress;
+   }
+
+   private SimpleString expiryAddressFromAddressSettings(MessageReference ref) {
+      SimpleString messageAddress = extractAddress(ref.getMessage());
+      SimpleString expiryAddress = null;
+
+      if (messageAddress != null) {
+         AddressSettings addressSettings = addressSettingsRepository.getMatch(messageAddress.toString());
+
+         expiryAddress = addressSettings.getExpiryAddress();
+      }
+
+      return expiryAddress;
+   }
+
+   private SimpleString extractAddress(ServerMessage message) {
+      if (message.containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
+         return message.getSimpleStringProperty(Message.HDR_ORIGINAL_ADDRESS);
+      }
+      else {
+         return message.getAddress();
+      }
+   }
+
 
    @Override
    public SimpleString getExpiryAddress() {
