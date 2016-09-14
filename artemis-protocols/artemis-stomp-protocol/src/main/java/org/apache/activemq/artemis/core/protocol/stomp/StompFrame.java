@@ -91,15 +91,10 @@ public class StompFrame {
 
    public ActiveMQBuffer toActiveMQBuffer() throws Exception {
       if (buffer == null) {
-         if (bytesBody != null) {
-            buffer = ActiveMQBuffers.dynamicBuffer(bytesBody.length + 512);
-         }
-         else {
-            buffer = ActiveMQBuffers.dynamicBuffer(512);
-         }
-
          if (isPing()) {
-            buffer.writeByte((byte) 10);
+            buffer = ActiveMQBuffers.fixedBuffer(1);
+            buffer.writeByte((byte)10);
+            size = buffer.writerIndex();
             return buffer;
          }
 
@@ -117,7 +112,12 @@ public class StompFrame {
          // Add a newline to separate the headers from the content.
          head.append(Stomp.NEWLINE);
 
-         buffer.writeBytes(head.toString().getBytes(StandardCharsets.UTF_8));
+         byte[] headBytes = head.toString().getBytes(StandardCharsets.UTF_8);
+         int bodyLength = (bytesBody == null) ? 0 : bytesBody.length;
+
+         buffer = ActiveMQBuffers.fixedBuffer(headBytes.length + bodyLength + END_OF_FRAME.length);
+
+         buffer.writeBytes(headBytes);
          if (bytesBody != null) {
             buffer.writeBytes(bytesBody);
          }
