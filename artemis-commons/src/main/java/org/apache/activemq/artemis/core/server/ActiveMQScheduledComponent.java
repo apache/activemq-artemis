@@ -113,6 +113,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
 
    }
 
+   @Override
    public void run() {
       delayed.decrementAndGet();
    }

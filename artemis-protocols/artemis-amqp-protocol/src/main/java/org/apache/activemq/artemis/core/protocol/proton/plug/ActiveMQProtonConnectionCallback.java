@@ -72,6 +72,7 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback 
       return result;
    }
 
+   @Override
    public boolean isSupportsAnonymous() {
       boolean supportsAnonymous = false;
       try {
