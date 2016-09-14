@@ -103,7 +103,7 @@ public class StompFrame {
             return buffer;
          }
 
-         StringBuilder head = new StringBuilder();
+         StringBuilder head = new StringBuilder(512);
          head.append(command);
          head.append(Stomp.NEWLINE);
          // Output the headers.
