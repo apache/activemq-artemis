@@ -214,19 +214,28 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateJmsQueues() && autoCreate) {
          try {
             serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
-            queueQueryResult = new QueueQueryResult(queueQueryResult.getName(), queueQueryResult.getAddress(), queueQueryResult.isDurable(), queueQueryResult.isTemporary(), queueQueryResult.getFilterString(), queueQueryResult.getConsumerCount(), queueQueryResult.getMessageCount(), queueQueryResult.isAutoCreateJmsQueues(), true);
          }
          catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
+         queueQueryResult = new QueueQueryResult(queueQueryResult.getName(), queueQueryResult.getAddress(), queueQueryResult.isDurable(), queueQueryResult.isTemporary(), queueQueryResult.getFilterString(), queueQueryResult.getConsumerCount(), queueQueryResult.getMessageCount(), queueQueryResult.isAutoCreateJmsQueues(), true);
       }
       return queueQueryResult;
    }
 
    @Override
    public boolean bindingQuery(String address) throws Exception {
-      BindingQueryResult queueQuery = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
-      return queueQuery.isExists();
+      BindingQueryResult bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
+      if (!bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateJmsQueues()) {
+         try {
+            serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
+         }
+         catch (ActiveMQQueueExistsException e) {
+            // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+         }
+         bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
+      }
+      return bindingQueryResult.isExists();
    }
 
    @Override
