@@ -44,7 +44,6 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
    @Override
    public void run() {
-      super.run();
       tick();
    }
 
