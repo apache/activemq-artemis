@@ -78,7 +78,6 @@ final class PageSyncTimer extends ActiveMQScheduledComponent {
 
    @Override
    public void run() {
-      super.run();
       tick();
    }
 

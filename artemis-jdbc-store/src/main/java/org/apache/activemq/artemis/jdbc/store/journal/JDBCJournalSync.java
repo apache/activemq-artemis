@@ -38,7 +38,6 @@ public class JDBCJournalSync extends ActiveMQScheduledComponent {
 
    @Override
    public void run() {
-      super.run();
       if (journal.isStarted()) {
          journal.sync();
       }
