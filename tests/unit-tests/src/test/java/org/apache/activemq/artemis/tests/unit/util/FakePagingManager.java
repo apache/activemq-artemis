@@ -115,9 +115,10 @@ public final class FakePagingManager implements PagingManager {
    }
 
    /*
-       * (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
-       */
+    * (non-Javadoc)
+    * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
+    */
+   @Override
    public boolean isGlobalFull() {
       return false;
    }

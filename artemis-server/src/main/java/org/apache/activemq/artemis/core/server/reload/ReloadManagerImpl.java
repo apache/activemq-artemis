@@ -42,6 +42,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
       super(scheduledExecutorService, executor, checkPeriod, TimeUnit.MILLISECONDS, false);
    }
 
+   @Override
    public void run() {
       super.run();
       tick();

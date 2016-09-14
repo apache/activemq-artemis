@@ -90,6 +90,7 @@ public final class PagingManagerImpl implements PagingManager {
       this(pagingSPI, addressSettingsRepository, -1);
    }
 
+   @Override
    public void addBlockedStore(PagingStore store) {
       blockedStored.add(store);
    }
@@ -164,10 +165,12 @@ public final class PagingManagerImpl implements PagingManager {
       return diskFull;
    }
 
+   @Override
    public boolean isUsingGlobalSize() {
       return maxSize > 0;
    }
 
+   @Override
    public boolean isGlobalFull() {
       return diskFull || maxSize > 0 && globalSizeBytes.get() > maxSize;
    }

@@ -82,6 +82,7 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       }
    }
 
+   @Override
    public Symbol[] getConnectionCapabilitiesOffered() {
       return new Symbol[]{DELAYED_DELIVERY};
    }
