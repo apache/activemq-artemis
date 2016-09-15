@@ -64,11 +64,6 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
    }
 
    @Override
-   protected void initInternal() throws Exception {
-      connectionCallback.init();
-   }
-
-   @Override
    protected void remoteLinkOpened(Link link) throws Exception {
 
       ProtonServerSessionContext protonSession = (ProtonServerSessionContext) getSessionExtension(link.getSession());

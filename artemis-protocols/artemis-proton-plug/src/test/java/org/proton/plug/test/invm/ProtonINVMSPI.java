@@ -37,6 +37,8 @@ import org.proton.plug.util.ByteUtil;
 public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    private static final Logger log = Logger.getLogger(ProtonINVMSPI.class);
+
+
    AMQPConnectionContext returningConnection;
 
    ProtonServerConnectionContext serverConnection = new ProtonServerConnectionContext(new ReturnSPI(), Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()), null);
@@ -58,10 +60,6 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
             Thread.currentThread().setName("ReturningExecutor-INVM");
          }
       });
-   }
-
-   @Override
-   public void init() throws Exception {
    }
 
    @Override
@@ -135,10 +133,6 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
    }
 
    class ReturnSPI implements AMQPConnectionCallback {
-
-      @Override
-      public void init() throws Exception {
-      }
 
       @Override
       public void close() {

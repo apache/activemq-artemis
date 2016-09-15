@@ -1561,6 +1561,16 @@ public class ProtonTest extends ProtonTestBase {
          testConn2.close();
       }
 
+      try {
+         testConn1 = createConnection(false);
+         testConn2 = createConnection(false);
+         testConn1.setClientID("client-id1");
+         testConn2.setClientID("client-id2");
+      }
+      finally {
+         testConn1.close();
+         testConn2.close();
+      }
    }
 
    private javax.jms.Queue createQueue(String address) throws Exception {

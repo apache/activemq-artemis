@@ -397,4 +397,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    void setMBeanServer(MBeanServer mBeanServer);
 
    void addExternalComponent(ActiveMQComponent externalComponent);
+
+   boolean addClientConnection(String clientId, boolean unique);
+
+   void removeClientConnection(String clientId);
 }

@@ -43,6 +43,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -309,6 +310,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private Date startDate;
 
    private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
+
+   private final Map<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
+
    // Constructors
    // ---------------------------------------------------------------------------------
 
@@ -2396,6 +2400,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return new Date().getTime() - startDate.getTime();
    }
 
+   public boolean addClientConnection(String clientId, boolean unique) {
+      final AtomicInteger i = connectedClientIds.putIfAbsent(clientId, new AtomicInteger(1));
+      if (i != null) {
+         if (unique && i.get() != 0) {
+            return false;
+         }
+         else if (i.incrementAndGet() > 0) {
+            connectedClientIds.put(clientId, i);
+         }
+      }
+      return true;
+   }
+
+   public void removeClientConnection(String clientId) {
+      AtomicInteger i = connectedClientIds.get(clientId);
+      if (i != null && i.decrementAndGet() == 0) {
+         connectedClientIds.remove(clientId);
+      }
+   }
 
    private final class ActivationThread extends Thread {
       final Runnable runnable;

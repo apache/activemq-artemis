@@ -21,8 +21,6 @@ import org.apache.qpid.proton.engine.Connection;
 
 public interface AMQPConnectionCallback {
 
-   void init() throws Exception;
-
    void close();
 
    /**

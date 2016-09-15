@@ -55,10 +55,6 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
    }
 
    @Override
-   public void init() throws Exception {
-   }
-
-   @Override
    public void close() {
 
    }
