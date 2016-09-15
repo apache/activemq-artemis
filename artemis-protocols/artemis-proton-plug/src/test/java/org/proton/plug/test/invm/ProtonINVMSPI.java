@@ -21,10 +21,12 @@ import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.qpid.proton.engine.Connection;
 import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
+import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.context.server.ProtonServerConnectionContext;
 import org.proton.plug.sasl.AnonymousServerSASL;
@@ -59,6 +61,10 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
    }
 
    @Override
+   public void init() throws Exception {
+   }
+
+   @Override
    public void close() {
       mainExecutor.shutdown();
    }
@@ -76,6 +82,11 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
    @Override
    public void sendSASLSupported() {
 
+   }
+
+   @Override
+   public boolean validateConnection(Connection connection, SASLResult saslResult) {
+      return true;
    }
 
    @Override
@@ -126,6 +137,10 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
    class ReturnSPI implements AMQPConnectionCallback {
 
       @Override
+      public void init() throws Exception {
+      }
+
+      @Override
       public void close() {
 
       }
@@ -143,6 +158,11 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
       @Override
       public void sendSASLSupported() {
 
+      }
+
+      @Override
+      public boolean validateConnection(Connection connection, SASLResult saslResult) {
+         return true;
       }
 
       @Override

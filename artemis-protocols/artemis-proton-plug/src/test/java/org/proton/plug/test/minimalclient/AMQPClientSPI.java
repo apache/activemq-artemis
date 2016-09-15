@@ -22,10 +22,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.apache.qpid.proton.engine.Connection;
 import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
+import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
@@ -53,6 +55,10 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
    }
 
    @Override
+   public void init() throws Exception {
+   }
+
+   @Override
    public void close() {
 
    }
@@ -70,6 +76,11 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
    @Override
    public void sendSASLSupported() {
 
+   }
+
+   @Override
+   public boolean validateConnection(Connection connection, SASLResult saslResult) {
+      return true;
    }
 
    final ReusableLatch latch = new ReusableLatch(0);

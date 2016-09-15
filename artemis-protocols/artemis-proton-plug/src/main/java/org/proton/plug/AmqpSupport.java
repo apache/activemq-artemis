@@ -60,6 +60,7 @@ public class AmqpSupport {
    // Lifetime policy symbols
    public static final Symbol LIFETIME_POLICY = Symbol.valueOf("lifetime-policy");
 
+   public static final Symbol SOLE_CONNECTION_CAPABILITY = Symbol.valueOf("sole-connection-for-container");
    /**
     * Search for a given Symbol in a given array of Symbol object.
     *
