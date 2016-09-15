@@ -28,13 +28,17 @@ import org.jboss.logging.Logger;
 /** This is for components with a scheduled at a fixed rate. */
 public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, Runnable {
 
+
    private static final Logger logger = Logger.getLogger(ActiveMQScheduledComponent.class);
    private final ScheduledExecutorService scheduledExecutorService;
    private long period;
+   private long millisecondsPeriod;
    private TimeUnit timeUnit;
    private final Executor executor;
    private ScheduledFuture future;
    private final boolean onDemand;
+
+   long lastTime = 0;
 
    private final AtomicInteger delayed = new AtomicInteger(0);
 
@@ -58,6 +62,8 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       if (future != null) {
          return;
       }
+
+      this.millisecondsPeriod = timeUnit.convert(period, TimeUnit.MILLISECONDS);
       if (onDemand) {
          return;
       }
@@ -114,11 +120,6 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    @Override
-   public void run() {
-      delayed.decrementAndGet();
-   }
-
-   @Override
    public synchronized boolean isStarted() {
       return future != null;
    }
@@ -132,10 +133,30 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
       }
    }
 
+   final Runnable runForExecutor = new Runnable() {
+      @Override
+      public void run() {
+         if (onDemand && delayed.get() > 0) {
+            delayed.decrementAndGet();
+         }
+
+         if (!onDemand && lastTime > 0) {
+            if (System.currentTimeMillis() - lastTime < millisecondsPeriod) {
+               logger.trace("Execution ignored due to too many simultaneous executions, probably a previous delayed execution");
+               return;
+            }
+         }
+
+         lastTime = System.currentTimeMillis();
+
+         ActiveMQScheduledComponent.this.run();
+      }
+   };
+
    final Runnable runForScheduler = new Runnable() {
       @Override
       public void run() {
-         executor.execute(ActiveMQScheduledComponent.this);
+         executor.execute(runForExecutor);
       }
    };
 
