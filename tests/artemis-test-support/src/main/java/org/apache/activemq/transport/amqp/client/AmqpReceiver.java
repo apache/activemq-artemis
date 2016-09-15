@@ -208,6 +208,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * it is returned immediately otherwise this methods return null without waiting.
     *
     * @return a newly received message or null if there is no currently available message.
+    *
     * @throws Exception if an error occurs during the receive attempt.
     */
    public AmqpMessage receiveNoWait() throws Exception {
@@ -219,6 +220,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * Request a remote peer send a Message to this client waiting until one arrives.
     *
     * @return the pulled AmqpMessage or null if none was pulled from the remote.
+    *
     * @throws IOException if an error occurs
     */
    public AmqpMessage pull() throws IOException {
@@ -402,10 +404,36 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(final Delivery delivery) throws IOException {
+      accept(delivery, this.session);
+   }
+
+   /**
+    * Accepts a message that was dispatched under the given Delivery instance.
+    *
+    * This method allows for the session that is used in the accept to be specified by the
+    * caller.  This allows for an accepted message to be involved in a transaction that is
+    * being managed by some other session other than the one that created this receiver.
+    *
+    * @param delivery
+    *        the Delivery instance to accept.
+    * @param session
+    *        the session under which the message is being accepted.
+    *
+    * @throws IOException if an error occurs while sending the accept.
+    */
+   public void accept(final Delivery delivery, final AmqpSession session) throws IOException {
       checkClosed();
 
       if (delivery == null) {
          throw new IllegalArgumentException("Delivery to accept cannot be null");
+      }
+
+      if (session == null) {
+         throw new IllegalArgumentException("Session given cannot be null");
+      }
+
+      if (session.getConnection() != this.session.getConnection()) {
+         throw new IllegalArgumentException("The session used for accept must originate from the connection that created this receiver.");
       }
 
       final ClientFuture request = new ClientFuture();

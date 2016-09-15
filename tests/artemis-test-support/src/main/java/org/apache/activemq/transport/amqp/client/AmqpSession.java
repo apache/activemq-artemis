@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -408,11 +408,15 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       connection.pumpToProtonTransport(request);
    }
 
-   AmqpTransactionId getTransactionId() {
-      return txContext.getTransactionId();
+   public AmqpTransactionId getTransactionId() {
+      if (txContext != null && txContext.isInTransaction()) {
+         return txContext.getTransactionId();
+      }
+
+      return null;
    }
 
-   public AmqpTransactionContext getTransactionContext() {
+   AmqpTransactionContext getTransactionContext() {
       return txContext;
    }
 

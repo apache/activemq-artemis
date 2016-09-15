@@ -22,6 +22,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Connection;
 import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
@@ -29,6 +31,7 @@ import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
 import org.proton.plug.util.ByteUtil;
@@ -71,6 +74,21 @@ public class AMQPClientSPI implements AMQPConnectionCallback {
 
    @Override
    public void sendSASLSupported() {
+
+   }
+
+   @Override
+   public Binary newTransaction() {
+      return null;
+   }
+
+   @Override
+   public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+      return null;
+   }
+
+   @Override
+   public void removeTransaction(Binary txid) {
 
    }
 

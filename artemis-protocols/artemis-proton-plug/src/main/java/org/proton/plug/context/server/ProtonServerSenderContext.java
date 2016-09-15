@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
@@ -339,7 +340,9 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
       if (remoteState != null) {
          // If we are transactional then we need ack if the msg has been accepted
          if (remoteState instanceof TransactionalState) {
+
             TransactionalState txState = (TransactionalState) remoteState;
+            Transaction tx = this.sessionSPI.getTransaction(txState.getTxnId());
             if (txState.getOutcome() != null) {
                Outcome outcome = txState.getOutcome();
                if (outcome instanceof Accepted) {
@@ -353,7 +356,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                   //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
                   // from dealer, a perf hit but a must
                   try {
-                     sessionSPI.ack(brokerConsumer, message);
+                     sessionSPI.ack(tx, brokerConsumer, message);
                   }
                   catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
@@ -365,7 +368,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
             //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
             // from dealer, a perf hit but a must
             try {
-               sessionSPI.ack(brokerConsumer, message);
+               sessionSPI.ack(null, brokerConsumer, message);
             }
             catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());

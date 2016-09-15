@@ -74,4 +74,7 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 219013, value = "error committing coordinator: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException errorCommittingCoordinator(String message);
 
+   @Message(id = 219014, value = "Transaction not found: xid={0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPIllegalStateException txNotFound(String xidToString);
+
 }

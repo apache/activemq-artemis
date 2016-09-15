@@ -20,7 +20,9 @@ import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
 
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Session;
@@ -74,6 +76,21 @@ public class AbstractConnectionContextTest {
 
       @Override
       public void close() {
+
+      }
+
+      @Override
+      public Binary newTransaction() {
+         return null;
+      }
+
+      @Override
+      public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+         return null;
+      }
+
+      @Override
+      public void removeTransaction(Binary txid) {
 
       }
 

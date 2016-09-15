@@ -20,7 +20,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Connection;
 import org.jboss.logging.Logger;
 import org.proton.plug.AMQPConnectionContext;
@@ -29,6 +31,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.context.server.ProtonServerConnectionContext;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.sasl.AnonymousServerSASL;
 import org.proton.plug.sasl.ServerSASLPlain;
 import org.proton.plug.test.minimalserver.MinimalSessionSPI;
@@ -132,10 +135,40 @@ public class ProtonINVMSPI implements AMQPConnectionCallback {
       return null;
    }
 
+   @Override
+   public Binary newTransaction() {
+      return null;
+   }
+
+   @Override
+   public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+      return null;
+   }
+
+   @Override
+   public void removeTransaction(Binary txid) {
+
+   }
+
    class ReturnSPI implements AMQPConnectionCallback {
 
       @Override
       public void close() {
+
+      }
+
+      @Override
+      public Binary newTransaction() {
+         return null;
+      }
+
+      @Override
+      public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+         return null;
+      }
+
+      @Override
+      public void removeTransaction(Binary txid) {
 
       }
 

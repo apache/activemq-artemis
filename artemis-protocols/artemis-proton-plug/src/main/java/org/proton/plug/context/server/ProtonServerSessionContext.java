@@ -19,6 +19,7 @@ package org.proton.plug.context.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Receiver;
@@ -60,6 +61,11 @@ public class ProtonServerSessionContext extends AbstractProtonSessionContext {
 
    public void addTransactionHandler(Coordinator coordinator, Receiver receiver) {
       ProtonTransactionHandler transactionHandler = new ProtonTransactionHandler(sessionSPI);
+
+      coordinator.setCapabilities(Symbol.getSymbol("amqp:local-transactions"),
+                                  Symbol.getSymbol("amqp:multi-txns-per-ssn"),
+                                  Symbol.getSymbol("amqp:multi-ssns-per-txn"));
+
       receiver.setContext(transactionHandler);
       receiver.open();
       receiver.flow(100);

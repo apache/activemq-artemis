@@ -41,7 +41,6 @@ public class ProtonTestBase extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      disableCheckThread();
 
       server = this.createServer(true, true);
       HashMap<String, Object> params = new HashMap<>();

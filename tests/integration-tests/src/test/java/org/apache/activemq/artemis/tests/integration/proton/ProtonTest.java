@@ -815,7 +815,8 @@ public class ProtonTest extends ProtonTestBase {
          request.setText("[]");
 
          sender.send(request);
-         AmqpMessage response = receiver.receive();
+         AmqpMessage response = receiver.receive(50, TimeUnit.SECONDS);
+         Assert.assertNotNull(response);
          assertNotNull(response);
          Object section = response.getWrappedMessage().getBody();
          assertTrue(section instanceof AmqpValue);

@@ -42,7 +42,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -61,6 +60,7 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;
 import org.proton.plug.SASLResult;
 import org.proton.plug.context.ProtonPlugSender;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
 import org.proton.plug.exceptions.ActiveMQAMQPResourceLimitExceededException;
 import org.proton.plug.sasl.PlainSASLResult;
@@ -282,43 +282,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public Binary getCurrentTXID() {
-      Transaction tx = serverSession.getCurrentTransaction();
-      if (tx == null) {
-         tx = serverSession.newTransaction();
-         serverSession.resetTX(tx);
-      }
-      return new Binary(ByteUtil.longToBytes(tx.getID()));
-   }
-
-   @Override
    public String tempQueueName() {
       return UUIDGenerator.getInstance().generateStringUUID();
-   }
-
-   @Override
-   public void commitCurrentTX() throws Exception {
-      recoverContext();
-      try {
-         serverSession.commit();
-      }
-      finally {
-         resetContext();
-      }
-   }
-
-   @Override
-   public void rollbackCurrentTX(boolean lastMessageDelivered) throws Exception {
-      //need to check here as this can be called if init fails
-      if (serverSession != null) {
-         recoverContext();
-         try {
-            serverSession.rollback(lastMessageDelivered);
-         }
-         finally {
-            resetContext();
-         }
-      }
    }
 
    @Override
@@ -336,10 +301,13 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public void ack(Object brokerConsumer, Object message) throws Exception {
+   public void ack(Transaction transaction, Object brokerConsumer, Object message) throws Exception {
+      if (transaction == null) {
+         transaction = serverSession.getCurrentTransaction();
+      }
       recoverContext();
       try {
-         ((ServerConsumer) brokerConsumer).individualAcknowledge(serverSession.getCurrentTransaction(), ((ServerMessage) message).getMessageID());
+         ((ServerConsumer) brokerConsumer).individualAcknowledge(transaction, ((ServerMessage) message).getMessageID());
       }
       finally {
          resetContext();
@@ -363,7 +331,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
    }
 
    @Override
-   public void serverSend(final Receiver receiver,
+   public void serverSend(final Transaction transaction,
+                          final Receiver receiver,
                           final Delivery delivery,
                           String address,
                           int messageFormat,
@@ -382,10 +351,10 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       if (store.isRejectingMessages()) {
          // We drop pre-settled messages (and abort any associated Tx)
          if (delivery.remotelySettled()) {
-            if (serverSession.getCurrentTransaction() != null) {
+            if (transaction != null) {
                String amqpAddress = delivery.getLink().getTarget().getAddress();
                ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
-               serverSession.getCurrentTransaction().markAsRollbackOnly(e);
+               transaction.markAsRollbackOnly(e);
             }
          }
          else {
@@ -393,7 +362,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
          }
       }
       else {
-         serverSend(message, delivery, receiver);
+         serverSend(transaction, message, delivery, receiver);
       }
    }
 
@@ -406,11 +375,11 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
       connection.flush();
    }
 
-   private void serverSend(final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {
+   private void serverSend(final Transaction transaction, final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {
       try {
 
          message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
-         serverSession.send(message, false);
+         serverSession.send(transaction, message, false, false);
 
          // FIXME Potential race here...
          manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback() {
@@ -543,4 +512,31 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
          return false;
       }
    }
+
+   @Override
+   public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+      return protonSPI.getTransaction(txid);
+   }
+
+   @Override
+   public Binary newTransaction() {
+      return protonSPI.newTransaction();
+   }
+
+
+   @Override
+   public void commitTX(Binary txid) throws Exception {
+      Transaction tx = protonSPI.getTransaction(txid);
+      tx.commit(true);
+      protonSPI.removeTransaction(txid);
+   }
+
+   @Override
+   public void rollbackTX(Binary txid, boolean lastMessageReceived) throws Exception {
+      Transaction tx = protonSPI.getTransaction(txid);
+      tx.rollback();
+      protonSPI.removeTransaction(txid);
+
+   }
+
 }

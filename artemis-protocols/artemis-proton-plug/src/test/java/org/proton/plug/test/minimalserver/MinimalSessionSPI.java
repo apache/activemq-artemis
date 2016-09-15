@@ -22,7 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -123,16 +126,23 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public Binary getCurrentTXID() {
-      return new Binary(new byte[]{1});
+   public Transaction getTransaction(Binary txid) {
+      return new TransactionImpl(new NullStorageManager());
    }
 
    @Override
-   public void commitCurrentTX() {
+   public Binary newTransaction() {
+      return null;
    }
 
    @Override
-   public void rollbackCurrentTX(boolean lastMessage) {
+   public void commitTX(Binary txid) throws Exception {
+
+   }
+
+   @Override
+   public void rollbackTX(Binary txid, boolean lastMessageReceived) throws Exception {
+
    }
 
    @Override
@@ -141,7 +151,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void ack(Object brokerConsumer, Object message) {
+   public void ack(Transaction tx, Object brokerConsumer, Object message) {
 
    }
 
@@ -157,7 +167,7 @@ public class MinimalSessionSPI implements AMQPSessionCallback {
    }
 
    @Override
-   public void serverSend(Receiver receiver, Delivery delivery, String address, int messageFormat, ByteBuf buffer) {
+   public void serverSend(Transaction tx, Receiver receiver, Delivery delivery, String address, int messageFormat, ByteBuf buffer) {
       ProtonServerMessage serverMessage = new ProtonServerMessage();
       serverMessage.decode(buffer.nioBuffer());
 
