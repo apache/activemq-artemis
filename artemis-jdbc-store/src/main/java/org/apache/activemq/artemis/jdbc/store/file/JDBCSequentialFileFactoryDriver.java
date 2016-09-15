@@ -25,7 +25,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
@@ -49,8 +52,8 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       super();
    }
 
-   public JDBCSequentialFileFactoryDriver(String tableName, String jdbcConnectionUrl, String jdbcDriverClass) {
-      super(tableName, jdbcConnectionUrl, jdbcDriverClass);
+   public JDBCSequentialFileFactoryDriver(String tableName, DataSource dataSource, SQLProvider provider) {
+      super(dataSource, provider);
    }
 
    @Override

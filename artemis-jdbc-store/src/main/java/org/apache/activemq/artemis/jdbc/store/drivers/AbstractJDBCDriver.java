@@ -22,6 +22,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
@@ -41,13 +43,20 @@ public abstract class AbstractJDBCDriver {
 
    protected Driver dbDriver;
 
+   protected DataSource dataSource;
+
    public AbstractJDBCDriver() {
    }
 
-   public AbstractJDBCDriver(String tableName, String jdbcConnectionUrl, String jdbcDriverClass) {
+   public AbstractJDBCDriver(SQLProvider sqlProvider, String jdbcConnectionUrl, String jdbcDriverClass) {
       this.jdbcConnectionUrl = jdbcConnectionUrl;
       this.jdbcDriverClass = jdbcDriverClass;
-      this.sqlProvider = JDBCUtils.getSQLProvider(jdbcDriverClass, tableName);
+      this.sqlProvider = sqlProvider;
+   }
+
+   public AbstractJDBCDriver(DataSource dataSource, SQLProvider provider) {
+      this.dataSource = dataSource;
+      this.sqlProvider = provider;
    }
 
    public void start() throws Exception {
@@ -71,13 +80,18 @@ public abstract class AbstractJDBCDriver {
    }
 
    protected void connect() throws Exception {
-      try {
-         dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
-         connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
+      if (dataSource != null) {
+         connection = dataSource.getConnection();
       }
-      catch (SQLException e) {
-         ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
-         throw new RuntimeException("Error connecting to database", e);
+      else {
+         try {
+            dbDriver = JDBCUtils.getDriver(jdbcDriverClass);
+            connection = dbDriver.connect(jdbcConnectionUrl, new Properties());
+         }
+         catch (SQLException e) {
+            ActiveMQJournalLogger.LOGGER.error("Unable to connect to database using URL: " + jdbcConnectionUrl);
+            throw new RuntimeException("Error connecting to database", e);
+         }
       }
    }
 
@@ -125,5 +139,13 @@ public abstract class AbstractJDBCDriver {
 
    public void setJdbcDriverClass(String jdbcDriverClass) {
       this.jdbcDriverClass = jdbcDriverClass;
+   }
+
+   public DataSource getDataSource() {
+      return dataSource;
+   }
+
+   public void setDataSource(DataSource dataSource) {
+      this.dataSource = dataSource;
    }
 }

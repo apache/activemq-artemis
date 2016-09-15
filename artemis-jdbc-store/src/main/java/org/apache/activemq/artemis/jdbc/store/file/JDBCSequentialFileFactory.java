@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import javax.sql.DataSource;
+
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.jdbc.store.JDBCUtils;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {
@@ -44,13 +47,22 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private final JDBCSequentialFileFactoryDriver dbDriver;
 
-   public JDBCSequentialFileFactory(final String connectionUrl,
+   public JDBCSequentialFileFactory(final DataSource dataSource,
+                                    final SQLProvider sqlProvider,
                                     final String tableName,
-                                    final String className,
                                     Executor executor) throws Exception {
       this.executor = executor;
       files = new ArrayList<>();
-      dbDriver = JDBCUtils.getDBFileDriver(className, tableName, connectionUrl);
+      dbDriver = JDBCUtils.getDBFileDriver(dataSource, tableName, sqlProvider);
+   }
+
+   public JDBCSequentialFileFactory(final String connectionUrl,
+                                    final String className,
+                                    final SQLProvider sqlProvider,
+                                    Executor executor) throws Exception {
+      this.executor = executor;
+      files = new ArrayList<>();
+      dbDriver = JDBCUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
    }
 
    @Override

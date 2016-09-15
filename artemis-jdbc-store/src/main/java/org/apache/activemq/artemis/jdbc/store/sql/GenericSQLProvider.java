@@ -57,7 +57,7 @@ public class GenericSQLProvider implements SQLProvider {
 
    private final String countJournalRecordsSQL;
 
-   public GenericSQLProvider(String tableName) {
+   protected GenericSQLProvider(String tableName) {
       this.tableName = tableName;
 
       createFileTableSQL = "CREATE TABLE " + tableName +
@@ -197,5 +197,12 @@ public class GenericSQLProvider implements SQLProvider {
    @Override
    public boolean closeConnectionOnShutdown() {
       return true;
+   }
+
+   public static class Factory implements SQLProvider.Factory {
+
+      public SQLProvider create(String tableName) {
+         return new GenericSQLProvider(tableName);
+      }
    }
 }

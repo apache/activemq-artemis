@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jdbc.store.drivers.postgres;
 
 import org.apache.activemq.artemis.jdbc.store.sql.GenericSQLProvider;
+import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 
 public class PostgresSQLProvider extends GenericSQLProvider {
 
@@ -27,7 +28,7 @@ public class PostgresSQLProvider extends GenericSQLProvider {
 
    private final String createJournalTableSQL;
 
-   public PostgresSQLProvider(String tName) {
+   private PostgresSQLProvider(String tName) {
       super(tName.toLowerCase());
       createFileTableSQL = "CREATE TABLE " + tableName +
          "(ID SERIAL, FILENAME VARCHAR(255), EXTENSION VARCHAR(10), DATA OID, PRIMARY KEY(ID))";
@@ -48,6 +49,15 @@ public class PostgresSQLProvider extends GenericSQLProvider {
    @Override
    public int getMaxBlobSize() {
       return MAX_BLOB_SIZE;
+   }
+
+   public static class Factory implements SQLProvider.Factory {
+
+
+      @Override
+      public SQLProvider create(String tableName) {
+         return new PostgresSQLProvider(tableName);
+      }
    }
 }
 

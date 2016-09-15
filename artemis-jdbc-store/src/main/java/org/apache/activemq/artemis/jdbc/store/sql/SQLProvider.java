@@ -57,4 +57,8 @@ public interface SQLProvider {
    String getCountJournalRecordsSQL();
 
    boolean closeConnectionOnShutdown();
+
+   interface Factory {
+      SQLProvider create(String tableName);
+   }
 }
