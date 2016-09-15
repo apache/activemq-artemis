@@ -39,7 +39,7 @@ public class ProtonInitializable {
 
    public void initialise() throws Exception {
       if (!initialized) {
-         initialized = false;
+         initialized = true;
          try {
             if (afterInit != null) {
                afterInit.run();

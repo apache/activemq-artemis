@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
+import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.EventHandler;
@@ -72,6 +73,10 @@ public class AbstractConnectionContextTest {
    private class TestConnectionCallback implements AMQPConnectionCallback {
 
       @Override
+      public void init() throws Exception {
+      }
+
+      @Override
       public void close() {
 
       }
@@ -109,6 +114,11 @@ public class AbstractConnectionContextTest {
       @Override
       public void sendSASLSupported() {
 
+      }
+
+      @Override
+      public boolean validateConnection(Connection connection, SASLResult saslResult) {
+         return true;
       }
    }
 }

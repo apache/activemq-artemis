@@ -14,36 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.proton.plug;
+package org.proton.plug.handler;
 
-import io.netty.buffer.ByteBuf;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Connection;
 
-public interface AMQPConnectionCallback {
+import static org.proton.plug.AmqpSupport.DELAYED_DELIVERY;
+import static org.proton.plug.AmqpSupport.SOLE_CONNECTION_CAPABILITY;
 
-   void init() throws Exception;
+public class ExtCapability {
 
-   void close();
+   public static final Symbol[] capabilities = new Symbol[] {
+      SOLE_CONNECTION_CAPABILITY, DELAYED_DELIVERY
+   };
 
-   /**
-    * this is called when bytes are available to be sent to the client.
-    * you have to callback {@link org.proton.plug.AMQPConnectionContext#outputDone(int)} after you're done with this buffer
-    *
-    * @param bytes
-    */
-   void onTransport(ByteBuf bytes, AMQPConnectionContext connection);
+   public static Symbol[] getCapabilities() {
+      return capabilities;
+   }
 
-   AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection);
-
-   void setConnection(AMQPConnectionContext connection);
-
-   AMQPConnectionContext getConnection();
-
-   ServerSASL[] getSASLMechnisms();
-
-   boolean isSupportsAnonymous();
-
-   void sendSASLSupported();
-
-   boolean validateConnection(Connection connection, SASLResult saslResult);
+   public static boolean needUniqueConnection(Connection connection) {
+      Symbol[] extCapabilities = connection.getRemoteDesiredCapabilities();
+      if (extCapabilities != null) {
+         for (Symbol sym : extCapabilities) {
+            if (sym.compareTo(SOLE_CONNECTION_CAPABILITY) == 0) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
 }
