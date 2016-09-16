@@ -73,10 +73,6 @@ public class AbstractConnectionContextTest {
    private class TestConnectionCallback implements AMQPConnectionCallback {
 
       @Override
-      public void init() throws Exception {
-      }
-
-      @Override
       public void close() {
 
       }

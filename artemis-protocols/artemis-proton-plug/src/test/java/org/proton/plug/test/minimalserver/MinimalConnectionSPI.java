@@ -51,10 +51,6 @@ public class MinimalConnectionSPI implements AMQPConnectionCallback {
    ExecutorService executorService = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
    @Override
-   public void init() throws Exception {
-   }
-
-   @Override
    public void close() {
       executorService.shutdown();
    }
