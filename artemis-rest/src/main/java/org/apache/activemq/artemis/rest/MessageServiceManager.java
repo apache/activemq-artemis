@@ -46,14 +46,14 @@ import org.apache.activemq.artemis.utils.XMLUtil;
 
 public class MessageServiceManager {
 
-   protected ExecutorService threadPool;
-   protected QueueServiceManager queueManager;
-   protected TopicServiceManager topicManager;
-   protected TimeoutTask timeoutTask;
-   protected int timeoutTaskInterval = 1;
+   private ExecutorService threadPool;
+   private QueueServiceManager queueManager;
+   private TopicServiceManager topicManager;
+   private TimeoutTask timeoutTask;
+   private int timeoutTaskInterval = 1;
    protected MessageServiceConfiguration configuration = new MessageServiceConfiguration();
-   protected boolean configSet = false;
-   protected String configResourcePath;
+   private boolean configSet = false;
+   private String configResourcePath;
    protected BindingRegistry registry;
 
    private ClientSessionFactory consumerSessionFactory;
@@ -116,14 +116,13 @@ public class MessageServiceManager {
    }
 
    public void start() throws Exception {
-      if (configuration == null || configSet == false) {
+      if (configuration == null || !configSet) {
          if (configResourcePath == null) {
             configuration = new MessageServiceConfiguration();
          } else {
             URL url = getClass().getClassLoader().getResource(configResourcePath);
 
-            if (url == null) {
-               // The URL is outside of the classloader. Trying a pure url now
+            if (isOutsideOfClassloader(url)) {
                url = new URL(configResourcePath);
             }
             JAXBContext jaxb = JAXBContext.newInstance(MessageServiceConfiguration.class);
@@ -161,7 +160,7 @@ public class MessageServiceManager {
 
       ClientSessionFactory sessionFactory = defaultLocator.createSessionFactory();
 
-      LinkStrategy linkStrategy = new LinkHeaderLinkStrategy();
+      LinkStrategy linkStrategy;
       if (configuration.isUseLinkHeaders()) {
          linkStrategy = new LinkHeaderLinkStrategy();
       } else {
@@ -194,6 +193,10 @@ public class MessageServiceManager {
 
       queueManager.start();
       topicManager.start();
+   }
+
+   private boolean isOutsideOfClassloader(URL url) {
+      return url == null;
    }
 
    public void stop() {
