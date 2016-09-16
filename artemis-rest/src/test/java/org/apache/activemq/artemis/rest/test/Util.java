@@ -39,7 +39,7 @@ public final class Util {
       return Constants.PATH_FOR_QUEUES + "/" + queueName;
    }
 
-   static ClientResponse setAutoAck(Link link, boolean ack) throws Exception {
+   public static ClientResponse setAutoAck(Link link, boolean ack) throws Exception {
       ClientResponse response;
       response = link.request().formParameter("autoAck", Boolean.toString(ack)).post();
       response.releaseConnection();
