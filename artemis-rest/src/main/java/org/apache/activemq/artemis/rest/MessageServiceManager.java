@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.rest;
 
+import javax.xml.bind.JAXBContext;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -24,8 +25,6 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.bind.JAXBContext;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -47,14 +46,14 @@ import org.apache.activemq.artemis.utils.XMLUtil;
 
 public class MessageServiceManager {
 
-   protected ExecutorService threadPool;
-   protected QueueServiceManager queueManager;
-   protected TopicServiceManager topicManager;
-   protected TimeoutTask timeoutTask;
-   protected int timeoutTaskInterval = 1;
+   private ExecutorService threadPool;
+   private QueueServiceManager queueManager;
+   private TopicServiceManager topicManager;
+   private TimeoutTask timeoutTask;
+   private int timeoutTaskInterval = 1;
    protected MessageServiceConfiguration configuration = new MessageServiceConfiguration();
-   protected boolean configSet = false;
-   protected String configResourcePath;
+   private boolean configSet = false;
+   private String configResourcePath;
    protected BindingRegistry registry;
 
    private ClientSessionFactory consumerSessionFactory;
@@ -117,15 +116,14 @@ public class MessageServiceManager {
    }
 
    public void start() throws Exception {
-      if (configuration == null || configSet == false) {
+      if (configuration == null || !configSet) {
          if (configResourcePath == null) {
             configuration = new MessageServiceConfiguration();
          }
          else {
             URL url = getClass().getClassLoader().getResource(configResourcePath);
 
-            if (url == null) {
-               // The URL is outside of the classloader. Trying a pure url now
+            if (isOutsideOfClassloader(url)) {
                url = new URL(configResourcePath);
             }
             JAXBContext jaxb = JAXBContext.newInstance(MessageServiceConfiguration.class);
@@ -163,7 +161,7 @@ public class MessageServiceManager {
 
       ClientSessionFactory sessionFactory = defaultLocator.createSessionFactory();
 
-      LinkStrategy linkStrategy = new LinkHeaderLinkStrategy();
+      LinkStrategy linkStrategy;
       if (configuration.isUseLinkHeaders()) {
          linkStrategy = new LinkHeaderLinkStrategy();
       }
@@ -199,6 +197,10 @@ public class MessageServiceManager {
       topicManager.start();
    }
 
+   private boolean isOutsideOfClassloader(URL url) {
+      return url == null;
+   }
+
    public void stop() {
       if (queueManager != null)
          queueManager.stop();
@@ -211,7 +213,7 @@ public class MessageServiceManager {
       try {
          threadPool.awaitTermination(5000, TimeUnit.SECONDS);
       }
-      catch (InterruptedException e) {
+      catch (InterruptedException ignored) {
       }
       this.consumerSessionFactory.close();
    }

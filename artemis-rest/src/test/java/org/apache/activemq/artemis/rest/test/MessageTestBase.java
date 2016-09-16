@@ -30,7 +30,7 @@ import org.junit.BeforeClass;
 
 public class MessageTestBase {
 
-   public static Embedded server;
+   public static EmbeddedTestServer server;
    public static MessageServiceManager manager;
    private static Field executorField;
 
@@ -46,7 +46,7 @@ public class MessageTestBase {
 
    @BeforeClass
    public static void setupActiveMQServerAndManager() throws Exception {
-      server = new Embedded();
+      server = new EmbeddedTestServer();
       server.start();
       manager = server.getManager();
    }

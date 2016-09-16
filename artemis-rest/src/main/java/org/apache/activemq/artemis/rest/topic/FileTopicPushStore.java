@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
-public class FileTopicPushStore extends FilePushStore implements TopicPushStore {
+class FileTopicPushStore extends FilePushStore implements TopicPushStore {
 
-   public FileTopicPushStore(String dirname) throws Exception {
+   FileTopicPushStore(String dirname) throws Exception {
       super(dirname);
    }
 
