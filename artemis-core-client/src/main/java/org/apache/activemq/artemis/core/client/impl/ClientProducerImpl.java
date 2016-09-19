@@ -266,7 +266,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
             largeMessageSend(sendBlocking, msgI, theCredits, handler);
          }
          else {
-            sendRegularMessage(msgI, sendBlocking, theCredits, handler);
+            sendRegularMessage(sendingAddress, msgI, sendBlocking, theCredits, handler);
          }
       }
       finally {
@@ -274,7 +274,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       }
    }
 
-   private void sendRegularMessage(final MessageInternal msgI,
+   private void sendRegularMessage(final SimpleString sendingAddress,
+                                   final MessageInternal msgI,
                                    final boolean sendBlocking,
                                    final ClientProducerCredits theCredits,
                                    final SendAcknowledgementHandler handler) throws ActiveMQException {
@@ -290,7 +291,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
       theCredits.acquireCredits(creditSize);
 
-      session.checkDefaultAddress(address);
+      session.checkDefaultAddress(sendingAddress);
 
       sessionContext.sendFullMessage(msgI, sendBlocking, handler, address);
    }
@@ -491,7 +492,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
                msgI.putLongProperty(Message.HDR_LARGE_BODY_SIZE, deflaterReader.getTotalSize());
 
                msgI.getBodyBuffer().writeBytes(buff, 0, pos);
-               sendRegularMessage(msgI, sendBlocking, credits, handler);
+               sendRegularMessage(msgI.getAddress(), msgI, sendBlocking, credits, handler);
                return;
             }
             else {
