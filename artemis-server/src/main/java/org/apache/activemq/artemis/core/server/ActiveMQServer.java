@@ -95,10 +95,14 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    NodeManager getNodeManager();
 
-   /** it will release hold a lock for the activation. */
+   /**
+    * it will release hold a lock for the activation.
+    */
    void unlockActivation();
 
-   /** it will hold a lock for the activation. This will prevent the activation from happening. */
+   /**
+    * it will hold a lock for the activation. This will prevent the activation from happening.
+    */
    void lockActivation();
 
    /**
@@ -266,15 +270,17 @@ public interface ActiveMQServer extends ActiveMQComponent {
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
 
    /**
-    * Creates a shared queue. if non durable it will exist as long as there are consumers.
-    *
+    * Creates a transient queue. A queue that will exist as long as there are consumers.
+    * The queue will be deleted as soon as all the consumers are removed.
+    * <p>
     * Notice: the queue won't be deleted until the first consumer arrives.
     *
     * @param address
     * @param name
     * @param filterString
     * @param durable
-    * @throws Exception
+    * @throws ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filter}
+    * @throws NullPointerException                      if {@code address} is {@code null}
     */
    void createSharedQueue(final SimpleString address,
                           final SimpleString name,

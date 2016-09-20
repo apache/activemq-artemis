@@ -33,18 +33,14 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -54,6 +50,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCon
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -61,7 +58,11 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.junit.Assert;
 import org.junit.Before;
@@ -208,14 +209,11 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       server.stop();
    }
 
-
-
    @Test
    public void testForcedInterruptUsingJMS() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
 
       server.start();
-
 
       SimpleString jmsAddress = new SimpleString("jms.queue.Test");
 
@@ -264,7 +262,6 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       server.stop();
    }
-
 
    @Test
    public void testSendNonPersistentQueue() throws Exception {
@@ -540,7 +537,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          }
       }
 
-      class NoPostACKQueueFactory implements QueueFactory {
+      final class NoPostACKQueueFactory implements QueueFactory {
 
          final StorageManager storageManager;
 
@@ -564,6 +561,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
             this.execFactory = execFactory;
          }
 
+         @Override
+         public Queue createQueueWith(final QueueConfig config) {
+            return new NoPostACKQueue(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor());
+         }
+
+         @Deprecated
          @Override
          public Queue createQueue(long persistenceID,
                                   SimpleString address,
