@@ -29,12 +29,12 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.filter.FilterUtils;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
@@ -67,12 +68,12 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
    protected final PostOffice postOffice;
    protected final PagingManager pagingManager;
-   private StorageManager storageManager;
+   private final StorageManager storageManager;
    private final QueueFactory queueFactory;
    protected final NodeManager nodeManager;
    private final ManagementService managementService;
    private final GroupingHandler groupingHandler;
-   private Configuration configuration;
+   private final Configuration configuration;
    private Map<Long, Queue> queues;
 
    public PostOfficeJournalLoader(PostOffice postOffice,
@@ -113,50 +114,45 @@ public class PostOfficeJournalLoader implements JournalLoader {
    public void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
                           List<QueueBindingInfo> queueBindingInfos) throws Exception {
       int duplicateID = 0;
-      for (QueueBindingInfo queueBindingInfo : queueBindingInfos) {
+      for (final QueueBindingInfo queueBindingInfo : queueBindingInfos) {
          queueBindingInfosMap.put(queueBindingInfo.getId(), queueBindingInfo);
 
-         Filter filter = FilterImpl.createFilter(queueBindingInfo.getFilterString());
+         final Filter filter = FilterImpl.createFilter(queueBindingInfo.getFilterString());
 
-         boolean isTopicIdentification = filter != null && filter.getFilterString() != null &&
-            filter.getFilterString().toString().equals(ActiveMQServerImpl.GENERIC_IGNORED_FILTER);
+         final boolean isTopicIdentification = FilterUtils.isTopicIdentification(filter);
 
          if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null) {
 
             if (isTopicIdentification) {
-               long tx = storageManager.generateID();
+               final long tx = storageManager.generateID();
                storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
                storageManager.commitBindings(tx);
                continue;
             }
             else {
-
-               SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
+               final SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
                ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
                queueBindingInfo.replaceQueueName(newName);
             }
          }
-
-         PageSubscription subscription = null;
-
-         if (!isTopicIdentification) {
-            subscription = pagingManager.getPageStore(queueBindingInfo.getAddress()).getCursorProvider().createSubscription(queueBindingInfo.getId(), filter, true);
+         final QueueConfig.Builder queueConfigBuilder;
+         if (queueBindingInfo.getAddress() == null) {
+            queueConfigBuilder = QueueConfig.builderWith(queueBindingInfo.getId(), queueBindingInfo.getQueueName());
          }
-
-         Queue queue = queueFactory.createQueue(queueBindingInfo.getId(), queueBindingInfo.getAddress(), queueBindingInfo.getQueueName(), filter, subscription, queueBindingInfo.getUser(), true, false, queueBindingInfo.isAutoCreated());
-
-         if (queueBindingInfo.isAutoCreated()) {
+         else {
+            queueConfigBuilder = QueueConfig.builderWith(queueBindingInfo.getId(), queueBindingInfo.getQueueName(), queueBindingInfo.getAddress());
+         }
+         queueConfigBuilder.filter(filter).pagingManager(pagingManager).user(queueBindingInfo.getUser()).durable(true).temporary(false).autoCreated(queueBindingInfo.isAutoCreated());
+         final Queue queue = queueFactory.createQueueWith(queueConfigBuilder.build());
+         if (queue.isAutoCreated()) {
             queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl) postOffice).getServer().getJMSQueueDeleter(), queueBindingInfo.getQueueName()));
          }
 
-         Binding binding = new LocalQueueBinding(queueBindingInfo.getAddress(), queue, nodeManager.getNodeId());
-
-         queues.put(queueBindingInfo.getId(), queue);
-
+         final Binding binding = new LocalQueueBinding(queue.getAddress(), queue, nodeManager.getNodeId());
+         queues.put(queue.getID(), queue);
          postOffice.addBinding(binding);
-
-         managementService.registerAddress(queueBindingInfo.getAddress());
-         managementService.registerQueue(queue, queueBindingInfo.getAddress(), storageManager);
+         managementService.registerAddress(queue.getAddress());
+         managementService.registerQueue(queue, queue.getAddress(), storageManager);
 
       }
    }

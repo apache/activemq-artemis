@@ -21,6 +21,16 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public interface Filter {
 
+   /**
+    * JMS Topics (which are outside of the scope of the core API) will require a dumb subscription
+    * with a dummy-filter at this current version as a way to keep its existence valid and TCK
+    * tests. That subscription needs an invalid filter, however paging needs to ignore any
+    * subscription with this filter. For that reason, this filter needs to be rejected on paging or
+    * any other component on the system, and just be ignored for any purpose It's declared here as
+    * this filter is considered a global ignore
+    */
+   String GENERIC_IGNORED_FILTER = "__AMQX=-1";
+
    boolean match(ServerMessage message);
 
    SimpleString getFilterString();

@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -254,6 +255,13 @@ public class HangConsumerTest extends ActiveMQTestBase {
             super(executorFactory, scheduledExecutor, addressSettingsRepository, storageManager);
          }
 
+         @Override
+         public Queue createQueueWith(final QueueConfig config) {
+            queue = new MyQueueWithBlocking(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
+            return queue;
+         }
+
+         @Deprecated
          @Override
          public Queue createQueue(final long persistenceID,
                                   final SimpleString address,
@@ -535,7 +543,11 @@ public class HangConsumerTest extends ActiveMQTestBase {
        * @see SessionCallback#sendLargeMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, long, int)
        */
       @Override
-      public int sendLargeMessage(MessageReference reference, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
+      public int sendLargeMessage(MessageReference reference,
+                                  ServerMessage message,
+                                  ServerConsumer consumer,
+                                  long bodySize,
+                                  int deliveryCount) {
          return targetCallback.sendLargeMessage(reference, message, consumer, bodySize, deliveryCount);
       }
 
@@ -567,9 +579,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
    class MyActiveMQServer extends ActiveMQServerImpl {
 
-      MyActiveMQServer(Configuration configuration,
-                       MBeanServer mbeanServer,
-                       ActiveMQSecurityManager securityManager) {
+      MyActiveMQServer(Configuration configuration, MBeanServer mbeanServer, ActiveMQSecurityManager securityManager) {
          super(configuration, mbeanServer, securityManager);
       }
 

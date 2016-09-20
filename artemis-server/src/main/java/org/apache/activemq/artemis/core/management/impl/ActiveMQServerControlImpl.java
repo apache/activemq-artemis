@@ -551,7 +551,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.deployQueue(new SimpleString(address), new SimpleString(name), new SimpleString(filterString), true, false);
+         server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), new SimpleString(filterString), true, false);
       }
       finally {
          blockOnIO();
@@ -569,7 +569,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
 
-         server.deployQueue(new SimpleString(address), new SimpleString(name), filter, durable, false);
+         server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
       }
       finally {
          blockOnIO();
@@ -582,7 +582,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createQueue(new SimpleString(address), new SimpleString(name), null, true, false);
+         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, true, false);
       }
       finally {
          blockOnIO();
@@ -595,7 +595,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createQueue(new SimpleString(address), new SimpleString(name), null, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, durable, false);
       }
       finally {
          blockOnIO();
@@ -616,7 +616,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         server.createQueue(new SimpleString(address), new SimpleString(name), filter, durable, false);
+         server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
       }
       finally {
          blockOnIO();

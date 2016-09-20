@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -65,6 +66,20 @@ public class QueueFactoryImpl implements QueueFactory {
       this.postOffice = postOffice;
    }
 
+   @Override
+   public Queue createQueueWith(final QueueConfig config) {
+      final AddressSettings addressSettings = addressSettingsRepository.getMatch(config.address().toString());
+      final Queue queue;
+      if (addressSettings.isLastValueQueue()) {
+         queue = new LastValueQueue(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
+      }
+      else {
+         queue = new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
+      }
+      return queue;
+   }
+
+   @Deprecated
    @Override
    public Queue createQueue(final long persistenceID,
                             final SimpleString address,
