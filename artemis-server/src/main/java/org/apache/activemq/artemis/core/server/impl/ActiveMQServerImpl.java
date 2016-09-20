@@ -1715,7 +1715,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       SimpleString sName = new SimpleString(config.getName());
 
       if (postOffice.getBinding(sName) != null) {
-         ActiveMQServerLogger.LOGGER.divertBindingNotExists(sName);
+         ActiveMQServerLogger.LOGGER.divertBindingAlreadyExists(sName);
 
          return;
       }
