@@ -36,7 +36,7 @@ After you add the JDK to the IDE, add also the vm.jar specific to your platform 
 
 There's a [SOF Question](http://stackoverflow.com/questions/27906481/can-intellij-14-be-used-to-work-with-ibm-jdk-1-7/32852361#32852361) about this that could be useful in case you are running into this issue.
 
-### Style Templates for Idea
+### Style Templates and Inspection Settings for Idea
 
 We have shared the style templates that are good for this project. If you want to apply them use these steps:
 
@@ -44,6 +44,12 @@ We have shared the style templates that are good for this project. If you want t
 * Select the file under ./artemis-cloned-folder/etc/ide-settings/IDEA-style.jar
 * Select both Code Style Templates and File templates (it's the default option)
 * Select OK and restart Idea
+
+Similarly, to import inspection settings:
+
+* File->Settings->Editor->Inspections->Manage->Import
+* Select the file ./artemis-cloned-folder/etc/ide-settings/IDEA-artemis-inspections.xml
+* Select OK
 
 ### Issue: My JUnit tests are not runnable with in the IDE.
 
