@@ -26,10 +26,14 @@ import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.jms.client.BodyReceiver;
+
 /**
  * A wrapper for a message consumer
  */
-public class ActiveMQRAMessageConsumer implements MessageConsumer {
+public class ActiveMQRAMessageConsumer implements BodyReceiver, MessageConsumer {
 
    /**
     * Whether trace is enabled
@@ -160,29 +164,7 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     */
    @Override
    public Message receive() throws JMSException {
-      session.lock();
-      try {
-         if (ActiveMQRAMessageConsumer.trace) {
-            ActiveMQRALogger.LOGGER.trace("receive " + this);
-         }
-
-         checkState();
-         Message message = consumer.receive();
-
-         if (ActiveMQRAMessageConsumer.trace) {
-            ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
-         }
-
-         if (message == null) {
-            return null;
-         }
-         else {
-            return wrapMessage(message);
-         }
-      }
-      finally {
-         session.unlock();
-      }
+      return receive(0, true);
    }
 
    /**
@@ -194,14 +176,37 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
     */
    @Override
    public Message receive(final long timeout) throws JMSException {
+      return receive(timeout, true);
+   }
+
+   public Message receive(final long timeout, final boolean ack) throws JMSException {
+      return getMessage("receive", timeout, false, ack);
+   }
+
+   /**
+    * Receive
+    *
+    * @return The message
+    * @throws JMSException Thrown if an error occurs
+    */
+   @Override
+   public Message receiveNoWait() throws JMSException {
+      return receiveNoWait(true);
+   }
+
+   public Message receiveNoWait(boolean ack) throws JMSException {
+      return getMessage("receiveNoWait", 0, false, ack);
+   }
+
+   private Message getMessage(final String methodName, final long timeout, final boolean noWait, boolean ack) throws JMSException {
       session.lock();
       try {
          if (ActiveMQRAMessageConsumer.trace) {
-            ActiveMQRALogger.LOGGER.trace("receive " + this + " timeout=" + timeout);
+            ActiveMQRALogger.LOGGER.trace(methodName + " " + this);
          }
 
          checkState();
-         Message message = consumer.receive(timeout);
+         Message message = noWait ? ((ActiveMQMessageConsumer)consumer).receiveNoWait(ack) : ((ActiveMQMessageConsumer)consumer).receive(timeout, ack);
 
          if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
@@ -219,37 +224,8 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
       }
    }
 
-   /**
-    * Receive
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
-    */
-   @Override
-   public Message receiveNoWait() throws JMSException {
-      session.lock();
-      try {
-         if (ActiveMQRAMessageConsumer.trace) {
-            ActiveMQRALogger.LOGGER.trace("receiveNoWait " + this);
-         }
-
-         checkState();
-         Message message = consumer.receiveNoWait();
-
-         if (ActiveMQRAMessageConsumer.trace) {
-            ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
-         }
-
-         if (message == null) {
-            return null;
-         }
-         else {
-            return wrapMessage(message);
-         }
-      }
-      finally {
-         session.unlock();
-      }
+   public void acknowledgeCoreMessage(ActiveMQMessage message) throws JMSException {
+      ((ActiveMQMessageConsumer)consumer).acknowledgeCoreMessage(message);
    }
 
    /**

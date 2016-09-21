@@ -21,12 +21,14 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageFormatException;
 import javax.jms.MessageListener;
 
 public class ActiveMQJMSConsumer implements JMSConsumer {
 
    private final ActiveMQJMSContext context;
    private final MessageConsumer consumer;
+   private Message messageFormatFailure;
 
    ActiveMQJMSConsumer(ActiveMQJMSContext context, MessageConsumer consumer) {
       this.context = context;
@@ -105,38 +107,48 @@ public class ActiveMQJMSConsumer implements JMSConsumer {
 
    @Override
    public <T> T receiveBody(Class<T> c) {
-      try {
-         Message message = consumer.receive();
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
-         return message == null ? null : message.getBody(c);
-      }
-      catch (JMSException e) {
-         throw JmsExceptionUtils.convertToRuntimeException(e);
-      }
+      return internalReceiveBody(c, 0, false);
    }
 
    @Override
    public <T> T receiveBody(Class<T> c, long timeout) {
-      try {
-         Message message = consumer.receive(timeout);
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
-         return message == null ? null : message.getBody(c);
-      }
-      catch (JMSException e) {
-         throw JmsExceptionUtils.convertToRuntimeException(e);
-      }
+      return internalReceiveBody(c, timeout, false);
    }
 
    @Override
    public <T> T receiveBodyNoWait(Class<T> c) {
+      return internalReceiveBody(c, 0, true);
+   }
+
+   private <T> T internalReceiveBody(Class<T> c, long timeout, boolean noWait) {
+      T result = null;
+      Message message = null;
+      BodyReceiver bodyReceiver = (BodyReceiver) consumer;
+      if (consumer instanceof ActiveMQMessageConsumer) {
+         bodyReceiver = (ActiveMQMessageConsumer) consumer;
+      }
       try {
-         Message message = consumer.receiveNoWait();
-         context.setLastMessage(ActiveMQJMSConsumer.this, message);
-         return message == null ? null : message.getBody(c);
+         if (messageFormatFailure == null) {
+            message = noWait ? bodyReceiver.receiveNoWait(false) : bodyReceiver.receive(timeout, false);
+            context.setLastMessage(ActiveMQJMSConsumer.this, message);
+         }
+         else {
+            message = messageFormatFailure;
+         }
+         if (message != null) {
+            result = message.getBody(c);
+            messageFormatFailure = null;
+            bodyReceiver.acknowledgeCoreMessage((ActiveMQMessage)message);
+         }
       }
       catch (JMSException e) {
+         if (e instanceof MessageFormatException) {
+            messageFormatFailure = message;
+         }
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
+
+      return result;
    }
 
    final class MessageListenerWrapper implements MessageListener {
