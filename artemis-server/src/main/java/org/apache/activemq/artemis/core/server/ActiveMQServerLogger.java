@@ -360,7 +360,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222006, value = "Binding already exists with name {0}, divert will not be deployed", format = Message.Format.MESSAGE_FORMAT)
-   void divertBindingNotExists(SimpleString bindingName);
+   void divertBindingAlreadyExists(SimpleString bindingName);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222007, value = "Security risk! Apache ActiveMQ Artemis is running with the default cluster admin user and default password. Please see the cluster chapter in the ActiveMQ Artemis User Guide for instructions on how to change this.", format = Message.Format.MESSAGE_FORMAT)
