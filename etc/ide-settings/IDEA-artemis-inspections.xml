@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inspections version="1.0">
+  <option name="myName" value="Artemis" />
+  <inspection_tool class="MissingOverrideAnnotation" enabled="true" level="ERROR" enabled_by_default="true">
+    <option name="ignoreObjectMethods" value="false" />
+    <option name="ignoreAnonymousClassMethods" value="false" />
+  </inspection_tool>
+</inspections>
