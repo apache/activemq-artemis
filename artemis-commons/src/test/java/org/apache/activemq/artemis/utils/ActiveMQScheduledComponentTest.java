@@ -56,6 +56,7 @@ public class ActiveMQScheduledComponentTest {
 
 
       final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, false) {
+         @Override
          public void run() {
             if (count.get() == 0) {
                try {

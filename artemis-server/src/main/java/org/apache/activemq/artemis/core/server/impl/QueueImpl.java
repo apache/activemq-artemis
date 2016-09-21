@@ -1100,6 +1100,7 @@ public class QueueImpl implements Queue {
       }
    }
 
+   @Override
    public void expire(final MessageReference ref) throws Exception {
       SimpleString messageExpiryAddress = expiryAddressFromMessageAddress(ref);
       if (messageExpiryAddress == null) {
