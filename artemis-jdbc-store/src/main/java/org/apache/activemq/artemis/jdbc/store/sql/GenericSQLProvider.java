@@ -201,6 +201,7 @@ public class GenericSQLProvider implements SQLProvider {
 
    public static class Factory implements SQLProvider.Factory {
 
+      @Override
       public SQLProvider create(String tableName) {
          return new GenericSQLProvider(tableName);
       }
