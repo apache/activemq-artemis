@@ -31,35 +31,35 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
    private static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LIVE_FAILOVER)VOTE");
    private final CountDownLatch latch;
 
-   private double votesNeeded;
+   private int votesNeeded;
 
    private int total = 0;
 
    private boolean decision = false;
 
    /**
-    * vote the remaining nodes not including ourself., so
-    * 1 remaining nodes would be 0/2 = 0 vote needed
-    * 2 remaining nodes would be 1/2 = 0 vote needed
-    * 3 remaining nodes would be 2/2 = 1 vote needed
-    * 4 remaining nodes would be 3/2 = 2 vote needed
-    * 5 remaining nodes would be 4/2 = 3 vote needed
-    * 6 remaining nodes would be 5/2 = 3 vote needed
+    * live nodes | remaining nodes |  majority   | votes needed
+    *     1      |       0         |     0       |      0
+    *     2      |       1         |     1       |      1
+    *     n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
+    *     3      |       2         |     2.5     |      2
+    *     4      |       3         |      3      |      3
+    *     5      |       4         |     3.5     |      3
+    *     6      |       5         |      4      |      4
     */
    public QuorumVoteServerConnect(int size, StorageManager storageManager) {
       super(LIVE_FAILOVER_VOTE);
-      //we don't count ourself
-      int actualSize = size - 1;
-      if (actualSize <= 2) {
-         votesNeeded = actualSize / 2;
+      double majority;
+      if (size <= 2) {
+         majority = ((double)size) / 2;
       }
       else {
          //even
-         votesNeeded = actualSize / 2 + 1;
+         majority = ((double)size) / 2 + 1;
       }
       //votes needed could be say 2.5 so we add 1 in this case
-      int latchSize = votesNeeded > (int) votesNeeded ? (int) votesNeeded + 1 : (int) votesNeeded;
-      latch = new CountDownLatch(latchSize);
+      votesNeeded = (int) majority;
+      latch = new CountDownLatch(votesNeeded);
       if (votesNeeded == 0) {
          decision = true;
       }
@@ -86,13 +86,14 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
    }
 
    /**
-    * vote the remaining nodes not including ourself., so
-    * 1 remaining nodes would be 0/2 = 0 vote needed
-    * 2 remaining nodes would be 1/2 = 0 vote needed
-    * 3 remaining nodes would be 2/2 = 1 vote needed
-    * 4 remaining nodes would be 3/2 = 2 vote needed
-    * 5 remaining nodes would be 4/2 = 3 vote needed
-    * 6 remaining nodes would be 5/2 = 3 vote needed
+    * live nodes | remaining nodes |  majority   | votes needed
+    *     1      |       0         |     0       |      0
+    *     2      |       1         |     1       |      1
+    *     n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
+    *     3      |       2         |     2.5     |      2
+    *     4      |       3         |      3      |      3
+    *     5      |       4         |     3.5     |      3
+    *     6      |       5         |      4      |      4
     *
     * @param vote the vote to make.
     */
@@ -102,9 +103,9 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
          return;
       if (vote.getVote()) {
          total++;
+         latch.countDown();
          if (total >= votesNeeded) {
             decision = true;
-            latch.countDown();
          }
       }
    }
