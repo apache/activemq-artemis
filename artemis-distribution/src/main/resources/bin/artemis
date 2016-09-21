@@ -93,6 +93,6 @@ fi
 exec "$JAVACMD" $JAVA_ARGS $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
     -Dartemis.home="$ARTEMIS_HOME" \
-    -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-i686:$ARTEMIS_HOME/bin/lib/linux-x86_64" \
+    -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-$(uname -m)" \
     $DEBUG_ARGS \
     org.apache.activemq.artemis.boot.Artemis "$@"
