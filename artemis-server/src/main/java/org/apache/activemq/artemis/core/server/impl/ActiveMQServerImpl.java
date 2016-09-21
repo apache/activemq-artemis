@@ -2451,6 +2451,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          securityRepository.swap(config.getSecurityRoles().entrySet());
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
          addressSettingsRepository.swap(config.getAddressesSettings().entrySet());
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+         for (DivertConfiguration divertConfig : config.getDivertConfigurations()) {
+            if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+               deployDivert(divertConfig);
+            }
+         }
       }
    }
 }
