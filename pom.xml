@@ -40,6 +40,7 @@
       <module>artemis-selector</module>
       <module>artemis-core-client</module>
       <module>artemis-server</module>
+      <module>artemis-junit</module>
       <module>artemis-jms-client</module>
       <module>artemis-jms-server</module>
       <module>artemis-native</module>
