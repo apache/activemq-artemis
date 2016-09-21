@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.jms;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import java.net.URL;
@@ -74,6 +75,18 @@ public class RedeployTest extends ActiveMQTestBase {
 
          Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getDeadLetterAddress().toString());
          Assert.assertEquals("jms.queue.NewQueue", embeddedJMS.getActiveMQServer().getAddressSettingsRepository().getMatch("jms").getExpiryAddress().toString());
+
+
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession();
+            Queue queue = session.createQueue("DivertQueue");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createTextMessage("text"));
+            connection.start();
+            MessageConsumer consumer = session.createConsumer(session.createQueue("NewQueue"));
+            Assert.assertNotNull("Divert wasn't redeployed accordingly", consumer.receive(5000));
+         }
 
       }
       finally {

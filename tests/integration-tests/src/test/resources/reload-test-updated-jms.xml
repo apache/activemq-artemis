@@ -26,6 +26,7 @@ under the License.
       <queue name="DLQ"/>
       <queue name="ExpiryQueue"/>
       <queue name="NewQueue"/>
+      <queue name="DivertQueue"/>
 
    </jms>
 
@@ -82,6 +83,13 @@ under the License.
          <acceptor name="mqtt">tcp://0.0.0.0:1883?protocols=MQTT</acceptor>
 
       </acceptors>
+
+      <diverts>
+         <divert name="myDivert">
+            <address>jms.queue.DivertQueue</address>
+            <forwarding-address>jms.queue.NewQueue</forwarding-address>
+         </divert>
+      </diverts>
 
 
       <security-settings>
