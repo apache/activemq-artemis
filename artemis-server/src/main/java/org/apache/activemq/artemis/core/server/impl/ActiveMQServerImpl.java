@@ -2400,6 +2400,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return new Date().getTime() - startDate.getTime();
    }
 
+   @Override
    public boolean addClientConnection(String clientId, boolean unique) {
       final AtomicInteger i = connectedClientIds.putIfAbsent(clientId, new AtomicInteger(1));
       if (i != null) {
@@ -2413,6 +2414,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return true;
    }
 
+   @Override
    public void removeClientConnection(String clientId) {
       AtomicInteger i = connectedClientIds.get(clientId);
       if (i != null && i.decrementAndGet() == 0) {
