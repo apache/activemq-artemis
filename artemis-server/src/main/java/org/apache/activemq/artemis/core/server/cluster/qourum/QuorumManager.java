@@ -46,7 +46,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    /**
     * all the current registered {@link org.apache.activemq.artemis.core.server.cluster.qourum.Quorum}'s
     */
-   private Map<String, Quorum> quorums = new HashMap<>();
+   private final Map<String, Quorum> quorums = new HashMap<>();
 
    /**
     * any currently running runnables.
@@ -253,7 +253,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
    private final class VoteRunnableHolder {
 
-      private QuorumVote quorumVote;
+      private final QuorumVote quorumVote;
       private final List<VoteRunnable> runnables;
       private int size;
 

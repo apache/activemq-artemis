@@ -46,8 +46,8 @@ import org.w3c.dom.Document;
 @Path("/topics")
 public class TopicDestinationsResource {
 
-   private Map<String, TopicResource> topics = new ConcurrentHashMap<>();
-   private TopicServiceManager manager;
+   private final Map<String, TopicResource> topics = new ConcurrentHashMap<>();
+   private final TopicServiceManager manager;
 
    public TopicDestinationsResource(TopicServiceManager manager) {
       this.manager = manager;

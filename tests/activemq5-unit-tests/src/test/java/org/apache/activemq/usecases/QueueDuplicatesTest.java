@@ -118,7 +118,7 @@ public class QueueDuplicatesTest extends TestCase {
 
    private class SendingThread extends Thread {
 
-      private String subject;
+      private final String subject;
 
       SendingThread(String brokerUrl, String subject) {
          this.subject = subject;
@@ -149,7 +149,7 @@ public class QueueDuplicatesTest extends TestCase {
 
    private static class SimpleConsumer implements MessageListener {
 
-      private Map<String, Message> msgs = new HashMap<>();
+      private final Map<String, Message> msgs = new HashMap<>();
 
       @Override
       public void onMessage(Message message) {

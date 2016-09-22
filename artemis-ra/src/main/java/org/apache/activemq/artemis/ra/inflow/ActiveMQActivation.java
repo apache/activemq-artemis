@@ -115,9 +115,9 @@ public class ActiveMQActivation {
 
    private ActiveMQConnectionFactory factory;
 
-   private List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
+   private final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
 
-   private Map<String, Long> removedNodes = new ConcurrentHashMap<>();
+   private final Map<String, Long> removedNodes = new ConcurrentHashMap<>();
 
    private boolean lastReceived = false;
 
