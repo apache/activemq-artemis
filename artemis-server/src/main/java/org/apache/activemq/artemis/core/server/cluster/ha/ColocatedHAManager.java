@@ -38,7 +38,7 @@ public class ColocatedHAManager implements HAManager {
 
    private final ActiveMQServer server;
 
-   private Map<String, ActiveMQServer> backupServers = new HashMap<>();
+   private final Map<String, ActiveMQServer> backupServers = new HashMap<>();
 
    private boolean started;
 

@@ -53,16 +53,16 @@ public class JDBCSequentialFile implements SequentialFile {
 
    private long writePosition = 0;
 
-   private Executor executor;
+   private final Executor executor;
 
-   private JDBCSequentialFileFactory fileFactory;
+   private final JDBCSequentialFileFactory fileFactory;
 
    private final Object writeLock;
 
    private final JDBCSequentialFileFactoryDriver dbDriver;
 
    // Allows DB Drivers to cache meta data.
-   private Map<Object, Object> metaData = new ConcurrentHashMap<>();
+   private final Map<Object, Object> metaData = new ConcurrentHashMap<>();
 
    public JDBCSequentialFile(final JDBCSequentialFileFactory fileFactory,
                              final String filename,

@@ -83,7 +83,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private Map<Long, TransactionHolder> transactions = new ConcurrentHashMap<>();
 
    // Sequence ID for journal records
-   private AtomicLong seq = new AtomicLong(0);
+   private final AtomicLong seq = new AtomicLong(0);
 
    public JDBCJournalImpl(DataSource dataSource, SQLProvider provider, String tableName, ScheduledExecutorService scheduledExecutorService, Executor completeExecutor) {
       super(dataSource, provider);

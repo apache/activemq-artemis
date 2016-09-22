@@ -36,7 +36,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
    private volatile Runnable tick;
 
-   private Map<URL, ReloadRegistry> registry = new HashMap<>();
+   private final Map<URL, ReloadRegistry> registry = new HashMap<>();
 
    public ReloadManagerImpl(ScheduledExecutorService scheduledExecutorService, Executor executor, long checkPeriod) {
       super(scheduledExecutorService, executor, checkPeriod, TimeUnit.MILLISECONDS, false);
