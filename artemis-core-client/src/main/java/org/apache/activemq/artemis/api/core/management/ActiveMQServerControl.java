@@ -408,6 +408,8 @@ public interface ActiveMQServerControl {
    /**
     * Create a durable queue.
     * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
+    * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
@@ -419,6 +421,8 @@ public interface ActiveMQServerControl {
 
    /**
     * Create a queue.
+    * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
     * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
@@ -436,6 +440,8 @@ public interface ActiveMQServerControl {
    /**
     * Create a queue.
     * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
+    * <br>
     * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
@@ -450,6 +456,8 @@ public interface ActiveMQServerControl {
    /**
     * Deploy a durable queue.
     * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
+    * <br>
     * This method will do nothing if the queue with the given name already exists on the server.
     *
     * @param address address to bind the queue to
@@ -463,6 +471,8 @@ public interface ActiveMQServerControl {
 
    /**
     * Deploy a queue.
+    * <br>
+    * If {@code address} is {@code null} it will be defaulted to {@code name}.
     * <br>
     * This method will do nothing if the queue with the given name already exists on the server.
     *
@@ -645,7 +655,7 @@ public interface ActiveMQServerControl {
    /**
     * Lists all the consumers connected to this server.
     * The returned String is a JSON string containing details about each consumer, e.g.:
-    *<pre>
+    * <pre>
     * [
     *   {
     *     "queueName": "fa87c64c-0a38-4697-8421-72e34d17429d",
@@ -744,7 +754,7 @@ public interface ActiveMQServerControl {
                            @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
                            @Parameter(desc = "allow queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
                            @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues,
-                           @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics")  boolean autoCreateJmsTopics,
+                           @Parameter(desc = "allow topics to be created automatically", name = "autoCreateJmsTopics") boolean autoCreateJmsTopics,
                            @Parameter(desc = "allow auto-created topics to be deleted automatically", name = "autoDeleteJmsTopics") boolean autoDeleteJmsTopics) throws Exception;
 
    void removeAddressSettings(String addressMatch) throws Exception;

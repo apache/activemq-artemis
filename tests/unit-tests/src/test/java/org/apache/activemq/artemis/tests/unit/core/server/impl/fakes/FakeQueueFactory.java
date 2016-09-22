@@ -25,11 +25,12 @@ import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
-public class FakeQueueFactory implements QueueFactory {
+public final class FakeQueueFactory implements QueueFactory {
 
    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
 
@@ -37,6 +38,12 @@ public class FakeQueueFactory implements QueueFactory {
 
    private PostOffice postOffice;
 
+   @Override
+   public Queue createQueueWith(final QueueConfig config) {
+      return new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, null, null, executor);
+   }
+
+   @Deprecated
    @Override
    public Queue createQueue(final long persistenceID,
                             final SimpleString address,

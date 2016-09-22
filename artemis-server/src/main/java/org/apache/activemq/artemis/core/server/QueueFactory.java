@@ -23,12 +23,18 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 
 /**
  * A QueueFactory
- *
+ * <p>
  * Implementations of this class know how to create queues with the correct attribute values
  * based on default and overrides
  */
 public interface QueueFactory {
 
+   Queue createQueueWith(final QueueConfig config);
+
+   /**
+    * @deprecated Replaced by {@link #createQueueWith}
+    */
+   @Deprecated
    Queue createQueue(long persistenceID,
                      final SimpleString address,
                      SimpleString name,

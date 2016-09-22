@@ -38,7 +38,8 @@
                       minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the
+                  If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available
+                  on the
                   classpath. If false then only the core protocol will be available, unless in Embedded mode where users
                   can inject their own Protocol Managers.
                </xsd:documentation>
@@ -154,7 +155,8 @@
          </xsd:element>
 
          <xsd:element name="password-codec" type="xsd:string"
-                      default="org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
+                      default="org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" maxOccurs="1"
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   Class name and its parameters for the Decoder used to decode the masked password. Ignored if
@@ -199,9 +201,9 @@
 
          <xsd:element name="jmx-use-broker-name" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
-              <xsd:documentation>
-                 Whether or not to use the broker name in the JMX properties
-              </xsd:documentation>
+               <xsd:documentation>
+                  Whether or not to use the broker name in the JMX properties
+               </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
 
@@ -246,7 +248,8 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="configuration-file-refresh-period" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
+         <xsd:element name="configuration-file-refresh-period" type="xsd:long" default="5000" maxOccurs="1"
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   how often (in ms) to check the configuration file for modifications
@@ -432,7 +435,7 @@
                   <xsd:element name="queue" maxOccurs="unbounded" minOccurs="0">
                      <xsd:complexType>
                         <xsd:all>
-                           <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="1">
+                           <xsd:element name="address" type="xsd:string" maxOccurs="1" minOccurs="0">
                               <xsd:annotation>
                                  <xsd:documentation>
                                     address for the queue
@@ -679,7 +682,8 @@
          <xsd:element name="global-max-size" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Global Max Size before all addresses will enter into their Full Policy configured upon messages being produced.
+                  Global Max Size before all addresses will enter into their Full Policy configured upon messages being
+                  produced.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1233,11 +1237,11 @@
 
    <xsd:complexType name="clusterConnectionChoiceType">
       <xsd:sequence>
-      <xsd:choice maxOccurs="unbounded">
-         <xsd:element name="cluster-connection-uri" type="cluster-connectionUriType"/>
-         <xsd:element name="cluster-connection" type="cluster-connectionType">
-         </xsd:element>
-      </xsd:choice>
+         <xsd:choice maxOccurs="unbounded">
+            <xsd:element name="cluster-connection-uri" type="cluster-connectionUriType"/>
+            <xsd:element name="cluster-connection" type="cluster-connectionType">
+            </xsd:element>
+         </xsd:choice>
       </xsd:sequence>
    </xsd:complexType>
 
@@ -1350,7 +1354,7 @@
          </xsd:element>
 
          <xsd:element name="use-duplicate-detection" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation >
+            <xsd:annotation>
                <xsd:documentation>
                   should duplicate detection headers be inserted in forwarded messages?
                </xsd:documentation>
@@ -1360,7 +1364,8 @@
          <xsd:element name="forward-when-no-consumers" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic forward-when-no-consumers=true
+                  DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic
+                  forward-when-no-consumers=true
                   and ON_DEMAND to mimic forward-when-no-consumers=false.
                </xsd:documentation>
             </xsd:annotation>
@@ -1858,7 +1863,8 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
+         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The amount of time to wait for the replica to acknowledge it has received all the necessary data from
@@ -1923,11 +1929,13 @@
          <xsd:element name="failback-delay" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  DEPRECATED: if we have to start as a replicated server this is the delay to wait before fail-back occurs
+                  DEPRECATED: if we have to start as a replicated server this is the delay to wait before fail-back
+                  occurs
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
+         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   If we have to start as a replicated server this is the amount of time to wait for the replica to
@@ -2099,31 +2107,33 @@
             </xsd:annotation>
          </xsd:element>
          <xsd:choice>
-         <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="0">
-            <xsd:complexType>
-               <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
-                  <xsd:annotation>
-                     <xsd:documentation>
-                        The discovery group to use for scale down, if not supplied then the scale-down-connectors or first
-                        invm connector will be used
-                     </xsd:documentation>
-                  </xsd:annotation>
-               </xsd:attribute>
-            </xsd:complexType>
-         </xsd:element>
-         <xsd:element name="connectors" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A list of connectors to use for scaling down, if not supplied then the scale-down-discovery-group or
-                  first invm connector will be used
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
-               </xsd:sequence>
-            </xsd:complexType>
-         </xsd:element>
+            <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="0">
+               <xsd:complexType>
+                  <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           The discovery group to use for scale down, if not supplied then the scale-down-connectors or
+                           first
+                           invm connector will be used
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:attribute>
+               </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="connectors" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A list of connectors to use for scaling down, if not supplied then the scale-down-discovery-group
+                     or
+                     first invm connector will be used
+                  </xsd:documentation>
+               </xsd:annotation>
+               <xsd:complexType>
+                  <xsd:sequence>
+                     <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+            </xsd:element>
          </xsd:choice>
       </xsd:sequence>
    </xsd:complexType>
@@ -2252,15 +2262,19 @@
             <xsd:element name="max-size-bytes" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     the maximum size (in bytes) for an address (-1 means no limits).  This is used in PAGING, BLOCK and FAIL policies.
+                     the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
+                     FAIL policies.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1"
+                         minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before messages start getting rejected.  Works in combination with max-size-bytes for AMQP protocol only.  Default = -1 (no limit).
+                     used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before
+                     messages start getting rejected. Works in combination with max-size-bytes for AMQP protocol only.
+                     Default = -1 (no limit).
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2491,11 +2505,11 @@
    </xsd:complexType>
 
    <xsd:complexType name="transportType">
-       <xsd:simpleContent>
+      <xsd:simpleContent>
          <xsd:extension base="xsd:string">
-           <xsd:attribute name="name" type="xsd:string">
-           </xsd:attribute>
+            <xsd:attribute name="name" type="xsd:string">
+            </xsd:attribute>
          </xsd:extension>
-       </xsd:simpleContent>
-     </xsd:complexType>
+      </xsd:simpleContent>
+   </xsd:complexType>
 </xsd:schema>
