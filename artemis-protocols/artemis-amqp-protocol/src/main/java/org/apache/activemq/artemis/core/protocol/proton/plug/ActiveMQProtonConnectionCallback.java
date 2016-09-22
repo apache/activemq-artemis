@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,8 +39,13 @@ import org.apache.activemq.artemis.core.protocol.proton.sasl.ActiveMQPlainSASL;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.jboss.logging.Logger;
@@ -47,7 +54,9 @@ import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.ExtCapability;
+import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.proton.plug.sasl.AnonymousServerSASL;
 
 import static org.proton.plug.AmqpSupport.CONTAINER_ID;
@@ -55,7 +64,10 @@ import static org.proton.plug.AmqpSupport.INVALID_FIELD;
 import static org.proton.plug.context.AbstractConnectionContext.CONNECTION_OPEN_FAILED;
 
 public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback, FailureListener, CloseListener {
+   private static final Logger logger = Logger.getLogger(ActiveMQProtonConnectionCallback.class);
    private static final List<String> connectedContainers = Collections.synchronizedList(new ArrayList());
+
+   private ConcurrentMap<XidImpl, Transaction> transactions = new ConcurrentHashMap<>();
 
    private static final Logger log = Logger.getLogger(ActiveMQProtonConnectionCallback.class);
 
@@ -117,11 +129,23 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback,
 
    @Override
    public void close() {
-      if (registeredConnectionId.getAndSet(false)) {
-         server.removeClientConnection(remoteContainerId);
+      try {
+         if (registeredConnectionId.getAndSet(false)) {
+            server.removeClientConnection(remoteContainerId);
+         }
+         connection.close();
+         amqpConnection.close();
       }
-      connection.close();
-      amqpConnection.close();
+      finally {
+         for (Transaction tx : transactions.values()) {
+            try {
+               tx.rollback();
+            }
+            catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      }
    }
 
    public Executor getExeuctor() {
@@ -219,4 +243,43 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback,
    public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
       close();
    }
+
+   @Override
+   public Binary newTransaction() {
+      XidImpl xid = newXID();
+      Transaction transaction = new TransactionImpl(xid, server.getStorageManager(), -1);
+      transactions.put(xid, transaction);
+      return new Binary(xid.getGlobalTransactionId());
+   }
+
+   @Override
+   public Transaction getTransaction(Binary txid) throws ActiveMQAMQPException {
+      XidImpl xid = newXID(txid.getArray());
+      Transaction tx = transactions.get(xid);
+
+      if (tx == null) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.txNotFound(xid.toString());
+      }
+
+      return tx;
+   }
+
+   @Override
+   public void removeTransaction(Binary txid) {
+      XidImpl xid = newXID(txid.getArray());
+      transactions.remove(xid);
+   }
+
+
+   protected XidImpl newXID() {
+      return newXID(UUIDGenerator.getInstance().generateStringUUID().getBytes());
+   }
+
+   protected XidImpl newXID(byte[] bytes) {
+      return new XidImpl("amqp".getBytes(), 1, bytes);
+   }
+
+
+
+
 }

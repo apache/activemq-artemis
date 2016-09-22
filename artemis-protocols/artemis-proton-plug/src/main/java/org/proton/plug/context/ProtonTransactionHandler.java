@@ -72,7 +72,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          Object action = ((AmqpValue) msg.getBody()).getValue();
 
          if (action instanceof Declare) {
-            Binary txID = sessionSPI.getCurrentTXID();
+            Binary txID = sessionSPI.newTransaction();
             Declared declared = new Declared();
             declared.setTxnId(txID);
             delivery.disposition(declared);
@@ -80,9 +80,11 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
          }
          else if (action instanceof Discharge) {
             Discharge discharge = (Discharge) action;
+
+            Binary txID = discharge.getTxnId();
             if (discharge.getFail()) {
                try {
-                  sessionSPI.rollbackCurrentTX(true);
+                  sessionSPI.rollbackTX(txID, true);
                   delivery.disposition(new Accepted());
                }
                catch (Exception e) {
@@ -91,7 +93,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
             }
             else {
                try {
-                  sessionSPI.commitCurrentTX();
+                  sessionSPI.commitTX(txID);
                   delivery.disposition(new Accepted());
                }
                catch (ActiveMQAMQPException amqpE) {

@@ -18,11 +18,13 @@ package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.proton.plug.context.ProtonPlugSender;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
  * These are methods where the Proton Plug component will call your server
@@ -67,17 +69,20 @@ public interface AMQPSessionCallback {
    // This one can be a lot improved
    ProtonJMessage encodeMessage(Object message, int deliveryCount) throws Exception;
 
-   Binary getCurrentTXID();
-
    String tempQueueName();
 
-   void commitCurrentTX() throws Exception;
 
-   void rollbackCurrentTX(boolean lastMessageReceived) throws Exception;
+   Transaction getTransaction(Binary txid) throws ActiveMQAMQPException;
+
+   Binary newTransaction();
+
+   void commitTX(Binary txid) throws Exception;
+
+   void rollbackTX(Binary txid, boolean lastMessageReceived) throws Exception;
 
    void close() throws Exception;
 
-   void ack(Object brokerConsumer, Object message) throws Exception;
+   void ack(Transaction transaction, Object brokerConsumer, Object message) throws Exception;
 
    /**
     * @param brokerConsumer
@@ -96,7 +101,8 @@ public interface AMQPSessionCallback {
     * @param messageFormat
     * @param messageEncoded a Heap Buffer ByteBuffer (safe to convert into byte[])
     */
-   void serverSend(Receiver receiver,
+   void serverSend(Transaction transaction,
+                   Receiver receiver,
                    Delivery delivery,
                    String address,
                    int messageFormat,

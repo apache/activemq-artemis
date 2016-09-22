@@ -1256,6 +1256,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public RoutingStatus send(final ServerMessage message, final boolean direct, boolean noAutoCreateQueue) throws Exception {
+      return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
+   }
+
+   public RoutingStatus send(Transaction tx, final ServerMessage message, final boolean direct, boolean noAutoCreateQueue) throws Exception {
 
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
       if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
@@ -1308,10 +1312,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (message.getAddress().equals(managementAddress)) {
          // It's a management message
 
-         handleManagementMessage(message, direct);
+         handleManagementMessage(tx, message, direct);
       }
       else {
-         result = doSend(message, direct, noAutoCreateQueue);
+         result = doSend(tx, message, direct, noAutoCreateQueue);
       }
       return result;
    }
@@ -1337,7 +1341,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
          }
 
-         doSend(currentLargeMessage, false, false);
+         doSend(tx, currentLargeMessage, false, false);
 
          currentLargeMessage = null;
       }
@@ -1526,7 +1530,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       started = s;
    }
 
-   private void handleManagementMessage(final ServerMessage message, final boolean direct) throws Exception {
+   private RoutingStatus handleManagementMessage(final Transaction tx, final ServerMessage message, final boolean direct) throws Exception {
       try {
          securityCheck(message.getAddress(), CheckType.MANAGE, this);
       }
@@ -1544,8 +1548,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (replyTo != null) {
          reply.setAddress(replyTo);
 
-         doSend(reply, direct, false);
+         doSend(tx, reply, direct, false);
       }
+
+      return RoutingStatus.OK;
    }
 
    private void doRollback(final boolean clientFailed,
@@ -1600,7 +1606,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       theTx.rollback();
    }
 
-   protected RoutingStatus doSend(final ServerMessage msg, final boolean direct, final boolean noAutoCreateQueue) throws Exception {
+   public RoutingStatus doSend(final Transaction tx, final ServerMessage msg, final boolean direct, final boolean noAutoCreateQueue) throws Exception {
       RoutingStatus result = RoutingStatus.OK;
       // check the user has write access to this address.
       try {

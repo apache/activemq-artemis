@@ -43,7 +43,6 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      disableCheckThread();
       server = this.createServer(true, true);
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, "5672");
@@ -61,8 +60,6 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
    @After
    public void tearDown() throws Exception {
       try {
-         Thread.sleep(250);
-
          server.stop();
       }
       finally {

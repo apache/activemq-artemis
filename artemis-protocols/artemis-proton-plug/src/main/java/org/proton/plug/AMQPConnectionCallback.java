@@ -17,7 +17,10 @@
 package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.engine.Connection;
+import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 public interface AMQPConnectionCallback {
 
@@ -44,4 +47,12 @@ public interface AMQPConnectionCallback {
    void sendSASLSupported();
 
    boolean validateConnection(Connection connection, SASLResult saslResult);
+
+   Binary newTransaction();
+
+   Transaction getTransaction(Binary txid) throws ActiveMQAMQPException;
+
+   void removeTransaction(Binary txid);
+
+
 }

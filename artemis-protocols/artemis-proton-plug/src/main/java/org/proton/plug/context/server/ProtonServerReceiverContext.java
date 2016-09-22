@@ -18,8 +18,10 @@ package org.proton.plug.context.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -130,7 +132,13 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
 
                receiver.advance();
 
-               sessionSPI.serverSend(receiver, delivery, address, delivery.getMessageFormat(), buffer);
+               Transaction tx = null;
+               if (delivery.getRemoteState() instanceof TransactionalState) {
+
+                  TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+                  tx = this.sessionSPI.getTransaction(txState.getTxnId());
+               }
+               sessionSPI.serverSend(tx, receiver, delivery, address, delivery.getMessageFormat(), buffer);
 
                flow(maxCreditAllocation, minCreditRefresh);
             }
