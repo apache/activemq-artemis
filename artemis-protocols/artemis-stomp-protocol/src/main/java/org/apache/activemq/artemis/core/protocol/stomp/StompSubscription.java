@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 public class StompSubscription {
    // Constants -----------------------------------------------------
 
@@ -25,13 +27,20 @@ public class StompSubscription {
 
    private final String ack;
 
+   private final SimpleString queueName;
+
+   // whether or not this subscription follows publish/subscribe semantics (e.g. for a JMS topic)
+   private final boolean pubSub;
+
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public StompSubscription(String subID, String ack) {
+   public StompSubscription(String subID, String ack, SimpleString queueName, boolean pubSub) {
       this.subID = subID;
       this.ack = ack;
+      this.queueName = queueName;
+      this.pubSub = pubSub;
    }
 
    // Public --------------------------------------------------------
@@ -44,17 +53,17 @@ public class StompSubscription {
       return subID;
    }
 
-   @Override
-   public String toString() {
-      return "StompSubscription[id=" + subID + ", ack=" + ack + "]";
+   public SimpleString getQueueName() {
+      return queueName;
    }
 
-   // Package protected ---------------------------------------------
+   public boolean isPubSub() {
+      return pubSub;
+   }
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
+   @Override
+   public String toString() {
+      return "StompSubscription[id=" + subID + ", ack=" + ack + ", queueName=" + queueName + ", pubSub=" + pubSub + "]";
+   }
 
 }

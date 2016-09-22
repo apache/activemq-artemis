@@ -1282,6 +1282,7 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSubscribeToTopic() throws Exception {
+      final int baselineQueueCount = server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length;
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1300,6 +1301,19 @@ public class StompTest extends StompTestBase {
       // wait for SUBSCRIBE's receipt
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      assertTrue("Subscription queue should be created here", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            if (server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount == 1) {
+               return true;
+            }
+            else {
+               return false;
+            }
+         }
+      }, TimeUnit.SECONDS.toMillis(1000), TimeUnit.MILLISECONDS.toMillis(100)));
 
       sendMessage(getName(), topic);
 
@@ -1325,6 +1339,74 @@ public class StompTest extends StompTestBase {
       frame = receiveFrame(1000);
       log.info("Received frame: " + frame);
       Assert.assertNull("No message should have been received since subscription was removed", frame);
+
+      assertEquals("Subscription queue should be deleted", 0, server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount);
+
+      frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+      sendFrame(frame);
+   }
+
+   @Test
+   public void testSubscribeToQueue() throws Exception {
+      final int baselineQueueCount = server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length;
+
+      String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+      sendFrame(frame);
+
+      frame = receiveFrame(100000);
+      Assert.assertTrue(frame.startsWith("CONNECTED"));
+
+      frame = "SUBSCRIBE\n" + "destination:" +
+         getQueuePrefix() +
+         getQueueName() +
+         "\n" +
+         "receipt: 12\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(frame);
+      // wait for SUBSCRIBE's receipt
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      assertFalse("Queue should not be created here", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisfied() throws Exception {
+            if (server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length - baselineQueueCount == 1) {
+               return true;
+            }
+            else {
+               return false;
+            }
+         }
+      }, TimeUnit.MILLISECONDS.toMillis(1000), TimeUnit.MILLISECONDS.toMillis(100)));
+
+      sendMessage(getName(), queue);
+
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("MESSAGE"));
+      Assert.assertTrue(frame.indexOf("destination:") > 0);
+      Assert.assertTrue(frame.indexOf(getName()) > 0);
+
+      frame = "UNSUBSCRIBE\n" + "destination:" +
+         getQueuePrefix() +
+         getQueueName() +
+         "\n" +
+         "receipt: 1234\n" +
+         "\n\n" +
+         Stomp.NULL;
+      sendFrame(frame);
+      // wait for UNSUBSCRIBE's receipt
+      frame = receiveFrame(10000);
+      Assert.assertTrue(frame.startsWith("RECEIPT"));
+
+      sendMessage(getName(), queue);
+
+      frame = receiveFrame(1000);
+      log.info("Received frame: " + frame);
+      Assert.assertNull("No message should have been received since subscription was removed", frame);
+
+      assertEquals("Subscription queue should not be deleted", baselineQueueCount, server.getActiveMQServer().getActiveMQServerControl().getQueueNames().length);
 
       frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
       sendFrame(frame);
