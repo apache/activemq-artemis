@@ -20,13 +20,17 @@ under the License.
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
+               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd
+               urn:activemq:core /schema/artemis-configuration.xsd
+               urn:activemq:jms /schema/activemq-jms.xsd">
    <jms xmlns="urn:activemq:jms">
       <!--the queue used by the example-->
       <queue name="sausage-factory"/>
    </jms>
 
    <core xmlns="urn:activemq:core">
+      <name>server-0</name>
+      <security-enabled>false</security-enabled>
 
       <bindings-directory>./data/messaging/bindings</bindings-directory>
 

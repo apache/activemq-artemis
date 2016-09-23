@@ -27,6 +27,8 @@ under the License.
       <queue name="mincing-machine"/>
    </jms>
    <core xmlns="urn:activemq:core">
+      <name>server-1</name>
+      <security-enabled>false</security-enabled>
 
       <bindings-directory>./data/messaging/bindings</bindings-directory>
 
