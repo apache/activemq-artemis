@@ -18,15 +18,18 @@ package org.apache.activemq.artemis.tests.integration.persistence;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
@@ -52,6 +56,7 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -257,6 +262,94 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(Message.TEXT_TYPE, msg.getType());
       msg = consumer.receive(CONSUMER_TIMEOUT);
       assertEquals(Message.DEFAULT_TYPE, msg.getType());
+   }
+
+   @Test
+   public void testTextMessage() throws Exception {
+      StringBuilder data = new StringBuilder();
+      for (int i = 0; i < 2608; i++) {
+         data.append("X");
+      }
+
+      ClientSession session = basicSetUp();
+
+      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+
+      ClientProducer producer = session.createProducer(QUEUE_NAME);
+      ClientMessage msg = session.createMessage(Message.TEXT_TYPE, true);
+      msg.getBodyBuffer().writeString(data.toString());
+      producer.send(msg);
+
+      session.close();
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      System.out.print(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      session = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
+      ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
+      session.start();
+
+      msg = consumer.receive(CONSUMER_TIMEOUT);
+      assertEquals(Message.TEXT_TYPE, msg.getType());
+      assertEquals(data.toString(), msg.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testBytesMessage() throws Exception {
+      StringBuilder data = new StringBuilder();
+      for (int i = 0; i < 2610; i++) {
+         data.append("X");
+      }
+
+      ClientSession session = basicSetUp();
+
+      session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
+
+      ClientProducer producer = session.createProducer(QUEUE_NAME);
+      ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
+      msg.getBodyBuffer().writeBytes(data.toString().getBytes());
+      producer.send(msg);
+
+      session.close();
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      System.out.print(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      session = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
+      ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
+      session.start();
+
+      msg = consumer.receive(CONSUMER_TIMEOUT);
+      assertEquals(Message.BYTES_TYPE, msg.getType());
+      byte[] result = new byte[msg.getBodySize()];
+      msg.getBodyBuffer().readBytes(result);
+      assertEquals(data.toString().getBytes().length, result.length);
    }
 
    @Test
@@ -568,6 +661,54 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       msg.acknowledge();
       session.commit();
+   }
+
+   @Test
+   public void testLargeJmsTextMessage() throws Exception {
+      basicSetUp();
+      ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "test");
+      Connection c = cf.createConnection();
+      Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer p = s.createProducer(ActiveMQJMSClient.createQueue("A"));
+      p.setDeliveryMode(DeliveryMode.PERSISTENT);
+      StringBuilder stringBuilder = new StringBuilder();
+      for (int i = 0; i < 1024 * 200; i++) {
+         stringBuilder.append(RandomUtil.randomChar());
+      }
+      TextMessage textMessage = s.createTextMessage(stringBuilder.toString());
+      textMessage.setStringProperty("_AMQ_DUPL_ID", String.valueOf(UUID.randomUUID()));
+      p.send(textMessage);
+      c.close();
+
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      System.out.print(new String(xmlOutputStream.toByteArray()));
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = createSessionFactory(locator);
+      ClientSession session = factory.createSession(false, true, true);
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(inputStream, session);
+      session.close();
+
+      c = cf.createConnection();
+      s = c.createSession();
+      MessageConsumer mc = s.createConsumer(ActiveMQJMSClient.createQueue("A"));
+      c.start();
+      javax.jms.Message msg = mc.receive(CONSUMER_TIMEOUT);
+
+      assertNotNull(msg);
+
+      c.close();
    }
 
    @Test
