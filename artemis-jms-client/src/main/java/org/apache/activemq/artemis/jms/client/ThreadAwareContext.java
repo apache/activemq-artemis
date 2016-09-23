@@ -39,7 +39,7 @@ public class ThreadAwareContext {
     * Use a set because JMSContext can create more than one JMSConsumer
     * to receive asynchronously from different destinations.
     */
-   private Set<Long> messageListenerThreads = new ConcurrentHashSet<>();
+   private final Set<Long> messageListenerThreads = new ConcurrentHashSet<>();
 
    /**
     * Sets current thread to the context

@@ -82,7 +82,7 @@ public class LDAPLoginModule implements LoginModule {
    private CallbackHandler handler;
    private LDAPLoginProperty[] config;
    private String username;
-   private Set<RolePrincipal> groups = new HashSet<>();
+   private final Set<RolePrincipal> groups = new HashSet<>();
 
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {

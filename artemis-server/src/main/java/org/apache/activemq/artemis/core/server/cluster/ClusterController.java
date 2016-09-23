@@ -69,7 +69,7 @@ public class ClusterController implements ActiveMQComponent {
 
    private final ActiveMQServer server;
 
-   private Map<SimpleString, ServerLocatorInternal> locators = new HashMap<>();
+   private final Map<SimpleString, ServerLocatorInternal> locators = new HashMap<>();
 
    private SimpleString defaultClusterConnectionName;
 
@@ -394,7 +394,7 @@ public class ClusterController implements ActiveMQComponent {
     */
    private final class ConnectRunnable implements Runnable {
 
-      private ServerLocatorInternal serverLocator;
+      private final ServerLocatorInternal serverLocator;
 
       private ConnectRunnable(ServerLocatorInternal serverLocator) {
          this.serverLocator = serverLocator;

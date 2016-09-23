@@ -44,7 +44,7 @@ public class InVMLoginModule implements LoginModule {
    private SecurityConfiguration configuration;
    private Subject subject;
    private String user;
-   private Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new HashSet<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
 

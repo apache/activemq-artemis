@@ -48,9 +48,9 @@ public class FailoverPriorityTest extends OpenwireArtemisBaseTest {
    private final HashMap<Integer, String> urls = new HashMap<>();
 
    private final List<ActiveMQConnection> connections = new ArrayList<>();
-   private EmbeddedJMS[] servers = new EmbeddedJMS[3];
+   private final EmbeddedJMS[] servers = new EmbeddedJMS[3];
    private String clientUrl;
-   private Map<String, String> params = new HashMap<>();
+   private final Map<String, String> params = new HashMap<>();
 
    @Before
    public void setUp() throws Exception {

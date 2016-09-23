@@ -46,7 +46,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
 
    private X509Certificate[] certificates;
    private String username;
-   private Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new HashSet<>();
 
    /**
     * Overriding to allow for proper initialization. Standard JAAS.

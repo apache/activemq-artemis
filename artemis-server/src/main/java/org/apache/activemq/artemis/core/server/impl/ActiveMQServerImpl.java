@@ -293,7 +293,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private Activation activation;
 
-   private Map<String, Object> activationParams = new HashMap<>();
+   private final Map<String, Object> activationParams = new HashMap<>();
 
    private final ShutdownOnCriticalErrorListener shutdownOnCriticalIO = new ShutdownOnCriticalErrorListener();
 
@@ -306,7 +306,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private boolean scheduledPoolSupplied = false;
 
-   private ServiceRegistry serviceRegistry;
+   private final ServiceRegistry serviceRegistry;
 
    private Date startDate;
 

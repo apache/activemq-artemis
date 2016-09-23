@@ -80,7 +80,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    private ScheduledFuture reaperFuture;
 
-   private long reaperPeriod;
+   private final long reaperPeriod;
 
    public LocalGroupingHandler(final ExecutorFactory executorFactory,
                                final ScheduledExecutorService scheduledExecutor,

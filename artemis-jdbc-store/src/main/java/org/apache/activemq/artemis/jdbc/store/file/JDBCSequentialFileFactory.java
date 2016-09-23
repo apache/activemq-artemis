@@ -39,11 +39,11 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private boolean started;
 
-   private List<JDBCSequentialFile> files;
+   private final List<JDBCSequentialFile> files = new ArrayList<>();
 
-   private Executor executor;
+   private final Executor executor;
 
-   private Map<String, Object> fileLocks = new HashMap<>();
+   private final Map<String, Object> fileLocks = new HashMap<>();
 
    private final JDBCSequentialFileFactoryDriver dbDriver;
 
@@ -52,7 +52,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
                                     final String tableName,
                                     Executor executor) throws Exception {
       this.executor = executor;
-      files = new ArrayList<>();
       dbDriver = JDBCUtils.getDBFileDriver(dataSource, tableName, sqlProvider);
    }
 
@@ -61,7 +60,6 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
                                     final SQLProvider sqlProvider,
                                     Executor executor) throws Exception {
       this.executor = executor;
-      files = new ArrayList<>();
       dbDriver = JDBCUtils.getDBFileDriver(className, connectionUrl, sqlProvider);
    }
 

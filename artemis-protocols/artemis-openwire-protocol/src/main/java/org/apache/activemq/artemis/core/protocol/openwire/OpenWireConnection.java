@@ -144,13 +144,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private final AtomicBoolean asyncException = new AtomicBoolean(false);
 
    // Clebert: Artemis session has meta-data support, perhaps we could reuse it here
-   private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
+   private final Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<>();
 
    private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new ConcurrentHashMap<>();
    private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new ConcurrentHashMap<>();
 
    // Clebert TODO: Artemis already stores the Session. Why do we need a different one here
-   private Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
+   private final Map<SessionId, AMQSession> sessions = new ConcurrentHashMap<>();
 
    private ConnectionState state;
 
@@ -160,7 +160,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * But always without any association with Sessions.
     * This collection will hold nonXA transactions. Hopefully while they are in transit only.
     */
-   private Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
+   private final Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
 
    private volatile AMQSession advisorySession;
 

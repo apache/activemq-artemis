@@ -227,9 +227,9 @@ public class QueueImpl implements Queue {
 
    private final ReusableLatch deliveriesInTransit = new ReusableLatch(0);
 
-   private AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
+   private final AtomicLong queueRateCheckTime = new AtomicLong(System.currentTimeMillis());
 
-   private AtomicLong messagesAddedSnapshot = new AtomicLong(0);
+   private final AtomicLong messagesAddedSnapshot = new AtomicLong(0);
 
    private ScheduledFuture slowConsumerReaperFuture;
 
@@ -3005,9 +3005,9 @@ public class QueueImpl implements Queue {
 
    private final class SlowConsumerReaperRunnable implements Runnable {
 
-      private SlowConsumerPolicy policy;
-      private float threshold;
-      private long checkPeriod;
+      private final SlowConsumerPolicy policy;
+      private final float threshold;
+      private final long checkPeriod;
 
       private SlowConsumerReaperRunnable(long checkPeriod, float threshold, SlowConsumerPolicy policy) {
          this.checkPeriod = checkPeriod;
