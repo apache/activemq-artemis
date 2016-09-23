@@ -35,7 +35,7 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "size={0} trueVotes={1}")
    public static Collection primeNumbers() {
-      return Arrays.asList(new Object[][]{{1, 0}, {2, 0}, {3, 1}, {4, 2}, {5, 3}, {6, 3}, {7, 4}, {8, 4}, {9, 5}, {10, 5}});
+      return Arrays.asList(new Object[][]{{1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 3}, {6, 4}, {7, 4}, {8, 5}, {9, 5}, {10, 6}});
    }
 
    public QuorumVoteServerConnectTest(int size, int trueVotes) {
@@ -45,16 +45,13 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testClusterSize() {
+   public void testSuccessfulVote() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, new FakeStorageManager());
       for (int i = 0; i < trueVotes - 1; i++) {
          quorum.vote(new BooleanVote(true));
       }
 
-      if (size <= 2) {
-         assertTrue(quorum.getDecision());
-      }
-      else {
+      if (size > 1) {
          assertFalse(quorum.getDecision());
       }
       quorum = new QuorumVoteServerConnect(size, new FakeStorageManager());
@@ -62,5 +59,27 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
          quorum.vote(new BooleanVote(true));
       }
       assertTrue(quorum.getDecision());
+   }
+
+   @Test
+   public void testUnSuccessfulVote() {
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, new FakeStorageManager());
+      for (int i = 0; i < trueVotes - 1; i++) {
+         quorum.vote(new BooleanVote(true));
+      }
+
+      if (size > 1) {
+         assertFalse(quorum.getDecision());
+      }
+      quorum = new QuorumVoteServerConnect(size, new FakeStorageManager());
+      for (int i = 0; i < trueVotes - 1; i++) {
+         quorum.vote(new BooleanVote(true));
+      }
+      if (size == 1) {
+         assertTrue(quorum.getDecision());
+      }
+      else {
+         assertFalse(quorum.getDecision());
+      }
    }
 }
