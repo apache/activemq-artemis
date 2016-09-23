@@ -46,6 +46,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis server into a test.
+ *
+ * This JUnit Rule is designed to simplify using embedded servers in unit tests.  Adding the rule to a test will startup
+ * an embedded server, which can then be used by client applications.
+ *
+ * <pre><code>
+ * public class SimpleTest {
+ *    {@code @Rule}
+ *     public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+ *
+ *    {@code @Test}
+ *     public void testSomething() throws Exception {
+ *         // Use the embedded server here
+ *     }
+ * }
+ * </code></pre>
  */
 public class EmbeddedActiveMQResource extends ExternalResource {
 
@@ -138,7 +153,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Start the embedded ActiveMQ Artemis server.
-    * <p/>
+    *
     * The server will normally be started by JUnit using the before() method.  This method allows the server to
     * be started manually to support advanced testing scenarios.
     */
@@ -155,7 +170,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Stop the embedded ActiveMQ Artemis server
-    * <p/>
+    *
     * The server will normally be stopped by JUnit using the after() method.  This method allows the server to
     * be stopped manually to support advanced testing scenarios.
     */
@@ -177,7 +192,6 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Invoked by JUnit to setup the resource - start the embedded ActiveMQ Artemis server
-    * <p/>
     */
    @Override
    protected void before() throws Throwable {
@@ -241,7 +255,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Get the EmbeddedActiveMQ server.
-    * <p/>
+    *
     * This may be required for advanced configuration of the EmbeddedActiveMQ server.
     *
     * @return the embedded ActiveMQ broker
@@ -380,7 +394,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @return a new ClientMessage
@@ -392,7 +406,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage with the specified body
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body the body for the new message
@@ -411,7 +425,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage with the specified body
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body the body for the new message
@@ -430,7 +444,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage with the specified message properties
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param properties message properties for the new message
@@ -447,7 +461,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage with the specified body and message properties
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body       the body for the new message
@@ -464,7 +478,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    /**
     * Create a ClientMessage with the specified body and message properties
-    * <p>
+    *
     * If useDurableMessage is false, a non-durable message is created.  Otherwise, a durable message is created
     *
     * @param body       the body for the new message
