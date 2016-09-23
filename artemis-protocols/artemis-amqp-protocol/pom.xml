@@ -75,11 +75,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-proton-plug</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
       </dependency>

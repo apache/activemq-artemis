@@ -22,12 +22,59 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.jboss.logging.Logger;
 
 public class ByteUtil {
 
    public static final String NON_ASCII_STRING = "@@@@@";
 
    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+   public static void debugFrame(Logger logger, String message, ByteBuf byteIn) {
+      if (logger.isTraceEnabled()) {
+         int location = byteIn.readerIndex();
+         // debugging
+         byte[] frame = new byte[byteIn.writerIndex()];
+         byteIn.readBytes(frame);
+
+         try {
+            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+         }
+         catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+
+         byteIn.readerIndex(location);
+      }
+   }
+
+
+   public static String formatGroup(String str, int groupSize, int lineBreak) {
+      StringBuffer buffer = new StringBuffer();
+
+      int line = 1;
+      buffer.append("/*  1 */ \"");
+      for (int i = 0; i < str.length(); i += groupSize) {
+         buffer.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
+
+         if ((i + groupSize) % lineBreak == 0) {
+            buffer.append("\" +\n/* ");
+            line++;
+            if (line < 10) {
+               buffer.append(" ");
+            }
+            buffer.append(Integer.toString(line) + " */ \"");
+         }
+         else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
+            buffer.append("\" + \"");
+         }
+      }
+
+      buffer.append("\";");
+
+      return buffer.toString();
+
+   }
 
    public static String maxString(String value, int size) {
       if (value.length() < size) {
@@ -36,6 +83,16 @@ public class ByteUtil {
       else {
          return value.substring(0, size / 2) + " ... " + value.substring(value.length() - size / 2);
       }
+   }
+
+   public static String bytesToHex(byte[] bytes) {
+      char[] hexChars = new char[bytes.length * 2];
+      for (int j = 0; j < bytes.length; j++) {
+         int v = bytes[j] & 0xFF;
+         hexChars[j * 2] = hexArray[v >>> 4];
+         hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+      }
+      return new String(hexChars);
    }
 
    public static String bytesToHex(byte[] bytes, int groupSize) {
