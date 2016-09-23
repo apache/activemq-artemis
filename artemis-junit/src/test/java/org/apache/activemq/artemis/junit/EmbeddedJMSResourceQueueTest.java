@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.junit;
 
+import javax.jms.Message;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.jms.Message;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -29,73 +29,74 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class EmbeddedJMSResourceQueueTest {
-    static final String TEST_DESTINATION_NAME = "queue://test.queue";
-    static final String TEST_BODY = "Test Message";
-    static final Map<String, Object> TEST_MAP_BODY;
-    static final Map<String, Object> TEST_PROPERTIES;
 
-    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
-    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
+   static final String TEST_DESTINATION_NAME = "queue://test.queue";
+   static final String TEST_BODY = "Test Message";
+   static final Map<String, Object> TEST_MAP_BODY;
+   static final Map<String, Object> TEST_PROPERTIES;
 
-    static {
-        TEST_MAP_BODY = new HashMap<>(2);
-        TEST_MAP_BODY.put("Element 1", "Value 1");
-        TEST_MAP_BODY.put("Element 2", "Value 2");
+   static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
+   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
 
-        TEST_PROPERTIES = new HashMap<String, Object>(2);
-        TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
-        TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-    }
+   static {
+      TEST_MAP_BODY = new HashMap<>(2);
+      TEST_MAP_BODY.put("Element 1", "Value 1");
+      TEST_MAP_BODY.put("Element 2", "Value 2");
 
-    @Rule
-    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource();
+      TEST_PROPERTIES = new HashMap<String, Object>(2);
+      TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
+      TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+   }
 
-    Message pushed = null;
+   @Rule
+   public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource();
 
-    @After
-    public void tearDown() throws Exception {
-        assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_DESTINATION_NAME), pushed);
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_DESTINATION_NAME), 1, jmsServer.getMessageCount(TEST_DESTINATION_NAME));
-    }
+   Message pushed = null;
 
-    @Test
-    public void testPushBytesMessage() throws Exception {
-        pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_BODY.getBytes());
-    }
+   @After
+   public void tearDown() throws Exception {
+      assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_DESTINATION_NAME), pushed);
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_DESTINATION_NAME), 1, jmsServer.getMessageCount(TEST_DESTINATION_NAME));
+   }
 
-    @Test
-    public void testPushTextMessage() throws Exception {
-        pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_BODY);
-    }
+   @Test
+   public void testPushBytesMessage() throws Exception {
+      pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_BODY.getBytes());
+   }
 
-    @Test
-    public void testPushMapMessage() throws Exception {
-        pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_MAP_BODY);
-    }
+   @Test
+   public void testPushTextMessage() throws Exception {
+      pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_BODY);
+   }
 
-    @Test
-    public void testPushObjectMessage() throws Exception {
-        pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, (Serializable) TEST_BODY);
-    }
+   @Test
+   public void testPushMapMessage() throws Exception {
+      pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, TEST_MAP_BODY);
+   }
 
-    @Test
-    public void testPushBytesMessageWithProperties() throws Exception {
-        pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_BODY.getBytes(), TEST_PROPERTIES);
-    }
+   @Test
+   public void testPushObjectMessage() throws Exception {
+      pushed = jmsServer.pushMessage(TEST_DESTINATION_NAME, (Serializable) TEST_BODY);
+   }
 
-    @Test
-    public void testPushTextMessageWithProperties() throws Exception {
-        pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testPushBytesMessageWithProperties() throws Exception {
+      pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_BODY.getBytes(), TEST_PROPERTIES);
+   }
 
-    @Test
-    public void testPushMapMessageWithProperties() throws Exception {
-        pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_MAP_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testPushTextMessageWithProperties() throws Exception {
+      pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_BODY, TEST_PROPERTIES);
+   }
 
-    @Test
-    public void testPushObjectMessageWithProperties() throws Exception {
-        pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, (Serializable) TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testPushMapMessageWithProperties() throws Exception {
+      pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, TEST_MAP_BODY, TEST_PROPERTIES);
+   }
+
+   @Test
+   public void testPushObjectMessageWithProperties() throws Exception {
+      pushed = jmsServer.pushMessageWithProperties(TEST_DESTINATION_NAME, (Serializable) TEST_BODY, TEST_PROPERTIES);
+   }
 
 }

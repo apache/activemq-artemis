@@ -29,6 +29,10 @@
     <packaging>jar</packaging>
     <name>ActiveMQ Artemis JUnit Rules</name>
 
+    <properties>
+        <activemq.basedir>${project.basedir}/..</activemq.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

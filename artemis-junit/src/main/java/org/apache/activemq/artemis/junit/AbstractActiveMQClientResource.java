@@ -29,121 +29,129 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractActiveMQClientResource extends ExternalResource {
-    Logger log = LoggerFactory.getLogger(this.getClass());
 
-    boolean autoCreateQueue = true;
+   Logger log = LoggerFactory.getLogger(this.getClass());
 
-    ServerLocator serverLocator;
-    ClientSessionFactory sessionFactory;
-    ClientSession session;
+   boolean autoCreateQueue = true;
 
-    public AbstractActiveMQClientResource(String url) {
-        if (url == null) {
-            throw new IllegalArgumentException(String.format("Error creating {} - url cannot be null", this.getClass().getSimpleName()));
-        }
+   ServerLocator serverLocator;
+   ClientSessionFactory sessionFactory;
+   ClientSession session;
 
-        try {
-            this.serverLocator = ActiveMQClient.createServerLocator(url);
-        } catch (Exception ex) {
-            throw new RuntimeException(String.format("Error creating {} - createServerLocator( {} ) failed", this.getClass().getSimpleName(), url.toString()), ex);
-        }
-    }
+   public AbstractActiveMQClientResource(String url) {
+      if (url == null) {
+         throw new IllegalArgumentException(String.format("Error creating {} - url cannot be null", this.getClass().getSimpleName()));
+      }
 
-    public AbstractActiveMQClientResource(ServerLocator serverLocator) {
-        if (serverLocator == null) {
-            throw new IllegalArgumentException(String.format("Error creating {} - ServerLocator cannot be null", this.getClass().getSimpleName()));
-        }
+      try {
+         this.serverLocator = ActiveMQClient.createServerLocator(url);
+      }
+      catch (Exception ex) {
+         throw new RuntimeException(String.format("Error creating {} - createServerLocator( {} ) failed", this.getClass().getSimpleName(), url.toString()), ex);
+      }
+   }
 
-        this.serverLocator = serverLocator;
-    }
+   public AbstractActiveMQClientResource(ServerLocator serverLocator) {
+      if (serverLocator == null) {
+         throw new IllegalArgumentException(String.format("Error creating {} - ServerLocator cannot be null", this.getClass().getSimpleName()));
+      }
 
-    /**
-     * Adds properties to a ClientMessage
-     *
-     * @param message
-     * @param properties
-     */
-    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-        if (properties != null && properties.size() > 0) {
-            for (Map.Entry<String, Object> property : properties.entrySet()) {
-                message.putObjectProperty(property.getKey(), property.getValue());
-            }
-        }
-    }
+      this.serverLocator = serverLocator;
+   }
 
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        start();
-    }
+   /**
+    * Adds properties to a ClientMessage
+    *
+    * @param message
+    * @param properties
+    */
+   public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
+      if (properties != null && properties.size() > 0) {
+         for (Map.Entry<String, Object> property : properties.entrySet()) {
+            message.putObjectProperty(property.getKey(), property.getValue());
+         }
+      }
+   }
 
-    @Override
-    protected void after() {
-        stop();
-        super.after();
-    }
+   @Override
+   protected void before() throws Throwable {
+      super.before();
+      start();
+   }
 
-    void start() {
-        log.info("Starting {}", this.getClass().getSimpleName());
-        try {
-            sessionFactory = serverLocator.createSessionFactory();
-            session = sessionFactory.createSession();
-        } catch (RuntimeException runtimeEx) {
-            throw runtimeEx;
-        } catch (Exception ex) {
-            throw new ActiveMQClientResourceException(String.format("%s initialisation failure", this.getClass().getSimpleName()), ex);
-        }
+   @Override
+   protected void after() {
+      stop();
+      super.after();
+   }
 
-        createClient();
+   void start() {
+      log.info("Starting {}", this.getClass().getSimpleName());
+      try {
+         sessionFactory = serverLocator.createSessionFactory();
+         session = sessionFactory.createSession();
+      }
+      catch (RuntimeException runtimeEx) {
+         throw runtimeEx;
+      }
+      catch (Exception ex) {
+         throw new ActiveMQClientResourceException(String.format("%s initialisation failure", this.getClass().getSimpleName()), ex);
+      }
 
-        try {
-            session.start();
-        } catch (ActiveMQException amqEx) {
-            throw new ActiveMQClientResourceException(String.format("%s startup failure", this.getClass().getSimpleName()), amqEx);
-        }
-    }
+      createClient();
 
-    void stop() {
-        stopClient();
-        if (session != null) {
-            try {
-                session.close();
-            } catch (ActiveMQException amqEx) {
-                log.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
-            } finally {
-                session = null;
-            }
-        }
-        if (sessionFactory != null) {
-            sessionFactory.close();
-            sessionFactory = null;
-        }
-        if (serverLocator != null) {
-            serverLocator.close();
-            serverLocator = null;
-        }
+      try {
+         session.start();
+      }
+      catch (ActiveMQException amqEx) {
+         throw new ActiveMQClientResourceException(String.format("%s startup failure", this.getClass().getSimpleName()), amqEx);
+      }
+   }
 
-    }
+   void stop() {
+      stopClient();
+      if (session != null) {
+         try {
+            session.close();
+         }
+         catch (ActiveMQException amqEx) {
+            log.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
+         }
+         finally {
+            session = null;
+         }
+      }
+      if (sessionFactory != null) {
+         sessionFactory.close();
+         sessionFactory = null;
+      }
+      if (serverLocator != null) {
+         serverLocator.close();
+         serverLocator = null;
+      }
 
-    protected abstract void createClient();
+   }
 
-    protected abstract void stopClient();
+   protected abstract void createClient();
 
-    public boolean isAutoCreateQueue() {
-        return autoCreateQueue;
-    }
+   protected abstract void stopClient();
 
-    public void setAutoCreateQueue(boolean autoCreateQueue) {
-        this.autoCreateQueue = autoCreateQueue;
-    }
+   public boolean isAutoCreateQueue() {
+      return autoCreateQueue;
+   }
 
-    public static class ActiveMQClientResourceException extends RuntimeException {
-        public ActiveMQClientResourceException(String message) {
-            super(message);
-        }
+   public void setAutoCreateQueue(boolean autoCreateQueue) {
+      this.autoCreateQueue = autoCreateQueue;
+   }
 
-        public ActiveMQClientResourceException(String message, Exception cause) {
-            super(message, cause);
-        }
-    }
+   public static class ActiveMQClientResourceException extends RuntimeException {
+
+      public ActiveMQClientResourceException(String message) {
+         super(message);
+      }
+
+      public ActiveMQClientResourceException(String message, Exception cause) {
+         super(message, cause);
+      }
+   }
 }

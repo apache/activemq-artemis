@@ -27,48 +27,49 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 
 public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
-    static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-    static final String TEST_BODY = "Test Message";
-    static final Map<String, Object> TEST_PROPERTIES;
 
-    static {
-        TEST_PROPERTIES = new HashMap<String, Object>(2);
-        TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
-        TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-    }
+   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final String TEST_BODY = "Test Message";
+   static final Map<String, Object> TEST_PROPERTIES;
 
-    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+   static {
+      TEST_PROPERTIES = new HashMap<String, Object>(2);
+      TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
+      TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+   }
 
-    ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
+   EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
-    @Rule
-    public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+   ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
 
-    ClientMessage sentOne = null;
+   @Rule
+   public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
 
-    @Before
-    public void setUp() throws Exception {
-        producer.setAutoCreateQueue(false);
-        server.createQueue(TEST_QUEUE_ONE, TEST_QUEUE_ONE);
-    }
+   ClientMessage sentOne = null;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSendBytesToDefaultAddress() throws Exception {
-        sentOne = producer.sendMessage(TEST_BODY.getBytes());
-    }
+   @Before
+   public void setUp() throws Exception {
+      producer.setAutoCreateQueue(false);
+      server.createQueue(TEST_QUEUE_ONE, TEST_QUEUE_ONE);
+   }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSendStringToDefaultAddress() throws Exception {
-        sentOne = producer.sendMessage(TEST_BODY);
-    }
+   @Test(expected = IllegalArgumentException.class)
+   public void testSendBytesToDefaultAddress() throws Exception {
+      sentOne = producer.sendMessage(TEST_BODY.getBytes());
+   }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSendBytesAndPropertiesToDefaultAddress() throws Exception {
-        sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
-    }
+   @Test(expected = IllegalArgumentException.class)
+   public void testSendStringToDefaultAddress() throws Exception {
+      sentOne = producer.sendMessage(TEST_BODY);
+   }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSendStringAndPropertiesToDefaultAddress() throws Exception {
-        sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test(expected = IllegalArgumentException.class)
+   public void testSendBytesAndPropertiesToDefaultAddress() throws Exception {
+      sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+   }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void testSendStringAndPropertiesToDefaultAddress() throws Exception {
+      sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
+   }
 }

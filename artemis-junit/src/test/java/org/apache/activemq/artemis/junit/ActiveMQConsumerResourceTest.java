@@ -30,57 +30,58 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ActiveMQConsumerResourceTest {
-    static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
-    static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
-    static final String TEST_BODY = "Test Message";
-    static final Map<String, Object> TEST_PROPERTIES;
 
-    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
-    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
-    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
+   static final SimpleString TEST_QUEUE = new SimpleString("test.queue");
+   static final SimpleString TEST_ADDRESS = new SimpleString("test.queue");
+   static final String TEST_BODY = "Test Message";
+   static final Map<String, Object> TEST_PROPERTIES;
 
-    static {
-        TEST_PROPERTIES = new HashMap<String, Object>(2);
-        TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
-        TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-    }
+   static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
+   static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
+   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
-    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+   static {
+      TEST_PROPERTIES = new HashMap<String, Object>(2);
+      TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
+      TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+   }
 
-    ActiveMQConsumerResource consumer = new ActiveMQConsumerResource(server.getVmURL(), TEST_QUEUE);
+   EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
-    @Rule
-    public RuleChain ruleChain = RuleChain.outerRule(server).around(consumer);
+   ActiveMQConsumerResource consumer = new ActiveMQConsumerResource(server.getVmURL(), TEST_QUEUE);
 
-    ClientMessage sent = null;
+   @Rule
+   public RuleChain ruleChain = RuleChain.outerRule(server).around(consumer);
 
-    @After
-    public void tearDown() throws Exception {
-        assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE), 1, server.getMessageCount(TEST_QUEUE));
+   ClientMessage sent = null;
 
-        ClientMessage received = consumer.receiveMessage();
-        assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
-    }
+   @After
+   public void tearDown() throws Exception {
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE), 1, server.getMessageCount(TEST_QUEUE));
 
-    @Test
-    public void testSendBytes() throws Exception {
-        sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
-    }
+      ClientMessage received = consumer.receiveMessage();
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+   }
 
-    @Test
-    public void testSendString() throws Exception {
-        sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
-    }
+   @Test
+   public void testSendBytes() throws Exception {
+      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
+   }
 
-    @Test
-    public void testSendBytesAndProperties() throws Exception {
-        sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendString() throws Exception {
+      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
+   }
 
-    @Test
-    public void testSendStringAndProperties() throws Exception {
-        sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendBytesAndProperties() throws Exception {
+      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
+   }
+
+   @Test
+   public void testSendStringAndProperties() throws Exception {
+      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
+   }
 
 }

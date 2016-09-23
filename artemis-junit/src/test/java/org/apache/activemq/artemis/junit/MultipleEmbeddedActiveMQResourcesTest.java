@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.junit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,43 +25,43 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
 public class MultipleEmbeddedActiveMQResourcesTest {
-    static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.two");
-    static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
-    static final String TEST_BODY = "Test Message";
 
-    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
-    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
-    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
+   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
+   static final SimpleString TEST_ADDRESS_ONE = new SimpleString("test.address.one");
+   static final SimpleString TEST_ADDRESS_TWO = new SimpleString("test.address.two");
 
-    @Rule
-    public EmbeddedActiveMQResource serverOne = new EmbeddedActiveMQResource(0);
+   static final String TEST_BODY = "Test Message";
 
-    @Rule
-    public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
+   static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
+   static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
+   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
-    @Before
-    public void setUp() throws Exception {
-        serverOne.createQueue(TEST_QUEUE_ONE, TEST_QUEUE_ONE);
-        serverTwo.createQueue(TEST_QUEUE_TWO, TEST_QUEUE_TWO);
-    }
+   @Rule
+   public EmbeddedActiveMQResource serverOne = new EmbeddedActiveMQResource(0);
 
-    @After
-    public void tearDown() throws Exception {
-    }
+   @Rule
+   public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
 
-    @Test
-    public void testSendString() throws Exception {
-        ClientMessage sentOne = serverOne.sendMessage(TEST_QUEUE_ONE, TEST_BODY);
-        assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+   @Before
+   public void setUp() throws Exception {
+      serverOne.createQueue(TEST_ADDRESS_ONE, TEST_QUEUE_ONE);
+      serverTwo.createQueue(TEST_ADDRESS_TWO, TEST_QUEUE_TWO);
+   }
 
-        ClientMessage receivedOne = serverOne.receiveMessage(TEST_QUEUE_ONE);
-        assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedOne);
+   @Test
+   public void testMultipleServers() throws Exception {
+      ClientMessage sentOne = serverOne.sendMessage(TEST_ADDRESS_ONE, TEST_BODY);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
 
-        ClientMessage sentTwo = serverTwo.sendMessage(TEST_QUEUE_TWO, TEST_BODY);
-        assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentOne);
+      ClientMessage receivedOne = serverOne.receiveMessage(TEST_QUEUE_ONE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedOne);
 
-        ClientMessage receivedTwo = serverTwo.receiveMessage(TEST_QUEUE_TWO);
-        assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedOne);
-    }
+      ClientMessage sentTwo = serverTwo.sendMessage(TEST_ADDRESS_TWO, TEST_BODY);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentOne);
+
+      ClientMessage receivedTwo = serverTwo.receiveMessage(TEST_QUEUE_TWO);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedOne);
+   }
 
 }

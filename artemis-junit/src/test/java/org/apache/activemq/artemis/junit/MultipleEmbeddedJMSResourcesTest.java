@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.junit;
 
 import javax.jms.Message;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,40 +25,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class MultipleEmbeddedJMSResourcesTest {
-    static final String TEST_QUEUE_ONE = "queue://test.queue.one";
-    static final String TEST_QUEUE_TWO = "queue://test.queue.two";
-    static final String TEST_BODY = "Test Message";
 
-    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
-    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
+   static final String TEST_QUEUE_ONE = "queue://test.queue.one";
+   static final String TEST_QUEUE_TWO = "queue://test.queue.two";
+   static final String TEST_BODY = "Test Message";
 
-    @Rule
-    public EmbeddedJMSResource jmsServerOne = new EmbeddedJMSResource(0);
+   static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
+   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
 
-    /*
-    */
-    @Rule
-    public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
+   @Rule
+   public EmbeddedJMSResource jmsServerOne = new EmbeddedJMSResource(0);
 
-    @Before
-    public void setUp() throws Exception {
-    }
+   @Rule
+   public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
 
-    @After
-    public void tearDown() throws Exception {
-    }
+   @Test
+   public void testMultipleServers() throws Exception {
+      Message pushedOne = jmsServerOne.pushMessage(TEST_QUEUE_ONE, TEST_BODY);
+      assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_ONE), pushedOne);
 
-    @Test
-    public void testPushTextMessageToQueue() throws Exception {
-        Message pushedOne = jmsServerOne.pushMessage(TEST_QUEUE_ONE, TEST_BODY);
+      Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
+      assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
 
-        assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_ONE), pushedOne);
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, jmsServerOne.getMessageCount(TEST_QUEUE_ONE));
-
-        Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
-
-        assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, jmsServerTwo.getMessageCount(TEST_QUEUE_TWO));
-    }
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, jmsServerOne.getMessageCount(TEST_QUEUE_ONE));
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, jmsServerTwo.getMessageCount(TEST_QUEUE_TWO));
+   }
 
 }

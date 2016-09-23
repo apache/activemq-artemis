@@ -31,74 +31,75 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ActiveMQDynamicProducerResourceWithoutAddressTest {
-    static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
-    static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
-    static final String TEST_BODY = "Test Message";
-    static final Map<String, Object> TEST_PROPERTIES;
 
-    static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
-    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
-    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
+   static final SimpleString TEST_QUEUE_ONE = new SimpleString("test.queue.one");
+   static final SimpleString TEST_QUEUE_TWO = new SimpleString("test.queue.two");
+   static final String TEST_BODY = "Test Message";
+   static final Map<String, Object> TEST_PROPERTIES;
 
-    static {
-        TEST_PROPERTIES = new HashMap<String, Object>(2);
-        TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
-        TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
-    }
+   static final String ASSERT_SENT_FORMAT = "Message should have been sent to %s";
+   static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
+   static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
-    EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+   static {
+      TEST_PROPERTIES = new HashMap<String, Object>(2);
+      TEST_PROPERTIES.put("PropertyOne", "Property Value 1");
+      TEST_PROPERTIES.put("PropertyTwo", "Property Value 2");
+   }
 
-    ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
+   EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
-    @Rule
-    public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+   ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
 
-    ClientMessage sentOne = null;
-    ClientMessage sentTwo = null;
+   @Rule
+   public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
 
-    @Before
-    public void setUp() throws Exception {
-        producer.setAutoCreateQueue(false);
-        server.createQueue(TEST_QUEUE_ONE, TEST_QUEUE_ONE);
-        server.createQueue(TEST_QUEUE_TWO, TEST_QUEUE_TWO);
-    }
+   ClientMessage sentOne = null;
+   ClientMessage sentTwo = null;
 
-    @After
-    public void tearDown() throws Exception {
-        assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
-        assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, server.getMessageCount(TEST_QUEUE_ONE));
-        assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, server.getMessageCount(TEST_QUEUE_TWO));
+   @Before
+   public void setUp() throws Exception {
+      producer.setAutoCreateQueue(false);
+      server.createQueue(TEST_QUEUE_ONE, TEST_QUEUE_ONE);
+      server.createQueue(TEST_QUEUE_TWO, TEST_QUEUE_TWO);
+   }
 
-        ClientMessage receivedOne = server.receiveMessage(TEST_QUEUE_ONE);
-        assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), receivedOne);
+   @After
+   public void tearDown() throws Exception {
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, server.getMessageCount(TEST_QUEUE_ONE));
+      assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, server.getMessageCount(TEST_QUEUE_TWO));
 
-        ClientMessage receivedTwo = server.receiveMessage(TEST_QUEUE_TWO);
-        assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedTwo);
-    }
+      ClientMessage receivedOne = server.receiveMessage(TEST_QUEUE_ONE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), receivedOne);
 
-    @Test
-    public void testSendBytes() throws Exception {
-        sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY.getBytes());
-        sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes());
-    }
+      ClientMessage receivedTwo = server.receiveMessage(TEST_QUEUE_TWO);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedTwo);
+   }
 
-    @Test
-    public void testSendString() throws Exception {
-        sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY);
-        sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY);
-    }
+   @Test
+   public void testSendBytes() throws Exception {
+      sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY.getBytes());
+      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes());
+   }
 
-    @Test
-    public void testSendBytesAndProperties() throws Exception {
-        sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY.getBytes(), TEST_PROPERTIES);
-        sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes(), TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendString() throws Exception {
+      sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY);
+      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY);
+   }
 
-    @Test
-    public void testSendStringAndProperties() throws Exception {
-        sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY, TEST_PROPERTIES);
-        sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY, TEST_PROPERTIES);
-    }
+   @Test
+   public void testSendBytesAndProperties() throws Exception {
+      sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY.getBytes(), TEST_PROPERTIES);
+      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes(), TEST_PROPERTIES);
+   }
+
+   @Test
+   public void testSendStringAndProperties() throws Exception {
+      sentOne = producer.sendMessage(TEST_QUEUE_ONE, TEST_BODY, TEST_PROPERTIES);
+      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY, TEST_PROPERTIES);
+   }
 
 }
