@@ -20,13 +20,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 
 /**
  * A MessageCounterManager
@@ -41,45 +42,25 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
 
    private final Map<String, MessageCounter> messageCounters;
 
-   private boolean started;
-
-   private long period = MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD;
-
-   private MessageCountersPinger messageCountersPinger;
+   private final MessageCountersPinger messageCountersPinger;
 
    private int maxDayCount = MessageCounterManagerImpl.DEFAULT_MAX_DAY_COUNT;
 
-   private final ScheduledExecutorService scheduledThreadPool;
-
-   public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool) {
+   public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool, Executor executor) {
       messageCounters = new HashMap<>();
-
-      this.scheduledThreadPool = scheduledThreadPool;
+      messageCountersPinger = new MessageCountersPinger(scheduledThreadPool, executor,  MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, TimeUnit.MILLISECONDS, false);
    }
 
    @Override
    public synchronized void start() {
-      if (started) {
-         return;
-      }
 
-      messageCountersPinger = new MessageCountersPinger();
+      messageCountersPinger.start();
 
-      Future<?> future = scheduledThreadPool.scheduleAtFixedRate(messageCountersPinger, 0, period, TimeUnit.MILLISECONDS);
-      messageCountersPinger.setFuture(future);
-
-      started = true;
    }
 
    @Override
    public synchronized void stop() {
-      if (!started) {
-         return;
-      }
-
       messageCountersPinger.stop();
-
-      started = false;
    }
 
    @Override
@@ -89,22 +70,12 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
 
    @Override
    public synchronized void reschedule(final long newPeriod) {
-      boolean wasStarted = started;
-
-      if (wasStarted) {
-         stop();
-      }
-
-      period = newPeriod;
-
-      if (wasStarted) {
-         start();
-      }
+      messageCountersPinger.setPeriod(newPeriod);
    }
 
    @Override
    public long getSamplePeriod() {
-      return period;
+      return messageCountersPinger.getPeriod();
    }
 
    @Override
@@ -155,17 +126,18 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
       }
    }
 
-   private class MessageCountersPinger implements Runnable {
+   private class MessageCountersPinger extends ActiveMQScheduledComponent {
 
-      private boolean closed = false;
-
-      private Future<?> future;
+      MessageCountersPinger(ScheduledExecutorService scheduledExecutorService,
+                                   Executor executor,
+                                   long checkPeriod,
+                                   TimeUnit timeUnit,
+                                   boolean onDemand) {
+         super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
+      }
 
       @Override
-      public synchronized void run() {
-         if (closed) {
-            return;
-         }
+      public void run() {
 
          synchronized (messageCounters) {
             for (MessageCounter counter : messageCounters.values()) {
@@ -174,17 +146,6 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
          }
       }
 
-      public void setFuture(final Future<?> future) {
-         this.future = future;
-      }
-
-      synchronized void stop() {
-         if (future != null) {
-            future.cancel(false);
-         }
-
-         closed = true;
-      }
    }
 
 }

@@ -190,7 +190,7 @@ public class ManagementServiceImpl implements ManagementService {
       this.messagingServer = messagingServer;
       this.pagingManager = pagingManager;
 
-      messageCounterManager = new MessageCounterManagerImpl(scheduledThreadPool);
+      messageCounterManager = new MessageCounterManagerImpl(scheduledThreadPool, messagingServer.getExecutorFactory().getExecutor());
       messageCounterManager.setMaxDayCount(configuration.getMessageCounterMaxDayHistory());
       messageCounterManager.reschedule(configuration.getMessageCounterSamplePeriod());
 
