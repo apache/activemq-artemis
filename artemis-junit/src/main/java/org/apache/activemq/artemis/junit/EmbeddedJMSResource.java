@@ -56,6 +56,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis JMS server into a test.
+ *
+ * This JUnit Rule is designed to simplify using embedded servers in unit tests.  Adding the rule to a test will startup
+ * an embedded JMS server, which can then be used by client applications.
+ *
+ * <pre><code>
+ * public class SimpleTest {
+ *    {@code @Rule}
+ *     public EmbeddedJMSResource server = new EmbeddedJMSResource();
+ *
+ *    {@code @Test}
+ *     public void testSomething() throws Exception {
+ *         // Use the embedded server here
+ *     }
+ * }
+ * </code></pre>
  */
 public class EmbeddedJMSResource extends ExternalResource {
 

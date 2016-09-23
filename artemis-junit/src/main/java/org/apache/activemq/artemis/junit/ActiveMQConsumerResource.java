@@ -22,6 +22,25 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
+/**
+ * A JUnit Rule that embeds an ActiveMQ Artemis ClientConsumer into a test.
+ *
+ * This JUnit Rule is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the rule to a test will startup
+ * a ClientConsumer, which can then be used to consume messages from an ActiveMQ Artemis server.
+ *
+ * <pre><code>
+ * public class SimpleTest {
+ *    {@code @Rule}
+ *     public ActiveMQConsumerResource producer = new ActiveMQProducerResource( "vm://0", "test.queue" );
+ *
+ *    {@code @Test}
+ *     public void testSomething() throws Exception {
+ *         // Use the embedded client here
+ *         ClientMessage message = client.receiveMessage();
+ *     }
+ * }
+ * </code></pre>
+ */
 public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
 
    long defaultReceiveTimeout = 50;
@@ -29,9 +48,17 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
    SimpleString queueName;
    ClientConsumer consumer;
 
+   public ActiveMQConsumerResource(String url, String queueName) {
+      this(url, SimpleString.toSimpleString(queueName));
+   }
+
    public ActiveMQConsumerResource(String url, SimpleString queueName) {
       super(url);
       this.queueName = queueName;
+   }
+
+   public ActiveMQConsumerResource(ServerLocator serverLocator, String queueName) {
+      this(serverLocator, SimpleString.toSimpleString(queueName));
    }
 
    public ActiveMQConsumerResource(ServerLocator serverLocator, SimpleString queueName) {
