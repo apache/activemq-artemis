@@ -96,10 +96,10 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
             }
          }
       }
-      quorums.clear();
       for (Quorum quorum : quorums.values()) {
          quorum.close();
       }
+      quorums.clear();
    }
 
    /**
