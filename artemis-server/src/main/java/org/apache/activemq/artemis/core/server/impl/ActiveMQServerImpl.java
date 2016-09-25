@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -312,7 +313,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private final List<ActiveMQComponent> externalComponents = new ArrayList<>();
 
-   private final Map<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
+   private final ConcurrentMap<String, AtomicInteger> connectedClientIds = new ConcurrentHashMap();
 
    // Constructors
    // ---------------------------------------------------------------------------------
