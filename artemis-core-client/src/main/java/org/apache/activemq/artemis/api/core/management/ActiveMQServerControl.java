@@ -403,6 +403,24 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "whether the initial replication synchronization process with the backup server is complete")
    boolean isReplicaSync();
 
+   /**
+    * Returns how often the server checks for disk space usage.
+    */
+   @Attribute(desc = "how often to check for disk space usage, in milliseconds")
+   int getDiskScanPeriod();
+
+   /**
+    * Returns the disk use max limit.
+    */
+   @Attribute(desc = "maximum limit for disk use, in percentage")
+   int getMaxDiskUsage();
+
+   /**
+    * Returns the global max bytes limit for in-memory messages.
+    */
+   @Attribute(desc = "global maximum limit for in-memory messages, in bytes")
+   long getGlobalMaxSize();
+
    // Operations ----------------------------------------------------
 
    /**
