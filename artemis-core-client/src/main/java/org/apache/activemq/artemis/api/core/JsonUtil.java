@@ -231,6 +231,9 @@ public final class JsonUtil {
       else if (param instanceof SimpleString) {
          jsonObjectBuilder.add(key, param.toString());
       }
+      else if (param == null) {
+         jsonObjectBuilder.addNull(key);
+      }
       else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
       }
@@ -261,6 +264,9 @@ public final class JsonUtil {
       }
       else if (param instanceof Byte) {
          jsonArrayBuilder.add(((Byte) param).shortValue());
+      }
+      else if (param == null) {
+         jsonArrayBuilder.addNull();
       }
       else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidManagementParam(param.getClass().getName());
