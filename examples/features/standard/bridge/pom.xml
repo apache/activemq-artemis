@@ -45,6 +45,17 @@ under the License.
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-junit</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
