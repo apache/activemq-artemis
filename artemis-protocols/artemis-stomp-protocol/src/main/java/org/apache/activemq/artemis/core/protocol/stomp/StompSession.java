@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMess
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -276,7 +275,8 @@ public class StompSession implements SessionCallback {
                                String destination,
                                String selector,
                                String ack) throws Exception {
-      SimpleString queue = SimpleString.toSimpleString(destination);
+      SimpleString queueName = SimpleString.toSimpleString(destination);
+      boolean pubSub = false;
       int receiveCredits = consumerCredits;
       if (ack.equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
          receiveCredits = -1;
@@ -284,27 +284,27 @@ public class StompSession implements SessionCallback {
 
       if (destination.startsWith("jms.topic")) {
          // subscribes to a topic
+         pubSub = true;
          if (durableSubscriptionName != null) {
             if (clientID == null) {
                throw BUNDLE.missingClientID();
             }
-            queue = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
-            QueueQueryResult query = session.executeQueueQuery(queue);
-            if (!query.isExists()) {
-               session.createQueue(SimpleString.toSimpleString(destination), queue, SimpleString.toSimpleString(selector), false, true);
+            queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
+            if (manager.getServer().locateQueue(queueName) == null) {
+               session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), false, true);
             }
          }
          else {
-            queue = UUIDGenerator.getInstance().generateSimpleStringUUID();
-            session.createQueue(SimpleString.toSimpleString(destination), queue, SimpleString.toSimpleString(selector), true, false);
+            queueName = UUIDGenerator.getInstance().generateSimpleStringUUID();
+            session.createQueue(SimpleString.toSimpleString(destination), queueName, SimpleString.toSimpleString(selector), true, false);
          }
-         ((ServerSessionImpl) session).createConsumer(consumerID, queue, null, false, false, receiveCredits);
+         session.createConsumer(consumerID, queueName, null, false, false, receiveCredits);
       }
       else {
-         ((ServerSessionImpl) session).createConsumer(consumerID, queue, SimpleString.toSimpleString(selector), false, false, receiveCredits);
+         session.createConsumer(consumerID, queueName, SimpleString.toSimpleString(selector), false, false, receiveCredits);
       }
 
-      StompSubscription subscription = new StompSubscription(subscriptionID, ack);
+      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, pubSub);
       subscriptions.put(consumerID, subscription);
 
       session.start();
@@ -320,10 +320,9 @@ public class StompSession implements SessionCallback {
          StompSubscription sub = entry.getValue();
          if (id != null && id.equals(sub.getID())) {
             iterator.remove();
+            SimpleString queueName = sub.getQueueName();
             session.closeConsumer(consumerID);
-            SimpleString queueName = SimpleString.toSimpleString(id);
-            QueueQueryResult query = session.executeQueueQuery(queueName);
-            if (query.isExists()) {
+            if (sub.isPubSub() && manager.getServer().locateQueue(queueName) != null) {
                session.deleteQueue(queueName);
             }
             result = true;
@@ -332,8 +331,7 @@ public class StompSession implements SessionCallback {
 
       if (!result && durableSubscriptionName != null && clientID != null) {
          SimpleString queueName = SimpleString.toSimpleString(clientID + "." + durableSubscriptionName);
-         QueueQueryResult query = session.executeQueueQuery(queueName);
-         if (query.isExists()) {
+         if (manager.getServer().locateQueue(queueName) != null) {
             session.deleteQueue(queueName);
          }
          result = true;
