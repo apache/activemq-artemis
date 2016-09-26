@@ -83,12 +83,11 @@ public class DivertImpl implements Divert {
          logger.trace("Diverting message " + message + " into " + this);
       }
 
-      long id = storageManager.generateID();
-
       ServerMessage copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
       if (!forwardAddress.equals(message.getAddress())) {
+         long id = storageManager.generateID();
          copy = message.copy(id);
 
          // This will set the original MessageId, and the original address
