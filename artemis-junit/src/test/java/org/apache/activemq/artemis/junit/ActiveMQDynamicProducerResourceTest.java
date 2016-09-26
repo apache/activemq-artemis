@@ -51,7 +51,7 @@ public class ActiveMQDynamicProducerResourceTest {
    ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL(), TEST_QUEUE_ONE);
 
    @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+   public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
 
    ClientMessage sentOne = null;
    ClientMessage sentTwo = null;
@@ -60,6 +60,12 @@ public class ActiveMQDynamicProducerResourceTest {
    public void tearDown() throws Exception {
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
       assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return server.getMessageCount(TEST_QUEUE_ONE) == 1 && server.getMessageCount(TEST_QUEUE_TWO) == 1;
+         }
+      }, 5000, 100);
       assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, server.getMessageCount(TEST_QUEUE_ONE));
       assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, server.getMessageCount(TEST_QUEUE_TWO));
 

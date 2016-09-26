@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -37,11 +38,12 @@ public class MultipleEmbeddedActiveMQResourcesTest {
    static final String ASSERT_RECEIVED_FORMAT = "Message should have been received from %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in queue %s";
 
-   @Rule
    public EmbeddedActiveMQResource serverOne = new EmbeddedActiveMQResource(0);
 
-   @Rule
    public EmbeddedActiveMQResource serverTwo = new EmbeddedActiveMQResource(1);
+
+   @Rule
+   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(serverOne).around(serverTwo);
 
    @Before
    public void setUp() throws Exception {

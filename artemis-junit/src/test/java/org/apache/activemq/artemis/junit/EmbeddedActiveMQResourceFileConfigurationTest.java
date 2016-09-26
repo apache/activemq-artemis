@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,8 +32,11 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
+   private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource("embedded-artemis-server.xml");
+
    @Rule
-   public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource("embedded-artemis-server.xml");
+   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
+
 
    @Test
    public void testConfiguredQueue() throws Exception {

@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
  * <pre><code>
  * public class SimpleTest {
  *    {@code @Rule}
- *     public ActiveMQConsumerResource producer = new ActiveMQProducerResource( "vm://0", "test.queue" );
+ *     public ActiveMQConsumerResource client = new ActiveMQProducerResource( "vm://0", "test.queue" );
  *
  *    {@code @Test}
  *     public void testSomething() throws Exception {

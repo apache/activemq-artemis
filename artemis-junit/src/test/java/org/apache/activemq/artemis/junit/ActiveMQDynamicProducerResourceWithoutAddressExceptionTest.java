@@ -43,7 +43,7 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
 
    @Rule
-   public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+   public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
 
    ClientMessage sentOne = null;
 

@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -37,8 +38,10 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    CoreQueueConfiguration queueConfiguration = new CoreQueueConfiguration().setAddress(TEST_ADDRESS).setName(TEST_QUEUE);
    Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
 
+   private EmbeddedActiveMQResource server = new EmbeddedActiveMQResource(customConfiguration);
+
    @Rule
-   public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource(customConfiguration);
+   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
 
    @Test
    public void testCustomConfiguration() throws Exception {

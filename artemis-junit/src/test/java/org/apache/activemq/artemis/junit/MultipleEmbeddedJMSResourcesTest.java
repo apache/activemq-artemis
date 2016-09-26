@@ -20,6 +20,7 @@ import javax.jms.Message;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,11 +34,12 @@ public class MultipleEmbeddedJMSResourcesTest {
    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
 
-   @Rule
    public EmbeddedJMSResource jmsServerOne = new EmbeddedJMSResource(0);
 
-   @Rule
    public EmbeddedJMSResource jmsServerTwo = new EmbeddedJMSResource(1);
+
+   @Rule
+   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServerOne).around(jmsServerTwo);
 
    @Test
    public void testMultipleServers() throws Exception {

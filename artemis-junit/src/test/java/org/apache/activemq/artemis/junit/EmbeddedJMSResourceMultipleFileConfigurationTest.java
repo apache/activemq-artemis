@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,8 +43,10 @@ public class EmbeddedJMSResourceMultipleFileConfigurationTest {
    static final String ASSERT_PUSHED_FORMAT = "Message should have been pushed a message to %s";
    static final String ASSERT_COUNT_FORMAT = "Unexpected message count in destination %s";
 
-   @Rule
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource("embedded-artemis-minimal-server.xml", "embedded-artemis-jms-only.xml");
+
+   @Rule
+   public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(jmsServer);
 
    ConnectionFactory connectionFactory;
    Connection connection;

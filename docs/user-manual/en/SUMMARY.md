@@ -56,6 +56,7 @@
 * [Protocols and Interoperability](protocols-interoperability.md)
 * [Tools](tools.md)
 * [Maven Plugin](maven-plugin.md)
+* [Unit Testing](unit-testing.md)
 * [Troubleshooting and Performance Tuning](perf-tuning.md)
 * [Configuration Reference](configuration-index.md)
 
