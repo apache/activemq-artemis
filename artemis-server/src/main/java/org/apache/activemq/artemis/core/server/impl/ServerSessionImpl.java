@@ -1259,6 +1259,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
    }
 
+   @Override
    public RoutingStatus send(Transaction tx, final ServerMessage message, final boolean direct, boolean noAutoCreateQueue) throws Exception {
 
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
