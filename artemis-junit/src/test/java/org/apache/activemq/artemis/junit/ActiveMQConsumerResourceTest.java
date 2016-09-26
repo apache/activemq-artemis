@@ -63,7 +63,7 @@ public class ActiveMQConsumerResourceTest {
       Wait.waitFor(new Wait.Condition() {
          @Override
          public boolean isSatisfied() throws Exception {
-            return server.getMessageCount("TEST_QUEUE") == 1;
+            return server.getMessageCount(TEST_QUEUE) == 1;
          }
       }, 5000, 100);
       assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE), 1, server.getMessageCount(TEST_QUEUE));
