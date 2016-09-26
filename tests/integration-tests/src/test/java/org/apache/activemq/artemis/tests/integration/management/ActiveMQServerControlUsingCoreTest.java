@@ -510,6 +510,21 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public int getDiskScanPeriod() {
+            return (Integer) proxy.retrieveAttributeValue("DiskScanPeriod", Integer.class);
+         }
+
+         @Override
+         public int getMaxDiskUsage() {
+            return (Integer) proxy.retrieveAttributeValue("MaxDiskUsage", Integer.class);
+         }
+
+         @Override
+         public long getGlobalMaxSize() {
+            return (Long) proxy.retrieveAttributeValue("GlobalMaxSize", Long.class);
+         }
+
+         @Override
          public void addSecuritySettings(String addressMatch,
                                          String sendRoles,
                                          String consumeRoles,

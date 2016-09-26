@@ -546,6 +546,45 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public int getDiskScanPeriod() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return configuration.getDiskScanPeriod();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getMaxDiskUsage() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return configuration.getMaxDiskUsage();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getGlobalMaxSize() {
+      checkStarted();
+
+      clearIO();
+      try {
+         return configuration.getGlobalMaxSize();
+      }
+      finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public void deployQueue(final String address, final String name, final String filterString) throws Exception {
       checkStarted();
 
