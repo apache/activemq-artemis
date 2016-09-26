@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
@@ -144,9 +145,12 @@ public class OsgiBroker {
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
       ArrayList<String> protocols = new ArrayList<>();
       for (TransportConfiguration acceptor : acceptors) {
-         String protoName = acceptor.getName().toUpperCase();
-         if (!"ARTEMIS".equals(protoName)) {
-            protocols.add(protoName);
+         String protocolsFromAcceptor = acceptor.getParams().get(TransportConstants.PROTOCOLS_PROP_NAME).toString();
+         String[] protocolsSplit = protocolsFromAcceptor.split(",");
+         for (String protocol : protocolsSplit) {
+            if (!protocol.contains(protocol)) {
+               protocols.add(protocol);
+            }
          }
       }
       return protocols.toArray(new String[protocols.size()]);
