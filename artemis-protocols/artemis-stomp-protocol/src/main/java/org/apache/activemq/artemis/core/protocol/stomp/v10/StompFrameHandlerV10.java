@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp.v10;
 
 import javax.security.cert.X509Certificate;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
@@ -30,13 +31,14 @@ import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandle
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.CertificateUtil;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener {
 
-   public StompFrameHandlerV10(StompConnection connection) {
-      super(connection);
+   public StompFrameHandlerV10(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory factory) {
+      super(connection, scheduledExecutorService, factory);
       decoder = new StompDecoder(this);
       decoder.init();
       connection.addStompEventListener(this);

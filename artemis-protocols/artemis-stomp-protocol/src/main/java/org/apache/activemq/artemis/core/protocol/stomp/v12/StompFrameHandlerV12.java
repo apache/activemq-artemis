@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
@@ -26,13 +28,14 @@ import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
 
-   public StompFrameHandlerV12(StompConnection connection) {
-      super(connection);
+   public StompFrameHandlerV12(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory factory) {
+      super(connection, scheduledExecutorService, factory);
       decoder = new StompDecoderV12(this);
       decoder.init();
    }

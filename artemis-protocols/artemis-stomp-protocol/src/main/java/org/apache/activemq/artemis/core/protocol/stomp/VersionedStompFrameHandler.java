@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
@@ -29,6 +30,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -37,21 +39,26 @@ public abstract class VersionedStompFrameHandler {
    protected StompConnection connection;
    protected StompDecoder decoder;
 
-   public static VersionedStompFrameHandler getHandler(StompConnection connection, StompVersions version) {
+   protected final ScheduledExecutorService scheduledExecutorService;
+   protected final ExecutorFactory executorFactory;
+
+   public static VersionedStompFrameHandler getHandler(StompConnection connection, StompVersions version, ScheduledExecutorService scheduledExecutorService, ExecutorFactory executorFactory) {
       if (version == StompVersions.V1_0) {
-         return new StompFrameHandlerV10(connection);
+         return new StompFrameHandlerV10(connection, scheduledExecutorService, executorFactory);
       }
       if (version == StompVersions.V1_1) {
-         return new StompFrameHandlerV11(connection);
+         return new StompFrameHandlerV11(connection, scheduledExecutorService, executorFactory);
       }
       if (version == StompVersions.V1_2) {
-         return new StompFrameHandlerV12(connection);
+         return new StompFrameHandlerV12(connection, scheduledExecutorService, executorFactory);
       }
       return null;
    }
 
-   protected VersionedStompFrameHandler(StompConnection connection) {
+   protected VersionedStompFrameHandler(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory executorFactory) {
       this.connection = connection;
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.executorFactory = executorFactory;
    }
 
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {

@@ -117,7 +117,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame,Sto
 
    @Override
    public ConnectionEntry createConnectionEntry(final Acceptor acceptorUsed, final Connection connection) {
-      StompConnection conn = new StompConnection(acceptorUsed, connection, this);
+      StompConnection conn = new StompConnection(acceptorUsed, connection, this, server.getScheduledPool(), server.getExecutorFactory());
 
       // Note that STOMP 1.0 has no heartbeat, so if connection ttl is non zero, data must continue to be sent or connection
       // will be timed out and closed!

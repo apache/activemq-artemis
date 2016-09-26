@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.core.protocol.stomp.v11;
 
 import javax.security.cert.X509Certificate;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
@@ -31,9 +34,11 @@ import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandle
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.utils.CertificateUtil;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -43,8 +48,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
    private HeartBeater heartBeater;
 
-   public StompFrameHandlerV11(StompConnection connection) {
-      super(connection);
+   public StompFrameHandlerV11(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory executorFactory) {
+      super(connection, scheduledExecutorService, executorFactory);
       connection.addStompEventListener(this);
       decoder = new StompDecoderV11(this);
       decoder.init();
@@ -127,19 +132,13 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       //client receive ping
       long minAcceptInterval = Long.valueOf(params[1]);
 
-      heartBeater = new HeartBeater(minPingInterval, minAcceptInterval);
+      heartBeater = new HeartBeater(scheduledExecutorService, executorFactory.getExecutor(), minPingInterval, minAcceptInterval);
    }
 
    @Override
    public StompFrame onDisconnect(StompFrame frame) {
       if (this.heartBeater != null) {
          heartBeater.shutdown();
-         try {
-            heartBeater.join();
-         }
-         catch (InterruptedException e) {
-            ActiveMQServerLogger.LOGGER.errorOnStompHeartBeat(e);
-         }
       }
       return null;
    }
@@ -250,7 +249,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
     * (b) configure connection ttl so that org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl.FailureCheckAndFlushThread
     *     can deal with closing connections which go stale
     */
-   private class HeartBeater extends Thread {
+   private class HeartBeater extends ActiveMQScheduledComponent {
 
       private static final int MIN_SERVER_PING = 500;
 
@@ -260,7 +259,13 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       AtomicLong lastPingTimestamp = new AtomicLong(0);
       ConnectionEntry connectionEntry;
 
-      private HeartBeater(final long clientPing, final long clientAcceptPing) {
+      private HeartBeater(ScheduledExecutorService scheduledExecutorService, Executor executor, final long clientPing, final long clientAcceptPing) {
+         super(scheduledExecutorService, executor, clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING, TimeUnit.MILLISECONDS, false);
+
+         if (clientAcceptPing != 0) {
+            serverPingPeriod = super.getPeriod();
+         }
+
          connectionEntry = ((RemotingServiceImpl)connection.getManager().getServer().getRemotingService()).getConnectionEntry(connection.getID());
 
          if (connectionEntry != null) {
@@ -299,14 +304,11 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             }
          }
 
-         if (clientAcceptPing != 0) {
-            serverPingPeriod = clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING;
-         }
       }
 
-      public synchronized void shutdown() {
-         shutdown = true;
-         this.notify();
+      public void shutdown() {
+         this.stop();
+
       }
 
       public void pinged() {
@@ -315,21 +317,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       @Override
       public void run() {
-         synchronized (this) {
-            while (!shutdown) {
-               long lastPingPeriod = System.currentTimeMillis() - lastPingTimestamp.get();
-               if (lastPingPeriod >= serverPingPeriod) {
-                  lastPingTimestamp.set(System.currentTimeMillis());
-                  connection.ping(createPingFrame());
-                  lastPingPeriod = 0;
-               }
-               try {
-                  this.wait(serverPingPeriod - lastPingPeriod);
-               }
-               catch (InterruptedException e) {
-               }
-            }
-         }
+         lastPingTimestamp.set(System.currentTimeMillis());
+         connection.ping(createPingFrame());
       }
    }
 

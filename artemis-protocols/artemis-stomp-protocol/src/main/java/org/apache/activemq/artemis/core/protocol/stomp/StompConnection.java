@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -44,6 +45,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
@@ -96,6 +98,10 @@ public final class StompConnection implements RemotingConnection {
 
    private final int minLargeMessageSize;
 
+   private final ScheduledExecutorService scheduledExecutorService;
+
+   private final ExecutorFactory factory;
+
    @Override
    public boolean isSupportReconnect() {
       return false;
@@ -111,7 +117,7 @@ public final class StompConnection implements RemotingConnection {
             case ActiveMQStompException.INVALID_EOL_V10:
                if (version != null)
                   throw e;
-               frameHandler = new StompFrameHandlerV12(this);
+               frameHandler = new StompFrameHandlerV12(this, scheduledExecutorService, factory);
                buffer.resetReaderIndex();
                frame = decode(buffer);
                break;
@@ -136,12 +142,18 @@ public final class StompConnection implements RemotingConnection {
 
    StompConnection(final Acceptor acceptorUsed,
                    final Connection transportConnection,
-                   final StompProtocolManager manager) {
+                   final StompProtocolManager manager,
+                   final ScheduledExecutorService scheduledExecutorService,
+                   final ExecutorFactory factory) {
+      this.scheduledExecutorService = scheduledExecutorService;
+
+      this.factory = factory;
+
       this.transportConnection = transportConnection;
 
       this.manager = manager;
 
-      this.frameHandler = new StompFrameHandlerV10(this);
+      this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, factory);
 
       this.creationTime = System.currentTimeMillis();
 
@@ -452,7 +464,7 @@ public final class StompConnection implements RemotingConnection {
       }
 
       if (this.version != (StompVersions.V1_0)) {
-         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version);
+         VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version, scheduledExecutorService, factory);
          newHandler.initDecoder(this.frameHandler);
          this.frameHandler = newHandler;
       }
