@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +26,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.utils.ConcurrentUtil;
 
 /**
  * NamedLiveNodeLocatorForReplication looks for a live server in the cluster with a specific backupGroupName
@@ -59,10 +59,12 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
          if (liveConfiguration == null) {
             try {
                if (timeout != -1L) {
-                  condition.await(timeout, TimeUnit.MILLISECONDS);
+                  ConcurrentUtil.await(condition, timeout);
                }
                else {
-                  condition.await();
+                  while (liveConfiguration == null) {
+                     condition.await();
+                  }
                }
             }
             catch (InterruptedException e) {
@@ -117,4 +119,3 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
       }
    }
 }
-

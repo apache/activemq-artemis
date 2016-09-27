@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -30,6 +29,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.utils.ConcurrentUtil;
 
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as
@@ -63,10 +63,12 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
          if (untriedConnectors.isEmpty()) {
             try {
                if (timeout != -1L) {
-                  condition.await(timeout, TimeUnit.MILLISECONDS);
+                  ConcurrentUtil.await(condition, timeout);
                }
                else {
-                  condition.await();
+                  while (untriedConnectors.isEmpty()) {
+                     condition.await();
+                  }
                }
             }
             catch (InterruptedException e) {
@@ -153,4 +155,3 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
       super.notifyRegistrationFailed(alreadyReplicating);
    }
 }
-

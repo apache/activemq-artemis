@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.utils.ConcurrentUtil;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
 import org.jboss.logging.Logger;
@@ -267,11 +268,10 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             if (expectedBindings.size() > 0) {
                logger.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
-               //if we arent signaled then bindingsAdded still has some groupids we need to remove.
-               if (!awaitCondition.await(timeout, TimeUnit.MILLISECONDS)) {
+               //if we aren't signaled then bindingsAdded still has some groupids we need to remove.
+               if (!ConcurrentUtil.await(awaitCondition, timeout)) {
                   ActiveMQServerLogger.LOGGER.remoteGroupCoordinatorsNotStarted();
                }
-
             }
          }
       }

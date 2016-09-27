@@ -42,12 +42,14 @@ public class RestTestBase extends JMSTestBase {
    protected HandlerList handlers;
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       webAppDir = testFolder.newFolder("test-apps");
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
       if (server != null) {
          try {

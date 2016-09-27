@@ -44,12 +44,14 @@ public class RestDeserializationTest extends RestTestBase {
    private RestAMQConnection restConnection;
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       createJettyServer("localhost", 12345);
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
       if (restConnection != null) {
          restConnection.close();

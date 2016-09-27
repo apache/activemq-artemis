@@ -255,6 +255,7 @@ public class UnmodifiableLink implements Link {
       return link.detached();
    }
 
+   @Override
    public Record attachments() {
       return link.attachments();
    }

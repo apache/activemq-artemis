@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ConcurrentUtil;
 import org.jboss.logging.Logger;
 
 public final class ChannelImpl implements Channel {
@@ -235,6 +236,25 @@ public final class ChannelImpl implements Channel {
       this.transferring = transferring;
    }
 
+   /**
+    * @param timeoutMsg message to log on blocking call failover timeout
+    */
+   private void waitForFailOver(String timeoutMsg) {
+      try {
+         if (connection.getBlockingCallFailoverTimeout() < 0) {
+            while (failingOver) {
+               failoverCondition.await();
+            }
+         }
+         else if (!ConcurrentUtil.await(failoverCondition, connection.getBlockingCallFailoverTimeout())) {
+            logger.debug(timeoutMsg);
+         }
+      }
+      catch (InterruptedException e) {
+         throw new ActiveMQInterruptedException(e);
+      }
+   }
+
    // This must never called by more than one thread concurrently
    private boolean send(final Packet packet, final int reconnectID, final boolean flush, final boolean batch) {
       if (invokeInterceptors(packet, interceptors, connection) != null) {
@@ -254,19 +274,7 @@ public final class ChannelImpl implements Channel {
 
          try {
             if (failingOver) {
-               try {
-                  if (connection.getBlockingCallFailoverTimeout() < 0) {
-                     failoverCondition.await();
-                  }
-                  else {
-                     if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
-                        logger.debug("timed-out waiting for fail-over condition on non-blocking send");
-                     }
-                  }
-               }
-               catch (InterruptedException e) {
-                  throw new ActiveMQInterruptedException(e);
-               }
+               waitForFailOver("timed-out waiting for fail-over condition on non-blocking send");
             }
 
             // Sanity check
@@ -340,21 +348,7 @@ public final class ChannelImpl implements Channel {
 
          try {
             if (failingOver) {
-               try {
-                  if (connection.getBlockingCallFailoverTimeout() < 0) {
-                     while (failingOver) {
-                        failoverCondition.await();
-                     }
-                  }
-                  else {
-                     if (!failoverCondition.await(connection.getBlockingCallFailoverTimeout(), TimeUnit.MILLISECONDS)) {
-                        logger.debug("timed-out waiting for fail-over condition on blocking send");
-                     }
-                  }
-               }
-               catch (InterruptedException e) {
-                  throw new ActiveMQInterruptedException(e);
-               }
+               waitForFailOver("timed-out waiting for fail-over condition on blocking send");
             }
 
             response = null;
