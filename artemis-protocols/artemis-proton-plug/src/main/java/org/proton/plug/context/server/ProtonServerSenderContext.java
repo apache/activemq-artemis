@@ -162,7 +162,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          // Attempt to recover a previous subscription happens when a link reattach happens on a subscription queue
          String clientId = connection.getRemoteContainer();
          String pubId = sender.getName();
-         queue = clientId + "." + pubId;
+         queue = createQueueName(clientId, pubId);
          boolean exists = sessionSPI.queueQuery(queue, false).isExists();
 
          /*
@@ -205,7 +205,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                                 TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
-                  queue = clientId + ":" + pubId;
+                  queue = createQueueName(clientId, pubId);
                   QueueQueryResult result = sessionSPI.queueQuery(queue, false);
 
                   if (result.isExists()) {
@@ -311,7 +311,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
                else {
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
-                  String queue = clientId + ":" + pubId;
+                  String queue = createQueueName(clientId, pubId);
                   result = sessionSPI.queueQuery(queue, false);
                   if (result.isExists()) {
                      if (result.getConsumerCount() > 0) {
@@ -447,6 +447,10 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          }
       }
       return false;
+   }
+
+   private static String createQueueName(String clientId, String pubId) {
+      return clientId + "." + pubId;
    }
 
 }
