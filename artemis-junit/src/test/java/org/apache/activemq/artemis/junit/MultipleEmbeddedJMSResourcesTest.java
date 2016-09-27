@@ -49,6 +49,12 @@ public class MultipleEmbeddedJMSResourcesTest {
       Message pushedTwo = jmsServerTwo.pushMessage(TEST_QUEUE_TWO, TEST_BODY);
       assertNotNull(String.format(ASSERT_PUSHED_FORMAT, TEST_QUEUE_TWO), pushedTwo);
 
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisfied() throws Exception {
+            return jmsServerOne.getMessageCount(TEST_QUEUE_ONE) == 1 && jmsServerTwo.getMessageCount(TEST_QUEUE_TWO) == 1;
+         }
+      }, 5000, 100);
       assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_ONE), 1, jmsServerOne.getMessageCount(TEST_QUEUE_ONE));
       assertEquals(String.format(ASSERT_COUNT_FORMAT, TEST_QUEUE_TWO), 1, jmsServerTwo.getMessageCount(TEST_QUEUE_TWO));
    }
