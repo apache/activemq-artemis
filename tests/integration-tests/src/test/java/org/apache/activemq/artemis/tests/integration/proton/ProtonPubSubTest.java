@@ -54,6 +54,7 @@ public class ProtonPubSubTest extends ProtonTestBase {
    private Connection connection;
    private JmsConnectionFactory factory;
 
+   @Override
    protected void configureAmqp(Map<String, Object> params) {
       params.put("pubSubPrefix", prefix);
    }

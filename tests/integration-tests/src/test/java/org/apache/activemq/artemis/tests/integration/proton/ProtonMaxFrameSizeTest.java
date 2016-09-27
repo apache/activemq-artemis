@@ -34,6 +34,7 @@ public class ProtonMaxFrameSizeTest extends ProtonTestBase {
 
    private static final int FRAME_SIZE = 512;
 
+   @Override
    protected void configureAmqp(Map<String, Object> params) {
       params.put("maxFrameSize", FRAME_SIZE);
    }

@@ -35,6 +35,7 @@ import org.junit.Test;
 public class ExpireWhileLoadBalanceTest extends ClusterTestBase {
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
 

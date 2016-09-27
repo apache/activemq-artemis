@@ -38,6 +38,7 @@ public class DestinationCommandTest extends JMSTestBase {
    private ByteArrayOutputStream error;
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       this.output = new ByteArrayOutputStream(1024);

@@ -109,6 +109,7 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
       }
    }
 
+   @Override
    public boolean isAutoCreateQueue() {
       return autoCreateQueue;
    }
@@ -118,6 +119,7 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
     *
     * @param autoCreateQueue
     */
+   @Override
    public void setAutoCreateQueue(boolean autoCreateQueue) {
       this.autoCreateQueue = autoCreateQueue;
    }

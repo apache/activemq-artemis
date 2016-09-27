@@ -48,6 +48,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
 
 
    @Before
+   @Override
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(true, true);
@@ -55,6 +56,7 @@ public class AmqpClientTestSupport extends ActiveMQTestBase {
    }
 
    @After
+   @Override
    public void tearDown() throws Exception {
       super.tearDown();
 

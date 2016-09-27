@@ -117,6 +117,7 @@ public class GlobalPagingTest extends PagingTest {
       serverImpl.getMonitor().tick();
 
       Thread t = new Thread() {
+         @Override
          public void run() {
             try {
                sendFewMessages(numberOfMessages, session, producer, body);
