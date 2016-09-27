@@ -539,8 +539,8 @@ public class ManagementServiceImpl implements ManagementService {
          if (!registeredNames.isEmpty()) {
             List<String> unexpectedResourceNames = new ArrayList<>();
             for (String name : resourceNames) {
-               // only addresses and queues should still be registered
-               if (!(name.startsWith(ResourceNames.CORE_ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE))) {
+               // only addresses, queues, and diverts should still be registered
+               if (!(name.startsWith(ResourceNames.CORE_ADDRESS) || name.startsWith(ResourceNames.CORE_QUEUE) || name.startsWith(ResourceNames.CORE_DIVERT))) {
                   unexpectedResourceNames.add(name);
                }
             }
