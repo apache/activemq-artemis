@@ -162,7 +162,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          // Attempt to recover a previous subscription happens when a link reattach happens on a subscription queue
          String clientId = connection.getRemoteContainer();
          String pubId = sender.getName();
-         queue = clientId + ":" + pubId;
+         queue = clientId + "." + pubId;
          boolean exists = sessionSPI.queueQuery(queue, false).isExists();
 
          /*
