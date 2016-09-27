@@ -930,6 +930,7 @@
                  <forceJavacCompilerUse>true</forceJavacCompilerUse>
                  <compilerId>${javac-compiler-id}</compilerId>
                  <compilerArgs>
+                    <arg>-Xep:MissingOverride:ERROR</arg>
                     <arg>-Xep:NonAtomicVolatileUpdate:ERROR</arg>
                     <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
                     <arg>-Xep:StaticAccessedFromInstance:ERROR</arg>
