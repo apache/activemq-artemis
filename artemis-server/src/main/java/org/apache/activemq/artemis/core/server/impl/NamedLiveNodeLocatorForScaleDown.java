@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,6 +28,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.utils.ConcurrentUtil;
 import org.jboss.logging.Logger;
 
 /**
@@ -66,12 +66,14 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator {
          if (connectors.isEmpty()) {
             try {
                if (timeout != -1L) {
-                  if (!condition.await(timeout, TimeUnit.MILLISECONDS)) {
+                  if (!ConcurrentUtil.await(condition, timeout)) {
                      throw new ActiveMQException("Timeout elapsed while waiting for cluster node");
                   }
                }
                else {
-                  condition.await();
+                  while (connectors.isEmpty()) {
+                     condition.await();
+                  }
                }
             }
             catch (InterruptedException e) {
@@ -155,4 +157,3 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator {
       }
    }
 }
-
