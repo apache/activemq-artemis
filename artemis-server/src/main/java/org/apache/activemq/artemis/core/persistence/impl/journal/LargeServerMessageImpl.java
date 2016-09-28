@@ -320,6 +320,7 @@ public final class LargeServerMessageImpl extends ServerMessageImpl implements L
 
          if (!originallyOpen) {
             file.close();
+            newMessage.getFile().close();
          }
 
          return newMessage;
