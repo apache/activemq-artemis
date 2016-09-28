@@ -97,7 +97,9 @@ public class TestConversions extends Assert {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       ObjectOutputStream ois = new ObjectOutputStream(out);
       ois.writeObject(new ABadClass());
-      serverMessage.getInnerMessage().getBodyBuffer().writeBytes(out.toByteArray());
+      byte[] src = out.toByteArray();
+      serverMessage.getInnerMessage().getBodyBuffer().writeInt(src.length);
+      serverMessage.getInnerMessage().getBodyBuffer().writeBytes(src);
 
       try {
          converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
