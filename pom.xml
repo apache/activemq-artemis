@@ -87,6 +87,16 @@
       <qpid.jms.version>0.11.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <json-p.spec.version>1.0-alpha-1</json-p.spec.version>
+      <javax.inject.version>1</javax.inject.version>
+      <hawtbuff.version>1.11</hawtbuff.version>
+      <jb.logmanager.version>2.0.3.Final</jb.logmanager.version>
+      <airlift.version>0.7</airlift.version>
+      <netty.codec.mqtt.version>5.0.0.Alpha2</netty.codec.mqtt.version>
+      <geronimo.annotation.1.1.spec.version>1.0.1</geronimo.annotation.1.1.spec.version>
+      <geronimo.ejb.3.0.spec.version>1.0.1</geronimo.ejb.3.0.spec.version>
+      <geronimo.jta.1.1.spec.version>1.1.1</geronimo.jta.1.1.spec.version>
+      <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
+
       <owasp.version>1.4.3</owasp.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
@@ -141,7 +151,6 @@
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
       <skipOWASP>true</skipOWASP>
-      <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
 
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
 
@@ -320,9 +329,14 @@
 
          <!-- ### Run Time Dependencies: MUST NOT INCLUDE CAT X LICENSES ###-->
          <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>${javax.inject.version}</version>
+         </dependency>
+         <dependency>
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf</artifactId>
-            <version>1.11</version>
+            <version>${hawtbuff.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -340,7 +354,7 @@
          <dependency>
             <groupId>org.jboss.logmanager</groupId>
             <artifactId>jboss-logmanager</artifactId>
-            <version>2.0.3.Final</version>
+            <version>${jb.logmanager.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -369,13 +383,13 @@
          <dependency>
              <groupId>org.apache.geronimo.specs</groupId>
              <artifactId>geronimo-ejb_3.0_spec</artifactId>
-             <version>1.0.1</version>
+             <version>${geronimo.ejb.3.0.spec.version}</version>
              <!-- License: Apache 2.0 -->
 	      </dependency>
          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <version>1.1.1</version>
+            <version>${geronimo.jta.1.1.spec.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -405,7 +419,7 @@
          <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>airline</artifactId>
-            <version>0.7</version>
+            <version>${airlift.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <!--needed to compile transport jar-->
@@ -418,7 +432,7 @@
          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-mqtt</artifactId>
-            <version>5.0.0.Alpha2</version>
+            <version>${netty.codec.mqtt.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -522,7 +536,7 @@
          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
-            <version>1.0.1</version>
+            <version>${geronimo.annotation.1.1.spec.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
 
