@@ -69,10 +69,10 @@ public final class QueueConfig {
 
       private void validateState() {
          if (isEmptyOrNull(this.name)) {
-            throw new IllegalStateException("name can't be null!");
+            throw new IllegalStateException("name can't be null or empty!");
          }
          if (isEmptyOrNull(this.address)) {
-            throw new IllegalStateException("address can't be null!");
+            throw new IllegalStateException("address can't be null or empty!");
          }
       }
 
