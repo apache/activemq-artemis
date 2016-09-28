@@ -279,7 +279,14 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             if (apMap == null) {
                apMap = new HashMap();
             }
-            apMap.put(key, msg.getObjectProperty(key));
+            Object objectProperty = msg.getObjectProperty(key);
+            if (objectProperty instanceof byte[]) {
+               Binary binary = new Binary((byte[]) objectProperty);
+               apMap.put(key, binary);
+            }
+            else {
+               apMap.put(key, objectProperty);
+            }
          }
       }
 
