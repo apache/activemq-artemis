@@ -114,15 +114,13 @@ public class QueueConsumer {
       try {
          consumer.close();
          ActiveMQRestLogger.LOGGER.debug("Closed consumer: " + consumer);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       try {
          session.close();
          ActiveMQRestLogger.LOGGER.debug("Closed session: " + session);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       session = null;
       consumer = null;
@@ -165,8 +163,7 @@ public class QueueConsumer {
 
       try {
          return pollWithIndex(wait, info, basePath, index);
-      }
-      finally {
+      } finally {
          ping(0); // ping again as we don't want wait time included in timeout.
       }
    }
@@ -186,10 +183,8 @@ public class QueueConsumer {
          if (autoAck)
             message.acknowledge();
          return response;
-      }
-      catch (Exception e) {
-         Response errorResponse = Response.serverError().entity(e.getMessage())
-                 .status(Response.Status.INTERNAL_SERVER_ERROR).build();
+      } catch (Exception e) {
+         Response errorResponse = Response.serverError().entity(e.getMessage()).status(Response.Status.INTERNAL_SERVER_ERROR).build();
          return errorResponse;
       }
    }
@@ -199,8 +194,7 @@ public class QueueConsumer {
       ActiveMQRestLogger.LOGGER.debug("Created session: " + session);
       if (selector == null) {
          consumer = session.createConsumer(destination);
-      }
-      else {
+      } else {
          consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(selector));
       }
       ActiveMQRestLogger.LOGGER.debug("Created consumer: " + consumer);
@@ -211,8 +205,7 @@ public class QueueConsumer {
       ClientMessage m = null;
       if (timeoutSecs <= 0) {
          m = consumer.receive(1);
-      }
-      else {
+      } else {
          m = consumer.receive(timeoutSecs * 1000);
       }
 

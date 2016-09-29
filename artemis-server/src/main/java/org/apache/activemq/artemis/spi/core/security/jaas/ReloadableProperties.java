@@ -56,8 +56,7 @@ public class ReloadableProperties {
             if (key.isDebug()) {
                logger.debug("Load of: " + key);
             }
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             ActiveMQServerLogger.LOGGER.error("Failed to load: " + key + ", reason:" + e.getLocalizedMessage());
             if (key.isDebug()) {
                logger.debug("Load of: " + key + ", failure exception" + e);
@@ -82,22 +81,21 @@ public class ReloadableProperties {
       if (invertedValueProps == null) {
          invertedValueProps = new HashMap<>(props.size());
          for (Map.Entry<Object, Object> val : props.entrySet()) {
-            String[] userList = ((String)val.getValue()).split(",");
+            String[] userList = ((String) val.getValue()).split(",");
             for (String user : userList) {
                Set<String> set = invertedValueProps.get(user);
                if (set == null) {
                   set = new HashSet<>();
                   invertedValueProps.put(user, set);
                }
-               set.add((String)val.getKey());
+               set.add((String) val.getKey());
             }
          }
       }
       return invertedValueProps;
    }
 
-   private void load(final File source,
-                     Properties props) throws IOException {
+   private void load(final File source, Properties props) throws IOException {
       try (FileInputStream in = new FileInputStream(source)) {
          props.load(in);
          //            if (key.isDecrypt()) {

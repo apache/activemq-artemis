@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -426,8 +426,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    protected void doOpenInspection() {
       try {
          getStateInspector().inspectOpenedResource(getSession());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -436,8 +435,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    protected void doClosedInspection() {
       try {
          getStateInspector().inspectClosedResource(getSession());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }

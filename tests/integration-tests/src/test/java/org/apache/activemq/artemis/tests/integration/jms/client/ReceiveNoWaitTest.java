@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
@@ -27,6 +23,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * A ReceiveNoWaitTest

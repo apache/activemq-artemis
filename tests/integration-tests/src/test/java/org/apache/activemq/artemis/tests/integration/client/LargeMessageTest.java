@@ -99,7 +99,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       ActiveMQServer server = createServer(true, isNetty(), storeType);
 
-
       AddressSettings settings = new AddressSettings();
       if (redeliveryDelay) {
          settings.setRedeliveryDelay(100);
@@ -152,8 +151,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
                   // System.out.println("Rollback");
                   message.acknowledge();
                   session.rollback();
-               }
-               else {
+               } else {
                   message.acknowledge();
                   session.commit();
                }
@@ -161,8 +159,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
                if (counter == 40) {
                   latch.countDown();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                latch.countDown();
                e.printStackTrace();
                errors.incrementAndGet();
@@ -216,8 +213,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       try {
          msg1.getBodyBuffer().readByte();
          Assert.fail("Exception was expected");
-      }
-      catch (final Exception ignored) {
+      } catch (final Exception ignored) {
          // empty on purpose
       }
 
@@ -852,12 +848,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.close();
 
          validateNoFilesOnLargeDir();
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -897,8 +891,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
             if (isSimulateBridge) {
                clientFile.putBytesProperty(MessageImpl.HDR_BRIDGE_DUPLICATE_ID, someDuplicateInfo.getBytes());
-            }
-            else {
+            } else {
                clientFile.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, someDuplicateInfo.getBytes());
             }
 
@@ -925,12 +918,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          validateNoFilesOnLargeDir();
 
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -1001,12 +992,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.close();
 
          validateNoFilesOnLargeDir();
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -1073,12 +1062,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.close();
 
          validateNoFilesOnLargeDir();
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -1101,7 +1088,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @Test
    public void testFilePersistenceOneMessageStreaming() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, false, 1,  largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, false, true, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @Test
@@ -1111,7 +1098,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @Test
    public void testFilePersistenceOneHugeMessageConsumer() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, true, 1,  largeMessageSize, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
+      testChunks(false, false, false, true, true, false, false, false, true, 1, largeMessageSize, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
    @Test
@@ -1519,8 +1506,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session = sf.createSession(isXA, false, false);
 
          session.rollback(xid);
-      }
-      else {
+      } else {
          session.rollback();
       }
 
@@ -1579,8 +1565,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             session.rollback(xid);
             xid = newXID();
             session.start(xid, XAResource.TMNOFLAGS);
-         }
-         else {
+         } else {
             session.rollback();
          }
 
@@ -1595,8 +1580,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             session.commit(xid, true);
             xid = newXID();
             session.start(xid, XAResource.TMNOFLAGS);
-         }
-         else {
+         } else {
             session.commit();
          }
 
@@ -1617,19 +1601,16 @@ public class LargeMessageTest extends LargeMessageTestBase {
                   session.rollback(xid);
                   xid = newXID();
                   session.start(xid, XAResource.TMNOFLAGS);
-               }
-               else {
+               } else {
                   session.end(xid, XAResource.TMSUCCESS);
                   session.commit(xid, true);
                   xid = newXID();
                   session.start(xid, XAResource.TMNOFLAGS);
                }
-            }
-            else {
+            } else {
                if (i == 0) {
                   session.rollback();
-               }
-               else {
+               } else {
                   session.commit();
                }
             }
@@ -1702,8 +1683,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             }
             if (trans == 0) {
                session.rollback();
-            }
-            else {
+            } else {
                session.commit();
             }
          }
@@ -1711,18 +1691,15 @@ public class LargeMessageTest extends LargeMessageTestBase {
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -1787,8 +1764,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
             }
             if (trans == 0) {
                session.rollback();
-            }
-            else {
+            } else {
                session.commit();
             }
 
@@ -1798,18 +1774,15 @@ public class LargeMessageTest extends LargeMessageTestBase {
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -2094,22 +2067,18 @@ public class LargeMessageTest extends LargeMessageTestBase {
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          t.printStackTrace();
          throw t;
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -2167,18 +2136,15 @@ public class LargeMessageTest extends LargeMessageTestBase {
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -2248,18 +2214,15 @@ public class LargeMessageTest extends LargeMessageTestBase {
          Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
          Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }

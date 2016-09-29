@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
 public class AMQPMessageTypes {
+
    public static final String AMQP_TYPE_KEY = "amqp:type";
 
    public static final String AMQP_SEQUENCE = "amqp:sequence";

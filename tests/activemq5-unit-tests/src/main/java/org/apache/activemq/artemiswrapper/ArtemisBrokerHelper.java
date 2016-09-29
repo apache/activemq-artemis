@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ArtemisBrokerHelper {
+
    private static final Logger LOG = LoggerFactory.getLogger(ArtemisBrokerHelper.class);
 
    private static volatile Object service = null;
@@ -35,8 +36,7 @@ public class ArtemisBrokerHelper {
    static {
       try {
          serviceClass = Class.forName("org.apache.activemq.broker.BrokerService");
-      }
-      catch (ClassNotFoundException e) {
+      } catch (ClassNotFoundException e) {
          e.printStackTrace();
       }
 
@@ -54,23 +54,17 @@ public class ArtemisBrokerHelper {
          Method startMethod = serviceClass.getMethod("start");
          startMethod.invoke(service, (Object[]) null);
          LOG.info("started a service instance: " + service);
-      }
-      catch (InstantiationException e) {
+      } catch (InstantiationException e) {
          throw new IOException("Inst exception", e);
-      }
-      catch (IllegalAccessException e) {
+      } catch (IllegalAccessException e) {
          throw new IOException("IllegalAccess exception ", e);
-      }
-      catch (NoSuchMethodException e) {
+      } catch (NoSuchMethodException e) {
          throw new IOException("Nosuchmethod", e);
-      }
-      catch (SecurityException e) {
+      } catch (SecurityException e) {
          throw new IOException("Security exception", e);
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          throw new IOException("IllegalArgumentException exception", e);
-      }
-      catch (InvocationTargetException e) {
+      } catch (InvocationTargetException e) {
          throw new IOException("InvocationTargetException exception", e);
       }
    }
@@ -91,11 +85,9 @@ public class ArtemisBrokerHelper {
             startMethod.invoke(service, (Object[]) null);
             System.out.println("stopped the service instance: " + service);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          service = null;
       }
    }

@@ -62,8 +62,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       journal.destroy();
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
       scheduledExecutorService.shutdown();
       scheduledExecutorService = null;
@@ -78,8 +77,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       executorService = Executors.newSingleThreadExecutor();
       jdbcUrl = "jdbc:derby:target/data;create=true";
       SQLProvider.Factory factory = new DerbySQLProvider.Factory();
-      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME),
-              scheduledExecutorService, executorService);
+      journal = new JDBCJournalImpl(jdbcUrl, DRIVER_CLASS, factory.create(JOURNAL_TABLE_NAME), scheduledExecutorService, executorService);
       journal.start();
    }
 

@@ -76,8 +76,7 @@ public class SessionDeleteQueueMessage extends PacketImpl {
       if (queueName == null) {
          if (other.queueName != null)
             return false;
-      }
-      else if (!queueName.equals(other.queueName))
+      } else if (!queueName.equals(other.queueName))
          return false;
       return true;
    }

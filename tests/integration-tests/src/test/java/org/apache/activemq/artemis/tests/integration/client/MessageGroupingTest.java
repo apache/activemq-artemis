@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -36,12 +42,6 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class MessageGroupingTest extends ActiveMQTestBase {
 
@@ -132,8 +132,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
             Assert.assertNotEquals("You shouldn't have all messages bound to a single consumer", 30, count);
             Assert.assertNotEquals("But you shouldn't have also a single consumer bound to none", 0, count);
          }
-      }
-      finally {
+      } finally {
          consumer1.close();
          consumer2.close();
          consumer3.close();
@@ -183,8 +182,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -220,8 +218,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -262,8 +259,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -317,8 +313,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -384,8 +379,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -439,8 +433,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -505,8 +498,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
-         }
-         else {
+         } else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -566,8 +558,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          if (acknowledge) {
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                // ignore
             }
          }

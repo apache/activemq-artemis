@@ -115,13 +115,11 @@ public class JDBCJournalRecord {
    }
 
    public static String insertRecordsSQL(String tableName) {
-      return "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) "
-         + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+      return "INSERT INTO " + tableName + "(id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
    }
 
    public static String selectRecordsSQL(String tableName) {
-      return "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq "
-         + "FROM " + tableName + " ORDER BY seq ASC";
+      return "SELECT id,recordType,compactCount,txId,userRecordType,variableSize,record,txDataSize,txData,txCheckNoRecords,seq " + "FROM " + tableName + " ORDER BY seq ASC";
    }
 
    public static String deleteRecordsSQL(String tableName) {
@@ -136,8 +134,7 @@ public class JDBCJournalRecord {
       if (ioCompletion != null) {
          if (success) {
             ioCompletion.done();
-         }
-         else {
+         } else {
             ioCompletion.onError(1, "DATABASE TRANSACTION FAILED");
          }
       }
@@ -157,8 +154,7 @@ public class JDBCJournalRecord {
       try {
          record.read(recordBytes);
          txData.read(txDataBytes);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          ActiveMQJournalLogger.LOGGER.error("Error occurred whilst reading Journal Record", e);
       }
 

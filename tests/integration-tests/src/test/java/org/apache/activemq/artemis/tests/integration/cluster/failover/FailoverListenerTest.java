@@ -270,8 +270,7 @@ public class FailoverListenerTest extends FailoverTestBase {
          log.info("Failover event just happen : " + eventType.toString());
          if (eventType == FailoverEventType.FAILURE_DETECTED) {
             failureLatch.countDown();
-         }
-         else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED) {
+         } else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED) {
             failureDoneLatch.countDown();
          }
       }

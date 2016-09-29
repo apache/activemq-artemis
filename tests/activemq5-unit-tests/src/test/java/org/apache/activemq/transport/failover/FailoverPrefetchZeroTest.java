@@ -109,8 +109,7 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
                }
                receiveDone.countDown();
                LOG.info("done receive");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -149,11 +148,9 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
             public void run() {
                try {
                   broker.stop();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
-               }
-               finally {
+               } finally {
                   brokerStopLatch.countDown();
                }
             }

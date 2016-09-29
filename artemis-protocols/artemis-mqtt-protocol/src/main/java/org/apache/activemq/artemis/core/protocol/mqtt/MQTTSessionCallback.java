@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,11 +42,13 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendMessage(MessageReference reference, ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+   public int sendMessage(MessageReference reference,
+                          ServerMessage message,
+                          ServerConsumer consumer,
+                          int deliveryCount) {
       try {
          session.getMqttPublishManager().sendMessage(message, consumer, deliveryCount);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
       }
@@ -58,7 +60,6 @@ public class MQTTSessionCallback implements SessionCallback {
       return false;
    }
 
-
    @Override
    public int sendLargeMessageContinuation(ServerConsumer consumerID,
                                            byte[] body,
@@ -69,7 +70,11 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference reference, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference reference,
+                               ServerMessage message,
+                               ServerConsumer consumer,
+                               long bodySize,
+                               int deliveryCount) {
       return sendMessage(reference, message, consumer, deliveryCount);
    }
 
@@ -77,8 +82,7 @@ public class MQTTSessionCallback implements SessionCallback {
    public void disconnect(ServerConsumer consumer, String queueName) {
       try {
          consumer.removeItself();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.error(e.getMessage());
       }
    }
@@ -87,7 +91,6 @@ public class MQTTSessionCallback implements SessionCallback {
    public void afterDelivery() throws Exception {
 
    }
-
 
    @Override
    public void browserFinished(ServerConsumer consumer) {

@@ -68,8 +68,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
          public void run() {
             try {
                dg.internalRunning();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -98,8 +97,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
          Thread.sleep(100);
          assertTrue(t.isAlive());
          assertEquals(0, errors.get());
-      }
-      finally {
+      } finally {
 
          if (bg != null) {
             bg.stop();

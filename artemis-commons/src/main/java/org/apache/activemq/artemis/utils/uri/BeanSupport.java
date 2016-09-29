@@ -62,7 +62,7 @@ public class BeanSupport {
       return obj;
    }
 
-   public static <P> P setData( P obj, Map<String, Object> data) throws Exception {
+   public static <P> P setData(P obj, Map<String, Object> data) throws Exception {
       synchronized (beanUtils) {
          beanUtils.populate(obj, data);
       }
@@ -86,8 +86,7 @@ public class BeanSupport {
       for (Map.Entry<String, String> entry : query.entrySet()) {
          if (allowableProperties.contains(entry.getKey())) {
             properties.put(entry.getKey(), entry.getValue());
-         }
-         else {
+         } else {
             extraProps.put(entry.getKey(), entry.getValue());
          }
       }
@@ -135,7 +134,6 @@ public class BeanSupport {
          (type == boolean.class) ||
          (type == String.class);
    }
-
 
    public static String decodeURI(String value) throws UnsupportedEncodingException {
       return URLDecoder.decode(value, "UTF-8");

@@ -88,17 +88,14 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
             Assert.assertTrue("correct type " + c, c.isInstance(receivedBody));
             if (body.getClass().isAssignableFrom(byte[].class)) {
                Arrays.equals((byte[]) body, (byte[]) receivedBody);
-            }
-            else {
+            } else {
                Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body, receivedBody);
             }
-         }
-         else {
+         } else {
             try {
                Object foo = msg.getBody(c);
                Assert.fail("expected a " + MessageFormatException.class);
-            }
-            catch (MessageFormatException e) {
+            } catch (MessageFormatException e) {
                // expected
             }
          }

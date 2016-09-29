@@ -92,6 +92,5 @@ public interface TopologyMember {
     */
    boolean isMember(TransportConfiguration configuration);
 
-
    String toURI();
 }

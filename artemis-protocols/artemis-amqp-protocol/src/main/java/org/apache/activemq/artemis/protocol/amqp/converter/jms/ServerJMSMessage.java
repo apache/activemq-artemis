@@ -49,7 +49,9 @@ public class ServerJMSMessage implements Message {
 
    private ActiveMQBuffer readBodyBuffer;
 
-   /** When reading we use a protected copy so multi-threads can work fine */
+   /**
+    * When reading we use a protected copy so multi-threads can work fine
+    */
    protected ActiveMQBuffer getReadBodyBuffer() {
       if (readBodyBuffer == null) {
          // to avoid clashes between multiple threads
@@ -58,12 +60,13 @@ public class ServerJMSMessage implements Message {
       return readBodyBuffer;
    }
 
-   /** When writing on the conversion we use the buffer directly */
+   /**
+    * When writing on the conversion we use the buffer directly
+    */
    protected ActiveMQBuffer getWriteBodyBuffer() {
       readBodyBuffer = null; // it invalidates this buffer if anything is written
       return message.getBodyBuffer();
    }
-
 
    @Override
    public final String getJMSMessageID() throws JMSException {
@@ -99,8 +102,7 @@ public class ServerJMSMessage implements Message {
    public final void setJMSCorrelationIDAsBytes(byte[] correlationID) throws JMSException {
       try {
          MessageUtil.setJMSCorrelationIDAsBytes(message, correlationID);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new JMSException(e.getMessage());
       }
    }
@@ -120,8 +122,7 @@ public class ServerJMSMessage implements Message {
       SimpleString reply = MessageUtil.getJMSReplyTo(message);
       if (reply != null) {
          return new ServerDestination(reply.toString());
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -138,8 +139,7 @@ public class ServerJMSMessage implements Message {
 
       if (sdest == null) {
          return null;
-      }
-      else {
+      } else {
          return new ServerDestination(sdest.toString());
       }
    }
@@ -148,8 +148,7 @@ public class ServerJMSMessage implements Message {
    public final void setJMSDestination(Destination destination) throws JMSException {
       if (destination == null) {
          message.setAddress(null);
-      }
-      else {
+      } else {
          message.setAddress(((ActiveMQDestination) destination).getSimpleAddress());
       }
 
@@ -164,11 +163,9 @@ public class ServerJMSMessage implements Message {
    public final void setJMSDeliveryMode(int deliveryMode) throws JMSException {
       if (deliveryMode == DeliveryMode.PERSISTENT) {
          message.setDurable(true);
-      }
-      else if (deliveryMode == DeliveryMode.NON_PERSISTENT) {
+      } else if (deliveryMode == DeliveryMode.NON_PERSISTENT) {
          message.setDurable(false);
-      }
-      else {
+      } else {
          throw new JMSException("Invalid mode " + deliveryMode);
       }
    }

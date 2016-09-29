@@ -194,8 +194,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
          receiveMsgsInRange(0, n_msgs);
          assertNoMoreMessages();
-      }
-      catch (AssertionError error) {
+      } catch (AssertionError error) {
          printJournal(liveServer);
          printJournal(backupServer);
          // test failed
@@ -210,8 +209,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          DescribeJournal.describeBindingsJournal(config.getBindingsLocation());
          System.out.println("\n\n MESSAGES JOURNAL\n\n");
          DescribeJournal.describeMessagesJournal(config.getJournalLocation());
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
          ignored.printStackTrace();
       }
    }
@@ -255,8 +253,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          UUID uuid = new UUID(UUID.TYPE_TIME_BASED, bytes);
          SimpleString storedNodeId = new SimpleString(uuid.toString());
          assertEquals("nodeId must match", backupServer.getServer().getNodeID(), storedNodeId);
-      }
-      finally {
+      } finally {
          raFile.close();
       }
    }
@@ -294,8 +291,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          liveServer.start();
          assertTrue("must have become a backup", liveServer.getServer().getHAPolicy().isBackup());
          Assert.assertEquals(0, liveMoveManager.getNumberOfFolders());
-      }
-      finally {
+      } finally {
          liveServer.getServer().unlockActivation();
       }
       waitForServerToStart(liveServer.getServer());

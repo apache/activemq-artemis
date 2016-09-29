@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,8 +30,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
@@ -58,11 +58,9 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
       try {
          session.createQueue(QUEUE, QUEUE, null, true);
          fail("Expected exception, queue already exists");
-      }
-      catch (ActiveMQQueueExistsException qee) {
+      } catch (ActiveMQQueueExistsException qee) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -131,22 +129,18 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase {
             final SimpleString QUEUE = new SimpleString(queueName);
             session.createQueue(QUEUE, QUEUE, null, true);
             queuesCreated.incrementAndGet();
-         }
-         catch (ActiveMQQueueExistsException qne) {
+         } catch (ActiveMQQueueExistsException qne) {
             failedAttempts.incrementAndGet();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
-         }
-         finally {
+         } finally {
             if (locator != null) {
                locator.close();
             }
             if (session != null) {
                try {
                   session.close();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   e.printStackTrace();
                }
             }

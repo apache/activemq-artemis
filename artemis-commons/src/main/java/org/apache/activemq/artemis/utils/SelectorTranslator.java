@@ -100,8 +100,7 @@ public class SelectorTranslator {
 
                matchPos = 0;
             }
-         }
-         else {
+         } else {
             matchPos = 0;
          }
       }
@@ -126,8 +125,7 @@ public class SelectorTranslator {
          }
 
          return buff.toString();
-      }
-      else {
+      } else {
          return input;
       }
    }

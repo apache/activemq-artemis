@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.integration;
 
-import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
-
 import javax.servlet.ServletContext;
+
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 public class ServletContextBindingRegistry implements BindingRegistry {
 

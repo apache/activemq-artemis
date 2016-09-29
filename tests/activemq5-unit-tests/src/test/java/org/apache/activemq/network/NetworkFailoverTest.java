@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.network;
-
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -30,6 +27,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -82,18 +81,15 @@ public class NetworkFailoverTest extends TestCase {
                remoteProducer.send(replyTo, textMsg);
                LOG.info("replied with: " + textMsg.getJMSMessageID());
 
-            }
-            catch (DestinationDoesNotExistException expected) {
+            } catch (DestinationDoesNotExistException expected) {
                // been removed but not yet recreated
                replyToNonExistDest.incrementAndGet();
                try {
                   LOG.info("NED: " + textMsg.getJMSMessageID());
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   e.printStackTrace();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.warn("*** Responder listener caught exception: ", e);
                e.printStackTrace();
             }
@@ -112,8 +108,7 @@ public class NetworkFailoverTest extends TestCase {
          public void onMessage(Message message) {
             try {
                LOG.info("dlq " + message.getJMSMessageID());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
             remoteDLQCount.incrementAndGet();
@@ -161,19 +156,16 @@ public class NetworkFailoverTest extends TestCase {
       try {
          localConnection.close();
          remoteConnection.close();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
 
       try {
          localBroker.stop();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
       try {
          remoteBroker.stop();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
    }
 

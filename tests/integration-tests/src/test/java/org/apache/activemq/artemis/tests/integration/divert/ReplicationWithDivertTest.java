@@ -101,9 +101,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       backupConfig.addQueueConfiguration(new CoreQueueConfiguration().setAddress(SOURCE_QUEUE).setName(SOURCE_QUEUE));
       backupConfig.addQueueConfiguration(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
 
-
       DivertConfiguration divertConfiguration = new DivertConfiguration().setName("Test").setAddress(SOURCE_QUEUE).setForwardingAddress(TARGET_QUEUE).setRoutingName("Test");
-
 
       liveConfig = createDefaultInVMConfig();
       liveConfig.addQueueConfiguration(new CoreQueueConfiguration().setAddress(SOURCE_QUEUE).setName(SOURCE_QUEUE).setDurable(true));
@@ -150,8 +148,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       if (connection != null) {
          try {
             connection.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       if (backupServer != null) {
@@ -191,8 +188,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
                      producer.send(message);
                      session.commit();
                   }
-               }
-               catch (JMSException expected) {
+               } catch (JMSException expected) {
                   expected.printStackTrace();
                }
             }

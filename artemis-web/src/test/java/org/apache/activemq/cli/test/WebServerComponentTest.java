@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.cli.test;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
@@ -45,9 +47,6 @@ import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 
 public class WebServerComponentTest extends Assert {
 
@@ -115,12 +114,7 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider,
-              webServerDTO.keyStorePath,
-              webServerDTO.keyStorePassword,
-              keyStoreProvider,
-              webServerDTO.keyStorePath,
-              webServerDTO.keyStorePassword);
+      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword, keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword);
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);
@@ -173,12 +167,7 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
       String keyStoreProvider = "JKS";
 
-      SSLContext context = SSLSupport.createContext(keyStoreProvider,
-              webServerDTO.keyStorePath,
-              webServerDTO.keyStorePassword,
-              keyStoreProvider,
-              webServerDTO.trustStorePath,
-              webServerDTO.trustStorePassword);
+      SSLContext context = SSLSupport.createContext(keyStoreProvider, webServerDTO.keyStorePath, webServerDTO.keyStorePassword, keyStoreProvider, webServerDTO.trustStorePath, webServerDTO.trustStorePassword);
 
       SSLEngine engine = context.createSSLEngine();
       engine.setUseClientMode(true);

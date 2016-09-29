@@ -16,19 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.security.impl;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.util.HashSet;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * tests ActiveMQSecurityManagerImpl
@@ -92,15 +89,13 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
       try {
          securityManager.getConfiguration().addUser("newuser2", null);
          Assert.fail("password cannot be null");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // pass
       }
       try {
          securityManager.getConfiguration().addUser(null, "newpassword2");
          Assert.fail("password cannot be null");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // pass
       }
    }

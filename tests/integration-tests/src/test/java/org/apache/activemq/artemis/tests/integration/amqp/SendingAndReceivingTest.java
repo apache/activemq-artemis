@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import java.util.Random;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,11 +23,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Random;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.qpid.jms.JmsConnectionFactory;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,8 +50,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       try {
          server.stop();
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -78,8 +75,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
          TextMessage m = (TextMessage) consumer.receive(5000);
 
          Assert.assertEquals(body, m.getText());
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -90,7 +86,7 @@ public class SendingAndReceivingTest extends ActiveMQTestBase {
       final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       Random rnd = new Random();
       StringBuilder sb = new StringBuilder(messageSize);
-      for (int j = 0; j < messageSize; j++ ) {
+      for (int j = 0; j < messageSize; j++) {
          sb.append(AB.charAt(rnd.nextInt(AB.length())));
       }
       String body = sb.toString();

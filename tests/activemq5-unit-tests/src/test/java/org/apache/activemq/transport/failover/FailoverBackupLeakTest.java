@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.transport.failover;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
@@ -36,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Ensures connections aren't leaked when when we use backup=true and randomize=false
@@ -127,19 +126,16 @@ public class FailoverBackupLeakTest extends OpenwireArtemisBaseTest {
       try {
          conn = local.createConnection();
          sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      }
-      finally {
+      } finally {
          try {
             if (sess != null)
                sess.close();
-         }
-         catch (JMSException ignore) {
+         } catch (JMSException ignore) {
          }
          try {
             if (conn != null)
                conn.close();
-         }
-         catch (JMSException ignore) {
+         } catch (JMSException ignore) {
          }
       }
    }

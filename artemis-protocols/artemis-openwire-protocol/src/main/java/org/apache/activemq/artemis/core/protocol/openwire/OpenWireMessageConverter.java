@@ -94,7 +94,6 @@ public class OpenWireMessageConverter implements MessageConverter {
    private static final String AMQ_MSG_DROPPABLE = AMQ_PREFIX + "DROPPABLE";
    private static final String AMQ_MSG_COMPRESSED = AMQ_PREFIX + "COMPRESSED";
 
-
    private final WireFormat marshaller;
 
    public OpenWireMessageConverter(WireFormat marshaller) {
@@ -107,11 +106,10 @@ public class OpenWireMessageConverter implements MessageConverter {
       return null;
    }
 
-
    @Override
    public ServerMessage inbound(Object message) throws Exception {
 
-      Message messageSend = (Message)message;
+      Message messageSend = (Message) message;
       ServerMessageImpl coreMessage = new ServerMessageImpl(-1, messageSend.getSize());
 
       String type = messageSend.getType();
@@ -131,8 +129,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       ByteSequence contents = messageSend.getContent();
       if (contents == null && coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
          body.writeNullableString(null);
-      }
-      else if (contents != null) {
+      } else if (contents != null) {
          boolean messageCompressed = messageSend.isCompressed();
          if (messageCompressed) {
             coreMessage.putBooleanProperty(AMQ_MSG_COMPRESSED, messageCompressed);
@@ -265,11 +262,9 @@ public class OpenWireMessageConverter implements MessageConverter {
                      int count = inflater.inflate(buffer);
                      decompressed.write(buffer, 0, count);
                      contents = decompressed.toByteSequence();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      throw new IOException(e);
-                  }
-                  finally {
+                  } finally {
                      inflater.end();
                   }
                }
@@ -281,8 +276,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                        OutputStream os = new InflaterOutputStream(decompressed)) {
                      os.write(contents.data, contents.offset, contents.getLength());
                      contents = decompressed.toByteSequence();
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      throw new IOException(e);
                   }
                }
@@ -356,8 +350,7 @@ public class OpenWireMessageConverter implements MessageConverter {
             Object value = ent.getValue();
             try {
                coreMessage.putObjectProperty(ent.getKey(), value);
-            }
-            catch (ActiveMQPropertyConversionException e) {
+            } catch (ActiveMQPropertyConversionException e) {
                coreMessage.putStringProperty(ent.getKey(), value.toString());
             }
          }
@@ -371,7 +364,6 @@ public class OpenWireMessageConverter implements MessageConverter {
       }
 
       ConsumerId consumerId = messageSend.getTargetConsumerId();
-
 
       String userId = messageSend.getUserID();
       if (userId != null) {
@@ -421,7 +413,8 @@ public class OpenWireMessageConverter implements MessageConverter {
       }
    }
 
-   public static MessageDispatch createMessageDispatch(MessageReference reference, ServerMessage message,
+   public static MessageDispatch createMessageDispatch(MessageReference reference,
+                                                       ServerMessage message,
                                                        AMQConsumer consumer) throws IOException, JMSException {
       ActiveMQMessage amqMessage = toAMQMessage(reference, message, consumer.getMarshaller(), consumer.getOpenwireDestination());
 
@@ -438,7 +431,10 @@ public class OpenWireMessageConverter implements MessageConverter {
       return md;
    }
 
-   private static ActiveMQMessage toAMQMessage(MessageReference reference, ServerMessage coreMessage, WireFormat marshaller, ActiveMQDestination actualDestination) throws IOException {
+   private static ActiveMQMessage toAMQMessage(MessageReference reference,
+                                               ServerMessage coreMessage,
+                                               WireFormat marshaller,
+                                               ActiveMQDestination actualDestination) throws IOException {
       ActiveMQMessage amqMsg = null;
       byte coreType = coreMessage.getType();
       switch (coreType) {
@@ -480,7 +476,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       amqMsg.setBrokerInTime(brokerInTime);
 
       ActiveMQBuffer buffer = coreMessage.getBodyBufferDuplicate();
-      Boolean compressProp = (Boolean)coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
+      Boolean compressProp = (Boolean) coreMessage.getObjectProperty(AMQ_MSG_COMPRESSED);
       boolean isCompressed = compressProp == null ? false : compressProp.booleanValue();
       amqMsg.setCompressed(isCompressed);
 
@@ -501,8 +497,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                      bytes = bytesOut.toByteArray();
                   }
                }
-            }
-            else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
+            } else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
                TypedProperties mapData = new TypedProperties();
                mapData.decode(buffer);
 
@@ -516,8 +511,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                   MarshallingSupport.marshalPrimitiveMap(map, dataOut);
                }
                bytes = out.toByteArray();
-            }
-            else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
+            } else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE) {
                int len = buffer.readInt();
                bytes = new byte[len];
                buffer.readBytes(bytes);
@@ -528,8 +522,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                   }
                   bytes = bytesOut.toByteArray();
                }
-            }
-            else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE) {
+            } else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE) {
                org.apache.activemq.util.ByteArrayOutputStream bytesOut = new org.apache.activemq.util.ByteArrayOutputStream();
                OutputStream out = bytesOut;
                if (isCompressed) {
@@ -578,8 +571,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                            String string = buffer.readNullableString();
                            if (string == null) {
                               MarshallingSupport.marshalNull(dataOut);
-                           }
-                           else {
+                           } else {
                               MarshallingSupport.marshalString(dataOut, string);
                            }
                            break;
@@ -591,8 +583,7 @@ public class OpenWireMessageConverter implements MessageConverter {
                   }
                }
                bytes = bytesOut.toByteArray();
-            }
-            else if (coreType == org.apache.activemq.artemis.api.core.Message.BYTES_TYPE) {
+            } else if (coreType == org.apache.activemq.artemis.api.core.Message.BYTES_TYPE) {
                int n = buffer.readableBytes();
                bytes = new byte[n];
                buffer.readBytes(bytes);
@@ -611,13 +602,11 @@ public class OpenWireMessageConverter implements MessageConverter {
                      ByteSequence byteSeq = compressed.toByteSequence();
                      ByteSequenceData.writeIntBig(byteSeq, length);
                      bytes = Arrays.copyOfRange(byteSeq.data, 0, byteSeq.length);
-                  }
-                  finally {
+                  } finally {
                      deflater.end();
                   }
                }
-            }
-            else {
+            } else {
                int n = buffer.readableBytes();
                bytes = new byte[n];
                buffer.readBytes(bytes);
@@ -706,8 +695,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       if (midBytes != null) {
          ByteSequence midSeq = new ByteSequence(midBytes);
          mid = (MessageId) marshaller.unmarshal(midSeq);
-      }
-      else {
+      } else {
          mid = new MessageId(UUIDGenerator.getInstance().generateStringUUID() + ":-1");
       }
 
@@ -744,7 +732,6 @@ public class OpenWireMessageConverter implements MessageConverter {
          amqMsg.setReplyTo(replyTo);
       }
 
-
       String userId = (String) coreMessage.getObjectProperty(AMQ_MSG_USER_ID);
       if (userId != null) {
          amqMsg.setUserID(userId);
@@ -759,8 +746,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       if (dlqCause != null) {
          try {
             amqMsg.setStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, dlqCause.toString());
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             throw new IOException("failure to set dlq property " + dlqCause, e);
          }
       }
@@ -776,12 +762,10 @@ public class OpenWireMessageConverter implements MessageConverter {
             try {
                if (prop instanceof SimpleString) {
                   amqMsg.setObjectProperty(s.toString(), prop.toString());
-               }
-               else {
+               } else {
                   amqMsg.setObjectProperty(s.toString(), prop);
                }
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                throw new IOException("exception setting property " + s + " : " + prop, e);
             }
          }
@@ -789,8 +773,7 @@ public class OpenWireMessageConverter implements MessageConverter {
       try {
          amqMsg.onSend();
          amqMsg.setCompressed(isCompressed);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new IOException("Failed to covert to Openwire message", e);
       }
       return amqMsg;

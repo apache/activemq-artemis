@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.security;
 
-import java.net.URI;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.net.URI;
 
 import junit.framework.Test;
 
@@ -93,8 +93,7 @@ public class XBeanSecurityWithGuestTest extends JmsTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
          sendMessages(session, destination, 1);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // If test is expected to fail, the cause must only be a
          // SecurityException
          // otherwise rethrow the exception
@@ -106,8 +105,7 @@ public class XBeanSecurityWithGuestTest extends JmsTestSupport {
       Message m = consumer.receive(1000);
       if (fail) {
          assertNull(m);
-      }
-      else {
+      } else {
          assertNotNull(m);
          assertEquals("0", ((TextMessage) m).getText());
          assertNull(consumer.receiveNoWait());

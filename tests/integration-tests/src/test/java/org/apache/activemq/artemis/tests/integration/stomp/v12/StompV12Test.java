@@ -72,8 +72,7 @@ public class StompV12Test extends StompV11TestBase {
          if (connected) {
             connV12.disconnect();
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -632,8 +631,7 @@ public class StompV12Test extends StompV11TestBase {
       try {
          conn.sendFrame(frame);
          Assert.fail("connection should have been destroyed by now");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          //ignore
       }
 
@@ -778,8 +776,7 @@ public class StompV12Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          if (newConn != null)
             newConn.disconnect();
          connV12.disconnect();
@@ -838,8 +835,7 @@ public class StompV12Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          newConn.disconnect();
       }
    }
@@ -906,8 +902,7 @@ public class StompV12Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          if (newConn != null)
             newConn.disconnect();
          connV12.disconnect();
@@ -1483,21 +1478,17 @@ public class StompV12Test extends StompV11TestBase {
                try {
                   connV12.sendFrame(sendFrame);
                   Thread.sleep(500);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   //retry
-               }
-               catch (ClosedChannelException e) {
+               } catch (ClosedChannelException e) {
                   //ok.
                   latch.countDown();
                   break;
-               }
-               catch (IOException e) {
+               } catch (IOException e) {
                   //ok.
                   latch.countDown();
                   break;
-               }
-               finally {
+               } finally {
                   connV12.destroy();
                }
             }
@@ -1697,8 +1688,7 @@ public class StompV12Test extends StompV11TestBase {
             latch.countDown();
             try {
                System.out.println("___> latch now: " + latch.getCount() + " m: " + m.getText());
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                Assert.fail("here failed");
                e.printStackTrace();
             }
@@ -2455,12 +2445,14 @@ public class StompV12Test extends StompV11TestBase {
       }
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId, boolean receipt, boolean durable) throws IOException, InterruptedException {
+   private void unsubscribe(StompClientConnection conn,
+                            String subId,
+                            boolean receipt,
+                            boolean durable) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
       if (durable) {
          subFrame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subId);
-      }
-      else {
+      } else {
          subFrame.addHeader(Stomp.Headers.Unsubscribe.ID, subId);
       }
 
@@ -2503,8 +2495,7 @@ public class StompV12Test extends StompV11TestBase {
       if (sendDisconnect) {
          connV12.disconnect();
          connV12 = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
-      }
-      else {
+      } else {
          connV12.destroy();
          connV12 = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
       }
@@ -2587,8 +2578,7 @@ public class StompV12Test extends StompV11TestBase {
          frame = connV12.sendFrame(frame);
 
          Assert.assertTrue(frame.getCommand().equals("ERROR"));
-      }
-      finally {
+      } finally {
          //because the last frame is ERROR, the connection
          //might already have closed by the server.
          //this is expected so we ignore it.

@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.restart;
 
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Test;
-
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.junit.Test;
 
 public class ClusterRestartTest extends ClusterTestBase {
 

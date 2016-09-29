@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,8 +68,7 @@ public class ResourceLoadingSslContext extends SslContext {
    private void postConstruct() {
       try {
          afterPropertiesSet();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -121,8 +120,7 @@ public class ResourceLoadingSslContext extends SslContext {
       InputStream is = resourceFromString(trustStore).getInputStream();
       try {
          ks.load(is, trustStorePassword == null ? null : trustStorePassword.toCharArray());
-      }
-      finally {
+      } finally {
          is.close();
       }
       return ks;
@@ -137,8 +135,7 @@ public class ResourceLoadingSslContext extends SslContext {
       InputStream is = resourceFromString(keyStore).getInputStream();
       try {
          ks.load(is, keyStorePassword == null ? null : keyStorePassword.toCharArray());
-      }
-      finally {
+      } finally {
          is.close();
       }
       return ks;
@@ -229,11 +226,9 @@ public class ResourceLoadingSslContext extends SslContext {
       File file = new File(uri);
       if (file.exists()) {
          resource = new FileSystemResource(uri);
-      }
-      else if (ResourceUtils.isUrl(uri)) {
+      } else if (ResourceUtils.isUrl(uri)) {
          resource = new UrlResource(uri);
-      }
-      else {
+      } else {
          resource = new ClassPathResource(uri);
       }
       return resource;

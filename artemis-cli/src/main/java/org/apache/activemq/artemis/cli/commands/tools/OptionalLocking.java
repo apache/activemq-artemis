@@ -21,7 +21,9 @@ import java.io.File;
 
 import io.airlift.airline.Option;
 
-/** This is for commands where --f on ignoring lock could be valid. */
+/**
+ * This is for commands where --f on ignoring lock could be valid.
+ */
 public class OptionalLocking extends LockAbstract {
 
    @Option(name = "--f", description = "This will allow certain tools like print-data to be performed ignoring any running servers. WARNING: Changing data concurrently with a running broker may damage your data. Be careful with this option.")

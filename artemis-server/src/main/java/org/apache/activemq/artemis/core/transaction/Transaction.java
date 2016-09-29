@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.core.transaction;
 
-import java.util.List;
-
 import javax.transaction.xa.Xid;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -35,8 +34,10 @@ public interface Transaction {
 
    Object getProtocolData();
 
-   /** Protocol managers can use this field to store any object needed.
-    *  An example would be the Session used by the transaction on openwire */
+   /**
+    * Protocol managers can use this field to store any object needed.
+    * An example would be the Session used by the transaction on openwire
+    */
    void setProtocolData(Object data);
 
    boolean isEffective();
@@ -67,17 +68,21 @@ public interface Transaction {
 
    void addOperation(TransactionOperation sync);
 
-   /** This is an operation that will be called right after the storage is completed.
-    *  addOperation could only happen after paging and replication, while these operations will just be
-    *  about the storage*/
+   /**
+    * This is an operation that will be called right after the storage is completed.
+    * addOperation could only happen after paging and replication, while these operations will just be
+    * about the storage
+    */
    void afterStore(TransactionOperation sync);
 
    List<TransactionOperation> getAllOperations();
 
    boolean hasTimedOut(long currentTime, int defaultTimeout);
 
-   /** To validate if the Transaction had previously timed out.
-    *  This is to check the reason why a TX has been rolled back. */
+   /**
+    * To validate if the Transaction had previously timed out.
+    * This is to check the reason why a TX has been rolled back.
+    */
    boolean hasTimedOut();
 
    void putProperty(int index, Object property);

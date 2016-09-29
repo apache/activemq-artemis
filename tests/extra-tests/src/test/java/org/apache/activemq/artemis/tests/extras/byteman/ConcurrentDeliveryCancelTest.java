@@ -64,8 +64,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
       latchEnter.countDown();
       try {
          latchFlag.await();
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 
@@ -165,8 +164,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
                   System.out.println(Thread.currentThread().getName() + " closing consumer");
                   consumer.close();
                   System.out.println(Thread.currentThread().getName() + " closed consumer");
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -182,8 +180,7 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
                      // a call to RemotingConnection.fail wasn't replicating the issue.
                      // I needed to call Session.close() directly to replicate what was happening in production
                      sess.close(true);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
                   System.out.println("Thread " + Thread.currentThread().getName() + " done");
@@ -239,16 +236,14 @@ public class ConcurrentDeliveryCancelTest extends JMSTestBase {
             if (count == null) {
                System.out.println("Message " + i + " not received");
                failed = true;
-            }
-            else if (count.get() > 1) {
+            } else if (count.get() > 1) {
                System.out.println("Message " + i + " received " + count.get() + " times");
                failed = true;
             }
          }
 
          Assert.assertFalse("test failed, look at the system.out of the test for more information", failed);
-      }
-      finally {
+      } finally {
          connection.close();
       }
 

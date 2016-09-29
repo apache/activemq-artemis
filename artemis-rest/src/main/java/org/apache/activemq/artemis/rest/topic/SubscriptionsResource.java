@@ -37,9 +37,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.rest.queue.Acknowledgement;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.AcknowledgedQueueConsumer;
+import org.apache.activemq.artemis.rest.queue.Acknowledgement;
 import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
 import org.apache.activemq.artemis.rest.queue.QueueConsumer;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
@@ -98,8 +98,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
             shutdown(consumer);
          }
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -172,15 +171,13 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
             if (autoAck) {
                headAutoAckSubscriptionResponse(uriInfo, consumer, builder, pathToPullSubscriptions);
                consumer.setSessionLink(builder, uriInfo, pathToPullSubscriptions + "/auto-ack/" + consumer.getId());
-            }
-            else {
+            } else {
                headAcknowledgedConsumerResponse(uriInfo, (AcknowledgedQueueConsumer) consumer, builder);
                consumer.setSessionLink(builder, uriInfo, pathToPullSubscriptions + "/acknowledged/" + consumer.getId());
             }
             return builder.build();
          }
-      }
-      else {
+      } else {
          subscriptionName = generateSubscriptionName();
       }
       ClientSession session = null;
@@ -191,8 +188,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
 
             if (durable) {
                session.createQueue(destination, subscriptionName, true);
-            }
-            else {
+            } else {
                session.createTemporaryQueue(destination, subscriptionName);
             }
          }
@@ -209,23 +205,19 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
          Response.ResponseBuilder builder = Response.created(location.build());
          if (autoAck) {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/auto-ack/" + consumer.getId(), "-1");
-         }
-         else {
+         } else {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/acknowledged/" + consumer.getId(), "-1");
 
          }
          return builder.build();
 
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e);
-      }
-      finally {
+      } finally {
          if (session != null) {
             try {
                session.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
             }
          }
       }
@@ -243,8 +235,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
          subscription.setDurable(durable);
          subscription.setDeleteWhenIdle(deleteWhenIdle);
          consumer = subscription;
-      }
-      else {
+      } else {
          AcknowledgedSubscriptionResource subscription = new AcknowledgedSubscriptionResource(sessionFactory, subscriptionName, subscriptionName, serviceManager, selector, durable, timeout);
          subscription.setDurable(durable);
          subscription.setDeleteWhenIdle(deleteWhenIdle);
@@ -333,8 +324,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
          Acknowledgement ack = consumer.getAck();
          if (ack == null || ack.wasSet()) {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/acknowledged/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
-         }
-         else {
+         } else {
             consumer.setAcknowledgementLink(builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/acknowledged/" + consumer.getId());
          }
       }
@@ -356,16 +346,13 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
 
          ClientSession.QueueQuery query = session.queueQuery(new SimpleString(subscriptionId));
          return query.isExists();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new RuntimeException(e);
-      }
-      finally {
+      } finally {
          if (session != null) {
             try {
                session.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
             }
          }
       }
@@ -377,20 +364,17 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
          QueueConsumer tmp = null;
          try {
             tmp = createConsumer(true, autoAck, subscriptionId, null, consumerTimeoutSeconds * 1000L, false);
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
          consumer = queueConsumers.putIfAbsent(subscriptionId, tmp);
          if (consumer == null) {
             consumer = tmp;
             serviceManager.getTimeoutTask().add(this, subscriptionId);
-         }
-         else {
+         } else {
             tmp.shutdown();
          }
-      }
-      else {
+      } else {
          throw new WebApplicationException(Response.status(405).entity("Failed to find subscriber " + subscriptionId + " you will have to reconnect").type("text/plain").build());
       }
       return consumer;
@@ -429,15 +413,12 @@ public class SubscriptionsResource implements TimeoutTask.Callback {
          session = sessionFactory.createSession();
 
          session.deleteQueue(subscriptionName);
-      }
-      catch (ActiveMQException e) {
-      }
-      finally {
+      } catch (ActiveMQException e) {
+      } finally {
          if (session != null) {
             try {
                session.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
             }
          }
       }

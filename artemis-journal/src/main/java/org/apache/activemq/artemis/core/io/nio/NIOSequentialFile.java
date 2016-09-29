@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.AbstractSequentialFile;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
@@ -93,11 +93,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          channel = rfile.getChannel();
 
          fileSize = channel.size();
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -120,11 +118,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          channel.write(bb);
          channel.force(false);
          channel.position(0);
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -157,11 +153,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          if (rfile != null) {
             rfile.close();
          }
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -193,11 +187,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          bytes.flip();
 
          return bytesRead;
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (callback != null) {
             callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getLocalizedMessage());
          }
@@ -213,11 +205,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       if (channel != null) {
          try {
             channel.force(false);
-         }
-         catch (ClosedChannelException e) {
+         } catch (ClosedChannelException e) {
             throw e;
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
             throw e;
          }
@@ -232,11 +222,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
       try {
          return channel.size();
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -247,11 +235,9 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       try {
          super.position(pos);
          channel.position(pos);
-      }
-      catch (ClosedChannelException e) {
+      } catch (ClosedChannelException e) {
          throw e;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -275,8 +261,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
 
       try {
          internalWrite(bytes, sync, callback);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
       }
    }
@@ -305,8 +290,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
       if (!isOpen()) {
          if (callback != null) {
             callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened");
-         }
-         else {
+         } else {
             throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }
          return;
@@ -318,15 +302,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
          // if maxIOSemaphore == null, that means we are not using executors and the writes are synchronous
          try {
             doInternalWrite(bytes, sync, callback);
-         }
-         catch (ClosedChannelException e) {
+         } catch (ClosedChannelException e) {
             throw e;
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
-      }
-      else {
+      } else {
          // This is a flow control on writing, just like maxAIO on libaio
          maxIOSemaphore.acquire();
 
@@ -336,21 +317,17 @@ public final class NIOSequentialFile extends AbstractSequentialFile {
                try {
                   try {
                      doInternalWrite(bytes, sync, callback);
-                  }
-                  catch (ClosedChannelException e) {
+                  } catch (ClosedChannelException e) {
                      ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
-                  }
-                  catch (IOException e) {
+                  } catch (IOException e) {
                      ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                      ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
-               }
-               finally {
+               } finally {
                   maxIOSemaphore.release();
                }
             }

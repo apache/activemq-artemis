@@ -66,8 +66,7 @@ public class CoreMessagingProxy {
          Object result = ManagementHelper.getResult(reply, desiredType);
 
          return result;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -76,7 +75,9 @@ public class CoreMessagingProxy {
       return invokeOperation(null, operationName, args);
    }
 
-   public Object invokeOperation(final Class desiredType, final String operationName, final Object... args) throws Exception {
+   public Object invokeOperation(final Class desiredType,
+                                 final String operationName,
+                                 final Object... args) throws Exception {
       try (ClientSessionFactory sessionFactory = locator.createSessionFactory();
            ClientSession session = getSession(sessionFactory);
            ClientRequestor requestor = getClientRequestor(session)) {
@@ -86,12 +87,10 @@ public class CoreMessagingProxy {
          if (reply != null) {
             if (ManagementHelper.hasOperationSucceeded(reply)) {
                return ManagementHelper.getResult(reply, desiredType);
-            }
-            else {
+            } else {
                throw new Exception((String) ManagementHelper.getResult(reply));
             }
-         }
-         else {
+         } else {
             return null;
          }
       }

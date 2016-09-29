@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -43,17 +54,6 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more
@@ -217,8 +217,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
                assertNull(cons.receiveImmediate());
                sess.close();
                sl.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -345,8 +344,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
                }
                sess.close();
                sl.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }

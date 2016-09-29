@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 
 public interface SecuritySettingPlugin extends Serializable {
+
    /**
     * Initialize the plugin with the given configuration options. This method is called by the broker when the file-based
     * configuration is read (see {@code org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser#parseSecurity(org.w3c.dom.Element, org.apache.activemq.artemis.core.config.Configuration)}.

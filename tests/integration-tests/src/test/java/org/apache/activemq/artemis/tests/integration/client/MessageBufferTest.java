@@ -58,7 +58,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
       session.createQueue(addressName, queueName);
       ClientProducer producer = session.createProducer(addressName);
 
-      ClientMessageImpl message = (ClientMessageImpl)session.createMessage(true);
+      ClientMessageImpl message = (ClientMessageImpl) session.createMessage(true);
       message.getBodyBuffer().writeString(data);
 
       for (int i = 0; i < 100; i++) {

@@ -38,8 +38,8 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
@@ -85,12 +85,10 @@ public class PostMessage {
          producer.send(message);
          ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          try {
             pooled.session.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
          addPooled();
          throw ex;
@@ -147,8 +145,7 @@ public class PostMessage {
       }
       try {
          publish(headers, body, dupId, isDurable, ttl, expiration, priority);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          Response error = Response.serverError().entity("Problem posting message: " + e.getMessage()).type("text/plain").build();
          throw new WebApplicationException(e, error);
       }
@@ -231,8 +228,7 @@ public class PostMessage {
       for (Pooled pooled : pool) {
          try {
             pooled.session.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
       }
@@ -253,11 +249,9 @@ public class PostMessage {
 
       if (expiration != null) {
          message.setExpiration(expiration.longValue());
-      }
-      else if (ttl != null) {
+      } else if (ttl != null) {
          message.setExpiration(System.currentTimeMillis() + ttl.longValue());
-      }
-      else if (producerTimeToLive > 0) {
+      } else if (producerTimeToLive > 0) {
          message.setExpiration(System.currentTimeMillis() + producerTimeToLive);
       }
       if (priority != null) {

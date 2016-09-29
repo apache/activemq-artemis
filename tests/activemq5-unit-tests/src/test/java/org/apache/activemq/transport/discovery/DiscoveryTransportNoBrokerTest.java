@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.transport.discovery;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Vector;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.CombinationTestSupport;
@@ -92,8 +91,7 @@ public class DiscoveryTransportNoBrokerTest extends CombinationTestSupport {
          Connection connection = factory.createConnection();
          connection.setClientID("test");
          fail("Did not fail to connect as expected.");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
          assertTrue("reason is java.io.IOException, was: " + expected.getCause(), expected.getCause() instanceof java.io.IOException);
       }
    }
@@ -114,8 +112,7 @@ public class DiscoveryTransportNoBrokerTest extends CombinationTestSupport {
          Connection connection = factory.createConnection();
          connection.setClientID("test");
          fail("Did not fail to connect as expected.");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
          assertTrue("reason is java.io.IOException, was: " + expected.getCause(), expected.getCause() instanceof java.io.IOException);
          long duration = System.currentTimeMillis() - startT;
          assertTrue("took at least initialReconnectDelay time: " + duration + " e:" + expected, duration >= initialReconnectDelay);

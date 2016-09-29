@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import javax.jms.JMSRuntimeException;
+import javax.resource.NotSupportedException;
+
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
-
-import javax.jms.JMSRuntimeException;
-import javax.resource.NotSupportedException;
 
 /**
  * Logger Code 15

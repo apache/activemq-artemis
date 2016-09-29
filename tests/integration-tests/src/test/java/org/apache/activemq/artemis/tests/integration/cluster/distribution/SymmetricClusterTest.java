@@ -136,8 +136,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
          verifyNotReceive(0, 1, 2, 3, 4);
 
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
          throw e;
       }

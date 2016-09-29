@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,14 @@
  */
 
 package org.apache.activemq.proxy;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSSecurityException;
+import javax.jms.Session;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerPlugin;
@@ -29,14 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSSecurityException;
-import javax.jms.Session;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -111,16 +111,14 @@ public class AMQ4889Test {
                Connection connection = connectionFactory.createConnection(USER, WRONG_PASSWORD);
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                fail("createSession should fail");
-            }
-            else {
+            } else {
                LOG.debug("Iteration {} adding good connection", i);
                Connection connection = connectionFactory.createConnection(USER, GOOD_USER_PASSWORD);
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                expectedConnectionCount++;
             }
             //
-         }
-         catch (JMSSecurityException e) {
+         } catch (JMSSecurityException e) {
          }
          LOG.debug("Iteration {} Connections? {}", i, proxyConnector.getConnectionCount());
       }

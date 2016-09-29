@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.factory;
 
-import org.apache.activemq.artemis.dto.BrokerDTO;
-
 import java.net.URI;
+
+import org.apache.activemq.artemis.dto.BrokerDTO;
 
 public interface BrokerFactoryHandler {
 

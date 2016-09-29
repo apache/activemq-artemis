@@ -148,16 +148,13 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
          assertNotNull(packet);
          // 1 connection on the server
          assertEquals(1, server.getConnectionCount());
-      }
-      else {
+      } else {
          try {
             channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             fail();
-         }
-         catch (ActiveMQIncompatibleClientServerException icsv) {
+         } catch (ActiveMQIncompatibleClientServerException icsv) {
             //ok
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             fail("Invalid Exception type:" + e.getType());
          }
          long start = System.currentTimeMillis();
@@ -200,13 +197,11 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
          if (client.waitFor() == 0) {
             result = true;
          }
-      }
-      finally {
+      } finally {
          if (serverProcess != null) {
             try {
                serverProcess.destroy();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                /* ignore */
             }
          }
@@ -239,8 +234,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
             ClientSession session = sf.createSession(false, true, true);
             log.info("### client: connected. server incrementingVersion = " + session.getVersion());
             session.close();
-         }
-         finally {
+         } finally {
             closeSessionFactory(sf);
             closeServerLocator(locator);
          }
@@ -256,12 +250,10 @@ public class IncompatibleVersionTest extends ActiveMQTestBase {
       if (args[0].equals("server")) {
          ServerStarter ss = new ServerStarter();
          ss.perform(args[1]);
-      }
-      else if (args[0].equals("client")) {
+      } else if (args[0].equals("client")) {
          ClientStarter cs = new ClientStarter();
          cs.perform();
-      }
-      else {
+      } else {
          throw new Exception("args[0] must be \"server\" or \"client\"");
       }
    }

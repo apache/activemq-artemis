@@ -52,7 +52,10 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
     * Overriding to allow for proper initialization. Standard JAAS.
     */
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+   public void initialize(Subject subject,
+                          CallbackHandler callbackHandler,
+                          Map<String, ?> sharedState,
+                          Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
 
@@ -69,11 +72,9 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       callbacks[0] = new CertificateCallback();
       try {
          callbackHandler.handle(callbacks);
-      }
-      catch (IOException ioe) {
+      } catch (IOException ioe) {
          throw new LoginException(ioe.getMessage());
-      }
-      catch (UnsupportedCallbackException uce) {
+      } catch (UnsupportedCallbackException uce) {
          throw new LoginException(uce.getMessage() + " Unable to obtain client certificates.");
       }
       certificates = ((CertificateCallback) callbacks[0]).getCertificates();
@@ -168,8 +169,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
    protected String getDistinguishedName(final X509Certificate[] certs) {
       if (certs != null && certs.length > 0 && certs[0] != null) {
          return certs[0].getSubjectDN().getName();
-      }
-      else {
+      } else {
          return null;
       }
    }

@@ -268,8 +268,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          public void onMessage(final ClientMessage message) {
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
             }
          }
@@ -360,11 +359,9 @@ public class ConsumerTest extends ActiveMQTestBase {
       try {
          consumer.receiveImmediate();
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQIllegalStateException ise) {
+      } catch (ActiveMQIllegalStateException ise) {
          //ok
-      }
-      catch (ActiveMQException me) {
+      } catch (ActiveMQException me) {
          Assert.fail("Wrong exception code");
       }
 
@@ -430,12 +427,10 @@ public class ConsumerTest extends ActiveMQTestBase {
                         errors.incrementAndGet();
                      }
 
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                      e.printStackTrace();
                      errors.incrementAndGet();
-                  }
-                  finally {
+                  } finally {
                      latchReceive.countDown();
                   }
                }
@@ -470,8 +465,7 @@ public class ConsumerTest extends ActiveMQTestBase {
                sessionSend.close();
                factory.close();
                locatorSend.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
 
@@ -540,8 +534,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          if (count % 2 == 0 && !redelivered) {
             session.rollback();
-         }
-         else {
+         } else {
             session.commit();
          }
       }
@@ -611,8 +604,7 @@ public class ConsumerTest extends ActiveMQTestBase {
 
          if (count % 2 == 0 && !redelivered) {
             session.rollback();
-         }
-         else {
+         } else {
             session.commit();
          }
       }

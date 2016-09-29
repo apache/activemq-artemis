@@ -39,8 +39,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleLi
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.jboss.logging.Logger;
@@ -108,8 +108,7 @@ public class InVMConnector extends AbstractConnector {
       if (threadPoolExecutor == null) {
          if (ActiveMQClient.getGlobalThreadPoolSize() <= -1) {
             threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), ActiveMQThreadFactory.defaultThreadFactory());
-         }
-         else {
+         } else {
             threadPoolExecutor = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory());
          }
       }
@@ -181,8 +180,7 @@ public class InVMConnector extends AbstractConnector {
 
          acceptor.connect((String) conn.getID(), handler, this, executorFactory.getExecutor());
          return conn;
-      }
-      else {
+      } else {
          if (logger.isDebugEnabled()) {
             logger.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
          }
@@ -239,8 +237,7 @@ public class InVMConnector extends AbstractConnector {
 
          if (listener instanceof ConnectionLifeCycleListener) {
             listener.connectionCreated(component, connection, protocol.getName());
-         }
-         else {
+         } else {
             listener.connectionCreated(component, connection, protocol);
          }
 

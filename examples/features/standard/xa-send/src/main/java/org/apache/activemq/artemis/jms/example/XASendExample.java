@@ -141,8 +141,7 @@ public class XASendExample {
 
          if (!result.get())
             throw new IllegalStateException();
-      }
-      finally {
+      } finally {
          // Step 29. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();
@@ -183,8 +182,7 @@ class SimpleMessageListener implements MessageListener {
       try {
          System.out.println("Message received: " + message);
          receiveHolder.add(((TextMessage) message).getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          result.set(false);
          e.printStackTrace();
       }

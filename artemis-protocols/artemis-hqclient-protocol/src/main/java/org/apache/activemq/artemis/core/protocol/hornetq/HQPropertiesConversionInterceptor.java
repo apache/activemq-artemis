@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class HQPropertiesConversionInterceptor implements Interceptor {
 
-
    private final boolean replaceHQ;
 
    public HQPropertiesConversionInterceptor(final boolean replaceHQ) {
@@ -45,8 +44,7 @@ public class HQPropertiesConversionInterceptor implements Interceptor {
    private void handleReceiveMessage(MessagePacketI messagePacket) {
       if (replaceHQ) {
          HQPropertiesConverter.replaceHQProperties(messagePacket.getMessage());
-      }
-      else {
+      } else {
          HQPropertiesConverter.replaceAMQProperties(messagePacket.getMessage());
       }
    }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,9 +37,6 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DirectDeliverTest extends ActiveMQTestBase {
 

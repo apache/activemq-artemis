@@ -88,11 +88,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             }
          }
          return queueNames.toArray(new String[queueNames.size()]);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -108,11 +106,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             bindingNames[i++] = binding.getUniqueName().toString();
          }
          return bindingNames;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -130,8 +126,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             objRoles[i++] = new Object[]{role.getName(), CheckType.SEND.hasRole(role), CheckType.CONSUME.hasRole(role), CheckType.CREATE_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_DURABLE_QUEUE.hasRole(role), CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), CheckType.MANAGE.hasRole(role)};
          }
          return objRoles;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -147,8 +142,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             json.add(role.toJson());
          }
          return json.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -158,8 +152,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       try {
          return pagingManager.getPageStore(address).getPageSizeBytes();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -169,8 +162,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       try {
          return pagingManager.getPageStore(address).getAddressSize();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -187,11 +179,9 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             }
          }
          return totalMsgs;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -201,8 +191,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       clearIO();
       try {
          return pagingManager.getPageStore(address).isPaging();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -215,12 +204,10 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
          if (!pageStore.isPaging()) {
             return 0;
-         }
-         else {
+         } else {
             return pagingManager.getPageStore(address).getNumberOfPages();
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }

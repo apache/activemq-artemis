@@ -196,14 +196,14 @@ public interface Configuration {
     */
    Configuration setJMXDomain(String domain);
 
-  /**
-   * whether or not to use the broker name in the JMX tree
-   * */
+   /**
+    * whether or not to use the broker name in the JMX tree
+    */
    boolean isJMXUseBrokerName();
 
    /**
     * whether or not to use the broker name in the JMX tree
-    * */
+    */
    ConfigurationImpl setJMXUseBrokerName(boolean jmxUseBrokerName);
 
    /**
@@ -561,12 +561,15 @@ public interface Configuration {
     */
    Configuration setJournalCompactMinFiles(int minFiles);
 
-   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.*/
+   /**
+    * Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.
+    */
    int getJournalPoolFiles();
 
-   /** Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.*/
+   /**
+    * Number of files that would be acceptable to keep on a pool. Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_POOL_FILES}.
+    */
    Configuration setJournalPoolFiles(int poolSize);
-
 
    /**
     * Returns the percentage of live data before compacting the journal. <br>
@@ -914,7 +917,7 @@ public interface Configuration {
    * */
    Configuration setResolveProtocols(boolean resolveProtocols);
 
-   TransportConfiguration[] getTransportConfigurations(String ...connectorNames);
+   TransportConfiguration[] getTransportConfigurations(String... connectorNames);
 
    TransportConfiguration[] getTransportConfigurations(List<String> connectorNames);
 
@@ -953,7 +956,9 @@ public interface Configuration {
 
    Configuration setPopulateValidatedUser(boolean populateValidatedUser);
 
-   /** It will return all the connectors in a toString manner for debug purposes. */
+   /**
+    * It will return all the connectors in a toString manner for debug purposes.
+    */
    String debugConnectors();
 
    Configuration setConnectionTtlCheckInterval(long connectionTtlCheckInterval);

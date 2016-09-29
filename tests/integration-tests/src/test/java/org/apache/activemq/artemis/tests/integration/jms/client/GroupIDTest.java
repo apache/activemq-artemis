@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.junit.Test;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 
@@ -25,6 +23,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.junit.Test;
 
 public class GroupIDTest extends GroupingTest {
 

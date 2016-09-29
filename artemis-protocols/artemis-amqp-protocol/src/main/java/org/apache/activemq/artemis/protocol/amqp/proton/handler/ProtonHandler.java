@@ -99,8 +99,7 @@ public class ProtonHandler extends ProtonInitializable {
                }
                return rescheduleAt;
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             transport.close();
             connection.setCondition(new ErrorCondition());
          }
@@ -166,8 +165,7 @@ public class ProtonHandler extends ProtonInitializable {
                      * */
                      capacity = transport.capacity();
                   }
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   log.debug(e.getMessage(), e);
                }
 
@@ -181,12 +179,10 @@ public class ProtonHandler extends ProtonInitializable {
                buffer.readBytes(tail);
 
                flush();
-            }
-            else {
+            } else {
                if (capacity == 0) {
                   log.debugf("abandoning: readableBytes=%d", buffer.readableBytes());
-               }
-               else {
+               } else {
                   log.debugf("transport closed, discarding: readableBytes=%d, capacity=%d", buffer.readableBytes(), transport.capacity());
                }
                break;
@@ -289,13 +285,11 @@ public class ProtonHandler extends ProtonInitializable {
                serverSasl = null;
                saslHandlers.clear();
                saslHandlers = null;
-            }
-            else {
+            } else {
                serverSasl.done(Sasl.SaslOutcome.PN_SASL_AUTH);
             }
             serverSasl = null;
-         }
-         else {
+         } else {
             // no auth available, system error
             serverSasl.done(Sasl.SaslOutcome.PN_SASL_SYS);
          }
@@ -329,14 +323,13 @@ public class ProtonHandler extends ProtonInitializable {
       // while processing events (for instance onTransport)
       // while a client is also trying to write here
       while ((ev = popEvent()) != null) {
-         for ( EventHandler h : handlers) {
+         for (EventHandler h : handlers) {
             if (log.isTraceEnabled()) {
                log.trace("Handling " + ev + " towards " + h);
             }
             try {
                Events.dispatch(ev, h);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.warn(e.getMessage(), e);
                connection.setCondition(new ErrorCondition());
             }
@@ -346,8 +339,7 @@ public class ProtonHandler extends ProtonInitializable {
       for (EventHandler h : handlers) {
          try {
             h.onTransport(transport);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             connection.setCondition(new ErrorCondition());
          }

@@ -18,14 +18,11 @@ package org.apache.activemq.artemis.tests.timing.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UTF8Util;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class UTF8Test extends ActiveMQTestBase {
 

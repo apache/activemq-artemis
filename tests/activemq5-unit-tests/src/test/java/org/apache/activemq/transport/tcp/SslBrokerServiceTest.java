@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.transport.tcp;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -25,19 +33,9 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-
 import junit.framework.Test;
 
 import junit.textui.TestRunner;
-
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.FakeTransportConnector;
@@ -72,15 +70,9 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
       service.setPersistent(false);
 
       String baseUri = getBindLocation();
-      String uri0 = baseUri + "?" + TransportConstants.SSL_ENABLED_PROP_NAME + "=true&"
-              + TransportConstants.KEYSTORE_PATH_PROP_NAME + "=" + SslTransportBrokerTest.SERVER_KEYSTORE + "&"
-              + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=" + SslTransportBrokerTest.PASSWORD + "&"
-              + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=" + SslTransportBrokerTest.KEYSTORE_TYPE;
+      String uri0 = baseUri + "?" + TransportConstants.SSL_ENABLED_PROP_NAME + "=true&" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "=" + SslTransportBrokerTest.SERVER_KEYSTORE + "&" + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME + "=" + SslTransportBrokerTest.PASSWORD + "&" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "=" + SslTransportBrokerTest.KEYSTORE_TYPE;
       String uri1 = uri0 + "&" + TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME + "=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA";
-      String uri2 = uri0 + "&" + TransportConstants.NEED_CLIENT_AUTH_PROP_NAME + "=true&"
-              + TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + SslTransportBrokerTest.TRUST_KEYSTORE + "&"
-              + TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + SslTransportBrokerTest.PASSWORD + "&"
-              + TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + SslTransportBrokerTest.KEYSTORE_TYPE;
+      String uri2 = uri0 + "&" + TransportConstants.NEED_CLIENT_AUTH_PROP_NAME + "=true&" + TransportConstants.TRUSTSTORE_PATH_PROP_NAME + "=" + SslTransportBrokerTest.TRUST_KEYSTORE + "&" + TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME + "=" + SslTransportBrokerTest.PASSWORD + "&" + TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME + "=" + SslTransportBrokerTest.KEYSTORE_TYPE;
 
       //broker side
       TransportConnector serverConnector0 = service.addConnector(new URI(uri0));
@@ -110,8 +102,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
       try {
          makeSSLConnection(context, null, needClientAuthConnector);
          fail("expected failure on no client cert");
-      }
-      catch (SSLException expected) {
+      } catch (SSLException expected) {
          expected.printStackTrace();
       }
       // should work with regular connector
@@ -132,8 +123,7 @@ public class SslBrokerServiceTest extends TransportBrokerTestSupport {
       try {
          makeSSLConnection(context, new String[]{"SSL_RSA_WITH_RC4_128_MD5"}, limitedCipherSuites);
          fail("expected failure on non allowed cipher suite");
-      }
-      catch (SSLException expectedOnNotAnAvailableSuite) {
+      } catch (SSLException expectedOnNotAnAvailableSuite) {
       }
 
       // ok with the enabled one

@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.util.StringTokenizer;
-
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import java.util.StringTokenizer;
 
 public class JNDIUtil {
    // Constants -----------------------------------------------------
@@ -44,8 +43,7 @@ public class JNDIUtil {
             }
             crtContext = (Context) o;
             continue;
-         }
-         catch (NameNotFoundException e) {
+         } catch (NameNotFoundException e) {
             // OK
          }
          crtContext = crtContext.createSubcontext(tok);
@@ -83,8 +81,7 @@ public class JNDIUtil {
       boolean failed = false;
       try {
          context.rebind(name, o);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
          failed = true;
       }
       if (failed) {

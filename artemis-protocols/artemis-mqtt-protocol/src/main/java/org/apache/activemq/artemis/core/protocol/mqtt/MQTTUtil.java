@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -156,8 +156,7 @@ public class MQTTUtil {
 
          if (message.variableHeader() instanceof MqttPublishVariableHeader) {
             log.append("(" + ((MqttPublishVariableHeader) message.variableHeader()).messageId() + ") " + message.fixedHeader().qosLevel());
-         }
-         else if (message.variableHeader() instanceof MqttMessageIdVariableHeader) {
+         } else if (message.variableHeader() instanceof MqttMessageIdVariableHeader) {
             log.append("(" + ((MqttMessageIdVariableHeader) message.variableHeader()).messageId() + ")");
          }
 

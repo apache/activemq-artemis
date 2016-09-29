@@ -163,8 +163,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
 
          if (connectTimeout <= 0) {
             future.sync();
-         }
-         else {
+         } else {
             future.sync(connectTimeout, TimeUnit.MILLISECONDS);
             if (getEndpoint().getRemoteState() != EndpointState.ACTIVE) {
                throw new IOException("Failed to connect after configured timeout.");
@@ -194,14 +193,12 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
 
                   if (getEndpoint() != null) {
                      close(request);
-                  }
-                  else {
+                  } else {
                      request.onSuccess();
                   }
 
                   pumpToProtonTransport(request);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   LOG.debug("Caught exception while closing proton connection");
                }
             }
@@ -210,20 +207,16 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
          try {
             if (closeTimeout <= 0) {
                request.sync();
-            }
-            else {
+            } else {
                request.sync(closeTimeout, TimeUnit.MILLISECONDS);
             }
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             LOG.warn("Error caught while closing Provider: ", e.getMessage());
-         }
-         finally {
+         } finally {
             if (transport != null) {
                try {
                   transport.close();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   LOG.debug("Cuaght exception while closing down Transport: {}", e.getMessage());
                }
             }
@@ -233,8 +226,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                if (!serializer.awaitTermination(10, TimeUnit.SECONDS)) {
                   LOG.warn("Serializer didn't shutdown cleanly");
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
          }
       }
@@ -284,11 +276,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
             checkClosed();
             try {
                transport.send(Unpooled.wrappedBuffer(rawData));
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                fireClientException(e);
-            }
-            finally {
+            } finally {
                request.onSuccess();
             }
          }
@@ -481,13 +471,11 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                outbound.writeBytes(toWrite);
                transport.send(outbound);
                protonTransport.outputConsumed();
-            }
-            else {
+            } else {
                done = true;
             }
          }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          fireClientException(e);
          request.onFailure(e);
       }
@@ -577,12 +565,10 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                               getScheduler().schedule(this, rescheduleAt, TimeUnit.MILLISECONDS);
                            }
                         }
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         try {
                            transport.close();
-                        }
-                        catch (IOException e1) {
+                        } catch (IOException e1) {
                         }
                         fireClientException(e);
                      }
@@ -598,8 +584,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    protected void doOpenInspection() {
       try {
          getStateInspector().inspectOpenedResource(getConnection());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -608,8 +593,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    protected void doClosedInspection() {
       try {
          getStateInspector().inspectClosedResource(getConnection());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -684,8 +668,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
          if (!authenticated) {
             processSaslAuthentication();
          }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          LOG.warn("Caught Exception during update processing: {}", ex.getMessage(), ex);
          fireClientException(ex);
       }
@@ -701,8 +684,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
             authenticator = null;
             authenticated = true;
          }
-      }
-      catch (SecurityException ex) {
+      } catch (SecurityException ex) {
          failed(ex);
       }
    }

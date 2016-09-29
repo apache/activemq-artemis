@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
 import org.apache.qpid.proton.amqp.Decimal32;
@@ -30,14 +37,6 @@ import org.apache.qpid.proton.amqp.messaging.Footer;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
-
-import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
-import javax.jms.Message;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
 
 import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME;
 
@@ -116,15 +115,13 @@ public abstract class InboundTransformer {
 
       if (header.getDurable() != null) {
          jms.setJMSDeliveryMode(header.getDurable().booleanValue() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
-      }
-      else {
+      } else {
          jms.setJMSDeliveryMode(defaultDeliveryMode);
       }
 
       if (header.getPriority() != null) {
          jms.setJMSPriority(header.getPriority().intValue());
-      }
-      else {
+      } else {
          jms.setJMSPriority(defaultPriority);
       }
 
@@ -143,12 +140,10 @@ public abstract class InboundTransformer {
             if ("x-opt-jms-type".equals(key) && entry.getValue() != null) {
                // Legacy annotation, JMSType value will be replaced by Subject further down if also present.
                jms.setJMSType(entry.getValue().toString());
-            }
-            else if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
+            } else if ("x-opt-delivery-time".equals(key) && entry.getValue() != null) {
                long deliveryTime = ((Number) entry.getValue()).longValue();
                jms.setLongProperty(HDR_SCHEDULED_DELIVERY_TIME.toString(), deliveryTime);
-            }
-            else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
+            } else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
                long delay = ((Number) entry.getValue()).longValue();
                if (delay > 0) {
                   jms.setLongProperty(HDR_SCHEDULED_DELIVERY_TIME.toString(), System.currentTimeMillis() + delay);
@@ -182,14 +177,11 @@ public abstract class InboundTransformer {
             String key = entry.getKey().toString();
             if ("JMSXGroupID".equals(key)) {
                vendor.setJMSXGroupID(jms, entry.getValue().toString());
-            }
-            else if ("JMSXGroupSequence".equals(key)) {
+            } else if ("JMSXGroupSequence".equals(key)) {
                vendor.setJMSXGroupSequence(jms, ((Number) entry.getValue()).intValue());
-            }
-            else if ("JMSXUserID".equals(key)) {
+            } else if ("JMSXUserID".equals(key)) {
                vendor.setJMSXUserID(jms, entry.getValue().toString());
-            }
-            else {
+            } else {
                setProperty(jms, key, entry.getValue());
             }
          }
@@ -249,8 +241,7 @@ public abstract class InboundTransformer {
 
          if (ttl == 0) {
             jms.setJMSExpiration(0);
-         }
-         else {
+         } else {
             jms.setJMSExpiration(System.currentTimeMillis() + ttl);
          }
       }
@@ -268,50 +259,38 @@ public abstract class InboundTransformer {
       if (value instanceof UnsignedLong) {
          long v = ((UnsignedLong) value).longValue();
          msg.setLongProperty(key, v);
-      }
-      else if (value instanceof UnsignedInteger) {
+      } else if (value instanceof UnsignedInteger) {
          long v = ((UnsignedInteger) value).longValue();
          if (Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE) {
             msg.setIntProperty(key, (int) v);
-         }
-         else {
+         } else {
             msg.setLongProperty(key, v);
          }
-      }
-      else if (value instanceof UnsignedShort) {
+      } else if (value instanceof UnsignedShort) {
          int v = ((UnsignedShort) value).intValue();
          if (Short.MIN_VALUE <= v && v <= Short.MAX_VALUE) {
             msg.setShortProperty(key, (short) v);
-         }
-         else {
+         } else {
             msg.setIntProperty(key, v);
          }
-      }
-      else if (value instanceof UnsignedByte) {
+      } else if (value instanceof UnsignedByte) {
          short v = ((UnsignedByte) value).shortValue();
          if (Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE) {
             msg.setByteProperty(key, (byte) v);
-         }
-         else {
+         } else {
             msg.setShortProperty(key, v);
          }
-      }
-      else if (value instanceof Symbol) {
+      } else if (value instanceof Symbol) {
          msg.setStringProperty(key, value.toString());
-      }
-      else if (value instanceof Decimal128) {
+      } else if (value instanceof Decimal128) {
          msg.setDoubleProperty(key, ((Decimal128) value).doubleValue());
-      }
-      else if (value instanceof Decimal64) {
+      } else if (value instanceof Decimal64) {
          msg.setDoubleProperty(key, ((Decimal64) value).doubleValue());
-      }
-      else if (value instanceof Decimal32) {
+      } else if (value instanceof Decimal32) {
          msg.setFloatProperty(key, ((Decimal32) value).floatValue());
-      }
-      else if (value instanceof Binary) {
+      } else if (value instanceof Binary) {
          msg.setStringProperty(key, value.toString());
-      }
-      else {
+      } else {
          msg.setObjectProperty(key, value);
       }
    }

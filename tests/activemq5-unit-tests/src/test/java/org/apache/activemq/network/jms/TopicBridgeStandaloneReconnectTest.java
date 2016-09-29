@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.network.jms;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -29,6 +24,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -37,6 +34,8 @@ import org.apache.activemq.util.Wait;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class TopicBridgeStandaloneReconnectTest {
 
@@ -225,19 +224,16 @@ public class TopicBridgeStandaloneReconnectTest {
       try {
          jmsTopicConnector.stop();
          jmsTopicConnector = null;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       try {
          stopLocalBroker();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
       try {
          stopForeignBroker();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
    }
 
@@ -246,8 +242,7 @@ public class TopicBridgeStandaloneReconnectTest {
          Connection connection = iter.next();
          try {
             connection.close();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
          }
       }
    }
@@ -322,12 +317,10 @@ public class TopicBridgeStandaloneReconnectTest {
          TextMessage message = session.createTextMessage();
          message.setText(text);
          producer.send(message);
-      }
-      finally {
+      } finally {
          try {
             connection.close();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
          }
       }
    }
@@ -341,12 +334,10 @@ public class TopicBridgeStandaloneReconnectTest {
          TextMessage message = session.createTextMessage();
          message.setText(text);
          producer.send(message);
-      }
-      finally {
+      } finally {
          try {
             connection.close();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
          }
       }
    }

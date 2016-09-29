@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -51,22 +67,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A JMSFailoverTest
@@ -135,8 +135,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
          JMSUtil.crash(liveServer, coreSession);
 
          assertNotNull(ctx2.lookup("/queue/queue1"));
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -164,8 +163,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
          JMSUtil.crash(liveServer, coreSession);
 
          assertNotNull(ctx2.lookup("/topic/t1"));
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -366,8 +364,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
             // a large timeout just to help in case of debugging
             try {
                waitToKill.await(120, TimeUnit.SECONDS);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
 
@@ -375,8 +372,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
                System.out.println("Killing server...");
 
                JMSUtil.crash(liveServer, coreSession);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -420,8 +416,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
                message = (TextMessage) consumer.receive(5000);
                assertNotNull(message);
                break;
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                new Exception("Exception on receive message", e).printStackTrace();
             }
          } while (retryNrs < 10);
@@ -430,8 +425,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
          try {
             sess.commit();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             new Exception("Exception during commit", e);
             sess.rollback();
          }

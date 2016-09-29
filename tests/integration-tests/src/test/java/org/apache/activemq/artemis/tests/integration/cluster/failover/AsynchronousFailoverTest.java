@@ -64,8 +64,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
          public void run() {
             try {
                doTestNonTransactional(this);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                AsynchronousFailoverTest.log.error("Test failed", e);
                addException(e);
             }
@@ -85,12 +84,10 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                running = true;
                try {
                   doTestTransactional(this);
-               }
-               finally {
+               } finally {
                   running = false;
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                AsynchronousFailoverTest.log.error("Test failed", e);
                addException(e);
             }
@@ -197,8 +194,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                Assert.assertEquals(0, sf.numSessions());
 
                locator.close();
-            }
-            finally {
+            } finally {
                locator.close();
 
                Assert.assertEquals(0, sf.numConnections());
@@ -211,8 +207,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                setUp();
             }
          }
-      }
-      finally {
+      } finally {
       }
    }
 
@@ -248,16 +243,14 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   producer.send(message);
 
                   retry = false;
-               }
-               catch (ActiveMQUnBlockedException ube) {
+               } catch (ActiveMQUnBlockedException ube) {
                   AsynchronousFailoverTest.log.info("exception when sending message with counter " + i);
 
                   ube.printStackTrace();
 
                   retry = true;
 
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   fail("Invalid Exception type:" + e.getType());
                }
             } while (retry);
@@ -271,14 +264,12 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                consumer = session.createConsumer(FailoverTestBase.ADDRESS);
 
                retry = false;
-            }
-            catch (ActiveMQUnBlockedException ube) {
+            } catch (ActiveMQUnBlockedException ube) {
                AsynchronousFailoverTest.log.info("exception when creating consumer");
 
                retry = true;
 
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                fail("Invalid Exception type:" + e.getType());
             }
          } while (retry);
@@ -302,8 +293,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
             if (count != lastCount + 1) {
                if (counterGap) {
                   Assert.fail("got another counter gap at " + count + ": " + counts);
-               }
-               else {
+               } else {
                   if (lastCount != -1) {
                      AsynchronousFailoverTest.log.info("got first counter gap at " + count);
                      counterGap = true;
@@ -372,27 +362,22 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   session.commit();
 
                   retry = false;
-               }
-               catch (ActiveMQDuplicateIdException die) {
+               } catch (ActiveMQDuplicateIdException die) {
                   logAndSystemOut("#test duplicate id rejected on sending");
                   break;
-               }
-               catch (ActiveMQTransactionRolledBackException trbe) {
+               } catch (ActiveMQTransactionRolledBackException trbe) {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
-               }
-               catch (ActiveMQUnBlockedException ube) {
+               } catch (ActiveMQUnBlockedException ube) {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
-               }
-               catch (ActiveMQTransactionOutcomeUnknownException toue) {
+               } catch (ActiveMQTransactionOutcomeUnknownException toue) {
                   log.info("#test transaction rollback retrying on sending");
                   // OK
                   retry = true;
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   log.info("#test Exception " + e, e);
                   throw e;
                }
@@ -440,13 +425,11 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   log.info("#test commit");
                   try {
                      session.commit();
-                  }
-                  catch (ActiveMQTransactionRolledBackException trbe) {
+                  } catch (ActiveMQTransactionRolledBackException trbe) {
                      //we know the tx has been rolled back so we just consume again
                      retry = true;
                      continue;
-                  }
-                  catch (ActiveMQException e) {
+                  } catch (ActiveMQException e) {
                      // This could eventually happen
                      // We will get rid of this when we implement 2 phase commit on failover
                      log.warn("exception during commit, it will be ignored for now" + e.getMessage(), e);
@@ -455,12 +438,10 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   try {
                      if (blocked) {
                         assertTrue("msgs.size is expected to be 0 or " + numMessages + " but it was " + msgs.size(), msgs.size() == 0 || msgs.size() == numMessages);
-                     }
-                     else {
+                     } else {
                         assertTrue("msgs.size is expected to be " + numMessages + " but it was " + msgs.size(), msgs.size() == numMessages);
                      }
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                      log.info(threadDump("Thread dump, messagesReceived = " + msgs.size()));
                      logAndSystemOut(e.getMessage() + " messages received");
                      for (Integer msg : msgs) {
@@ -476,37 +457,32 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                   retry = false;
                   blocked = false;
-               }
-               catch (ActiveMQTransactionRolledBackException trbe) {
+               } catch (ActiveMQTransactionRolledBackException trbe) {
                   logAndSystemOut("Transaction rolled back with " + msgs.size(), trbe);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
                   // ATM RolledBack exception is being called with the transaction is committed.
                   // the test will fail if you remove this next line
                   blocked = true;
                   retry = true;
-               }
-               catch (ActiveMQTransactionOutcomeUnknownException tou) {
+               } catch (ActiveMQTransactionOutcomeUnknownException tou) {
                   logAndSystemOut("Transaction rolled back with " + msgs.size(), tou);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
                   // ATM RolledBack exception is being called with the transaction is committed.
                   // the test will fail if you remove this next line
                   blocked = true;
                   retry = true;
-               }
-               catch (ActiveMQUnBlockedException ube) {
+               } catch (ActiveMQUnBlockedException ube) {
                   logAndSystemOut("Unblocked with " + msgs.size(), ube);
                   // TODO: https://jira.jboss.org/jira/browse/HORNETQ-369
                   // This part of the test is never being called.
                   blocked = true;
                   retry = true;
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   logAndSystemOut(e.getMessage(), e);
                   throw e;
                }
             } while (retry);
-         }
-         finally {
+         } finally {
             if (session != null) {
                session.close();
             }

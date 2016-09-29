@@ -92,8 +92,7 @@ class IncomingVertxEventHandler implements ConnectorService {
       System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManagerFactory.class.getName());
       if (quorumSize != -1) {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host, quorumSize, haGroup);
-      }
-      else {
+      } else {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host);
       }
 
@@ -156,8 +155,7 @@ class IncomingVertxEventHandler implements ConnectorService {
 
          try {
             postOffice.route(msg, null, false);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQVertxLogger.LOGGER.error("failed to route msg " + msg, e);
          }
       }
@@ -226,47 +224,33 @@ class IncomingVertxEventHandler implements ConnectorService {
 
          if (message instanceof PingMessage) {
             return VertxConstants.TYPE_PING;
-         }
-         else if (body instanceof Buffer) {
+         } else if (body instanceof Buffer) {
             return VertxConstants.TYPE_BUFFER;
-         }
-         else if (body instanceof Boolean) {
+         } else if (body instanceof Boolean) {
             return VertxConstants.TYPE_BOOLEAN;
-         }
-         else if (body instanceof byte[]) {
+         } else if (body instanceof byte[]) {
             return VertxConstants.TYPE_BYTEARRAY;
-         }
-         else if (body instanceof Byte) {
+         } else if (body instanceof Byte) {
             return VertxConstants.TYPE_BYTE;
-         }
-         else if (body instanceof Character) {
+         } else if (body instanceof Character) {
             return VertxConstants.TYPE_CHARACTER;
-         }
-         else if (body instanceof Double) {
+         } else if (body instanceof Double) {
             return VertxConstants.TYPE_DOUBLE;
-         }
-         else if (body instanceof Float) {
+         } else if (body instanceof Float) {
             return VertxConstants.TYPE_FLOAT;
-         }
-         else if (body instanceof Integer) {
+         } else if (body instanceof Integer) {
             return VertxConstants.TYPE_INT;
-         }
-         else if (body instanceof Long) {
+         } else if (body instanceof Long) {
             return VertxConstants.TYPE_LONG;
-         }
-         else if (body instanceof Short) {
+         } else if (body instanceof Short) {
             return VertxConstants.TYPE_SHORT;
-         }
-         else if (body instanceof String) {
+         } else if (body instanceof String) {
             return VertxConstants.TYPE_STRING;
-         }
-         else if (body instanceof JsonArray) {
+         } else if (body instanceof JsonArray) {
             return VertxConstants.TYPE_JSON_ARRAY;
-         }
-         else if (body instanceof JsonObject) {
+         } else if (body instanceof JsonObject) {
             return VertxConstants.TYPE_JSON_OBJECT;
-         }
-         else if (body instanceof ReplyException) {
+         } else if (body instanceof ReplyException) {
             return VertxConstants.TYPE_REPLY_FAILURE;
          }
          throw new IllegalArgumentException("Type not supported: " + message);

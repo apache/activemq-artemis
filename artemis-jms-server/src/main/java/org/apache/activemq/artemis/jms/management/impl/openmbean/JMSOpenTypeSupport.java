@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.management.impl.openmbean;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants;
-import org.apache.activemq.artemis.reader.MapMessageUtil;
-import org.apache.activemq.artemis.utils.TypedProperties;
-
 import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -39,9 +31,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.management.impl.openmbean.CompositeDataConstants;
+import org.apache.activemq.artemis.reader.MapMessageUtil;
+import org.apache.activemq.artemis.utils.TypedProperties;
+
 public final class JMSOpenTypeSupport {
 
    public interface OpenTypeFactory {
+
       CompositeType getCompositeType() throws OpenDataException;
 
       Map<String, Object> getFields(CompositeDataSupport data) throws OpenDataException;
@@ -95,6 +96,7 @@ public final class JMSOpenTypeSupport {
    }
 
    static class MessageOpenTypeFactory extends AbstractOpenTypeFactory {
+
       protected TabularType stringPropertyTabularType;
       protected TabularType booleanPropertyTabularType;
       protected TabularType bytePropertyTabularType;
@@ -158,7 +160,7 @@ public final class JMSOpenTypeSupport {
          putString(rc, data, JMSCompositeDataConstants.JMS_DESTINATION, CompositeDataConstants.ADDRESS);
          putStringProperty(rc, data, JMSCompositeDataConstants.JMS_REPLY_TO, "JMSReplyTo");
          rc.put(JMSCompositeDataConstants.JMS_TYPE, getType());
-         rc.put(JMSCompositeDataConstants.JMS_DELIVERY_MODE, ((Boolean)data.get(CompositeDataConstants.DURABLE)) ? "PERSISTENT" : "NON-PERSISTENT");
+         rc.put(JMSCompositeDataConstants.JMS_DELIVERY_MODE, ((Boolean) data.get(CompositeDataConstants.DURABLE)) ? "PERSISTENT" : "NON-PERSISTENT");
          rc.put(JMSCompositeDataConstants.JMS_EXPIRATION, data.get(CompositeDataConstants.EXPIRATION));
          rc.put(JMSCompositeDataConstants.JMS_TIMESTAMP, new Date((Long) data.get(CompositeDataConstants.TIMESTAMP)));
          rc.put(JMSCompositeDataConstants.JMS_PRIORITY, ((Byte) data.get(CompositeDataConstants.PRIORITY)).intValue());
@@ -187,8 +189,7 @@ public final class JMSOpenTypeSupport {
          String prop = (String) data.get(source);
          if (prop != null) {
             rc.put(target, prop);
-         }
-         else {
+         } else {
             rc.put(target, "");
          }
       }
@@ -226,7 +227,6 @@ public final class JMSOpenTypeSupport {
          return value.toString();
       }
 
-
       protected <T> TabularType createTabularType(Class<T> type, OpenType openType) throws OpenDataException {
          String typeName = "java.util.Map<java.lang.String, " + type.getName() + ">";
          String[] keyValue = new String[]{"key", "value"};
@@ -237,7 +237,6 @@ public final class JMSOpenTypeSupport {
    }
 
    static class ByteMessageOpenTypeFactory extends MessageOpenTypeFactory {
-
 
       @Override
       protected String getTypeName() {
@@ -290,12 +289,15 @@ public final class JMSOpenTypeSupport {
    }
 
    static class ObjectMessageOpenTypeFactory extends MessageOpenTypeFactory {
+
       @Override
       protected String getTypeName() {
          return "ObjectMessage";
       }
    }
+
    static class StreamMessageOpenTypeFactory extends MessageOpenTypeFactory {
+
       @Override
       protected String getTypeName() {
          return "StreamMessage";

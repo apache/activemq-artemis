@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,12 @@
 
 package org.apache.activemq.transport.tcp;
 
-import java.security.Principal;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
+import java.security.Principal;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 class StubSSLSession implements SSLSession {
 
@@ -34,8 +33,7 @@ class StubSSLSession implements SSLSession {
       if (cert != null) {
          this.isVerified = true;
          this.cert = cert;
-      }
-      else {
+      } else {
          this.isVerified = false;
          this.cert = null;
       }
@@ -49,8 +47,7 @@ class StubSSLSession implements SSLSession {
    public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
       if (this.isVerified) {
          return new X509Certificate[]{this.cert};
-      }
-      else {
+      } else {
          throw new SSLPeerUnverifiedException("Socket is unverified.");
       }
    }

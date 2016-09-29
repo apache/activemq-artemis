@@ -44,8 +44,7 @@ public final class Pair<A, B> implements Serializable {
       if (hash == -1) {
          if (a == null && b == null) {
             return super.hashCode();
-         }
-         else {
+         } else {
             hash = (a == null ? 0 : a.hashCode()) + 37 * (b == null ? 0 : b.hashCode());
          }
       }

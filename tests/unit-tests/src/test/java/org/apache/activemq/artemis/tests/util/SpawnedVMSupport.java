@@ -60,10 +60,12 @@ public final class SpawnedVMSupport {
       return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
-   public static Process spawnVMWithLogMacher(String wordMatch, Runnable runnable, final String className,
-                                 final String[] vmargs,
-                                 final boolean logOutput,
-                                 final String... args) throws Exception {
+   public static Process spawnVMWithLogMacher(String wordMatch,
+                                              Runnable runnable,
+                                              final String className,
+                                              final String[] vmargs,
+                                              final boolean logOutput,
+                                              final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
@@ -135,7 +137,11 @@ public final class SpawnedVMSupport {
     * @param process
     * @throws ClassNotFoundException
     */
-   public static void startLogger(final boolean print, final String wordMatch, final Runnable wordRunanble, final String className, final Process process) throws ClassNotFoundException {
+   public static void startLogger(final boolean print,
+                                  final String wordMatch,
+                                  final Runnable wordRunanble,
+                                  final String className,
+                                  final Process process) throws ClassNotFoundException {
       ProcessLogger outputLogger = new ProcessLogger(print, process.getInputStream(), className, wordMatch, wordRunanble);
       outputLogger.start();
    }
@@ -171,12 +177,10 @@ public final class SpawnedVMSupport {
          int exitValue = future.get(10, SECONDS);
          if (sameValue) {
             Assert.assertSame(value, exitValue);
-         }
-         else {
+         } else {
             Assert.assertNotSame(value, exitValue);
          }
-      }
-      finally {
+      } finally {
          p.destroy();
       }
    }
@@ -195,10 +199,15 @@ public final class SpawnedVMSupport {
       private final String wordMatch;
       /**
        * This will be executed when wordMatch is within any line on the log *
-       * * */
+       * *
+       */
       private final Runnable wordRunner;
 
-      ProcessLogger(final boolean print, final InputStream is, final String className, String wordMatch, Runnable wordRunner) throws ClassNotFoundException {
+      ProcessLogger(final boolean print,
+                    final InputStream is,
+                    final String className,
+                    String wordMatch,
+                    Runnable wordRunner) throws ClassNotFoundException {
          this.is = is;
          this.print = print;
          this.className = className;
@@ -223,8 +232,7 @@ public final class SpawnedVMSupport {
                   System.out.println(className + ":" + line);
                }
             }
-         }
-         catch (IOException ioe) {
+         } catch (IOException ioe) {
             ioe.printStackTrace();
          }
       }

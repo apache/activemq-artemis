@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -32,6 +25,12 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Before;
@@ -147,8 +146,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
          while (messages.size() < data.length && waitTime >= 0) {
             try {
                lock.wait(200);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
 

@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.uri.schema.connector;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 public class InVMTransportConfigurationSchema extends AbstractTransportConfigurationSchema {
 

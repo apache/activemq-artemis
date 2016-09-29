@@ -28,10 +28,10 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -221,18 +221,15 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
             if (counter.incrementAndGet() % 200 == 0) {
                System.out.println("rollback " + message);
                session.rollback();
-            }
-            else {
+            } else {
                commitLatch.countDown();
                session.commit();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             try {
                session.rollback();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
                ignored.printStackTrace();
             }
          }

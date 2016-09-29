@@ -165,8 +165,7 @@ public class TransactionImpl implements Transaction {
          boolean timedout;
          if (timeoutSeconds == -1) {
             timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
-         }
-         else {
+         } else {
             timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + timeoutSeconds * 1000;
          }
 
@@ -204,13 +203,11 @@ public class TransactionImpl implements Transaction {
 
                if (exception != null) {
                   throw exception;
-               }
-               else {
+               } else {
                   // Do nothing
                   return;
                }
-            }
-            else if (state != State.ACTIVE) {
+            } else if (state != State.ACTIVE) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
 
@@ -239,8 +236,7 @@ public class TransactionImpl implements Transaction {
                }
             });
          }
-      }
-      finally {
+      } finally {
          storageManager.readUnLock();
       }
    }
@@ -266,8 +262,7 @@ public class TransactionImpl implements Transaction {
 
             if (exception != null) {
                throw exception;
-            }
-            else {
+            } else {
                // Do nothing
                return;
             }
@@ -277,8 +272,7 @@ public class TransactionImpl implements Transaction {
             if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED) {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
-         }
-         else {
+         } else {
             if (state != State.ACTIVE) {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
@@ -361,8 +355,7 @@ public class TransactionImpl implements Transaction {
             if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
-         }
-         else {
+         } else {
             if (state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
@@ -382,8 +375,7 @@ public class TransactionImpl implements Transaction {
       try {
          doRollback();
          state = State.ROLLEDBACK;
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // Something happened before and the TX didn't make to the Journal / Storage
          // We will like to execute afterRollback and clear anything pending
          ActiveMQServerLogger.LOGGER.warn(e);
@@ -491,7 +483,6 @@ public class TransactionImpl implements Transaction {
       operations.add(operation);
    }
 
-
    @Override
    public synchronized void afterStore(TransactionOperation sync) {
       if (storeOperations == null) {
@@ -511,8 +502,7 @@ public class TransactionImpl implements Transaction {
 
       if (operations != null) {
          return new ArrayList<>(operations);
-      }
-      else {
+      } else {
          return new ArrayList<>();
       }
    }

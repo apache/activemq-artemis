@@ -57,41 +57,17 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
             if (sqlProviderFactory == null) {
                sqlProviderFactory = new GenericSQLProvider.Factory();
             }
-            bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(),
-                    sqlProviderFactory.create(dbConf.getBindingsTableName()),
-                    dbConf.getBindingsTableName(),
-                    scheduledExecutorService,
-                    executorFactory.getExecutor());
-            messageJournal = new JDBCJournalImpl(dbConf.getDataSource(),
-                    sqlProviderFactory.create(dbConf.getMessageTableName()),
-                    dbConf.getMessageTableName(),
-                    scheduledExecutorService,
-                    executorFactory.getExecutor());
-            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(),
-                    sqlProviderFactory.create(dbConf.getLargeMessageTableName()),
-                    dbConf.getLargeMessageTableName(),
-                    executor);
-         }
-         else {
+            bindingsJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getBindingsTableName()), dbConf.getBindingsTableName(), scheduledExecutorService, executorFactory.getExecutor());
+            messageJournal = new JDBCJournalImpl(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getMessageTableName()), dbConf.getMessageTableName(), scheduledExecutorService, executorFactory.getExecutor());
+            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getDataSource(), sqlProviderFactory.create(dbConf.getLargeMessageTableName()), dbConf.getLargeMessageTableName(), executor);
+         } else {
             String driverClassName = dbConf.getJdbcDriverClassName();
-            bindingsJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
-                    driverClassName,
-                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getBindingsTableName()),
-                    scheduledExecutorService,
-                    executorFactory.getExecutor());
-            messageJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(),
-                    driverClassName,
-                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getMessageTableName()),
-                    scheduledExecutorService,
-                    executorFactory.getExecutor());
-            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(),
-                    driverClassName,
-                    JDBCUtils.getSQLProvider(driverClassName, dbConf.getLargeMessageTableName()),
-                    executor);
+            bindingsJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getBindingsTableName()), scheduledExecutorService, executorFactory.getExecutor());
+            messageJournal = new JDBCJournalImpl(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getMessageTableName()), scheduledExecutorService, executorFactory.getExecutor());
+            largeMessagesFactory = new JDBCSequentialFileFactory(dbConf.getJdbcConnectionUrl(), driverClassName, JDBCUtils.getSQLProvider(driverClassName, dbConf.getLargeMessageTableName()), executor);
          }
          largeMessagesFactory.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          criticalErrorListener.onIOException(e, e.getMessage(), null);
       }
    }

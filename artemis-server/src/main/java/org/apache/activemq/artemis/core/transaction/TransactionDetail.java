@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.core.transaction;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.transaction.xa.Xid;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -66,12 +65,7 @@ public abstract class TransactionDetail {
 
    public JsonObject toJSON() throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-      JsonObjectBuilder detailJson = JsonLoader.createObjectBuilder()
-         .add(KEY_CREATION_TIME, dateFormat.format(new Date(this.creationTime)))
-         .add(KEY_XID_AS_BASE64, XidImpl.toBase64String(this.xid))
-         .add(KEY_XID_FORMAT_ID, this.xid.getFormatId())
-         .add(KEY_XID_GLOBAL_TXID, new String(this.xid.getGlobalTransactionId()))
-         .add(KEY_XID_BRANCH_QUAL, new String(this.xid.getBranchQualifier()));
+      JsonObjectBuilder detailJson = JsonLoader.createObjectBuilder().add(KEY_CREATION_TIME, dateFormat.format(new Date(this.creationTime))).add(KEY_XID_AS_BASE64, XidImpl.toBase64String(this.xid)).add(KEY_XID_FORMAT_ID, this.xid.getFormatId()).add(KEY_XID_GLOBAL_TXID, new String(this.xid.getGlobalTransactionId())).add(KEY_XID_BRANCH_QUAL, new String(this.xid.getBranchQualifier()));
 
       JsonArrayBuilder msgsJson = JsonLoader.createArrayBuilder();
 
@@ -89,8 +83,7 @@ public abstract class TransactionDetail {
          String opType = null;
          if (opClassName.equals("org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl$AddOperation")) {
             opType = "(+) send";
-         }
-         else if (opClassName.equals("org.apache.activemq.artemis.core.server.impl.QueueImpl$RefsOperation")) {
+         } else if (opClassName.equals("org.apache.activemq.artemis.core.server.impl.QueueImpl$RefsOperation")) {
             opType = "(-) receive";
          }
 

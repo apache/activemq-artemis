@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.util.Arrays;
-import java.util.Enumeration;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 /**
  * A wrapper for a message

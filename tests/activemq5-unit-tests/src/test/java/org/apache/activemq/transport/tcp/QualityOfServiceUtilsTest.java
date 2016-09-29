@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -96,8 +96,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
       int dscp = -1;
       try {
          dscp = QualityOfServiceUtils.getDSCP(name);
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          fail("IllegalArgumentException thrown for valid Differentiated " + " Services name: " + name);
       }
       // Make sure it adjusted for any system ECN values.
@@ -108,8 +107,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
       try {
          QualityOfServiceUtils.getDSCP(name);
          fail("No IllegalArgumentException thrown for invalid Differentiated" + " Services value: " + name + ".");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
       }
    }
 
@@ -118,8 +116,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
          int dscp = QualityOfServiceUtils.getDSCP(Integer.toString(val));
          // Make sure it adjusted for any system ECN values.
          assertEquals("Incorrect Differentiated Services Code Point " + "returned for value " + val + ".", ECN | (val << 2), dscp);
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          fail("IllegalArgumentException thrown for valid Differentiated " + "Services value " + val);
       }
    }
@@ -128,8 +125,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
       try {
          QualityOfServiceUtils.getDSCP(Integer.toString(val));
          fail("No IllegalArgumentException thrown for invalid " + "Differentiated Services value " + val + ".");
-      }
-      catch (IllegalArgumentException expected) {
+      } catch (IllegalArgumentException expected) {
       }
    }
 
@@ -151,8 +147,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
       try {
          int typeOfService = QualityOfServiceUtils.getToS(val);
          assertEquals("Incorrect Type of Services value returned for " + val + ".", val, typeOfService);
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          fail("IllegalArgumentException thrown for valid Type of Service " + "value " + val + ".");
       }
    }
@@ -161,8 +156,7 @@ public class QualityOfServiceUtilsTest extends TestCase {
       try {
          QualityOfServiceUtils.getToS(val);
          fail("No IllegalArgumentException thrown for invalid " + "Type of Service value " + val + ".");
-      }
-      catch (IllegalArgumentException expected) {
+      } catch (IllegalArgumentException expected) {
       }
    }
 }

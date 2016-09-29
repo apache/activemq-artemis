@@ -187,8 +187,7 @@ public final class PagingManagerImpl implements PagingManager {
          for (PagingStore store : stores.values()) {
             store.disableCleanup();
          }
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -205,8 +204,7 @@ public final class PagingManagerImpl implements PagingManager {
          for (PagingStore store : stores.values()) {
             store.enableCleanup();
          }
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -234,8 +232,7 @@ public final class PagingManagerImpl implements PagingManager {
             store.start();
             stores.put(store.getStoreName(), store);
          }
-      }
-      finally {
+      } finally {
          unlock();
       }
 
@@ -249,8 +246,7 @@ public final class PagingManagerImpl implements PagingManager {
          if (store != null) {
             store.stop();
          }
-      }
-      finally {
+      } finally {
          syncLock.readLock().unlock();
       }
    }
@@ -315,8 +311,7 @@ public final class PagingManagerImpl implements PagingManager {
          reloadStores();
 
          started = true;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -336,8 +331,7 @@ public final class PagingManagerImpl implements PagingManager {
          }
 
          pagingStoreFactory.stop();
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -362,8 +356,7 @@ public final class PagingManagerImpl implements PagingManager {
             stores.put(address, store);
          }
          return store;
-      }
-      finally {
+      } finally {
          syncLock.readLock().unlock();
       }
    }

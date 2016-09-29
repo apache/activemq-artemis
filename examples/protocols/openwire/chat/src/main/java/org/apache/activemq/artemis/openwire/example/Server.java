@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import java.util.Scanner;
 import org.apache.activemq.artemis.util.ServerUtil;
 
 public class Server {
+
    private static Process server0;
 
    private static Scanner scanner;
@@ -30,15 +31,13 @@ public class Server {
       try {
          server0 = ServerUtil.startServer(args[0], Server.class.getSimpleName(), 0, 5000);
 
-
          Scanner scanner = new Scanner(System.in);
 
          System.out.println("Alternatively you could start the server under ./target/server0");
          System.out.println("Press enter to stop the server:");
          scanner.nextLine();
 
-      }
-      finally {
+      } finally {
          ServerUtil.killServer(server0);
       }
 

@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.filter.Filter;
-
-import java.util.List;
 
 public interface ScheduledDeliveryHandler {
 

@@ -51,8 +51,7 @@ public class Match<T> {
       // replace any regex characters
       if (Match.WILDCARD.equals(match)) {
          actMatch = Match.WILDCARD_REPLACEMENT;
-      }
-      else {
+      } else {
          // this is to match with what's documented
          actMatch = actMatch.replace(DOT_WILDCARD, WILDCARD);
 

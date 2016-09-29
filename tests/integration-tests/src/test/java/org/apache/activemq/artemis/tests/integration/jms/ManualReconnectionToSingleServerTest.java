@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -32,22 +48,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.naming.Context;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -179,8 +179,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
          connection.close();
          connection = null;
          ManualReconnectionToSingleServerTest.log.info("connection closed");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ManualReconnectionToSingleServerTest.log.info("** got exception");
          e.printStackTrace();
       }
@@ -201,8 +200,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
                queue = (Queue) initialContext.lookup(QUEUE_NAME);
                cf = (ConnectionFactory) initialContext.lookup("/cf");
                break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                if (retries++ > retryLimit)
                   throw e;
                // retry until server is up
@@ -215,13 +213,11 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
          consumer = session.createConsumer(queue);
          consumer.setMessageListener(listener);
          connection.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (connection != null) {
             try {
                connection.close();
-            }
-            catch (JMSException e1) {
+            } catch (JMSException e1) {
                e1.printStackTrace();
             }
          }
@@ -238,8 +234,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
          try {
             msg.getIntProperty("counter");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
          }
          if (count == NUM) {

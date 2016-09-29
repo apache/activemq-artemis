@@ -128,8 +128,7 @@ public class ActiveMQActivation {
    static {
       try {
          ONMESSAGE = MessageListener.class.getMethod("onMessage", new Class[]{Message.class});
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -158,8 +157,7 @@ public class ActiveMQActivation {
 
             try {
                spec.setPassword(codec.decode(pass));
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new ResourceException(e);
             }
          }
@@ -170,8 +168,7 @@ public class ActiveMQActivation {
       this.spec = spec;
       try {
          isDeliveryTransacted = endpointFactory.isDeliveryTransacted(ActiveMQActivation.ONMESSAGE);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new ResourceException(e);
       }
    }
@@ -318,8 +315,7 @@ public class ActiveMQActivation {
             ActiveMQMessageHandler handler = new ActiveMQMessageHandler(factory, this, ra.getTM(), (ClientSessionInternal) session, cf, i);
             handler.setup();
             handlers.add(handler);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             if (cf != null) {
                cf.close();
             }
@@ -394,8 +390,7 @@ public class ActiveMQActivation {
          for (Thread interruptThread : interruptThreads) {
             try {
                interruptThread.interrupt();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                //ok
             }
          }
@@ -417,8 +412,7 @@ public class ActiveMQActivation {
 
       try {
          threadTearDown.join(timeout);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
       }
 
@@ -426,8 +420,7 @@ public class ActiveMQActivation {
          try {
             // closing the factory will help making sure pending threads are closed
             factory.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQRALogger.LOGGER.warn(e);
          }
 
@@ -439,8 +432,7 @@ public class ActiveMQActivation {
 
          try {
             threadTearDown.join(5000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             // nothing to be done here.. we are going down anyways
          }
 
@@ -460,8 +452,7 @@ public class ActiveMQActivation {
          Context ctx;
          if (spec.getParsedJndiParams() == null) {
             ctx = new InitialContext();
-         }
-         else {
+         } else {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          Object fac = ctx.lookup(spec.getConnectionFactoryLookup());
@@ -469,12 +460,10 @@ public class ActiveMQActivation {
             // This will clone the connection factory
             // to make sure we won't close anyone's connection factory when we stop the MDB
             factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
-         }
-         else {
+         } else {
             factory = ra.newConnectionFactory(spec);
          }
-      }
-      else {
+      } else {
          factory = ra.newConnectionFactory(spec);
       }
    }
@@ -502,14 +491,12 @@ public class ActiveMQActivation {
          ActiveMQRALogger.LOGGER.debug("Using queue connection " + result);
 
          return result;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          try {
             if (result != null) {
                result.close();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQRALogger.LOGGER.trace("Ignored error closing connection", e);
          }
          if (t instanceof Exception) {
@@ -531,8 +518,7 @@ public class ActiveMQActivation {
          Context ctx;
          if (spec.getParsedJndiParams() == null) {
             ctx = new InitialContext();
-         }
-         else {
+         } else {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          ActiveMQRALogger.LOGGER.debug("Using context " + ctx.getEnvironment() + " for " + spec);
@@ -548,8 +534,7 @@ public class ActiveMQActivation {
             if (Topic.class.getName().equals(destinationTypeString)) {
                destinationType = Topic.class;
                isTopic = true;
-            }
-            else {
+            } else {
                destinationType = Queue.class;
             }
 
@@ -557,8 +542,7 @@ public class ActiveMQActivation {
 
             try {
                destination = (ActiveMQDestination) ActiveMQRaUtils.lookup(ctx, destinationName, destinationType);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                if (destinationName == null) {
                   throw ActiveMQRABundle.BUNDLE.noDestinationName();
                }
@@ -572,13 +556,11 @@ public class ActiveMQActivation {
                // If there is no binding on naming, we will just create a new instance
                if (isTopic) {
                   destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(calculatedDestinationName);
-               }
-               else {
+               } else {
                   destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(calculatedDestinationName);
                }
             }
-         }
-         else {
+         } else {
             ActiveMQRALogger.LOGGER.debug("Destination type not defined in MDB activation configuration.");
             ActiveMQRALogger.LOGGER.debug("Retrieving " + Destination.class.getName() + " \"" + destinationName + "\" from JNDI");
 
@@ -587,15 +569,13 @@ public class ActiveMQActivation {
                isTopic = true;
             }
          }
-      }
-      else {
+      } else {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
          if (Topic.class.getName().equals(spec.getDestinationType())) {
             destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(spec.getDestination());
             isTopic = true;
-         }
-         else {
+         } else {
             destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(spec.getDestination());
          }
       }
@@ -647,11 +627,9 @@ public class ActiveMQActivation {
       if (failure != null) {
          if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
             ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
-         }
-         else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+         } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
             ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
-         }
-         else {
+         } else {
             ActiveMQRALogger.LOGGER.failureInActivation(failure, spec);
          }
       }
@@ -669,8 +647,7 @@ public class ActiveMQActivation {
 
             try {
                Thread.sleep(setupInterval);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                ActiveMQRALogger.LOGGER.debug("Interrupted trying to reconnect " + spec, e);
                break;
             }
@@ -682,28 +659,24 @@ public class ActiveMQActivation {
                setup();
                ActiveMQRALogger.LOGGER.reconnected();
                break;
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
                   if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
                   }
-               }
-               else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+               } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
                   if (lastException == null || !(t instanceof ActiveMQNotConnectedException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
                   }
-               }
-               else {
+               } else {
                   ActiveMQRALogger.LOGGER.errorReconnecting(t, spec);
                }
             }
             ++reconnectCount;
          }
-      }
-      finally {
+      } finally {
          // Leaving failure recovery loop
          inReconnect.set(false);
       }
@@ -722,8 +695,7 @@ public class ActiveMQActivation {
       public void run() {
          try {
             setup();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             reconnect(t);
          }
       }
@@ -750,8 +722,7 @@ public class ActiveMQActivation {
          if (lastReceived && newNode) {
             ActiveMQRALogger.LOGGER.rebalancingConnections("nodeUp " + member.toString());
             startReconnectThread("NodeUP Connection Rebalancer");
-         }
-         else if (last) {
+         } else if (last) {
             lastReceived = true;
          }
       }

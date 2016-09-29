@@ -67,20 +67,15 @@ public class ActiveMQJMSClient {
       ActiveMQConnectionFactory factory = null;
       if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(true, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(true, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(true, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(true, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(true, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(true, groupConfiguration);
       }
 
@@ -101,20 +96,15 @@ public class ActiveMQJMSClient {
       ActiveMQConnectionFactory factory = null;
       if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(false, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(false, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(false, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(false, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(false, groupConfiguration);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(false, groupConfiguration);
       }
 
@@ -142,20 +132,15 @@ public class ActiveMQJMSClient {
       ActiveMQConnectionFactory factory = null;
       if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(true, initialServers);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(true, initialServers);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(true, initialServers);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(true, initialServers);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(true, initialServers);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(true, initialServers);
       }
 
@@ -178,20 +163,15 @@ public class ActiveMQJMSClient {
       ActiveMQConnectionFactory factory = null;
       if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(false, transportConfigurations);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(false, transportConfigurations);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(false, transportConfigurations);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(false, transportConfigurations);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(false, transportConfigurations);
-      }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
+      } else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(false, transportConfigurations);
       }
 

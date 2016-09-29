@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.network;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.util.Wait;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class NetworkLoopBackTest {
 
@@ -33,8 +33,7 @@ public class NetworkLoopBackTest {
 
       TransportConnector transportConnector = brokerServce.addConnector("nio://0.0.0.0:0");
       // connection filter is bypassed when scheme is different
-      final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://"
-              + transportConnector.getConnectUri().getHost() + ":" +  transportConnector.getConnectUri().getPort() + ")");
+      final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://" + transportConnector.getConnectUri().getHost() + ":" + transportConnector.getConnectUri().getPort() + ")");
 
       brokerServce.start();
       brokerServce.waitUntilStarted();
@@ -59,8 +58,7 @@ public class NetworkLoopBackTest {
 
          assertEquals("No peer brokers", 0, brokerServce.getBroker().getPeerBrokerInfos().length);
 
-      }
-      finally {
+      } finally {
          brokerServce.stop();
       }
    }

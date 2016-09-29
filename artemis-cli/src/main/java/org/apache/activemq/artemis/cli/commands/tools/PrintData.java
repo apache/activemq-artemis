@@ -65,8 +65,7 @@ public class PrintData extends OptionalLocking {
       super.execute(context);
       try {
          printData(new File(getBinding()), new File(getJournal()), new File(getPaging()));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          treatError(e, "data", "print");
       }
       return null;
@@ -87,8 +86,7 @@ public class PrintData extends OptionalLocking {
             System.out.println("Server's ID=" + fileLock.getNodeId().toString());
             System.out.println("********************************************");
             fileLock.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -99,8 +97,7 @@ public class PrintData extends OptionalLocking {
 
       try {
          DescribeJournal.describeBindingsJournal(bindingsDirectory);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
 
@@ -112,8 +109,7 @@ public class PrintData extends OptionalLocking {
       DescribeJournal describeJournal = null;
       try {
          describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          return;
       }
@@ -125,8 +121,7 @@ public class PrintData extends OptionalLocking {
          System.out.println("********************************************");
 
          printPages(pagingDirectory, describeJournal);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          return;
       }
@@ -218,8 +213,7 @@ public class PrintData extends OptionalLocking {
             }
          }
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -248,8 +242,7 @@ public class PrintData extends OptionalLocking {
             }
 
             set.add(encoding.position);
-         }
-         else if (record.userRecordType == JournalRecordIds.PAGE_CURSOR_COMPLETE) {
+         } else if (record.userRecordType == JournalRecordIds.PAGE_CURSOR_COMPLETE) {
             CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
             encoding.decode(buff);
 
@@ -259,15 +252,13 @@ public class PrintData extends OptionalLocking {
             if (!cursorInfo.getCompletePages(queueID).add(pageNR)) {
                System.err.println("Page " + pageNR + " has been already set as complete on queue " + queueID);
             }
-         }
-         else if (record.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
+         } else if (record.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
             if (record.isUpdate) {
                PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
 
                pageUpdate.decode(buff);
                cursorInfo.getPgTXs().add(pageUpdate.pageTX);
-            }
-            else {
+            } else {
                PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                pageTransactionInfo.decode(buff);

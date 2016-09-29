@@ -47,21 +47,10 @@ public class Role implements Serializable {
    private final boolean browse;
 
    public JsonObject toJson() {
-      return JsonLoader.createObjectBuilder()
-            .add("name", name)
-            .add("send", send)
-            .add("consume", consume)
-            .add("createDurableQueue", createDurableQueue)
-            .add("deleteDurableQueue", deleteDurableQueue)
-            .add("createNonDurableQueue", createNonDurableQueue)
-            .add("deleteNonDurableQueue", deleteNonDurableQueue)
-            .add("manage", manage)
-            .add("browse", browse)
-            .build();
+      return JsonLoader.createObjectBuilder().add("name", name).add("send", send).add("consume", consume).add("createDurableQueue", createDurableQueue).add("deleteDurableQueue", deleteDurableQueue).add("createNonDurableQueue", createNonDurableQueue).add("deleteNonDurableQueue", deleteNonDurableQueue).add("manage", manage).add("browse", browse).build();
    }
 
    /**
-    * @deprecated Use {@link #Role(String, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)}
     * @param name
     * @param send
     * @param consume
@@ -70,6 +59,7 @@ public class Role implements Serializable {
     * @param createNonDurableQueue
     * @param deleteNonDurableQueue
     * @param manage
+    * @deprecated Use {@link #Role(String, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)}
     */
    @Deprecated
    public Role(final String name,

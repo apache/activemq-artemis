@@ -89,8 +89,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       try {
          out.writeUTF(uri.toASCIIString());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (e instanceof IOException) {
             throw (IOException) e;
          }
@@ -104,16 +103,13 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       if (serverLocator.getDiscoveryGroupConfiguration() != null) {
          if (serverLocator.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
             scheme = "udp";
-         }
-         else {
+         } else {
             scheme = "jgroups";
          }
-      }
-      else {
+      } else {
          if (serverLocator.allInVM()) {
             scheme = "vm";
-         }
-         else {
+         } else {
             scheme = "tcp";
          }
       }
@@ -122,8 +118,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       try {
          uri = parser.createSchema(scheme, this);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (e instanceof IOException) {
             throw (IOException) e;
          }
@@ -139,12 +134,11 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public void setProtocolManagerFactoryStr(final String protocolManagerFactoryStr) {
 
       if (protocolManagerFactoryStr != null && !protocolManagerFactoryStr.trim().isEmpty() &&
-               !protocolManagerFactoryStr.equals("undefined")) {
+         !protocolManagerFactoryStr.equals("undefined")) {
          AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
-               ClientProtocolManagerFactory protocolManagerFactory =
-                  (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(protocolManagerFactoryStr);
+               ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(protocolManagerFactoryStr);
                serverLocator.setProtocolManagerFactory(protocolManagerFactory);
                return null;
             }
@@ -183,8 +177,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          URI uri = new URI(url);
          serverLocator = locatorParser.newObject(uri, null);
          parser.populateObject(uri, this);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new InvalidObjectException(e.getMessage());
       }
    }
@@ -202,8 +195,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
          URI uri = new URI(url);
          serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
 
@@ -233,8 +225,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public ActiveMQConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
       if (ha) {
          serverLocator = ActiveMQClient.createServerLocatorWithHA(groupConfiguration);
-      }
-      else {
+      } else {
          serverLocator = ActiveMQClient.createServerLocatorWithoutHA(groupConfiguration);
       }
 
@@ -244,8 +235,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    public ActiveMQConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors) {
       if (ha) {
          serverLocator = ActiveMQClient.createServerLocatorWithHA(initialConnectors);
-      }
-      else {
+      } else {
          serverLocator = ActiveMQClient.createServerLocatorWithoutHA(initialConnectors);
       }
 
@@ -283,11 +273,9 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       try {
          ActiveMQConnection connection = createConnectionInternal(userName, password, false, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
          return connection.createContext(sessionMode);
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          throw new JMSSecurityRuntimeException(e.getMessage(), e.getErrorCode(), e);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -345,11 +333,9 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       try {
          ActiveMQConnection connection = createConnectionInternal(userName, password, true, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
          return connection.createXAContext();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          throw new JMSSecurityRuntimeException(e.getMessage(), e.getErrorCode(), e);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -754,8 +740,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       try {
          factory = serverLocator.createSessionFactory();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          JMSException jmse = new JMSException("Failed to create session factory");
 
          jmse.initCause(e);
@@ -769,22 +754,17 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
       if (isXA) {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
             connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
-         }
-         else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
+         } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
+            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
+         } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
             connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
-         else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
-            connection = new ActiveMQXAConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
-         }
-      }
-      else {
+      } else {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
             connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
-         }
-         else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
+         } else if (type == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
             connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
-         }
-         else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
+         } else if (type == ActiveMQConnection.TYPE_TOPIC_CONNECTION) {
             connection = new ActiveMQConnection(this, username, password, type, clientID, dupsOKBatchSize, transactionBatchSize, factory);
          }
       }
@@ -796,12 +776,10 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
 
       try {
          connection.authorize();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          try {
             connection.close();
-         }
-         catch (JMSException me) {
+         } catch (JMSException me) {
          }
          throw e;
       }
@@ -837,8 +815,7 @@ public class ActiveMQConnectionFactory implements ConnectionFactoryOptions, Exte
    protected void finalize() throws Throwable {
       try {
          serverLocator.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          //not much we can do here
       }

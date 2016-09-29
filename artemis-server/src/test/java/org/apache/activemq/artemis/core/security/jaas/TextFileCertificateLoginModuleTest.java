@@ -113,7 +113,8 @@ public class TextFileCertificateLoginModuleTest {
       return new JaasCallbackHandler(null, null, new X509Certificate[]{cert});
    }
 
-   private Subject doAuthenticate(HashMap<String, ?> options, JaasCallbackHandler callbackHandler) throws LoginException {
+   private Subject doAuthenticate(HashMap<String, ?> options,
+                                  JaasCallbackHandler callbackHandler) throws LoginException {
       Subject mySubject = new Subject();
       loginModule.initialize(mySubject, callbackHandler, null, options);
       loginModule.login();

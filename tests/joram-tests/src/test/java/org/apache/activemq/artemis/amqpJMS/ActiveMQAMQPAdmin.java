@@ -51,8 +51,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
          env.put("java.naming.factory.initial", TestContextFactory.class.getName());
          env.put("java.naming.provider.url", "tcp://localhost:61616");
          context = new InitialContext(env);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -82,8 +81,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
          Logger log = Logger.getLogger("FRM");
          log.addHandler(handler);
          log.setLevel(Level.FINEST);
-      }
-      catch (FileNotFoundException e) {
+      } catch (FileNotFoundException e) {
          throw new RuntimeException(e);
       }
    }
@@ -103,8 +101,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
       super.createQueue(name);
       try {
          context.bind(name, new JmsQueue("jms.queue." + name));
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -114,8 +111,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
       super.createTopic(name);
       try {
          context.bind(name, new JmsTopic("jms.topic." + name));
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -125,8 +121,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
       super.deleteQueue(name);
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -136,8 +131,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
       super.deleteTopic(name);
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -147,8 +141,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
       try {
          final JmsConnectionFactory factory = new JmsConnectionFactory("amqp://localhost:61616");
          context.bind(name, factory);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -157,8 +150,7 @@ public class ActiveMQAMQPAdmin extends AbstractAdmin {
    public void deleteConnectionFactory(String name) {
       try {
          context.unbind(name);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }

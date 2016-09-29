@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.rest;
 
+import javax.xml.bind.JAXBContext;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -24,8 +25,6 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.bind.JAXBContext;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -120,8 +119,7 @@ public class MessageServiceManager {
       if (configuration == null || configSet == false) {
          if (configResourcePath == null) {
             configuration = new MessageServiceConfiguration();
-         }
-         else {
+         } else {
             URL url = getClass().getClassLoader().getResource(configResourcePath);
 
             if (url == null) {
@@ -166,8 +164,7 @@ public class MessageServiceManager {
       LinkStrategy linkStrategy = new LinkHeaderLinkStrategy();
       if (configuration.isUseLinkHeaders()) {
          linkStrategy = new LinkHeaderLinkStrategy();
-      }
-      else {
+      } else {
          linkStrategy = new CustomHeaderLinkStrategy();
       }
 
@@ -210,8 +207,7 @@ public class MessageServiceManager {
       threadPool.shutdown();
       try {
          threadPool.awaitTermination(5000, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       this.consumerSessionFactory.close();
    }

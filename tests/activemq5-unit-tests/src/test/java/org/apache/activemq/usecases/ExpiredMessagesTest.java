@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,15 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
+
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Test;
 
@@ -31,10 +40,6 @@ import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 import org.apache.activemq.util.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.*;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.activemq.TestSupport.getDestination;
 import static org.apache.activemq.TestSupport.getDestinationStatistics;
@@ -101,8 +106,7 @@ public class ExpiredMessagesTest extends CombinationTestSupport {
                   end = System.currentTimeMillis();
                }
                consumer.close();
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -120,8 +124,7 @@ public class ExpiredMessagesTest extends CombinationTestSupport {
                   producer.send(session.createTextMessage("test"));
                }
                producer.close();
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }
@@ -241,8 +244,7 @@ public class ExpiredMessagesTest extends CombinationTestSupport {
                   producer.send(message);
                }
                producer.close();
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                ex.printStackTrace();
             }
          }

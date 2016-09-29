@@ -15,8 +15,8 @@
   limitations under the License.
 -->
 <configuration xmlns="urn:activemq"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
    <core xmlns="urn:activemq:core">
 
@@ -53,7 +53,7 @@
       before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
       <queues>
          <queue name="jms.queue.priceForwarding">
-             <address>jms.queue.priceForwarding</address>
+            <address>jms.queue.priceForwarding</address>
          </queue>
       </queues>
 
@@ -68,7 +68,8 @@
             <address>jms.topic.priceUpdates</address>
             <forwarding-address>jms.queue.priceForwarding</forwarding-address>
             <filter string="office='New York'"/>
-            <transformer-class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer</transformer-class-name>
+            <transformer-class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
+            </transformer-class-name>
             <exclusive>true</exclusive>
          </divert>
       </diverts>

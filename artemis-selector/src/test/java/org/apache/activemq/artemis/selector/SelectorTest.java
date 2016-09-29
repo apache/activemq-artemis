@@ -504,8 +504,7 @@ public class SelectorTest {
       try {
          SelectorParser.parse(text);
          Assert.fail("Created a valid selector");
-      }
-      catch (FilterException e) {
+      } catch (FilterException e) {
       }
    }
 

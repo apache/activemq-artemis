@@ -29,8 +29,7 @@ public class DelayInterceptor implements Interceptor {
       if (packet.getType() == PacketImpl.SESS_SEND) {
          // Lose the send
          return false;
-      }
-      else {
+      } else {
          return true;
       }
    }

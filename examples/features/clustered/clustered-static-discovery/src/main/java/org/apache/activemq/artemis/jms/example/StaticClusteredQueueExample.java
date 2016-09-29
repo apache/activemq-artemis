@@ -145,8 +145,7 @@ public class StaticClusteredQueueExample {
 
             System.out.println("Got message: " + message3.getText() + " from node " + con3Node);
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our resources!
 
          if (initialConnection != null) {

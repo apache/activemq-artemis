@@ -93,7 +93,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       // only run this on *nix systems which will have the com.sun.management.UnixOperatingSystemMXBean (needed to check open file count)
       Assume.assumeTrue(os instanceof UnixOperatingSystemMXBean);
 
-      long fdBaseline =  ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
+      long fdBaseline = ((UnixOperatingSystemMXBean) os).getOpenFileDescriptorCount();
       final int SIZE = 2 * 1024;
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
@@ -228,8 +228,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
          latch.countDown();
          try {
             clientSession.rollback(true);
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }
          throw new RuntimeException();

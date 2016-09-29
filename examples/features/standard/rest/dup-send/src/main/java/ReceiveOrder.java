@@ -36,13 +36,11 @@ public class ReceiveOrder {
          if (res.getStatus() == 503) {
             System.out.println("Timeout...");
             consumeNext = res.getHeaderAsLink("msg-consume-next");
-         }
-         else if (res.getStatus() == 200) {
+         } else if (res.getStatus() == 200) {
             Order order = (Order) res.getEntity(Order.class);
             System.out.println(order);
             consumeNext = res.getHeaderAsLink("msg-consume-next");
-         }
-         else {
+         } else {
             throw new RuntimeException("Failure! " + res.getStatus());
          }
          res.releaseConnection();

@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -48,17 +43,21 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.artemis.selector.filter.FilterException;
-import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 
 /**
@@ -217,8 +216,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
       try {
          session.commit();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -234,8 +232,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       try {
          session.rollback();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -253,8 +250,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             session.close();
 
             connection.removeSession(this);
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
       }
@@ -268,8 +264,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       try {
          session.rollback(true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
@@ -314,8 +309,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          ClientProducer producer = session.createProducer(jbd == null ? null : jbd.getSimpleAddress());
 
          return new ActiveMQMessageProducer(connection, producer, jbd, session, options);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -369,12 +363,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          if (queue == null) {
             throw new JMSException("There is no queue with name " + queueName);
-         }
-         else {
+         } else {
             return queue;
          }
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -395,12 +387,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          if (topic == null) {
             throw new JMSException("There is no topic with name " + topicName);
-         }
-         else {
+         } else {
             return topic;
          }
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -470,8 +460,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       ActiveMQTopic localTopic;
       if (topic instanceof ActiveMQTopic) {
          localTopic = (ActiveMQTopic) topic;
-      }
-      else {
+      } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.NON_DURABLE);
@@ -494,8 +483,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       ActiveMQTopic localTopic;
       if (topic instanceof ActiveMQTopic) {
          localTopic = (ActiveMQTopic) topic;
-      }
-      else {
+      } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return createConsumer(localTopic, name, messageSelector, noLocal, ConsumerDurability.DURABLE);
@@ -520,8 +508,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       if (topic instanceof ActiveMQTopic) {
          localTopic = (ActiveMQTopic) topic;
-      }
-      else {
+      } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
       return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.DURABLE);
@@ -587,14 +574,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (durability == ConsumerDurability.DURABLE) {
             try {
                session.createSharedQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
-            }
-            catch (ActiveMQQueueExistsException ignored) {
+            } catch (ActiveMQQueueExistsException ignored) {
                // We ignore this because querying and then creating the queue wouldn't be idempotent
                // we could also add a parameter to ignore existence what would require a bigger work around to avoid
                // compatibility.
             }
-         }
-         else {
+         } else {
             session.createSharedQueue(dest.getSimpleAddress(), queueName, coreFilterString, false);
          }
 
@@ -605,8 +590,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          consumers.add(jbc);
 
          return jbc;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -626,15 +610,13 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             if (connection.getClientID() != null) {
                filter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + connection.getClientID() +
                   "'";
-            }
-            else {
+            } else {
                filter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + connection.getUID() + "'";
             }
 
             if (selectorString != null) {
                selectorString += " AND " + filter;
-            }
-            else {
+            } else {
                selectorString = filter;
             }
          }
@@ -659,8 +641,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             if (!response.isExists() || !response.getQueueNames().contains(dest.getSimpleAddress())) {
                if (response.isAutoCreateJmsQueues()) {
                   session.createQueue(dest.getSimpleAddress(), dest.getSimpleAddress(), true);
-               }
-               else {
+               } else {
                   throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
                }
             }
@@ -668,8 +649,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             connection.addKnownDestination(dest.getSimpleAddress());
 
             consumer = session.createConsumer(dest.getSimpleAddress(), coreFilterString, false);
-         }
-         else {
+         } else {
             AddressQuery response = session.addressQuery(dest.getSimpleAddress());
 
             if (!response.isExists() && !response.isAutoCreateJmsTopics()) {
@@ -692,8 +672,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                consumer = session.createConsumer(queueName, null, false);
 
                autoDeleteQueueName = queueName;
-            }
-            else {
+            } else {
                // Durable sub
                if (durability != ConsumerDurability.DURABLE)
                   throw new RuntimeException("Subscription name must be null for non-durable topic consumer");
@@ -711,8 +690,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                if (!subResponse.isExists()) {
                   session.createQueue(dest.getSimpleAddress(), queueName, coreFilterString, true);
-               }
-               else {
+               } else {
                   // Already exists
                   if (subResponse.getConsumerCount() > 0) {
                      throw new IllegalStateException("Cannot create a subscriber on the durable subscription since it already has subscriber(s)");
@@ -757,8 +735,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          consumers.add(jbc);
 
          return jbc;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -793,8 +770,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (filterString != null) {
             SelectorParser.parse(filterString.trim());
          }
-      }
-      catch (FilterException e) {
+      } catch (FilterException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(e, new SimpleString(filterString)));
       }
 
@@ -809,13 +785,11 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          if (!response.isExists()) {
             if (response.isAutoCreateJmsQueues()) {
                session.createQueue(jbq.getSimpleAddress(), jbq.getSimpleAddress(), true);
-            }
-            else {
+            } else {
                throw new InvalidDestinationException("Destination " + jbq.getName() + " does not exist");
             }
          }
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
@@ -840,8 +814,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          connection.addTemporaryQueue(simpleAddress);
 
          return queue;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -868,8 +841,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          connection.addTemporaryQueue(simpleAddress);
 
          return topic;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -897,8 +869,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          }
 
          session.deleteQueue(queueName);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -1007,8 +978,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          session.deleteQueue(address);
 
          connection.removeTemporaryQueue(address);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -1035,8 +1005,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          session.deleteQueue(address);
 
          connection.removeTemporaryQueue(address);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -1044,8 +1013,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public void start() throws JMSException {
       try {
          session.start();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -1053,8 +1021,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public void stop() throws JMSException {
       try {
          session.stop();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -1069,8 +1036,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       if (!session.isClosed()) {
          try {
             session.deleteQueue(queueName);
-         }
-         catch (ActiveMQException ignore) {
+         } catch (ActiveMQException ignore) {
             // Exception on deleting queue shouldn't prevent close from completing
          }
       }
@@ -1091,8 +1057,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       if (isTemporary) {
          queue = ActiveMQDestination.createTemporaryQueue(queueName);
-      }
-      else {
+      } else {
          queue = ActiveMQDestination.createQueue(queueName);
       }
 
@@ -1100,8 +1065,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       if (!response.isExists() && !response.isAutoCreateJmsQueues()) {
          return null;
-      }
-      else {
+      } else {
          return queue;
       }
    }
@@ -1112,8 +1076,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       if (isTemporary) {
          topic = ActiveMQDestination.createTemporaryTopic(topicName);
-      }
-      else {
+      } else {
          topic = ActiveMQDestination.createTopic(topicName);
       }
 
@@ -1121,8 +1084,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       if (!query.isExists() && !query.isAutoCreateJmsTopics()) {
          return null;
-      }
-      else {
+      } else {
          return topic;
       }
    }

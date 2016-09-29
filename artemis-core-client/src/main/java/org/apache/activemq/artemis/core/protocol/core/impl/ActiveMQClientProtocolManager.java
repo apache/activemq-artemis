@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.protocol.ClientPacketDecoder;
@@ -55,8 +55,8 @@ import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.jboss.logging.Logger;
 
@@ -139,8 +139,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    public Channel getChannel0() {
       if (connection == null) {
          return null;
-      }
-      else {
+      } else {
          return connection.getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
       }
    }
@@ -153,8 +152,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    public Channel getChannel1() {
       if (connection == null) {
          return null;
-      }
-      else {
+      } else {
          return connection.getChannel(1, -1);
       }
    }
@@ -175,13 +173,11 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             }
 
             return lock;
-         }
-         finally {
+         } finally {
             localFailoverLock.unlock();
          }
          // We can now release the failoverLock
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          return null;
       }
@@ -239,8 +235,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
       for (Version clientVersion : VersionLoader.getClientVersions()) {
          try {
             return createSessionContext(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize);
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             if (e.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
                throw e;
             }
@@ -291,8 +286,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             try {
                // channel1 reference here has to go away
                response = (CreateSessionResponseMessage) getChannel1().sendBlocking(request, PacketImpl.CREATESESSION_RESP);
-            }
-            catch (ActiveMQException cause) {
+            } catch (ActiveMQException cause) {
                if (!isAlive())
                   throw cause;
 
@@ -303,16 +297,14 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                   retry = true;
 
                   continue;
-               }
-               else {
+               } else {
                   throw cause;
                }
             }
 
             sessionChannel = connection.getChannel(sessionChannelID, confirmationWindowSize);
 
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             if (lock != null) {
                lock.unlock();
                lock = null;
@@ -320,12 +312,10 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
             if (t instanceof ActiveMQException) {
                throw (ActiveMQException) t;
-            }
-            else {
+            } else {
                throw ActiveMQClientMessageBundle.BUNDLE.failedToCreateSession(t);
             }
-         }
-         finally {
+         } finally {
             if (lock != null) {
                lock.unlock();
             }
@@ -354,9 +344,9 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    }
 
    protected SessionContext newSessionContext(String name,
-                                            int confirmationWindowSize,
-                                            Channel sessionChannel,
-                                            CreateSessionResponseMessage response) {
+                                              int confirmationWindowSize,
+                                              Channel sessionChannel,
+                                              CreateSessionResponseMessage response) {
       // these objects won't be null, otherwise it would keep retrying on the previous loop
       return new ActiveMQSessionContext(name, connection, sessionChannel, response.getServerVersion(), confirmationWindowSize);
    }
@@ -378,8 +368,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             needToInterrupt = inCreateSession;
             exitLockLatch = inCreateSessionLatch;
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
 
@@ -395,8 +384,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                if (exitLockLatch != null) {
                   exitLockLatch.await(500, TimeUnit.MILLISECONDS);
                }
-            }
-            catch (InterruptedException e1) {
+            } catch (InterruptedException e1) {
                throw new ActiveMQInterruptedException(e1);
             }
          }
@@ -464,20 +452,16 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
             if (topologyResponseHandler != null)
                topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
-         }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(topMessage);
-         }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
             ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
             notifyTopologyChange(topMessage);
-         }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
+         } else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(topMessage);
-         }
-         else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
+         } else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
          }
       }
@@ -493,13 +477,11 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             eventUID = ((ClusterTopologyChangeMessage_V3) topMessage).getUniqueEventID();
             backupGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getBackupGroupName();
             scaleDownGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getScaleDownGroupName();
-         }
-         else if (topMessage instanceof ClusterTopologyChangeMessage_V2) {
+         } else if (topMessage instanceof ClusterTopologyChangeMessage_V2) {
             eventUID = ((ClusterTopologyChangeMessage_V2) topMessage).getUniqueEventID();
             backupGroupName = ((ClusterTopologyChangeMessage_V2) topMessage).getBackupGroupName();
             scaleDownGroupName = null;
-         }
-         else {
+         } else {
             eventUID = System.currentTimeMillis();
             backupGroupName = null;
             scaleDownGroupName = null;
@@ -513,8 +495,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             if (topologyResponseHandler != null) {
                topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
             }
-         }
-         else {
+         } else {
             Pair<TransportConfiguration, TransportConfiguration> transportConfig = topMessage.getPair();
             if (transportConfig.getA() == null && transportConfig.getB() == null) {
                transportConfig = new Pair<>(conn.getTransportConnection().getConnectorConfig(), null);

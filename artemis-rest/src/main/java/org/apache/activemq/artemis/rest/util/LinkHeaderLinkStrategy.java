@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.util;
 
-import org.jboss.resteasy.spi.Link;
-
 import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.spi.Link;
 
 public class LinkHeaderLinkStrategy implements LinkStrategy {
 

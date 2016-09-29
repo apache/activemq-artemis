@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.net.URI;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -25,9 +34,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.network.ConditionalNetworkBridgeFilterFactory;
-
-import javax.jms.*;
-import java.net.URI;
 
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>
@@ -157,16 +163,14 @@ public class VirtualTopicNetworkClusterReactivationTest extends JmsMultipleBroke
    private void sleep() {
       try {
          Thread.sleep(DEFAULT_SLEEP_MS);
-      }
-      catch (InterruptedException igonred) {
+      } catch (InterruptedException igonred) {
       }
    }
 
    private void sleep(int milliSecondTime) {
       try {
          Thread.sleep(milliSecondTime);
-      }
-      catch (InterruptedException igonred) {
+      } catch (InterruptedException igonred) {
       }
    }
 }

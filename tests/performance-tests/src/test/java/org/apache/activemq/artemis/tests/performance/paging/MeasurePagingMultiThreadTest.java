@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.performance.paging;
 
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -27,9 +30,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
 
 public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
@@ -96,8 +96,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
                                         " finished sending in " +
                                         (end - start) +
                                         " milliseconds");
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
 
@@ -137,8 +136,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
             s.cleanUp();
          }
 
-      }
-      finally {
+      } finally {
          locator.close();
          messagingService.stop();
 

@@ -72,8 +72,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
       if (buffered && bufferTimeout > 0) {
          timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
-      }
-      else {
+      } else {
          timedBuffer = null;
       }
       this.bufferSize = bufferSize;
@@ -95,8 +94,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
             if (!writeExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS)) {
                ActiveMQJournalLogger.LOGGER.timeoutOnWriterShutdown(new Exception("trace"));
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }

@@ -59,8 +59,7 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
          Class aClass = Class.forName(clientClass);
          Method method = aClass.getDeclaredMethod("main", new Class[]{String[].class});
          method.invoke(null, new Object[]{args});
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }

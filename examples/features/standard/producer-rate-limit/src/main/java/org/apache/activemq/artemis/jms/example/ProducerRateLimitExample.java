@@ -95,8 +95,7 @@ public class ProducerRateLimitExample {
          }
 
          System.out.println("Received " + i + " messages");
-      }
-      finally {
+      } finally {
          // Step 9. Be sure to close our resources!
          if (connection != null) {
             connection.close();

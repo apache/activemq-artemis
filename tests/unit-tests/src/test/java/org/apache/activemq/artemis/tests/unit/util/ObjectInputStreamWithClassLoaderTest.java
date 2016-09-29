@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass;
-import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;
-import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,9 +39,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass;
+import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;
+import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
@@ -101,8 +99,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          //Class.isAnonymousClass() call used in ObjectInputStreamWithClassLoader
          //need to access the enclosing class and its parent class of the obj
          //i.e. ActiveMQTestBase and Assert.
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(
-                 obj.getClass(), ActiveMQTestBase.class, Assert.class);
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(obj.getClass(), ActiveMQTestBase.class, Assert.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
 
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -114,8 +111,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          Assert.assertNotSame(obj.getClass(), deserializedObj.getClass());
          Assert.assertNotSame(obj.getClass().getClassLoader(), deserializedObj.getClass().getClassLoader());
          Assert.assertSame(testClassLoader, deserializedObj.getClass().getClassLoader());
-      }
-      finally {
+      } finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 
@@ -130,8 +126,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          originalProxy.setMyInt(100);
          byte[] bytes = ObjectInputStreamWithClassLoaderTest.toBytes(originalProxy);
 
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(),
-                 ActiveMQTestBase.class, Assert.class);
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass(), ActiveMQTestBase.class, Assert.class);
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
@@ -143,8 +138,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
          toRun.run();
 
-      }
-      finally {
+      } finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 
@@ -157,8 +151,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       try {
          outputStream.writeObject(new TestClass1());
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -237,8 +230,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       try {
          outputStream.writeObject(sourceObject);
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -274,8 +266,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       try {
          outputStream.writeObject(sourceObject);
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -302,8 +293,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
       //now add List to white list, it should pass
       blackList = null;
-      whiteList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," +
-                  "java.util.ArrayList";
+      whiteList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," + "java.util.ArrayList";
       result = readSerializedObject(whiteList, blackList, serailizeFile);
       assertNull(result);
 
@@ -319,8 +309,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       try {
          outputStream.writeObject(sourceObject);
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -360,8 +349,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
       //both key and value are in the whitelist, it should fail because HashMap not permitted
       blackList = null;
-      whiteList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," +
-                  "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2";
+      whiteList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," + "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2";
 
       result = readSerializedObject(whiteList, blackList, serailizeFile);
       assertTrue(result instanceof ClassNotFoundException);
@@ -369,8 +357,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       //now add HashMap, test should pass.
       blackList = null;
       whiteList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," +
-              "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2," +
-              "java.util.HashMap";
+         "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2," +
+         "java.util.HashMap";
 
       result = readSerializedObject(whiteList, blackList, serailizeFile);
       assertNull(result);
@@ -386,8 +374,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          assertTrue(object.getClass().isAnonymousClass());
          outputStream.writeObject(object);
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -417,8 +404,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          assertTrue(object.getClass().isLocalClass());
          outputStream.writeObject(object);
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -447,8 +433,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       try {
          outputStream.writeObject(new TestClass1());
          outputStream.flush();
-      }
-      finally {
+      } finally {
          outputStream.close();
       }
 
@@ -461,8 +446,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          assertEquals("wrong black list: " + bList, "system.defined.black.list", bList);
          assertEquals("wrong white list: " + wList, "system.defined.white.list", wList);
          ois.close();
-      }
-      finally {
+      } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
       }
@@ -478,15 +462,12 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          ois.setWhiteList(whiteList);
          ois.setBlackList(blackList);
          ois.readObject();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          result = e;
-      }
-      finally {
+      } finally {
          try {
             ois.close();
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             result = e;
          }
       }
@@ -537,11 +518,9 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
             if (myInterface.getMyInt() != 200) {
                throw new RuntimeException("invalid result");
             }
-         }
-         catch (ClassNotFoundException e) {
+         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
          }
 
@@ -608,8 +587,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          Object obj = method.invoke(anObject, args);
          if (obj instanceof Integer) {
             return ((Integer) obj).intValue() * 2;
-         }
-         else {
+         } else {
             return obj;
          }
 

@@ -29,9 +29,9 @@ import java.util.Map;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,6 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
    protected ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
    protected ActiveMQXAConnectionFactory xaFactory = new ActiveMQXAConnectionFactory(urlString);
-
 
    protected ActiveMQConnection connection;
    protected String topicName = "amqTestTopic1";
@@ -97,23 +96,19 @@ public class BasicOpenWireTest extends OpenWireTestBase {
             SimpleString coreQ = iterQueues.next();
             try {
                this.server.destroyQueue(coreQ, null, false, true);
-            }
-            catch (ActiveMQNonExistentQueueException idontcare) {
+            } catch (ActiveMQNonExistentQueueException idontcare) {
                // i don't care if this failed. it means it didn't find the queue
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                // just print, what else can we do?
                e.printStackTrace();
             }
             System.out.println("Destroyed queue: " + coreQ);
          }
          testQueues.clear();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          System.out.println("Exception !! " + e);
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          super.tearDown();
          System.out.println("Super done.");
       }
@@ -220,8 +215,7 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    protected void safeClose(Session s) {
       try {
          s.close();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
    }
 }

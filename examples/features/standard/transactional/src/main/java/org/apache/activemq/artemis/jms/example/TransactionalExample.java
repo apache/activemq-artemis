@@ -111,8 +111,7 @@ public class TransactionalExample {
 
          System.out.println("Message received after receive commit: " + receivedMessage);
 
-      }
-      finally {
+      } finally {
          if (connection != null) {
             // Step 18. Be sure to close our JMS resources!
             connection.close();

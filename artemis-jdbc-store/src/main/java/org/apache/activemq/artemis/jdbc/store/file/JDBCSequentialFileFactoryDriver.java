@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.jdbc.store.file;
 
+import javax.sql.DataSource;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.PreparedStatement;
@@ -24,8 +25,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -84,8 +83,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             }
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -103,8 +101,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       int fileId = fileExists(file);
       if (fileId < 0) {
          createFile(file);
-      }
-      else {
+      } else {
          file.setId(fileId);
          loadFile(file);
       }
@@ -124,8 +121,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          int id = rs.next() ? rs.getInt(1) : -1;
          connection.commit();
          return id;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          connection.rollback();
          throw e;
       }
@@ -146,8 +142,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             file.setWritePosition((int) rs.getBlob(1).length());
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -171,8 +166,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             file.setId(keys.getInt(1));
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -192,8 +186,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          renameFile.setInt(2, file.getId());
          renameFile.executeUpdate();
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -211,8 +204,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          deleteFile.setInt(1, file.getId());
          deleteFile.executeUpdate();
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -234,8 +226,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          appendToLargeObject.executeUpdate();
          connection.commit();
          return data.length;
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -262,8 +253,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          }
          connection.commit();
          return readLength;
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          connection.rollback();
          throw e;
       }
@@ -283,8 +273,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
          copyFileRecord.setInt(2, fileTo.getId());
          copyFileRecord.executeUpdate();
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -301,8 +290,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
             statement.executeUpdate(sqlProvider.getDropFileTableSQL());
          }
          connection.commit();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          connection.rollback();
          throw e;
       }
@@ -312,8 +300,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       long bytesRemaining = objectLength - readPosition;
       if (bytesRemaining > bufferSpace) {
          return bufferSpace;
-      }
-      else {
+      } else {
          return bytesRemaining;
       }
    }

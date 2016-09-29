@@ -88,8 +88,7 @@ public class FileLockNodeManager extends NodeManager {
       liveAttemptLock = tryLock(FileLockNodeManager.LIVE_LOCK_POS);
       if (liveAttemptLock == null) {
          return true;
-      }
-      else {
+      } else {
          liveAttemptLock.release();
          return false;
       }
@@ -132,13 +131,11 @@ public class FileLockNodeManager extends NodeManager {
             liveLock.release();
             logger.debug("awaiting live node restarting");
             Thread.sleep(2000);
-         }
-         else if (state == FileLockNodeManager.FAILINGBACK) {
+         } else if (state == FileLockNodeManager.FAILINGBACK) {
             liveLock.release();
             logger.debug("awaiting live node failing back");
             Thread.sleep(2000);
-         }
-         else if (state == FileLockNodeManager.LIVE) {
+         } else if (state == FileLockNodeManager.LIVE) {
             logger.debug("acquired live node lock state = " + (char) state);
             break;
          }
@@ -185,8 +182,7 @@ public class FileLockNodeManager extends NodeManager {
          public void activationComplete() {
             try {
                setLive();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
@@ -248,8 +244,7 @@ public class FileLockNodeManager extends NodeManager {
       read = channel.read(bb, 0);
       if (read <= 0) {
          return FileLockNodeManager.NOT_STARTED;
-      }
-      else {
+      } else {
          return bb.get(0);
       }
    }
@@ -271,8 +266,7 @@ public class FileLockNodeManager extends NodeManager {
    protected FileLock tryLock(final int lockPos) throws Exception {
       try {
          return channel.tryLock(lockPos, LOCK_LENGTH, false);
-      }
-      catch (java.nio.channels.OverlappingFileLockException ex) {
+      } catch (java.nio.channels.OverlappingFileLockException ex) {
          // This just means that another object on the same JVM is holding the lock
          return null;
       }
@@ -285,24 +279,21 @@ public class FileLockNodeManager extends NodeManager {
          FileLock lock = null;
          try {
             lock = channel.tryLock(liveLockPos, 1, false);
-         }
-         catch (java.nio.channels.OverlappingFileLockException ex) {
+         } catch (java.nio.channels.OverlappingFileLockException ex) {
             // This just means that another object on the same JVM is holding the lock
          }
 
          if (lock == null) {
             try {
                Thread.sleep(500);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                return null;
             }
 
             if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
                throw new Exception("timed out waiting for lock");
             }
-         }
-         else {
+         } else {
             return lock;
          }
       }
@@ -315,8 +306,7 @@ public class FileLockNodeManager extends NodeManager {
          if (lock == null) {
             try {
                Thread.sleep(500);
-            }
-            catch (InterruptedException e1) {
+            } catch (InterruptedException e1) {
                //
             }
          }

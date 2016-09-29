@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.jboss.logging.Logger;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
+
    private static final Logger logger = Logger.getLogger(RemotingConnectionImpl.class);
 
    private final PacketDecoder packetDecoder;
@@ -198,8 +199,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       try {
          transportConnection.forceClose();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
       }
 
@@ -247,8 +247,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       if (!criticalError) {
          removeAllChannels();
-      }
-      else {
+      } else {
          // We can't hold a lock if a critical error is happening...
          // as other threads will be holding the lock while hanging on IO
          channels.clear();
@@ -265,8 +264,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
          disconnect = new DisconnectMessage_V2(nodeID, scaleDownNodeID);
-      }
-      else {
+      } else {
          disconnect = new DisconnectMessage(nodeID);
       }
       channel0.sendAndFlush(disconnect);
@@ -358,8 +356,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          doBufferReceived(packet);
 
          super.bufferReceived(connectionID, buffer);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorDecodingPacket(e);
       }
    }

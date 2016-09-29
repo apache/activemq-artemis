@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
@@ -35,14 +43,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.Context;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JMSConfigurationTest extends ActiveMQTestBase {
 

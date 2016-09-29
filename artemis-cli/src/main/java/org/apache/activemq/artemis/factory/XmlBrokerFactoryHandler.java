@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.factory;
 
+import java.io.File;
+import java.net.URI;
+
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.XmlUtil;
-
-import java.io.File;
-import java.net.URI;
 
 public class XmlBrokerFactoryHandler implements BrokerFactoryHandler {
 

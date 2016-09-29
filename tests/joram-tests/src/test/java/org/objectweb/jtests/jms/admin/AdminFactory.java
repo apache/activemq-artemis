@@ -36,11 +36,9 @@ public class AdminFactory {
       try {
          Class adminClass = Class.forName(adminClassName);
          admin = (Admin) adminClass.newInstance();
-      }
-      catch (ClassNotFoundException e) {
+      } catch (ClassNotFoundException e) {
          throw new RuntimeException("Class " + adminClassName + " not found.", e);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       return admin;

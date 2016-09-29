@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
-import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.resource.ResourceException;
@@ -44,6 +35,15 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
 
 public abstract class ActiveMQRATestBase extends JMSTestBase {
 

@@ -93,7 +93,7 @@ public class StompFrame {
       if (buffer == null) {
          if (isPing()) {
             buffer = ActiveMQBuffers.fixedBuffer(1);
-            buffer.writeByte((byte)10);
+            buffer.writeByte((byte) 10);
             size = buffer.writerIndex();
             return buffer;
          }
@@ -124,8 +124,7 @@ public class StompFrame {
          buffer.writeBytes(END_OF_FRAME);
 
          size = buffer.writerIndex();
-      }
-      else {
+      } else {
          buffer.readerIndex(0);
       }
       return buffer;
@@ -183,27 +182,17 @@ public class StompFrame {
          if (c == (byte) 10) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 110;
-         }
-
-         // \r
-         else if (c == (byte) 13) {
+         } else if (c == (byte) 13) { // \r
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 114;
-         }
+         } else if (c == (byte) 92) { // \
 
-         // \
-         else if (c == (byte) 92) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 92;
-         }
-
-         // :
-         else if (c == (byte) 58) {
+         } else if (c == (byte) 58) { // :
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 99;
-         }
-
-         else {
+         } else {
             buffer[iBuffer] = c;
          }
          iBuffer++;

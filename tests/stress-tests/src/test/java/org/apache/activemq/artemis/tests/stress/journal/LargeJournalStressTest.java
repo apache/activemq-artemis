@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -31,9 +34,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LargeJournalStressTest extends ActiveMQTestBase {
 
@@ -116,21 +116,17 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
                   prod.send(msg);
                }
                sessionSlow.commit();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
-            }
-            finally {
+            } finally {
                try {
                   session.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
                try {
                   sessionSlow.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -160,15 +156,12 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
                }
 
                Assert.assertNull(cons.receiveImmediate());
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                this.e = e;
-            }
-            finally {
+            } finally {
                try {
                   session.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -252,14 +245,12 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
 
       try {
          sess.createQueue(LargeJournalStressTest.AD1, LargeJournalStressTest.Q1, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       try {
          sess.createQueue(LargeJournalStressTest.AD2, LargeJournalStressTest.Q2, true);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
 
       sess.close();

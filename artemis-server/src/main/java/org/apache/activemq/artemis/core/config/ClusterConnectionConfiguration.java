@@ -62,8 +62,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private boolean duplicateDetection = ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection();
 
-   private MessageLoadBalancingType messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, ActiveMQDefaultConfiguration
-      .getDefaultClusterMessageLoadBalancingType());
+   private MessageLoadBalancingType messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType());
 
    private URISupport.CompositeData compositeMembers;
 
@@ -387,8 +386,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          }
 
          return list.toArray(new TransportConfiguration[list.size()]);
-      }
-      else {
+      } else {
          return staticConnectors != null ? configuration.getTransportConfigurations(staticConnectors) : null;
       }
    }
@@ -405,8 +403,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
             return null;
          }
          return dg;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -483,8 +480,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          if (other.address != null) {
             return false;
          }
-      }
-      else if (!address.equals(other.address)) {
+      } else if (!address.equals(other.address)) {
          return false;
       }
       if (allowDirectConnectionsOnly != other.allowDirectConnectionsOnly) {
@@ -515,16 +511,14 @@ public final class ClusterConnectionConfiguration implements Serializable {
          if (other.connectorName != null) {
             return false;
          }
-      }
-      else if (!connectorName.equals(other.connectorName)) {
+      } else if (!connectorName.equals(other.connectorName)) {
          return false;
       }
       if (discoveryGroupName == null) {
          if (other.discoveryGroupName != null) {
             return false;
          }
-      }
-      else if (!discoveryGroupName.equals(other.discoveryGroupName)) {
+      } else if (!discoveryGroupName.equals(other.discoveryGroupName)) {
          return false;
       }
       if (duplicateDetection != other.duplicateDetection) {
@@ -546,8 +540,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          if (other.name != null) {
             return false;
          }
-      }
-      else if (!name.equals(other.name)) {
+      } else if (!name.equals(other.name)) {
          return false;
       }
       if (initialConnectAttempts != other.initialConnectAttempts) {
@@ -566,8 +559,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          if (other.staticConnectors != null) {
             return false;
          }
-      }
-      else if (!staticConnectors.equals(other.staticConnectors)) {
+      } else if (!staticConnectors.equals(other.staticConnectors)) {
          return false;
       }
       return true;

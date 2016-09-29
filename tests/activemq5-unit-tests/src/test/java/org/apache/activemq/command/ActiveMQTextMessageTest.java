@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.command;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import javax.jms.JMSException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
 import junit.textui.TestRunner;
-
 import org.apache.activemq.util.ByteArrayOutputStream;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.util.MarshallingSupport;
@@ -59,8 +57,7 @@ public class ActiveMQTextMessageTest extends TestCase {
       try {
          msg.setText(str);
          assertEquals(msg.getText(), str);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
    }
@@ -87,11 +84,9 @@ public class ActiveMQTextMessageTest extends TestCase {
       try {
          textMessage.setText("String");
          textMessage.getText();
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
          fail("should be writeable");
-      }
-      catch (MessageNotReadableException mnre) {
+      } catch (MessageNotReadableException mnre) {
          fail("should be readable");
       }
    }
@@ -102,15 +97,13 @@ public class ActiveMQTextMessageTest extends TestCase {
       textMessage.setReadOnlyBody(true);
       try {
          textMessage.getText();
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
          fail("should be readable");
       }
       try {
          textMessage.setText("test");
          fail("should throw exception");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
    }
 
@@ -120,8 +113,7 @@ public class ActiveMQTextMessageTest extends TestCase {
       try {
          textMessage.setText("test");
          textMessage.getText();
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
          fail("should be readable");
       }
       textMessage.setReadOnlyBody(true);
@@ -129,11 +121,9 @@ public class ActiveMQTextMessageTest extends TestCase {
          textMessage.getText();
          textMessage.setText("test");
          fail("should throw exception");
-      }
-      catch (MessageNotReadableException e) {
+      } catch (MessageNotReadableException e) {
          fail("should be readable");
-      }
-      catch (MessageNotWriteableException mnwe) {
+      } catch (MessageNotWriteableException mnwe) {
       }
    }
 

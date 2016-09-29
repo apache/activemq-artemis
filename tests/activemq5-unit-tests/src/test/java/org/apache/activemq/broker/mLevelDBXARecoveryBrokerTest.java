@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.broker;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import junit.framework.Test;
 
 import org.apache.activemq.command.ActiveMQDestination;
@@ -23,9 +26,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.store.kahadb.FilteredKahaDBPersistenceAdapter;
 import org.apache.activemq.store.kahadb.MultiKahaDBPersistenceAdapter;
 import org.apache.activemq.store.leveldb.LevelDBPersistenceAdapter;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class mLevelDBXARecoveryBrokerTest extends XARecoveryBrokerTest {
 

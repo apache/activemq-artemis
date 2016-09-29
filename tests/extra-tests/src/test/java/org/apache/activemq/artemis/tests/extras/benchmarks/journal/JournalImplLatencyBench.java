@@ -51,6 +51,7 @@ public class JournalImplLatencyBench implements JLBHTask {
    private EncodingSupport encodingSupport;
    private JLBH jlbh;
    private long id;
+
    public JournalImplLatencyBench(SequentialFileFactory sequentialFileFactory) {
       this.sequentialFileFactory = sequentialFileFactory;
    }
@@ -93,8 +94,7 @@ public class JournalImplLatencyBench implements JLBHTask {
       try {
          journal.start();
          journal.load(new ArrayList<RecordInfo>(), null, null);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
 
@@ -105,8 +105,7 @@ public class JournalImplLatencyBench implements JLBHTask {
       id++;
       try {
          journal.appendAddRecord(id, (byte) 0, encodingSupport, false);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       jlbh.sample(System.nanoTime() - startTimeNS);
@@ -119,8 +118,7 @@ public class JournalImplLatencyBench implements JLBHTask {
          for (File journalFile : sequentialFileFactory.getDirectory().listFiles()) {
             journalFile.deleteOnExit();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

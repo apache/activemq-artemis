@@ -60,19 +60,16 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
             try {
                if (timeout != -1L) {
                   ConcurrentUtil.await(condition, timeout);
-               }
-               else {
+               } else {
                   while (liveConfiguration == null) {
                      condition.await();
                   }
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                //ignore
             }
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -86,8 +83,7 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
             nodeID = topologyMember.getNodeId();
             condition.signal();
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -113,8 +109,7 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
          lock.lock();
          liveConfiguration = null;
          super.notifyRegistrationFailed(alreadyReplicating);
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }

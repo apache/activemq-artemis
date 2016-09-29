@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.transport.failover;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -30,6 +25,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
@@ -88,15 +87,12 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
 
    @Test
    @BMRules(
-           rules = {
-                   @BMRule(
-                           name = "set no return response and stop the broker",
-                           targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-                           targetMethod = "processMessage",
-                           targetLocation = "EXIT",
-                           action = "org.apache.activemq.transport.failover.FailoverDuplicateTest.holdResponseAndStopConn($0)")
-           }
-   )
+      rules = {@BMRule(
+         name = "set no return response and stop the broker",
+         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
+         targetMethod = "processMessage",
+         targetLocation = "EXIT",
+         action = "org.apache.activemq.transport.failover.FailoverDuplicateTest.holdResponseAndStopConn($0)")})
    public void testFailoverSendReplyLost() throws Exception {
 
       broker = createBroker();
@@ -134,8 +130,7 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
             LOG.info("doing async send...");
             try {
                produceMessage(sendSession, destination, "will resend", 1);
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                LOG.error("got send exception: ", e);
                Assert.fail("got unexpected send exception" + e);
             }
@@ -221,8 +216,7 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
                      Assert.assertTrue("new producers done on time", producersDone.await(120, TimeUnit.SECONDS));
                      LOG.info("Stopping connection post send and receive and multiple producers");
                      context.getContext().getConnection().fail(null, "test Failoverduplicatetest");
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
                }

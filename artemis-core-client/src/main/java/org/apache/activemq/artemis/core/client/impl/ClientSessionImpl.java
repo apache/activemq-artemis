@@ -274,8 +274,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          sessionContext.createSharedQueue(address, queueName, filterString, durable);
-      }
-      finally {
+      } finally {
          endCall();
       }
 
@@ -328,8 +327,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          sessionContext.deleteQueue(queueName);
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -346,8 +344,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          return sessionContext.queueQuery(queueName);
-      }
-      finally {
+      } finally {
          endCall();
       }
 
@@ -411,12 +408,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
    }
 
-
    @Override
    public boolean isWritable(ReadyListener callback) {
       return sessionContext.isWritable(callback);
    }
-
 
    /**
     * Note, we DO NOT currently support direct consumers (i.e. consumers where delivery occurs on
@@ -510,16 +505,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
       try {
          sessionContext.simpleCommit();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.UNBLOCKED || rollbackOnly) {
             // The call to commit was unlocked on failover, we therefore rollback the tx,
             // and throw a transaction rolled back exception instead
             //or
             //if we have been set to rollbackonly then we have probably failed over and don't know if the tx has committed
             rollbackOnFailover(false);
-         }
-         else {
+         } else {
             throw e;
          }
       }
@@ -753,8 +746,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          sessionContext.sendACK(false, blockOnAcknowledge, consumer, message);
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -772,8 +764,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       try {
 
          sessionContext.sendACK(true, blockOnAcknowledge, consumer, message);
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -859,8 +850,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             public void run() {
                try {
                   consumer.close();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
                }
             }
@@ -887,8 +877,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          }
          inClose = true;
          sessionContext.sessionClose();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          // Session close should always return without exception
 
          // Note - we only log at trace
@@ -1002,11 +991,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
                sessionContext.returnBlocking(cause);
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.failedToHandleFailover(t);
-         }
-         finally {
+         } finally {
             sessionContext.releaseCommunications();
          }
 
@@ -1053,13 +1040,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          logger.tracef("setAddress() Setting default address as %s", address);
 
          message.setAddress(address);
-      }
-      else {
+      } else {
          if (!address.equals(defaultAddress)) {
             logger.tracef("setAddress() setting non default address %s on message", address);
             message.setAddress(address);
-         }
-         else {
+         } else {
             logger.trace("setAddress() being set as null");
             message.setAddress(null);
          }
@@ -1073,7 +1058,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          defaultAddress = address;
       }
    }
-
 
    @Override
    public void setPacketSize(final int packetSize) {
@@ -1149,8 +1133,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if (rollbackOnly) {
          if (onePhase) {
             throw new XAException(XAException.XAER_RMFAIL);
-         }
-         else {
+         } else {
             ActiveMQClientLogger.LOGGER.commitAfterFailover();
          }
       }
@@ -1162,19 +1145,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       try {
          sessionContext.xaCommit(xid, onePhase);
          workDone = false;
-      }
-      catch (XAException xae) {
+      } catch (XAException xae) {
          throw xae;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.failoverDuringCommit();
 
          XAException xaException = null;
          if (onePhase) {
             //we must return XA_RMFAIL
             xaException = new XAException(XAException.XAER_RMFAIL);
-         }
-         else {
+         } else {
             // Any error on commit -> RETRY
             // We can't rollback a Prepared TX for definition
             xaException = new XAException(XAException.XA_RETRY);
@@ -1182,8 +1162,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          xaException.initCause(t);
          throw xaException;
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -1200,8 +1179,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          if (rollbackOnly) {
             try {
                rollback(false, false);
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                logger.debug("Error on rollback during end call!", ignored);
             }
             throw new XAException(XAException.XAER_RMFAIL);
@@ -1213,23 +1191,19 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             startCall();
             try {
                sessionContext.xaEnd(xid, flags);
-            }
-            finally {
+            } finally {
                endCall();
             }
-         }
-         catch (XAException xae) {
+         } catch (XAException xae) {
             throw xae;
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.errorCallingEnd(t);
             // This could occur if the TM interrupts the thread
             XAException xaException = new XAException(XAException.XAER_RMFAIL);
             xaException.initCause(t);
             throw xaException;
          }
-      }
-      finally {
+      } finally {
          currentXID = null;
       }
    }
@@ -1240,17 +1214,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          sessionContext.xaForget(xid);
-      }
-      catch (XAException xae) {
+      } catch (XAException xae) {
          throw xae;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -1261,8 +1232,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       try {
          return sessionContext.recoverSessionTimeout();
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1276,8 +1246,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       try {
          return sessionContext.configureTransactionTimeout(seconds);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          markRollbackOnly(); // The TM will ignore any errors from here, if things are this screwed up we mark rollbackonly
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
@@ -1317,8 +1286,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
       if (xares instanceof ClientSessionInternal) {
          return (ClientSessionInternal) xares;
-      }
-      else if (xares instanceof ActiveMQXAResource) {
+      } else if (xares instanceof ActiveMQXAResource) {
          return getSessionInternalFromXAResource(((ActiveMQXAResource) xares).getResource());
       }
       return null;
@@ -1341,25 +1309,21 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          return sessionContext.xaPrepare(xid);
-      }
-      catch (XAException xae) {
+      } catch (XAException xae) {
          throw xae;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
             // Unblocked on failover
             try {
                // will retry once after failover & unblock
                return sessionContext.xaPrepare(xid);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                // ignore and rollback
             }
             ActiveMQClientLogger.LOGGER.failoverDuringPrepareRollingBack();
             try {
                rollback(false);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                // This could occur if the TM interrupts the thread
                XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
@@ -1377,16 +1341,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.errorDuringPrepare(t);
 
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -1398,8 +1360,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if ((flags & XAResource.TMSTARTRSCAN) == XAResource.TMSTARTRSCAN) {
          try {
             return sessionContext.xaScan();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             // This could occur if the TM interrupts the thread
             XAException xaException = new XAException(XAException.XAER_RMFAIL);
             xaException.initCause(t);
@@ -1434,19 +1395,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          try {
             sessionContext.xaRollback(xid, wasStarted);
-         }
-         finally {
+         } finally {
             if (wasStarted) {
                start();
             }
          }
 
          workDone = false;
-      }
-      catch (XAException xae) {
+      } catch (XAException xae) {
          throw xae;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
             // Unblocked on failover
             throw new XAException(XAException.XA_RETRY);
@@ -1456,8 +1414,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1477,20 +1434,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          sessionContext.xaStart(xid, flags);
 
          this.currentXID = xid;
-      }
-      catch (XAException xae) {
+      } catch (XAException xae) {
          throw xae;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // we can retry this only because we know for sure that no work would have been done
          if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
             try {
                sessionContext.xaStart(xid, flags);
-            }
-            catch (XAException xae) {
+            } catch (XAException xae) {
                throw xae;
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                // This could occur if the TM interrupts the thread
                XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
@@ -1502,8 +1455,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1517,8 +1469,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
       try {
          cleanUp(false);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.failedToCleanupSession(e);
       }
    }
@@ -1618,8 +1569,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       startCall();
       try {
          sessionContext.createQueue(address, queueName, filterString, durable, temp);
-      }
-      finally {
+      } finally {
          endCall();
       }
    }
@@ -1739,24 +1689,18 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    private String convertTXFlag(final int flags) {
       if (flags == XAResource.TMSUSPEND) {
          return "SESS_XA_SUSPEND";
-      }
-      else if (flags == XAResource.TMSUCCESS) {
+      } else if (flags == XAResource.TMSUCCESS) {
          return "TMSUCCESS";
-      }
-      else if (flags == XAResource.TMFAIL) {
+      } else if (flags == XAResource.TMFAIL) {
          return "TMFAIL";
-      }
-      else if (flags == XAResource.TMJOIN) {
+      } else if (flags == XAResource.TMJOIN) {
          return "TMJOIN";
-      }
-      else if (flags == XAResource.TMRESUME) {
+      } else if (flags == XAResource.TMRESUME) {
          return "TMRESUME";
-      }
-      else if (flags == XAResource.TMNOFLAGS) {
+      } else if (flags == XAResource.TMNOFLAGS) {
          // Don't need to flush since the previous end will have done this
          return "TMNOFLAGS";
-      }
-      else {
+      } else {
          return "XAER_INVAL(" + flags + ")";
       }
    }

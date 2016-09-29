@@ -63,11 +63,9 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
       try {
          clientSession.createConsumer(queueName);
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQNonExistentQueueException neqe) {
+      } catch (ActiveMQNonExistentQueueException neqe) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -85,11 +83,9 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase {
       try {
          clientSession.createConsumer(queueName, "this is not valid filter");
          Assert.fail("should throw exception");
-      }
-      catch (ActiveMQInvalidFilterExpressionException ifee) {
+      } catch (ActiveMQInvalidFilterExpressionException ifee) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

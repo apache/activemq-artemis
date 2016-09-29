@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -47,11 +52,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
    // Constants -----------------------------------------------------
@@ -190,11 +190,9 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       try {
          session.createConsumer(queue);
          fail("temp queue must not exist after the remoting connection is closed");
-      }
-      catch (ActiveMQNonExistentQueueException neqe) {
+      } catch (ActiveMQNonExistentQueueException neqe) {
          //ol
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -378,8 +376,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
                   log.warn("Unexpected color " + message.getStringProperty("color") + " when we were expecting " + color);
                   errors.incrementAndGet();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.warn(e.getMessage(), e);
                errors.incrementAndGet();
             }
@@ -437,8 +434,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
             assertEquals(0, errors.get());
 
-         }
-         finally {
+         } finally {
             localSession.close();
             clientsConnecton.close();
          }
@@ -553,8 +549,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
                   prod.send(msg);
                   msgs.incrementAndGet();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -575,8 +570,7 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       while (t.isAlive() && errors.get() == 0 && (!prod.getProducerCredits().isBlocked() || blockedTime < 60)) {
          if (prod.getProducerCredits().isBlocked()) {
             blockedTime++;
-         }
-         else {
+         } else {
             blockedTime = 0;
          }
          Thread.sleep(100);

@@ -16,23 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -45,6 +34,13 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ClusterConnectionControl2Test extends ManagementTestBase {
 

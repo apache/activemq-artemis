@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.network;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeNotNull;
-
+import javax.management.ObjectName;
 import java.net.MalformedURLException;
 import java.util.Set;
-
-import javax.management.ObjectName;
 
 import org.apache.activemq.broker.BrokerService;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeNotNull;
 
 public class DuplexNetworkMBeanTest {
 
@@ -66,8 +65,7 @@ public class DuplexNetworkMBeanTest {
                assertEquals(1, countMbeans(networkedBroker, "networkBridge", 2000));
                assertEquals(1, countMbeans(broker, "networkBridge", 2000));
                assertEquals(2, countMbeans(broker, "connectionName"));
-            }
-            finally {
+            } finally {
                networkedBroker.stop();
                networkedBroker.waitUntilStopped();
             }
@@ -79,8 +77,7 @@ public class DuplexNetworkMBeanTest {
          assertEquals(0, countMbeans(networkedBroker, "connector"));
          assertEquals(0, countMbeans(networkedBroker, "connectionName"));
          assertEquals(1, countMbeans(broker, "connector"));
-      }
-      finally {
+      } finally {
          broker.stop();
          broker.waitUntilStopped();
       }
@@ -102,8 +99,7 @@ public class DuplexNetworkMBeanTest {
                broker.start();
                assertEquals(1, countMbeans(networkedBroker, "networkBridge", 5000));
                assertEquals("restart number: " + i, 2, countMbeans(broker, "connectionName", 10000));
-            }
-            finally {
+            } finally {
                broker.stop();
                broker.waitUntilStopped();
             }
@@ -113,8 +109,7 @@ public class DuplexNetworkMBeanTest {
          assertEquals(1, countMbeans(networkedBroker, "connector=networkConnectors"));
          assertEquals(0, countMbeans(networkedBroker, "connectionName"));
          assertEquals(0, countMbeans(broker, "connectionName"));
-      }
-      finally {
+      } finally {
          networkedBroker.stop();
          networkedBroker.waitUntilStopped();
       }
@@ -143,8 +138,7 @@ public class DuplexNetworkMBeanTest {
          mbeans = broker.getManagementContext().queryNames(beanName, null);
          if (mbeans != null) {
             count = mbeans.size();
-         }
-         else {
+         } else {
             logAllMbeans(broker);
          }
       } while ((mbeans == null || mbeans.isEmpty()) && expiryTime > System.currentTimeMillis());
@@ -166,8 +160,7 @@ public class DuplexNetworkMBeanTest {
          for (ObjectName on : all) {
             LOG.info(on.toString());
          }
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
          LOG.warn("getMBeanServer ex: " + ignored);
       }
    }

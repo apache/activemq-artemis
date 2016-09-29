@@ -46,26 +46,21 @@ public class JaasCallbackHandler implements CallbackHandler {
             PasswordCallback passwordCallback = (PasswordCallback) callback;
             if (password == null) {
                passwordCallback.setPassword(null);
-            }
-            else {
+            } else {
                passwordCallback.setPassword(password.toCharArray());
             }
-         }
-         else if (callback instanceof NameCallback) {
+         } else if (callback instanceof NameCallback) {
             NameCallback nameCallback = (NameCallback) callback;
             if (username == null) {
                nameCallback.setName(null);
-            }
-            else {
+            } else {
                nameCallback.setName(username);
             }
-         }
-         else if (callback instanceof CertificateCallback) {
+         } else if (callback instanceof CertificateCallback) {
             CertificateCallback certCallback = (CertificateCallback) callback;
 
             certCallback.setCertificates(certificates);
-         }
-         else {
+         } else {
             throw new UnsupportedCallbackException(callback);
          }
       }

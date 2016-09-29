@@ -140,8 +140,7 @@ public class JDBCSequentialFile implements SequentialFile {
                dbDriver.deleteFile(this);
             }
          }
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          throw new ActiveMQException(ActiveMQExceptionType.IO_ERROR, e.getMessage(), e);
       }
    }
@@ -155,8 +154,7 @@ public class JDBCSequentialFile implements SequentialFile {
                callback.done();
             return noBytes;
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          if (callback != null)
             callback.onError(-1, e.getMessage());
@@ -226,12 +224,10 @@ public class JDBCSequentialFile implements SequentialFile {
          try {
             scheduleWrite(bytes, waitIOCallback);
             waitIOCallback.waitCompletion();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             waitIOCallback.onError(-1, e.getMessage());
          }
-      }
-      else {
+      } else {
          scheduleWrite(bytes, callback);
       }
 
@@ -252,8 +248,7 @@ public class JDBCSequentialFile implements SequentialFile {
             if (callback != null)
                callback.done();
             return read;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             if (callback != null)
                callback.onError(-1, e.getMessage());
             e.printStackTrace();
@@ -294,8 +289,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
       try {
          callback.waitCompletion();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IOException(e);
       }
    }
@@ -317,8 +311,7 @@ public class JDBCSequentialFile implements SequentialFile {
       try {
          JDBCSequentialFile clone = new JDBCSequentialFile(fileFactory, filename, executor, dbDriver, writeLock);
          return clone;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          logger.error("Error cloning file: " + filename, e);
          return null;
       }

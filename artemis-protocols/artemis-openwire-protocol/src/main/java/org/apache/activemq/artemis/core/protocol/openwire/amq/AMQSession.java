@@ -113,8 +113,7 @@ public class AMQSession implements SessionCallback {
          if (sessionId == -1) {
             this.connection.setAdvisorySession(this);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.error("error init session", e);
       }
 
@@ -124,8 +123,7 @@ public class AMQSession implements SessionCallback {
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
       if (consumer.getProtocolData() != null) {
          return ((AMQConsumer) consumer.getProtocolData()).updateDeliveryCountAfterCancel(ref);
-      }
-      else {
+      } else {
          return false;
       }
 
@@ -138,8 +136,7 @@ public class AMQSession implements SessionCallback {
       ActiveMQDestination[] dests = null;
       if (dest.isComposite()) {
          dests = dest.getCompositeDestinations();
-      }
-      else {
+      } else {
          dests = new ActiveMQDestination[]{dest};
       }
 
@@ -260,8 +257,7 @@ public class AMQSession implements SessionCallback {
       if (destination.isComposite()) {
          actualDestinations = destination.getCompositeDestinations();
          messageSend.setOriginalDestination(destination);
-      }
-      else {
+      } else {
          actualDestinations = new ActiveMQDestination[]{destination};
       }
 
@@ -284,16 +280,14 @@ public class AMQSession implements SessionCallback {
                try {
                   ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
                   connection.dispatchSync(ack);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                   connection.sendException(e);
                }
 
             }
          };
-      }
-      else {
+      } else {
          final Connection transportConnection = connection.getTransportConnection();
 
          //         new Exception("Setting to false").printStackTrace();
@@ -301,8 +295,7 @@ public class AMQSession implements SessionCallback {
          if (transportConnection == null) {
             // I don't think this could happen, but just in case, avoiding races
             runnable = null;
-         }
-         else {
+         } else {
             runnable = new Runnable() {
                @Override
                public void run() {
@@ -324,8 +317,7 @@ public class AMQSession implements SessionCallback {
       if (actualDestinations.length <= 1 || onComplete == null) {
          // if onComplete is null, this will be null ;)
          runToUse = onComplete;
-      }
-      else {
+      } else {
          final AtomicInteger count = new AtomicInteger(actualDestinations.length);
          runToUse = new Runnable() {
             @Override

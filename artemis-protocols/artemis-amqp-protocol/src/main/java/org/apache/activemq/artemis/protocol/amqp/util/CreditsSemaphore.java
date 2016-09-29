@@ -41,8 +41,7 @@ public class CreditsSemaphore {
                if (actualSize == getState()) {
                   return -1;
                }
-            }
-            else if (compareAndSetState(actualSize, newValue)) {
+            } else if (compareAndSetState(actualSize, newValue)) {
                return newValue;
             }
          }

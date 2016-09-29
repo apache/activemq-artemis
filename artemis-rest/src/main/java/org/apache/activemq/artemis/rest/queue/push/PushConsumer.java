@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.queue.push;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -24,9 +27,6 @@ import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PushConsumer {
 
@@ -71,12 +71,10 @@ public class PushConsumer {
       if (registration.getTarget().getClassName() != null) {
          Class clazz = Thread.currentThread().getContextClassLoader().loadClass(registration.getTarget().getClassName());
          strategy = (PushStrategy) clazz.newInstance();
-      }
-      else if (registration.getTarget().getRelationship() != null) {
+      } else if (registration.getTarget().getRelationship() != null) {
          if (registration.getTarget().getRelationship().equals("destination")) {
             strategy = new ActiveMQPushStrategy();
-         }
-         else if (registration.getTarget().getRelationship().equals("template")) {
+         } else if (registration.getTarget().getRelationship().equals("template")) {
             strategy = new UriTemplateStrategy();
          }
       }
@@ -97,8 +95,7 @@ public class PushConsumer {
 
          if (registration.getSelector() != null) {
             consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(registration.getSelector()));
-         }
-         else {
+         } else {
             consumer = session.createConsumer(destination);
          }
          consumer.setMessageHandler(new PushConsumerMessageHandler(this, session));
@@ -116,8 +113,7 @@ public class PushConsumer {
             if (session != null) {
                session.close();
             }
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
 
          }
       }
@@ -126,8 +122,7 @@ public class PushConsumer {
          if (strategy != null) {
             strategy.stop();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 
@@ -137,8 +132,7 @@ public class PushConsumer {
          if (registration.isDurable()) {
             store.update(registration);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQRestLogger.LOGGER.errorUpdatingStore(e);
       }
       stop();

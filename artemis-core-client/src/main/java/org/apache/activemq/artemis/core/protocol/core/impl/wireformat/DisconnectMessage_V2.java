@@ -86,8 +86,7 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
          if (other.scaleDownNodeID != null) {
             return false;
          }
-      }
-      else if (!scaleDownNodeID.equals(other.scaleDownNodeID)) {
+      } else if (!scaleDownNodeID.equals(other.scaleDownNodeID)) {
          return false;
       }
       return true;

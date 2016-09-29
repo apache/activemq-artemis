@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.CountDownLatch;
 
 @RunWith(BMUnitRunner.class)
 public class ReplicationBackupTest extends ActiveMQTestBase {
@@ -69,8 +69,7 @@ public class ReplicationBackupTest extends ActiveMQTestBase {
          public void run() {
             try {
                liveServer.start();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -91,8 +90,7 @@ public class ReplicationBackupTest extends ActiveMQTestBase {
           * but the server's state != STARTED which would cause the backup to fail to announce
           */
          Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          e.printStackTrace();
       }
    }

@@ -16,21 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -45,6 +30,21 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ConsumerTest extends JMSTestBase {
 
@@ -221,11 +221,9 @@ public class ConsumerTest extends JMSTestBase {
                }
 
                count++;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                errors.incrementAndGet();
-            }
-            finally {
+            } finally {
                latch.countDown();
             }
          }
@@ -491,8 +489,7 @@ public class ConsumerTest extends JMSTestBase {
       try {
          consumer.receiveNoWait();
          Assert.fail("Should throw exception");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // Ok
       }
    }
@@ -550,8 +547,7 @@ public class ConsumerTest extends JMSTestBase {
          boolean exception = false;
          try {
             conn3.setClientID("C2");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             exception = true;
          }
 
@@ -585,8 +581,7 @@ public class ConsumerTest extends JMSTestBase {
       boolean exceptionHappened = false;
       try {
          MessageConsumer cons2Error = session.createSharedConsumer(topic2, "cons1");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          exceptionHappened = true;
       }
 
@@ -607,8 +602,7 @@ public class ConsumerTest extends JMSTestBase {
       exceptionHappened = false;
       try {
          session.unsubscribe("cons1");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          exceptionHappened = true;
       }
 
@@ -679,8 +673,7 @@ public class ConsumerTest extends JMSTestBase {
 
       try {
          session.unsubscribe("c1");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          exceptionHappened = true;
       }
 
@@ -733,8 +726,7 @@ public class ConsumerTest extends JMSTestBase {
 
       try {
          conn.unsubscribe("c1");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          exceptionHappened = true;
       }

@@ -66,8 +66,7 @@ public abstract class JMSTestCase extends Assert {
             message += " [linked exception: " + linkedException + "]";
          }
          Assert.fail(message);
-      }
-      else {
+      } else {
          Assert.fail(e.getMessage());
       }
    }
@@ -105,8 +104,7 @@ public abstract class JMSTestCase extends Assert {
          if (startServer) {
             admin.stopServer();
          }
-      }
-      finally {
+      } finally {
 
       }
    }

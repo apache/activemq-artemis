@@ -34,9 +34,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 @BMRules(rules = {@BMRule(name = "modify map during iteration",
-         targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
-         targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"),})
+   targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
+   targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
+   action = "org.apache.activemq.artemis.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"),})
 public class HierarchicalObjectRepositoryTest {
 
    private static final String A = "a.";
@@ -81,8 +81,7 @@ public class HierarchicalObjectRepositoryTest {
       public void run() {
          try {
             latch.await();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new RuntimeException(e);
          }
 
@@ -131,8 +130,7 @@ public class HierarchicalObjectRepositoryTest {
       latch.countDown();
       try {
          latch2.await(3, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // no op
       }
    }

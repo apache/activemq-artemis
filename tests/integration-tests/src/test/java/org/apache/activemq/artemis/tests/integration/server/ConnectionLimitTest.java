@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -29,9 +32,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ConnectionLimitTest extends ActiveMQTestBase {
 
@@ -62,8 +62,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          fail("creating a session factory here should fail");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQNotConnectedException);
       }
    }
@@ -78,8 +77,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = addClientSession(extraClientSessionFactory.createSession());
          fail("creating a session here should fail");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQConnectionTimedOutException);
       }
    }

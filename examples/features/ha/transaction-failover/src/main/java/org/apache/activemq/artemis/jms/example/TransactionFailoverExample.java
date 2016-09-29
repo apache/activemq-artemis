@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -28,6 +25,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TransactionRolledBackException;
 import javax.naming.InitialContext;
+
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates failover of the JMS connection from one node to another
@@ -84,8 +84,7 @@ public class TransactionFailoverExample {
          // Step 9. As failover occurred during transaction, the session has been marked for rollback only
          try {
             session.commit();
-         }
-         catch (TransactionRolledBackException e) {
+         } catch (TransactionRolledBackException e) {
             System.err.println("transaction has been rolled back: " + e.getMessage());
          }
 
@@ -111,8 +110,7 @@ public class TransactionFailoverExample {
          session.commit();
 
          System.out.println("Other message on the server? " + consumer.receive(5000));
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our resources!
 
          if (connection != null) {

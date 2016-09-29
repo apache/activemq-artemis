@@ -103,13 +103,11 @@ public class TransformTest extends MessageTestBase {
          ClientMessage message = session.createMessage(Message.OBJECT_TYPE, false);
          if (contentType == null) {
             ActiveMQ.setEntity(message, object);
-         }
-         else
+         } else
             ActiveMQ.setEntity(message, object, contentType);
          producer.send(message);
          session.start();
-      }
-      finally {
+      } finally {
          session.close();
       }
 
@@ -193,8 +191,7 @@ public class TransformTest extends MessageTestBase {
          System.out.println("onMessage!");
          try {
             order = ActiveMQ.getEntity(clientMessage, Order.class);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
          latch.countDown();
@@ -240,8 +237,7 @@ public class TransformTest extends MessageTestBase {
             Assert.assertNotNull(Listener.order);
             Assert.assertEquals(order, Listener.order);
          }
-      }
-      finally {
+      } finally {
          session.close();
       }
    }

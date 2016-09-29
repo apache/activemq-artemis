@@ -61,8 +61,7 @@ public final class UTF8Util {
             buffer.byteBuffer[byteLocation] = (byte) buffer.charBuffer[byteLocation];
          }
          out.writeBytes(buffer.byteBuffer, 0, len);
-      }
-      else {
+      } else {
          if (UTF8Util.isTrace) {
             // This message is too verbose for debug, that's why we are using trace here
             ActiveMQUtilLogger.LOGGER.trace("Saving string with utfSize=" + len + " stringSize=" + str.length());
@@ -76,13 +75,11 @@ public final class UTF8Util {
             char charAtPos = buffer.charBuffer[i];
             if (charAtPos >= 1 && charAtPos < 0x7f) {
                buffer.byteBuffer[charCount++] = (byte) charAtPos;
-            }
-            else if (charAtPos >= 0x800) {
+            } else if (charAtPos >= 0x800) {
                buffer.byteBuffer[charCount++] = (byte) (0xE0 | charAtPos >> 12 & 0x0F);
                buffer.byteBuffer[charCount++] = (byte) (0x80 | charAtPos >> 6 & 0x3F);
                buffer.byteBuffer[charCount++] = (byte) (0x80 | charAtPos >> 0 & 0x3F);
-            }
-            else {
+            } else {
                buffer.byteBuffer[charCount++] = (byte) (0xC0 | charAtPos >> 6 & 0x1F);
                buffer.byteBuffer[charCount++] = (byte) (0x80 | charAtPos >> 0 & 0x3F);
             }
@@ -120,8 +117,7 @@ public final class UTF8Util {
 
          if (byte1 > 0 && byte1 <= 0x7F) {
             buffer.charBuffer[charCount++] = (char) byte1;
-         }
-         else {
+         } else {
             int c = byte1 & 0xff;
             switch (c >> 4) {
                case 0xc:
@@ -151,8 +147,7 @@ public final class UTF8Util {
          value = new StringUtilBuffer();
          softReference = new SoftReference<>(value);
          UTF8Util.currenBuffer.set(softReference);
-      }
-      else {
+      } else {
          value = softReference.get();
       }
 
@@ -188,11 +183,9 @@ public final class UTF8Util {
 
          if (c >= 1 && c < 0x7f) {
             calculatedLen++;
-         }
-         else if (c >= 0x800) {
+         } else if (c >= 0x800) {
             calculatedLen += 3;
-         }
-         else {
+         } else {
             calculatedLen += 2;
          }
       }

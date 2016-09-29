@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -104,8 +104,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       // here we pass in null for the JMS selector
@@ -120,8 +119,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
       try {
          Thread.sleep(3000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       Producer producer = new Producer(producerConnection);
@@ -154,8 +152,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
       try {
          Thread.sleep(1000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       // here we pass the JMS selector we intend to consume
@@ -170,8 +167,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
       try {
          Thread.sleep(3000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       Producer producer = new Producer(producerConnection);
@@ -184,8 +180,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
       if (consumer.getCount() == (testSize / 2)) {
          LOG.info("test complete .... all messsages consumed!!");
-      }
-      else {
+      } else {
          LOG.info("test failed .... Sent " + testSize + " original messages, only half of which (" + (testSize / 2) + ") were intended to be consumed: consumer paused at: " + consumer.getCount());
          // System.out.println("test failed .... Sent " + testSize + " original messages, only half of which (" +
          // (testSize / 2) +
@@ -246,8 +241,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
 
             session.close();
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
          LOG.info("producer thread complete ... " + counterSent + " messages sent to the queue");
@@ -277,8 +271,7 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
             MessageConsumer consumer = null;
             if (null != this.jmsSelector) {
                consumer = session.createConsumer(queue, "JMSType='" + this.jmsSelector + "'");
-            }
-            else {
+            } else {
                consumer = session.createConsumer(queue);
             }
 
@@ -289,15 +282,13 @@ public class DiscriminatingConsumerLoadTest extends TestSupport {
                   // System.out.println("consuming .... JMSType = " + result.getJMSType() + " received = " +
                   // counterReceived);
                   LOG.info("consuming .... JMSType = " + result.getJMSType() + " received = " + counterReceived);
-               }
-               else {
+               } else {
                   LOG.info("consuming .... timeout while waiting for a message ... broker must have stopped delivery ...  received = " + counterReceived);
                   deliveryHalted = true;
                }
             }
             session.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
 

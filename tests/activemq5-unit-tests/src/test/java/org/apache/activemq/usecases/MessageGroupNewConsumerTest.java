@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.concurrent.CountDownLatch;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -26,12 +24,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.CountDownLatch;
+
+import junit.framework.TestCase;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.TestCase;
 
 /*
  * Test plan:
@@ -88,8 +87,7 @@ public class MessageGroupNewConsumerTest extends TestCase {
                LOG.info(messagesSent + " messages sent");
                prod.close();
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("Producer failed", e);
             }
          }
@@ -121,8 +119,7 @@ public class MessageGroupNewConsumerTest extends TestCase {
                LOG.info(messagesRecvd1 + " messages received by consumer1");
                con1.close();
                session.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("Consumer 1 failed", e);
             }
          }
@@ -150,8 +147,7 @@ public class MessageGroupNewConsumerTest extends TestCase {
                   session.close();
                }
                LOG.info(messagesRecvd2 + " messages received by consumer2");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("Consumer 2 failed", e);
             }
          }
@@ -182,8 +178,7 @@ public class MessageGroupNewConsumerTest extends TestCase {
    public String formatMessage(Message m) {
       try {
          return m.getStringProperty("JMSXGroupID") + "-" + m.getIntProperty("JMSXGroupSeq") + "-" + m.getBooleanProperty("JMSXGroupFirstForConsumer");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return e.getClass().getSimpleName() + ": " + e.getMessage();
       }
    }

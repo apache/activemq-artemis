@@ -112,8 +112,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       try {
          consumer.receiveImmediate();
          fail();
-      }
-      catch (ActiveMQObjectClosedException e) {
+      } catch (ActiveMQObjectClosedException e) {
          assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
       }
    }
@@ -144,10 +143,9 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       assertTrue(connections.isEmpty());
 
       if (sf instanceof ClientSessionFactoryImpl) {
-         int reconnectAttemps = ((ClientSessionFactoryImpl)sf).getReconnectAttempts();
+         int reconnectAttemps = ((ClientSessionFactoryImpl) sf).getReconnectAttempts();
          assertEquals(0, reconnectAttemps);
-      }
-      else {
+      } else {
          fail("ClientSessionFactory is not the instance of ClientSessionFactoryImpl");
       }
    }
@@ -190,8 +188,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             assertEquals(Integer.valueOf(1), message.getIntProperty(ManagementHelper.HDR_CONSUMER_COUNT));
             if (isNetty) {
                assertTrue(message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
-            }
-            else {
+            } else {
                assertEquals(SimpleString.toSimpleString("invm:0"), message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
             }
             assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
@@ -199,8 +196,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             assertNotNull(message.getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME));
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
             }
             notifLatch.countDown();
@@ -266,8 +262,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
                try {
                   producer.send(m);
                   messagesProduced.incrementAndGet();
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   e.printStackTrace();
                   return;
                }
@@ -281,8 +276,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
                   producer.send(m);
                   messagesProduced.incrementAndGet();
                   Thread.sleep(1000);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   return;
                }
@@ -346,8 +340,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       try {
          consumer.receiveImmediate();
          fail();
-      }
-      catch (ActiveMQObjectClosedException e) {
+      } catch (ActiveMQObjectClosedException e) {
          assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
       }
    }

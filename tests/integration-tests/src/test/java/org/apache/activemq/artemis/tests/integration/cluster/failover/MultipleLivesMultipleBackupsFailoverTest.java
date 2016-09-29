@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -31,9 +34,6 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  */
@@ -99,8 +99,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          servers.get(1).stop();
          Thread.sleep(500);
          servers.get(2).stop();
-      }
-      else {
+      } else {
          Thread.sleep(500);
          servers.get(2).stop();
          Thread.sleep(500);
@@ -112,8 +111,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          servers.get(5).stop();
          Thread.sleep(500);
          servers.get(4).stop();
-      }
-      else {
+      } else {
          Thread.sleep(500);
          servers.get(4).stop();
          Thread.sleep(500);

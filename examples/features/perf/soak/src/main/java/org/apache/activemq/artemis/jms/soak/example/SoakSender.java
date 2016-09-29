@@ -52,8 +52,7 @@ public class SoakSender {
          });
 
          sender.run();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -128,8 +127,7 @@ public class SoakSender {
             if (!runInfinitely && totalDuration > perfParams.getDurationInMinutes() * SoakBase.TO_MILLIS) {
                break;
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -148,11 +146,9 @@ public class SoakSender {
          try {
             connection.setExceptionListener(null);
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
-         }
-         finally {
+         } finally {
             connection = null;
          }
       }
@@ -180,15 +176,12 @@ public class SoakSender {
          producer.setDisableMessageTimestamp(perfParams.isDisableTimestamp());
 
          connection.setExceptionListener(exceptionListener);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          try {
             ic.close();
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             e.printStackTrace();
          }
       }

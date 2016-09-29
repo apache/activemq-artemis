@@ -49,8 +49,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
          lastPriority = priority;
          if (lastReset == Integer.MAX_VALUE) {
             lastReset = 0;
-         }
-         else {
+         } else {
             lastReset++;
          }
       }

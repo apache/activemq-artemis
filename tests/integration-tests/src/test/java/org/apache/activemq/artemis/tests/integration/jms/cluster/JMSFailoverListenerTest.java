@@ -16,6 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -46,19 +59,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A JMSFailoverTest
@@ -327,8 +327,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
          while (timeout > System.currentTimeMillis() && eventTypeList.size() < elements) {
             try {
                Thread.sleep(1);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                fail(e.getMessage());
             }
          }

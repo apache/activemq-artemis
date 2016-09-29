@@ -47,8 +47,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
                                                         SessionContext context) {
       if (windowSize == -1) {
          return ClientProducerCreditsNoFlowControl.instance;
-      }
-      else {
+      } else {
          boolean needInit = false;
          ClientProducerCredits credits;
 
@@ -68,8 +67,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
                // Remove from anon credits (if there)
                unReferencedCredits.remove(address);
-            }
-            else {
+            } else {
                addToUnReferencedCache(address, credits);
             }
          }
@@ -171,7 +169,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       static ClientProducerCreditsNoFlowControl instance = new ClientProducerCreditsNoFlowControl();
 
       @Override
-      public void acquireCredits(int credits)  {
+      public void acquireCredits(int credits) {
       }
 
       @Override

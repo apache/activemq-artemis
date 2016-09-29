@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,11 @@
  */
 package org.apache.activemq.broker.policy;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -37,6 +33,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 @RunWith(value = Parameterized.class)
 public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
@@ -114,8 +113,7 @@ public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
       try {
          consumer.receive(5000);
          fail("Slow consumer not aborted.");
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
    }
 
@@ -144,8 +142,7 @@ public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
       try {
          consumer.receive(5000);
          fail("Idle consumer not aborted.");
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
    }
 
@@ -174,8 +171,7 @@ public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
       try {
          consumer.receive(5000);
          fail("Idle consumer not aborted.");
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
       }
    }
 }

@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.transaction;
 
-import java.util.Map;
-
 import javax.transaction.xa.Xid;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -61,8 +60,7 @@ public class JMSTransactionDetail extends TransactionDetail {
    public Map<String, Object> decodeMessageProperties(ServerMessage msg) {
       try {
          return ActiveMQMessage.coreMaptoJMSMap(msg.toMap());
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          return null;
       }
    }

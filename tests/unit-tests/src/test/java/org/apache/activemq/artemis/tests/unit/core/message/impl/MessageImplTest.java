@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -252,15 +252,13 @@ public class MessageImplTest extends ActiveMQTestBase {
             latchAlign.countDown();
             try {
                latchReady.await();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
 
             for (int i = 0; i < RUNS; i++) {
                try {
                   ServerMessageImpl newMsg = (ServerMessageImpl) msg.copy();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -284,8 +282,7 @@ public class MessageImplTest extends ActiveMQTestBase {
             latchAlign.countDown();
             try {
                latchReady.await();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
 
             for (int i = 0; i < RUNS; i++) {
@@ -293,8 +290,7 @@ public class MessageImplTest extends ActiveMQTestBase {
                   SessionSendMessage ssm = new SessionSendMessage(msg);
                   ActiveMQBuffer buf = ssm.encode(null);
                   simulateRead(buf);
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }

@@ -57,8 +57,7 @@ public class StreamMessageUtil extends MessageUtil {
             default:
                throw new IllegalStateException("Invalid conversion");
          }
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
          buff.readerIndex(index);
          throw e;
       }
@@ -89,8 +88,7 @@ public class StreamMessageUtil extends MessageUtil {
             String str = buff.readNullableString();
             if (str == null) {
                throw new NullPointerException("Invalid conversion");
-            }
-            else {
+            } else {
                throw new IllegalStateException("Invalid conversion");
             }
          default:
@@ -200,8 +198,7 @@ public class StreamMessageUtil extends MessageUtil {
    public static Pair<Integer, Integer> streamReadBytes(ActiveMQBuffer buff, int remainingBytes, byte[] value) {
       if (remainingBytes == -1) {
          return new Pair<>(0, -1);
-      }
-      else if (remainingBytes == 0) {
+      } else if (remainingBytes == 0) {
          byte type = buff.readByte();
          if (type != DataConstants.BYTES) {
             throw new IllegalStateException("Invalid conversion");

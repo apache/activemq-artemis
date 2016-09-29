@@ -6,13 +6,21 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * The SimpleQueueSender class consists only of a main method,
+ * which sends several messages to a queue.
+ *
+ * Run this program in conjunction with SimpleQueueReceiver.
+ * Specify a queue name on the command line when you run the
+ * program.  By default, the program sends one message.  Specify
+ * a number after the queue name to send that number of messages.
  */
 
 /**
@@ -89,16 +97,13 @@ public final class DefaultQueueSender {
 
          Message message = session.createTextMessage(text);
          producer.send(message);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          LOG.info("Exception occurred: " + e.toString());
-      }
-      finally {
+      } finally {
          if (connection != null) {
             try {
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
             }
          }
       }

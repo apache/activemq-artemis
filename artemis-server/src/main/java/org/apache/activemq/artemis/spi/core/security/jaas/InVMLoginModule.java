@@ -49,7 +49,10 @@ public class InVMLoginModule implements LoginModule {
    private boolean loginSucceeded;
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+   public void initialize(Subject subject,
+                          CallbackHandler callbackHandler,
+                          Map<String, ?> sharedState,
+                          Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       this.configuration = (SecurityConfiguration) options.get(CONFIG_PROP_NAME);
@@ -63,11 +66,9 @@ public class InVMLoginModule implements LoginModule {
       callbacks[1] = new PasswordCallback("Password: ", false);
       try {
          callbackHandler.handle(callbacks);
-      }
-      catch (IOException ioe) {
+      } catch (IOException ioe) {
          throw new LoginException(ioe.getMessage());
-      }
-      catch (UnsupportedCallbackException uce) {
+      } catch (UnsupportedCallbackException uce) {
          throw new LoginException(uce.getMessage() + " not available to obtain information from user");
       }
       user = ((NameCallback) callbacks[0]).getName();
@@ -78,12 +79,10 @@ public class InVMLoginModule implements LoginModule {
       if (user == null) {
          if (configuration.getDefaultUser() == null) {
             throw new FailedLoginException("Both username and defaultUser are null");
-         }
-         else {
+         } else {
             user = configuration.getDefaultUser();
          }
-      }
-      else {
+      } else {
          String password = configuration.getUser(user) == null ? null : configuration.getUser(user).getPassword();
 
          if (password == null) {

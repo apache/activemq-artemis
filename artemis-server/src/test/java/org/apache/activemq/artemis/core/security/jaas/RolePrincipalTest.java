@@ -31,8 +31,7 @@ public class RolePrincipalTest extends Assert {
       try {
          new RolePrincipal(null);
          fail("Should have thrown IllegalArgumentException");
-      }
-      catch (IllegalArgumentException ingore) {
+      } catch (IllegalArgumentException ingore) {
 
       }
    }

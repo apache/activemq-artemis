@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.broker.region;
-
-import static org.junit.Assert.*;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -28,13 +26,15 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.broker.BrokerService;
-
+import org.apache.activemq.command.ActiveMQQueue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Confirm that the broker does not resend unacknowledged messages during a broker shutdown.
@@ -122,8 +122,7 @@ public class QueueResendDuringShutdownTest {
       }
       try {
          testRedeliverAtBrokerShutdownAutoAckMsgListener();
-      }
-      catch (Throwable thrown) {
+      } catch (Throwable thrown) {
          iterationFoundFailure = true;
          throw thrown;
       }
@@ -215,8 +214,7 @@ public class QueueResendDuringShutdownTest {
    protected void closeConnection(Connection conn) {
       try {
          conn.close();
-      }
-      catch (JMSException jmsExc) {
+      } catch (JMSException jmsExc) {
          LOG.info("failed to cleanup connection", jmsExc);
       }
    }
@@ -229,8 +227,7 @@ public class QueueResendDuringShutdownTest {
    protected void delay(long delayMs, String desc) {
       try {
          Thread.sleep(delayMs);
-      }
-      catch (InterruptedException intExc) {
+      } catch (InterruptedException intExc) {
          LOG.warn("sleep interrupted: " + desc, intExc);
       }
    }
@@ -245,8 +242,7 @@ public class QueueResendDuringShutdownTest {
                this.messageReceiveSync.wait(delayMs);
             }
          }
-      }
-      catch (InterruptedException intExc) {
+      } catch (InterruptedException intExc) {
          LOG.warn("sleep interrupted: wait for message to arrive");
       }
    }

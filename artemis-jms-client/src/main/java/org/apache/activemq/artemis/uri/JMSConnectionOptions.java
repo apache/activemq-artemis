@@ -48,12 +48,10 @@ public class JMSConnectionOptions extends ConnectionOptions {
       try {
          if (type == null) {
             return JMSFactoryType.CF;
-         }
-         else {
+         } else {
             return Enum.valueOf(JMSFactoryType.class, type);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return null;
       }
    }

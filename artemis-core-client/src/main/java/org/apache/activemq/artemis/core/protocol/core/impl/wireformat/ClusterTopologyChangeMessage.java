@@ -94,15 +94,13 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
          if (pair.getA() != null) {
             buffer.writeBoolean(true);
             pair.getA().encode(buffer);
-         }
-         else {
+         } else {
             buffer.writeBoolean(false);
          }
          if (pair.getB() != null) {
             buffer.writeBoolean(true);
             pair.getB().encode(buffer);
-         }
-         else {
+         } else {
             buffer.writeBoolean(false);
          }
          buffer.writeBoolean(last);
@@ -119,8 +117,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
          if (hasLive) {
             a = new TransportConfiguration();
             a.decode(buffer);
-         }
-         else {
+         } else {
             a = null;
          }
          boolean hasBackup = buffer.readBoolean();
@@ -128,8 +125,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
          if (hasBackup) {
             b = new TransportConfiguration();
             b.decode(buffer);
-         }
-         else {
+         } else {
             b = null;
          }
          pair = new Pair<>(a, b);
@@ -181,16 +177,14 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
          if (other.nodeID != null) {
             return false;
          }
-      }
-      else if (!nodeID.equals(other.nodeID)) {
+      } else if (!nodeID.equals(other.nodeID)) {
          return false;
       }
       if (pair == null) {
          if (other.pair != null) {
             return false;
          }
-      }
-      else if (!pair.equals(other.pair)) {
+      } else if (!pair.equals(other.pair)) {
          return false;
       }
       return true;

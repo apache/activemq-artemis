@@ -1,5 +1,4 @@
 /**
- *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -18,6 +17,7 @@
 package org.apache.activemq.artemis.jms.management.impl.openmbean;
 
 public interface JMSCompositeDataConstants {
+
    String JMS_DESTINATION = "JMSDestination";
    String JMS_MESSAGE_ID = "JMSMessageID";
    String JMS_TYPE = "JMSType";
@@ -53,6 +53,5 @@ public interface JMSCompositeDataConstants {
    String CONTENT_MAP = "ContentMap";
    String MESSAGE_TEXT = "Text";
    String MESSAGE_URL = "Url";
-
 
 }

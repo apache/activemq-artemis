@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TemporaryQueue;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
@@ -23,11 +28,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-
-import javax.jms.ConnectionFactory;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 
 public class TwoSecureBrokerRequestReplyTest extends JmsMultipleBrokersTestSupport {
 

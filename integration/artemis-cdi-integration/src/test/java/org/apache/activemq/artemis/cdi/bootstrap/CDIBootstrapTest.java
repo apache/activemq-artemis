@@ -19,6 +19,12 @@
 
 package org.apache.activemq.artemis.cdi.bootstrap;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.spi.Extension;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.Queue;
+
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
 import org.apache.artemis.client.cdi.configuration.DefaultArtemisClientConfigurationImpl;
 import org.apache.artemis.client.cdi.extension.ArtemisExtension;
@@ -33,12 +39,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.Extension;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.Queue;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Arquillian.class)
@@ -46,10 +46,7 @@ public class CDIBootstrapTest {
 
    @Deployment
    public static Archive<?> createArchive() {
-      return ShrinkWrap.create(JavaArchive.class)
-         .addAsServiceProviderAndClasses(Extension.class, ArtemisExtension.class)
-         .addClasses(NativeConfig.class, ConnectionFactoryProvider.class)
-         .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+      return ShrinkWrap.create(JavaArchive.class).addAsServiceProviderAndClasses(Extension.class, ArtemisExtension.class).addClasses(NativeConfig.class, ConnectionFactoryProvider.class).addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
    }
 
    @Inject

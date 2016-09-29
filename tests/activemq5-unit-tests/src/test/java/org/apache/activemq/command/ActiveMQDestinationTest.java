@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.command;
 
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.TemporaryQueue;
+import javax.jms.TemporaryTopic;
+import javax.jms.Topic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.Topic;
 
 import junit.framework.Test;
 
@@ -98,14 +97,12 @@ public class ActiveMQDestinationTest extends DataStructureTestSupport {
       try {
          ActiveMQDestination.transform(new CombyDest(null, null));
          fail("expect ex as cannot disambiguate");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
       try {
          ActiveMQDestination.transform(new CombyDest("Q", "T"));
          fail("expect ex as cannot disambiguate");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
    }
 
@@ -121,8 +118,7 @@ public class ActiveMQDestinationTest extends DataStructureTestSupport {
       try {
          new ActiveMQQueue("");
          fail("Should have thrown IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
 
       }
    }
@@ -131,8 +127,7 @@ public class ActiveMQDestinationTest extends DataStructureTestSupport {
       try {
          new ActiveMQTopic("");
          fail("Should have thrown IllegalArgumentException");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
 
       }
    }

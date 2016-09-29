@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,6 +24,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.activemq.artemis.api.core.Message;
 
@@ -80,8 +79,7 @@ public class ScheduledMessageExample {
 
          System.out.println("Received message: " + messageReceived.getText());
          System.out.println("Time of receive: " + formatter.format(new Date()));
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

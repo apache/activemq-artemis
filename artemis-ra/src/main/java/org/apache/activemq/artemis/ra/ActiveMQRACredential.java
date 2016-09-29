@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Set;
-
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.SecurityException;
 import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
+import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Set;
 
 /**
  * Credential information
@@ -130,8 +129,7 @@ public class ActiveMQRACredential implements Serializable {
       if (subject == null && info != null) {
          jc.setUserName(((ActiveMQRAConnectionRequestInfo) info).getUserName());
          jc.setPassword(((ActiveMQRAConnectionRequestInfo) info).getPassword());
-      }
-      else if (subject != null) {
+      } else if (subject != null) {
          PasswordCredential pwdc = GetCredentialAction.getCredential(subject, mcf);
 
          if (pwdc == null) {
@@ -140,8 +138,7 @@ public class ActiveMQRACredential implements Serializable {
 
          jc.setUserName(pwdc.getUserName());
          jc.setPassword(new String(pwdc.getPassword()));
-      }
-      else {
+      } else {
          throw new SecurityException("No Subject or ConnectionRequestInfo set, could not get credentials");
       }
 

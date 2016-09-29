@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,7 +48,6 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
       super(name, remotingConnection, sessionChannel, serverVersion, confirmationWindow);
    }
 
-
    @Override
    public ClientSession.QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
       SessionQueueQueryMessage request = new SessionQueueQueryMessage(queueName);
@@ -68,7 +67,6 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
                                                    SimpleString defaultAddress) {
       return new CreateSessionMessage(getName(), getSessionChannel().getID(), 123, username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, getConfirmationWindow(), defaultAddress == null ? null : defaultAddress.toString());
    }
-
 
    @Override
    public ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
@@ -100,6 +98,5 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
 
       return new ClientConsumerImpl(session, consumerContext, queueName, filterString, browseOnly, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
    }
-
 
 }

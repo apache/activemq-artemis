@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.jmx;
 
+import javax.management.ObjectName;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.NetworkConnectorViewMBean;
 import org.junit.Test;
-
-import javax.management.ObjectName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

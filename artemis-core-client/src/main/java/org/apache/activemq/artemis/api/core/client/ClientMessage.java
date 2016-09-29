@@ -20,8 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A ClientMessage represents a message sent and/or received by ActiveMQ Artemis.

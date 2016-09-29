@@ -100,7 +100,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    @Override
-   public String authenticate(final String user, final String password, X509Certificate[] certificates) throws Exception {
+   public String authenticate(final String user,
+                              final String password,
+                              X509Certificate[] certificates) throws Exception {
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
@@ -114,8 +116,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
              */
             if (!managementClusterPassword.equals(password)) {
                throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
-            }
-            else {
+            } else {
                return managementClusterUser;
             }
          }
@@ -124,12 +125,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          boolean userIsValid = false;
 
          if (securityManager instanceof ActiveMQSecurityManager3) {
-            validatedUser = ((ActiveMQSecurityManager3)securityManager).validateUser(user, password, certificates);
-         }
-         else if (securityManager instanceof ActiveMQSecurityManager2) {
-            userIsValid = ((ActiveMQSecurityManager2)securityManager).validateUser(user, password, certificates);
-         }
-         else {
+            validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, certificates);
+         } else if (securityManager instanceof ActiveMQSecurityManager2) {
+            userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, certificates);
+         } else {
             userIsValid = securityManager.validateUser(user, password);
          }
 
@@ -179,12 +178,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          if (securityManager instanceof ActiveMQSecurityManager3) {
             final ActiveMQSecurityManager3 securityManager3 = (ActiveMQSecurityManager3) securityManager;
             validated = securityManager3.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection()) != null;
-         }
-         else if (securityManager instanceof ActiveMQSecurityManager2) {
+         } else if (securityManager instanceof ActiveMQSecurityManager2) {
             final ActiveMQSecurityManager2 securityManager2 = (ActiveMQSecurityManager2) securityManager;
             validated = securityManager2.validateUserAndRole(user, session.getPassword(), roles, checkType, saddress, session.getRemotingConnection());
-         }
-         else {
+         } else {
             validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
          }
 
@@ -239,8 +236,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          invalidateCache();
 
          lastCheck = now;
-      }
-      else {
+      } else {
          ConcurrentHashSet<SimpleString> act = cache.get(user + "." + checkType.name());
          if (act != null) {
             granted = act.contains(dest);

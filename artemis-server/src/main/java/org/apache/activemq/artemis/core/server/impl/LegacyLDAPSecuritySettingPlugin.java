@@ -238,8 +238,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          try {
             context.getAttributes("");
             alive = true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       return alive;
@@ -267,14 +266,12 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
       if (connectionUsername != null && !"".equals(connectionUsername)) {
          env.put(Context.SECURITY_PRINCIPAL, connectionUsername);
-      }
-      else {
+      } else {
          throw new NamingException("Empty username is not allowed");
       }
       if (connectionPassword != null && !"".equals(connectionPassword)) {
          env.put(Context.SECURITY_CREDENTIALS, connectionPassword);
-      }
-      else {
+      } else {
          throw new NamingException("Empty password is not allowed");
       }
       env.put(Context.SECURITY_PROTOCOL, connectionProtocol);
@@ -295,8 +292,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       ActiveMQServerLogger.LOGGER.populatingSecurityRolesFromLDAP(connectionURL);
       try {
          open();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorOpeningContextForLDAP(e);
          return this;
       }
@@ -311,8 +307,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          while (searchResults.hasMore()) {
             processSearchResult(securityRoles, searchResults.next());
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorPopulatingSecurityRolesFromLDAP(e);
       }
 
@@ -324,7 +319,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       this.securityRepository = securityRepository;
    }
 
-   private void processSearchResult(Map<String, Set<Role>> securityRoles, SearchResult searchResult) throws NamingException {
+   private void processSearchResult(Map<String, Set<Role>> securityRoles,
+                                    SearchResult searchResult) throws NamingException {
       Attributes attrs = searchResult.getAttributes();
       if (attrs == null || attrs.size() == 0) {
          return;
@@ -347,8 +343,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             String rawDestinationType = rdn.getValue().toString();
             if (rawDestinationType.toLowerCase().contains("queue")) {
                destinationType = "queue";
-            }
-            else if (rawDestinationType.toLowerCase().contains("topic")) {
+            } else if (rawDestinationType.toLowerCase().contains("topic")) {
                destinationType = "topic";
             }
             logger.debug("\tDestination type: " + destinationType);
@@ -361,8 +356,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       boolean exists = false;
       if (roles == null) {
          roles = new HashSet<>();
-      }
-      else {
+      } else {
          exists = true;
       }
 
@@ -372,14 +366,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          Rdn rdn = ldapname.getRdn(ldapname.size() - 1);
          String roleName = rdn.getValue().toString();
          logger.debug("\tRole name: " + roleName);
-         Role role = new Role(roleName,
-                              permissionType.equalsIgnoreCase(writePermissionValue),
-                              permissionType.equalsIgnoreCase(readPermissionValue),
-                              permissionType.equalsIgnoreCase(adminPermissionValue),
-                              permissionType.equalsIgnoreCase(adminPermissionValue),
-                              permissionType.equalsIgnoreCase(adminPermissionValue),
-                              permissionType.equalsIgnoreCase(adminPermissionValue),
-                              false, // there is no permission from ActiveMQ 5.x that corresponds to the "manage" permission in ActiveMQ Artemis
+         Role role = new Role(roleName, permissionType.equalsIgnoreCase(writePermissionValue), permissionType.equalsIgnoreCase(readPermissionValue), permissionType.equalsIgnoreCase(adminPermissionValue), permissionType.equalsIgnoreCase(adminPermissionValue), permissionType.equalsIgnoreCase(adminPermissionValue), permissionType.equalsIgnoreCase(adminPermissionValue), false, // there is no permission from ActiveMQ 5.x that corresponds to the "manage" permission in ActiveMQ Artemis
                               permissionType.equalsIgnoreCase(readPermissionValue)); // the "browse" permission matches "read" from ActiveMQ 5.x
          roles.add(role);
       }
@@ -393,8 +380,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    public SecuritySettingPlugin stop() {
       try {
          eventContext.close();
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          // ignore
       }
 
@@ -402,8 +388,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          if (context != null) {
             context.close();
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          // ignore
       }
 
@@ -413,8 +398,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    /**
     * Handler for new policy entries in the directory.
     *
-    * @param namingEvent
-    *            the new entry event that occurred
+    * @param namingEvent the new entry event that occurred
     */
    public void objectAdded(NamingEvent namingEvent) {
       Map<String, Set<Role>> newRoles = new HashMap<>();
@@ -427,8 +411,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                existingRoles.add(role);
             }
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          e.printStackTrace();
       }
    }
@@ -436,8 +419,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    /**
     * Handler for removed policy entries in the directory.
     *
-    * @param namingEvent
-    *            the removed entry event that occurred
+    * @param namingEvent the removed entry event that occurred
     */
    public void objectRemoved(NamingEvent namingEvent) {
       try {
@@ -461,16 +443,14 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                      rolesToRemove.add(role);
                   }
                }
-            }
-            else if (rdn.getValue().equals(readPermissionValue)) {
+            } else if (rdn.getValue().equals(readPermissionValue)) {
                logger.debug("Removing read permission");
                for (Role role : roles) {
                   if (role.isConsume()) {
                      rolesToRemove.add(role);
                   }
                }
-            }
-            else if (rdn.getValue().equals(adminPermissionValue)) {
+            } else if (rdn.getValue().equals(adminPermissionValue)) {
                logger.debug("Removing admin permission");
                for (Role role : roles) {
                   if (role.isCreateDurableQueue() || role.isCreateNonDurableQueue() || role.isDeleteDurableQueue() || role.isDeleteNonDurableQueue()) {
@@ -483,15 +463,13 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                roles.remove(roleToRemove);
             }
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          e.printStackTrace();
       }
    }
 
    /**
-    * @param namingEvent
-    *            the renaming entry event that occurred
+    * @param namingEvent the renaming entry event that occurred
     */
    public void objectRenamed(NamingEvent namingEvent) {
 
@@ -500,8 +478,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    /**
     * Handler for changed policy entries in the directory.
     *
-    * @param namingEvent
-    *            the changed entry event that occurred
+    * @param namingEvent the changed entry event that occurred
     */
    public void objectChanged(NamingEvent namingEvent) {
       objectRemoved(namingEvent);
@@ -511,8 +488,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    /**
     * Handler for exception events from the registry.
     *
-    * @param namingExceptionEvent
-    *            the exception event
+    * @param namingExceptionEvent the exception event
     */
    public void namingExceptionThrown(NamingExceptionEvent namingExceptionEvent) {
       context = null;
@@ -520,6 +496,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    }
 
    protected class LDAPNamespaceChangeListener implements NamespaceChangeListener, ObjectChangeListener {
+
       @Override
       public void namingExceptionThrown(NamingExceptionEvent evt) {
          LegacyLDAPSecuritySettingPlugin.this.namingExceptionThrown(evt);

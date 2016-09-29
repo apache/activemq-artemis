@@ -121,8 +121,7 @@ public class NodeManagerAction {
       nodeManager.start();
       try {
          nodeManagerAction.performWork(nodeManager);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          System.exit(9);
       }

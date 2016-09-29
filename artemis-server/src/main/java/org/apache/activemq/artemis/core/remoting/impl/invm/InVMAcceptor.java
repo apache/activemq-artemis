@@ -72,7 +72,6 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
    private static final Logger logger = Logger.getLogger(InVMAcceptor.class);
 
-
    public InVMAcceptor(final String name,
                        final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
@@ -166,9 +165,8 @@ public final class InVMAcceptor extends AbstractAcceptor {
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
          try {
             notificationService.sendNotification(notification);
-         }
-         catch (Exception e) {
-            logger.warn("failed to send notification",e.getMessage(),e);
+         } catch (Exception e) {
+            logger.warn("failed to send notification", e.getMessage(), e);
          }
       }
 

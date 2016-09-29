@@ -73,8 +73,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                Thread.currentThread().interrupt();
                SequentialFile file = factory.createSequentialFile("file.txt");
                file.open();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -92,8 +91,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                file.write(fakeEncoding, true);
                Thread.currentThread().interrupt();
                file.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -112,8 +110,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                file.write(fakeEncoding, true);
                file.close();
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -132,8 +129,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                file.fill(1024);
                file.close();
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -154,8 +150,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                file.writeDirect(buffer, true);
                file.close();
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -177,8 +172,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
                file.read(readBytes);
                file.close();
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

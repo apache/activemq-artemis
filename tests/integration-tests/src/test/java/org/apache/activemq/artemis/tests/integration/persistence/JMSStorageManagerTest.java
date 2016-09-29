@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.core.config.StoreConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.List;
 
-import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class JMSStorageManagerTest extends StorageManagerTestBase {
 

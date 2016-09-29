@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -27,6 +25,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 
 /**
  * This example demonstrates how sessions created from a single connection can be load
@@ -70,8 +70,8 @@ public class ClientSideLoadBalancingExample {
          Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          System.out.println("Session A - " + ((ClientSessionInternal) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress());
-         System.out.println("Session B - " + ((ClientSessionInternal)((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress());
-         System.out.println("Session C - " + ((ClientSessionInternal)((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session B - " + ((ClientSessionInternal) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session C - " + ((ClientSessionInternal) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress());
 
          // Step 6. We create JMS MessageProducer objects on the sessions
          MessageProducer producerA = sessionA.createProducer(queue);
@@ -107,8 +107,7 @@ public class ClientSideLoadBalancingExample {
          consume(sessionA, queue, numMessages, "A");
          consume(sessionB, queue, numMessages, "B");
          consume(sessionC, queue, numMessages, "C");
-      }
-      finally {
+      } finally {
          // Step 10. Be sure to close our resources!
 
          if (connectionA != null) {

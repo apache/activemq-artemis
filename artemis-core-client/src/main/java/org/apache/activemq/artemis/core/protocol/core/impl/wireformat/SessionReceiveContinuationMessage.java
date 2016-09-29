@@ -80,8 +80,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       if (size == -1) {
          // This packet was created by the LargeMessageController
          return 0;
-      }
-      else {
+      } else {
          return size;
       }
    }

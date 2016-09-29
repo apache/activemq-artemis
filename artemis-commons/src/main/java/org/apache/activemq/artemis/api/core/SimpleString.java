@@ -122,8 +122,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
       if (end < start || start < 0 || end > len) {
          throw new IndexOutOfBoundsException();
-      }
-      else {
+      } else {
          int newlen = end - start << 1;
          byte[] bytes = new byte[newlen];
 
@@ -217,8 +216,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          }
 
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -270,8 +268,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
 
       if (all == null) {
          return new SimpleString[]{this};
-      }
-      else {
+      } else {
          // Adding the last one
          byte[] bytes = new byte[data.length - lasPos];
          System.arraycopy(data, lasPos, bytes, 0, bytes.length);
@@ -366,8 +363,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    public static int sizeofNullableString(final SimpleString str) {
       if (str == null) {
          return 1;
-      }
-      else {
+      } else {
          return 1 + str.sizeof();
       }
    }

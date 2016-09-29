@@ -105,8 +105,7 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
          if (other.scaleDownGroupName != null) {
             return false;
          }
-      }
-      else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
+      } else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
          return false;
       }
       return true;

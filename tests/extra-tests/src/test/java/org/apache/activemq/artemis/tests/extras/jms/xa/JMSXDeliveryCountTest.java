@@ -37,7 +37,6 @@ import javax.transaction.xa.Xid;
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.After;
@@ -115,8 +114,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          tm.acknowledge();
 
          conn.close();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -187,8 +185,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm.acknowledge();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -240,8 +237,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          }
 
          tm.acknowledge();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -302,8 +298,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          cons3.close();
 
          sess3.unsubscribe("subxyz");
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -382,8 +377,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          Assert.assertTrue(rm.getJMSRedelivered());
 
          consumerSess.commit();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -461,8 +455,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          Assert.assertTrue(rm.getJMSRedelivered());
 
          rm.acknowledge();
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -605,8 +598,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          tx.delistResource(res, XAResource.TMSUCCESS);
 
          tx.delistResource(consumerSess.getXAResource(), XAResource.TMSUCCESS);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -614,8 +606,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          if (tx != null) {
             try {
                mgr.commit();
-            }
-            catch (Exception ignore) {
+            } catch (Exception ignore) {
             }
          }
          if (xaConn != null) {
@@ -625,8 +616,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
          if (toResume != null) {
             try {
                mgr.resume(toResume);
-            }
-            catch (Exception ignore) {
+            } catch (Exception ignore) {
             }
          }
       }
@@ -670,11 +660,9 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
 
                   if (tm == null) {
                      failed = true;
-                  }
-                  else if (!tm.getText().equals("testing" + i)) {
+                  } else if (!tm.getText().equals("testing" + i)) {
                      failed = true;
-                  }
-                  else if (tm.getIntProperty("JMSXDeliveryCount") != j + 1) {
+                  } else if (tm.getIntProperty("JMSXDeliveryCount") != j + 1) {
                      failed = true;
                   }
                }
@@ -684,8 +672,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
 
             }
             lastMessage.acknowledge();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
          }
       }

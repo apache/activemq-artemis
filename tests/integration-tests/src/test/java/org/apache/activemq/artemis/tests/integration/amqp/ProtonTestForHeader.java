@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.hawtbuf.Buffer;
 import org.junit.After;
 import org.junit.Before;
@@ -61,8 +61,7 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       try {
          server.stop();
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -91,8 +90,7 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
             try {
                connection.send(header);
                return false;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                return true;
             }
          }
@@ -124,8 +122,7 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
          int read = is.read(header);
          if (read == header.length) {
             return new AmqpHeader(new Buffer(header));
-         }
-         else {
+         } else {
             return null;
          }
       }
@@ -207,8 +204,7 @@ public class ProtonTestForHeader extends ActiveMQTestBase {
             char value = (char) buffer.get(i);
             if (Character.isLetter(value)) {
                builder.append(value);
-            }
-            else {
+            } else {
                builder.append(",");
                builder.append((int) value);
             }

@@ -97,8 +97,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          session.commit();
 
-      }
-      finally {
+      } finally {
          sf.close();
          locator.close();
          server.stop();

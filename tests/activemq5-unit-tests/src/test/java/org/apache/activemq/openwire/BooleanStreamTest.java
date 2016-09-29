@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -79,8 +79,7 @@ public class BooleanStreamTest extends TestCase {
       for (int i = 0; i < numberOfBytes; i++) {
          try {
             assertMarshalBooleans(i, valueSet);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             throw (AssertionFailedError) new AssertionFailedError("Iteration failed at: " + i).initCause(e);
          }
       }
@@ -104,8 +103,7 @@ public class BooleanStreamTest extends TestCase {
       bs = new BooleanStream();
       try {
          bs.unmarshal(dis);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          fail("Failed to unmarshal: " + count + " booleans: " + e);
       }
@@ -118,8 +116,7 @@ public class BooleanStreamTest extends TestCase {
          try {
             boolean actual = bs.readBoolean();
             assertEquals("value of object: " + i + " was: " + actual, expected, actual);
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             e.printStackTrace();
             fail("Failed to parse boolean: " + i + " out of: " + count + " due to: " + e);
          }
@@ -131,8 +128,7 @@ public class BooleanStreamTest extends TestCase {
       try {
          dis.readByte();
          fail("Should have reached the end of the stream");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          // worked!
       }
    }

@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.QueueConnection;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.management.openmbean.CompositeData;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -28,12 +34,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.management.openmbean.CompositeData;
-import java.util.Map;
 
 /**
  * A JMSQueueControlUsingJMSTest
@@ -83,8 +83,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          public void flushExecutor() {
             try {
                proxy.invokeOperation("flushExecutor");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
          }
@@ -205,7 +204,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          }
 
          public boolean retryMessage(@Parameter(name = "messageID", desc = "A message ID") long messageID) throws Exception {
-            return (Boolean) proxy.invokeOperation("retryMessage",messageID);
+            return (Boolean) proxy.invokeOperation("retryMessage", messageID);
          }
 
          @Override
@@ -215,7 +214,7 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
 
          @Override
          public boolean retryMessage(final String messageID) throws Exception {
-            return (Boolean) proxy.invokeOperation("retryMessage",messageID);
+            return (Boolean) proxy.invokeOperation("retryMessage", messageID);
          }
 
          @Override
@@ -321,7 +320,10 @@ public class JMSQueueControlUsingJMSTest extends JMSQueueControlTest {
          }
 
          @Override
-         public String sendTextMessage(Map<String, String> headers, String body, String user, String password) throws Exception {
+         public String sendTextMessage(Map<String, String> headers,
+                                       String body,
+                                       String user,
+                                       String password) throws Exception {
             return (String) proxy.invokeOperation("sendTextMessage", headers, body, user, password);
          }
 

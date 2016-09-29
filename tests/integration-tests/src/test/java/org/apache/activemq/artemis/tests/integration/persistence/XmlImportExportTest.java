@@ -96,7 +96,6 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       }
    }
 
-
    @Test
    public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();

@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -29,9 +23,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -40,6 +35,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * A SessionClosedOnRemotingConnectionFailureTest
@@ -95,8 +92,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
             prod.send(session.createMessage());
 
             Assert.fail("Should throw exception");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }
 
@@ -104,20 +100,17 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
             cons.receive();
 
             Assert.fail("Should throw exception");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             // assertEquals(ActiveMQException.OBJECT_CLOSED, e.getCode());
          }
 
          session.close();
 
          conn.close();
-      }
-      finally {
+      } finally {
          try {
             conn.close();
-         }
-         catch (Throwable igonred) {
+         } catch (Throwable igonred) {
          }
       }
    }

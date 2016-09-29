@@ -77,11 +77,9 @@ public class NettySecurityClientTest extends ActiveMQTestBase {
          line = line.replace('|', '\n');
          if (line.startsWith("Listening")) {
             continue;
-         }
-         else if ("OK".equals(line.trim())) {
+         } else if ("OK".equals(line.trim())) {
             break;
-         }
-         else {
+         } else {
             //Assert.fail("Exception when starting the client: " + line);
             System.out.println(line);
          }

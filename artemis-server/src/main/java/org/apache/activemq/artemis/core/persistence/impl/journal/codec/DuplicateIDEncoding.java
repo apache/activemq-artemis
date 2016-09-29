@@ -91,8 +91,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
 
             long id = buff.getLong();
             bridgeRepresentation = "nodeUUID=" + uuid.toString() + " messageID=" + id;
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             bridgeRepresentation = null;
          }
       }
@@ -100,8 +99,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
       if (bridgeRepresentation != null) {
          return "DuplicateIDEncoding [address=" + address + ", duplID=" + ByteUtil.bytesToHex(duplID, 2) + " / " +
             bridgeRepresentation + "]";
-      }
-      else {
+      } else {
          return "DuplicateIDEncoding [address=" + address + ", duplID=" + ByteUtil.bytesToHex(duplID, 2) + "]";
       }
    }

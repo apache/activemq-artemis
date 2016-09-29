@@ -80,8 +80,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
 
          server.stop();
 
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }

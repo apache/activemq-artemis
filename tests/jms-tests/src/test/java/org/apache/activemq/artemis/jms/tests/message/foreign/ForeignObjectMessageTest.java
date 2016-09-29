@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.tests.message.foreign;
 
-import org.junit.Before;
-import org.junit.After;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSObjectMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Tests the delivery/receipt of a foreign object message

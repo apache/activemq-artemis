@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Test;
-
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -31,7 +28,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Test;
 
 /**
  * I have added this test to help validate if the connectors from Recovery will be
@@ -85,23 +84,19 @@ public class NonHATopologyTest extends ActiveMQTestBase {
          TopologyMemberImpl member = topology.getMembers().iterator().next();
          if (isNetty) {
             assertEquals(NettyConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
-         }
-         else {
+         } else {
             assertEquals(InVMConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
          }
 
-      }
-      finally {
+      } finally {
          try {
             locator.close();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
 
          try {
             server.stop();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
 
          server = null;

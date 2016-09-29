@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -36,6 +26,15 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TopicSubscriber;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -50,7 +49,7 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test case support used to test multiple message comsumers and message
@@ -98,8 +97,7 @@ public class JmsMultipleClientsTestSupport {
                public void run() {
                   try {
                      sendMessages(factory.createConnection(), dest, msgCount);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
                   }
 
@@ -121,8 +119,7 @@ public class JmsMultipleClientsTestSupport {
          }
 
          // Use serialized send
-      }
-      else {
+      } else {
          for (int i = 0; i < producerCount; i++) {
             sendMessages(factory.createConnection(), dest, msgCount);
          }
@@ -158,8 +155,7 @@ public class JmsMultipleClientsTestSupport {
          msg.setText(initText + str);
 
          // Do not pad message text
-      }
-      else {
+      } else {
          msg.setText(initText);
       }
 
@@ -175,8 +171,7 @@ public class JmsMultipleClientsTestSupport {
       for (int i = 0; i < consumerCount; i++) {
          if (durable && topic) {
             consumer = createDurableSubscriber(factory.createConnection(), dest, "consumer" + (i + 1));
-         }
-         else {
+         } else {
             consumer = createMessageConsumer(factory.createConnection(), dest);
          }
          MessageIdList list = new MessageIdList();
@@ -219,8 +214,7 @@ public class JmsMultipleClientsTestSupport {
       if (topic) {
          destination = new ActiveMQTopic("Topic" + name);
          return (ActiveMQDestination) destination;
-      }
-      else {
+      } else {
          destination = new ActiveMQQueue("Queue" + name);
          return (ActiveMQDestination) destination;
       }
@@ -246,8 +240,7 @@ public class JmsMultipleClientsTestSupport {
          Connection conn = iter.next();
          try {
             conn.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
       }
       if (broker != null) { // FIXME remove

@@ -253,14 +253,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                      }
                   }
 
-                  if ( m != null) {
+                  if (m != null) {
                      session.workDone();
                   }
 
                   try {
                      wait(toWait);
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      throw new ActiveMQInterruptedException(e);
                   }
 
@@ -287,8 +286,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   deliveryForced = false;
                   toWait = timeout == 0 ? Long.MAX_VALUE : timeout;
                   continue;
-               }
-               else {
+               } else {
                   if (logger.isTraceEnabled()) {
                      logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> failedOver, but m != null, being " + m);
                   }
@@ -324,8 +322,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                      }
 
                      return null;
-                  }
-                  else {
+                  } else {
                      if (logger.isTraceEnabled()) {
                         logger.trace(this + "::Ignored force delivery answer as it belonged to another call");
                      }
@@ -349,8 +346,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
                   if (toWait > 0) {
                      continue;
-                  }
-                  else {
+                  } else {
                      return null;
                   }
                }
@@ -364,8 +360,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
 
                return m;
-            }
-            else {
+            } else {
                if (logger.isTraceEnabled()) {
                   logger.trace(this + "::Returning null");
                }
@@ -373,8 +368,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                return null;
             }
          }
-      }
-      finally {
+      } finally {
          receiverThread = null;
       }
    }
@@ -439,9 +433,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       // if no previous handler existed queue up messages for delivery
       if (handler != null && noPreviousHandler) {
          requeueExecutors();
-      }
-      // if unsetting a previous handler may be in onMessage so wait for completion
-      else if (handler == null && !noPreviousHandler) {
+      } else if (handler == null && !noPreviousHandler) {
+         // if unsetting a previous handler may be in onMessage so wait for completion
          waitForOnMessageToComplete(true);
       }
 
@@ -480,8 +473,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    public void cleanUp() {
       try {
          doCleanUp(false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          ActiveMQClientLogger.LOGGER.warn("problem cleaning up: " + this);
       }
    }
@@ -574,8 +566,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       if (message.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
          handleCompressedMessage(message);
-      }
-      else {
+      } else {
          handleRegularMessage(message);
       }
    }
@@ -602,8 +593,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          if (!stopped) {
             queueExecutor();
          }
-      }
-      else {
+      } else {
          notify();
       }
    }
@@ -673,8 +663,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       if (clientLargeMessage.isCompressed()) {
          clientLargeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
-      }
-      else {
+      } else {
          clientLargeMessage.setLargeMessageController(currentLargeMessageController);
       }
 
@@ -693,8 +682,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             logger.trace(this + "::Sending back credits for largeController = null " + flowControlSize);
          }
          flowControl(flowControlSize, false);
-      }
-      else {
+      } else {
          currentLargeMessageController.addPacket(chunk, flowControlSize, isContinues);
       }
    }
@@ -716,8 +704,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
 
                flowControlBeforeConsumption(message);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
             }
          }
@@ -726,8 +713,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          try {
             resetLargeMessageController();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             // nothing that could be done here
             ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
          }
@@ -763,8 +749,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       if (ackIndividually) {
          individualAcknowledge(message);
-      }
-      else {
+      } else {
 
          ackBytes += message.getEncodeSize();
 
@@ -777,8 +762,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                logger.trace(this + ":: acknowledge acking " + cmi);
             }
             doAck(cmi);
-         }
-         else {
+         } else {
             if (logger.isTraceEnabled()) {
                logger.trace(this + ":: acknowledge setting lastAckedMessage = " + cmi);
             }
@@ -832,8 +816,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                if (credits > 0) {
                   sendCredits(credits);
                }
-            }
-            else {
+            } else {
                if (logger.isDebugEnabled()) {
                   logger.debug("Sending " + messageBytes + " from flow-control");
                }
@@ -875,8 +858,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          // However when starting a slow consumer, we have to guarantee the credit was sent before we can perform any
          // operations like forceDelivery
          pendingFlowControl.await(10, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          // will just ignore and forward the ignored
          Thread.currentThread().interrupt();
       }
@@ -897,8 +879,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
          try {
             latch.await(10, TimeUnit.SECONDS);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
@@ -928,8 +909,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          public void run() {
             try {
                sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
-            }
-            finally {
+            } finally {
                pendingFlowControl.countDown();
             }
          }
@@ -1019,8 +999,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                onMessageThread = Thread.currentThread();
                try {
                   theHandler.onMessage(message);
-               }
-               finally {
+               } finally {
                   try {
                      AccessController.doPrivileged(new PrivilegedAction<Object>() {
                         @Override
@@ -1029,8 +1008,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                            return null;
                         }
                      });
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
                   }
 
@@ -1044,8 +1022,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                if (message.isLargeMessage()) {
                   message.discardBody();
                }
-            }
-            else {
+            } else {
                session.expire(this, message);
             }
 
@@ -1105,8 +1082,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          if (sendCloseMessage) {
             sessionContext.closeConsumer(this);
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          // Consumer close should always return without exception
       }
 
@@ -1146,8 +1122,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       public void run() {
          try {
             callOnMessage();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQClientLogger.LOGGER.onMessageError(e);
 
             lastException = e;

@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.qourum;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-
 import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 /**
  * a simple yes.no vote

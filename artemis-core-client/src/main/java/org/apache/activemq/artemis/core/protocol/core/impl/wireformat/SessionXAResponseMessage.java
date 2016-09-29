@@ -108,8 +108,7 @@ public class SessionXAResponseMessage extends PacketImpl {
       if (message == null) {
          if (other.message != null)
             return false;
-      }
-      else if (!message.equals(other.message))
+      } else if (!message.equals(other.message))
          return false;
       if (responseCode != other.responseCode)
          return false;

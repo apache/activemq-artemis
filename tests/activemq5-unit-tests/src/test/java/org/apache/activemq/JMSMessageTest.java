@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.net.URISyntaxException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Vector;
 
 import javax.jms.BytesMessage;
 import javax.jms.ConnectionFactory;
@@ -34,6 +29,10 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Vector;
 
 import junit.framework.Test;
 
@@ -180,8 +179,7 @@ public class JMSMessageTest extends JmsTestSupport {
          try {
             message.readByte();
             fail("Expected exception not thrown.");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
          }
 
       }
@@ -214,8 +212,7 @@ public class JMSMessageTest extends JmsTestSupport {
          try {
             message.readByte();
             fail("Should have received NumberFormatException");
-         }
-         catch (NumberFormatException e) {
+         } catch (NumberFormatException e) {
          }
 
          assertEquals("This is a test to see how it works.", message.readString());
@@ -225,8 +222,7 @@ public class JMSMessageTest extends JmsTestSupport {
          try {
             message.readByte();
             fail("Should have received MessageEOFException");
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
          }
       }
       assertNull(consumer.receiveNoWait());

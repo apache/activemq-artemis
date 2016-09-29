@@ -75,8 +75,7 @@ public class ClientFuture implements AsyncResult {
    public void sync(long amount, TimeUnit unit) throws IOException {
       try {
          latch.await(amount, unit);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          Thread.interrupted();
          throw IOExceptionSupport.create(e);
       }
@@ -92,8 +91,7 @@ public class ClientFuture implements AsyncResult {
    public void sync() throws IOException {
       try {
          latch.await();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          Thread.interrupted();
          throw IOExceptionSupport.create(e);
       }

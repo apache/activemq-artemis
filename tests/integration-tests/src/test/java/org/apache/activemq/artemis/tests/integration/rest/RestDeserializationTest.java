@@ -112,8 +112,7 @@ public class RestDeserializationTest extends RestTestBase {
       try {
          String received = restReceiveQueueMessage("orders");
          fail("Object should be rejected by blacklist, but " + received);
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          String error = e.getMessage();
          assertTrue(error, error.contains("ClassNotFoundException"));
       }
@@ -136,8 +135,7 @@ public class RestDeserializationTest extends RestTestBase {
       try {
          String received = topicContext.pullMessage();
          fail("object should have been rejected but: " + received);
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          String error = e.getMessage();
          assertTrue(error, error.contains("ClassNotFoundException"));
       }
@@ -172,8 +170,7 @@ public class RestDeserializationTest extends RestTestBase {
       String jmsDest;
       if (isQueue) {
          jmsDest = "jms.queue." + destName;
-      }
-      else {
+      } else {
          jmsDest = "jms.topic." + destName;
       }
       Destination destination = ActiveMQDestination.fromAddress(jmsDest);
@@ -186,8 +183,7 @@ public class RestDeserializationTest extends RestTestBase {
          message.setStringProperty(HttpHeaderProperty.CONTENT_TYPE, "application/xml");
          message.setObject(value);
          producer.send(message);
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }

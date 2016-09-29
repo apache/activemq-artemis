@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,8 +109,7 @@ public abstract class DeadLetterTestSupport extends TestSupport {
       LOG.info("Consuming from: " + destination);
       if (durableSubscriber) {
          consumer = session.createDurableSubscriber((Topic) destination, destination.toString());
-      }
-      else {
+      } else {
          consumer = session.createConsumer(destination);
       }
    }
@@ -200,8 +199,7 @@ public abstract class DeadLetterTestSupport extends TestSupport {
    private void validateConsumerPrefetch(String destination, long expectedCount) {
       try {
          Thread.sleep(100);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       RegionBroker regionBroker = (RegionBroker) broker.getRegionBroker();
       for (org.apache.activemq.broker.region.Destination dest : regionBroker.getQueueRegion().getDestinationMap().values()) {

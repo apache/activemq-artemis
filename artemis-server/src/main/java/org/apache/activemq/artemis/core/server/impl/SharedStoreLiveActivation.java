@@ -72,8 +72,7 @@ public final class SharedStoreLiveActivation extends LiveActivation {
          activeMQServer.completeActivation();
 
          ActiveMQServerLogger.LOGGER.serverIsLive();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
          activeMQServer.callActivationFailureListeners(e);
       }
@@ -87,8 +86,7 @@ public final class SharedStoreLiveActivation extends LiveActivation {
       if (nodeManagerInUse != null) {
          if (sharedStoreMasterPolicy.isFailoverOnServerShutdown() || permanently) {
             nodeManagerInUse.crashLiveServer();
-         }
-         else {
+         } else {
             nodeManagerInUse.pauseLiveServer();
          }
       }

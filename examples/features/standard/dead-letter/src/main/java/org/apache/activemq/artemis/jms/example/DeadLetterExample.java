@@ -122,8 +122,7 @@ public class DeadLetterExample {
 
          // Step 23. This time, we commit the session, the delivery from the dead letter queue is successful!
          session.commit();
-      }
-      finally {
+      } finally {
          // Step 24. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

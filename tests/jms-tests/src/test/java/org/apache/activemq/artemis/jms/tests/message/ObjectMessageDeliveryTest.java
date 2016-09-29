@@ -16,19 +16,17 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import org.junit.Test;
-
-import java.io.Serializable;
-
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TopicConnection;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+import java.io.Serializable;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.junit.Test;
 
 /**
  * ObjectMessageDeliveryTest
@@ -113,8 +111,7 @@ public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase {
          TestObject ro3 = (TestObject) rm3.getObject();
 
          ProxyAssertSupport.assertEquals(to3.text, ro3.text);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

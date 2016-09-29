@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,6 @@ import javax.jms.Topic;
 import junit.framework.TestCase;
 
 import junit.textui.TestRunner;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.network.NetworkConnector;
@@ -85,13 +84,11 @@ public class NetworkedSyncTest extends TestCase {
          if (!broker1.isStarted()) {
             LOG.info("Broker broker1 not yet started. Kicking it off now.");
             broker1.start();
-         }
-         else {
+         } else {
             LOG.info("Broker broker1 already started. Not kicking it off a second time.");
             broker1.waitUntilStopped();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Error: " + e.getMessage());
          throw e;
          // brokerService.stop();
@@ -107,13 +104,11 @@ public class NetworkedSyncTest extends TestCase {
          if (!broker2.isStarted()) {
             LOG.info("Broker broker2 not yet started. Kicking it off now.");
             broker2.start();
-         }
-         else {
+         } else {
             LOG.info("Broker broker2 already started. Not kicking it off a second time.");
             broker2.waitUntilStopped();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Error: " + e.getMessage());
          throw e;
       }
@@ -137,15 +132,13 @@ public class NetworkedSyncTest extends TestCase {
       if (broker1 != null && broker1.isStarted()) {
          LOG.info("Broker1 still running, stopping it now.");
          broker1.stop();
-      }
-      else {
+      } else {
          LOG.info("Broker1 not running, nothing to shutdown.");
       }
       if (broker2 != null && broker2.isStarted()) {
          LOG.info("Broker2 still running, stopping it now.");
          broker2.stop();
-      }
-      else {
+      } else {
          LOG.info("Broker2 not running, nothing to shutdown.");
       }
 
@@ -224,12 +217,10 @@ class Producer implements Runnable {
                LOG.info("sent " + counter + " messages");
 
          }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          LOG.error(ex.toString());
          return;
-      }
-      finally {
+      } finally {
          try {
             if (producer != null)
                producer.close();
@@ -237,8 +228,7 @@ class Producer implements Runnable {
                session.close();
             if (connection != null)
                connection.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             LOG.error("Problem closing down JMS objects: " + e);
          }
       }
@@ -289,8 +279,7 @@ class Consumer implements Runnable {
                TextMessage textMessage = (TextMessage) message2;
                textMessage.getText();
                // logger.info("Received: " + text);
-            }
-            else {
+            } else {
                LOG.error("Received message of unsupported type. Expecting TextMessage. " + message2);
             }
             counter++;
@@ -298,12 +287,10 @@ class Consumer implements Runnable {
                LOG.info("received " + counter + " messages");
 
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Error in Consumer: " + e);
          return;
-      }
-      finally {
+      } finally {
          try {
             if (consumer != null)
                consumer.close();
@@ -311,8 +298,7 @@ class Consumer implements Runnable {
                session.close();
             if (connection != null)
                connection.close();
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             LOG.error("Error closing down JMS objects: " + ex);
          }
       }

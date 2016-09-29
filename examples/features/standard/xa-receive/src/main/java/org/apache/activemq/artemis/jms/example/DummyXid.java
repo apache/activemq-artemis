@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.utils.Base64;
-
 import javax.transaction.xa.Xid;
+
+import org.apache.activemq.artemis.utils.Base64;
 
 public class DummyXid implements Xid {
 

@@ -25,10 +25,13 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-/** Test the {@link BroadcastGroupImpl}.<br> */
+/**
+ * Test the {@link BroadcastGroupImpl}.<br>
+ */
 public class BroadcastGroupImplTest extends ActiveMQTestBase {
 
    static class BroadcastEndpointFactoryImpl implements BroadcastEndpointFactory {
+
       private static final long serialVersionUID = 1L;
       int sent = 0;
 
@@ -40,6 +43,7 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
    }
 
    static class BroadcastEndpointImpl implements BroadcastEndpoint {
+
       private BroadcastEndpointFactoryImpl factory;
 
       BroadcastEndpointImpl(BroadcastEndpointFactoryImpl factory) {
@@ -47,13 +51,16 @@ public class BroadcastGroupImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void openClient() { }
+      public void openClient() {
+      }
 
       @Override
-      public void openBroadcaster() { }
+      public void openBroadcaster() {
+      }
 
       @Override
-      public void close(boolean isBroadcast) { }
+      public void close(boolean isBroadcast) {
+      }
 
       @Override
       public void broadcast(byte[] data) throws Exception {

@@ -251,15 +251,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             try {
                setLastCommand(command);
                response = command.visit(commandProcessorInstance);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // TODO: logging
                e.printStackTrace();
                if (responseRequired) {
                   response = convertException(e);
                }
-            }
-            finally {
+            } finally {
                setLastCommand(null);
             }
 
@@ -294,8 +292,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                dispatchSync(response);
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.debug(e);
 
          sendException(e);
@@ -306,8 +303,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       Response resp = convertException(e);
       try {
          dispatch(resp);
-      }
-      catch (IOException e2) {
+      } catch (IOException e2) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e2);
       }
    }
@@ -316,11 +312,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       Response resp;
       if (e instanceof ActiveMQSecurityException) {
          resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
-      }
-      else if (e instanceof ActiveMQNonExistentQueueException) {
+      } else if (e instanceof ActiveMQNonExistentQueueException) {
          resp = new ExceptionResponse(new InvalidDestinationException(e.getMessage()));
-      }
-      else {
+      } else {
          resp = new ExceptionResponse(e);
       }
       return resp;
@@ -374,8 +368,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       for (final FailureListener listener : listenersClone) {
          try {
             listener.connectionFailed(me, false);
-         }
-         catch (final Throwable t) {
+         } catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -402,11 +395,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             getTransportConnection().write(buffer, false, false);
          }
          bufferSent();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw e;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.error("error sending", t);
       }
 
@@ -439,8 +430,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
             dispatch(command);
          }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          if (messageDispatch != null) {
             TransmitCallback sub = messageDispatch.getTransmitCallback();
             protocolManager.postProcessDispatch(messageDispatch);
@@ -450,8 +440,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             messageDispatch = null;
             throw e;
          }
-      }
-      finally {
+      } finally {
          if (messageDispatch != null) {
             TransmitCallback sub = messageDispatch.getTransmitCallback();
             protocolManager.postProcessDispatch(messageDispatch);
@@ -467,8 +456,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (result == null) {
          if (consumerList.size() == 1) {
             result = new AMQSingleConsumerBrokerExchange(amqSession, consumerList.get(0));
-         }
-         else {
+         } else {
             result = new AMQCompositeConsumerBrokerExchange(amqSession, consumerList);
          }
          synchronized (consumerExchanges) {
@@ -523,8 +511,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       if (fail) {
          transportConnection.forceClose();
-      }
-      else {
+      } else {
          transportConnection.close();
       }
    }
@@ -558,8 +545,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          lastResponse.setCorrelationId(command.getCommandId());
          try {
             dispatchSync(lastResponse);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -578,8 +564,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
       try {
          protocolManager.removeConnection(this.getConnectionInfo(), me);
-      }
-      catch (InvalidClientIDException e) {
+      } catch (InvalidClientIDException e) {
          ActiveMQServerLogger.LOGGER.warn("Couldn't close connection because invalid clientID", e);
       }
       shutdown(true);
@@ -682,11 +667,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       try {
          physicalSend(command);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return false;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          return false;
       }
       return true;
@@ -700,8 +683,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          if (binding == null) {
             if (dest.isTemporary()) {
                internalSession.createQueue(qName, qName, null, dest.isTemporary(), false);
-            }
-            else {
+            } else {
                ConnectionInfo connInfo = getState().getInfo();
                CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
                server.getSecurityStore().check(qName, checkType, this);
@@ -761,7 +743,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.connectionEntry = connectionEntry;
    }
 
-   public void setUpTtl(final long inactivityDuration, final long inactivityDurationInitialDelay, final boolean useKeepAlive) {
+   public void setUpTtl(final long inactivityDuration,
+                        final long inactivityDurationInitialDelay,
+                        final boolean useKeepAlive) {
       this.useKeepAlive = useKeepAlive;
       this.maxInactivityDuration = inactivityDuration;
 
@@ -787,8 +771,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             try {
                advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, amqConsumer.getId().toString());
                protocolManager.fireAdvisory(context, topic, advisoryMessage, amqConsumer.getId());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // TODO-NOW: LOGGING
                e.printStackTrace();
             }
@@ -833,8 +816,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    public void removeDestination(ActiveMQDestination dest) throws Exception {
       if (dest.isQueue()) {
          server.destroyQueue(OpenWireUtil.toCoreAddress(dest));
-      }
-      else {
+      } else {
          Bindings bindings = server.getPostOffice().getBindingsForAddress(OpenWireUtil.toCoreAddress(dest));
 
          for (Binding binding : bindings.getBindings()) {
@@ -886,8 +868,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       public Response processAddConnection(ConnectionInfo info) throws Exception {
          try {
             protocolManager.addConnection(OpenWireConnection.this, info);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             Response resp = new ExceptionResponse(e);
             return resp;
          }
@@ -977,8 +958,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          for (ProducerId producerId : session.getProducerIds()) {
             try {
                processRemoveProducer(producerId);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                // LOG.warn("Failed to remove producer: {}", producerId, e);
             }
          }
@@ -1000,8 +980,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          Transaction tx = lookupTX(info.getTransactionId(), null);
          if (info.getTransactionId().isXATransaction() && tx == null) {
             throw newXAException("Transaction '" + info.getTransactionId() + "' has not been started.", XAException.XAER_NOTA);
-         }
-         else if (tx != null) {
+         } else if (tx != null) {
 
             AMQSession amqSession = (AMQSession) tx.getProtocolData();
 
@@ -1010,8 +989,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
                try {
                   returnReferences(tx, amqSession);
-               }
-               finally {
+               } finally {
                   amqSession.getCoreSession().resetTX(null);
                }
             }
@@ -1074,12 +1052,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          Response resp = null;
          try {
             addDestination(dest);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             if (e instanceof ActiveMQSecurityException) {
                resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
-            }
-            else {
+            } else {
                resp = new ExceptionResponse(e);
             }
          }
@@ -1106,8 +1082,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             if (txID.isXATransaction()) {
                Xid xid = OpenWireUtil.toXID(txID);
                internalSession.xaStart(xid);
-            }
-            else {
+            } else {
                Transaction transaction = internalSession.newTransaction();
                txMap.put(txID, transaction);
                transaction.addOperation(new TransactionOperationAbstract() {
@@ -1117,8 +1092,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   }
                });
             }
-         }
-         finally {
+         } finally {
             internalSession.resetTX(null);
             clearOpeartionContext();
          }
@@ -1140,8 +1114,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          setOperationContext(session);
          try {
             tx.commit(onePhase);
-         }
-         finally {
+         } finally {
             clearOpeartionContext();
          }
 
@@ -1163,17 +1136,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                try {
                   Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                   internalSession.xaForget(xid);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   throw e;
                }
-            }
-            else {
+            } else {
                txMap.remove(txID);
             }
-         }
-         finally {
+         } finally {
             clearOpeartionContext();
          }
 
@@ -1190,18 +1160,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                try {
                   Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                   internalSession.xaPrepare(xid);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   throw e;
                }
-            }
-            else {
+            } else {
                Transaction tx = lookupTX(txID, null);
                tx.prepare();
             }
-         }
-         finally {
+         } finally {
             internalSession.resetTX(null);
             clearOpeartionContext();
          }
@@ -1221,17 +1188,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                try {
                   Xid xid = OpenWireUtil.toXID(info.getTransactionId());
                   internalSession.xaEnd(xid);
-               }
-               finally {
+               } finally {
                   internalSession.resetTX(null);
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                throw e;
             }
-         }
-         else {
+         } else {
             txMap.remove(txID);
             clearOpeartionContext();
          }
@@ -1263,8 +1227,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          //after successful reconnect
          try {
             updateConsumer(consumerControl);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             //log error
          }
          return null;
@@ -1301,12 +1264,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          session.getCoreSession().resetTX(tx);
          try {
             session.send(producerInfo, messageSend, sendProducerAck);
-         }
-         finally {
+         } finally {
             session.getCoreSession().resetTX(null);
             clearOpeartionContext();
          }
-
 
          return null;
       }
@@ -1321,8 +1282,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          try {
             AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
             consumerBrokerExchange.acknowledge(ack);
-         }
-         finally {
+         } finally {
             session.getCoreSession().resetTX(null);
             clearOpeartionContext();
          }
@@ -1371,8 +1331,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          //we let protocol manager to handle connection add/remove
          try {
             protocolManager.removeConnection(state.getInfo(), null);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             // log
          }
          return null;
@@ -1405,13 +1364,11 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       OperationContext ctx;
       if (session == null) {
          ctx = this.internalSession.getSessionContext();
-      }
-      else {
+      } else {
          ctx = session.getCoreSession().getSessionContext();
       }
       server.getStorageManager().setContext(ctx);
    }
-
 
    private void clearOpeartionContext() {
       server.getStorageManager().clearContext();
@@ -1427,8 +1384,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       if (txID.isXATransaction()) {
          xid = OpenWireUtil.toXID(txID);
          transaction = server.getResourceManager().getTransaction(xid);
-      }
-      else {
+      } else {
          transaction = txMap.get(txID);
       }
 

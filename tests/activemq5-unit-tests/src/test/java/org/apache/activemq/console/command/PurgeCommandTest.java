@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.console.command;
-
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -37,6 +30,12 @@ import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -219,8 +218,7 @@ public class PurgeCommandTest extends TestCase {
 
          validateCounts(0, MESSAGE_COUNT, MESSAGE_COUNT);
 
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }
@@ -245,8 +243,7 @@ public class PurgeCommandTest extends TestCase {
          purgeCommand.execute(tokens);
 
          validateCounts(0, MESSAGE_COUNT, MESSAGE_COUNT);
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }
@@ -283,8 +280,7 @@ public class PurgeCommandTest extends TestCase {
          assertEquals("Expected allCount to be " + MESSAGE_COUNT + " was " + allCount, MESSAGE_COUNT, allCount);
          LOG.info("withCount = " + withCount + "\n allCount = " +
                      allCount + "\n  = " + "\n");
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }
@@ -299,8 +295,7 @@ public class PurgeCommandTest extends TestCase {
                LOG.info("String matches.");
             else
                LOG.info("string does not match.");
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             LOG.error(ex.getMessage());
          }
 
@@ -334,8 +329,7 @@ public class PurgeCommandTest extends TestCase {
          assertEquals("Expected allCount to be " + MESSAGE_COUNT + " was " + allCount, MESSAGE_COUNT, allCount);
          LOG.info("withCount = " + withCount + "\n allCount = " +
                      allCount + "\n  = " + "\n");
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }
@@ -372,8 +366,7 @@ public class PurgeCommandTest extends TestCase {
          assertEquals("Expected allCount to be 0 but was " + allCount, 0, allCount);
          LOG.info("withCount = " + withCount + "\n allCount = " +
                      allCount + "\n  = " + "\n");
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }
@@ -388,8 +381,7 @@ public class PurgeCommandTest extends TestCase {
                LOG.info("String matches.");
             else
                LOG.info("string does not match.");
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             LOG.error(ex.getMessage());
          }
 
@@ -427,8 +419,7 @@ public class PurgeCommandTest extends TestCase {
             LOG.info("withCount = " + withCount + "\n allCount = " +
                     allCount + "\n  = " + "\n");
             */
-      }
-      finally {
+      } finally {
          purgeAllMessages();
       }
    }

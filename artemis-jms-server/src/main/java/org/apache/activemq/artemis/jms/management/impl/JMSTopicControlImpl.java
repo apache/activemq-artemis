@@ -16,20 +16,19 @@
  */
 package org.apache.activemq.artemis.jms.management.impl;
 
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.management.MBeanInfo;
+import javax.management.StandardMBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.management.MBeanInfo;
-import javax.management.StandardMBean;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
@@ -302,8 +301,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
                Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName());
                clientID = pair.getA();
                subName = pair.getB();
-            }
-            else if (queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
+            } else if (queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
                // in the case of heirarchical topics the queue name will not follow the <part>.<part> pattern of normal
                // durable subscribers so skip decomposing the name for the client ID and subscription name and just
                // hard-code it
@@ -313,23 +311,13 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
 
             String filter = queue.getFilter() != null ? queue.getFilter() : null;
 
-            JsonObject info = JsonLoader.createObjectBuilder()
-               .add("queueName", queue.getName())
-               .add("clientID", nullSafe(clientID))
-               .add("selector", nullSafe(filter))
-               .add("name", nullSafe(subName))
-               .add("durable", queue.isDurable())
-               .add("messageCount", queue.getMessageCount())
-               .add("deliveringCount", queue.getDeliveringCount())
-               .add("consumers", queue.listConsumersAsJSON())
-               .build();
+            JsonObject info = JsonLoader.createObjectBuilder().add("queueName", queue.getName()).add("clientID", nullSafe(clientID)).add("selector", nullSafe(filter)).add("name", nullSafe(subName)).add("durable", queue.isDurable()).add("messageCount", queue.getMessageCount()).add("deliveringCount", queue.getDeliveringCount()).add("consumers", queue.listConsumersAsJSON()).build();
 
             array.add(info);
          }
 
          return array.build().toString();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          return e.toString();
       }
@@ -360,8 +348,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
             }
          }
          return matchingQueues;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return Collections.emptyList();
       }
    }

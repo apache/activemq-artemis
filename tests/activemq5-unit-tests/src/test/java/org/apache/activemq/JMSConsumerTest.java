@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
@@ -38,6 +28,15 @@ import javax.jms.Topic;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
 
@@ -168,8 +167,7 @@ public class JMSConsumerTest extends JmsTestSupport {
                   // ack every 200
                   message.acknowledge();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("Exception on close or ack:", e);
                exceptions.put(Thread.currentThread(), e);
             }
@@ -403,8 +401,7 @@ public class JMSConsumerTest extends JmsTestSupport {
                   got2Done.countDown();
                }
                tm.acknowledge();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
          }
@@ -440,8 +437,7 @@ public class JMSConsumerTest extends JmsTestSupport {
                if (counter.get() == 4) {
                   done2.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                LOG.error("unexpected ex onMessage: ", e);
             }
          }
@@ -493,8 +489,7 @@ public class JMSConsumerTest extends JmsTestSupport {
                   connection.close();
                   got2Done.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
          }
@@ -528,8 +523,7 @@ public class JMSConsumerTest extends JmsTestSupport {
                if (counter.get() == 4) {
                   done2.countDown();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                LOG.error("unexpected ex onMessage: ", e);
             }
          }
@@ -928,8 +922,7 @@ public class JMSConsumerTest extends JmsTestSupport {
       String destName = destination.getPhysicalName();
       if (destination.isQueue()) {
          return createJMSQueueControl(destName);
-      }
-      else {
+      } else {
          return createJMSTopicControl(destName);
       }
    }

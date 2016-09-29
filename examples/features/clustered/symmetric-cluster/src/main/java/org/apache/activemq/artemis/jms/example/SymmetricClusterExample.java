@@ -207,8 +207,7 @@ public class SymmetricClusterExample {
                throw new IllegalStateException("Message is null!");
             }
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our resources!
 
          connection0.close();

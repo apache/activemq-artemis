@@ -47,8 +47,7 @@ public class IdGenerator {
          if (sm != null) {
             sm.checkPropertiesAccess();
          }
-      }
-      catch (SecurityException se) {
+      } catch (SecurityException se) {
          canAccessSystemProps = false;
       }
 
@@ -62,12 +61,10 @@ public class IdGenerator {
             ss = new ServerSocket(idGeneratorPort);
             stub = "-" + ss.getLocalPort() + "-" + System.currentTimeMillis() + "-";
             Thread.sleep(100);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             if (LOG.isTraceEnabled()) {
                LOG.trace("could not generate unique stub by using DNS and binding to local port", e);
-            }
-            else {
+            } else {
                LOG.warn("could not generate unique stub by using DNS and binding to local port: {} {}", e.getClass().getCanonicalName(), e.getMessage());
             }
 
@@ -75,17 +72,14 @@ public class IdGenerator {
             if (e instanceof InterruptedException) {
                Thread.currentThread().interrupt();
             }
-         }
-         finally {
+         } finally {
             if (ss != null) {
                try {
                   ss.close();
-               }
-               catch (IOException ioe) {
+               } catch (IOException ioe) {
                   if (LOG.isTraceEnabled()) {
                      LOG.trace("Closing the server socket failed", ioe);
-                  }
-                  else {
+                  } else {
                      LOG.warn("Closing the server socket failed" + " due " + ioe.getMessage());
                   }
                }
@@ -150,8 +144,7 @@ public class IdGenerator {
          // only include ASCII chars
          if (ch < 127) {
             sb.append(ch);
-         }
-         else {
+         } else {
             changed = true;
          }
       }
@@ -160,8 +153,7 @@ public class IdGenerator {
          String newHost = sb.toString();
          LOG.info("Sanitized hostname from: {} to: {}", hostName, newHost);
          return newHost;
-      }
-      else {
+      } else {
          return hostName;
       }
    }
@@ -259,8 +251,7 @@ public class IdGenerator {
    protected static String getLocalHostName() throws UnknownHostException {
       try {
          return (InetAddress.getLocalHost()).getHostName();
-      }
-      catch (UnknownHostException uhe) {
+      } catch (UnknownHostException uhe) {
          String host = uhe.getMessage(); // host = "hostname: hostname"
          if (host != null) {
             int colon = host.indexOf(':');

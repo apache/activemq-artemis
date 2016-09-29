@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
+import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,7 +31,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.activemq.artemis.boot.Artemis;
 
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
@@ -99,7 +99,6 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
       return ignore;
    }
 
-
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
       // This is to avoid the Run issuing a kill at any point
@@ -110,8 +109,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
       if (!lookupHome(home.toPath())) {
          if (lookupHome(alternateHome.toPath())) {
             home = alternateHome;
-         }
-         else {
+         } else {
             getLog().error("********************************************************************************************");
             getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
             getLog().error("Use the binary distribution or build the distribution before running the examples");
@@ -137,13 +135,11 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                   try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(testURI)) {
                      if (testUser != null && testPassword != null) {
                         cf.createConnection(testUser, testPassword).close();
-                     }
-                     else {
+                     } else {
                         cf.createConnection().close();
                      }
                      getLog().info("Server started");
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      getLog().info("awaiting server to start");
                      Thread.sleep(500);
                      continue;
@@ -151,16 +147,14 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                   break;
                }
             }
-         }
-         else {
+         } else {
             Artemis.execute(home, location, args);
          }
 
          Thread.sleep(600);
 
          org.apache.activemq.artemis.cli.process.ProcessBuilder.cleanupProcess();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          throw new MojoExecutionException(e.getMessage(), e);
       }
    }

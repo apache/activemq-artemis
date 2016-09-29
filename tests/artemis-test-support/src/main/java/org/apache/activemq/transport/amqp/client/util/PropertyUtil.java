@@ -109,8 +109,7 @@ public class PropertyUtil {
             for (Entry<String, ?> entry : options.entrySet()) {
                if (first) {
                   first = false;
-               }
-               else {
+               } else {
                   rc.append("&");
                }
                rc.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
@@ -118,12 +117,10 @@ public class PropertyUtil {
                rc.append(URLEncoder.encode((String) entry.getValue(), "UTF-8"));
             }
             return rc.toString();
-         }
-         else {
+         } else {
             return "";
          }
-      }
-      catch (UnsupportedEncodingException e) {
+      } catch (UnsupportedEncodingException e) {
          throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
       }
    }
@@ -178,8 +175,7 @@ public class PropertyUtil {
                String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
                String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
                rc.put(name, value);
-            }
-            else {
+            } else {
                rc.put(parameter, null);
             }
          }
@@ -258,8 +254,7 @@ public class PropertyUtil {
          Map<String, String> map = parseParameters(uri);
          if (!map.isEmpty()) {
             map.putAll(properties);
-         }
-         else {
+         } else {
             map = properties;
          }
          if (!map.isEmpty()) {
@@ -358,11 +353,9 @@ public class PropertyUtil {
                if (value != null) {
                   if (value instanceof Boolean || value instanceof Number || value instanceof String || value instanceof URI || value instanceof URL) {
                      properties.put(pd.getName(), ("" + value));
-                  }
-                  else if (value instanceof SSLContext) {
+                  } else if (value instanceof SSLContext) {
                      // ignore this one..
-                  }
-                  else {
+                  } else {
                      Map<String, String> inner = getProperties(value);
                      for (Entry<String, String> entry : inner.entrySet()) {
                         properties.put(pd.getName() + "." + entry.getKey(), entry.getValue());
@@ -428,13 +421,11 @@ public class PropertyUtil {
          // value directly
          if (value == null || value.getClass() == setter.getParameterTypes()[0]) {
             setter.invoke(target, new Object[]{value});
-         }
-         else {
+         } else {
             setter.invoke(target, new Object[]{convert(value, setter.getParameterTypes()[0])});
          }
          return true;
-      }
-      catch (Throwable ignore) {
+      } catch (Throwable ignore) {
          return false;
       }
    }

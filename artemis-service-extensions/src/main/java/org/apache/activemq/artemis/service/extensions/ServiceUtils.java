@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.service.extensions;
 
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
-
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAResource;
 
 import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
@@ -54,8 +53,7 @@ public class ServiceUtils {
          transactionManager = findTransactionManager();
          if (transactionManager != null) {
             transactionManagerLoaded = true;
-         }
-         else {
+         } else {
             ActiveMQServiceExtensionLogger.LOGGER.transactionManagerNotFound();
          }
       }
@@ -67,9 +65,8 @@ public class ServiceUtils {
       transactionManagerLoaded = (transactionManager != null);
    }
 
-
    /**
-    *  Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or {@code null} if none is loaded.
+    * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
       return AccessController.doPrivileged(new PrivilegedAction<TransactionManager>() {
@@ -85,8 +82,8 @@ public class ServiceUtils {
    }
 
    /**
-    *  Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or
-    *  use the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
+    * Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or
+    * use the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
       return AccessController.doPrivileged(new PrivilegedAction<ActiveMQXAResourceWrapperFactory>() {
@@ -95,8 +92,7 @@ public class ServiceUtils {
             Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
             if (iterator.hasNext()) {
                return iterator.next();
-            }
-            else {
+            } else {
                return new ActiveMQXAResourceWrapperFactoryImpl();
             }
          }

@@ -53,17 +53,16 @@ public class MessageUtil {
 
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
 
-//   public static ActiveMQBuffer getBodyBuffer(Message message) {
-//      return message.getBodyBuffer();
-//   }
+   //   public static ActiveMQBuffer getBodyBuffer(Message message) {
+   //      return message.getBodyBuffer();
+   //   }
 
    public static byte[] getJMSCorrelationIDAsBytes(Message message) {
       Object obj = message.getObjectProperty(CORRELATIONID_HEADER_NAME);
 
       if (obj instanceof byte[]) {
          return (byte[]) obj;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -77,8 +76,7 @@ public class MessageUtil {
 
       if (ss != null) {
          return ss.toString();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -94,8 +92,7 @@ public class MessageUtil {
    public static void setJMSCorrelationID(Message message, final String correlationID) {
       if (correlationID == null) {
          message.removeProperty(CORRELATIONID_HEADER_NAME);
-      }
-      else {
+      } else {
          message.putStringProperty(CORRELATIONID_HEADER_NAME, new SimpleString(correlationID));
       }
    }
@@ -103,8 +100,7 @@ public class MessageUtil {
    public static String getJMSCorrelationID(Message message) {
       try {
          return message.getStringProperty(CORRELATIONID_HEADER_NAME);
-      }
-      catch (ActiveMQPropertyConversionException e) {
+      } catch (ActiveMQPropertyConversionException e) {
          return null;
       }
    }
@@ -117,8 +113,7 @@ public class MessageUtil {
 
       if (dest == null) {
          message.removeProperty(REPLYTO_HEADER_NAME);
-      }
-      else {
+      } else {
 
          message.putStringProperty(REPLYTO_HEADER_NAME, dest);
       }

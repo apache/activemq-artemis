@@ -212,8 +212,7 @@ public class AutogroupIdTest extends ActiveMQTestBase {
          messagesReceived++;
          try {
             message.acknowledge();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             e.printStackTrace();
          }
          latch.countDown();

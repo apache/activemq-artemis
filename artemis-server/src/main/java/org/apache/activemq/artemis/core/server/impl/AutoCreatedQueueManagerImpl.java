@@ -35,8 +35,7 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
             if (deleter != null) {
                deleter.delete(queueName);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
          }
       }

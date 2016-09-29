@@ -94,8 +94,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
             for (Address destAdd : add.getLinkedAddresses()) {
                super.addMappingInternal(destAdd.getAddress(), binding);
             }
-         }
-         else {
+         } else {
             for (Address destAdd : add.getLinkedAddresses()) {
                Bindings bindings = super.getBindingsForRoutingAddress(destAdd.getAddress());
                for (Binding b : bindings.getBindings()) {
@@ -141,8 +140,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
       Address actualAddress;
       if (add.containsWildCard()) {
          actualAddress = wildCardAddresses.get(address);
-      }
-      else {
+      } else {
          actualAddress = addresses.get(address);
       }
       return actualAddress != null ? actualAddress : add;
@@ -153,8 +151,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
       Address actualAddress;
       if (add.containsWildCard()) {
          actualAddress = wildCardAddresses.get(address);
-      }
-      else {
+      } else {
          actualAddress = addresses.get(address);
       }
       if (actualAddress == null) {
@@ -168,8 +165,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
                actualAddress.addLinkedAddress(destAdd);
             }
          }
-      }
-      else {
+      } else {
          for (Address destAdd : wildCardAddresses.values()) {
             if (actualAddress.matches(destAdd)) {
                destAdd.addLinkedAddress(actualAddress);
@@ -184,8 +180,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    private void addAddress(final SimpleString address, final Address actualAddress) {
       if (actualAddress.containsWildCard()) {
          wildCardAddresses.put(address, actualAddress);
-      }
-      else {
+      } else {
          addresses.put(address, actualAddress);
       }
    }
@@ -209,8 +204,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    private void removeAddress(final Address add) {
       if (add.containsWildCard()) {
          wildCardAddresses.remove(add.getAddress());
-      }
-      else {
+      } else {
          addresses.remove(add.getAddress());
       }
    }

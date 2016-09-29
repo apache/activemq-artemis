@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl.openmbean;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.MessageReference;
-
 import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -36,6 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.MessageReference;
+
 public final class OpenTypeSupport {
 
    private static MessageOpenTypeFactory FACTORY = new MessageOpenTypeFactory();
@@ -49,8 +49,8 @@ public final class OpenTypeSupport {
       return new CompositeDataSupport(ct, fields);
    }
 
-
    static class MessageOpenTypeFactory {
+
       private CompositeType compositeType;
       private final List<String> itemNamesList = new ArrayList<>();
       private final List<String> itemDescriptionsList = new ArrayList<>();
@@ -123,8 +123,7 @@ public final class OpenTypeSupport {
          rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
          if (m.getUserID() != null) {
             rc.put(CompositeDataConstants.USER_ID, "ID:" + m.getUserID().toString());
-         }
-         else {
+         } else {
             rc.put(CompositeDataConstants.USER_ID, "");
          }
          rc.put(CompositeDataConstants.ADDRESS, m.getAddress().toString());
@@ -146,50 +145,42 @@ public final class OpenTypeSupport {
 
          try {
             rc.put(CompositeDataConstants.STRING_PROPERTIES, createTabularData(propertyMap, stringPropertyTabularType, String.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.STRING_PROPERTIES, new TabularDataSupport(stringPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.BOOLEAN_PROPERTIES, createTabularData(propertyMap, booleanPropertyTabularType, Boolean.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.BOOLEAN_PROPERTIES, new TabularDataSupport(booleanPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.BYTE_PROPERTIES, createTabularData(propertyMap, bytePropertyTabularType, Byte.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.BYTE_PROPERTIES, new TabularDataSupport(bytePropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.SHORT_PROPERTIES, createTabularData(propertyMap, shortPropertyTabularType, Short.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.SHORT_PROPERTIES, new TabularDataSupport(shortPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.INT_PROPERTIES, createTabularData(propertyMap, intPropertyTabularType, Integer.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.INT_PROPERTIES, new TabularDataSupport(intPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.LONG_PROPERTIES, createTabularData(propertyMap, longPropertyTabularType, Long.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.LONG_PROPERTIES, new TabularDataSupport(longPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.FLOAT_PROPERTIES, createTabularData(propertyMap, floatPropertyTabularType, Float.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.FLOAT_PROPERTIES, new TabularDataSupport(floatPropertyTabularType));
          }
          try {
             rc.put(CompositeDataConstants.DOUBLE_PROPERTIES, createTabularData(propertyMap, doublePropertyTabularType, Double.class));
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             rc.put(CompositeDataConstants.DOUBLE_PROPERTIES, new TabularDataSupport(doublePropertyTabularType));
          }
          return rc;
@@ -221,7 +212,9 @@ public final class OpenTypeSupport {
          return new TabularType(typeName, typeName, rowType, new String[]{"key"});
       }
 
-      protected TabularDataSupport createTabularData(Map<String, Object> entries, TabularType type, Class valueType) throws IOException, OpenDataException {
+      protected TabularDataSupport createTabularData(Map<String, Object> entries,
+                                                     TabularType type,
+                                                     Class valueType) throws IOException, OpenDataException {
          TabularDataSupport answer = new TabularDataSupport(type);
 
          for (String key : entries.keySet()) {
@@ -229,8 +222,7 @@ public final class OpenTypeSupport {
             if (valueType.isInstance(value)) {
                CompositeDataSupport compositeData = createTabularRowValue(type, key, value);
                answer.put(compositeData);
-            }
-            else if (valueType == String.class && value instanceof SimpleString) {
+            } else if (valueType == String.class && value instanceof SimpleString) {
                CompositeDataSupport compositeData = createTabularRowValue(type, key, value.toString());
                answer.put(compositeData);
             }
@@ -238,13 +230,14 @@ public final class OpenTypeSupport {
          return answer;
       }
 
-      protected CompositeDataSupport createTabularRowValue(TabularType type, String key, Object value) throws OpenDataException {
+      protected CompositeDataSupport createTabularRowValue(TabularType type,
+                                                           String key,
+                                                           Object value) throws OpenDataException {
          Map<String, Object> fields = new HashMap<>();
          fields.put("key", key);
          fields.put("value", value);
          return new CompositeDataSupport(type.getRowType(), fields);
       }
-
 
       protected void addItem(String name, String description, OpenType type) {
          itemNamesList.add(name);

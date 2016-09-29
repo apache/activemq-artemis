@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
-import java.util.Arrays;
-
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 
@@ -81,8 +80,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
          }
 
          return xids;
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          ActiveMQXARecoveryLogger.LOGGER.xaRecoverError(e);
          throw check(e);
       }
@@ -96,8 +94,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          xaResource.commit(xid, onePhase);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -110,8 +107,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          xaResource.rollback(xid);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -125,8 +121,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
 
       try {
          xaResource.forget(xid);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -140,8 +135,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       XAResource xaResource = getDelegate(false);
       try {
          return xaResource.isSameRM(xaRes);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -154,8 +148,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          return xaResource.prepare(xid);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -168,8 +161,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          xaResource.start(xid, flags);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -182,8 +174,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          xaResource.end(xid, flags);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -196,8 +187,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          return xaResource.getTransactionTimeout();
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -210,8 +200,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
       try {
          return xaResource.setTransactionTimeout(seconds);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          throw check(e);
       }
    }
@@ -222,8 +211,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
          if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
             ActiveMQXARecoveryLogger.LOGGER.debug("being disconnected for server shutdown", me);
          }
-      }
-      else {
+      } else {
          ActiveMQXARecoveryLogger.LOGGER.xaRecoverConnectionError(me, csf);
       }
       close();
@@ -249,8 +237,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       Exception error = null;
       try {
          result = connect();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          error = e;
       }
 
@@ -267,8 +254,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
                ActiveMQXARecoveryLogger.LOGGER.debug("Cannot get connectionFactory XAResource", xae);
             }
             throw xae;
-         }
-         else {
+         } else {
             XAException xae = new XAException("Error trying to connect to any providers for xa recovery");
             xae.errorCode = XAException.XAER_RMFAIL;
             if (error != null) {
@@ -317,8 +303,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             // Manual configuration may still use discovery, so we will keep this
             if (xaRecoveryConfig.getDiscoveryConfiguration() != null) {
                serverLocator = ActiveMQClient.createServerLocator(false, xaRecoveryConfig.getDiscoveryConfiguration());
-            }
-            else {
+            } else {
                serverLocator = ActiveMQClient.createServerLocator(false, xaRecoveryConfig.getTransportConfig());
             }
             serverLocator.disableFinalizeCheck();
@@ -326,12 +311,10 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             csf = serverLocator.createSessionFactory();
             if (xaRecoveryConfig.getUsername() == null) {
                cs = csf.createSession(true, false, false);
-            }
-            else {
+            } else {
                cs = csf.createSession(xaRecoveryConfig.getUsername(), xaRecoveryConfig.getPassword(), true, false, false, false, 1);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQXARecoveryLogger.LOGGER.xaRecoverAutoConnectionError(e, xaRecoveryConfig);
             if (ActiveMQXARecoveryLogger.LOGGER.isDebugEnabled()) {
                ActiveMQXARecoveryLogger.LOGGER.debug(e.getMessage(), e);
@@ -342,8 +325,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
                   cs.close();
                if (serverLocator != null)
                   serverLocator.close();
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
                   ActiveMQXARecoveryLogger.LOGGER.trace(e.getMessage(), ignored);
                }
@@ -399,8 +381,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       if (oldDelegate != null) {
          try {
             oldDelegate.close();
-         }
-         catch (Throwable ignorable) {
+         } catch (Throwable ignorable) {
             ActiveMQXARecoveryLogger.LOGGER.debug(ignorable.getMessage(), ignorable);
          }
       }
@@ -408,8 +389,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       if (oldCSF != null) {
          try {
             oldCSF.close();
-         }
-         catch (Throwable ignorable) {
+         } catch (Throwable ignorable) {
             ActiveMQXARecoveryLogger.LOGGER.debug(ignorable.getMessage(), ignorable);
          }
       }
@@ -417,8 +397,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       if (oldServerLocator != null) {
          try {
             oldServerLocator.close();
-         }
-         catch (Throwable ignorable) {
+         } catch (Throwable ignorable) {
             ActiveMQXARecoveryLogger.LOGGER.debug(ignorable.getMessage(), ignorable);
          }
       }

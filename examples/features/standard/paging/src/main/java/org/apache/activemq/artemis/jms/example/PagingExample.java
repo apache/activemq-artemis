@@ -118,8 +118,7 @@ public class PagingExample {
 
             message.acknowledge();
          }
-      }
-      finally {
+      } finally {
          // And finally, always remember to close your JMS connections after use, in a finally block. Closing a JMS
          // connection will automatically close all of its sessions, consumers, producer and browser objects
 

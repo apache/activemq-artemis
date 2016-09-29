@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -32,18 +44,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(value = Parameterized.class)
 public class BindingsClusterTest extends JMSClusteredTestBase {
@@ -162,8 +162,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          assertEquals("m3", received.getText());
 
          cons2.close();
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }
@@ -283,8 +282,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          assertEquals("m5", received.getText());
 
          cons2.close();
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }
@@ -392,8 +390,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
          assertEquals("m7", received.getText());
 
          cons2.close();
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }

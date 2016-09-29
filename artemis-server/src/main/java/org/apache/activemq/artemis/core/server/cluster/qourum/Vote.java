@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.qourum;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 /**
  * the vote itself

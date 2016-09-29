@@ -100,8 +100,7 @@ public class BackupSyncDelay implements Interceptor {
             repChannel.setHandler(handler);
             handler.setChannel(repChannel);
             live.getRemotingService().removeIncomingInterceptor(this);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException(e);
          }
       }
@@ -143,8 +142,7 @@ public class BackupSyncDelay implements Interceptor {
          try {
             handler.handlePacket(onHold);
             delivered = true;
-         }
-         finally {
+         } finally {
             handler.setChannel(channel);
             channel.setHandler(handler);
             onHold = null;
@@ -177,8 +175,7 @@ public class BackupSyncDelay implements Interceptor {
                   return;
                }
             }
-         }
-         else if (typeToIntercept == packet.getType()) {
+         } else if (typeToIntercept == packet.getType()) {
             channel.send(new ReplicationResponseMessage());
             return;
          }

@@ -36,8 +36,7 @@ public class ValidateAIOTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
       try {
          server.start();
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }

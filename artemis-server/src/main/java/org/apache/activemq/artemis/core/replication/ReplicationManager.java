@@ -82,7 +82,6 @@ import org.jboss.logging.Logger;
  */
 public final class ReplicationManager implements ActiveMQComponent, ReadyListener {
 
-
    private static final Logger logger = Logger.getLogger(ReplicationManager.class);
 
    public enum ADD_OPERATION_TYPE {
@@ -135,7 +134,9 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
    /**
     * @param remotingConnection
     */
-   public ReplicationManager(CoreRemotingConnection remotingConnection, final long timeout, final ExecutorFactory executorFactory) {
+   public ReplicationManager(CoreRemotingConnection remotingConnection,
+                             final long timeout,
+                             final ExecutorFactory executorFactory) {
       this.executorFactory = executorFactory;
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
@@ -312,8 +313,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             logger.trace("Calling ctx.replicationDone()");
             try {
                ctx.replicationDone();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQServerLogger.LOGGER.errorCompletingCallbackOnReplicationManager(e);
             }
          }
@@ -360,8 +360,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                return repliToken;
             }
             replicatingChannel.send(packet);
-         }
-         else {
+         } else {
             // Already replicating channel failed, so just play the action now
             runItNow = true;
          }
@@ -376,8 +375,10 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       return repliToken;
    }
 
-   /** This was written as a refactoring of sendReplicatePacket.
-    *  In case you refactor this in any way, this method must hold a lock on replication lock. .*/
+   /**
+    * This was written as a refactoring of sendReplicatePacket.
+    * In case you refactor this in any way, this method must hold a lock on replication lock. .
+    */
    private boolean flowControl() {
       // synchronized (replicationLock) { -- I'm not adding this because the caller already has it
       // future maintainers of this code please be aware that the intention here is hold the lock on replication lock
@@ -388,7 +389,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
             //don't wait for ever as this may hang tests etc, we've probably been closed anyway
             long now = System.currentTimeMillis();
             long deadline = now + timeout;
-            while (!writable.get() && now < deadline)  {
+            while (!writable.get() && now < deadline) {
                replicationLock.wait(deadline - now);
                now = System.currentTimeMillis();
             }
@@ -399,14 +400,12 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                logger.tracef("There was no response from replication backup after %s seconds, server being stopped now", System.currentTimeMillis() - now);
                try {
                   stop();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   logger.warn(e.getMessage(), e);
                }
                return false;
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
@@ -445,15 +444,13 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
          if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
             // Backup has shut down - no need to log a stack trace
             ActiveMQServerLogger.LOGGER.replicationStopOnBackupShutdown();
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.replicationStopOnBackupFail(me);
          }
 
          try {
             stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingReplication(e);
          }
       }
@@ -517,8 +514,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
       try {
          ActiveMQServerLogger.LOGGER.journalSynch(jf, file.size(), file);
          sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
-      }
-      finally {
+      } finally {
          if (file.isOpen())
             file.close();
       }
@@ -570,8 +566,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                   if (bytesRead >= maxBytesToSend) {
                      toSend = (int) maxBytesToSend;
                      maxBytesToSend = 0;
-                  }
-                  else {
+                  } else {
                      maxBytesToSend = maxBytesToSend - bytesRead;
                   }
                   buffer.limit(toSend);
@@ -584,8 +579,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                   break;
             }
          }
-      }
-      finally {
+      } finally {
          if (file.isOpen())
             file.close();
       }
@@ -628,8 +622,7 @@ public final class ReplicationManager implements ActiveMQComponent, ReadyListene
                logger.trace("sendSynchronizationDone wasn't finished in time");
                throw ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             logger.debug(e);
          }
          inSync = false;

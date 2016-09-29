@@ -66,23 +66,24 @@ public class JMSMessagingProxy {
          JMSManagementHelper.putAttribute(m, resourceName, attributeName);
          Message reply = requestor.request(m);
          return JMSManagementHelper.getResult(reply, desiredType);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
+
    public Object invokeOperation(final String operationName, final Object... args) throws Exception {
       return invokeOperation(null, operationName, args);
    }
 
-   public Object invokeOperation(final Class desiredType, final String operationName, final Object... args) throws Exception {
+   public Object invokeOperation(final Class desiredType,
+                                 final String operationName,
+                                 final Object... args) throws Exception {
       Message m = session.createMessage();
       JMSManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       Message reply = requestor.request(m);
       if (JMSManagementHelper.hasOperationSucceeded(reply)) {
          return JMSManagementHelper.getResult(reply, desiredType);
-      }
-      else {
+      } else {
          throw new Exception((String) JMSManagementHelper.getResult(reply));
       }
    }

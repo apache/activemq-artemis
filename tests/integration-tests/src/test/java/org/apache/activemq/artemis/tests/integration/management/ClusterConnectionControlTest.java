@@ -16,23 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.JsonUtil;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-
+import javax.json.JsonArray;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.JsonArray;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-
-import org.junit.Assert;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
@@ -47,9 +40,14 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ClusterConnectionControlTest extends ManagementTestBase {
 

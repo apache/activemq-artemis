@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import javax.json.JsonObject;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +26,6 @@ import org.apache.activemq.artemis.core.remoting.impl.TransportConfigurationUtil
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-
-import javax.json.JsonObject;
 
 /**
  * A TransportConfiguration is used by a client to specify connections to a server and its backup if
@@ -65,12 +64,7 @@ public class TransportConfiguration implements Serializable {
    private static final byte TYPE_STRING = 3;
 
    public JsonObject toJson() {
-      return JsonLoader.createObjectBuilder()
-            .add("name", name)
-            .add("factoryClassName", factoryClassName)
-            .add("params", JsonUtil.toJsonObject(params))
-            .add("extraProps", JsonUtil.toJsonObject(extraProps))
-            .build();
+      return JsonLoader.createObjectBuilder().add("name", name).add("factoryClassName", factoryClassName).add("params", JsonUtil.toJsonObject(params)).add("extraProps", JsonUtil.toJsonObject(extraProps)).build();
    }
 
    /**
@@ -114,18 +108,20 @@ public class TransportConfiguration implements Serializable {
     * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
     * and any parameters needed.
     *
-    * @param className   The class name of the ConnectorFactory
-    * @param params      The parameters needed by the ConnectorFactory
-    * @param name        The name of this TransportConfiguration
-    * @param extraProps  The extra properties that specific to protocols
+    * @param className  The class name of the ConnectorFactory
+    * @param params     The parameters needed by the ConnectorFactory
+    * @param name       The name of this TransportConfiguration
+    * @param extraProps The extra properties that specific to protocols
     */
-   public TransportConfiguration(final String className, final Map<String, Object> params, final String name, final Map<String, Object> extraProps) {
+   public TransportConfiguration(final String className,
+                                 final Map<String, Object> params,
+                                 final String name,
+                                 final Map<String, Object> extraProps) {
       factoryClassName = className;
 
       if (params == null || params.isEmpty()) {
          this.params = TransportConfigurationUtil.getDefaults(className);
-      }
-      else {
+      } else {
          this.params = params;
       }
 
@@ -134,7 +130,7 @@ public class TransportConfiguration implements Serializable {
    }
 
    public TransportConfiguration newTransportConfig(String newName) {
-      return new TransportConfiguration(factoryClassName,  params, newName);
+      return new TransportConfiguration(factoryClassName, params, newName);
    }
 
    /**
@@ -236,14 +232,11 @@ public class TransportConfiguration implements Serializable {
    public boolean isEquivalent(TransportConfiguration otherConfig) {
       if (this.getFactoryClassName().equals(otherConfig.getFactoryClassName())) {
          return true;
-      }
-      else if (this.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
+      } else if (this.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
          return true;
-      }
-      else if (this.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
+      } else if (this.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -271,8 +264,7 @@ public class TransportConfiguration implements Serializable {
             String val;
             if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME)) {
                val = "****";
-            }
-            else {
+            } else {
                val = entry.getValue() == null ? "null" : entry.getValue().toString();
             }
 
@@ -307,20 +299,16 @@ public class TransportConfiguration implements Serializable {
          if (val instanceof Boolean) {
             buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
             buffer.writeBoolean((Boolean) val);
-         }
-         else if (val instanceof Integer) {
+         } else if (val instanceof Integer) {
             buffer.writeByte(TransportConfiguration.TYPE_INT);
             buffer.writeInt((Integer) val);
-         }
-         else if (val instanceof Long) {
+         } else if (val instanceof Long) {
             buffer.writeByte(TransportConfiguration.TYPE_LONG);
             buffer.writeLong((Long) val);
-         }
-         else if (val instanceof String) {
+         } else if (val instanceof String) {
             buffer.writeByte(TransportConfiguration.TYPE_STRING);
             buffer.writeString((String) val);
-         }
-         else {
+         } else {
             throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
          }
       }
@@ -364,8 +352,7 @@ public class TransportConfiguration implements Serializable {
          if (num > 0) {
             params = new HashMap<>();
          }
-      }
-      else {
+      } else {
          params.clear();
       }
 

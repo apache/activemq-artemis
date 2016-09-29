@@ -261,8 +261,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
             type == you.getType() &&
             transacted == you.isTransacted() &&
             acknowledgeMode == you.getAcknowledgeMode();
-      }
-      else {
+      } else {
          return false;
       }
    }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.transport.udp;
 
-import java.io.IOException;
-
 import javax.jms.MessageNotWriteableException;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -72,8 +71,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
          assertEquals("Selector", expected.getSelector(), actual.getSelector());
          assertEquals("isExclusive", expected.isExclusive(), actual.isExclusive());
          assertEquals("getPrefetchSize", expected.getPrefetchSize(), actual.getPrefetchSize());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.info("Caught: " + e);
          e.printStackTrace();
          fail("Failed to send to transport: " + e);
@@ -120,8 +118,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
          assertEquals("getText", expected.getText(), actual.getText());
 
          LOG.info("Received text message with: " + actual.getText().length() + " character(s)");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.info("Caught: " + e);
          e.printStackTrace();
          fail("Failed to send to transport: " + e);
@@ -148,8 +145,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
                consumer.setTransportListener(UdpTestSupport.this);
                try {
                   consumer.start();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   throw new RuntimeException(e);
                }
             }
@@ -197,8 +193,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       if (producer != null) {
          try {
             producer.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       if (consumer != null) {
@@ -214,8 +209,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       final Command command = (Command) o;
       if (command instanceof WireFormatInfo) {
          LOG.info("Got WireFormatInfo: " + command);
-      }
-      else {
+      } else {
          if (command.isResponseRequired()) {
             // lets send a response back...
             sendResponse(command);
@@ -223,16 +217,14 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
          }
          if (large) {
             LOG.info("### Received command: " + command.getClass() + " with id: " + command.getCommandId());
-         }
-         else {
+         } else {
             LOG.info("### Received command: " + command);
          }
 
          synchronized (lock) {
             if (receivedCommand == null) {
                receivedCommand = command;
-            }
-            else {
+            } else {
                LOG.info("Ignoring superfluous command: " + command);
             }
             lock.notifyAll();
@@ -245,8 +237,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
       response.setCorrelationId(command.getCommandId());
       try {
          consumer.oneway(response);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          LOG.info("Caught: " + e);
          e.printStackTrace();
          throw new RuntimeException(e);

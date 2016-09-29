@@ -28,14 +28,14 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,8 +100,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
          // System.out.flush();
 
          Runtime.getRuntime().halt(100);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace(System.out);
          System.exit(1);
       }
@@ -112,8 +111,7 @@ public class JournalCrashTest extends ActiveMQTestBase {
 
          try {
             session.createQueue(QUEUE, QUEUE, true);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
 
          ClientProducer prod = session.createProducer(QUEUE);

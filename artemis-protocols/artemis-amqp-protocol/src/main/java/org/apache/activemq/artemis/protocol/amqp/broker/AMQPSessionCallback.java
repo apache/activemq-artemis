@@ -28,8 +28,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
-import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -39,7 +37,15 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.EncodedMessage;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -56,12 +62,6 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.ProtonJMessage;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
-import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
-import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
 
 public class AMQPSessionCallback implements SessionCallback {
 
@@ -111,15 +111,13 @@ public class AMQPSessionCallback implements SessionCallback {
                public void run() {
                   try {
                      plugSender.getSender().drained();
-                  }
-                  finally {
+                  } finally {
                      draining.set(false);
                   }
                }
             });
          }
-      }
-      else {
+      } else {
          serverConsumer.receiveCredits(-1);
       }
    }
@@ -203,8 +201,7 @@ public class AMQPSessionCallback implements SessionCallback {
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateJmsQueues() && autoCreate) {
          try {
             serverSession.createQueue(new SimpleString(queueName), new SimpleString(queueName), null, false, true);
-         }
-         catch (ActiveMQQueueExistsException e) {
+         } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
          queueQueryResult = new QueueQueryResult(queueQueryResult.getName(), queueQueryResult.getAddress(), queueQueryResult.isDurable(), queueQueryResult.isTemporary(), queueQueryResult.getFilterString(), queueQueryResult.getConsumerCount(), queueQueryResult.getMessageCount(), queueQueryResult.isAutoCreateJmsQueues(), true);
@@ -217,8 +214,7 @@ public class AMQPSessionCallback implements SessionCallback {
       if (!bindingQueryResult.isExists() && bindingQueryResult.isAutoCreateJmsQueues()) {
          try {
             serverSession.createQueue(new SimpleString(address), new SimpleString(address), null, false, true);
-         }
-         catch (ActiveMQQueueExistsException e) {
+         } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
          bindingQueryResult = serverSession.executeBindingQuery(SimpleString.toSimpleString(address));
@@ -237,8 +233,7 @@ public class AMQPSessionCallback implements SessionCallback {
             try {
                consumer.close(false);
                latch.countDown();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
             }
          }
       };
@@ -250,15 +245,13 @@ public class AMQPSessionCallback implements SessionCallback {
 
       if (executor != null) {
          executor.execute(runnable);
-      }
-      else {
+      } else {
          runnable.run();
       }
 
       try {
          latch.await(10, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new ActiveMQAMQPInternalErrorException("Unable to close consumers for queue: " + consumer.getQueue());
       }
    }
@@ -277,8 +270,7 @@ public class AMQPSessionCallback implements SessionCallback {
          recoverContext();
          try {
             serverSession.close(false);
-         }
-         finally {
+         } finally {
             resetContext();
          }
       }
@@ -291,8 +283,7 @@ public class AMQPSessionCallback implements SessionCallback {
       recoverContext();
       try {
          ((ServerConsumer) brokerConsumer).individualAcknowledge(transaction, ((ServerMessage) message).getMessageID());
-      }
-      finally {
+      } finally {
          resetContext();
       }
    }
@@ -301,8 +292,7 @@ public class AMQPSessionCallback implements SessionCallback {
       recoverContext();
       try {
          ((ServerConsumer) brokerConsumer).individualCancel(((ServerMessage) message).getMessageID(), updateCounts);
-      }
-      finally {
+      } finally {
          resetContext();
       }
    }
@@ -336,12 +326,10 @@ public class AMQPSessionCallback implements SessionCallback {
                ActiveMQException e = new ActiveMQAMQPResourceLimitExceededException("Address is full: " + amqpAddress);
                transaction.markAsRollbackOnly(e);
             }
-         }
-         else {
+         } else {
             rejectMessage(delivery);
          }
-      }
-      else {
+      } else {
          serverSend(transaction, message, delivery, receiver);
       }
    }
@@ -355,7 +343,10 @@ public class AMQPSessionCallback implements SessionCallback {
       connection.flush();
    }
 
-   private void serverSend(final Transaction transaction, final ServerMessage message, final Delivery delivery, final Receiver receiver) throws Exception {
+   private void serverSend(final Transaction transaction,
+                           final ServerMessage message,
+                           final Delivery delivery,
+                           final Receiver receiver) throws Exception {
       try {
 
          message.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString(), receiver.getSession().getConnection().getRemoteContainer());
@@ -380,8 +371,7 @@ public class AMQPSessionCallback implements SessionCallback {
                }
             }
          });
-      }
-      finally {
+      } finally {
          resetContext();
       }
    }
@@ -390,7 +380,10 @@ public class AMQPSessionCallback implements SessionCallback {
       return manager.getPubSubPrefix();
    }
 
-   public void offerProducerCredit(final String address, final int credits, final int threshold, final Receiver receiver) {
+   public void offerProducerCredit(final String address,
+                                   final int credits,
+                                   final int threshold,
+                                   final Receiver receiver) {
       try {
          final PagingStore store = manager.getServer().getPagingManager().getPageStore(new SimpleString(address));
          store.checkMemory(new Runnable() {
@@ -402,8 +395,7 @@ public class AMQPSessionCallback implements SessionCallback {
                }
             }
          });
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -442,8 +434,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       try {
          return plugSender.deliverMessage(message, deliveryCount);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          synchronized (connection.getLock()) {
             plugSender.getSender().setCondition(new ErrorCondition(AmqpError.INTERNAL_ERROR, e.getMessage()));
             connection.flush();
@@ -454,7 +445,11 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public int sendLargeMessage(MessageReference ref, ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
+   public int sendLargeMessage(MessageReference ref,
+                               ServerMessage message,
+                               ServerConsumer consumer,
+                               long bodySize,
+                               int deliveryCount) {
       return 0;
    }
 
@@ -484,8 +479,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       if (plugSender != null && plugSender.getSender().getCredit() > 0) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -497,7 +491,6 @@ public class AMQPSessionCallback implements SessionCallback {
    public Binary newTransaction() {
       return protonSPI.newTransaction();
    }
-
 
    public void commitTX(Binary txid) throws Exception {
       Transaction tx = protonSPI.getTransaction(txid);

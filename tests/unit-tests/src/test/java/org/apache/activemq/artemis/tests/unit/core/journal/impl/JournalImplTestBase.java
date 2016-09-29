@@ -28,10 +28,10 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -131,7 +131,11 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       this.maxAIO = maxAIO;
    }
 
-   protected void setup(final int minFreeFiles, final int poolSize, final int fileSize, final boolean sync, final int maxAIO) {
+   protected void setup(final int minFreeFiles,
+                        final int poolSize,
+                        final int fileSize,
+                        final boolean sync,
+                        final int maxAIO) {
       minFiles = minFreeFiles;
       this.poolSize = poolSize;
       this.fileSize = fileSize;
@@ -155,8 +159,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
             System.out.println("Waiting on Compact");
             try {
                latchWait.await();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
             System.out.println("Waiting on Compact Done");
@@ -177,8 +180,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          public void run() {
             try {
                journal.testCompact();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
          }

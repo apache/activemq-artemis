@@ -57,8 +57,7 @@ public class SoakReceiver {
                });
 
                receiver.run();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -98,8 +97,7 @@ public class SoakReceiver {
 
                return;
             }
-         }
-         catch (JMSException e1) {
+         } catch (JMSException e1) {
             e1.printStackTrace();
          }
          if (count.incrementAndGet() % modulo == 0) {
@@ -135,8 +133,7 @@ public class SoakReceiver {
             connection.close();
             connection = null;
          }
-      }
-      else {
+      } else {
          while (true) {
             Thread.sleep(500);
          }
@@ -148,11 +145,9 @@ public class SoakReceiver {
          try {
             connection.setExceptionListener(null);
             connection.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             e.printStackTrace();
-         }
-         finally {
+         } finally {
             connection = null;
          }
       }
@@ -176,15 +171,12 @@ public class SoakReceiver {
          messageConsumer.setMessageListener(listener);
 
          connection.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          try {
             ic.close();
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             e.printStackTrace();
          }
       }

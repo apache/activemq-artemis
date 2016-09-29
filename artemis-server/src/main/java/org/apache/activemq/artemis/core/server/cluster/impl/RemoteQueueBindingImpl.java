@@ -156,8 +156,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
       if (filters.isEmpty()) {
          return true;
-      }
-      else {
+      } else {
          for (Filter filter : filters) {
             if (filter.match(message)) {
                return true;
@@ -210,8 +209,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
             filterCounts.put(filterString, 1);
 
             filters.add(FilterImpl.createFilter(filterString));
-         }
-         else {
+         } else {
             filterCounts.put(filterString, i + 1);
          }
       }
@@ -231,8 +229,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
                filterCounts.remove(filterString);
 
                filters.remove(FilterImpl.createFilter(filterString));
-            }
-            else {
+            } else {
                filterCounts.put(filterString, ii);
             }
          }
@@ -323,8 +320,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
       if (ids == null) {
          ids = new byte[8];
-      }
-      else {
+      } else {
          byte[] newIds = new byte[ids.length + 8];
 
          System.arraycopy(ids, 0, newIds, 8, ids.length);

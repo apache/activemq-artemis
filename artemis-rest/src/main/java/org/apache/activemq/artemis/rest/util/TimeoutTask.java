@@ -50,17 +50,14 @@ public class TimeoutTask implements Runnable {
       if (callbacksLock.tryLock()) {
          try {
             callbacks.put(token, callback);
-         }
-         finally {
+         } finally {
             callbacksLock.unlock();
          }
-      }
-      else {
+      } else {
          pendingCallbacksLock.lock();
          try {
             pendingCallbacks.put(token, callback);
-         }
-         finally {
+         } finally {
             pendingCallbacksLock.unlock();
          }
       }
@@ -70,8 +67,7 @@ public class TimeoutTask implements Runnable {
       callbacksLock.lock();
       try {
          callbacks.remove(token);
-      }
-      finally {
+      } finally {
          callbacksLock.unlock();
       }
    }
@@ -101,8 +97,7 @@ public class TimeoutTask implements Runnable {
       while (running) {
          try {
             Thread.sleep(interval * 1000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             running = false;
             break;
          }
@@ -127,8 +122,7 @@ public class TimeoutTask implements Runnable {
                   deadConsumers += 1;
                   expiredCallbacks.put(token, callback);
                   callbacks.remove(token);
-               }
-               else {
+               } else {
                   liveConsumers += 1;
                }
             }
@@ -144,12 +138,10 @@ public class TimeoutTask implements Runnable {
                   callbacks.putAll(pendingCallbacks);
                   pendingCallbacks.clear();
                }
-            }
-            finally {
+            } finally {
                pendingCallbacksLock.unlock();
             }
-         }
-         finally {
+         } finally {
             callbacksLock.unlock();
          }
 

@@ -189,23 +189,17 @@ public final class TypeConversionSupport {
       if (type.isPrimitive()) {
          if (type == int.class) {
             rc = Integer.class;
-         }
-         else if (type == long.class) {
+         } else if (type == long.class) {
             rc = Long.class;
-         }
-         else if (type == double.class) {
+         } else if (type == double.class) {
             rc = Double.class;
-         }
-         else if (type == float.class) {
+         } else if (type == float.class) {
             rc = Float.class;
-         }
-         else if (type == short.class) {
+         } else if (type == short.class) {
             rc = Short.class;
-         }
-         else if (type == byte.class) {
+         } else if (type == byte.class) {
             rc = Byte.class;
-         }
-         else if (type == boolean.class) {
+         } else if (type == boolean.class) {
             rc = Boolean.class;
          }
       }

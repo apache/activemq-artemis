@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.stress.journal;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.After;
@@ -105,8 +105,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
             startedCompactingLatch.countDown();
             try {
                releaseCompactingLatch.await();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
          }
@@ -133,8 +132,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
                   tearDown();
                   setUp();
                   testMix(startAt, joinAt, secondAt);
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   throw new Exception("Error at compact=" + startCompactAt +
                                          ", joinCompactAt=" +
                                          joinCompactAt +
@@ -197,8 +195,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
          public void run() {
             try {
                journal.testCompact();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

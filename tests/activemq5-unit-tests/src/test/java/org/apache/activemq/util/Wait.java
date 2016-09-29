@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,34 +17,36 @@
 
 package org.apache.activemq.util;
 
-
 import java.util.concurrent.TimeUnit;
 
 public class Wait {
 
-    public static final long MAX_WAIT_MILLIS = 30*1000;
-    public static final long SLEEP_MILLIS = 1000;
+   public static final long MAX_WAIT_MILLIS = 30 * 1000;
+   public static final long SLEEP_MILLIS = 1000;
 
-    public interface Condition {
-        boolean isSatisified() throws Exception;
-    }
+   public interface Condition {
 
-    public static boolean waitFor(Condition condition) throws Exception {
-        return waitFor(condition, MAX_WAIT_MILLIS);
-    }
+      boolean isSatisified() throws Exception;
+   }
 
-    public static boolean waitFor(final Condition condition, final long duration) throws Exception {
-        return waitFor(condition, duration, SLEEP_MILLIS);
-    }
+   public static boolean waitFor(Condition condition) throws Exception {
+      return waitFor(condition, MAX_WAIT_MILLIS);
+   }
 
-    public static boolean waitFor(final Condition condition, final long duration, final long sleepMillis) throws Exception {
+   public static boolean waitFor(final Condition condition, final long duration) throws Exception {
+      return waitFor(condition, duration, SLEEP_MILLIS);
+   }
 
-        final long expiry = System.currentTimeMillis() + duration;
-        boolean conditionSatisified = condition.isSatisified();
-        while (!conditionSatisified && System.currentTimeMillis() < expiry) {
-            TimeUnit.MILLISECONDS.sleep(sleepMillis);
-            conditionSatisified = condition.isSatisified();
-        }
-        return conditionSatisified;
-    }
+   public static boolean waitFor(final Condition condition,
+                                 final long duration,
+                                 final long sleepMillis) throws Exception {
+
+      final long expiry = System.currentTimeMillis() + duration;
+      boolean conditionSatisified = condition.isSatisified();
+      while (!conditionSatisified && System.currentTimeMillis() < expiry) {
+         TimeUnit.MILLISECONDS.sleep(sleepMillis);
+         conditionSatisified = condition.isSatisified();
+      }
+      return conditionSatisified;
+   }
 }

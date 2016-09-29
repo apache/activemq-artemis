@@ -106,8 +106,7 @@ public class StompDualAuthenticationExample {
          // Step 10. Receive the message
          TextMessage messageReceived = (TextMessage) consumer.receive(5000);
          System.out.println("Received JMS message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

@@ -72,8 +72,7 @@ public class QueueFactoryImpl implements QueueFactory {
       final Queue queue;
       if (addressSettings.isLastValueQueue()) {
          queue = new LastValueQueue(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
-      }
-      else {
+      } else {
          queue = new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.pageSubscription(), config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
       }
       return queue;
@@ -95,8 +94,7 @@ public class QueueFactoryImpl implements QueueFactory {
       Queue queue;
       if (addressSettings.isLastValueQueue()) {
          queue = new LastValueQueue(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
-      }
-      else {
+      } else {
          queue = new QueueImpl(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
       }
 

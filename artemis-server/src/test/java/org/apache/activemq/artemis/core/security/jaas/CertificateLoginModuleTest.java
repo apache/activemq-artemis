@@ -76,18 +76,15 @@ public class CertificateLoginModuleTest extends Assert {
             if (currentPrincipal.getName().equals(USER_NAME)) {
                if (!nameFound) {
                   nameFound = true;
-               }
-               else {
+               } else {
                   fail("UserPrincipal found twice.");
                }
 
-            }
-            else {
+            } else {
                fail("Unknown UserPrincipal found.");
             }
 
-         }
-         else if (currentPrincipal instanceof RolePrincipal) {
+         } else if (currentPrincipal instanceof RolePrincipal) {
             int principalIdx = ROLE_NAMES.indexOf(((RolePrincipal) currentPrincipal).getName());
 
             if (principalIdx < 0) {
@@ -96,12 +93,10 @@ public class CertificateLoginModuleTest extends Assert {
 
             if (!rolesFound[principalIdx]) {
                rolesFound[principalIdx] = true;
-            }
-            else {
+            } else {
                fail("RolePrincipal found twice.");
             }
-         }
-         else {
+         } else {
             fail("Unknown Principal type found.");
          }
       }
@@ -111,8 +106,7 @@ public class CertificateLoginModuleTest extends Assert {
    public void testLoginSuccess() throws IOException {
       try {
          loginWithCredentials(USER_NAME, new HashSet<>(ROLE_NAMES));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Unable to login: " + e.getMessage());
       }
 
@@ -125,8 +119,7 @@ public class CertificateLoginModuleTest extends Assert {
 
       try {
          loginWithCredentials(null, new HashSet<String>());
-      }
-      catch (LoginException e) {
+      } catch (LoginException e) {
          loginFailed = true;
       }
 
@@ -139,8 +132,7 @@ public class CertificateLoginModuleTest extends Assert {
    public void testLogOut() throws IOException {
       try {
          loginWithCredentials(USER_NAME, new HashSet<>(ROLE_NAMES));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Unable to login: " + e.getMessage());
       }
 

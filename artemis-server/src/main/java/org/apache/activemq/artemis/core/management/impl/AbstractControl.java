@@ -60,8 +60,7 @@ public abstract class AbstractControl extends StandardMBean {
          try {
             storageManager.waitOnOperations();
             storageManager.clearContext();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }

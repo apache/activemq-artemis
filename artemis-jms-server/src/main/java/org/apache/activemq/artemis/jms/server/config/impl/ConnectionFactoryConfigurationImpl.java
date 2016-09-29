@@ -186,9 +186,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return this;
    }
 
-
    @Override
-   public ConnectionFactoryConfiguration setConnectorNames(final String...names) {
+   public ConnectionFactoryConfiguration setConnectorNames(final String... names) {
       return this.setConnectorNames(Arrays.asList(names));
    }
 
@@ -634,8 +633,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       if (this.connectorNames == null) {
          buffer.writeInt(0);
-      }
-      else {
+      } else {
          buffer.writeInt(connectorNames.size());
 
          for (String tc : connectorNames) {
@@ -819,7 +817,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
          BufferHelper.sizeOfNullableSimpleString(groupID) +
 
          DataConstants.SIZE_INT +
-          // factoryType
+         // factoryType
 
          BufferHelper.sizeOfNullableSimpleString(protocolManagerFactoryStr) +
 

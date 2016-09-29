@@ -91,8 +91,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          ProxyAssertSupport.assertEquals(rec.getJMSMessageID(), blueMessage.getJMSMessageID());
          ProxyAssertSupport.assertEquals("blue", rec.getStringProperty("color"));
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -140,8 +139,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          Message m = cons1.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -221,8 +219,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          //         }
 
          //ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -313,8 +310,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          m = cons1.receiveNoWait();
 
          ProxyAssertSupport.assertNull(m);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -364,8 +360,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             sess.close();
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -416,8 +411,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             sess.close();
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -499,8 +493,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          ProxyAssertSupport.assertEquals("george", r3.getStringProperty("beatle"));
          ProxyAssertSupport.assertEquals("ringo", r4.getStringProperty("beatle"));
          ProxyAssertSupport.assertEquals("jesus", r5.getStringProperty("beatle"));
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -543,14 +536,12 @@ public class SelectorTest extends ActiveMQServerTestCase {
                      Message m = c.receive(1000);
                      if (m != null) {
                         received.add(m);
-                     }
-                     else {
+                     } else {
                         latch.countDown();
                         return;
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   log.error("receive failed", e);
                }
             }
@@ -564,14 +555,12 @@ public class SelectorTest extends ActiveMQServerTestCase {
                      Message m = c2.receive(1000);
                      if (m != null) {
                         received2.add(m);
-                     }
-                     else {
+                     } else {
                         latch2.countDown();
                         return;
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   log.error("receive failed", e);
                }
             }
@@ -591,8 +580,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
             int value = m.getIntProperty("weight");
             ProxyAssertSupport.assertEquals(value, 2);
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -640,8 +628,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          ProxyAssertSupport.assertEquals("NonPersistent", msg.getText());
          ProxyAssertSupport.assertEquals(DeliveryMode.NON_PERSISTENT, msg.getJMSDeliveryMode());
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -680,8 +667,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -720,8 +706,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -762,8 +747,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -807,8 +791,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -849,8 +832,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -891,8 +873,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          assertNull(cons.receiveNoWait());
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -1007,8 +988,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          tm.acknowledge();
 
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

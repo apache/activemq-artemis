@@ -77,15 +77,13 @@ public class ProtonCPPExample {
             // We are not going to issue this as an error because
             // we also use this example as part of our tests on artemis
             // this is not considered an error, just that no messages arrived (i.e. hello wasn't called)
-         }
-         else {
+         } else {
             System.out.println("message received: " + messageReceived);
 
             // Sending message back to client
             producerAnswer.send(session.createTextMessage("HELLO from Apache ActiveMQ Artemis"));
          }
-      }
-      finally {
+      } finally {
          // Step 9. Be sure to close our resources!
          if (initialContext != null) {
             initialContext.close();

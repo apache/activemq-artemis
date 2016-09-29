@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,14 @@
 
 package org.apache.activemq.security;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 import java.net.URI;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.net.ssl.SSLServerSocket;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
 
 import junit.framework.TestCase;
 
@@ -97,8 +96,7 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
       try {
          sslTransportServer = new SslTransportServer(null, new URI("ssl://localhost:61616?needClientAuth=true"), socketFactory);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Unable to create SslTransportServer.");
       }
       sslTransportServer.setNeedClientAuth(true);
@@ -106,8 +104,7 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
       try {
          nonSslTransportServer = new TcpTransportServer(null, new URI("tcp://localhost:61613"), socketFactory);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Unable to create TcpTransportServer.");
       }
 
@@ -128,8 +125,7 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
       try {
          authBroker.addConnection(connectionContext, connectionInfo);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Call to addConnection failed: " + e.getMessage());
       }
 
@@ -148,19 +144,16 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
          if (currentPrincipal instanceof UserPrincipal) {
             assertEquals("UserPrincipal is '" + DN_USERNAME + "'", DN_USERNAME, currentPrincipal.getName());
-         }
-         else if (currentPrincipal instanceof GroupPrincipal) {
+         } else if (currentPrincipal instanceof GroupPrincipal) {
             assertEquals("GroupPrincipal is '" + DN_GROUP + "'", DN_GROUP, currentPrincipal.getName());
-         }
-         else {
+         } else {
             fail("Unexpected Principal subclass found.");
          }
       }
 
       try {
          authBroker.removeConnection(connectionContext, connectionInfo, null);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Call to removeConnection failed: " + e.getMessage());
       }
       assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());
@@ -173,8 +166,7 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
       try {
          authBroker.addConnection(connectionContext, connectionInfo);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Call to addConnection failed: " + e.getMessage());
       }
 
@@ -192,19 +184,16 @@ public class JaasDualAuthenticationBrokerTest extends TestCase {
 
          if (currentPrincipal instanceof UserPrincipal) {
             assertEquals("UserPrincipal is '" + INSECURE_USERNAME + "'", INSECURE_USERNAME, currentPrincipal.getName());
-         }
-         else if (currentPrincipal instanceof GroupPrincipal) {
+         } else if (currentPrincipal instanceof GroupPrincipal) {
             assertEquals("GroupPrincipal is '" + INSECURE_GROUP + "'", INSECURE_GROUP, currentPrincipal.getName());
-         }
-         else {
+         } else {
             fail("Unexpected Principal subclass found.");
          }
       }
 
       try {
          authBroker.removeConnection(connectionContext, connectionInfo, null);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Call to removeConnection failed: " + e.getMessage());
       }
       assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());

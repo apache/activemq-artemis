@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 import javax.jms.StreamMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMessage {
    // Constants -----------------------------------------------------
@@ -70,21 +69,17 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Boolean) {
+         } else if (value instanceof Boolean) {
             position++;
             return ((Boolean) value).booleanValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             boolean result = Boolean.valueOf((String) value).booleanValue();
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
 
@@ -101,21 +96,17 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          offset = 0;
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             position++;
             return ((Byte) value).byteValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             byte result = Byte.parseByte((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -131,25 +122,20 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             position++;
             return ((Byte) value).shortValue();
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             position++;
             return ((Short) value).shortValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             short result = Short.parseShort((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -165,16 +151,13 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Character) {
+         } else if (value instanceof Character) {
             position++;
             return ((Character) value).charValue();
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -190,29 +173,23 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             position++;
             return ((Byte) value).intValue();
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             position++;
             return ((Short) value).intValue();
-         }
-         else if (value instanceof Integer) {
+         } else if (value instanceof Integer) {
             position++;
             return ((Integer) value).intValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             int result = Integer.parseInt((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -228,33 +205,26 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             position++;
             return ((Byte) value).longValue();
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             position++;
             return ((Short) value).longValue();
-         }
-         else if (value instanceof Integer) {
+         } else if (value instanceof Integer) {
             position++;
             return ((Integer) value).longValue();
-         }
-         else if (value instanceof Long) {
+         } else if (value instanceof Long) {
             position++;
             return ((Long) value).longValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             long result = Long.parseLong((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -270,21 +240,17 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Float) {
+         } else if (value instanceof Float) {
             position++;
             return ((Float) value).floatValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             float result = Float.parseFloat((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -300,25 +266,20 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
          if (value == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (value instanceof Float) {
+         } else if (value instanceof Float) {
             position++;
             return ((Float) value).doubleValue();
-         }
-         else if (value instanceof Double) {
+         } else if (value instanceof Double) {
             position++;
             return ((Double) value).doubleValue();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             double result = Double.parseDouble((String) value);
             position++;
             return result;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -335,48 +296,37 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          if (value == null) {
             position++;
             return null;
-         }
-         else if (value instanceof Boolean) {
+         } else if (value instanceof Boolean) {
             position++;
             return ((Boolean) value).toString();
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             position++;
             return ((Byte) value).toString();
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             position++;
             return ((Short) value).toString();
-         }
-         else if (value instanceof Character) {
+         } else if (value instanceof Character) {
             position++;
             return ((Character) value).toString();
-         }
-         else if (value instanceof Integer) {
+         } else if (value instanceof Integer) {
             position++;
             return ((Integer) value).toString();
-         }
-         else if (value instanceof Long) {
+         } else if (value instanceof Long) {
             position++;
             return ((Long) value).toString();
-         }
-         else if (value instanceof Float) {
+         } else if (value instanceof Float) {
             position++;
             return ((Float) value).toString();
-         }
-         else if (value instanceof Double) {
+         } else if (value instanceof Double) {
             position++;
             return ((Double) value).toString();
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             position++;
             return (String) value;
-         }
-         else {
+         } else {
             throw new MessageFormatException("Invalid conversion");
          }
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -390,8 +340,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object myObj = content.get(position);
          if (myObj == null) {
             throw new NullPointerException("Value is null");
-         }
-         else if (!(myObj instanceof byte[])) {
+         } else if (!(myObj instanceof byte[])) {
             throw new MessageFormatException("Invalid conversion");
          }
          byte[] obj = (byte[]) myObj;
@@ -415,16 +364,14 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
             offset = 0;
 
             return obj.length - offset;
-         }
-         else {
+         } else {
             System.arraycopy(obj, offset, value, 0, value.length);
             offset += value.length;
 
             return value.length;
          }
 
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -440,8 +387,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          offset = 0;
 
          return value;
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
@@ -517,8 +463,7 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       }
       if (value == null) {
          content.add(null);
-      }
-      else {
+      } else {
          content.add(value);
       }
    }
@@ -553,38 +498,27 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       }
       if (value == null) {
          content.add(null);
-      }
-      else if (value instanceof Boolean) {
+      } else if (value instanceof Boolean) {
          content.add(value);
-      }
-      else if (value instanceof Byte) {
+      } else if (value instanceof Byte) {
          content.add(value);
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          content.add(value);
-      }
-      else if (value instanceof Character) {
+      } else if (value instanceof Character) {
          content.add(value);
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          content.add(value);
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          content.add(value);
-      }
-      else if (value instanceof Float) {
+      } else if (value instanceof Float) {
          content.add(value);
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          content.add(value);
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          content.add(value);
-      }
-      else if (value instanceof byte[]) {
+      } else if (value instanceof byte[]) {
          content.add(((byte[]) value).clone());
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid object type");
       }
    }

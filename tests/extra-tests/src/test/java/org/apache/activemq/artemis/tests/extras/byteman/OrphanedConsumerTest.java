@@ -114,8 +114,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetMethod = "close",
          targetLocation = "ENTRY",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
-         })
+         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
    public void testOrphanedConsumers() throws Exception {
       internalTestOrphanedConsumers(false);
    }
@@ -142,8 +141,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetMethod = "close",
          targetLocation = "ENTRY",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
-         })
+         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")})
    public void testOrphanedConsumersByManagement() throws Exception {
       internalTestOrphanedConsumers(true);
    }
@@ -190,8 +188,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
 
          // an extra second to avoid races of something closing the session while we are asserting it
          Thread.sleep(1000);
-      }
-      else {
+      } else {
          server.getActiveMQServerControl().closeConnectionsForAddress("127.0.0.1");
       }
 

@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.jms.referenceable;
 
+import javax.naming.NamingException;
+import javax.naming.RefAddr;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import javax.naming.NamingException;
-import javax.naming.RefAddr;
 
 /**
  * A SerializableObjectRefAddr.
@@ -52,8 +51,7 @@ public class SerializableObjectRefAddr extends RefAddr {
          oos.flush();
 
          bytes = bos.toByteArray();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw new NamingException("Failed to serialize object:" + content + ", " + e.getMessage());
       }
    }

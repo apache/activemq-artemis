@@ -77,8 +77,7 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
          jmsServer.createConnectionFactory("ConnectionFactory2", false, JMSFactoryType.CF, dcConfig2.getName(), "/ConnectionFactory2");
 
          testQueue = createQueue("testQueueFor1389");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          throw e;
       }
@@ -99,8 +98,7 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
 
       try {
          serialize(jmsCf1);
-      }
-      catch (java.io.NotSerializableException e) {
+      } catch (java.io.NotSerializableException e) {
          //this is expected
       }
 

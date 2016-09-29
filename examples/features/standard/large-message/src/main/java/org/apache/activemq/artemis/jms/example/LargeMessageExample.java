@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,6 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * This example demonstrates the ability of ActiveMQ Artemis to send and consume a very large message, much
@@ -166,8 +166,7 @@ public class LargeMessageExample {
          }
 
          System.out.println("File streamed to disk. Size of received file on disk is " + outputFile.length());
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our resources!
          if (initialContext != null) {
             initialContext.close();

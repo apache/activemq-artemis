@@ -145,8 +145,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       if (conn instanceof NettyConnection) {
          direct = ((NettyConnection) conn).isDirectDeliver();
-      }
-      else {
+      } else {
          direct = false;
       }
    }
@@ -164,8 +163,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       try {
          session.close(true);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
 
@@ -177,8 +175,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       try {
          session.close(false);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
    }
@@ -215,8 +212,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
                      if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                         response = new SessionQueueQueryResponseMessage_V2(queueQueryResult);
-                     }
-                     else {
+                     } else {
                         response = new SessionQueueQueryResponseMessage(queueQueryResult);
                      }
                   }
@@ -254,8 +250,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
                   if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                      response = new SessionQueueQueryResponseMessage_V2(result);
-                  }
-                  else {
+                  } else {
                      response = new SessionQueueQueryResponseMessage(result);
                   }
                   break;
@@ -266,11 +261,9 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
                   if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V3)) {
                      response = new SessionBindingQueryResponseMessage_V3(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues(), result.isAutoCreateJmsTopics());
-                  }
-                  else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
+                  } else if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
                      response = new SessionBindingQueryResponseMessage_V2(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues());
-                  }
-                  else {
+                  } else {
                      response = new SessionBindingQueryResponseMessage(result.isExists(), result.getQueueNames());
                   }
                   break;
@@ -480,63 +473,52 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   SessionUniqueAddMetaDataMessage message = (SessionUniqueAddMetaDataMessage) packet;
                   if (session.addUniqueMetaData(message.getKey(), message.getData())) {
                      response = new NullResponseMessage();
-                  }
-                  else {
+                  } else {
                      response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.duplicateMetadata(message.getKey(), message.getData()));
                   }
                   break;
                }
             }
-         }
-         catch (ActiveMQIOErrorException e) {
+         } catch (ActiveMQIOErrorException e) {
             getSession().markTXFailed(e);
             if (requiresResponse) {
                logger.debug("Sending exception to client", e);
                response = new ActiveMQExceptionMessage(e);
-            }
-            else {
+            } else {
                ActiveMQServerLogger.LOGGER.caughtException(e);
             }
-         }
-         catch (ActiveMQXAException e) {
+         } catch (ActiveMQXAException e) {
             if (requiresResponse) {
                logger.debug("Sending exception to client", e);
                response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
-            }
-            else {
+            } else {
                ActiveMQServerLogger.LOGGER.caughtXaException(e);
             }
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             if (requiresResponse) {
                logger.debug("Sending exception to client", e);
                response = new ActiveMQExceptionMessage(e);
-            }
-            else {
+            } else {
                if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS) {
                   logger.debug("Caught exception", e);
-               }
-               else {
+               } else {
                   ActiveMQServerLogger.LOGGER.caughtException(e);
                }
             }
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             getSession().markTXFailed(t);
             if (requiresResponse) {
                ActiveMQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
                ActiveMQException activeMQInternalErrorException = new ActiveMQInternalErrorException();
                activeMQInternalErrorException.initCause(t);
                response = new ActiveMQExceptionMessage(activeMQInternalErrorException);
-            }
-            else {
+            } else {
                ActiveMQServerLogger.LOGGER.caughtException(t);
             }
          }
 
          sendResponse(packet, response, flush, closeChannel);
-      }
-      finally {
+      } finally {
          storageManager.clearContext();
       }
    }

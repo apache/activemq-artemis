@@ -151,8 +151,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       coreDeploymentManager.addDeployable(coreConfiguration);
       try {
          coreDeploymentManager.readConfiguration();
-      }
-      catch (Exception readCoreConfigEx) {
+      } catch (Exception readCoreConfigEx) {
          throw new EmbeddedJMSResourceException(String.format("Failed to read ActiveMQServer configuration from file %s", serverConfigurationFileName), readCoreConfigEx);
       }
       this.configuration = coreConfiguration;
@@ -162,8 +161,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       jmsDeploymentManager.addDeployable(jmsConfiguration);
       try {
          jmsDeploymentManager.readConfiguration();
-      }
-      catch (Exception readJmsConfigEx) {
+      } catch (Exception readJmsConfigEx) {
          throw new EmbeddedJMSResourceException(String.format("Failed to read JMSServerManager configuration from file %s", jmsConfigurationFileName), readJmsConfigEx);
       }
       this.jmsConfiguration = jmsConfiguration;
@@ -176,8 +174,7 @@ public class EmbeddedJMSResource extends ExternalResource {
          for (Map.Entry<String, Object> property : properties.entrySet()) {
             try {
                message.setObjectProperty(property.getKey(), property.getValue());
-            }
-            catch (JMSException jmsEx) {
+            } catch (JMSException jmsEx) {
                throw new EmbeddedJMSResourceException(String.format("Failed to set property {%s = %s}", property.getKey(), property.getValue().toString()), jmsEx);
             }
          }
@@ -200,8 +197,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       log.info("Starting {}: {}", this.getClass().getSimpleName(), this.getServerName());
       try {
          jmsServer.start();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new RuntimeException(String.format("Exception encountered starting %s: %s", jmsServer.getClass().getSimpleName(), this.getServerName()), ex);
       }
    }
@@ -222,8 +218,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       if (jmsServer != null) {
          try {
             jmsServer.stop();
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             log.warn(String.format("Exception encountered stopping %s: %s - ignoring", jmsServer.getClass().getSimpleName(), this.getServerName()), ex);
          }
       }
@@ -278,8 +273,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       ActiveMQServer activeMQServer = jmsServer.getActiveMQServer();
       if (activeMQServer != null) {
          name = activeMQServer.getConfiguration().getName();
-      }
-      else if (configuration != null) {
+      } else if (configuration != null) {
          name = configuration.getName();
       }
 
@@ -320,13 +314,11 @@ public class EmbeddedJMSResource extends ExternalResource {
       String name = destination.getName();
       if (destination.isQueue()) {
          queue = jmsServer.getActiveMQServer().locateQueue(destination.getSimpleAddress());
-      }
-      else {
+      } else {
          BindingQueryResult bindingQueryResult = null;
          try {
             bindingQueryResult = jmsServer.getActiveMQServer().bindingQuery(destination.getSimpleAddress());
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             log.error(String.format("getDestinationQueue( %s ) - bindingQuery for %s failed", destinationName, destination.getAddress()), ex);
             return null;
          }
@@ -357,8 +349,7 @@ public class EmbeddedJMSResource extends ExternalResource {
          BindingQueryResult bindingQueryResult = null;
          try {
             bindingQueryResult = jmsServer.getActiveMQServer().bindingQuery(destination.getSimpleAddress());
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             log.error(String.format("getTopicQueues( %s ) - bindingQuery for %s failed", topicName, destination.getAddress()), ex);
             return queues;
          }
@@ -396,12 +387,10 @@ public class EmbeddedJMSResource extends ExternalResource {
          if (queue == null) {
             log.warn("getMessageCount(destinationName) - destination {} not found; returning -1", destinationName);
             count = -1;
-         }
-         else {
+         } else {
             count = queue.getMessageCount();
          }
-      }
-      else {
+      } else {
          for (Queue topicQueue : getTopicQueues(destinationName)) {
             count += topicQueue.getMessageCount();
          }
@@ -451,8 +440,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       if (body != null) {
          try {
             message.writeBytes(body);
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException(String.format("Failed to set body {%s} on BytesMessage", new String(body)), jmsEx);
          }
       }
@@ -467,8 +455,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       if (body != null) {
          try {
             message.setText(body);
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException(String.format("Failed to set body {%s} on TextMessage", body), jmsEx);
          }
       }
@@ -485,8 +472,7 @@ public class EmbeddedJMSResource extends ExternalResource {
          for (Map.Entry<String, Object> entry : body.entrySet()) {
             try {
                message.setObject(entry.getKey(), entry.getValue());
-            }
-            catch (JMSException jmsEx) {
+            } catch (JMSException jmsEx) {
                throw new EmbeddedJMSResourceException(String.format("Failed to set body entry {%s = %s} on MapMessage", entry.getKey(), entry.getValue().toString()), jmsEx);
             }
          }
@@ -503,8 +489,7 @@ public class EmbeddedJMSResource extends ExternalResource {
       if (body != null) {
          try {
             message.setObject(body);
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException(String.format("Failed to set body {%s} on ObjectMessage", body.toString()), jmsEx);
          }
       }
@@ -517,8 +502,7 @@ public class EmbeddedJMSResource extends ExternalResource {
    public void pushMessage(String destinationName, Message message) {
       if (destinationName == null) {
          throw new IllegalArgumentException("sendMessage failure - destination name is required");
-      }
-      else if (message == null) {
+      } else if (message == null) {
          throw new IllegalArgumentException("sendMessage failure - a Message is required");
       }
       ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, ActiveMQDestination.QUEUE_TYPE);
@@ -648,8 +632,7 @@ public class EmbeddedJMSResource extends ExternalResource {
             session = connection.createSession();
             producer = session.createProducer(null);
             connection.start();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("InternalClient creation failure", jmsEx);
          }
       }
@@ -657,32 +640,26 @@ public class EmbeddedJMSResource extends ExternalResource {
       void stop() {
          try {
             producer.close();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             log.warn("JMSException encounter closing InternalClient Session - MessageProducer", jmsEx);
-         }
-         finally {
+         } finally {
             producer = null;
          }
 
          try {
             session.close();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             log.warn("JMSException encounter closing InternalClient Session - ignoring", jmsEx);
-         }
-         finally {
+         } finally {
             session = null;
          }
 
          if (null != connection) {
             try {
                connection.close();
-            }
-            catch (JMSException jmsEx) {
+            } catch (JMSException jmsEx) {
                log.warn("JMSException encounter closing InternalClient Connection - ignoring", jmsEx);
-            }
-            finally {
+            } finally {
                connection = null;
             }
          }
@@ -693,8 +670,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
          try {
             return session.createBytesMessage();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("Failed to create BytesMessage", jmsEx);
          }
       }
@@ -704,8 +680,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
          try {
             return session.createTextMessage();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("Failed to create TextMessage", jmsEx);
          }
       }
@@ -715,8 +690,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
          try {
             return session.createMapMessage();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("Failed to create MapMessage", jmsEx);
          }
       }
@@ -726,8 +700,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
          try {
             return session.createObjectMessage();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("Failed to create ObjectMessage", jmsEx);
          }
       }
@@ -736,8 +709,7 @@ public class EmbeddedJMSResource extends ExternalResource {
          checkSession();
          try {
             return session.createStreamMessage();
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException("Failed to create StreamMessage", jmsEx);
          }
       }
@@ -749,8 +721,7 @@ public class EmbeddedJMSResource extends ExternalResource {
 
          try {
             producer.send(destination, message);
-         }
-         catch (JMSException jmsEx) {
+         } catch (JMSException jmsEx) {
             throw new EmbeddedJMSResourceException(String.format("Failed to push %s to %s", message.getClass().getSimpleName(), destination.toString()), jmsEx);
          }
       }

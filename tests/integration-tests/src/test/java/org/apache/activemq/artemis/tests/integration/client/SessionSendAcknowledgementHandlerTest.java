@@ -66,8 +66,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
             public void sendAcknowledged(Message message) {
             }
          });
-      }
-      catch (Throwable expected) {
+      } catch (Throwable expected) {
          failed = true;
       }
 

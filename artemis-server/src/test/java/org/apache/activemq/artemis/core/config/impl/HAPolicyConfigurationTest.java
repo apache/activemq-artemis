@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
@@ -37,8 +39,6 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-import java.util.List;
-
 public class HAPolicyConfigurationTest extends ActiveMQTestBase {
 
    @Test
@@ -59,8 +59,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -86,8 +85,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(connectors.size(), 2);
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -122,8 +120,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(replicatedPolicy.isCheckForLiveServer());
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
          assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -152,8 +149,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -182,8 +178,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(connectors.size(), 2);
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -205,8 +200,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(replicaPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -223,8 +217,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(haPolicy instanceof SharedStoreMasterPolicy);
          SharedStoreMasterPolicy masterPolicy = (SharedStoreMasterPolicy) haPolicy;
          assertFalse(masterPolicy.isFailoverOnServerShutdown());
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -249,8 +242,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -277,8 +269,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(connectors.size(), 2);
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -298,8 +289,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertTrue(sharedStoreSlavePolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -327,8 +317,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(backupPolicy.getMaxSavedReplicatedJournalsSize(), 22);
          assertEquals(backupPolicy.getClusterName(), "33rrrrr");
          assertFalse(backupPolicy.isRestartBackup());
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -352,8 +341,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(livePolicy.getClusterName(), "abcdefg");
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -377,8 +365,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertNotNull(backupPolicy);
          assertFalse(backupPolicy.isFailoverOnServerShutdown());
          assertFalse(backupPolicy.isRestartBackup());
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -400,8 +387,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertFalse(livePolicy.isFailoverOnServerShutdown());
          SharedStoreSlavePolicy backupPolicy = (SharedStoreSlavePolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }
@@ -418,8 +404,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
          ScaleDownPolicy scaleDownPolicy = liveOnlyPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }

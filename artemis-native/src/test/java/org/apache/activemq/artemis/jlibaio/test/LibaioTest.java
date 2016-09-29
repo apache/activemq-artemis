@@ -53,19 +53,16 @@ public class LibaioTest {
       try {
          parent.mkdirs();
 
-
          boolean failed = false;
          try (LibaioContext control = new LibaioContext<>(1, true); LibaioFile fileDescriptor = control.openFile(file, true)) {
             fileDescriptor.fallocate(4 * 1024);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             failed = true;
          }
 
          Assume.assumeFalse("There is not enough support to libaio", failed);
-      }
-      finally {
+      } finally {
          file.delete();
       }
    }
@@ -218,8 +215,7 @@ public class LibaioTest {
 
             file.close();
          }
-      }
-      finally {
+      } finally {
          LibaioContext.freeBuffer(buffer);
       }
    }
@@ -270,8 +266,7 @@ public class LibaioTest {
          for (int i = 0; i < 512; i++) {
             Assert.assertEquals('B', buffer.get());
          }
-      }
-      finally {
+      } finally {
          LibaioContext.freeBuffer(buffer);
          fileDescriptor.close();
       }
@@ -330,8 +325,7 @@ public class LibaioTest {
          for (int i = 0; i < BUFFER_SIZE; i++) {
             Assert.assertEquals('B', buffer.get());
          }
-      }
-      finally {
+      } finally {
          fileDescriptor.close();
       }
    }
@@ -372,8 +366,7 @@ public class LibaioTest {
          for (int i = 0; i < BUFFER_SIZE; i++) {
             Assert.assertEquals('@', buffer.get());
          }
-      }
-      finally {
+      } finally {
          LibaioContext.freeBuffer(buffer);
          fileDescriptor.close();
       }
@@ -432,8 +425,7 @@ public class LibaioTest {
          callback = null;
 
          TestInfo.checkLeaks();
-      }
-      finally {
+      } finally {
          fileDescriptor.close();
       }
    }
@@ -470,8 +462,7 @@ public class LibaioTest {
          }
 
          TestInfo.checkLeaks();
-      }
-      finally {
+      } finally {
          LibaioContext.freeBuffer(bufferWrite);
       }
    }
@@ -501,8 +492,7 @@ public class LibaioTest {
       boolean failed = false;
       try {
          LibaioContext.freeBuffer(null);
-      }
-      catch (Exception expected) {
+      } catch (Exception expected) {
          failed = true;
       }
 
@@ -546,8 +536,7 @@ public class LibaioTest {
       try {
          // There is no space for a queue this huge, the native layer should throw the exception
          LibaioContext newController = new LibaioContext(Integer.MAX_VALUE, false);
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          exceptionThrown = true;
       }
 
@@ -557,8 +546,7 @@ public class LibaioTest {
       try {
          // this should throw an exception, we shouldn't be able to open a directory!
          control.openFile(temporaryFolder.getRoot(), true);
-      }
-      catch (IOException expected) {
+      } catch (IOException expected) {
          exceptionThrown = true;
       }
 
@@ -570,8 +558,7 @@ public class LibaioTest {
       fileDescriptor.close();
       try {
          fileDescriptor.close();
-      }
-      catch (IOException expected) {
+      } catch (IOException expected) {
          exceptionThrown = true;
       }
 
@@ -593,8 +580,7 @@ public class LibaioTest {
          boolean ex = false;
          try {
             fileDescriptor.write(0, 512, buffer, new TestInfo());
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ex = true;
          }
 
@@ -623,8 +609,7 @@ public class LibaioTest {
          exceptionThrown = false;
          try {
             LibaioContext.newAlignedBuffer(300, 512);
-         }
-         catch (RuntimeException e) {
+         } catch (RuntimeException e) {
             exceptionThrown = true;
          }
 
@@ -633,14 +618,12 @@ public class LibaioTest {
          exceptionThrown = false;
          try {
             LibaioContext.newAlignedBuffer(-512, 512);
-         }
-         catch (RuntimeException e) {
+         } catch (RuntimeException e) {
             exceptionThrown = true;
          }
 
          Assert.assertTrue(exceptionThrown);
-      }
-      finally {
+      } finally {
          LibaioContext.freeBuffer(buffer);
       }
    }

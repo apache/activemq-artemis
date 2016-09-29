@@ -713,8 +713,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase {
             while (vertxMsg == null && timeout > System.currentTimeMillis()) {
                try {
                   lock.wait(1000);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                }
             }
             msg = vertxMsg;

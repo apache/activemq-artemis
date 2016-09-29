@@ -94,9 +94,8 @@ public class MultipleProducersTest extends JMSTestBase {
          while (true) {
             sendMessage(queueOne, session);
          }
-      }
-      catch (Throwable t) {
-//         t.printStackTrace();
+      } catch (Throwable t) {
+         //         t.printStackTrace();
          // expected
       }
 
@@ -115,8 +114,7 @@ public class MultipleProducersTest extends JMSTestBase {
       try {
          sendMessage(queueOne, session);
          Assert.fail("Exception expected");
-      }
-      catch (Exception t) {
+      } catch (Exception t) {
       }
 
       // send 5 message to queueTwo
@@ -163,8 +161,7 @@ public class MultipleProducersTest extends JMSTestBase {
          mp.setTimeToLive(Message.DEFAULT_TIME_TO_LIVE);
 
          mp.send(session.createTextMessage("This is message for " + queue.getQueueName()));
-      }
-      finally {
+      } finally {
 
          mp.close();
       }

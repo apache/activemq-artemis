@@ -31,10 +31,14 @@ public interface ServerConsumer extends Consumer {
 
    void fireSlowConsumer();
 
-   /** this is to be used with anything specific on a protocol head. */
+   /**
+    * this is to be used with anything specific on a protocol head.
+    */
    Object getProtocolData();
 
-   /** this is to be used with anything specific on a protocol head. */
+   /**
+    * this is to be used with anything specific on a protocol head.
+    */
    void setProtocolData(Object protocolData);
 
    /**
@@ -74,11 +78,15 @@ public interface ServerConsumer extends Consumer {
 
    MessageReference removeReferenceByID(long messageID) throws Exception;
 
-   /** Some protocols may choose to send the message back to delivering instead of redeliver.
-    *  For example openwire will redeliver through the client, so messages will go back to delivering list after rollback. */
+   /**
+    * Some protocols may choose to send the message back to delivering instead of redeliver.
+    * For example openwire will redeliver through the client, so messages will go back to delivering list after rollback.
+    */
    void backToDelivering(MessageReference reference);
 
-   List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove, Object protocolDataStart, Object protocolDataEnd);
+   List<MessageReference> getDeliveringReferencesBasedOnProtocol(boolean remove,
+                                                                 Object protocolDataStart,
+                                                                 Object protocolDataEnd);
 
    void acknowledge(Transaction tx, long messageID) throws Exception;
 

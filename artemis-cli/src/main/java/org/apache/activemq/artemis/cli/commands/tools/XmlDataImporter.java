@@ -161,8 +161,7 @@ public final class XmlDataImporter extends ActionAbstract {
       this.session = session;
       if (managementSession != null) {
          this.managementSession = managementSession;
-      }
-      else {
+      } else {
          this.managementSession = session;
       }
       localSession = false;
@@ -182,8 +181,7 @@ public final class XmlDataImporter extends ActionAbstract {
       if (user != null || password != null) {
          session = sf.createSession(user, password, false, !transactional, true, false, 0);
          managementSession = sf.createSession(user, password, false, true, true, false, 0);
-      }
-      else {
+      } else {
          session = sf.createSession(false, !transactional, true);
          managementSession = sf.createSession(false, true, true);
       }
@@ -201,14 +199,11 @@ public final class XmlDataImporter extends ActionAbstract {
             if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
                if (XmlDataConstants.BINDINGS_CHILD.equals(reader.getLocalName())) {
                   bindQueue();
-               }
-               else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
                   processMessage();
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
                   createJmsConnectionFactories();
-               }
-               else if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
                   createJmsDestinations();
                }
             }
@@ -218,8 +213,7 @@ public final class XmlDataImporter extends ActionAbstract {
          if (!session.isAutoCommitSends()) {
             session.commit();
          }
-      }
-      finally {
+      } finally {
          // if the session was created in our constructor then close it (otherwise the caller will close it)
          if (localSession) {
             session.close();
@@ -270,11 +264,9 @@ public final class XmlDataImporter extends ActionAbstract {
             case XMLStreamConstants.START_ELEMENT:
                if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName())) {
                   processMessageBody(message);
-               }
-               else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
                   processMessageProperties(message);
-               }
-               else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
                   processMessageQueues(queues);
                }
                break;
@@ -330,8 +322,7 @@ public final class XmlDataImporter extends ActionAbstract {
 
          if (queueIDs.containsKey(queue)) {
             queueID = queueIDs.get(queue);
-         }
-         else {
+         } else {
             // Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
             // send directly to a queue, we have to send to an address instead but not all the queues related to the
             // address may need the message
@@ -474,8 +465,7 @@ public final class XmlDataImporter extends ActionAbstract {
          FileInputStream fileInputStream = new FileInputStream(tempFileName);
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
          ((ClientMessage) message).setBodyInputStream(bufferedInput);
-      }
-      else {
+      } else {
          getMessageBodyBytes(new MessageBodyBytesProcessor() {
             @Override
             public void processBodyBytes(byte[] bytes) throws IOException {
@@ -502,15 +492,13 @@ public final class XmlDataImporter extends ActionAbstract {
          currentEventType = reader.getEventType();
          if (currentEventType == XMLStreamConstants.END_ELEMENT) {
             break;
-         }
+         } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && cdata.length() > 0) {
          /* when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
           * the processor, and reset the cdata for the next event(s)
           */
-         else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && cdata.length() > 0) {
             processor.processBodyBytes(decode(cdata.toString()));
             cdata.setLength(0);
-         }
-         else {
+         } else {
             cdata.append(new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength()).trim());
          }
          reader.next();
@@ -544,8 +532,7 @@ public final class XmlDataImporter extends ActionAbstract {
          if (logger.isDebugEnabled()) {
             logger.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
          }
-      }
-      else {
+      } else {
          if (logger.isDebugEnabled()) {
             logger.debug("Binding " + queueName + " already exists so won't re-bind.");
          }
@@ -651,210 +638,175 @@ public final class XmlDataImporter extends ActionAbstract {
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory callFailoverTimeout: " + callFailoverTimeout);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName())) {
                   callTimeout = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory callTimeout: " + callTimeout);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName())) {
                   clientFailureCheckPeriod = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory clientFailureCheckPeriod: " + clientFailureCheckPeriod);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName())) {
                   clientId = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory clientId: " + clientId);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName())) {
                   confirmationWindowSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory confirmationWindowSize: " + confirmationWindowSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName())) {
                   connectionTtl = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory connectionTtl: " + connectionTtl);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
                   connectors = getConnectors();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory getLocalName: " + connectors);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName())) {
                   consumerMaxRate = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory consumerMaxRate: " + consumerMaxRate);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName())) {
                   consumerWindowSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory consumerWindowSize: " + consumerWindowSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName())) {
                   discoveryGroupName = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory discoveryGroupName: " + discoveryGroupName);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName())) {
                   dupsOkBatchSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory dupsOkBatchSize: " + dupsOkBatchSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName())) {
                   groupId = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory groupId: " + groupId);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName())) {
                   loadBalancingPolicyClassName = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory loadBalancingPolicyClassName: " + loadBalancingPolicyClassName);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName())) {
                   maxRetryInterval = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory maxRetryInterval: " + maxRetryInterval);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName())) {
                   minLargeMessageSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory minLargeMessageSize: " + minLargeMessageSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName())) {
                   name = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory name: " + name);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName())) {
                   producerMaxRate = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory producerMaxRate: " + producerMaxRate);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName())) {
                   producerWindowSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory producerWindowSize: " + producerWindowSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName())) {
                   reconnectAttempts = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory reconnectAttempts: " + reconnectAttempts);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName())) {
                   retryInterval = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory retryInterval: " + retryInterval);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName())) {
                   retryIntervalMultiplier = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory retryIntervalMultiplier: " + retryIntervalMultiplier);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
                   scheduledThreadMaxPoolSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory scheduledThreadMaxPoolSize: " + scheduledThreadMaxPoolSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
                   threadMaxPoolSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory threadMaxPoolSize: " + threadMaxPoolSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName())) {
                   transactionBatchSize = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory transactionBatchSize: " + transactionBatchSize);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName())) {
                   type = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory type: " + type);
                   }
-               }
-               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
                   entries = getEntries();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory entries: " + entries);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName())) {
                   autoGroup = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory autoGroup: " + autoGroup);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName())) {
                   blockOnAcknowledge = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory blockOnAcknowledge: " + blockOnAcknowledge);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName())) {
                   blockOnDurableSend = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory blockOnDurableSend: " + blockOnDurableSend);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName())) {
                   blockOnNonDurableSend = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory blockOnNonDurableSend: " + blockOnNonDurableSend);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName())) {
                   cacheLargeMessagesClient = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.info("JMS connection factory " + name + " cacheLargeMessagesClient: " + cacheLargeMessagesClient);
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName())) {
                   compressLargeMessages = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory compressLargeMessages: " + compressLargeMessages);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName())) {
                   failoverOnInitialConnection = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory failoverOnInitialConnection: " + failoverOnInitialConnection);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName())) {
                   ha = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory ha: " + ha);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName())) {
                   preacknowledge = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory preacknowledge: " + preacknowledge);
                   }
-               }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName())) {
                   useGlobalPools = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS connection factory useGlobalPools: " + useGlobalPools);
@@ -883,8 +835,7 @@ public final class XmlDataImporter extends ActionAbstract {
          if (logger.isDebugEnabled()) {
             logger.debug("Created connection factory " + name);
          }
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 
@@ -907,20 +858,17 @@ public final class XmlDataImporter extends ActionAbstract {
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS destination name: " + name);
                   }
-               }
-               else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName())) {
                   selector = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS destination selector: " + selector);
                   }
-               }
-               else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName())) {
                   type = reader.getElementText();
                   if (logger.isDebugEnabled()) {
                      logger.debug("JMS destination type: " + type);
                   }
-               }
-               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
+               } else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
                   entries = getEntries();
                }
                break;
@@ -940,8 +888,7 @@ public final class XmlDataImporter extends ActionAbstract {
       ClientMessage managementMessage = managementSession.createMessage(false);
       if ("Queue".equals(type)) {
          ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);
-      }
-      else if ("Topic".equals(type)) {
+      } else if ("Topic".equals(type)) {
          ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createTopic", name, entries);
       }
       managementSession.start();
@@ -950,8 +897,7 @@ public final class XmlDataImporter extends ActionAbstract {
          if (logger.isDebugEnabled()) {
             logger.debug("Created " + type.toLowerCase() + " " + name);
          }
-      }
-      else {
+      } else {
          ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 

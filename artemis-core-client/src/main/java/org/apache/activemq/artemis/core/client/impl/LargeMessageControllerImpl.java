@@ -122,8 +122,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.totalSize = totalSize;
       if (cachedFile == null) {
          fileCache = null;
-      }
-      else {
+      } else {
          fileCache = new FileCache(cachedFile);
       }
       this.bufferSize = bufferSize;
@@ -142,8 +141,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             return;
          try {
             checkForPacket(totalSize - 1);
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
       }
    }
@@ -177,18 +175,15 @@ public class LargeMessageControllerImpl implements LargeMessageController {
                if (streamEnded) {
                   outStream.close();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
                handledException = e;
             }
-         }
-         else {
+         } else {
             if (fileCache != null) {
                try {
                   fileCache.cachePackage(chunk);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
                   handledException = e;
                }
@@ -201,8 +196,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       if (flowControlCredit != 0) {
          try {
             consumerInternal.flowControl(flowControlCredit, !isContinues);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
             handledException = e;
          }
@@ -222,8 +216,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
          try {
             consumerInternal.flowControl(totalSize, false);
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             // what else can we do here?
             ActiveMQClientLogger.LOGGER.errorCallingCancel(ignored);
          }
@@ -300,24 +293,21 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       // And we will check if no packets have arrived within readTimeout milliseconds
       if (timeWait != 0) {
          timeOut = System.currentTimeMillis() + timeWait;
-      }
-      else {
+      } else {
          timeOut = System.currentTimeMillis() + readTimeout;
       }
 
       while (!streamEnded && handledException == null) {
          try {
             this.wait(timeWait == 0 ? readTimeout : timeWait);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
 
          if (!streamEnded && handledException == null) {
             if (timeWait != 0 && System.currentTimeMillis() > timeOut) {
                throw ActiveMQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
-            }
-            else if (System.currentTimeMillis() > timeOut && !packetAdded) {
+            } else if (System.currentTimeMillis() > timeOut && !packetAdded) {
                throw ActiveMQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
          }
@@ -343,15 +333,13 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             // instead to just where it was canceled.
             if (handledException instanceof ActiveMQLargeMessageInterruptedException) {
                nestedException = new ActiveMQLargeMessageInterruptedException(handledException.getMessage());
-            }
-            else {
+            } else {
                nestedException = new ActiveMQException(((ActiveMQException) handledException).getType(), handledException.getMessage());
             }
             nestedException.initCause(handledException);
 
             throw nestedException;
-         }
-         else {
+         } else {
             throw new ActiveMQException(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY, "Error on saving LargeMessageBufferImpl", handledException);
          }
       }
@@ -379,8 +367,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
       if (fileCache != null && index < packetPosition) {
          return fileCache.getByteFromCache(index);
-      }
-      else {
+      } else {
          return currentPacket.getChunk()[(int) (index - packetPosition)];
       }
    }
@@ -546,8 +533,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    public void readerIndex(final int readerIndex) {
       try {
          checkForPacket(readerIndex);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorReadingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -573,8 +559,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    public void setIndex(final int readerIndex, final int writerIndex) {
       try {
          checkForPacket(readerIndex);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorSettingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -601,8 +586,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
       if (readableBytes > Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
-      }
-      else {
+      } else {
          return (int) (totalSize - readerIndex);
       }
    }
@@ -621,8 +605,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    public void resetReaderIndex() {
       try {
          checkForPacket(0);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorReSettingIndex(e);
          throw new RuntimeException(e.getMessage(), e);
       }
@@ -956,8 +939,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       int b = readByte();
       if (b == DataConstants.NULL) {
          return null;
-      }
-      else {
+      } else {
          return readSimpleString();
       }
    }
@@ -967,8 +949,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       int b = readByte();
       if (b == DataConstants.NULL) {
          return null;
-      }
-      else {
+      } else {
          return readString();
       }
    }
@@ -991,11 +972,9 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             chars[i] = (char) readShort();
          }
          return new String(chars);
-      }
-      else if (len < 0xfff) {
+      } else if (len < 0xfff) {
          return readUTF();
-      }
-      else {
+      } else {
          return readSimpleString().toString();
       }
    }
@@ -1074,8 +1053,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             streamEnded = true;
             output.close();
          }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errorWritingLargeMessage(e);
       }
    }
@@ -1105,11 +1083,9 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          packetPosition += sizeToAdd;
 
          packetLastPosition = packetPosition + currentPacket.getChunk().length;
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -1180,12 +1156,10 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
                readCachePositionEnd = readCachePositionStart + cachedChannel.read(readCache) - 1;
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQClientLogger.LOGGER.errorReadingCache(e);
             throw new RuntimeException(e.getMessage(), e);
-         }
-         finally {
+         } finally {
             close();
          }
       }
@@ -1221,8 +1195,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          if (cachedChannel != null && cachedChannel.isOpen()) {
             try {
                cachedChannel.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClosingCache(e);
             }
             cachedChannel = null;
@@ -1231,8 +1204,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          if (cachedRAFile != null) {
             try {
                cachedRAFile.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClosingCache(e);
             }
             cachedRAFile = null;
@@ -1246,27 +1218,32 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          if (cachedFile != null && cachedFile.exists()) {
             try {
                cachedFile.delete();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorFinalisingCache(e);
             }
          }
       }
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b) throws IOException {
       readBytes(b);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public void readFully(byte[] b, int off, int len) throws IOException {
       readBytes(b, off, len);
    }
 
-   /** from {@link java.io.DataInput} interface */
+   /**
+    * from {@link java.io.DataInput} interface
+    */
    @Override
    public String readLine() throws IOException {
       return ByteUtil.readLine(this);

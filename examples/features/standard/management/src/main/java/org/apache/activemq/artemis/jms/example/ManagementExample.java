@@ -119,8 +119,7 @@ public class ManagementExample {
          // there is none to consume. The call will timeout after 5000ms and messageReceived will be null
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived);
-      }
-      finally {
+      } finally {
          // Step 23. Be sure to close the resources!
          if (initialContext != null) {
             initialContext.close();

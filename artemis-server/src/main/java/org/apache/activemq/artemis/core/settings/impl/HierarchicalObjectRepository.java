@@ -99,8 +99,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.writeLock().lock();
       try {
          this.listenersEnabled = false;
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -110,8 +109,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.writeLock().lock();
       try {
          this.listenersEnabled = true;
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
       onChange();
@@ -133,8 +131,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          }
 
          return values;
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
    }
@@ -162,8 +159,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          Match<T> match1 = new Match<>(match);
          match1.setValue(value);
          matches.put(match, match1);
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
 
@@ -201,8 +197,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             cache.put(match, value);
          }
          return value;
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
    }
@@ -221,8 +216,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             if (!Mergeable.class.isAssignableFrom(actualMatch.getClass())) {
                break;
             }
-         }
-         else {
+         } else {
             ((Mergeable) actualMatch).merge(match.getValue());
          }
       }
@@ -258,8 +252,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          boolean isImmutable = immutables.contains(match);
          if (isImmutable) {
             logger.debug("Cannot remove match " + match + " since it came from a main config");
-         }
-         else {
+         } else {
             /**
              * clear the cache before removing the match. This will force any thread at
              * {@link #getMatch(String)} to get the lock to recompute.
@@ -268,8 +261,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             matches.remove(match);
             onChange();
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -282,8 +274,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          if (listenersEnabled) {
             listener.onChange();
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -293,8 +284,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       lock.writeLock().lock();
       try {
          listeners.remove(listener);
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -317,8 +307,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          clearCache();
          listeners.clear();
          matches.clear();
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
    }
@@ -333,8 +322,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          for (Map.Entry<String, T> entry : entries) {
             addMatch(entry.getKey(), entry.getValue(), true, false);
          }
-      }
-      finally {
+      } finally {
          lock.writeLock().unlock();
       }
 
@@ -358,14 +346,12 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
             for (HierarchicalRepositoryChangeListener listener : listeners) {
                try {
                   listener.onChange();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   ActiveMQServerLogger.LOGGER.errorCallingRepoListener(e);
                }
             }
          }
-      }
-      finally {
+      } finally {
          lock.readLock().unlock();
       }
    }
@@ -399,20 +385,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       public int compare(final String o1, final String o2) {
          if (o1.contains(Match.WILDCARD) && !o2.contains(Match.WILDCARD)) {
             return +1;
-         }
-         else if (!o1.contains(Match.WILDCARD) && o2.contains(Match.WILDCARD)) {
+         } else if (!o1.contains(Match.WILDCARD) && o2.contains(Match.WILDCARD)) {
             return -1;
-         }
-         else if (o1.contains(Match.WILDCARD) && o2.contains(Match.WILDCARD)) {
+         } else if (o1.contains(Match.WILDCARD) && o2.contains(Match.WILDCARD)) {
             return o2.length() - o1.length();
-         }
-         else if (o1.contains(Match.WORD_WILDCARD) && !o2.contains(Match.WORD_WILDCARD)) {
+         } else if (o1.contains(Match.WORD_WILDCARD) && !o2.contains(Match.WORD_WILDCARD)) {
             return +1;
-         }
-         else if (!o1.contains(Match.WORD_WILDCARD) && o2.contains(Match.WORD_WILDCARD)) {
+         } else if (!o1.contains(Match.WORD_WILDCARD) && o2.contains(Match.WORD_WILDCARD)) {
             return -1;
-         }
-         else if (o1.contains(Match.WORD_WILDCARD) && o2.contains(Match.WORD_WILDCARD)) {
+         } else if (o1.contains(Match.WORD_WILDCARD) && o2.contains(Match.WORD_WILDCARD)) {
             String[] leftSplits = o1.split("\\.");
             String[] rightSplits = o2.split("\\.");
             for (int i = 0; i < leftSplits.length; i++) {
@@ -420,8 +401,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
                if (left.equals(Match.WORD_WILDCARD)) {
                   if (rightSplits.length < i || !rightSplits[i].equals(Match.WORD_WILDCARD)) {
                      return -1;
-                  }
-                  else {
+                  } else {
                      return +1;
                   }
                }

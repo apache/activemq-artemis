@@ -59,8 +59,7 @@ final class BackupTopologyListener implements ClusterTopologyListener {
    boolean waitForBackup() {
       try {
          return latch.await(WAIT_TIMEOUT, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          return false;
       }
    }

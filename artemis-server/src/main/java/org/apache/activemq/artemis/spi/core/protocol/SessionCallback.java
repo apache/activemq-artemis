@@ -29,13 +29,16 @@ public interface SessionCallback {
     */
    boolean hasCredits(ServerConsumer consumerID);
 
-   /** This can be used to complete certain operations outside of the lock,
-    *  like acks or other operations. */
+   /**
+    * This can be used to complete certain operations outside of the lock,
+    * like acks or other operations.
+    */
    void afterDelivery() throws Exception;
 
    /**
     * Use this to updates specifics on the message after a redelivery happened.
     * Return true if there was specific logic applied on the protocol, so the ServerConsumer won't make any adjustments.
+    *
     * @param consumer
     * @param ref
     * @param failed
@@ -54,7 +57,11 @@ public interface SessionCallback {
    //       Future developments may change this, but beware why I have chosen to keep the parameter separated here
    int sendMessage(MessageReference ref, ServerMessage message, ServerConsumer consumerID, int deliveryCount);
 
-   int sendLargeMessage(MessageReference reference, ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount);
+   int sendLargeMessage(MessageReference reference,
+                        ServerMessage message,
+                        ServerConsumer consumerID,
+                        long bodySize,
+                        int deliveryCount);
 
    int sendLargeMessageContinuation(ServerConsumer consumerID,
                                     byte[] body,
@@ -67,6 +74,8 @@ public interface SessionCallback {
 
    boolean isWritable(ReadyListener callback);
 
-   /** Some protocols (Openwire) needs a special message with the browser is finished. */
+   /**
+    * Some protocols (Openwire) needs a special message with the browser is finished.
+    */
    void browserFinished(ServerConsumer consumer);
 }

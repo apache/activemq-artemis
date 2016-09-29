@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
-
 import java.io.File;
 
 import org.apache.activemq.artemis.core.config.Configuration;

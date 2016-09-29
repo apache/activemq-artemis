@@ -166,8 +166,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (!configured.getAndSet(true)) {
          try {
             setup();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new ResourceException("Unable to create activation", e);
          }
       }
@@ -214,8 +213,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (useAutoRecovery) {
          // let the TM handle the recovery
          return null;
-      }
-      else {
+      } else {
          List<XAResource> xaresources = new ArrayList<>();
          for (ActivationSpec spec : specs) {
             ActiveMQActivation activation = activations.get(spec);
@@ -248,8 +246,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (!configured.getAndSet(true)) {
          try {
             setup();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new ResourceAdapterInternalException("Unable to create activation", e);
          }
       }
@@ -269,8 +266,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       for (Map.Entry<ActivationSpec, ActiveMQActivation> entry : activations.entrySet()) {
          try {
             entry.getValue().stop();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             ActiveMQRALogger.LOGGER.debug("Ignored", ignored);
          }
       }
@@ -1548,16 +1544,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          // as if any transaction times out, we need the ack on the server already
          if (useLocalTx) {
             result = parameterFactory.createSession(user, pass, false, false, false, false, 0);
-         }
-         else {
+         } else {
             result = parameterFactory.createSession(user, pass, true, false, false, false, 0);
          }
-      }
-      else {
+      } else {
          if (preAck != null && preAck) {
             result = parameterFactory.createSession(user, pass, false, true, true, true, -1);
-         }
-         else {
+         } else {
             // only auto ack and dups ok are supported
             switch (ackMode) {
                case Session.AUTO_ACKNOWLEDGE:
@@ -1617,8 +1610,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (!configured.getAndSet(true)) {
          try {
             setup();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new ResourceException("Unable to create activation", e);
          }
       }
@@ -1661,8 +1653,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (!knownConnectionFactories.keySet().contains(overrideProperties)) {
          cf = newConnectionFactory(overrideProperties);
          knownConnectionFactories.put(overrideProperties, new Pair<>(cf, new AtomicInteger(1)));
-      }
-      else {
+      } else {
          Pair<ActiveMQConnectionFactory, AtomicInteger> pair = knownConnectionFactories.get(overrideProperties);
          cf = pair.getA();
          pair.getB().incrementAndGet();
@@ -1703,8 +1694,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             String jchannelRefName = raProperties.getJgroupsChannelRefName();
             JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
             endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
-         }
-         else if (discoveryAddress != null) {
+         } else if (discoveryAddress != null) {
             Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
             if (discoveryPort == null) {
                discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
@@ -1712,8 +1702,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
             String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
             endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
-         }
-         else if (jgroupsFileName != null) {
+         } else if (jgroupsFileName != null) {
             endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
          }
          Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
@@ -1735,19 +1724,16 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          if (ha) {
             cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.XA_CF);
-         }
-         else {
+         } else {
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
          }
-      }
-      else if (connectorClassName != null) {
+      } else if (connectorClassName != null) {
          TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
 
          List<Map<String, Object>> connectionParams;
          if (overrideProperties.getParsedConnectorClassNames() != null) {
             connectionParams = overrideProperties.getParsedConnectionParameters();
-         }
-         else {
+         } else {
             connectionParams = raProperties.getParsedConnectionParameters();
          }
 
@@ -1756,8 +1742,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
                ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
-            }
-            else {
+            } else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
 
@@ -1771,12 +1756,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          if (ha) {
             cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, transportConfigurations);
-         }
-         else {
+         } else {
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);
          }
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
       }
 
@@ -1804,11 +1787,9 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
             String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
             endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
-         }
-         else if (jgroupsFileName != null) {
+         } else if (jgroupsFileName != null) {
             endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
-         }
-         else {
+         } else {
             String jgroupsLocatorClass = raProperties.getJgroupsChannelLocatorClass();
             if (jgroupsLocatorClass != null) {
                String jgroupsChannelRefName = raProperties.getJgroupsChannelRefName();
@@ -1838,15 +1819,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
-      }
-      else {
+      } else {
          TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
 
          List<Map<String, Object>> connectionParams;
          if (overrideProperties.getParsedConnectorClassNames() != null) {
             connectionParams = overrideProperties.getParsedConnectionParameters();
-         }
-         else {
+         } else {
             connectionParams = raProperties.getParsedConnectionParameters();
          }
 
@@ -1855,8 +1834,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
                ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
-            }
-            else {
+            } else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
 
@@ -1965,8 +1943,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val2 = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
       if (val2 != null) {
          cf.setReconnectAttempts(val2);
-      }
-      else {
+      } else {
          //the global default is 0 but we should always try to reconnect JCA
          cf.setReconnectAttempts(-1);
       }

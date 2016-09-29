@@ -64,8 +64,7 @@ public class ConsumerClosedTest extends JMSTestCase {
          // make sure that all messages are in queue
 
          assertRemainingMessages(ConsumerClosedTest.NUMBER_OF_MESSAGES);
-      }
-      finally {
+      } finally {
          if (c != null) {
             c.close();
          }

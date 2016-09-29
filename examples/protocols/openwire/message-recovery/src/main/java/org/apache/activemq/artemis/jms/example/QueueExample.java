@@ -25,7 +25,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -81,14 +80,12 @@ public class QueueExample {
 
          connection.start();
 
-
          if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new RuntimeException("listener didn't receive all the messages");
          }
 
          System.out.println("Finished ok!");
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -109,9 +106,8 @@ public class QueueExample {
       public void onMessage(Message message) {
          latch.countDown();
          try {
-            System.out.println("Received " + ((TextMessage)message).getText());
-         }
-         catch (Exception e) {
+            System.out.println("Received " + ((TextMessage) message).getText());
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }

@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.ha;
 
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.LiveActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
-
-import java.util.Map;
 
 public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
@@ -48,7 +48,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName, long initialReplicationSyncTimeout) {
+   public ReplicatedPolicy(boolean checkForLiveServer,
+                           String groupName,
+                           String clusterName,
+                           long initialReplicationSyncTimeout) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;

@@ -84,8 +84,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                if (!latch.await(5000)) {
                   UnitTestLogger.LOGGER.error("Latch timed out");
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                UnitTestLogger.LOGGER.error(e);
             }
             waiting = false;
@@ -113,8 +112,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                for (int i = 0; i < numberOfAdds; i++) {
                   latch.countUp();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                UnitTestLogger.LOGGER.error(e.getMessage(), e);
             }
          }
@@ -167,8 +165,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                for (int i = 0; i < numberOfAdds; i++) {
                   latch.countDown();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                UnitTestLogger.LOGGER.error(e.getMessage(), e);
             }
          }
@@ -235,8 +232,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                if (!latch.await(1000)) {
                   UnitTestLogger.LOGGER.error("Latch timed out!", new Exception("trace"));
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                UnitTestLogger.LOGGER.error(e);
                this.e = e;
             }

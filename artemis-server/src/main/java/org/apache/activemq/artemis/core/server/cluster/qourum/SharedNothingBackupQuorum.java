@@ -97,8 +97,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                // no point in repeating all the reconnection logic
                sessionFactory.connect(RECONNECT_ATTEMPTS, false);
                return;
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                if (e.getType() != ActiveMQExceptionType.NOT_CONNECTED)
                   ActiveMQServerLogger.LOGGER.errorReConnecting(e);
             }
@@ -223,8 +222,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    public BACKUP_ACTIVATION waitForStatusChange() {
       try {
          latch.await();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          return BACKUP_ACTIVATION.STOP;
       }
       return signal;
@@ -260,8 +258,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
       try {
          quorumVote.await(LATCH_TIMEOUT, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException interruption) {
+      } catch (InterruptedException interruption) {
          // No-op. The best the quorum can do now is to return the latest number it has
       }
 

@@ -256,8 +256,7 @@ public class PushTopicConsumerTest extends MessageTestBase {
          try {
             // sleep here so the concurrent invocations can stack up
             Thread.sleep(1000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
 

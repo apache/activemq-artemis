@@ -127,12 +127,10 @@ public class XAReceiveExample {
          TextMessage rm3 = (TextMessage) xaConsumer.receive(2000);
          if (rm3 == null) {
             System.out.println("No message received after commit.");
-         }
-         else {
+         } else {
             throw new IllegalStateException();
          }
-      }
-      finally {
+      } finally {
          // Step 27. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

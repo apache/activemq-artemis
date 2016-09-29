@@ -99,12 +99,10 @@ public class TemporaryQueueExample {
          try {
             messageConsumer = session.createConsumer(tempQueue2);
             throw new Exception("Temporary queue cannot be accessed outside its lifecycle!");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.out.println("Exception got when trying to access a temp queue outside its scope: " + e);
          }
-      }
-      finally {
+      } finally {
          if (connection != null) {
             // Step 20. Be sure to close our JMS resources!
             connection.close();

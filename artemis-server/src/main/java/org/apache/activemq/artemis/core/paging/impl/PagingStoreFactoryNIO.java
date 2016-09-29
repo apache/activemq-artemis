@@ -102,7 +102,10 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    }
 
    @Override
-   public PageCursorProvider newCursorProvider(PagingStore store, StorageManager storageManager, AddressSettings addressSettings, Executor executor) {
+   public PageCursorProvider newCursorProvider(PagingStore store,
+                                               StorageManager storageManager,
+                                               AddressSettings addressSettings,
+                                               Executor executor) {
       return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
    }
 
@@ -144,8 +147,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
       if (files == null) {
          return Collections.<PagingStore>emptyList();
-      }
-      else {
+      } else {
          ArrayList<PagingStore> storesReturn = new ArrayList<>(files.length);
 
          for (File file : files) {

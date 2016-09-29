@@ -29,13 +29,14 @@ import org.junit.Test;
 
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
-   /** created for https://issues.apache.org/jira/browse/ARTEMIS-385 */
+   /**
+    * created for https://issues.apache.org/jira/browse/ARTEMIS-385
+    */
    @Test
    public void testRepetitions() throws Exception {
       // This test was eventually failing with way over more iterations.
       // you might increase it for debugging
       final int ITERATIONS = 50;
-
 
       for (int i = 0; i < ITERATIONS; i++) {
          System.out.println("#test " + i);
@@ -80,8 +81,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
                   sess.close();
                   conn.close();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                errors++;
             }
@@ -104,8 +104,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
             assertFalse(t.isAlive());
             assertEquals("There are Errors on the test thread", 0, t.errors);
          }
-      }
-      finally {
+      } finally {
          for (ThreadOpen t : threads) {
             if (t.isAlive()) {
                t.interrupt();

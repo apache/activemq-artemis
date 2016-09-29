@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.jms.Connection;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Session;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -33,11 +38,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Session;
 
 public class FailureDeadlockTest extends ActiveMQTestBase {
 
@@ -85,8 +85,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
             public void onException(final JMSException exception) {
                try {
                   conn2.close();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   FailureDeadlockTest.log.error("Failed to close connection2", e);
                }
             }
@@ -144,8 +143,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
          try {
             conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Assert.fail("should throw exception");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             //pass
          }
 

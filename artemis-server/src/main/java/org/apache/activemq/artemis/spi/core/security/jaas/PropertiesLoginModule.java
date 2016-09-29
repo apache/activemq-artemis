@@ -45,7 +45,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
    private CallbackHandler callbackHandler;
 
    private Properties users;
-   private Map<String,Set<String>> roles;
+   private Map<String, Set<String>> roles;
    private String user;
    private final Set<Principal> principals = new HashSet<>();
    private boolean loginSucceeded;
@@ -72,11 +72,9 @@ public class PropertiesLoginModule extends PropertiesLoader implements LoginModu
       callbacks[1] = new PasswordCallback("Password: ", false);
       try {
          callbackHandler.handle(callbacks);
-      }
-      catch (IOException ioe) {
+      } catch (IOException ioe) {
          throw new LoginException(ioe.getMessage());
-      }
-      catch (UnsupportedCallbackException uce) {
+      } catch (UnsupportedCallbackException uce) {
          throw new LoginException(uce.getMessage() + " not available to obtain information from user");
       }
       user = ((NameCallback) callbacks[0]).getName();

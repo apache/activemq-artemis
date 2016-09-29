@@ -86,8 +86,7 @@ public class TopicSessionTest extends PubSubTestCase {
 
          // finally we commit the subscriberSession transaction
          subscriberSession.commit();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }
@@ -116,8 +115,7 @@ public class TopicSessionTest extends PubSubTestCase {
          TextMessage m = (TextMessage) subscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertEquals("test", m.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -132,8 +130,7 @@ public class TopicSessionTest extends PubSubTestCase {
          subscriber.close();
          // nothing should happen when unsubscribing the durable subscriber
          subscriberSession.unsubscribe("topic");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -147,10 +144,8 @@ public class TopicSessionTest extends PubSubTestCase {
       try {
          subscriberSession.createDurableSubscriber(subscriberTopic, "topic", "definitely not a message selector!", true);
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
-      }
-      catch (InvalidSelectorException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidSelectorException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -164,10 +159,8 @@ public class TopicSessionTest extends PubSubTestCase {
       try {
          subscriberSession.createDurableSubscriber((Topic) null, "topic");
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
-      }
-      catch (InvalidDestinationException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidDestinationException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }
@@ -181,10 +174,8 @@ public class TopicSessionTest extends PubSubTestCase {
       try {
          subscriberSession.createSubscriber(subscriberTopic, "definitely not a message selector!", true);
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
-      }
-      catch (InvalidSelectorException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidSelectorException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -198,10 +189,8 @@ public class TopicSessionTest extends PubSubTestCase {
       try {
          subscriberSession.createSubscriber((Topic) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
-      }
-      catch (InvalidDestinationException e) {
-      }
-      catch (JMSException e) {
+      } catch (InvalidDestinationException e) {
+      } catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }

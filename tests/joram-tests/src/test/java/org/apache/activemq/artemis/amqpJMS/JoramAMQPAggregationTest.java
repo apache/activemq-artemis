@@ -48,10 +48,7 @@ import org.objectweb.jtests.jms.conform.topic.TemporaryTopicTest;
 import org.objectweb.jtests.jms.framework.JMSTestCase;
 
 @RunWith(Suite.class)
-@SuiteClasses({TopicConnectionTest.class, ConnectionTest.class, MessageBodyTest.class, MessageDefaultTest.class,
-   MessageTypeTest.class, MessageHeaderTest.class, JMSXPropertyTest.class, MessagePropertyConversionTest.class, MessagePropertyTest.class,
-   QueueBrowserTest.class, TemporaryQueueTest.class, SelectorSyntaxTest.class, SelectorTest.class, QueueSessionTest.class, SessionTest.class,
-   TopicSessionTest.class, UnifiedSessionTest.class, TemporaryTopicTest.class,})
+@SuiteClasses({TopicConnectionTest.class, ConnectionTest.class, MessageBodyTest.class, MessageDefaultTest.class, MessageTypeTest.class, MessageHeaderTest.class, JMSXPropertyTest.class, MessagePropertyConversionTest.class, MessagePropertyTest.class, QueueBrowserTest.class, TemporaryQueueTest.class, SelectorSyntaxTest.class, SelectorTest.class, QueueSessionTest.class, SessionTest.class, TopicSessionTest.class, UnifiedSessionTest.class, TemporaryTopicTest.class,})
 public class JoramAMQPAggregationTest extends Assert {
 
    /**

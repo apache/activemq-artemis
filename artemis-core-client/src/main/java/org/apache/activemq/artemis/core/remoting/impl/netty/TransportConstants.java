@@ -291,8 +291,7 @@ public class TransportConstants {
       Version v = Version.identify().get("netty-transport");
       if (v == null) {
          version = "unknown";
-      }
-      else {
+      } else {
          version = v.artifactVersion();
       }
       NETTY_VERSION = version;

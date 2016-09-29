@@ -51,10 +51,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
       resourceLimitSettings.setMaxConnections(1);
       resourceLimitSettings.setMaxQueues(1);
 
-      Configuration configuration = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .addResourceLimitSettings(resourceLimitSettings)
-         .setSecurityEnabled(true);
+      Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addResourceLimitSettings(resourceLimitSettings).setSecurityEnabled(true);
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       server.start();
@@ -78,8 +75,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
@@ -91,8 +87,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
    }
@@ -106,8 +101,7 @@ public class ResourceLimitTest extends ActiveMQTestBase {
 
       try {
          clientSession.createQueue("address", "anotherQueue");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
@@ -117,15 +111,13 @@ public class ResourceLimitTest extends ActiveMQTestBase {
 
       try {
          clientSession.createQueue("address", "anotherQueue");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
       try {
          clientSession.createSharedQueue(SimpleString.toSimpleString("address"), SimpleString.toSimpleString("anotherQueue"), false);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
    }

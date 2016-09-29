@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Enumeration;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -29,6 +27,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Enumeration;
 
 /**
  * An example that shows how to receive management notifications using JMS messages.
@@ -70,8 +69,7 @@ public class ManagementNotificationExample {
                      String propertyName = (String) propertyNames.nextElement();
                      System.out.format("  %s: %s%n", propertyName, notif.getObjectProperty(propertyName));
                   }
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                }
                System.out.println("------------------------");
             }
@@ -89,15 +87,13 @@ public class ManagementNotificationExample {
          // Step 10. Try to create a connection with unknown user
          try {
             cf.createConnection("not.a.valid.user", "not.a.valid.password");
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
          }
 
          // sleep a little bit to be sure to receive the notification for the security
          // authentication violation before leaving the example
          Thread.sleep(2000);
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close the resources!
          if (initialContext != null) {
             initialContext.close();

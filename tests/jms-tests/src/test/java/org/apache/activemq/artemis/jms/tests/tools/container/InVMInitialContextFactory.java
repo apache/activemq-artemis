@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.tests.tools.container;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * An in-VM JNDI InitialContextFactory. Lightweight JNDI implementation used for testing.
@@ -83,8 +82,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
 
       try {
          serverIndex = Integer.parseInt(s);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new NamingException("Failure parsing \"" + Constants.SERVER_INDEX_PROPERTY_NAME +
                                       "\". " +
                                       s +

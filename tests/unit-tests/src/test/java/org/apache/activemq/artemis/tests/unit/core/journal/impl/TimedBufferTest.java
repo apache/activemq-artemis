@@ -119,8 +119,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          for (int i = 0; i < 100; i++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
-      }
-      finally {
+      } finally {
          timedBuffer.stop();
       }
 
@@ -201,8 +200,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          for (int i = 0; i < 20; i++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
-      }
-      finally {
+      } finally {
          timedBuffer.stop();
       }
 
@@ -279,8 +277,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          sleptLatch.await(10, TimeUnit.SECONDS);
 
          assertFalse(timedBuffer.isUseSleep());
-      }
-      finally {
+      } finally {
          timedBuffer.stop();
       }
 
@@ -362,8 +359,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          Thread.sleep(100);
 
          assertTrue(timedBuffer.isUseSleep());
-      }
-      finally {
+      } finally {
          timedBuffer.stop();
       }
    }

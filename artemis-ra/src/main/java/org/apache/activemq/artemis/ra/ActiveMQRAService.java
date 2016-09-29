@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import java.util.Set;
 
 /**
  * An ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis server.
@@ -57,8 +56,7 @@ public class ActiveMQRAService {
                mBeanServer.invoke(mbean.getObjectName(), "stop", new Object[0], new String[0]);
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQRALogger.LOGGER.errorStoppingRA(e);
       }
    }

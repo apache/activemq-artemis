@@ -453,8 +453,7 @@ public class AcknowledgementTest extends JMSTestCase {
          }
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES - ACKED_MESSAGES, count);
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }
@@ -619,8 +618,7 @@ public class AcknowledgementTest extends JMSTestCase {
          }
 
          consumerSess.close();
-      }
-      finally {
+      } finally {
 
          if (conn != null) {
             conn.close();
@@ -780,13 +778,12 @@ public class AcknowledgementTest extends JMSTestCase {
 
       ProxyAssertSupport.assertEquals("two", messageReceived.getText());
 
-      messageReceived = (TextMessage)consumer.receiveNoWait();
+      messageReceived = (TextMessage) consumer.receiveNoWait();
 
       if (messageReceived != null) {
          System.out.println("Message received " + messageReceived.getText());
       }
       Assert.assertNull(messageReceived);
-
 
       consumer.close();
 
@@ -991,8 +988,7 @@ public class AcknowledgementTest extends JMSTestCase {
                latch.countDown();
             }
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
             latch.countDown();
          }
@@ -1051,8 +1047,7 @@ public class AcknowledgementTest extends JMSTestCase {
                latch.countDown();
             }
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
             latch.countDown();
          }
@@ -1142,8 +1137,7 @@ public class AcknowledgementTest extends JMSTestCase {
                latch.countDown();
             }
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.error("Caught exception", e);
             failed = true;
             latch.countDown();
@@ -1225,8 +1219,7 @@ public class AcknowledgementTest extends JMSTestCase {
                assertRemainingMessages(0);
                latch.countDown();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // log.error(e);
             failed = true;
             latch.countDown();

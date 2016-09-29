@@ -75,8 +75,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       try {
          sf.createSession(unknownUser, RandomUtil.randomString(), false, true, true, false, 1);
          Assert.fail("authentication must fail and a notification of security violation must be sent");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
@@ -105,8 +104,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       try {
          guestSession.createQueue(address, queue, true);
          Assert.fail("session creation must fail and a notification of security violation must be sent");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);

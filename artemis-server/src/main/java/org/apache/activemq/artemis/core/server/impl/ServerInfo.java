@@ -68,8 +68,7 @@ public class ServerInfo {
          try {
             pageStore = pagingManager.getPageStore(storeName);
             info.append(String.format("\t%s: %s%n", storeName, SizeFormatterUtil.sizeof(pageStore.getPageSizeBytes() * pageStore.getNumberOfPages())));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             info.append(String.format("\t%s: %s%n", storeName, e.getMessage()));
          }
       }

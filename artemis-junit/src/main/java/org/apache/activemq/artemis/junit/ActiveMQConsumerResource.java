@@ -88,8 +88,7 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
             session.createQueue(queueName, queueName);
          }
          consumer = session.createConsumer(queueName, browseOnly);
-      }
-      catch (ActiveMQException amqEx) {
+      } catch (ActiveMQException amqEx) {
          throw new ActiveMQClientResourceException(String.format("Error creating consumer for queueName %s", queueName.toString()), amqEx);
       }
    }
@@ -99,11 +98,9 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
       if (consumer != null) {
          try {
             consumer.close();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             log.warn("Exception encountered closing consumer - ignoring", amqEx);
-         }
-         finally {
+         } finally {
             consumer = null;
          }
       }
@@ -133,24 +130,19 @@ public class ActiveMQConsumerResource extends AbstractActiveMQClientResource {
       if (timeout > 0) {
          try {
             message = consumer.receive(timeout);
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed", timeout, queueName.toString()), amqEx);
          }
-      }
-      else if (timeout == 0) {
+      } else if (timeout == 0) {
          try {
             message = consumer.receiveImmediate();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receiveImmediate() for %s failed", queueName.toString()), amqEx);
          }
-      }
-      else {
+      } else {
          try {
             message = consumer.receive();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResource.EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive() for %s failed", queueName.toString()), amqEx);
          }
       }

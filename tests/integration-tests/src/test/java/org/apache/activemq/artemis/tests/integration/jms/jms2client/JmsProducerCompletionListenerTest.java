@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,11 +99,9 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
          MessageProducer prod = session.createProducer(queue);
          prod.send(session.createMessage(), null);
          Assert.fail("Didn't get expected exception!");
-      }
-      catch (IllegalArgumentException expected) {
+      } catch (IllegalArgumentException expected) {
          //ok
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -162,8 +160,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
                default:
                   throw new IllegalArgumentException("call code " + call);
             }
-         }
-         catch (Exception error1) {
+         } catch (Exception error1) {
             this.error = error1;
          }
       }

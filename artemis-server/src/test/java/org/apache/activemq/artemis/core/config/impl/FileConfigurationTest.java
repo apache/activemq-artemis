@@ -134,8 +134,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("456", ac.getParams().get("tcpNoDelay"));
             Assert.assertEquals("44", ac.getParams().get("connectionTtl"));
             Assert.assertEquals("92", ac.getParams().get(TransportConstants.CONNECTIONS_ALLOWED));
-         }
-         else {
+         } else {
             Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory", ac.getFactoryClassName());
             Assert.assertEquals("0", ac.getParams().get("serverId"));
             Assert.assertEquals("87", ac.getParams().get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED));
@@ -152,8 +151,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(11999, udpBc.getGroupPort());
             Assert.assertEquals(12345, bc.getBroadcastPeriod());
             Assert.assertEquals("connector1", bc.getConnectorInfos().get(0));
-         }
-         else {
+         } else {
             Assert.assertEquals("bg2", bc.getName());
             Assert.assertEquals(12999, udpBc.getLocalBindPort());
             Assert.assertEquals("192.168.0.121", udpBc.getGroupAddress());
@@ -188,8 +186,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("speed > 88", dic.getFilterString());
             Assert.assertEquals("org.foo.Transformer", dic.getTransformerClassName());
             Assert.assertEquals(true, dic.isExclusive());
-         }
-         else {
+         } else {
             Assert.assertEquals("divert2", dic.getName());
             Assert.assertEquals("routing-name2", dic.getRoutingName());
             Assert.assertEquals("address2", dic.getAddress());
@@ -219,8 +216,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
             Assert.assertEquals(444, bc.getProducerWindowSize());
-         }
-         else {
+         } else {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
             Assert.assertEquals("bridge-forwarding-address2", bc.getForwardingAddress());
@@ -262,8 +258,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
             Assert.assertEquals(null, ccc.getDiscoveryGroupName());
             Assert.assertEquals(222, ccc.getProducerWindowSize());
-         }
-         else {
+         } else {
             Assert.assertEquals("cluster-connection2", ccc.getName());
             Assert.assertEquals("queues2", ccc.getAddress());
             Assert.assertEquals(4, ccc.getRetryInterval());
@@ -425,8 +420,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
                   FileDeploymentManager deploymentManager = new FileDeploymentManager(customConfiguration.getName());
                   deploymentManager.addDeployable(fileConfiguration);
                   deploymentManager.readConfiguration();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   holder.t = e;
                }
             }
@@ -441,8 +435,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             fail("Exception caught while loading configuration with the context class loader: " + holder.t.getMessage());
          }
 
-      }
-      finally {
+      } finally {
          customConfiguration.delete();
       }
    }

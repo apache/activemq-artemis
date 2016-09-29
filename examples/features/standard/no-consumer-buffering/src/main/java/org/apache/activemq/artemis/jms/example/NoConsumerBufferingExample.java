@@ -98,8 +98,7 @@ public class NoConsumerBufferingExample {
 
             System.out.println("Consumed message from consumer1: " + message.getText());
          }
-      }
-      finally {
+      } finally {
          // Step 9. Be sure to close our resources!
 
          if (connection != null) {

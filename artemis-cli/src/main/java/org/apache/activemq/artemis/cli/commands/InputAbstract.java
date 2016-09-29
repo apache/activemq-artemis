@@ -50,8 +50,7 @@ public class InputAbstract extends ActionAbstract {
          inputStr = scanner.nextLine();
          if (inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
-         }
-         else {
+         } else {
             valid = true;
          }
       } while (!valid);
@@ -74,8 +73,7 @@ public class InputAbstract extends ActionAbstract {
 
          if (inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
-         }
-         else {
+         } else {
             valid = true;
          }
       } while (!valid);

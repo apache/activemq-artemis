@@ -32,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class EmbeddedActiveMQResourceCustomConfigurationTest {
+
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
@@ -48,7 +49,7 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
       Configuration configuration = server.getServer().getActiveMQServer().getConfiguration();
 
       assertFalse("Persistence should have been disabled", configuration.isPersistenceEnabled());
-      assertTrue( "Security should have been enabled", configuration.isSecurityEnabled());
+      assertTrue("Security should have been enabled", configuration.isSecurityEnabled());
 
       assertNotNull(TEST_QUEUE + " should exist", server.locateQueue(TEST_QUEUE));
 

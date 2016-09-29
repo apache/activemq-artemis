@@ -130,8 +130,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
          // any variation on 1 could make the test to fail, for that reason we make it this way
 
          Assert.assertTrue(count == 5 || count == 6);
-      }
-      else {
+      } else {
          double actualRate = (double) (1000 * count) / measureTime;
 
          Assert.assertTrue("actual rate = " + actualRate + " expected=" + rate, actualRate > rate * (1 - error));
@@ -186,8 +185,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
                   if (calculatedRate > rate * error) {
                      System.out.println("got more than " + rate + " tokens / second");
                      rateError.set(true);
-                  }
-                  else if (calculatedRate > rate) {
+                  } else if (calculatedRate > rate) {
                      System.out.println("got more than " + rate + " tokens / second but still on the error marging" +
                                            "make sure it's ok though, if you see to many of this message it's an issue");
                   }
@@ -197,8 +195,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
                lastRun = tmpValue;
                try {
                   Thread.sleep(window * 1000);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }

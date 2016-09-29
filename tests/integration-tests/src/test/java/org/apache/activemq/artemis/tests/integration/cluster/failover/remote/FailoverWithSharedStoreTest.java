@@ -33,11 +33,9 @@ public class FailoverWithSharedStoreTest extends ClusterTestBase {
       try {
          createSessionFactory(locator);
          fail();
-      }
-      catch (ActiveMQNotConnectedException nce) {
+      } catch (ActiveMQNotConnectedException nce) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

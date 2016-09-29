@@ -29,6 +29,7 @@ import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -36,7 +37,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -236,8 +236,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
          ClientMessage m = consumer.receive(500);
          if (checkDup) {
             assertNull(m);
-         }
-         else {
+         } else {
             //drain messages
             while (m != null) {
                m = consumer.receive(200);

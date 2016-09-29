@@ -810,8 +810,7 @@ public class ActiveMQRAMessage implements Message {
 
       if (object != null && object instanceof ActiveMQRAMessage) {
          return message.equals(((ActiveMQRAMessage) object).message);
-      }
-      else {
+      } else {
          return message.equals(object);
       }
    }

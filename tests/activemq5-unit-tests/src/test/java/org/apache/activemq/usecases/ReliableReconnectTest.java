@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -30,6 +26,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
@@ -84,8 +83,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
          broker.setUseJmx(false);
          broker.addConnector(DEFAULT_BROKER_URL);
          broker.start();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -134,8 +132,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
                synchronized (messagesReceived) {
                   messagesReceived.notify();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
             }
          }

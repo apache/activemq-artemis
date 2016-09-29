@@ -23,8 +23,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 

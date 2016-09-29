@@ -453,8 +453,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          }
          System.out.println(newConfig);
          fail("methods not shown please see previous and add");
-      }
-      else {
+      } else {
          System.out.println(commentedOutConfigs);
       }
    }
@@ -468,14 +467,11 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
 
       if (clzz == Boolean.class) {
          return Boolean.TYPE;
-      }
-      else if (clzz == Long.class) {
+      } else if (clzz == Long.class) {
          return Long.TYPE;
-      }
-      else if (clzz == Integer.class) {
+      } else if (clzz == Integer.class) {
          return Integer.TYPE;
-      }
-      else {
+      } else {
          return clzz;
       }
    }

@@ -34,8 +34,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public class PushConsumerResource {
 
@@ -89,8 +89,7 @@ public class PushConsumerResource {
          if (registration.isDurable() && pushStore != null) {
             pushStore.add(registration);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          consumer.stop();
          throw new WebApplicationException(e, Response.serverError().entity("Failed to start consumer.").type("text/plain").build());
       }

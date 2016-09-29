@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -30,11 +35,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class MessageConcurrencyTest extends ActiveMQTestBase {
 
@@ -215,8 +215,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
 
                producer.send(msg);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             log.error("Failed to send message", e);
 
             failed = true;

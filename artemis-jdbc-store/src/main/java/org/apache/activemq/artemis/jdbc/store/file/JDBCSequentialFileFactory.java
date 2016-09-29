@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.jdbc.store.file;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
@@ -24,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-
-import javax.sql.DataSource;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -70,8 +69,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
             dbDriver.start();
             started = true;
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQJournalLogger.LOGGER.error("Could not start file factory, unable to connect to database");
          started = false;
       }
@@ -81,8 +79,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    public synchronized void stop() {
       try {
          dbDriver.stop();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          ActiveMQJournalLogger.LOGGER.error("Error stopping file factory, unable to close db connection");
       }
       started = false;
@@ -97,8 +94,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
          JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, dbDriver, fileLocks.get(fileName));
          files.add(file);
          return file;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQJournalLogger.LOGGER.error("Could not create file", e);
       }
       return null;

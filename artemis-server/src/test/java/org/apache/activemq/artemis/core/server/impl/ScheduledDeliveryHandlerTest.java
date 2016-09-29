@@ -178,8 +178,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
             // it's better to run the test a few times instead of run millions of messages here
             internalSchedule(executor, scheduler);
          }
-      }
-      finally {
+      } finally {
          scheduler.shutdownNow();
          executor.shutdownNow();
       }
@@ -205,12 +204,10 @@ public class ScheduledDeliveryHandlerTest extends Assert {
                for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                   checkAndSchedule(handler, i, now, false, fakeQueue);
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                error.incrementAndGet();
-            }
-            finally {
+            } finally {
                latchDone.countDown();
             }
 
@@ -257,7 +254,9 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       handler.checkAndSchedule(refImpl, tail);
    }
 
-   private void debugList(boolean fail, ScheduledDeliveryHandlerImpl handler, long numberOfExpectedMessages) throws Exception {
+   private void debugList(boolean fail,
+                          ScheduledDeliveryHandlerImpl handler,
+                          long numberOfExpectedMessages) throws Exception {
       List<MessageReference> refs = handler.getScheduledReferences();
 
       HashSet<Long> messages = new HashSet<>();
@@ -270,8 +269,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
 
          if (fail) {
             assertTrue(ref.getScheduledDeliveryTime() >= lastTime);
-         }
-         else {
+         } else {
             if (ref.getScheduledDeliveryTime() < lastTime) {
                System.out.println("^^^fail at " + ref.getScheduledDeliveryTime());
             }

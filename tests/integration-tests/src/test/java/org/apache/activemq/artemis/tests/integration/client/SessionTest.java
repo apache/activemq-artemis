@@ -30,13 +30,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
-import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,8 +106,7 @@ public class SessionTest extends ActiveMQTestBase {
          clientSession.close();
          server.stop();
          Assert.assertFalse(listener.called);
-      }
-      finally {
+      } finally {
          ((ClientSessionFactoryInternal) cf).causeExit();
          cf.close();
       }

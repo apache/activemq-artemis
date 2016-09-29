@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,8 +59,7 @@ public class SpringConsumer extends ConsumerBean implements MessageListener {
          session = connection.createSession(true, Session.CLIENT_ACKNOWLEDGE);
          consumer = session.createConsumer(destination, selector, false);
          consumer.setMessageListener(this);
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
          LOG.error("", ex);
          throw ex;
       }
@@ -83,8 +82,7 @@ public class SpringConsumer extends ConsumerBean implements MessageListener {
       super.onMessage(message);
       try {
          message.acknowledge();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          LOG.error("Failed to acknowledge: " + e, e);
       }
    }

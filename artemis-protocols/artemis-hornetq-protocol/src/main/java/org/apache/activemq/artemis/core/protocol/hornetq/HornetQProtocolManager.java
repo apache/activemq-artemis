@@ -58,7 +58,6 @@ class HornetQProtocolManager extends CoreProtocolManager {
       return true;
    }
 
-
    @Override
    public boolean isProtocol(byte[] array) {
       String frameStart = new String(array, StandardCharsets.US_ASCII);

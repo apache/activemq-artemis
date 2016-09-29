@@ -48,7 +48,7 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
 
    public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool, Executor executor) {
       messageCounters = new HashMap<>();
-      messageCountersPinger = new MessageCountersPinger(scheduledThreadPool, executor,  MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, TimeUnit.MILLISECONDS, false);
+      messageCountersPinger = new MessageCountersPinger(scheduledThreadPool, executor, MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, TimeUnit.MILLISECONDS, false);
    }
 
    @Override
@@ -129,10 +129,10 @@ public class MessageCounterManagerImpl implements MessageCounterManager {
    private class MessageCountersPinger extends ActiveMQScheduledComponent {
 
       MessageCountersPinger(ScheduledExecutorService scheduledExecutorService,
-                                   Executor executor,
-                                   long checkPeriod,
-                                   TimeUnit timeUnit,
-                                   boolean onDemand) {
+                            Executor executor,
+                            long checkPeriod,
+                            TimeUnit timeUnit,
+                            boolean onDemand) {
          super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
       }
 

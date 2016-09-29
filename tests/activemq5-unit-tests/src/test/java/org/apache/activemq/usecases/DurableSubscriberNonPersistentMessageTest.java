@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,6 @@
  */
 
 package org.apache.activemq.usecases;
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.management.ManagementFactory;
-import java.util.Date;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -37,6 +30,12 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.management.ManagementFactory;
+import java.util.Date;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -165,8 +164,7 @@ public class DurableSubscriberNonPersistentMessageTest extends TestCase {
          // Not sure what the behavior should be here, if the messages
          // expired the received count shouldn't equal total message count
          assertTrue(totalMsgReceived == initialMaxMsgs + cleanupMsgCount);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Exception Executing DurableSubscriberNonPersistentMessageTest: " + getStackTrace(e));
          fail("Should not throw any exceptions");
       }
@@ -191,15 +189,13 @@ public class DurableSubscriberNonPersistentMessageTest extends TestCase {
                   LOG.debug("Received Message: " + msg.toString());
                   messageReceived++;
                   totalMsgReceived++;
-               }
-               else {
+               } else {
                   LOG.debug("message " + i + " not received");
                   messagesNotReceived++;
                }
 
                Thread.sleep(sleep);
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                LOG.debug("Exception: " + ie);
             }
          }
@@ -209,8 +205,7 @@ public class DurableSubscriberNonPersistentMessageTest extends TestCase {
          LOG.info("Consumer Finished");
          LOG.info("Received " + messageReceived);
          LOG.info("Not Received " + messagesNotReceived);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          LOG.error("Exception Executing SimpleConsumer: " + getStackTrace(e));
       }
    }

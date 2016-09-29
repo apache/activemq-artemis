@@ -71,18 +71,14 @@ public class CramMD5Mechanism extends AbstractMechanism {
 
             sentResponse = true;
             return hash.toString().getBytes(ASCII);
-         }
-         catch (UnsupportedEncodingException e) {
+         } catch (UnsupportedEncodingException e) {
             throw new SaslException("Unable to utilise required encoding", e);
-         }
-         catch (InvalidKeyException e) {
+         } catch (InvalidKeyException e) {
             throw new SaslException("Unable to utilise key", e);
-         }
-         catch (NoSuchAlgorithmException e) {
+         } catch (NoSuchAlgorithmException e) {
             throw new SaslException("Unable to utilise required algorithm", e);
          }
-      }
-      else {
+      } else {
          return EMPTY;
       }
    }

@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.tests.unit.jms.client;
 
 import javax.jms.MessageFormatException;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,8 +70,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.setBoolean(null, true);
          Assert.fail("item name can not be null");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
       }
 
    }
@@ -82,8 +81,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.setBoolean("", true);
          Assert.fail("item name can not be empty");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
       }
 
    }
@@ -122,8 +120,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getBoolean(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -144,8 +141,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getByte(itemName);
          Assert.fail("NumberFormatException");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -167,8 +163,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getByte(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -199,8 +194,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getShort(itemName);
          Assert.fail("NumberFormatException");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -222,8 +216,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getShort(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -264,8 +257,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getInt(itemName);
          Assert.fail("NumberFormatException");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -287,8 +279,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getInt(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -309,8 +300,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getChar(itemName);
          Assert.fail("NullPointerException");
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
       }
    }
 
@@ -322,8 +312,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getChar(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -374,8 +363,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getLong(itemName);
          Assert.fail("NumberFormatException");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 
@@ -397,8 +385,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getLong(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -419,8 +406,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getFloat(itemName);
          Assert.fail("NullPointerException");
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
       }
    }
 
@@ -442,8 +428,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getFloat(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -474,8 +459,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getDouble(itemName);
          Assert.fail("NullPointerException");
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
       }
    }
 
@@ -497,8 +481,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getDouble(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -623,8 +606,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
       try {
          message.getBytes(itemName);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 

@@ -109,8 +109,7 @@ public class ReplicationPageEventMessage extends PacketImpl {
       if (storeName == null) {
          if (other.storeName != null)
             return false;
-      }
-      else if (!storeName.equals(other.storeName))
+      } else if (!storeName.equals(other.storeName))
          return false;
       return true;
    }

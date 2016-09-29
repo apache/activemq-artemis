@@ -165,8 +165,7 @@ public class PagingLeakTest extends ActiveMQTestBase {
                      lastTime = System.currentTimeMillis();
                   }
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

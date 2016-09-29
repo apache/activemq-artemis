@@ -25,6 +25,7 @@ public class EnclosingClass implements Serializable {
 
    public static Object getLocalObject() {
       class LocalClass implements Serializable {
+
       }
       return new LocalClass();
    }

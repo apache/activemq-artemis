@@ -16,13 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.rest.util;
 
+import java.io.IOException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-
 public class ResponseUtil {
+
    public static int getHttpCode(CloseableHttpResponse response) {
       return response.getStatusLine().getStatusCode();
    }

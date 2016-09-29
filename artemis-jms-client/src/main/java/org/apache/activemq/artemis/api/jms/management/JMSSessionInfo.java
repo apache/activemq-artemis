@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.api.core.JsonUtil;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
 
 public class JMSSessionInfo {
 
@@ -38,8 +38,7 @@ public class JMSSessionInfo {
       for (int i = 0; i < array.size(); i++) {
          JsonObject obj = array.getJsonObject(i);
 
-         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"),
-               obj.getJsonNumber("creationTime").longValue());
+         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"), obj.getJsonNumber("creationTime").longValue());
          infos[i] = info;
       }
       return infos;

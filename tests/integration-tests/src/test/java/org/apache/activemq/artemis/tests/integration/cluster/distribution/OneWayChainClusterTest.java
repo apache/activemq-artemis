@@ -16,18 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.Before;
-
-import org.junit.Test;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-
-import java.util.Map;
-import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
 
 public class OneWayChainClusterTest extends ClusterTestBase {
 

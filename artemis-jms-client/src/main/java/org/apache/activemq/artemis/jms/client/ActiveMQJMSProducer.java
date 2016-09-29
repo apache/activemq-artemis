@@ -94,12 +94,10 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          if (completionListener != null) {
             CompletionListener wrapped = new CompletionListenerWrapper(completionListener);
             producer.send(destination, message, wrapped);
-         }
-         else {
+         } else {
             producer.send(destination, message);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
       return this;
@@ -134,41 +132,30 @@ public final class ActiveMQJMSProducer implements JMSProducer {
                final Object v = entry.getValue();
                if (v instanceof String) {
                   message.setString(name, (String) v);
-               }
-               else if (v instanceof Long) {
+               } else if (v instanceof Long) {
                   message.setLong(name, (Long) v);
-               }
-               else if (v instanceof Double) {
+               } else if (v instanceof Double) {
                   message.setDouble(name, (Double) v);
-               }
-               else if (v instanceof Integer) {
+               } else if (v instanceof Integer) {
                   message.setInt(name, (Integer) v);
-               }
-               else if (v instanceof Character) {
+               } else if (v instanceof Character) {
                   message.setChar(name, (Character) v);
-               }
-               else if (v instanceof Short) {
+               } else if (v instanceof Short) {
                   message.setShort(name, (Short) v);
-               }
-               else if (v instanceof Boolean) {
+               } else if (v instanceof Boolean) {
                   message.setBoolean(name, (Boolean) v);
-               }
-               else if (v instanceof Float) {
+               } else if (v instanceof Float) {
                   message.setFloat(name, (Float) v);
-               }
-               else if (v instanceof Byte) {
+               } else if (v instanceof Byte) {
                   message.setByte(name, (Byte) v);
-               }
-               else if (v instanceof byte[]) {
+               } else if (v instanceof byte[]) {
                   byte[] array = (byte[]) v;
                   message.setBytes(name, array, 0, array.length);
-               }
-               else {
+               } else {
                   message.setObject(name, v);
                }
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             throw new MessageFormatRuntimeException(e.getMessage());
          }
       }
@@ -182,8 +169,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       if (body != null) {
          try {
             message.writeBytes(body);
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             throw new MessageFormatRuntimeException(e.getMessage());
          }
       }
@@ -202,8 +188,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setDisableMessageID(boolean value) {
       try {
          producer.setDisableMessageID(value);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
       return this;
@@ -213,8 +198,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public boolean getDisableMessageID() {
       try {
          return producer.getDisableMessageID();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -223,8 +207,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setDisableMessageTimestamp(boolean value) {
       try {
          producer.setDisableMessageTimestamp(value);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
       return this;
@@ -234,8 +217,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public boolean getDisableMessageTimestamp() {
       try {
          return producer.getDisableMessageTimestamp();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -244,8 +226,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setDeliveryMode(int deliveryMode) {
       try {
          producer.setDeliveryMode(deliveryMode);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -257,8 +238,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public int getDeliveryMode() {
       try {
          return producer.getDeliveryMode();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -269,8 +249,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public JMSProducer setPriority(int priority) {
       try {
          producer.setPriority(priority);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -282,8 +261,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public int getPriority() {
       try {
          return producer.getPriority();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -295,8 +273,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       try {
          producer.setTimeToLive(timeToLive);
          return this;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -309,8 +286,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       try {
          timeToLive = producer.getTimeToLive();
          return timeToLive;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -322,8 +298,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       try {
          producer.setDeliveryDelay(deliveryDelay);
          return this;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -335,8 +310,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       long deliveryDelay = 0;
       try {
          deliveryDelay = producer.getDeliveryDelay();
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
       return deliveryDelay;
    }
@@ -415,11 +389,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       checkName(name);
       try {
          TypedProperties.setObjectProperty(new SimpleString(name), value, properties);
-      }
-      catch (ActiveMQPropertyConversionException amqe) {
+      } catch (ActiveMQPropertyConversionException amqe) {
          throw new MessageFormatRuntimeException(amqe.getMessage());
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
       return this;
@@ -430,8 +402,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       try {
          stringPropertyNames.clear();
          properties.clear();
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
       return this;
@@ -446,11 +417,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public boolean getBooleanProperty(String name) {
       try {
          return properties.getBooleanProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
    }
@@ -459,8 +428,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public byte getByteProperty(String name) {
       try {
          return properties.getByteProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -469,8 +437,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public short getShortProperty(String name) {
       try {
          return properties.getShortProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -479,8 +446,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public int getIntProperty(String name) {
       try {
          return properties.getIntProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -489,8 +455,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public long getLongProperty(String name) {
       try {
          return properties.getLongProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -499,8 +464,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public float getFloatProperty(String name) {
       try {
          return properties.getFloatProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -509,8 +473,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
    public double getDoubleProperty(String name) {
       try {
          return properties.getDoubleProperty(new SimpleString(name));
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
       }
    }
@@ -522,11 +485,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          if (prop == null)
             return null;
          return prop.toString();
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
    }
@@ -540,11 +501,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
             property = property.toString();
          }
          return property;
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
    }
@@ -559,11 +518,9 @@ public final class ActiveMQJMSProducer implements JMSProducer {
             propNames.add(str.toString());
          }
          return propNames;
-      }
-      catch (ActiveMQPropertyConversionException ce) {
+      } catch (ActiveMQPropertyConversionException ce) {
          throw new MessageFormatRuntimeException(ce.getMessage());
-      }
-      catch (RuntimeException e) {
+      } catch (RuntimeException e) {
          throw new JMSRuntimeException(e.getMessage());
       }
    }
@@ -637,8 +594,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          context.getThreadAwareContext().setCurrentThread(true);
          try {
             wrapped.onCompletion(message);
-         }
-         finally {
+         } finally {
             context.getThreadAwareContext().clearCurrentThread(true);
          }
       }
@@ -648,8 +604,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          context.getThreadAwareContext().setCurrentThread(true);
          try {
             wrapped.onException(message, exception);
-         }
-         finally {
+         } finally {
             context.getThreadAwareContext().clearCurrentThread(true);
          }
       }

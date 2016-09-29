@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.broker.policy;
 
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -30,6 +25,11 @@ import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageConsumer;
@@ -49,7 +49,10 @@ import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(value = Parameterized.class)
 public class AbortSlowConsumer0Test extends AbortSlowConsumerBase {
@@ -124,8 +127,7 @@ public class AbortSlowConsumer0Test extends AbortSlowConsumerBase {
       try {
          abortPolicy.getSlowConsumers();
          fail("expect not found post destination removal");
-      }
-      catch (UndeclaredThrowableException expected) {
+      } catch (UndeclaredThrowableException expected) {
          assertTrue("correct exception: " + expected.getCause(), expected.getCause() instanceof InstanceNotFoundException);
       }
    }
@@ -222,8 +224,7 @@ public class AbortSlowConsumer0Test extends AbortSlowConsumerBase {
             boolean closed = false;
             try {
                messageconsumer.receive(400);
-            }
-            catch (javax.jms.IllegalStateException expected) {
+            } catch (javax.jms.IllegalStateException expected) {
                closed = expected.toString().contains("closed");
             }
             return closed;

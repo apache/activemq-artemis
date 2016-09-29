@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage {
    // Constants -----------------------------------------------------
@@ -181,35 +180,25 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Boolean) {
          content.put(name, value);
-      }
-      else if (value instanceof Byte) {
+      } else if (value instanceof Byte) {
          content.put(name, value);
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          content.put(name, value);
-      }
-      else if (value instanceof Character) {
+      } else if (value instanceof Character) {
          content.put(name, value);
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          content.put(name, value);
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          content.put(name, value);
-      }
-      else if (value instanceof Float) {
+      } else if (value instanceof Float) {
          content.put(name, value);
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          content.put(name, value);
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          content.put(name, value);
-      }
-      else if (value instanceof byte[]) {
+      } else if (value instanceof byte[]) {
          content.put(name, ((byte[]) value).clone());
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid object type.");
       }
 
@@ -227,11 +216,9 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Boolean) {
          return ((Boolean) value).booleanValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Boolean.valueOf((String) value).booleanValue();
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -248,11 +235,9 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Byte) {
          return ((Byte) value).byteValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Byte.parseByte((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -269,14 +254,11 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Byte) {
          return ((Byte) value).shortValue();
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          return ((Short) value).shortValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Short.parseShort((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -293,8 +275,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Character) {
          return ((Character) value).charValue();
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -311,17 +292,13 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Byte) {
          return ((Byte) value).intValue();
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          return ((Short) value).intValue();
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          return ((Integer) value).intValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Integer.parseInt((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -338,20 +315,15 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Byte) {
          return ((Byte) value).longValue();
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          return ((Short) value).longValue();
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          return ((Integer) value).longValue();
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          return ((Long) value).longValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Long.parseLong((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -368,11 +340,9 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Float) {
          return ((Float) value).floatValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Float.parseFloat((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -389,14 +359,11 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Float) {
          return ((Float) value).doubleValue();
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          return ((Double) value).doubleValue();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return Double.parseDouble((String) value);
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -413,32 +380,23 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
       if (value instanceof Boolean) {
          return ((Boolean) value).toString();
-      }
-      else if (value instanceof Byte) {
+      } else if (value instanceof Byte) {
          return ((Byte) value).toString();
-      }
-      else if (value instanceof Short) {
+      } else if (value instanceof Short) {
          return ((Short) value).toString();
-      }
-      else if (value instanceof Character) {
+      } else if (value instanceof Character) {
          return ((Character) value).toString();
-      }
-      else if (value instanceof Integer) {
+      } else if (value instanceof Integer) {
          return ((Integer) value).toString();
-      }
-      else if (value instanceof Long) {
+      } else if (value instanceof Long) {
          return ((Long) value).toString();
-      }
-      else if (value instanceof Float) {
+      } else if (value instanceof Float) {
          return ((Float) value).toString();
-      }
-      else if (value instanceof Double) {
+      } else if (value instanceof Double) {
          return ((Double) value).toString();
-      }
-      else if (value instanceof String) {
+      } else if (value instanceof String) {
          return (String) value;
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }
@@ -454,8 +412,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
       if (value instanceof byte[]) {
          return (byte[]) value;
-      }
-      else {
+      } else {
          throw new MessageFormatException("Invalid conversion");
       }
    }

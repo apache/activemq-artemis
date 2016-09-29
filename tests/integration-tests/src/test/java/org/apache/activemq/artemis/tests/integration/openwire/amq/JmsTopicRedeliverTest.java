@@ -25,8 +25,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,8 +72,7 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
       if (topic) {
          consumerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
          producerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
-      }
-      else {
+      } else {
          consumerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
          producerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }

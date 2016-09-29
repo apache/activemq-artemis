@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.util;
 
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -25,11 +23,11 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Deflater;
 
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.InflaterReader;
 import org.apache.activemq.artemis.utils.InflaterWriter;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class CompressionUtilTest extends Assert {
 

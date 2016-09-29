@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -31,6 +26,10 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 
@@ -74,12 +73,10 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
                try {
                   consumer.setMessageListener(this);
                   results.add(message);
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   results.add(e);
                }
-            }
-            else {
+            } else {
                results.add(message);
             }
             latch.countDown();
@@ -126,12 +123,10 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
                   MessageConsumer anotherConsumer = session.createConsumer(dest);
                   anotherConsumer.setMessageListener(this);
                   results.add(message);
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   results.add(e);
                }
-            }
-            else {
+            } else {
                results.add(message);
             }
             latch.countDown();

@@ -73,11 +73,9 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
          prod.send(session.createMessage(false));
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQObjectClosedException oce) {
+      } catch (ActiveMQObjectClosedException oce) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -85,11 +83,9 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
          cons.receive();
 
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQObjectClosedException oce) {
+      } catch (ActiveMQObjectClosedException oce) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 

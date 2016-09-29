@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.QueueRequestor;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -38,13 +45,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.QueueRequestor;
-import javax.jms.QueueSession;
-import javax.jms.Session;
 
 public class JMSServerControlRestartTest extends ManagementTestBase {
 

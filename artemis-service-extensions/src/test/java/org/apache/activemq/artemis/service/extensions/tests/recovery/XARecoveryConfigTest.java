@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.junit.Assert;
 import org.junit.Test;
 
-
 public class XARecoveryConfigTest {
 
    @Test
@@ -30,12 +29,10 @@ public class XARecoveryConfigTest {
       String factClass = "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory";
 
       TransportConfiguration transportConfig = new TransportConfiguration(factClass, null);
-      XARecoveryConfig config = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig},
-                                                     null, null, null);
+      XARecoveryConfig config = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig}, null, null, null);
 
       TransportConfiguration transportConfig2 = new TransportConfiguration(factClass, null);
-      XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2},
-                                                      null, null, null);
+      XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2}, null, null, null);
 
       // They are using Different names
       Assert.assertNotEquals(transportConfig, transportConfig2);
@@ -50,12 +47,10 @@ public class XARecoveryConfigTest {
       String factClass = "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory";
 
       TransportConfiguration transportConfig = new TransportConfiguration(factClass, null);
-      XARecoveryConfig config = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig},
-                                                     null, null, null);
+      XARecoveryConfig config = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig}, null, null, null);
 
       TransportConfiguration transportConfig2 = new TransportConfiguration(factClass + "2", null);
-      XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2},
-                                                      null, null, null);
+      XARecoveryConfig config2 = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfig2}, null, null, null);
 
       // They are using Different names
       Assert.assertNotEquals(transportConfig, transportConfig2);

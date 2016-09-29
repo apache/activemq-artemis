@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.message.ProtonJMessage;
-
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
 
 public class AMQPNativeOutboundTransformer extends OutboundTransformer {
 

@@ -17,6 +17,16 @@
 
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.XAConnection;
+import javax.jms.XASession;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -28,16 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.XAConnection;
-import javax.jms.XASession;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 
 @RunWith(BMUnitRunner.class)
 public class FailureXATest extends ActiveMQTestBase {
@@ -63,25 +63,25 @@ public class FailureXATest extends ActiveMQTestBase {
 
    @Test
    @BMRules(
-           rules = {@BMRule(
-                   name = "Crash after onephase committed",
-                   targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
-                   targetMethod = "xaCommit(javax.transaction.xa.Xid, boolean)",
-                   targetLocation = "EXIT",
-                   action = "throw new RuntimeException()")})
+      rules = {@BMRule(
+         name = "Crash after onephase committed",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+         targetMethod = "xaCommit(javax.transaction.xa.Xid, boolean)",
+         targetLocation = "EXIT",
+         action = "throw new RuntimeException()")})
    public void testCrashServerAfterOnePhaseCommit() throws Exception {
       doTestCrashServerAfterXACommit(true);
    }
 
    @Test
    @BMRules(
-           rules = {@BMRule(
-                   name = "Crash after onephase committed",
-                   targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
-                   targetMethod = "xaCommit(javax.transaction.xa.Xid, boolean)",
-                   targetLocation = "EXIT",
-                   //helper = "org.apache.activemq.artemis.tests.extras.byteman.FailureXATest",
-                   action = "throw new RuntimeException()")})
+      rules = {@BMRule(
+         name = "Crash after onephase committed",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+         targetMethod = "xaCommit(javax.transaction.xa.Xid, boolean)",
+         targetLocation = "EXIT",
+         //helper = "org.apache.activemq.artemis.tests.extras.byteman.FailureXATest",
+         action = "throw new RuntimeException()")})
    public void testCrashServerAfterTwoPhaseCommit() throws Exception {
       doTestCrashServerAfterXACommit(false);
    }
@@ -112,19 +112,16 @@ public class FailureXATest extends ActiveMQTestBase {
          try {
             xaResource.commit(xid, onePhase);
             Assert.fail("didn't get expected exception!");
-         }
-         catch (XAException xae) {
+         } catch (XAException xae) {
             if (onePhase) {
                //expected error code is XAER_RMFAIL
                Assert.assertEquals(XAException.XAER_RMFAIL, xae.errorCode);
-            }
-            else {
+            } else {
                //expected error code is XA_RETRY
                Assert.assertEquals(XAException.XA_RETRY, xae.errorCode);
             }
          }
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }

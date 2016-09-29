@@ -86,8 +86,7 @@ public class EmbeddedTest {
          message.setObject(object);
 
          producer.send(message);
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }

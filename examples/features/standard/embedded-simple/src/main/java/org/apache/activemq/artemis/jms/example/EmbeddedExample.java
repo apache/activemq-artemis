@@ -72,8 +72,7 @@ public class EmbeddedExample {
          connection.start();
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
          System.out.println("Received message:" + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 11. Stop the JMS server
          jmsServer.stop();
          System.out.println("Stopped the JMS Server");

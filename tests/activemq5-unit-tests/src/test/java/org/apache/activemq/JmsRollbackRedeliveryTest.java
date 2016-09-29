@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,6 @@
 
 package org.apache.activemq;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -29,17 +25,23 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.broker.BrokerService;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class JmsRollbackRedeliveryTest {
 
@@ -103,8 +105,7 @@ public class JmsRollbackRedeliveryTest {
 
       if (interleaveProducer) {
          populateDestinationWithInterleavedProducer(nbMessages, destinationName, connection);
-      }
-      else {
+      } else {
          populateDestination(nbMessages, destinationName, connection);
       }
 
@@ -123,8 +124,7 @@ public class JmsRollbackRedeliveryTest {
                   assertTrue(msg.getJMSRedelivered());
                   assertEquals(2, msg.getLongProperty("JMSXDeliveryCount"));
                   session.commit();
-               }
-               else {
+               } else {
                   LOG.info("Rollback message " + msg.getText() + " id: " + msg.getJMSMessageID());
                   assertFalse("should not have redelivery flag set, id: " + msg.getJMSMessageID(), msg.getJMSRedelivered());
                   session.rollback();
@@ -159,8 +159,7 @@ public class JmsRollbackRedeliveryTest {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());
                   assertTrue(msg.getJMSRedelivered());
                   session.commit();
-               }
-               else {
+               } else {
                   LOG.info("Rollback message " + msg.getText() + " id: " + msg.getJMSMessageID());
                   session.rollback();
                }
@@ -194,8 +193,7 @@ public class JmsRollbackRedeliveryTest {
                   LOG.info("Received message " + msg.getText() + " (" + received.getAndIncrement() + ")" + msg.getJMSMessageID());
                   assertTrue(msg.getJMSRedelivered());
                   session.commit();
-               }
-               else {
+               } else {
                   LOG.info("Rollback message " + msg.getText() + " id: " + msg.getJMSMessageID());
                   session.rollback();
                }
@@ -340,8 +338,7 @@ public class JmsRollbackRedeliveryTest {
       for (int i = 1; i <= nbMessages; i++) {
          if (i % 2 == 0) {
             producer1.send(session1.createTextMessage("<hello id='" + i + "'/>"));
-         }
-         else {
+         } else {
             producer2.send(session2.createTextMessage("<hello id='" + i + "'/>"));
          }
       }

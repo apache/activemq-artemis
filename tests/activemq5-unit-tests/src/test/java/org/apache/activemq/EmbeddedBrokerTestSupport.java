@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 package org.apache.activemq;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import java.io.File;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -28,11 +33,6 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.jms.core.JmsTemplate;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import java.io.File;
 
 /**
  * A useful base class which creates and closes an embedded broker
@@ -81,8 +81,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
          try {
             artemisBroker.stop();
             artemisBroker = null;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
       }
       temporaryFolder.delete();
@@ -141,8 +140,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    protected ActiveMQDestination createDestination(String subject) {
       if (useTopic) {
          return new ActiveMQTopic(subject);
-      }
-      else {
+      } else {
          return new ActiveMQQueue(subject);
       }
    }
@@ -163,7 +161,6 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
       return new ActiveMQConnectionFactory(bindAddress);
    }
 
-
    public EmbeddedJMS createArtemisBroker() throws Exception {
       Configuration config0 = createConfig("localhost", 0);
       EmbeddedJMS newbroker = new EmbeddedJMS().setConfiguration(config0).setJmsConfiguration(new JMSConfigurationImpl());
@@ -172,14 +169,14 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
 
    protected Configuration createConfig(final String hostAddress, final int serverID) throws Exception {
       ConfigurationImpl configuration = new ConfigurationImpl().setJMXManagementEnabled(false).
-              setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(1000 * 1024).setJournalType(JournalType.NIO).
-              setJournalDirectory(getJournalDir(serverID, false)).
-              setBindingsDirectory(getBindingsDir(serverID, false)).
-              setPagingDirectory(getPageDir(serverID, false)).
-              setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).
-              setJournalCompactMinFiles(0).
-              setJournalCompactPercentage(0).
-              setClusterPassword(CLUSTER_PASSWORD);
+         setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(1000 * 1024).setJournalType(JournalType.NIO).
+         setJournalDirectory(getJournalDir(serverID, false)).
+         setBindingsDirectory(getBindingsDir(serverID, false)).
+         setPagingDirectory(getPageDir(serverID, false)).
+         setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).
+         setJournalCompactMinFiles(0).
+         setJournalCompactPercentage(0).
+         setClusterPassword(CLUSTER_PASSWORD);
 
       configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateJmsQueues(true).setAutoDeleteJmsQueues(true));
 

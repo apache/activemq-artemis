@@ -16,26 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import org.apache.activemq.artemis.core.message.impl.MessageInternal;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
-import org.apache.qpid.proton.amqp.Binary;
-import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.UnsignedByte;
-import org.apache.qpid.proton.amqp.UnsignedInteger;
-import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
-import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
-import org.apache.qpid.proton.amqp.messaging.Data;
-import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
-import org.apache.qpid.proton.amqp.messaging.Footer;
-import org.apache.qpid.proton.amqp.messaging.Header;
-import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
-import org.apache.qpid.proton.amqp.messaging.Properties;
-import org.apache.qpid.proton.amqp.messaging.Section;
-import org.apache.qpid.proton.message.ProtonJMessage;
-import org.jboss.logging.Logger;
-
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -57,7 +37,28 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
+import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedByte;
+import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
+import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
+import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
+import org.apache.qpid.proton.amqp.messaging.Footer;
+import org.apache.qpid.proton.amqp.messaging.Header;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
+import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.message.ProtonJMessage;
+import org.jboss.logging.Logger;
+
 public class JMSMappingOutboundTransformer extends OutboundTransformer {
+
    private static final Logger logger = Logger.getLogger(JMSMappingOutboundTransformer.class);
    public static final Symbol JMS_DEST_TYPE_MSG_ANNOTATION = Symbol.valueOf("x-opt-jms-dest");
    public static final Symbol JMS_REPLY_TO_TYPE_MSG_ANNOTATION = Symbol.valueOf("x-opt-jms-reply-to");
@@ -116,15 +117,13 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             while (true) {
                list.add(m.readObject());
             }
-         }
-         catch (MessageEOFException e) {
+         } catch (MessageEOFException e) {
          }
 
          String amqpType = msg.getStringProperty(AMQPMessageTypes.AMQP_TYPE_KEY);
          if (amqpType.equals(AMQPMessageTypes.AMQP_LIST)) {
             body = new AmqpValue(list);
-         }
-         else {
+         } else {
             body = new AmqpSequence(list);
          }
       }
@@ -142,11 +141,9 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
                if (s != null) {
                   body = new AmqpValue(s.toString());
                }
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                logger.debug("Exception ignored during conversion, should be ok!", ignored.getMessage(), ignored);
-            }
-            finally {
+            } finally {
                internalMessage.getBodyBuffer().readerIndex(readerIndex);
             }
          }
@@ -163,8 +160,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
 
          try {
             props.setMessageId(AMQPMessageIdHelper.INSTANCE.toIdObject(msgId));
-         }
-         catch (ActiveMQAMQPIllegalStateException e) {
+         } catch (ActiveMQAMQPIllegalStateException e) {
             props.setMessageId(msgId);
          }
       }
@@ -187,8 +183,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
 
          try {
             props.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(correlationId));
-         }
-         catch (ActiveMQAMQPIllegalStateException e) {
+         } catch (ActiveMQAMQPIllegalStateException e) {
             props.setCorrelationId(correlationId);
          }
       }
@@ -210,72 +205,59 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          String key = keys.nextElement();
          if (key.equals(messageFormatKey) || key.equals(nativeKey) || key.equals(ServerJMSMessage.NATIVE_MESSAGE_ID)) {
             // skip..
-         }
-         else if (key.equals(firstAcquirerKey)) {
+         } else if (key.equals(firstAcquirerKey)) {
             header.setFirstAcquirer(msg.getBooleanProperty(key));
-         }
-         else if (key.startsWith("JMSXDeliveryCount")) {
+         } else if (key.startsWith("JMSXDeliveryCount")) {
             // The AMQP delivery-count field only includes prior failed delivery attempts,
             // whereas JMSXDeliveryCount includes the first/current delivery attempt.
             int amqpDeliveryCount = msg.getIntProperty(key) - 1;
             if (amqpDeliveryCount > 0) {
                header.setDeliveryCount(new UnsignedInteger(amqpDeliveryCount));
             }
-         }
-         else if (key.startsWith("JMSXUserID")) {
+         } else if (key.startsWith("JMSXUserID")) {
             String value = msg.getStringProperty(key);
             props.setUserId(new Binary(value.getBytes(StandardCharsets.UTF_8)));
-         }
-         else if (key.startsWith("JMSXGroupID") || key.startsWith("_AMQ_GROUP_ID")) {
+         } else if (key.startsWith("JMSXGroupID") || key.startsWith("_AMQ_GROUP_ID")) {
             String value = msg.getStringProperty(key);
             props.setGroupId(value);
             if (apMap == null) {
                apMap = new HashMap();
             }
             apMap.put(key, value);
-         }
-         else if (key.startsWith("JMSXGroupSeq")) {
+         } else if (key.startsWith("JMSXGroupSeq")) {
             UnsignedInteger value = new UnsignedInteger(msg.getIntProperty(key));
             props.setGroupSequence(value);
             if (apMap == null) {
                apMap = new HashMap();
             }
             apMap.put(key, value);
-         }
-         else if (key.startsWith(prefixDeliveryAnnotationsKey)) {
+         } else if (key.startsWith(prefixDeliveryAnnotationsKey)) {
             if (daMap == null) {
                daMap = new HashMap<>();
             }
             String name = key.substring(prefixDeliveryAnnotationsKey.length());
             daMap.put(Symbol.valueOf(name), msg.getObjectProperty(key));
-         }
-         else if (key.startsWith(prefixMessageAnnotationsKey)) {
+         } else if (key.startsWith(prefixMessageAnnotationsKey)) {
             if (maMap == null) {
                maMap = new HashMap<>();
             }
             String name = key.substring(prefixMessageAnnotationsKey.length());
             maMap.put(Symbol.valueOf(name), msg.getObjectProperty(key));
-         }
-         else if (key.equals(contentTypeKey)) {
+         } else if (key.equals(contentTypeKey)) {
             props.setContentType(Symbol.getSymbol(msg.getStringProperty(key)));
-         }
-         else if (key.equals(contentEncodingKey)) {
+         } else if (key.equals(contentEncodingKey)) {
             props.setContentEncoding(Symbol.getSymbol(msg.getStringProperty(key)));
-         }
-         else if (key.equals(replyToGroupIDKey)) {
+         } else if (key.equals(replyToGroupIDKey)) {
             props.setReplyToGroupId(msg.getStringProperty(key));
-         }
-         else if (key.startsWith(prefixFooterKey)) {
+         } else if (key.startsWith(prefixFooterKey)) {
             if (footerMap == null) {
                footerMap = new HashMap();
             }
             String name = key.substring(prefixFooterKey.length());
             footerMap.put(name, msg.getObjectProperty(key));
-         }
-         else if (key.equals(AMQPMessageTypes.AMQP_TYPE_KEY)) {
+         } else if (key.equals(AMQPMessageTypes.AMQP_TYPE_KEY)) {
             // skip
-         }
-         else {
+         } else {
             if (apMap == null) {
                apMap = new HashMap();
             }
@@ -283,8 +265,7 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             if (objectProperty instanceof byte[]) {
                Binary binary = new Binary((byte[]) objectProperty);
                apMap.put(key, binary);
-            }
-            else {
+            } else {
                apMap.put(key, objectProperty);
             }
          }
@@ -314,16 +295,13 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
       if (destination instanceof Queue) {
          if (destination instanceof TemporaryQueue) {
             return TEMP_QUEUE_TYPE;
-         }
-         else {
+         } else {
             return QUEUE_TYPE;
          }
-      }
-      else if (destination instanceof Topic) {
+      } else if (destination instanceof Topic) {
          if (destination instanceof TemporaryTopic) {
             return TEMP_TOPIC_TYPE;
-         }
-         else {
+         } else {
             return TOPIC_TYPE;
          }
       }

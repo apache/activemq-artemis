@@ -91,8 +91,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
                char t = like.charAt(i);
                regexp.append("\\x");
                regexp.append(Integer.toHexString(0xFFFF & t));
-            }
-            else {
+            } else {
                append(regexp, c);
             }
          }
@@ -113,15 +112,12 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       private void append(StringBuffer regexp, char c) {
          if (c == '%') {
             regexp.append(".*?"); // Do a non-greedy match
-         }
-         else if (c == '_') {
+         } else if (c == '_') {
             regexp.append("."); // match one
-         }
-         else if (REGEXP_CONTROL_CHARS.contains(new Character(c))) {
+         } else if (REGEXP_CONTROL_CHARS.contains(new Character(c))) {
             regexp.append("\\x");
             regexp.append(Integer.toHexString(0xFFFF & c));
-         }
-         else {
+         } else {
             regexp.append(c);
          }
       }
@@ -385,146 +381,105 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             if (lc == Boolean.class) {
                if (convertStringExpressions && rc == String.class) {
                   rv = Boolean.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Byte.class) {
+            } else if (lc == Byte.class) {
                if (rc == Short.class) {
                   lv = ((Number) lv).shortValue();
-               }
-               else if (rc == Integer.class) {
+               } else if (rc == Integer.class) {
                   lv = ((Number) lv).intValue();
-               }
-               else if (rc == Long.class) {
+               } else if (rc == Long.class) {
                   lv = ((Number) lv).longValue();
-               }
-               else if (rc == Float.class) {
+               } else if (rc == Float.class) {
                   lv = ((Number) lv).floatValue();
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = ((Number) lv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Byte.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Short.class) {
+            } else if (lc == Short.class) {
                if (rc == Integer.class) {
                   lv = ((Number) lv).intValue();
-               }
-               else if (rc == Long.class) {
+               } else if (rc == Long.class) {
                   lv = ((Number) lv).longValue();
-               }
-               else if (rc == Float.class) {
+               } else if (rc == Float.class) {
                   lv = ((Number) lv).floatValue();
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = ((Number) lv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Short.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Integer.class) {
+            } else if (lc == Integer.class) {
                if (rc == Long.class) {
                   lv = ((Number) lv).longValue();
-               }
-               else if (rc == Float.class) {
+               } else if (rc == Float.class) {
                   lv = ((Number) lv).floatValue();
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = ((Number) lv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Integer.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Long.class) {
+            } else if (lc == Long.class) {
                if (rc == Integer.class) {
                   rv = ((Number) rv).longValue();
-               }
-               else if (rc == Float.class) {
+               } else if (rc == Float.class) {
                   lv = ((Number) lv).floatValue();
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = ((Number) lv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Long.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Float.class) {
+            } else if (lc == Float.class) {
                if (rc == Integer.class || rc == Long.class) {
                   rv = ((Number) rv).floatValue();
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = ((Number) lv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Float.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (lc == Double.class) {
+            } else if (lc == Double.class) {
                if (rc == Integer.class || rc == Long.class || rc == Float.class) {
                   rv = ((Number) rv).doubleValue();
-               }
-               else if (convertStringExpressions && rc == String.class) {
+               } else if (convertStringExpressions && rc == String.class) {
                   rv = Double.valueOf((String) rv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
-            }
-            else if (convertStringExpressions && lc == String.class) {
+            } else if (convertStringExpressions && lc == String.class) {
 
                if (rc == Boolean.class) {
                   lv = Boolean.valueOf((String) lv);
-               }
-               else if (rc == Byte.class) {
+               } else if (rc == Byte.class) {
                   lv = Byte.valueOf((String) lv);
-               }
-               else if (rc == Short.class) {
+               } else if (rc == Short.class) {
                   lv = Short.valueOf((String) lv);
-               }
-               else if (rc == Integer.class) {
+               } else if (rc == Integer.class) {
                   lv = Integer.valueOf((String) lv);
-               }
-               else if (rc == Long.class) {
+               } else if (rc == Long.class) {
                   lv = Long.valueOf((String) lv);
-               }
-               else if (rc == Float.class) {
+               } else if (rc == Float.class) {
                   lv = Float.valueOf((String) lv);
-               }
-               else if (rc == Double.class) {
+               } else if (rc == Double.class) {
                   lv = Double.valueOf((String) lv);
-               }
-               else {
+               } else {
                   return Boolean.FALSE;
                }
 
-            }
-            else {
+            } else {
                return Boolean.FALSE;
             }
-         }
-         catch (NumberFormatException e) {
+         } catch (NumberFormatException e) {
             return Boolean.FALSE;
          }
       }

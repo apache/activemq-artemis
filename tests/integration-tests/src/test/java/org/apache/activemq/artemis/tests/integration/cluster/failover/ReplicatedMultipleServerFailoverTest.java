@@ -110,14 +110,12 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
             }
 
          }
-      }
-      finally {
+      } finally {
          for (ServerLocator locator : locators) {
             if (locator != null) {
                try {
                   locator.close();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   //ignore
                }
             }

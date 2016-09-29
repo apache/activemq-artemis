@@ -59,8 +59,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    public void setText(final String text) throws JMSException {
       if (text != null) {
          this.text = new SimpleString(text);
-      }
-      else {
+      } else {
          this.text = null;
       }
 
@@ -71,8 +70,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    public String getText() {
       if (text != null) {
          return text.toString();
-      }
-      else {
+      } else {
          return null;
       }
    }

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -33,6 +25,9 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -44,6 +39,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class NonBlockingConsumerRedeliveryTest {
 
@@ -82,24 +81,24 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       beforeRollback.addAll(received);
       received.clear();
       session.rollback();
 
       assertTrue("Post-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                  @Override
-                                                                                                  public boolean isSatisified() throws Exception {
-                                                                                                     LOG.info("Consumer has received " + received.size() + " messages since rollback.");
-                                                                                                     return received.size() == MSG_COUNT;
-                                                                                                  }
-                                                                                               }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages since rollback.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       afterRollback.addAll(received);
       received.clear();
@@ -134,24 +133,24 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       beforeRollback.addAll(received);
       received.clear();
       session.rollback();
 
       assertTrue("Post-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                  @Override
-                                                                                                  public boolean isSatisified() throws Exception {
-                                                                                                     LOG.info("Consumer has received " + received.size() + " messages since rollback.");
-                                                                                                     return received.size() == MSG_COUNT;
-                                                                                                  }
-                                                                                               }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages since rollback.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       afterRollback.addAll(received);
       received.clear();
@@ -198,12 +197,12 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       beforeRollback.addAll(received);
       received.clear();
@@ -212,12 +211,12 @@ public class NonBlockingConsumerRedeliveryTest {
       sendMessages();
 
       assertTrue("Post-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                  @Override
-                                                                                                  public boolean isSatisified() throws Exception {
-                                                                                                     LOG.info("Consumer has received " + received.size() + " messages since rollback.");
-                                                                                                     return received.size() == MSG_COUNT * 2;
-                                                                                                  }
-                                                                                               }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages since rollback.");
+            return received.size() == MSG_COUNT * 2;
+         }
+      }));
 
       afterRollback.addAll(received);
       received.clear();
@@ -248,22 +247,22 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       received.clear();
       session.rollback();
 
       assertFalse("Delayed redelivery test not expecting any messages yet.", Wait.waitFor(new Wait.Condition() {
-                                                                                             @Override
-                                                                                             public boolean isSatisified() throws Exception {
-                                                                                                return received.size() > 0;
-                                                                                             }
-                                                                                          }, TimeUnit.SECONDS.toMillis(4)));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return received.size() > 0;
+         }
+      }, TimeUnit.SECONDS.toMillis(4)));
 
       session.commit();
       session.close();
@@ -289,12 +288,12 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       received.clear();
 
@@ -310,17 +309,14 @@ public class NonBlockingConsumerRedeliveryTest {
                   session.rollback();
                   LOG.info("Rolling back session.");
                   count = 0;
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   LOG.warn("Caught an unexpected exception: " + e.getMessage());
                }
-            }
-            else {
+            } else {
                received.add(message);
                try {
                   session.commit();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   LOG.warn("Caught an unexpected exception: " + e.getMessage());
                }
             }
@@ -330,12 +326,12 @@ public class NonBlockingConsumerRedeliveryTest {
       session.rollback();
 
       assertTrue("Post-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                  @Override
-                                                                                                  public boolean isSatisified() throws Exception {
-                                                                                                     LOG.info("Consumer has received " + received.size() + " messages since rollback.");
-                                                                                                     return received.size() == MSG_COUNT;
-                                                                                                  }
-                                                                                               }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages since rollback.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       assertEquals(MSG_COUNT, received.size());
       session.commit();
@@ -372,12 +368,12 @@ public class NonBlockingConsumerRedeliveryTest {
       connection.start();
 
       assertTrue("Pre-Rollback expects to receive: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                                 @Override
-                                                                                                 public boolean isSatisified() throws Exception {
-                                                                                                    LOG.info("Consumer has received " + received.size() + " messages.");
-                                                                                                    return received.size() == MSG_COUNT;
-                                                                                                 }
-                                                                                              }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + received.size() + " messages.");
+            return received.size() == MSG_COUNT;
+         }
+      }));
 
       session.rollback();
 
@@ -386,20 +382,19 @@ public class NonBlockingConsumerRedeliveryTest {
          public void onMessage(Message message) {
             try {
                session.rollback();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                LOG.warn("Caught an unexpected exception: " + e.getMessage());
             }
          }
       });
 
       assertTrue("Post-Rollback expects to DLQ: " + MSG_COUNT + " messages.", Wait.waitFor(new Wait.Condition() {
-                                                                                              @Override
-                                                                                              public boolean isSatisified() throws Exception {
-                                                                                                 LOG.info("Consumer has received " + dlqed.size() + " messages in DLQ.");
-                                                                                                 return dlqed.size() == MSG_COUNT;
-                                                                                              }
-                                                                                           }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Consumer has received " + dlqed.size() + " messages in DLQ.");
+            return dlqed.size() == MSG_COUNT;
+         }
+      }));
 
       session.commit();
    }

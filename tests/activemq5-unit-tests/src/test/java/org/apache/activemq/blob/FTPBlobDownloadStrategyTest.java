@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.blob;
 
+import javax.jms.JMSException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.jms.JMSException;
 
 import org.apache.activemq.command.ActiveMQBlobMessage;
 
@@ -64,8 +63,7 @@ public class FTPBlobDownloadStrategyTest extends FTPTestSupport {
          strategy.deleteFile(message);
          assertFalse(uploadFile.exists());
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          assertTrue(false);
       }
@@ -77,12 +75,10 @@ public class FTPBlobDownloadStrategyTest extends FTPTestSupport {
       try {
          message.setURL(new URL("ftp://" + userNamePass + "_wrong:" + userNamePass + "@localhost:" + ftpPort + "/ftptest/"));
          strategy.getInputStream(message);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          assertEquals("Wrong Exception", "Cant Authentificate to FTP-Server", e.getMessage());
          return;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          System.out.println(e);
          assertTrue("Wrong Exception " + e, false);
          return;
@@ -97,12 +93,10 @@ public class FTPBlobDownloadStrategyTest extends FTPTestSupport {
       try {
          message.setURL(new URL("ftp://" + userNamePass + ":" + userNamePass + "@localhost:" + 422 + "/ftptest/"));
          strategy.getInputStream(message);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          assertEquals("Wrong Exception", "Problem connecting the FTP-server", e.getMessage());
          return;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          assertTrue("Wrong Exception " + e, false);
          return;

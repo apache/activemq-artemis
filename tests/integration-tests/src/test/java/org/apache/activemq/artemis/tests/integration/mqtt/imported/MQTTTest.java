@@ -93,8 +93,7 @@ public class MQTTTest extends MQTTTestSupport {
                   byte[] payload = subscriptionProvider.receive(10000);
                   assertNotNull("Should get a message", payload);
                   latch.countDown();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   break;
                }
@@ -137,8 +136,7 @@ public class MQTTTest extends MQTTTestSupport {
                   byte[] payload = subscriptionProvider.receive(10000);
                   assertNotNull("Should get a message", payload);
                   latch.countDown();
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   break;
                }
@@ -650,8 +648,7 @@ public class MQTTTest extends MQTTTestSupport {
                PUBLISH publish = new PUBLISH();
                try {
                   publish.decode(frame);
-               }
-               catch (ProtocolException e) {
+               } catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
                publishList.add(publish);
@@ -736,8 +733,7 @@ public class MQTTTest extends MQTTTestSupport {
                PUBLISH publish = new PUBLISH();
                try {
                   publish.decode(frame);
-               }
-               catch (ProtocolException e) {
+               } catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
                publishList.add(publish);
@@ -807,8 +803,7 @@ public class MQTTTest extends MQTTTestSupport {
                try {
                   publish.decode(frame);
                   LOG.info("PUBLISH " + publish);
-               }
-               catch (ProtocolException e) {
+               } catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
                if (publishMap.get(publish.messageId()) != null) {
@@ -887,8 +882,7 @@ public class MQTTTest extends MQTTTestSupport {
                   try {
                      publish.decode(frame);
                      LOG.info("PUBLISH " + publish);
-                  }
-                  catch (ProtocolException e) {
+                  } catch (ProtocolException e) {
                      fail("Error decoding publish " + e.getMessage());
                   }
                   if (publishMap.get(publish.messageId()) != null) {
@@ -1222,8 +1216,7 @@ public class MQTTTest extends MQTTTestSupport {
       try {
          connection3.connect();
          fail("Duplicate client connected");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
 

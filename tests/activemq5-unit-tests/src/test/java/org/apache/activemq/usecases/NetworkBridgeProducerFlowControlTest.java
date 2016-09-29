@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,12 @@
 
 package org.apache.activemq.usecases;
 
+import javax.jms.MessageConsumer;
 import java.net.URI;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.jms.MessageConsumer;
 
 import junit.framework.Test;
 
@@ -187,8 +187,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
             try {
                fastConsumerLatch.await();
                fastConsumerTime.set(System.currentTimeMillis() - startTimeMillis);
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                exceptions.add(ex);
                Assert.fail(ex.getMessage());
             }
@@ -201,8 +200,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
             try {
                slowConsumerLatch.await();
                slowConsumerTime.set(System.currentTimeMillis() - startTimeMillis);
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                exceptions.add(ex);
                Assert.fail(ex.getMessage());
             }
@@ -229,8 +227,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
       if (networkIsAlwaysSendSync) {
          Assert.assertTrue(fastConsumerTime.get() < slowConsumerTime.get() / 10);
 
-      }
-      else {
+      } else {
          Assert.assertEquals(persistentTestMessages, fastConsumerTime.get() < slowConsumerTime.get() / 10);
       }
    }
@@ -298,8 +295,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
             try {
                fastConsumerLatch.await();
                fastConsumerTime.set(System.currentTimeMillis() - startTimeMillis);
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                exceptions.add(ex);
                Assert.fail(ex.getMessage());
             }
@@ -312,8 +308,7 @@ public class NetworkBridgeProducerFlowControlTest extends JmsMultipleBrokersTest
             try {
                slowConsumerLatch.await();
                slowConsumerTime.set(System.currentTimeMillis() - startTimeMillis);
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                exceptions.add(ex);
                Assert.fail(ex.getMessage());
             }

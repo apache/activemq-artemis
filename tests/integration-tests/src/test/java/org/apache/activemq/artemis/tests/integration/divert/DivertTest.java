@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -39,9 +42,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 public class DivertTest extends ActiveMQTestBase {
 
@@ -214,11 +214,9 @@ public class DivertTest extends ActiveMQTestBase {
 
          if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
             countOriginal1++;
-         }
-         else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
+         } else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
-         }
-         else {
+         } else {
             System.out.println("message not part of any expired queue" + message);
          }
       }

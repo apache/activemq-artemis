@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.core.transaction;
 
+import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
-
-import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
@@ -46,6 +45,5 @@ public interface ResourceManager extends ActiveMQComponent {
    List<Xid> getHeuristicRolledbackTransactions();
 
    List<Xid> getInDoubtTransactions();
-
 
 }

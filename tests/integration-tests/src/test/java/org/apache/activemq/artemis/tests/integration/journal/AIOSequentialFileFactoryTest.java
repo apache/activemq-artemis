@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.integration.journal;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

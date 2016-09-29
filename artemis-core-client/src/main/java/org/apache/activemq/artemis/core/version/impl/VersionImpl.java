@@ -144,8 +144,7 @@ public class VersionImpl implements Version, Serializable {
          if (other.versionName != null) {
             return false;
          }
-      }
-      else if (!versionName.equals(other.versionName)) {
+      } else if (!versionName.equals(other.versionName)) {
          return false;
       }
       return true;

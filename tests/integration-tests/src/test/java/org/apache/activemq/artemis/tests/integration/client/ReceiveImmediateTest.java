@@ -16,13 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -36,6 +30,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReceiveImmediateTest extends ActiveMQTestBase {
 

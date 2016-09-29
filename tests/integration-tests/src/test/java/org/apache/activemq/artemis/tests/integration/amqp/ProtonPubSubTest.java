@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -36,8 +29,15 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.qpid.jms.JmsConnectionFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ProtonPubSubTest extends ProtonTestBase {
+
    private final String prefix = "foo.bar.";
    private final String pubAddress = "pubAddress";
    private final String prefixedPubAddress = prefix + "pubAddress";
@@ -77,8 +77,7 @@ public class ProtonPubSubTest extends ProtonTestBase {
          if (connection != null) {
             connection.close();
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -130,7 +129,6 @@ public class ProtonPubSubTest extends ProtonTestBase {
          Assert.assertEquals(receive.getText(), "message:" + i);
       }
    }
-
 
    @Test
    public void testDurablePubSub() throws Exception {
@@ -244,13 +242,11 @@ public class ProtonPubSubTest extends ProtonTestBase {
       session.unsubscribe("myPubId");
    }
 
-
    private javax.jms.Topic createTopic(String address) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       try {
          return session.createTopic(address);
-      }
-      finally {
+      } finally {
          session.close();
       }
    }

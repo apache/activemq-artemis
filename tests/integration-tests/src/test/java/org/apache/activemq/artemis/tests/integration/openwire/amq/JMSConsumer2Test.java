@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,15 +30,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.Session;
-
 import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
 
 /**
@@ -87,8 +86,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
                   // ack every 200
                   message.acknowledge();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptions.put(Thread.currentThread(), e);
             }
          }

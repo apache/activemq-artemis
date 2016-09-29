@@ -31,13 +31,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
-import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,8 +69,7 @@ public class StompV11Test extends StompV11TestBase {
          if (connected) {
             connV11.disconnect();
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }
@@ -456,8 +455,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connV11.sendFrame(frame);
          fail("connection should have been destroyed by now");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          //ignore
       }
 
@@ -607,8 +605,7 @@ public class StompV11Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          if (newConn != null)
             newConn.disconnect();
          connV11.disconnect();
@@ -667,8 +664,7 @@ public class StompV11Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          newConn.disconnect();
       }
    }
@@ -735,8 +731,7 @@ public class StompV11Test extends StompV11TestBase {
          ClientStompFrame unsubFrame = newConn.createFrame("UNSUBSCRIBE");
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
-      }
-      finally {
+      } finally {
          if (newConn != null)
             newConn.disconnect();
          connV11.disconnect();
@@ -771,8 +766,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connection.disconnect();
          fail("Channel should be closed here already due to TTL");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
 
@@ -802,8 +796,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connection.disconnect();
          fail("Channel should be closed here already due to TTL");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
 
@@ -834,8 +827,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connection.sendFrame(frame);
          fail("connection should have been destroyed by now");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          //ignore
       }
 
@@ -900,8 +892,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connection.sendFrame(frame);
          fail("connection should have been destroyed by now");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          //ignore
       }
    }
@@ -934,8 +925,7 @@ public class StompV11Test extends StompV11TestBase {
       try {
          connection.disconnect();
          fail("Connection should be closed here already due to TTL");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
 
@@ -1489,21 +1479,17 @@ public class StompV11Test extends StompV11TestBase {
                try {
                   connV11.sendFrame(sendFrame);
                   Thread.sleep(500);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   //retry
-               }
-               catch (ClosedChannelException e) {
+               } catch (ClosedChannelException e) {
                   //ok.
                   latch.countDown();
                   break;
-               }
-               catch (IOException e) {
+               } catch (IOException e) {
                   //ok.
                   latch.countDown();
                   break;
-               }
-               finally {
+               } finally {
                   connV11.destroy();
                }
             }
@@ -2415,12 +2401,14 @@ public class StompV11Test extends StompV11TestBase {
       }
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId, boolean receipt, boolean durable) throws IOException, InterruptedException {
+   private void unsubscribe(StompClientConnection conn,
+                            String subId,
+                            boolean receipt,
+                            boolean durable) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame(Stomp.Commands.UNSUBSCRIBE);
       if (durable) {
          subFrame.addHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIPTION_NAME, subId);
-      }
-      else {
+      } else {
          subFrame.addHeader(Stomp.Headers.Unsubscribe.ID, subId);
       }
 
@@ -2463,8 +2451,7 @@ public class StompV11Test extends StompV11TestBase {
       if (sendDisconnect) {
          connV11.disconnect();
          connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
-      }
-      else {
+      } else {
          connV11.destroy();
          connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
       }
@@ -2586,10 +2573,7 @@ public class StompV11Test extends StompV11TestBase {
 
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
-      Assert.assertEquals(
-         "text/plain",
-         message.getStringProperty(
-            org.apache.activemq.artemis.api.core.Message.HDR_CONTENT_TYPE.toString()));
+      Assert.assertEquals("text/plain", message.getStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_CONTENT_TYPE.toString()));
    }
 
    @Test
@@ -2600,9 +2584,7 @@ public class StompV11Test extends StompV11TestBase {
 
       MessageProducer producer = session.createProducer(queue);
       BytesMessage message = session.createBytesMessage();
-      message.setStringProperty(
-         org.apache.activemq.artemis.api.core.Message.HDR_CONTENT_TYPE.toString(),
-         "text/plain");
+      message.setStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_CONTENT_TYPE.toString(), "text/plain");
       message.writeBytes("Hello World".getBytes(StandardCharsets.UTF_8));
       producer.send(message);
 

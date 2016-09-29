@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -30,6 +25,10 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -78,8 +77,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
          for (int i = 0; i < messageCount; i++) {
             data[i] = "Message : " + i;
          }
-      }
-      catch (JMSException je) {
+      } catch (JMSException je) {
          fail("Error setting up connection : " + je.toString());
       }
    }
@@ -105,8 +103,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
             producerSession.commit();
             LOG.info("sending message :" + objectMessage);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (producerSession != null) {
             producerSession.rollback();
             LOG.info("rollback");
@@ -126,13 +123,11 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
          LOG.info("consumer received message :" + objectMessage);
          consumerSession.commit();
 
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          try {
             consumerSession.rollback();
             LOG.info("rolled back transaction");
-         }
-         catch (JMSException e1) {
+         } catch (JMSException e1) {
             LOG.info(e1.toString());
             e1.printStackTrace();
          }
@@ -164,8 +159,7 @@ public final class PublishOnQueueConsumedMessageInTransactionTest extends TestCa
          while (messages.size() <= data.length && waitTime >= 0) {
             try {
                lock.wait(200);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
 

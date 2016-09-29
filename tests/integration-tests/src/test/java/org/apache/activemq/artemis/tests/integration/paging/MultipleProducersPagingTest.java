@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -47,6 +46,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -130,11 +130,9 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
                   break;
                msgReceived.incrementAndGet();
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException(e);
-         }
-         finally {
+         } finally {
             runnersLatch.countDown();
          }
       }
@@ -154,11 +152,9 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
                producer.send(session.createTextMessage(this.hashCode() + " counter " + i));
                msgSent.incrementAndGet();
             }
-         }
-         catch (Exception cause) {
+         } catch (Exception cause) {
             throw new RuntimeException(cause);
-         }
-         finally {
+         } finally {
             runnersLatch.countDown();
          }
       }

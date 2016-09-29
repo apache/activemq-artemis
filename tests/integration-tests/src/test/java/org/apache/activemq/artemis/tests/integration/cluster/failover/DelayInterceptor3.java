@@ -29,8 +29,7 @@ public class DelayInterceptor3 implements Interceptor {
       if (packet.getType() == PacketImpl.SESS_COMMIT) {
          // lose the commit
          return false;
-      }
-      else {
+      } else {
          return true;
       }
    }

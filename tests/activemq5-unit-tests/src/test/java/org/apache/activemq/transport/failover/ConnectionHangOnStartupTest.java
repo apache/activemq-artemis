@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.transport.failover;
 
+import javax.jms.Connection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.jms.Connection;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -84,8 +83,7 @@ public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
             try {
                conn.set(createConnectionFactory().createConnection());
                conn.get().start();
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error("could not create or start connection", ex);
             }
             connStarted.countDown();

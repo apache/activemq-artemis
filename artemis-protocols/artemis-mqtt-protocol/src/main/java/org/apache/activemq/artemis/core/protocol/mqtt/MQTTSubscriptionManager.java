@@ -121,8 +121,7 @@ public class MQTTSubscriptionManager {
 
       if (s == null) {
          createConsumerForSubscriptionQueue(q, topic, qos);
-      }
-      else {
+      } else {
          consumerQoSLevels.put(consumers.get(topic).getID(), qos);
       }
       session.getRetainMessageManager().addRetainedMessagesToQueue(q, topic);

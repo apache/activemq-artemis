@@ -16,12 +16,11 @@
  */
 package org.objectweb.jtests.jms.conform.queue;
 
-import java.util.Enumeration;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.QueueBrowser;
 import javax.jms.TextMessage;
+import java.util.Enumeration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -98,8 +97,7 @@ public class QueueBrowserTest extends PTPTestCase {
          // (the two messages have been acknowledged and so removed
          // from the queue)
          Assert.assertTrue(!enumeration.hasMoreElements());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -134,8 +132,7 @@ public class QueueBrowserTest extends PTPTestCase {
             Assert.assertEquals("testBrowserWithMessageSelector:message_2", msg.getText());
          }
          Assert.assertEquals(1, count);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -147,8 +144,7 @@ public class QueueBrowserTest extends PTPTestCase {
          super.setUp();
          receiverBrowser = receiverSession.createBrowser(receiverQueue);
          senderBrowser = senderSession.createBrowser(senderQueue);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -160,10 +156,8 @@ public class QueueBrowserTest extends PTPTestCase {
          receiverBrowser.close();
          senderBrowser.close();
          super.tearDown();
-      }
-      catch (JMSException ignored) {
-      }
-      finally {
+      } catch (JMSException ignored) {
+      } finally {
          receiverBrowser = null;
          senderBrowser = null;
       }

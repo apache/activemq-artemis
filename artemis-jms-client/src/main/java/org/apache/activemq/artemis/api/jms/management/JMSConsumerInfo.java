@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.artemis.api.core.JsonUtil;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
  * Helper class to create Java Objects from the
@@ -54,10 +54,7 @@ public class JMSConsumerInfo {
       JMSConsumerInfo[] infos = new JMSConsumerInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject sub = array.getJsonObject(i);
-         JMSConsumerInfo info = new JMSConsumerInfo(sub.getJsonNumber("consumerID").toString(), sub.getString("connectionID"),
-               sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"),
-               sub.getJsonNumber("creationTime").longValue(),
-               sub.getBoolean("durable"), sub.getString("filter", null));
+         JMSConsumerInfo info = new JMSConsumerInfo(sub.getJsonNumber("consumerID").toString(), sub.getString("connectionID"), sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"), sub.getJsonNumber("creationTime").longValue(), sub.getBoolean("durable"), sub.getString("filter", null));
          infos[i] = info;
       }
 

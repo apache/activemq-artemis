@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -24,10 +28,6 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.osgi.service.component.annotations.Component;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Component(service = ProtocolManagerFactory.class)
 public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
