@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
