@@ -44,11 +44,9 @@ public class UnmodifiableDelivery implements Delivery {
    public Link getLink() {
       if (delivery.getLink() instanceof Sender) {
          return new UnmodifiableSender((Sender) delivery.getLink());
-      }
-      else if (delivery.getLink() instanceof Receiver) {
+      } else if (delivery.getLink() instanceof Receiver) {
          return new UnmodifiableReceiver((Receiver) delivery.getLink());
-      }
-      else {
+      } else {
          throw new IllegalStateException("Delivery has unknown link type");
       }
    }

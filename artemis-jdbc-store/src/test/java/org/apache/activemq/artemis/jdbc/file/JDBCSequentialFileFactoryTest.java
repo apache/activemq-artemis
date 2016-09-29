@@ -78,8 +78,7 @@ public class JDBCSequentialFileFactoryTest {
    public void shutdownDerby() {
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 

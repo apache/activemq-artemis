@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.tests.unit.core.util;
 
-
 import java.util.HashSet;
 
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
@@ -25,16 +24,18 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers */
+/**
+ * This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers
+ */
 public class RandomUtilDistributionTest {
+
    public static void main(String[] arg) {
 
       long start = Long.parseLong(arg[0]);
 
       try {
          Thread.sleep((start - System.currentTimeMillis()) / 2);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
       while (System.currentTimeMillis() < start) {
          Thread.yield();
@@ -59,7 +60,7 @@ public class RandomUtilDistributionTest {
 
       // I'm using an extra parenthesis here to avoid rounding problems.
       // Be careful removing it (make sure you know what you're doing in case you do so)
-      int minimumExpected = (int)((iterations * numberOfStarts) * 0.80);
+      int minimumExpected = (int) ((iterations * numberOfStarts) * 0.80);
 
       System.out.println("value=" + value + ", minimum expected = " + minimumExpected);
       Assert.assertTrue("The Random distribution is pretty bad. All tries have returned duplicated randoms. value=" + value + ", minimum expected = " + minimumExpected, value > minimumExpected);
@@ -75,7 +76,6 @@ public class RandomUtilDistributionTest {
             process[i] = SpawnedVMSupport.spawnVM(RandomUtilDistributionTest.class.getName(), true, "" + timeStart);
          }
 
-
          HashSet<Integer> valueSet = new HashSet<>();
 
          for (int i = 0; i < numberOfTries; i++) {
@@ -88,9 +88,7 @@ public class RandomUtilDistributionTest {
 
          return valueSet.size();
 
-
-      }
-      finally {
+      } finally {
          for (Process p : process) {
             if (p != null) {
                p.destroy();

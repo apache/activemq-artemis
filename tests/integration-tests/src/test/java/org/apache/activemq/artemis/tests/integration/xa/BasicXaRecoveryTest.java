@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.xa;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -41,15 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RunWith(Parameterized.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
@@ -84,7 +84,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection<Object[]> data() {
-      Object[][] params = new Object[][] {{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
+      Object[][] params = new Object[][]{{StoreConfiguration.StoreType.FILE}, {StoreConfiguration.StoreType.DATABASE}};
       return Arrays.asList(params);
    }
 
@@ -97,16 +97,13 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
       }
 
-
       addressSettings.clear();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          configuration = createDefaultJDBCConfig(true).setJMXManagementEnabled(true);
-      }
-      else {
+      } else {
          configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
       }
-
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
@@ -243,18 +240,21 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Test
    public void testPagingServerRestarted() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      if (storeType == StoreConfiguration.StoreType.DATABASE)
+         return;
       verifyPaging(true);
    }
 
    @Test
    public void testPaging() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      if (storeType == StoreConfiguration.StoreType.DATABASE)
+         return;
       verifyPaging(false);
    }
 
    public void verifyPaging(final boolean restartServer) throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      if (storeType == StoreConfiguration.StoreType.DATABASE)
+         return;
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       SimpleString pageQueue = new SimpleString("pagequeue");
@@ -285,8 +285,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (restartServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -320,13 +319,15 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Test
    public void testRollbackPaging() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      if (storeType == StoreConfiguration.StoreType.DATABASE)
+         return;
       testRollbackPaging(false);
    }
 
    @Test
    public void testRollbackPagingServerRestarted() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      if (storeType == StoreConfiguration.StoreType.DATABASE)
+         return;
       testRollbackPaging(true);
    }
 
@@ -357,8 +358,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (restartServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -414,8 +414,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       Assert.assertEquals(xids.length, 0);
       if (commit) {
          clientSession.commit(xid, false);
-      }
-      else {
+      } else {
          clientSession.rollback(xid);
       }
 
@@ -474,8 +473,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -524,8 +522,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -572,8 +569,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -632,8 +628,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -703,8 +698,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -752,8 +746,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -811,8 +804,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -888,8 +880,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -956,8 +947,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -1059,8 +1049,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 
@@ -1146,8 +1135,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       if (stopServer) {
          stopAndRestartServer();
-      }
-      else {
+      } else {
          recreateClients();
       }
 

@@ -94,12 +94,10 @@ public class TopicCleanupTest extends JMSTestBase {
 
          jmsServer.start();
 
-      }
-      finally {
+      } finally {
          try {
             conn.close();
-         }
-         catch (Throwable igonred) {
+         } catch (Throwable igonred) {
          }
       }
 
@@ -141,16 +139,14 @@ public class TopicCleanupTest extends JMSTestBase {
          }
 
          assertFalse(foundStrayRoutingBinding);
-      }
-      finally {
+      } finally {
          jmsServer.stop();
 
          jmsServer.start();
 
          try {
             conn.close();
-         }
-         catch (Throwable igonred) {
+         } catch (Throwable igonred) {
          }
       }
    }

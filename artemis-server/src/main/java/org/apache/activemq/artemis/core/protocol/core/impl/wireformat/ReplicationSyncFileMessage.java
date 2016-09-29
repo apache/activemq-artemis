@@ -91,11 +91,9 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
    private void determineType() {
       if (journalType != null) {
          fileType = FileType.JOURNAL;
-      }
-      else if (pageStoreName != null) {
+      } else if (pageStoreName != null) {
          fileType = FileType.PAGE;
-      }
-      else {
+      } else {
          fileType = FileType.LARGE_MESSAGE;
       }
    }
@@ -209,8 +207,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
          if (other.byteBuffer != null) {
             return false;
          }
-      }
-      else if (!byteBuffer.equals(other.byteBuffer)) {
+      } else if (!byteBuffer.equals(other.byteBuffer)) {
          return false;
       }
       if (dataSize != other.dataSize) {
@@ -229,8 +226,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
          if (other.pageStoreName != null) {
             return false;
          }
-      }
-      else if (!pageStoreName.equals(other.pageStoreName)) {
+      } else if (!pageStoreName.equals(other.pageStoreName)) {
          return false;
       }
       return true;

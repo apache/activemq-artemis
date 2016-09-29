@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
-import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 
 /**
  * This is a sub process of the test {@link PageCountSyncOnNonTXTest}
@@ -30,7 +30,10 @@ public class PageCountSyncServer extends SpawnedServerSupport {
       return SpawnedVMSupport.spawnVM(PageCountSyncServer.class.getName(), testDir, "" + timeToRun);
    }
 
-   public static Process spawnVMWithLogMacher(final String wordMatch, final Runnable runnable, final String testDir, final long timeToRun) throws Exception {
+   public static Process spawnVMWithLogMacher(final String wordMatch,
+                                              final Runnable runnable,
+                                              final String testDir,
+                                              final long timeToRun) throws Exception {
       return SpawnedVMSupport.spawnVMWithLogMacher(wordMatch, runnable, PageCountSyncServer.class.getName(), null, true, testDir, "" + timeToRun);
    }
 
@@ -49,8 +52,7 @@ public class PageCountSyncServer extends SpawnedServerSupport {
 
          System.out.println("Going down now!!!");
          System.exit(1);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          System.exit(-1);
       }
@@ -66,8 +68,7 @@ public class PageCountSyncServer extends SpawnedServerSupport {
 
       if (args.length == 2) {
          ss.perform(args[0], Long.parseLong(args[1]));
-      }
-      else {
+      } else {
          System.err.println("you were expected to pass getTestDir as an argument on SpawnVMSupport");
       }
    }

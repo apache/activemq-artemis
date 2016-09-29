@@ -134,8 +134,7 @@ public class FilterTest extends SilentTestCase {
 
          if (i == 3) {
             Assert.assertTrue(filter.match(message));
-         }
-         else {
+         } else {
             Assert.assertFalse(filter.match(message));
          }
       }
@@ -705,11 +704,9 @@ public class FilterTest extends SilentTestCase {
       try {
          filter = FilterImpl.createFilter(filterString);
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQInvalidFilterExpressionException ife) {
+      } catch (ActiveMQInvalidFilterExpressionException ife) {
          //pass
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid exception type:" + e.getType());
       }
    }
@@ -718,11 +715,9 @@ public class FilterTest extends SilentTestCase {
       try {
          filter = FilterImpl.createFilter(filterString);
          Assert.fail("Should throw exception");
-      }
-      catch (ActiveMQInvalidFilterExpressionException ife) {
+      } catch (ActiveMQInvalidFilterExpressionException ife) {
          //pass
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          fail("Invalid exception type:" + e.getType());
       }
    }

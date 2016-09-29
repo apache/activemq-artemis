@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -37,9 +40,6 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
@@ -82,8 +82,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
-         }
-         else {
+         } else {
             haPolicyConfiguration = new ReplicatedPolicyConfiguration();
             if (getNodeGroupName() != null) {
                ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
@@ -97,8 +96,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
             configuration.setJournalDirectory(getJournalDir(i, false));
             configuration.setPagingDirectory(getPageDir(i, false));
             configuration.setLargeMessagesDirectory(getLargeMessagesDir(i, false));
-         }
-         else {
+         } else {
             //todo
          }
 
@@ -127,8 +125,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
          if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-         }
-         else {
+         } else {
             haPolicyConfiguration = new ReplicaPolicyConfiguration();
             if (getNodeGroupName() != null) {
                ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
@@ -142,8 +139,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
             configuration.setJournalDirectory(getJournalDir(i, true));
             configuration.setPagingDirectory(getPageDir(i, true));
             configuration.setLargeMessagesDirectory(getLargeMessagesDir(i, true));
-         }
-         else {
+         } else {
             //todo
          }
 
@@ -177,8 +173,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration;
       if (isNetty()) {
          transportConfiguration = TransportConfigurationUtils.getNettyAcceptor(live, node, (live ? "live-" : "backup-") + node);
-      }
-      else {
+      } else {
          transportConfiguration = TransportConfigurationUtils.getInVMAcceptor(live, node, (live ? "live-" : "backup-") + node);
       }
       return transportConfiguration;
@@ -188,8 +183,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration;
       if (isNetty()) {
          transportConfiguration = TransportConfigurationUtils.getNettyConnector(live, node, (live ? "live-" : "backup-") + node);
-      }
-      else {
+      } else {
          transportConfiguration = TransportConfigurationUtils.getInVMConnector(live, node, (live ? "live-" : "backup-") + node);
       }
       return transportConfiguration;

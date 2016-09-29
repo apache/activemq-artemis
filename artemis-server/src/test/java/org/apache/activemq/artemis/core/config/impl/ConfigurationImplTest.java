@@ -497,12 +497,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          configuration.setJournalDirectory("./data-journal");
          File journalLocation = configuration.getJournalLocation();
          Assert.assertFalse("This path shouldn't resolve to a real folder", journalLocation.exists());
-      }
-      finally {
+      } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
-         }
-         else {
+         } else {
             System.setProperty("artemis.instance", oldProperty);
          }
       }
@@ -531,12 +529,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          File journalLocation = configuration.getJournalLocation();
 
          Assert.assertTrue(journalLocation.exists());
-      }
-      finally {
+      } finally {
          if (oldProperty == null) {
             System.clearProperty("artemis.instance");
-         }
-         else {
+         } else {
             System.setProperty("artemis.instance", oldProperty);
          }
 

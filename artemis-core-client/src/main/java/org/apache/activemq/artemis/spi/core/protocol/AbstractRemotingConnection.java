@@ -65,12 +65,10 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       for (final FailureListener listener : listenersClone) {
          try {
             listener.connectionFailed(me, false, scaleDownTargetNodeID);
-         }
-         catch (ActiveMQInterruptedException interrupted) {
+         } catch (ActiveMQInterruptedException interrupted) {
             // this is an expected behaviour.. no warn or error here
             logger.debug("thread interrupted", interrupted);
-         }
-         catch (final Throwable t) {
+         } catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -85,8 +83,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       for (final CloseListener listener : listenersClone) {
          try {
             listener.connectionClosed();
-         }
-         catch (final Throwable t) {
+         } catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -106,7 +103,6 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    public Object getID() {
       return transportConnection.getID();
    }
-
 
    public String getLocalAddress() {
       return transportConnection.getLocalAddress();

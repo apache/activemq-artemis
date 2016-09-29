@@ -32,9 +32,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -108,12 +108,10 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
          try {
             if (pendingCredit.tryAcquire(1, TimeUnit.SECONDS)) {
                return;
-            }
-            else {
+            } else {
                System.out.println("Couldn't get credits!");
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
@@ -141,12 +139,10 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
             consumeMessages(c, qName);
 
             c.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             failed = true;
-         }
-         finally {
+         } finally {
             running.set(false);
          }
       }
@@ -176,13 +172,11 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
 
             c.close();
 
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             failed = true;
             if (e instanceof InterruptedException) {
                LOGGER.info("Sender done.");
-            }
-            else {
+            } else {
                e.printStackTrace();
             }
          }

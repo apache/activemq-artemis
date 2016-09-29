@@ -146,20 +146,17 @@ public final class Page implements Comparable<Page> {
                         logger.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
                      }
                      messages.add(msg);
-                  }
-                  else {
+                  } else {
                      markFileAsSuspect(file.getFileName(), position, messages.size());
                      break;
                   }
                }
-            }
-            else {
+            } else {
                markFileAsSuspect(file.getFileName(), position, messages.size());
                break;
             }
          }
-      }
-      finally {
+      } finally {
          if (fileBuffer != null) {
             fileBuffer.byteBuf().unwrap().release();
          }
@@ -220,8 +217,10 @@ public final class Page implements Comparable<Page> {
       close(false);
    }
 
-   /** sendEvent means it's a close happening from a major event such moveNext.
-    *  While reading the cache we don't need (and shouldn't inform the backup */
+   /**
+    * sendEvent means it's a close happening from a major event such moveNext.
+    * While reading the cache we don't need (and shouldn't inform the backup
+    */
    public synchronized void close(boolean sendEvent) throws Exception {
       if (sendEvent && storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
@@ -271,14 +270,12 @@ public final class Page implements Comparable<Page> {
          if (suspiciousRecords) {
             ActiveMQServerLogger.LOGGER.pageInvalid(file.getFileName(), file.getFileName());
             file.renameTo(file.getFileName() + ".invalidPage");
-         }
-         else {
+         } else {
             file.delete();
          }
 
          return true;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.pageDeleteError(e);
          return false;
       }
@@ -308,8 +305,7 @@ public final class Page implements Comparable<Page> {
          if (file != null && file.isOpen()) {
             file.close();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.pageFinaliseError(e);
       }
    }

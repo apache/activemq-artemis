@@ -98,8 +98,7 @@ public class DisconnectMessage extends PacketImpl {
          if (other.nodeID != null) {
             return false;
          }
-      }
-      else if (!nodeID.equals(other.nodeID)) {
+      } else if (!nodeID.equals(other.nodeID)) {
          return false;
       }
       return true;

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -33,11 +38,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 
 public class HeuristicXATest extends ActiveMQTestBase {
 
@@ -124,8 +124,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       if (isCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
-      }
-      else {
+      } else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
@@ -133,8 +132,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
       if (isCommit) {
          Assert.assertEquals(1, jmxServer.listHeuristicCommittedTransactions().length);
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
-      }
-      else {
+      } else {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
          Assert.assertEquals(1, jmxServer.listHeuristicRolledBackTransactions().length);
       }
@@ -207,8 +205,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       if (isCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
-      }
-      else {
+      } else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
@@ -242,8 +239,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
          Assert.assertEquals(1, listHeuristicCommittedTransactions.length);
          System.out.println(listHeuristicCommittedTransactions[0]);
-      }
-      else {
+      } else {
          String[] listHeuristicRolledBackTransactions = jmxServer.listHeuristicRolledBackTransactions();
          Assert.assertEquals(1, listHeuristicRolledBackTransactions.length);
          System.out.println(listHeuristicRolledBackTransactions[0]);
@@ -299,8 +295,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       if (heuristicCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
-      }
-      else {
+      } else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
@@ -335,8 +330,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
          Assert.assertEquals(1, listHeuristicCommittedTransactions.length);
          System.out.println(listHeuristicCommittedTransactions[0]);
-      }
-      else {
+      } else {
          String[] listHeuristicRolledBackTransactions = jmxServer.listHeuristicRolledBackTransactions();
          Assert.assertEquals(1, listHeuristicRolledBackTransactions.length);
          System.out.println(listHeuristicRolledBackTransactions[0]);
@@ -398,8 +392,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       if (heuristicCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
-      }
-      else {
+      } else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
@@ -412,8 +405,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
       if (heuristicCommit) {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
-      }
-      else {
+      } else {
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
       }
 
@@ -428,8 +420,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
       jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       if (heuristicCommit) {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
-      }
-      else {
+      } else {
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
       }
 

@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.ha;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
-import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.core.server.impl.LiveActivation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
+import org.apache.activemq.artemis.core.server.impl.LiveActivation;
 
 public class ColocatedPolicy implements HAPolicy<LiveActivation> {
 

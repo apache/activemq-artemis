@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,8 +31,7 @@ public class TransportConnectorInvalidSocketOptionsTest extends TestCase {
       try {
          new ActiveMQConnectionFactory("tcp://localhost:42?foo=bar").createConnection();
          fail("Should have thrown an exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          assertEquals(JMSException.class, e.getClass());
          assertEquals(IllegalArgumentException.class, e.getCause().getClass());
          assertEquals("Invalid connect parameters: {foo=bar}", e.getCause().getMessage());
@@ -52,14 +51,12 @@ public class TransportConnectorInvalidSocketOptionsTest extends TestCase {
          try {
             new ActiveMQConnectionFactory("tcp://localhost:61616?socket.foo=bar").createConnection();
             fail("Should have thrown an exception");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             assertEquals(JMSException.class, e.getClass());
             assertEquals(IllegalArgumentException.class, e.getCause().getClass());
             assertEquals("Invalid socket parameters: {foo=bar}", e.getCause().getMessage());
          }
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }

@@ -101,8 +101,7 @@ public class ClusteredTopicExample {
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our JMS resources!
          if (connection0 != null) {
             connection0.close();

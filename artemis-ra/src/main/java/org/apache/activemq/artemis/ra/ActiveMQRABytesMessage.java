@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.util.Arrays;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
+import java.util.Arrays;
 
 /**
  * A wrapper for a message

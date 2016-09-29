@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.uri.schema.serverLocator;
 
+import java.net.URI;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISchema;
-
-import java.net.URI;
-import java.util.Map;
 
 public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String> {
 

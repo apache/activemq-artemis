@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.Test;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -31,6 +23,14 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * This will perform cleanup tests on paging while using JMS topics
@@ -129,8 +129,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             assertFalse(pagingStore.isPaging());
          }
 
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }
@@ -208,8 +207,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
          }
 
          assertEquals(1, pagingStore.getNumberOfPages()); //I expected number of the page is 1, but It was not.
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

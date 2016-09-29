@@ -303,8 +303,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (maskText) {
             SensitiveDataCodec<String> codec = PasswordMaskingUtil.getCodec(config.getPasswordCodec());
             config.setClusterPassword(codec.decode(passwordText));
-         }
-         else {
+         } else {
             config.setClusterPassword(passwordText);
          }
       }
@@ -469,8 +468,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (s.equals(JournalType.NIO.toString())) {
          config.setJournalType(JournalType.NIO);
-      }
-      else if (s.equals(JournalType.ASYNCIO.toString())) {
+      } else if (s.equals(JournalType.ASYNCIO.toString())) {
          // https://jira.jboss.org/jira/browse/HORNETQ-295
          // We do the check here to see if AIO is supported so we can use the correct defaults and/or use
          // correct settings in xml
@@ -479,8 +477,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          if (supportsAIO) {
             config.setJournalType(JournalType.ASYNCIO);
-         }
-         else {
+         } else {
             if (validateAIO) {
                ActiveMQServerLogger.LOGGER.AIONotFound();
             }
@@ -505,8 +502,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setJournalBufferTimeout_AIO(journalBufferTimeout);
          config.setJournalBufferSize_AIO(journalBufferSize);
          config.setJournalMaxIO_AIO(journalMaxIO);
-      }
-      else {
+      } else {
          config.setJournalBufferTimeout_NIO(journalBufferTimeout);
          config.setJournalBufferSize_NIO(journalBufferSize);
          config.setJournalMaxIO_NIO(journalMaxIO);
@@ -664,35 +660,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             for (String role : roles) {
                if (SEND_NAME.equals(type)) {
                   send.add(role.trim());
-               }
-               else if (CONSUME_NAME.equals(type)) {
+               } else if (CONSUME_NAME.equals(type)) {
                   consume.add(role.trim());
-               }
-               else if (CREATEDURABLEQUEUE_NAME.equals(type)) {
+               } else if (CREATEDURABLEQUEUE_NAME.equals(type)) {
                   createDurableQueue.add(role.trim());
-               }
-               else if (DELETEDURABLEQUEUE_NAME.equals(type)) {
+               } else if (DELETEDURABLEQUEUE_NAME.equals(type)) {
                   deleteDurableQueue.add(role.trim());
-               }
-               else if (CREATE_NON_DURABLE_QUEUE_NAME.equals(type)) {
+               } else if (CREATE_NON_DURABLE_QUEUE_NAME.equals(type)) {
                   createNonDurableQueue.add(role.trim());
-               }
-               else if (DELETE_NON_DURABLE_QUEUE_NAME.equals(type)) {
+               } else if (DELETE_NON_DURABLE_QUEUE_NAME.equals(type)) {
                   deleteNonDurableQueue.add(role.trim());
-               }
-               else if (CREATETEMPQUEUE_NAME.equals(type)) {
+               } else if (CREATETEMPQUEUE_NAME.equals(type)) {
                   createNonDurableQueue.add(role.trim());
-               }
-               else if (DELETETEMPQUEUE_NAME.equals(type)) {
+               } else if (DELETETEMPQUEUE_NAME.equals(type)) {
                   deleteNonDurableQueue.add(role.trim());
-               }
-               else if (MANAGE_NAME.equals(type)) {
+               } else if (MANAGE_NAME.equals(type)) {
                   manageRoles.add(role.trim());
-               }
-               else if (BROWSE_NAME.equals(type)) {
+               } else if (BROWSE_NAME.equals(type)) {
                   browseRoles.add(role.trim());
-               }
-               else {
+               } else {
                   ActiveMQServerLogger.LOGGER.rolePermissionConfigurationError(type);
                }
                if (!allRoles.contains(role.trim())) {
@@ -753,84 +739,62 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (DEAD_LETTER_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
             SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
             addressSettings.setDeadLetterAddress(queueName);
-         }
-         else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (EXPIRY_ADDRESS_NODE_NAME.equalsIgnoreCase(name)) {
             SimpleString queueName = new SimpleString(getTrimmedTextContent(child));
             addressSettings.setExpiryAddress(queueName);
-         }
-         else if (EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setExpiryDelay(XMLUtil.parseLong(child));
-         }
-         else if (REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedeliveryDelay(XMLUtil.parseLong(child));
-         }
-         else if (REDELIVERY_DELAY_MULTIPLIER_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (REDELIVERY_DELAY_MULTIPLIER_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedeliveryMultiplier(XMLUtil.parseDouble(child));
-         }
-         else if (MAX_REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MAX_REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
-         }
-         else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytes(XMLUtil.parseLong(child));
-         }
-         else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setPageSizeBytes(XMLUtil.parseLong(child));
-         }
-         else if (PAGE_MAX_CACHE_SIZE_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (PAGE_MAX_CACHE_SIZE_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setPageCacheMaxSize(XMLUtil.parseInt(child));
-         }
-         else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));
-         }
-         else if (ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
             String value = getTrimmedTextContent(child);
             Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, value);
             AddressFullMessagePolicy policy = Enum.valueOf(AddressFullMessagePolicy.class, value);
             addressSettings.setAddressFullMessagePolicy(policy);
-         }
-         else if (LVQ_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (LVQ_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setLastValueQueue(XMLUtil.parseBoolean(child));
-         }
-         else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
+         } else if (MAX_DELIVERY_ATTEMPTS.equalsIgnoreCase(name)) {
             addressSettings.setMaxDeliveryAttempts(XMLUtil.parseInt(child));
-         }
-         else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (REDISTRIBUTION_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedistributionDelay(XMLUtil.parseLong(child));
-         }
-         else if (SEND_TO_DLA_ON_NO_ROUTE.equalsIgnoreCase(name)) {
+         } else if (SEND_TO_DLA_ON_NO_ROUTE.equalsIgnoreCase(name)) {
             addressSettings.setSendToDLAOnNoRoute(XMLUtil.parseBoolean(child));
-         }
-         else if (SLOW_CONSUMER_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (SLOW_CONSUMER_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
             long slowConsumerThreshold = XMLUtil.parseLong(child);
             Validators.MINUS_ONE_OR_GT_ZERO.validate(SLOW_CONSUMER_THRESHOLD_NODE_NAME, slowConsumerThreshold);
 
             addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
-         }
-         else if (SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME.equalsIgnoreCase(name)) {
             long slowConsumerCheckPeriod = XMLUtil.parseLong(child);
             Validators.GT_ZERO.validate(SLOW_CONSUMER_CHECK_PERIOD_NODE_NAME, slowConsumerCheckPeriod);
 
             addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
-         }
-         else if (SLOW_CONSUMER_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (SLOW_CONSUMER_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
             String value = getTrimmedTextContent(child);
             Validators.SLOW_CONSUMER_POLICY_TYPE.validate(SLOW_CONSUMER_POLICY_NODE_NAME, value);
             SlowConsumerPolicy policy = Enum.valueOf(SlowConsumerPolicy.class, value);
             addressSettings.setSlowConsumerPolicy(policy);
-         }
-         else if (AUTO_CREATE_JMS_QUEUES.equalsIgnoreCase(name)) {
+         } else if (AUTO_CREATE_JMS_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateJmsQueues(XMLUtil.parseBoolean(child));
-         }
-         else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name)) {
+         } else if (AUTO_DELETE_JMS_QUEUES.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteJmsQueues(XMLUtil.parseBoolean(child));
-         }
-         else if (AUTO_CREATE_JMS_TOPICS.equalsIgnoreCase(name)) {
+         } else if (AUTO_CREATE_JMS_TOPICS.equalsIgnoreCase(name)) {
             addressSettings.setAutoCreateJmsTopics(XMLUtil.parseBoolean(child));
-         }
-         else if (AUTO_DELETE_JMS_TOPICS.equalsIgnoreCase(name)) {
+         } else if (AUTO_DELETE_JMS_TOPICS.equalsIgnoreCase(name)) {
             addressSettings.setAutoDeleteJmsTopics(XMLUtil.parseBoolean(child));
-         }
-         else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
+         } else if (MANAGEMENT_BROWSE_PAGE_SIZE.equalsIgnoreCase(name)) {
             addressSettings.setManagementBrowsePageSize(XMLUtil.parseInt(child));
          }
       }
@@ -853,8 +817,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          final String name = child.getNodeName();
          if (MAX_CONNECTIONS_NODE_NAME.equalsIgnoreCase(name)) {
             resourceLimitSettings.setMaxConnections(XMLUtil.parseInt(child));
-         }
-         else if (MAX_QUEUES_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MAX_QUEUES_NODE_NAME.equalsIgnoreCase(name)) {
             resourceLimitSettings.setMaxQueues(XMLUtil.parseInt(child));
          }
       }
@@ -874,11 +837,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          if (child.getNodeName().equals("address")) {
             address = getTrimmedTextContent(child);
-         }
-         else if (child.getNodeName().equals("filter")) {
+         } else if (child.getNodeName().equals("filter")) {
             filterString = getAttributeValue(child, "string");
-         }
-         else if (child.getNodeName().equals("durable")) {
+         } else if (child.getNodeName().equals("durable")) {
             durable = XMLUtil.parseBoolean(child);
          }
       }
@@ -969,8 +930,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Element storeNode = (Element) storeNodeList.item(0);
             if (storeNode.getTagName().equals("database-store")) {
                mainConfig.setStoreConfiguration(createDatabaseStoreConfig(storeNode));
-            }
-            else if (storeNode.getTagName().equals("file-store")) {
+            } else if (storeNode.getTagName().equals("file-store")) {
                mainConfig.setStoreConfiguration(createFileStoreConfig(storeNode));
             }
          }
@@ -998,8 +958,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, true));
                }
-            }
-            else if (haNode.getTagName().equals("shared-store")) {
+            } else if (haNode.getTagName().equals("shared-store")) {
                NodeList masterNodeList = e.getElementsByTagName("master");
                if (masterNodeList.getLength() > 0) {
                   Element masterNode = (Element) masterNodeList.item(0);
@@ -1015,8 +974,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, false));
                }
-            }
-            else if (haNode.getTagName().equals("live-only")) {
+            } else if (haNode.getTagName().equals("live-only")) {
                NodeList noneNodeList = e.getElementsByTagName("live-only");
                Element noneNode = (Element) noneNodeList.item(0);
                mainConfig.setHAPolicyConfiguration(createLiveOnlyHaPolicy(noneNode));
@@ -1228,8 +1186,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       if (jgroupsFile != null) {
          endpointFactory = new JGroupsFileBroadcastEndpointFactory().setFile(jgroupsFile).setChannelName(jgroupsChannel);
-      }
-      else {
+      } else {
          endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort).setLocalBindAddress(localAddress).setLocalBindPort(localBindPort);
       }
 
@@ -1261,8 +1218,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       BroadcastEndpointFactory endpointFactory;
       if (jgroupsFile != null) {
          endpointFactory = new JGroupsFileBroadcastEndpointFactory().setFile(jgroupsFile).setChannelName(jgroupsChannel);
-      }
-      else {
+      } else {
          endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort).setLocalBindAddress(localBindAddress).setLocalBindPort(localBindPort);
       }
 
@@ -1272,15 +1228,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          ActiveMQServerLogger.LOGGER.discoveryGroupAlreadyDeployed(name);
 
          return;
-      }
-      else {
+      } else {
          mainConfig.getDiscoveryGroupConfigurations().put(name, config);
       }
    }
 
-   private void parseClusterConnectionConfigurationURI(final Element e, final Configuration mainConfig) throws Exception {
+   private void parseClusterConnectionConfigurationURI(final Element e,
+                                                       final Configuration mainConfig) throws Exception {
       String name = e.getAttribute("name");
-
 
       String uri = e.getAttribute("address");
 
@@ -1304,12 +1259,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          boolean forwardWhenNoConsumers = getBoolean(e, "forward-when-no-consumers", ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers());
          if (forwardWhenNoConsumers) {
             messageLoadBalancingType = MessageLoadBalancingType.STRICT;
-         }
-         else {
+         } else {
             messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
          }
-      }
-      else {
+      } else {
 
          messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, getString(e, "message-load-balancing", ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType(), Validators.MESSAGE_LOAD_BALANCING_TYPE));
       }
@@ -1359,8 +1312,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          if (child.getNodeName().equals("discovery-group-ref")) {
             discoveryGroupName = child.getAttributes().getNamedItem("discovery-group-name").getNodeValue();
-         }
-         else if (child.getNodeName().equals("static-connectors")) {
+         } else if (child.getNodeName().equals("static-connectors")) {
             Node attr = child.getAttributes().getNamedItem("allow-direct-connections-only");
             if (attr != null) {
                allowDirectConnectionsOnly = "true".equalsIgnoreCase(attr.getNodeValue()) || allowDirectConnectionsOnly;
@@ -1369,33 +1321,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
-         .setName(name)
-         .setAddress(address)
-         .setConnectorName(connectorName)
-         .setMinLargeMessageSize(minLargeMessageSize)
-         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-         .setConnectionTTL(connectionTTL)
-         .setRetryInterval(retryInterval)
-         .setRetryIntervalMultiplier(retryIntervalMultiplier)
-         .setMaxRetryInterval(maxRetryInterval)
-         .setInitialConnectAttempts(initialConnectAttempts)
-         .setReconnectAttempts(reconnectAttempts)
-         .setCallTimeout(callTimeout)
-         .setCallFailoverTimeout(callFailoverTimeout)
-         .setDuplicateDetection(duplicateDetection)
-         .setMessageLoadBalancingType(messageLoadBalancingType)
-         .setMaxHops(maxHops)
-         .setConfirmationWindowSize(confirmationWindowSize)
-         .setProducerWindowSize(producerWindowSize)
-         .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
-         .setClusterNotificationInterval(clusterNotificationInterval)
-         .setClusterNotificationAttempts(clusterNotificationAttempts);
+      ClusterConnectionConfiguration config = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setDuplicateDetection(duplicateDetection).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setClusterNotificationInterval(clusterNotificationInterval).setClusterNotificationAttempts(clusterNotificationAttempts);
 
       if (discoveryGroupName == null) {
          config.setStaticConnectors(staticConnectorNames);
-      }
-      else {
+      } else {
          config.setDiscoveryGroupName(discoveryGroupName);
       }
 
@@ -1464,8 +1394,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             codec = PasswordMaskingUtil.getCodec(mainConfig.getPasswordCodec());
             password = codec.decode(password);
          }
-      }
-      else {
+      } else {
          password = ActiveMQDefaultConfiguration.getDefaultClusterPassword();
       }
 
@@ -1484,41 +1413,18 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          if (child.getNodeName().equals("filter")) {
             filterString = child.getAttributes().getNamedItem("string").getNodeValue();
-         }
-         else if (child.getNodeName().equals("discovery-group-ref")) {
+         } else if (child.getNodeName().equals("discovery-group-ref")) {
             discoveryGroupName = child.getAttributes().getNamedItem("discovery-group-name").getNodeValue();
-         }
-         else if (child.getNodeName().equals("static-connectors")) {
+         } else if (child.getNodeName().equals("static-connectors")) {
             getStaticConnectors(staticConnectorNames, child);
          }
       }
 
-      BridgeConfiguration config = new BridgeConfiguration()
-         .setName(name)
-         .setQueueName(queueName)
-         .setForwardingAddress(forwardingAddress)
-         .setFilterString(filterString)
-         .setTransformerClassName(transformerClassName)
-         .setMinLargeMessageSize(minLargeMessageSize)
-         .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-         .setConnectionTTL(connectionTTL)
-         .setRetryInterval(retryInterval)
-         .setMaxRetryInterval(maxRetryInterval)
-         .setRetryIntervalMultiplier(retryIntervalMultiplier)
-         .setInitialConnectAttempts(initialConnectAttempts)
-         .setReconnectAttempts(reconnectAttempts)
-         .setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode)
-         .setUseDuplicateDetection(useDuplicateDetection)
-         .setConfirmationWindowSize(confirmationWindowSize)
-         .setProducerWindowSize(producerWindowSize)
-         .setHA(ha)
-         .setUser(user)
-         .setPassword(password);
+      BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setMinLargeMessageSize(minLargeMessageSize).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setRetryInterval(retryInterval).setMaxRetryInterval(maxRetryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setReconnectAttemptsOnSameNode(reconnectAttemptsSameNode).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
 
       if (!staticConnectorNames.isEmpty()) {
          config.setStaticConnectors(staticConnectorNames);
-      }
-      else {
+      } else {
          config.setDiscoveryGroupName(discoveryGroupName);
       }
 

@@ -17,14 +17,14 @@
 
 package org.apache.activemq.artemis.cli.commands.destination;
 
+import javax.jms.Message;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-
-import javax.jms.Message;
 
 @Command(name = "delete", description = "delete a queue or topic")
 public class DeleteDestination extends DestinationAction {
@@ -38,14 +38,11 @@ public class DeleteDestination extends DestinationAction {
 
       if (JMS_QUEUE.equals(destType)) {
          deleteJmsQueue(context);
-      }
-      else if (CORE_QUEUE.equals(destType)) {
+      } else if (CORE_QUEUE.equals(destType)) {
          deleteCoreQueue(context);
-      }
-      else if (JMS_TOPIC.equals(destType)) {
+      } else if (JMS_TOPIC.equals(destType)) {
          deleteJmsTopic(context);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("--type can only be one of " + JMS_QUEUE + ", " + JMS_TOPIC + " and " + CORE_QUEUE);
       }
       return null;
@@ -63,8 +60,7 @@ public class DeleteDestination extends DestinationAction {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
                context.out.println("Topic " + getName() + " deleted successfully.");
-            }
-            else {
+            } else {
                context.err.println("Failed to delete topic " + getName());
             }
          }
@@ -89,8 +85,7 @@ public class DeleteDestination extends DestinationAction {
             boolean result = (boolean) JMSManagementHelper.getResult(reply, Boolean.class);
             if (result) {
                context.out.println("Jms queue " + getName() + " deleted successfully.");
-            }
-            else {
+            } else {
                context.err.println("Failed to delete queue " + getName());
             }
          }

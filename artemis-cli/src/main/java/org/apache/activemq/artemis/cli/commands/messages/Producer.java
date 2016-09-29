@@ -59,8 +59,7 @@ public class Producer extends DestAbstract {
             Session session;
             if (txBatchSize > 0) {
                session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            }
-            else {
+            } else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
             threadsArray[i] = new ProducerThread(session, dest, i);

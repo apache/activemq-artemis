@@ -78,8 +78,7 @@ public abstract class ActiveMQServerTestCase {
          System.gc();
          try {
             Thread.sleep(500);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
       }
    }
@@ -130,8 +129,7 @@ public abstract class ActiveMQServerTestCase {
          // deploy the objects for this test
          deployAdministeredObjects();
          lookUp();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // if we get here we need to clean up for the next test
          e.printStackTrace();
          ActiveMQServerTestCase.servers.get(0).stop();
@@ -257,8 +255,7 @@ public abstract class ActiveMQServerTestCase {
       for (Server s : servers) {
          try {
             s.stop();
-         }
-         catch (Exception cause) {
+         } catch (Exception cause) {
             // ignore
          }
       }
@@ -293,8 +290,7 @@ public abstract class ActiveMQServerTestCase {
             }
             log.trace("Drained message");
          }
-      }
-      finally {
+      } finally {
          if (conn != null) {
             conn.close();
          }

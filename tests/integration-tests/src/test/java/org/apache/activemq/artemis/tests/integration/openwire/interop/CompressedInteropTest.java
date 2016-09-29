@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
-import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.apache.activemq.command.ActiveMQDestination;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.MapMessage;
@@ -34,10 +26,18 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.activemq.ActiveMQMessageProducer;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CompressedInteropTest extends BasicOpenWireTest {
 
    private static final String TEXT;
+
    static {
       StringBuilder builder = new StringBuilder();
 
@@ -103,7 +103,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       boolean booleanVal = streamMessage.readBoolean();
       assertTrue(booleanVal);
       byte byteVal = streamMessage.readByte();
-      assertEquals((byte)10, byteVal);
+      assertEquals((byte) 10, byteVal);
       byte[] originVal = TEXT.getBytes();
       byte[] bytesVal = new byte[originVal.length];
       streamMessage.readBytes(bytesVal);
@@ -176,7 +176,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       boolean booleanVal = mapMessage.getBoolean("boolean-type");
       assertTrue(booleanVal);
       byte byteVal = mapMessage.getByte("byte-type");
-      assertEquals((byte)10, byteVal);
+      assertEquals((byte) 10, byteVal);
       byte[] bytesVal = mapMessage.getBytes("bytes-type");
       byte[] originVal = TEXT.getBytes();
       assertEquals(originVal.length, bytesVal.length);
@@ -242,8 +242,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
          MessageConsumer coreConsumer = session.createConsumer(queue);
 
          message = coreConsumer.receive(5000);
-      }
-      finally {
+      } finally {
          if (jmsConn != null) {
             jmsConn.close();
          }

@@ -36,7 +36,6 @@ import org.jboss.logging.Logger;
  *
  * Useful for unauthenticated communication channels being used in the
  * same broker as authenticated ones.
- *
  */
 public class GuestLoginModule implements LoginModule {
 
@@ -55,7 +54,10 @@ public class GuestLoginModule implements LoginModule {
    private boolean loginSucceeded;
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+   public void initialize(Subject subject,
+                          CallbackHandler callbackHandler,
+                          Map<String, ?> sharedState,
+                          Map<String, ?> options) {
       this.subject = subject;
       this.callbackHandler = callbackHandler;
       debug = "true".equalsIgnoreCase((String) options.get("debug"));
@@ -89,8 +91,7 @@ public class GuestLoginModule implements LoginModule {
                loginSucceeded = false;
                passwordCallback.clearPassword();
             }
-         }
-         catch (IOException | UnsupportedCallbackException e) {
+         } catch (IOException | UnsupportedCallbackException e) {
          }
       }
       if (debug) {

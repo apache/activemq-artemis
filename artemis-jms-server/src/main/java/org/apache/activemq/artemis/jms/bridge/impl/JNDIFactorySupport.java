@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.bridge.impl;
 
-import java.util.Hashtable;
-
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
 public abstract class JNDIFactorySupport {
 
@@ -40,14 +39,12 @@ public abstract class JNDIFactorySupport {
       try {
          if (jndiProperties == null) {
             ic = new InitialContext();
-         }
-         else {
+         } else {
             ic = new InitialContext(jndiProperties);
          }
 
          obj = ic.lookup(lookup);
-      }
-      finally {
+      } finally {
          if (ic != null) {
             ic.close();
          }

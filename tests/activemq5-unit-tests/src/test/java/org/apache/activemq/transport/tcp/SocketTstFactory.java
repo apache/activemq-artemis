@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.transport.tcp;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -23,8 +24,6 @@ import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import javax.net.SocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +66,7 @@ public class SocketTstFactory extends SocketFactory {
                      lastDelay = closeIter.get(this.address);
                      if (lastDelay == null) {
                         lastDelayVal = 0;
-                     }
-                     else {
+                     } else {
                         lastDelayVal = lastDelay.intValue();
                         if (lastDelayVal > 10)
                            lastDelayVal += 20;
@@ -82,19 +80,16 @@ public class SocketTstFactory extends SocketFactory {
 
                      try {
                         Thread.sleep(lastDelayVal);
-                     }
-                     catch (InterruptedException e) {
+                     } catch (InterruptedException e) {
                         this.processus.interrupt();
                         Thread.currentThread().interrupt();
-                     }
-                     catch (IllegalArgumentException e) {
+                     } catch (IllegalArgumentException e) {
                      }
 
                      this.socket.close();
                      closeIter.put(this.address, lastDelay);
                      LOG.info("Client socket " + this.socket.toString() + " is closed.");
-                  }
-                  catch (IOException e) {
+                  } catch (IOException e) {
                   }
                }
 

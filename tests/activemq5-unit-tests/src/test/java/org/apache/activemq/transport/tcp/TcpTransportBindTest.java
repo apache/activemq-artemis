@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.transport.tcp;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
@@ -60,8 +59,7 @@ public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
          public void run() {
             try {
                artemisBroker.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -71,8 +69,7 @@ public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
       try {
          consumer.receive(30000);
          fail("Should have thrown an exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // should fail
       }
    }

@@ -64,11 +64,9 @@ public abstract class UnaryExpression implements Expression {
       Collection<Object> t;
       if (elements.size() == 0) {
          t = null;
-      }
-      else if (elements.size() < 5) {
+      } else if (elements.size() < 5) {
          t = elements;
-      }
-      else {
+      } else {
          t = new HashSet<>(elements);
       }
       final Collection<Object> inList = t;
@@ -113,8 +111,7 @@ public abstract class UnaryExpression implements Expression {
          public String getExpressionSymbol() {
             if (not) {
                return "NOT IN";
-            }
-            else {
+            } else {
                return "IN";
             }
          }
@@ -190,17 +187,13 @@ public abstract class UnaryExpression implements Expression {
       Class clazz = left.getClass();
       if (clazz == Integer.class) {
          return -left.intValue();
-      }
-      else if (clazz == Long.class) {
+      } else if (clazz == Long.class) {
          return -left.longValue();
-      }
-      else if (clazz == Float.class) {
+      } else if (clazz == Float.class) {
          return -left.floatValue();
-      }
-      else if (clazz == Double.class) {
+      } else if (clazz == Double.class) {
          return -left.doubleValue();
-      }
-      else if (clazz == BigDecimal.class) {
+      } else if (clazz == BigDecimal.class) {
          // We ussually get a big deciamal when we have Long.MIN_VALUE
          // constant in the
          // Selector. Long.MIN_VALUE is too big to store in a Long as a
@@ -215,8 +208,7 @@ public abstract class UnaryExpression implements Expression {
             return Long.valueOf(Long.MIN_VALUE);
          }
          return bd;
-      }
-      else {
+      } else {
          throw new RuntimeException("Don't know how to negate: " + left);
       }
    }

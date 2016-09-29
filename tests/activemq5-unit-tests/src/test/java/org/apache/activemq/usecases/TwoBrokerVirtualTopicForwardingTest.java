@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.MessageConsumer;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.LinkedList;
+
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.Destination;
@@ -26,13 +32,7 @@ import org.apache.activemq.network.NetworkConnector;
 import org.apache.activemq.store.kahadb.KahaDBStore;
 import org.apache.activemq.util.MessageIdList;
 
-import javax.jms.MessageConsumer;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.LinkedList;
-
-import static org.apache.activemq.TestSupport.*;
+import static org.apache.activemq.TestSupport.getDestination;
 
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>

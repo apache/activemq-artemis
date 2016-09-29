@@ -32,9 +32,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -211,8 +211,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
          Map<String, Object>[] coreMessages = coreQueueControl.listMessages(filter);
 
          return toJMSMap(coreMessages);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
@@ -258,8 +257,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
          }
 
          return returnMap;
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
@@ -319,7 +317,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       for (String kv : kvs) {
          String[] it = kv.split("=");
          if (it.length == 2) {
-            props.put(it[0],it[1]);
+            props.put(it[0], it[1]);
          }
       }
       return sendTextMessage(props, props.remove("body"), props.remove("username"), props.remove("password"));
@@ -341,7 +339,10 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    @Override
-   public String sendTextMessage(Map<String, String> headers, String body, String user, String password) throws Exception {
+   public String sendTextMessage(Map<String, String> headers,
+                                 String body,
+                                 String user,
+                                 String password) throws Exception {
       boolean durable = false;
       if (headers.containsKey("JMSDeliveryMode")) {
          String jmsDeliveryMode = headers.remove("JMSDeliveryMode");
@@ -379,13 +380,13 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
 
       // Figure out messageID from JMSMessageID.
       final String filter = createFilterForJMSMessageID(jmsMessageID);
-      Map<String,Object>[] messages = coreQueueControl.listMessages(filter);
-      if ( messages.length != 1) { // if no messages. There should not be more than one, JMSMessageID should be unique.
+      Map<String, Object>[] messages = coreQueueControl.listMessages(filter);
+      if (messages.length != 1) { // if no messages. There should not be more than one, JMSMessageID should be unique.
          return false;
       }
 
-      final Map<String,Object> messageToRedeliver = messages[0];
-      Long messageID = (Long)messageToRedeliver.get("messageID");
+      final Map<String, Object> messageToRedeliver = messages[0];
+      Long messageID = (Long) messageToRedeliver.get("messageID");
       return messageID != null && coreQueueControl.retryMessage(messageID);
    }
 
@@ -393,7 +394,6 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public int retryMessages() throws Exception {
       return coreQueueControl.retryMessages();
    }
-
 
    @Override
    public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception {
@@ -438,8 +438,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public String listMessageCounter() {
       try {
          return MessageCounterInfo.toJSon(counter);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
@@ -487,7 +486,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    @Override
    public CompositeData[] browse(String filter) throws Exception {
       try {
-         CompositeData[] messages =  coreQueueControl.browse(filter);
+         CompositeData[] messages = coreQueueControl.browse(filter);
 
          ArrayList<CompositeData> c = new ArrayList<>();
 
@@ -497,8 +496,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
          CompositeData[] rc = new CompositeData[c.size()];
          c.toArray(rc);
          return rc;
-      }
-      catch (ActiveMQInvalidFilterExpressionException e) {
+      } catch (ActiveMQInvalidFilterExpressionException e) {
          throw new InvalidSelectorException(e.getMessage());
       }
    }

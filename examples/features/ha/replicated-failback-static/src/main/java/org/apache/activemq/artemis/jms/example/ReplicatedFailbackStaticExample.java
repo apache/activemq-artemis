@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -27,6 +25,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * Example of live and replicating backup pair.
@@ -101,8 +101,7 @@ public class ReplicatedFailbackStaticExample {
          // backup server has occurred
          try {
             message0.acknowledge();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.out.println("Got (the expected) exception while acknowledging message: " + e.getMessage());
          }
 
@@ -119,8 +118,7 @@ public class ReplicatedFailbackStaticExample {
          // backup server has occurred
          try {
             message0.acknowledge();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.err.println("Got exception while acknowledging message: " + e.getMessage());
          }
 
@@ -130,8 +128,7 @@ public class ReplicatedFailbackStaticExample {
             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our resources!
 
          if (connection != null) {

@@ -47,10 +47,10 @@ public class GlobalPagingTest extends PagingTest {
 
    @Override
    protected ActiveMQServer createServer(final boolean realFiles,
-                                               final Configuration configuration,
-                                               final long pageSize,
-                                               final long maxAddressSize,
-                                               final Map<String, AddressSettings> settings) {
+                                         final Configuration configuration,
+                                         final long pageSize,
+                                         final long maxAddressSize,
+                                         final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
 
       if (settings != null) {
@@ -67,8 +67,6 @@ public class GlobalPagingTest extends PagingTest {
       return server;
    }
 
-
-
    @Test
    public void testPagingOverFullDisk() throws Exception {
       clearDataRecreateServerDirs();
@@ -80,7 +78,7 @@ public class GlobalPagingTest extends PagingTest {
 
       server.start();
 
-      ActiveMQServerImpl serverImpl = (ActiveMQServerImpl)server;
+      ActiveMQServerImpl serverImpl = (ActiveMQServerImpl) server;
       serverImpl.getMonitor().stop(); // stop the scheduled executor, we will do it manually only
       serverImpl.getMonitor().tick();
 
@@ -106,7 +104,6 @@ public class GlobalPagingTest extends PagingTest {
          bb.put(getSamplebyte(j));
       }
 
-
       Queue queue = server.locateQueue(ADDRESS);
       queue.getPageSubscription().getPagingStore().forceAnotherPage();
 
@@ -121,8 +118,7 @@ public class GlobalPagingTest extends PagingTest {
          public void run() {
             try {
                sendFewMessages(numberOfMessages, session, producer, body);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -137,7 +133,6 @@ public class GlobalPagingTest extends PagingTest {
       serverImpl.getMonitor().setMaxUsage(1).tick();
       t.join(5000);
       Assert.assertFalse(t.isAlive());
-
 
       session.start();
 

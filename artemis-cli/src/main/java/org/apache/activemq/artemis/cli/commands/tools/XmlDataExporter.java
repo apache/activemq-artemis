@@ -66,12 +66,12 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.MessageDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal.ReferenceDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.core.persistence.impl.journal.AckDescribe;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
@@ -130,8 +130,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
       try {
          process(context.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          treatError(e, "data", "exp");
       }
       return null;
@@ -236,26 +235,21 @@ public final class XmlDataExporter extends OptionalLocking {
          Object o = DescribeJournal.newObjectEncoding(info, storageManager);
          if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE) {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ADD_LARGE_MESSAGE) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ADD_LARGE_MESSAGE) {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
             ReferenceDescribe ref = (ReferenceDescribe) o;
             HashMap<Long, ReferenceDescribe> map = messageRefs.get(info.id);
             if (map == null) {
                HashMap<Long, ReferenceDescribe> newMap = new HashMap<>();
                newMap.put(ref.refEncoding.queueID, ref);
                messageRefs.put(info.id, newMap);
-            }
-            else {
+            } else {
                map.put(ref.refEncoding.queueID, ref);
             }
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             acks.add(info);
-         }
-         else if (info.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR) {
+         } else if (info.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR) {
             CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
             encoding.decode(buff);
 
@@ -267,15 +261,13 @@ public final class XmlDataExporter extends OptionalLocking {
             }
 
             set.add(encoding.position);
-         }
-         else if (info.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
+         } else if (info.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
             if (info.isUpdate) {
                PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
 
                pageUpdate.decode(buff);
                pgTXs.add(pageUpdate.pageTX);
-            }
-            else {
+            } else {
                PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                pageTransactionInfo.decode(buff);
@@ -336,15 +328,13 @@ public final class XmlDataExporter extends OptionalLocking {
             cf.setId(id);
             ActiveMQServerLogger.LOGGER.info("Found JMS connection factory: " + cf.getName());
             jmsConnectionFactories.put(cf.getName(), cf);
-         }
-         else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD) {
+         } else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD) {
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
             ActiveMQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
             jmsDestinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
-         }
-         else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD) {
+         } else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD) {
             PersistedBindings jndi = new PersistedBindings();
             jndi.decode(buffer);
             jndi.setId(id);
@@ -355,8 +345,7 @@ public final class XmlDataExporter extends OptionalLocking {
             }
             ActiveMQServerLogger.LOGGER.info("Found JMS JNDI binding data for " + jndi.getType() + " " + jndi.getName() + ": " + builder.toString());
             jmsJNDI.put(key, jndi);
-         }
-         else {
+         } else {
             throw new IllegalStateException("Invalid record type " + rec);
          }
 
@@ -401,8 +390,7 @@ public final class XmlDataExporter extends OptionalLocking {
          xmlWriter.writeEndDocument();
          xmlWriter.flush();
          xmlWriter.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -745,13 +733,11 @@ public final class XmlDataExporter extends OptionalLocking {
 
                   pageId++;
                }
-            }
-            else {
+            } else {
                ActiveMQServerLogger.LOGGER.debug("Page store was null");
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -771,8 +757,7 @@ public final class XmlDataExporter extends OptionalLocking {
 
       if (message.isLargeMessage()) {
          printLargeMessageBody((LargeServerMessage) message);
-      }
-      else {
+      } else {
          int size = message.getEndOfBodyPosition() - message.getBodyBuffer().readerIndex();
          byte[] buffer = new byte[size];
          message.getBodyBuffer().readBytes(buffer);
@@ -796,8 +781,7 @@ public final class XmlDataExporter extends OptionalLocking {
             Long remainder = bodySize - totalBytesWritten;
             if (remainder >= LARGE_MESSAGE_CHUNK_SIZE) {
                bufferSize = LARGE_MESSAGE_CHUNK_SIZE;
-            }
-            else {
+            } else {
                bufferSize = remainder;
             }
             ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
@@ -806,16 +790,13 @@ public final class XmlDataExporter extends OptionalLocking {
             totalBytesWritten += bufferSize;
          }
          encoder.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (encoder != null) {
             try {
                encoder.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
             }
          }
@@ -839,39 +820,29 @@ public final class XmlDataExporter extends OptionalLocking {
          xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_NAME, key.toString());
          if (value instanceof byte[]) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, encode((byte[]) value));
-         }
-         else {
+         } else {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value == null ? XmlDataConstants.NULL : value.toString());
          }
 
          if (value instanceof Boolean) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BOOLEAN);
-         }
-         else if (value instanceof Byte) {
+         } else if (value instanceof Byte) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTE);
-         }
-         else if (value instanceof Short) {
+         } else if (value instanceof Short) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SHORT);
-         }
-         else if (value instanceof Integer) {
+         } else if (value instanceof Integer) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_INTEGER);
-         }
-         else if (value instanceof Long) {
+         } else if (value instanceof Long) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_LONG);
-         }
-         else if (value instanceof Float) {
+         } else if (value instanceof Float) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_FLOAT);
-         }
-         else if (value instanceof Double) {
+         } else if (value instanceof Double) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_DOUBLE);
-         }
-         else if (value instanceof String) {
+         } else if (value instanceof String) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_STRING);
-         }
-         else if (value instanceof SimpleString) {
+         } else if (value instanceof SimpleString) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING);
-         }
-         else if (value instanceof byte[]) {
+         } else if (value instanceof byte[]) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTES);
          }
       }
@@ -887,17 +858,13 @@ public final class XmlDataExporter extends OptionalLocking {
       String prettyType = XmlDataConstants.DEFAULT_TYPE_PRETTY;
       if (rawType == Message.BYTES_TYPE) {
          prettyType = XmlDataConstants.BYTES_TYPE_PRETTY;
-      }
-      else if (rawType == Message.MAP_TYPE) {
+      } else if (rawType == Message.MAP_TYPE) {
          prettyType = XmlDataConstants.MAP_TYPE_PRETTY;
-      }
-      else if (rawType == Message.OBJECT_TYPE) {
+      } else if (rawType == Message.OBJECT_TYPE) {
          prettyType = XmlDataConstants.OBJECT_TYPE_PRETTY;
-      }
-      else if (rawType == Message.STREAM_TYPE) {
+      } else if (rawType == Message.STREAM_TYPE) {
          prettyType = XmlDataConstants.STREAM_TYPE_PRETTY;
-      }
-      else if (rawType == Message.TEXT_TYPE) {
+      } else if (rawType == Message.TEXT_TYPE) {
          prettyType = XmlDataConstants.TEXT_TYPE_PRETTY;
       }
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TYPE, prettyType);

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -396,8 +395,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
                         assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
                         LOG.info("Stopping connection post send and receive and multiple producers");
                         producerExchange.getConnectionContext().getConnection().stop();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -470,8 +468,7 @@ public class TwoBrokerQueueClientsReconnectTest extends JmsMultipleBrokersTestSu
                         assertTrue("message received on time", gotMessageLatch.await(60, TimeUnit.SECONDS));
                         LOG.info("Stopping connection post send and receive and multiple producers");
                         producerExchange.getConnectionContext().getConnection().stop();
-                     }
-                     catch (Exception e) {
+                     } catch (Exception e) {
                         e.printStackTrace();
                      }
                   }

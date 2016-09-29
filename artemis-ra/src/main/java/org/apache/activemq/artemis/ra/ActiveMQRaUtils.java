@@ -239,8 +239,7 @@ public final class ActiveMQRaUtils {
                Object o = aClass.newInstance();
                Method m = aClass.getMethod("locateChannel", new Class[]{String.class});
                return (JChannel) m.invoke(o, name);
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                ActiveMQRALogger.LOGGER.debug(e.getMessage(), e);
                return null;
             }
@@ -261,17 +260,14 @@ public final class ActiveMQRaUtils {
             try {
                Class<?> clazz = loader.loadClass(className);
                return clazz.newInstance();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                try {
                   loader = Thread.currentThread().getContextClassLoader();
                   if (loader != null)
                      return loader.loadClass(className).newInstance();
-               }
-               catch (RuntimeException e) {
+               } catch (RuntimeException e) {
                   throw e;
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                }
 
                throw new IllegalArgumentException("Could not find class " + className);

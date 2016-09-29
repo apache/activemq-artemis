@@ -117,8 +117,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
          verifyReceiveRoundRobinInSomeOrder(10, 0, 1, 2, 3, 4);
 
          verifyNotReceive(0, 1, 2, 3, 4);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterWithBackupTest::testStopAllStartAll"));
          throw e;
       }

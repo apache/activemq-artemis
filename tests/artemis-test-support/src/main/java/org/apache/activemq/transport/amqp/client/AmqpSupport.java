@@ -99,33 +99,25 @@ public class AmqpSupport {
 
          if (error.equals(AmqpError.UNAUTHORIZED_ACCESS)) {
             remoteError = new JMSSecurityException(message);
-         }
-         else if (error.equals(AmqpError.RESOURCE_LIMIT_EXCEEDED)) {
+         } else if (error.equals(AmqpError.RESOURCE_LIMIT_EXCEEDED)) {
             remoteError = new ResourceAllocationException(message);
-         }
-         else if (error.equals(AmqpError.NOT_FOUND)) {
+         } else if (error.equals(AmqpError.NOT_FOUND)) {
             remoteError = new InvalidDestinationException(message);
-         }
-         else if (error.equals(TransactionErrors.TRANSACTION_ROLLBACK)) {
+         } else if (error.equals(TransactionErrors.TRANSACTION_ROLLBACK)) {
             remoteError = new TransactionRolledBackException(message);
-         }
-         else if (error.equals(ConnectionError.REDIRECT)) {
+         } else if (error.equals(ConnectionError.REDIRECT)) {
             remoteError = createRedirectException(error, message, errorCondition);
-         }
-         else if (error.equals(AmqpError.INVALID_FIELD)) {
+         } else if (error.equals(AmqpError.INVALID_FIELD)) {
             Map<?, ?> info = errorCondition.getInfo();
             if (info != null && CONTAINER_ID.equals(info.get(INVALID_FIELD))) {
                remoteError = new InvalidClientIDException(message);
-            }
-            else {
+            } else {
                remoteError = new JMSException(message);
             }
-         }
-         else {
+         } else {
             remoteError = new JMSException(message);
          }
-      }
-      else {
+      } else {
          remoteError = new JMSException("Unknown error from remote peer");
       }
 
@@ -170,8 +162,7 @@ public class AmqpSupport {
 
       if (info == null) {
          result = new IOException(message + " : Redirection information not set.");
-      }
-      else {
+      } else {
          String hostname = (String) info.get(OPEN_HOSTNAME);
 
          String networkHost = (String) info.get(NETWORK_HOST);
@@ -182,8 +173,7 @@ public class AmqpSupport {
          int port = 0;
          try {
             port = Integer.valueOf(info.get(PORT).toString());
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             result = new IOException(message + " : Redirection information not set.");
          }
 

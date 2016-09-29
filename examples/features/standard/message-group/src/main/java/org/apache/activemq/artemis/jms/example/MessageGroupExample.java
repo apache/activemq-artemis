@@ -89,8 +89,7 @@ public class MessageGroupExample {
          }
 
          cf.close();
-      }
-      finally {
+      } finally {
          // Step 11. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();
@@ -115,8 +114,7 @@ class SimpleMessageListener implements MessageListener {
          TextMessage msg = (TextMessage) message;
          System.out.format("Message: [%s] received by %s%n", msg.getText(), name);
          messageReceiverMap.put(msg.getText(), name);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
    }

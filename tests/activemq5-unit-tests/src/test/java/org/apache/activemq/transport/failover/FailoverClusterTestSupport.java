@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.transport.failover;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.Session;
 
 import junit.framework.TestCase;
 
@@ -81,8 +80,7 @@ public class FailoverClusterTestSupport extends TestCase {
                double count = clientConnectionCounts.get(key);
                count += 1.0;
                clientConnectionCounts.put(key, count);
-            }
-            else {
+            } else {
                clientConnectionCounts.put(key, 1.0);
             }
          }
@@ -125,8 +123,7 @@ public class FailoverClusterTestSupport extends TestCase {
          try {
             b.stop();
             b.waitUntilStopped();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             // Keep on going, we want to try and stop them all.
             logger.info("Error while stopping broker[" + b.getBrokerName() + "] continuing...");
          }
@@ -159,8 +156,7 @@ public class FailoverClusterTestSupport extends TestCase {
          connector.setRebalanceClusterClients(true);
          connector.setUpdateClusterClients(true);
          connector.setUpdateClusterClientsOnRemove(true);
-      }
-      else {
+      } else {
          connector.setRebalanceClusterClients(false);
          connector.setUpdateClusterClients(false);
          connector.setUpdateClusterClientsOnRemove(false);

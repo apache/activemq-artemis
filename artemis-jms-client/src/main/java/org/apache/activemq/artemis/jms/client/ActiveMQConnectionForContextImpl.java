@@ -33,8 +33,7 @@ public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnec
       public void run() {
          try {
             close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             throw JmsExceptionUtils.convertToRuntimeException(e);
          }
       }

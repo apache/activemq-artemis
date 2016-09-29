@@ -72,7 +72,6 @@ public abstract class Configurable extends ActionAbstract {
       }
    }
 
-
    protected FileConfiguration getFileConfiguration() throws Exception {
       if (fileConfiguration == null) {
          if (getBrokerInstance() == null) {
@@ -84,8 +83,7 @@ public abstract class Configurable extends ActionAbstract {
             fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
             fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
             fileConfiguration.setBrokerInstance(new File("."));
-         }
-         else {
+         } else {
             fileConfiguration = new FileConfiguration();
             FileJMSConfiguration jmsConfiguration = new FileJMSConfiguration();
 
@@ -96,7 +94,6 @@ public abstract class Configurable extends ActionAbstract {
             fileConfiguration.setBrokerInstance(new File(getBrokerInstance()));
          }
       }
-
 
       return fileConfiguration;
    }

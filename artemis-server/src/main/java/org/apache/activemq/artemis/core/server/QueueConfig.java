@@ -81,7 +81,6 @@ public final class QueueConfig {
          return this;
       }
 
-
       public Builder pagingManager(final PagingManager pagingManager) {
          this.pagingManager = pagingManager;
          return this;
@@ -107,7 +106,6 @@ public final class QueueConfig {
          return this;
       }
 
-
       /**
        * Returns a new {@link QueueConfig} using the parameters configured on the {@link Builder}.
        * <br>
@@ -123,12 +121,10 @@ public final class QueueConfig {
          if (pagingManager != null && !FilterUtils.isTopicIdentification(filter)) {
             try {
                pageSubscription = this.pagingManager.getPageStore(address).getCursorProvider().createSubscription(id, filter, durable);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new IllegalStateException(e);
             }
-         }
-         else {
+         } else {
             pageSubscription = null;
          }
          return new QueueConfig(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated);
@@ -142,7 +138,7 @@ public final class QueueConfig {
     * The {@code address} is defaulted to the {@code name} value.
     * The reference parameters aren't defensively copied.
     *
-    * @param id the id of the queue to be created
+    * @param id   the id of the queue to be created
     * @param name the name of the queue to be created
     * @throws IllegalStateException if {@code name} is {@code null} or empty
     */
@@ -155,8 +151,8 @@ public final class QueueConfig {
     * <br>
     * The reference parameters aren't defensively copied.
     *
-    * @param id the id of the queue to be created
-    * @param name the name of the queue to be created
+    * @param id      the id of the queue to be created
+    * @param name    the name of the queue to be created
     * @param address the address of the queue to be created
     * @throws IllegalStateException if {@code name} or {@code address} are {@code null} or empty
     */

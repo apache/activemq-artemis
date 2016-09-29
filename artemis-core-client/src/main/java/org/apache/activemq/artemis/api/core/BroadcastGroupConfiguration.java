@@ -101,20 +101,17 @@ public final class BroadcastGroupConfiguration implements Serializable {
       if (connectorInfos == null) {
          if (other.connectorInfos != null)
             return false;
-      }
-      else if (!connectorInfos.equals(other.connectorInfos))
+      } else if (!connectorInfos.equals(other.connectorInfos))
          return false;
       if (endpointFactory == null) {
          if (other.endpointFactory != null)
             return false;
-      }
-      else if (!endpointFactory.equals(other.endpointFactory))
+      } else if (!endpointFactory.equals(other.endpointFactory))
          return false;
       if (name == null) {
          if (other.name != null)
             return false;
-      }
-      else if (!name.equals(other.name))
+      } else if (!name.equals(other.name))
          return false;
       return true;
    }

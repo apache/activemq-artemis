@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,21 +17,17 @@
 
 package org.apache.activemq.broker.scheduler;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import javax.jms.Connection;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.io.File;
 import java.io.IOException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.jms.Connection;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ScheduledMessage;
@@ -44,6 +40,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test that the store recovers even if some log files are missing.
@@ -63,8 +62,7 @@ public class KahaDBSchedulerMissingJournalLogsTest {
       try {
          ProtectionDomain protectionDomain = SchedulerDBVersionTest.class.getProtectionDomain();
          basedir = new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../.").getCanonicalPath();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
          basedir = ".";
       }
    }
@@ -122,8 +120,7 @@ public class KahaDBSchedulerMissingJournalLogsTest {
       try {
          createBroker();
          fail("Should not start when logs are missing.");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 

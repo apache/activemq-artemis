@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -36,15 +45,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ManagementWithStompTest extends ManagementTestBase {
 
@@ -205,8 +205,7 @@ public class ManagementWithStompTest extends ManagementTestBase {
          c = is.read();
          if (c < 0) {
             throw new IOException("socket closed.");
-         }
-         else if (c == 0) {
+         } else if (c == 0) {
             c = is.read();
             if (c != '\n') {
                byte[] ba = inputBuffer.toByteArray();
@@ -216,8 +215,7 @@ public class ManagementWithStompTest extends ManagementTestBase {
             byte[] ba = inputBuffer.toByteArray();
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);
-         }
-         else {
+         } else {
             inputBuffer.write(c);
          }
       }

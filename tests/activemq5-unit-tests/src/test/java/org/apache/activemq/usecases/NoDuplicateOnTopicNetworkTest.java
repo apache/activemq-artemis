@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -35,6 +25,15 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
 
@@ -177,8 +176,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
             producer.setTopicName(TOPIC_NAME);
             try {
                producer.produce();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                fail("Unexpected " + e);
             }
          }
@@ -194,8 +192,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
                consumer.consumer();
                consumerStarted.countDown();
                consumer.getLatch().await(60, TimeUnit.SECONDS);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                fail("Unexpected " + e);
             }
          }
@@ -250,8 +247,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
       if (suppressDuplicateTopicSubs || dispatchPolicy instanceof PriorityNetworkDispatchPolicy) {
          assertEquals("no duplicates", 0, duplicateCount);
          assertEquals("got all required messages: " + map.size(), consumer.getNumMessages(), map.size());
-      }
-      else {
+      } else {
          assertTrue("we can get some duplicates: " + duplicateCount, duplicateCount >= 0);
          if (duplicateCount == 0) {
             assertEquals("got all required messages: " + map.size(), consumer.getNumMessages(), map.size());
@@ -318,8 +314,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
       private void createConsumer() throws JMSException {
          if (durableSub) {
             consumer = session.createDurableSubscriber(topic, durableID);
-         }
-         else {
+         } else {
             consumer = session.createConsumer(topic);
          }
          consumer.setMessageListener(new MessageListener() {
@@ -331,8 +326,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
                   LOG.debug("Received message [" + msg.getText() + "]");
                   receivedStrings.add(msg.getText());
                   receivedLatch.countDown();
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   fail("Unexpected :" + e);
                }
             }

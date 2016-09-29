@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
@@ -38,12 +44,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -151,12 +151,10 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
          session.createQueue(rand, rand);
          session.deleteQueue(rand);
          return session;
-      }
-      catch (ActiveMQObjectClosedException oce) {
+      } catch (ActiveMQObjectClosedException oce) {
          ClientSessionFactory sf = createSessionFactory(locator);
          return sf.createSession();
-      }
-      catch (ActiveMQUnBlockedException obe) {
+      } catch (ActiveMQUnBlockedException obe) {
          ClientSessionFactory sf = createSessionFactory(locator);
          return sf.createSession();
       }
@@ -338,8 +336,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       try {
          session = checkSessionOrReconnect(session, locator);
          Assert.fail();
-      }
-      catch (ActiveMQException expected) {
+      } catch (ActiveMQException expected) {
          Assert.assertEquals(ActiveMQExceptionType.NOT_CONNECTED, expected.getType());
       }
    }

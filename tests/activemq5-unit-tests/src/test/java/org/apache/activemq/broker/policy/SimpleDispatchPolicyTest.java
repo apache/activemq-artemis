@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 package org.apache.activemq.broker.policy;
+
+import javax.jms.MessageConsumer;
+import java.util.Iterator;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.QueueSubscriptionTest;
@@ -26,9 +29,6 @@ import org.apache.activemq.util.MessageIdList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
-
-import javax.jms.MessageConsumer;
-import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -77,8 +77,7 @@ public class SimpleDispatchPolicyTest extends QueueSubscriptionTest {
          if (count > 0) {
             if (found) {
                fail("No other consumers should have received any messages");
-            }
-            else {
+            } else {
                assertEquals("Consumer should have received all messages.", messageCount, count);
                found = true;
             }

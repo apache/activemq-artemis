@@ -112,8 +112,7 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
       if (queueNames == null) {
          if (other.queueNames != null)
             return false;
-      }
-      else if (!queueNames.equals(other.queueNames))
+      } else if (!queueNames.equals(other.queueNames))
          return false;
       return true;
    }

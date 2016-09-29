@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Vector;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -37,6 +24,14 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
@@ -49,6 +44,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /*
  * A cut down version of DurableSubProcessWithRestartTest that focuses on kahaDB file retention
@@ -110,19 +109,19 @@ public class DurableSubDelayedUnsubscribeTest {
 
       assertTrue("should have only one inactiveSubscriber subscribed but was: " + brokerService.getAdminView().getInactiveDurableTopicSubscribers().length, Wait.waitFor(new Wait.Condition() {
 
-                    @Override
-                    public boolean isSatisified() throws Exception {
-                       return brokerService.getAdminView().getInactiveDurableTopicSubscribers().length == 1;
-                    }
-                 }, houseKeeper.SWEEP_DELAY * 2));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return brokerService.getAdminView().getInactiveDurableTopicSubscribers().length == 1;
+         }
+      }, houseKeeper.SWEEP_DELAY * 2));
 
       assertTrue("should be no subscribers subscribed but was: " + brokerService.getAdminView().getDurableTopicSubscribers().length, Wait.waitFor(new Wait.Condition() {
 
-                    @Override
-                    public boolean isSatisified() throws Exception {
-                       return brokerService.getAdminView().getDurableTopicSubscribers().length == 0;
-                    }
-                 }, TimeUnit.MINUTES.toMillis(3)));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return brokerService.getAdminView().getDurableTopicSubscribers().length == 0;
+         }
+      }, TimeUnit.MINUTES.toMillis(3)));
 
       processLock.writeLock().lock();
 
@@ -140,11 +139,11 @@ public class DurableSubDelayedUnsubscribeTest {
       final KahaDBPersistenceAdapter pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
       assertTrue("should be less than 3 journal file left but was: " + persistenceAdapter.getStore().getJournal().getFileMap().size(), Wait.waitFor(new Wait.Condition() {
 
-                    @Override
-                    public boolean isSatisified() throws Exception {
-                       return pa.getStore().getJournal().getFileMap().size() <= 3;
-                    }
-                 }, TimeUnit.MINUTES.toMillis(3)));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return pa.getStore().getJournal().getFileMap().size() <= 3;
+         }
+      }, TimeUnit.MINUTES.toMillis(3)));
 
       // Be good and cleanup our mess a bit.
       this.houseKeeper.shutdown();
@@ -227,13 +226,11 @@ public class DurableSubDelayedUnsubscribeTest {
                processLock.readLock().lock();
                try {
                   send();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("Server.run failed", e);
          }
       }
@@ -383,8 +380,7 @@ public class DurableSubDelayedUnsubscribeTest {
                   processLock.readLock().lock();
                   try {
                      createNewClient();
-                  }
-                  finally {
+                  } finally {
                      processLock.readLock().unlock();
                   }
                }
@@ -392,8 +388,7 @@ public class DurableSubDelayedUnsubscribeTest {
                int size = clients.size();
                sleepRandom(size * 3 * 1000, size * 6 * 1000);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("ClientManager.run failed.", e);
          }
       }
@@ -487,8 +482,7 @@ public class DurableSubDelayedUnsubscribeTest {
                processLock.readLock().lock();
                try {
                   process(online);
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
@@ -497,8 +491,7 @@ public class DurableSubDelayedUnsubscribeTest {
             if (!ALLOW_SUBSCRIPTION_ABANDONMENT) {
                unsubscribe();
                ALLOW_SUBSCRIPTION_ABANDONMENT = true;
-            }
-            else {
+            } else {
 
                LOG.info("Client abandon the subscription. " + this);
 
@@ -506,8 +499,7 @@ public class DurableSubDelayedUnsubscribeTest {
                houseKeeper.abandonedSubscriptions.add(conClientId);
                ALLOW_SUBSCRIPTION_ABANDONMENT = false;
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit(toString() + " failed.", e);
          }
 
@@ -548,14 +540,12 @@ public class DurableSubDelayedUnsubscribeTest {
 
                   inTransaction = false;
                   transCount = 0;
-               }
-               else {
+               } else {
                   inTransaction = true;
                   transCount++;
                }
             } while (true);
-         }
-         finally {
+         } finally {
             sess.close();
             con.close();
             LOG.info(toString() + " OFFLINE.");
@@ -631,15 +621,12 @@ public class DurableSubDelayedUnsubscribeTest {
                processLock.readLock().lock();
                try {
                   sweep();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                break;
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                Exception log = new Exception("HouseKeeper failed.", e);
                log.printStackTrace();
             }
@@ -658,11 +645,9 @@ public class DurableSubDelayedUnsubscribeTest {
                sweeped.add(clientId);
                closed++;
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             LOG.info("Ex on destroy sub " + ignored);
-         }
-         finally {
+         } finally {
             abandonedSubscriptions.removeAll(sweeped);
          }
 

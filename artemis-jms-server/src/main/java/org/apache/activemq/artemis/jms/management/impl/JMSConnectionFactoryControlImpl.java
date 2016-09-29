@@ -441,6 +441,7 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
    public String getProtocolManagerFactoryStr() {
       return cfConfig.getProtocolManagerFactoryStr();
    }
+
    @Override
    public boolean isAutoGroup() {
       return cfConfig.isAutoGroup();
@@ -459,8 +460,7 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
    private void recreateCF() {
       try {
          this.cf = jmsManager.recreateCF(this.name, this.cfConfig);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }

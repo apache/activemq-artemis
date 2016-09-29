@@ -663,7 +663,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, producerWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
          }
 
-
          @Override
          public void createBridge(String name,
                                   String queueName,

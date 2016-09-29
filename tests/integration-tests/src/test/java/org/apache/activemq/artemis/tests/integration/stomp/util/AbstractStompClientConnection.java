@@ -104,8 +104,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          while (response != null) {
             if (response.getCommand().equals("STOMP")) {
                response = receiveFrame();
-            }
-            else {
+            } else {
                break;
             }
          }
@@ -131,8 +130,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          while (response != null) {
             if (response.getCommand().equals("STOMP")) {
                response = receiveFrame();
-            }
-            else {
+            } else {
                break;
             }
          }
@@ -168,18 +166,15 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
                if (validateFrame(frame)) {
                   frameQueue.offer(frame);
                   receiveList.clear();
-               }
-               else {
+               } else {
                   receiveList.add(b);
                }
             }
-         }
-         else {
+         } else {
             if (b == 10 && receiveList.size() == 0) {
                //may be a ping
                incrementServerPing();
-            }
-            else {
+            } else {
                receiveList.add(b);
             }
          }
@@ -228,12 +223,10 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
             //peer closed
             close();
 
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             try {
                close();
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                //ignore
             }
          }
@@ -249,10 +242,8 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    public void destroy() {
       try {
          close();
-      }
-      catch (IOException e) {
-      }
-      finally {
+      } catch (IOException e) {
+      } finally {
          this.connected = false;
       }
    }
@@ -289,8 +280,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          pinger.stopPing();
          try {
             pinger.join();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
          pinger = null;
@@ -328,8 +318,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
                   sendFrame(pingFrame);
 
                   this.wait(pingInterval);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   stop = true;
                   e.printStackTrace();
                }

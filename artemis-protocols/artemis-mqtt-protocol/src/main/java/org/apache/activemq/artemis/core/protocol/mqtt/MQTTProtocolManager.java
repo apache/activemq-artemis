@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,8 +41,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 /**
  * MQTTProtocolManager
  */
-class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterceptor,MQTTConnection>
-        implements NotificationListener {
+class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection> implements NotificationListener {
 
    private static final List<String> websocketRegistryNames = Arrays.asList("mqtt", "mqttv3.1");
 
@@ -52,7 +51,9 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterc
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
 
-   MQTTProtocolManager(ActiveMQServer server, List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors) {
+   MQTTProtocolManager(ActiveMQServer server,
+                       List<BaseInterceptor> incomingInterceptors,
+                       List<BaseInterceptor> outgoingInterceptors) {
       this.server = server;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
    }
@@ -86,8 +87,7 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterc
          MQTTProtocolHandler protocolHandler = nettyConnection.getChannel().pipeline().get(MQTTProtocolHandler.class);
          protocolHandler.setConnection(mqttConnection, entry);
          return entry;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.error(e);
          return null;
       }
@@ -97,7 +97,6 @@ class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage,MQTTInterc
    public boolean acceptsNoHandshake() {
       return false;
    }
-
 
    @Override
    public void removeHandler(String name) {

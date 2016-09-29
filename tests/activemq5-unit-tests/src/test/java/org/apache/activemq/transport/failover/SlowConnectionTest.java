@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,15 @@
  */
 package org.apache.activemq.transport.failover;
 
-import java.io.IOException;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-
 import javax.jms.Connection;
 import javax.net.ServerSocketFactory;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.util.Wait;
@@ -51,8 +53,7 @@ public class SlowConnectionTest {
          public void run() {
             try {
                connection.start();
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
             }
          }
       }).start();
@@ -97,23 +98,18 @@ public class SlowConnectionTest {
             while (!interrupted()) {
                inProgress.add(ss.accept());    // eat socket
             }
-         }
-         catch (java.net.SocketTimeoutException expected) {
-         }
-         catch (Exception e) {
+         } catch (java.net.SocketTimeoutException expected) {
+         } catch (Exception e) {
             e.printStackTrace();
-         }
-         finally {
+         } finally {
             try {
                ss.close();
-            }
-            catch (IOException ignored) {
+            } catch (IOException ignored) {
             }
             for (Socket s : inProgress) {
                try {
                   s.close();
-               }
-               catch (IOException ignored) {
+               } catch (IOException ignored) {
                }
             }
          }

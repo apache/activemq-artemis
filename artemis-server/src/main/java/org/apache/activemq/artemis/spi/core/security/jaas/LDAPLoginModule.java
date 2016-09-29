@@ -85,7 +85,10 @@ public class LDAPLoginModule implements LoginModule {
    private final Set<RolePrincipal> groups = new HashSet<>();
 
    @Override
-   public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+   public void initialize(Subject subject,
+                          CallbackHandler callbackHandler,
+                          Map<String, ?> sharedState,
+                          Map<String, ?> options) {
       this.subject = subject;
       this.handler = callbackHandler;
 
@@ -101,8 +104,7 @@ public class LDAPLoginModule implements LoginModule {
       callbacks[1] = new PasswordCallback("Password", false);
       try {
          handler.handle(callbacks);
-      }
-      catch (IOException | UnsupportedCallbackException e) {
+      } catch (IOException | UnsupportedCallbackException e) {
          throw (LoginException) new LoginException().initCause(e);
       }
 
@@ -150,8 +152,7 @@ public class LDAPLoginModule implements LoginModule {
          try {
             context.close();
             context = null;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.error(e.toString());
          }
       }
@@ -167,8 +168,7 @@ public class LDAPLoginModule implements LoginModule {
       }
       try {
          openContext();
-      }
-      catch (NamingException ne) {
+      } catch (NamingException ne) {
          FailedLoginException ex = new FailedLoginException("Error opening LDAP connection");
          ex.initCause(ne);
          throw ex;
@@ -186,8 +186,7 @@ public class LDAPLoginModule implements LoginModule {
          SearchControls constraints = new SearchControls();
          if (userSearchSubtreeBool) {
             constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-         }
-         else {
+         } else {
             constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
          }
 
@@ -231,8 +230,7 @@ public class LDAPLoginModule implements LoginModule {
             Name name = contextName.addAll(baseName);
             name = name.addAll(entryName);
             dn = name.toString();
-         }
-         else {
+         } else {
             logger.debug("LDAP returned an absolute name: " + result.getName());
 
             try {
@@ -241,12 +239,10 @@ public class LDAPLoginModule implements LoginModule {
 
                if (path.startsWith("/")) {
                   dn = path.substring(1);
-               }
-               else {
+               } else {
                   dn = path;
                }
-            }
-            catch (URISyntaxException e) {
+            } catch (URISyntaxException e) {
                closeContext();
                FailedLoginException ex = new FailedLoginException("Error parsing absolute name as URI.");
                ex.initCause(e);
@@ -277,18 +273,15 @@ public class LDAPLoginModule implements LoginModule {
             for (String role : roles) {
                groups.add(new RolePrincipal(role));
             }
-         }
-         else {
+         } else {
             throw new FailedLoginException("Password does not match for user: " + username);
          }
-      }
-      catch (CommunicationException e) {
+      } catch (CommunicationException e) {
          closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
          ex.initCause(e);
          throw ex;
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          closeContext();
          FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
          ex.initCause(e);
@@ -321,8 +314,7 @@ public class LDAPLoginModule implements LoginModule {
       SearchControls constraints = new SearchControls();
       if (roleSearchSubtreeBool) {
          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-      }
-      else {
+      } else {
          constraints.setSearchScope(SearchControls.ONELEVEL_SCOPE);
       }
       if (logger.isDebugEnabled()) {
@@ -409,8 +401,7 @@ public class LDAPLoginModule implements LoginModule {
          if (logger.isDebugEnabled()) {
             logger.debug("User " + dn + " successfully bound.");
          }
-      }
-      catch (AuthenticationException e) {
+      } catch (AuthenticationException e) {
          isValid = false;
          if (logger.isDebugEnabled()) {
             logger.debug("Authentication failed for dn=" + dn);
@@ -419,14 +410,12 @@ public class LDAPLoginModule implements LoginModule {
 
       if (isLoginPropertySet(CONNECTION_USERNAME)) {
          context.addToEnvironment(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
-      }
-      else {
+      } else {
          context.removeFromEnvironment(Context.SECURITY_PRINCIPAL);
       }
       if (isLoginPropertySet(CONNECTION_PASSWORD)) {
          context.addToEnvironment(Context.SECURITY_CREDENTIALS, getLDAPPropertyValue(CONNECTION_PASSWORD));
-      }
-      else {
+      } else {
          context.removeFromEnvironment(Context.SECURITY_CREDENTIALS);
       }
 
@@ -462,15 +451,13 @@ public class LDAPLoginModule implements LoginModule {
             env.put(Context.INITIAL_CONTEXT_FACTORY, getLDAPPropertyValue(INITIAL_CONTEXT_FACTORY));
             if (isLoginPropertySet(CONNECTION_USERNAME)) {
                env.put(Context.SECURITY_PRINCIPAL, getLDAPPropertyValue(CONNECTION_USERNAME));
-            }
-            else {
+            } else {
                throw new NamingException("Empty username is not allowed");
             }
 
             if (isLoginPropertySet(CONNECTION_PASSWORD)) {
                env.put(Context.SECURITY_CREDENTIALS, getLDAPPropertyValue(CONNECTION_PASSWORD));
-            }
-            else {
+            } else {
                throw new NamingException("Empty password is not allowed");
             }
             env.put(Context.SECURITY_PROTOCOL, getLDAPPropertyValue(CONNECTION_PROTOCOL));
@@ -478,8 +465,7 @@ public class LDAPLoginModule implements LoginModule {
             env.put(Context.SECURITY_AUTHENTICATION, getLDAPPropertyValue(AUTHENTICATION));
             context = new InitialDirContext(env);
 
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             closeContext();
             ActiveMQServerLogger.LOGGER.error(e.toString());
             throw e;

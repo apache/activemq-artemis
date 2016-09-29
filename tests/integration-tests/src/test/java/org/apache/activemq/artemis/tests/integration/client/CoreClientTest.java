@@ -57,9 +57,9 @@ public class CoreClientTest extends ActiveMQTestBase {
    public void testCoreClientWithInjectedThreadPools() throws Exception {
 
       ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
-      ScheduledThreadPoolExecutor scheduledThreadPool =  new ScheduledThreadPoolExecutor(10);
+      ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(10);
 
-      ServerLocator locator =  createNonHALocator(false);
+      ServerLocator locator = createNonHALocator(false);
       boolean setThreadPools = locator.setThreadPools(threadPool, scheduledThreadPool);
 
       assertTrue(setThreadPools);
@@ -83,8 +83,7 @@ public class CoreClientTest extends ActiveMQTestBase {
          ActiveMQClient.clearThreadPools();
          ServerLocator locator = createNonHALocator(false);
          testCoreClient(true, locator);
-      }
-      finally {
+      } finally {
          // restoring original value otherwise future tests would be screwed up
          ActiveMQClient.setGlobalThreadPoolProperties(originalGlobal, originalScheduled);
          ActiveMQClient.clearThreadPools();

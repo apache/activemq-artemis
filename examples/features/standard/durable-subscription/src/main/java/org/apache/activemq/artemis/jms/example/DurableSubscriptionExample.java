@@ -101,8 +101,7 @@ public class DurableSubscriptionExample {
 
          // Step 18. Delete the durable subscription
          session.unsubscribe("subscriber-1");
-      }
-      finally {
+      } finally {
          if (connection != null) {
             // Step 19. Be sure to close our JMS resources!
             connection.close();

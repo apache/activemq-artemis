@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.extras.jms.bridge;
 
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAResource;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -28,14 +36,6 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.xa.XAResource;
 
 public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
@@ -235,8 +235,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
             while (bridge.isStarted()) {
                try {
                   sendMessages(cf0, sourceQueue, 0, 1, false, false);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -319,8 +318,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase {
       if (restart) {
          assertTrue(tx.rolledback);
          assertTrue(tx.targetConnected);
-      }
-      else {
+      } else {
          assertTrue(tx.rolledback);
          assertFalse(tx.targetConnected);
       }

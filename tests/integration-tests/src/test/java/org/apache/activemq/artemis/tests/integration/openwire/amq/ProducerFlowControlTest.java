@@ -103,8 +103,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
                done.set(false);
                try {
                   producer.send(session.createTextMessage("Test message " + ++i));
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                   break;
                }
             }
@@ -151,8 +150,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
                done.set(false);
                try {
                   producer.send(session.createTextMessage("Test message " + ++i));
-               }
-               catch (JMSException e) {
+               } catch (JMSException e) {
                }
             }
          }
@@ -270,10 +268,8 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
                   done.set(false);
                   producer.send(session.createTextMessage("Hello World"));
                }
-            }
-            catch (JMSException e) {
-            }
-            finally {
+            } catch (JMSException e) {
+            } finally {
                safeClose(session);
             }
          }
@@ -309,11 +305,9 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
                producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
                producer.send(session.createTextMessage(message));
                done.countDown();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
-            }
-            finally {
+            } finally {
                safeClose(session);
             }
          }
@@ -345,8 +339,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
             try {
                flowControlConnection.getTransport().stop();
                flowControlConnection.close();
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                // sometimes the disposed up can make the test to fail
                // even worse I have seen this breaking every single test after this
                // if not caught here
@@ -357,8 +350,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest {
             asyncThread.join();
             asyncThread = null;
          }
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }

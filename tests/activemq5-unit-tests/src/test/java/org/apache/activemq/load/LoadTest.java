@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,15 +83,13 @@ public class LoadTest extends TestCase {
          Destination inDestination = null;
          if (i == 0) {
             inDestination = startDestination;
-         }
-         else {
+         } else {
             inDestination = createDestination(managementSession, getClass() + ".client." + (i));
          }
          Destination outDestination = null;
          if (i == (numberOfClients - 1)) {
             outDestination = endDestination;
-         }
-         else {
+         } else {
             outDestination = createDestination(managementSession, getClass() + ".client." + (i + 1));
          }
          LoadClient client = new LoadClient("client(" + i + ")", factory);

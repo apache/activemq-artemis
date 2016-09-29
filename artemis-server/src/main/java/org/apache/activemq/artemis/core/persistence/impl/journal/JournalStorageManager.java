@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.jboss.logging.Logger;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
+
    private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
 
    private SequentialFileFactory journalFF;
@@ -82,7 +83,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    private ReplicationManager replicator;
 
-   public JournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ScheduledExecutorService scheduledExecutorService) {
+   public JournalStorageManager(final Configuration config,
+                                final ExecutorFactory executorFactory,
+                                final ScheduledExecutorService scheduledExecutorService) {
       this(config, executorFactory, scheduledExecutorService, null);
    }
 
@@ -121,12 +124,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          ActiveMQServerLogger.LOGGER.journalUseAIO();
 
          journalFF = new AIOSequentialFileFactory(config.getJournalLocation(), config.getJournalBufferSize_AIO(), config.getJournalBufferTimeout_AIO(), config.getJournalMaxIO_AIO(), config.isLogJournalWriteRate(), criticalErrorListener);
-      }
-      else if (config.getJournalType() == JournalType.NIO) {
+      } else if (config.getJournalType() == JournalType.NIO) {
          ActiveMQServerLogger.LOGGER.journalUseNIO();
          journalFF = new NIOSequentialFileFactory(config.getJournalLocation(), true, config.getJournalBufferSize_NIO(), config.getJournalBufferTimeout_NIO(), config.getJournalMaxIO_NIO(), config.isLogJournalWriteRate(), criticalErrorListener);
-      }
-      else {
+      } else {
          throw ActiveMQMessageBundle.BUNDLE.invalidJournalType2(config.getJournalType());
       }
 
@@ -142,8 +143,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       if (config.getPageMaxConcurrentIO() != 1) {
          pageMaxConcurrentIO = new Semaphore(config.getPageMaxConcurrentIO());
-      }
-      else {
+      } else {
          pageMaxConcurrentIO = null;
       }
    }
@@ -215,8 +215,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          if (token != null) {
             try {
                token.waitCompletion(5000);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore it
             }
          }
@@ -242,8 +241,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          SequentialFile msg = createFileForLargeMessage(largeMsgId, LargeMessageExtension.DURABLE);
          try {
             msg.delete();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeMsgId);
          }
          if (replicator != null) {
@@ -256,8 +254,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    protected SequentialFile createFileForLargeMessage(final long messageID, final boolean durable) {
       if (durable) {
          return createFileForLargeMessage(messageID, LargeMessageExtension.DURABLE);
-      }
-      else {
+      } else {
          return createFileForLargeMessage(messageID, LargeMessageExtension.TEMPORARY);
       }
    }
@@ -268,9 +265,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     * @param buff
     * @return
     * @throws Exception
-    */
-   protected LargeServerMessage parseLargeMessage(final Map<Long, ServerMessage> messages,
-                                                  final ActiveMQBuffer buff) throws Exception {
+    */ protected LargeServerMessage parseLargeMessage(final Map<Long, ServerMessage> messages,
+                                                      final ActiveMQBuffer buff) throws Exception {
       LargeServerMessage largeMessage = createLargeMessage();
 
       LargeMessageEncoding messageEncoding = new LargeMessageEncoding(largeMessage);
@@ -304,8 +300,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          try {
             if (isReplicated())
                replicator.pageClosed(storeName, pageNumber);
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -318,8 +313,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          try {
             if (isReplicated())
                replicator.pageDeleted(storeName, pageNumber);
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -338,8 +332,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          try {
             if (isReplicated())
                replicator.pageWrite(message, pageNumber);
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -363,8 +356,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
 
          return recordID;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -378,8 +370,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             // We set a temporary record (short lived) on the journal
             // to avoid a situation where the server is restarted and pending large message stays on forever
             largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.getMessageID()));
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new ActiveMQInternalErrorException(e.getMessage(), e);
          }
       }
@@ -398,8 +389,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                }
                return;
             }
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -416,12 +406,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
                   // The confirm could only be done after the actual delete is done
                   confirmLargeMessage(largeServerMessage);
-               }
-               finally {
+               } finally {
                   readUnLock();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.getMessageID());
             }
          }
@@ -430,8 +418,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       if (executor == null) {
          deleteAction.run();
-      }
-      else {
+      } else {
          executor.execute(deleteAction);
       }
    }
@@ -467,8 +454,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          }
 
          return largeMessage;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -549,12 +535,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                   bindingsFiles = prepareJournalForCopy(originalBindingsJournal, JournalContent.BINDINGS, nodeID, autoFailBack);
                   pageFilesToSync = getPageInformationForSync(pagingManager);
                   pendingLargeMessages = recoverPendingLargeMessages();
-               }
-               finally {
+               } finally {
                   pagingManager.unlock();
                }
-            }
-            finally {
+            } finally {
                originalMessageJournal.synchronizationUnlock();
                originalBindingsJournal.synchronizationUnlock();
             }
@@ -564,8 +548,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             // We need to send the list while locking otherwise part of the body might get sent too soon
             // it will send a list of IDs that we are allocating
             replicator.sendLargeMessageIdListMessage(pendingLargeMessages);
-         }
-         finally {
+         } finally {
             storageManagerLock.writeLock().unlock();
          }
 
@@ -580,17 +563,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                replicator.sendSynchronizationDone(nodeID, initialReplicationSyncTimeout);
                performCachedLargeMessageDeletes();
             }
-         }
-         finally {
+         } finally {
             storageManagerLock.writeLock().unlock();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          stopReplication();
          throw e;
-      }
-      finally {
+      } finally {
          pagingManager.resumeCleanup();
          // Re-enable compact and reclaim of journal files
          originalBindingsJournal.replicationSyncFinished();
@@ -610,8 +590,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             continue;
          if (replicator != null) {
             replicator.syncLargeMessageFile(seqFile, size, id);
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.replicatorIsNull();
          }
       }
@@ -632,15 +611,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       return info;
    }
 
-
    private void checkAndCreateDir(final File dir, final boolean create) {
       if (!dir.exists()) {
          if (create) {
             if (!dir.mkdirs()) {
                throw new IllegalStateException("Failed to create directory " + dir);
             }
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(dir.getAbsolutePath());
          }
       }
@@ -708,8 +685,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          messageJournal = originalMessageJournal;
          try {
             replicator.stop();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingReplicationManager(e);
          }
          replicator = null;
@@ -717,8 +693,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          // startReplication.
          // This method should not be called under normal circumstances
          performCachedLargeMessageDeletes();
-      }
-      finally {
+      } finally {
          storageManagerLock.writeLock().unlock();
       }
    }
@@ -736,8 +711,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          if (isReplicated()) {
             replicator.largeMessageWrite(messageId, bytes);
          }
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }

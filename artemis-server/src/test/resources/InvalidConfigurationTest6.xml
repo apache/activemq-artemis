@@ -15,9 +15,9 @@
   limitations under the License.
 -->
 <configuration
-      xmlns="urn:activemq"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:activemq ../../src/config/common/schema/artemis-server.xsd">
+        xmlns="urn:activemq"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:activemq ../../src/config/common/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
       <security-settings>
          <security-setting match="a1">
@@ -26,7 +26,8 @@
          <security-setting match="a2">
             <permission type="deleteNonDurableQueue" roles="a2.1"/>
          </security-setting>
-         <security-setting-plugin class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
+         <security-setting-plugin
+                 class-name="org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin">
             <setting name="initialContextFactory" value="testInitialContextFactory"/>
             <setting name="connectionURL" value="testConnectionURL"/>
             <setting name="connectionUsername" value="testConnectionUsername"/>

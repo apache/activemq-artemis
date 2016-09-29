@@ -52,8 +52,7 @@ public class ActiveMQBufferInputStream extends InputStream {
 
       if (remainingBytes() == 0) {
          return -1;
-      }
-      else {
+      } else {
          return bb.readByte() & 0xFF;
       }
    }

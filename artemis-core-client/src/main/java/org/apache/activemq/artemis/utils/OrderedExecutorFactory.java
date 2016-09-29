@@ -78,7 +78,6 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
          this.delegate = delegate;
       }
 
-
       @Override
       public void execute(Runnable command) {
          tasks.add(command);
@@ -101,20 +100,17 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
                   while (task != null) {
                      try {
                         task.run();
-                     }
-                     catch (ActiveMQInterruptedException e) {
+                     } catch (ActiveMQInterruptedException e) {
                         // This could happen during shutdowns. Nothing to be concerned about here
                         logger.debug("Interrupted Thread", e);
-                     }
-                     catch (Throwable t) {
+                     } catch (Throwable t) {
                         ActiveMQClientLogger.LOGGER.caughtunexpectedThrowable(t);
                      }
                      task = tasks.poll();
                   }
                   //set state back to not running.
                   stateUpdater.set(OrderedExecutor.this, STATE_NOT_RUNNING);
-               }
-               else {
+               } else {
                   return;
                }
                //we loop again based on tasks not being empty. Otherwise there is a window where the state is running,

@@ -58,8 +58,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       if (size == 0) {
          tail = node;
-      }
-      else {
+      } else {
          // Need to set the previous element on the former head
          node.next.prev = node;
       }
@@ -71,8 +70,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    public void addTail(E e) {
       if (size == 0) {
          addHead(e);
-      }
-      else {
+      } else {
          Node<E> node = new Node<>(e);
 
          node.prev = tail;
@@ -93,8 +91,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          removeAfter(head);
 
          return ret.val;
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -281,16 +278,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
             if (e != null) {
                return e.val;
-            }
-            else {
+            } else {
                if (canAdvance()) {
                   advance();
 
                   e = getNode();
 
                   return e.val;
-               }
-               else {
+               } else {
                   throw new NoSuchElementException();
                }
             }
@@ -301,8 +296,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
                advance();
 
                e = getNode();
-            }
-            else {
+            } else {
                throw new NoSuchElementException();
             }
          }
@@ -338,16 +332,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          if (current == node) {
             if (canAdvance()) {
                advance();
-            }
-            else {
+            } else {
                if (current.prev != head) {
                   current.iterCount--;
 
                   current = current.prev;
 
                   current.iterCount++;
-               }
-               else {
+               } else {
                   current = null;
                }
             }
@@ -365,8 +357,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
          if (current != null) {
             return current;
-         }
-         else {
+         } else {
             return null;
          }
       }

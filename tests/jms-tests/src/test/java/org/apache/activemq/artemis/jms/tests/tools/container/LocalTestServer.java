@@ -290,8 +290,7 @@ public class LocalTestServer implements Server, Runnable {
       String destination = (isQueue ? "jms.queue." : "jms.topic.") + destName;
       if (roles != null) {
          getActiveMQServer().getSecurityRepository().addMatch(destination, roles);
-      }
-      else {
+      } else {
          getActiveMQServer().getSecurityRepository().removeMatch(destination);
       }
    }
@@ -335,8 +334,7 @@ public class LocalTestServer implements Server, Runnable {
       if (queue != null) {
          queue.flushExecutor();
          return queue.getMessageCount();
-      }
-      else {
+      } else {
          return -1L;
       }
    }
@@ -346,8 +344,7 @@ public class LocalTestServer implements Server, Runnable {
       if (isQueue) {
          JMSQueueControl queue = (JMSQueueControl) getActiveMQServer().getManagementService().getResource(ResourceNames.JMS_QUEUE + destination);
          queue.removeMessages(null);
-      }
-      else {
+      } else {
          TopicControl topic = (TopicControl) getActiveMQServer().getManagementService().getResource(ResourceNames.JMS_TOPIC + destination);
          topic.removeMessages(null);
       }

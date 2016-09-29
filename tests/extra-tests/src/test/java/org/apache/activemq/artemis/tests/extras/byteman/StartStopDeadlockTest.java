@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
@@ -30,9 +33,6 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This test validates a deadlock identified by https://bugzilla.redhat.com/show_bug.cgi?id=959616
@@ -93,8 +93,7 @@ public class StartStopDeadlockTest extends ActiveMQTestBase {
                startLatch.await();
                System.out.println("Crashing....");
                serverLive.stop(true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                errors.incrementAndGet();
                e.printStackTrace();
             }
@@ -108,8 +107,7 @@ public class StartStopDeadlockTest extends ActiveMQTestBase {
                align.countDown();
                startLatch.await();
                jmsServer.stop();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                errors.incrementAndGet();
                e.printStackTrace();
             }

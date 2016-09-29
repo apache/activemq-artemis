@@ -16,18 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.Test;
-
-import java.util.ArrayList;
-
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
-
-import org.junit.Assert;
+import java.util.ArrayList;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
@@ -337,8 +334,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       try {
          message.readChar();
          fail();
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
       }
    }
 
@@ -556,8 +552,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       try {
          message.readByte();
          fail("must throw a NumberFormatException");
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
 
       // we can read the String without resetting the message
@@ -767,8 +762,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       try {
          message.writeObject(new ArrayList<String>());
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -892,8 +886,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       try {
          reader.readType(message);
          Assert.fail("MessageEOFException");
-      }
-      catch (MessageEOFException e) {
+      } catch (MessageEOFException e) {
       }
    }
 
@@ -906,8 +899,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       try {
          reader.readType(message);
          Assert.fail("MessageFormatException");
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
    }
 
@@ -920,8 +912,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       Object v = reader.readType(message);
       if (value instanceof byte[]) {
          ActiveMQTestBase.assertEqualsByteArrays((byte[]) value, (byte[]) v);
-      }
-      else {
+      } else {
          Assert.assertEquals(value, v);
       }
    }

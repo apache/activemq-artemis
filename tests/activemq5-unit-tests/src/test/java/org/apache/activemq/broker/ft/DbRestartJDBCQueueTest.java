@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.broker.ft;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
@@ -25,6 +23,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.JmsTopicSendReceiveWithTwoConnectionsTest;
@@ -87,8 +87,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
    protected Session createSendSession(Connection sendConnection) throws Exception {
       if (transactedSends) {
          return sendConnection.createSession(true, Session.SESSION_TRANSACTED);
-      }
-      else {
+      } else {
          return sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       }
    }
@@ -108,8 +107,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
          ds.setShutdownDatabase("shutdown");
          try {
             ds.getConnection();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
          LOG.info("DB STOPPED!@!!!!");
 
@@ -119,8 +117,7 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
                LOG.info("Sleeping for 10 seconds before allowing db restart");
                try {
                   restartDBLatch.await(10, TimeUnit.SECONDS);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   e.printStackTrace();
                }
                ds.setShutdownDatabase("false");
@@ -149,13 +146,11 @@ public class DbRestartJDBCQueueTest extends JmsTopicSendReceiveWithTwoConnection
                }
 
                sent = true;
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                LOG.info("Exception on producer send:", e);
                try {
                   Thread.sleep(2000);
-               }
-               catch (InterruptedException ignored) {
+               } catch (InterruptedException ignored) {
                }
             }
          } while (!sent);

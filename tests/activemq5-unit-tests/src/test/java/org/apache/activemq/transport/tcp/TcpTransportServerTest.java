@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.transport.tcp;
 
-import junit.framework.TestCase;
-
-import org.apache.activemq.transport.*;
-
 import java.net.Socket;
 import java.net.URI;
 import java.util.HashMap;
+
+import junit.framework.TestCase;
+
+import org.apache.activemq.transport.Transport;
+import org.apache.activemq.transport.TransportAcceptListener;
+import org.apache.activemq.transport.TransportFactory;
+import org.apache.activemq.transport.TransportFilter;
+import org.apache.activemq.transport.TransportLogger;
 
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>
@@ -67,8 +71,7 @@ public class TcpTransportServerTest extends TestCase {
             }
 
             current = filter.getNext();
-         }
-         else {
+         } else {
             end = true;
          }
       }

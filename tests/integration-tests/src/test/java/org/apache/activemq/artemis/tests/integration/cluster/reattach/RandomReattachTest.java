@@ -279,8 +279,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException me) {
+            } catch (ActiveMQException me) {
                RandomReattachTest.log.error("Failed to process", me);
             }
 
@@ -492,8 +491,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
             try {
                message.acknowledge();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
                e.printStackTrace();
                throw new RuntimeException(e.getMessage(), e);
             }
@@ -1313,8 +1311,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
       public void onMessage(ClientMessage message) {
          try {
             onMessageAssert(message);
-         }
-         catch (AssertionError e) {
+         } catch (AssertionError e) {
             e.printStackTrace(); // System.out -> junit reports
             errors.add(e);
          }

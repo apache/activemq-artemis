@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,25 @@
  */
 package org.apache.activemq.broker.policy;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.Session;
+
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.filter.DestinationMap;
-import org.apache.activemq.security.*;
+import org.apache.activemq.security.AuthorizationMap;
+import org.apache.activemq.security.AuthorizationPlugin;
+import org.apache.activemq.security.DefaultAuthorizationMap;
+import org.apache.activemq.security.SimpleAuthorizationMap;
+import org.apache.activemq.security.SimpleSecurityBrokerSystemTest;
 
-import javax.jms.*;
-
-import static org.apache.activemq.security.SimpleSecurityBrokerSystemTest.*;
+import static org.apache.activemq.security.SimpleSecurityBrokerSystemTest.ADMINS;
+import static org.apache.activemq.security.SimpleSecurityBrokerSystemTest.USERS;
+import static org.apache.activemq.security.SimpleSecurityBrokerSystemTest.WILDCARD;
 
 public class SecureDLQTest extends DeadLetterTestSupport {
 

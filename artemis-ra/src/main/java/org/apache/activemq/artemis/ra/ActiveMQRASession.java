@@ -136,8 +136,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       final ActiveMQRAManagedConnection mcLocal = this.mc;
       if (mcLocal != null) {
          mcLocal.tryLock();
-      }
-      else {
+      } else {
          throw new IllegalStateException("Connection is not associated with a managed connection. " + this);
       }
    }
@@ -398,8 +397,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          }
 
          session.commit();
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -429,8 +427,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          }
 
          session.rollback();
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -455,8 +452,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          }
 
          session.recover();
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -516,8 +512,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -559,8 +554,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -597,8 +591,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -644,8 +637,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -677,8 +669,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addProducer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -712,8 +703,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          sf.addTemporaryTopic(temp);
 
          return temp;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -739,8 +729,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          }
 
          session.unsubscribe(name);
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -857,8 +846,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -891,8 +879,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -924,8 +911,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addProducer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -959,8 +945,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          sf.addTemporaryQueue(temp);
 
          return temp;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -992,8 +977,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1031,8 +1015,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1074,8 +1057,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1107,8 +1089,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addProducer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1147,11 +1128,9 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          lock();
 
          return getXAResourceInternal();
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          return null;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1187,8 +1166,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       lock();
       try {
          return this;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1213,8 +1191,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       lock();
       try {
          return this;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1239,8 +1216,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       lock();
       try {
          return this;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1266,8 +1242,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1295,8 +1270,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1321,8 +1295,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1351,8 +1324,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1378,8 +1350,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1407,8 +1378,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          addConsumer(result);
 
          return result;
-      }
-      finally {
+      } finally {
          unlock();
       }
    }
@@ -1504,8 +1474,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
 
          try {
             mc.stop();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             ActiveMQRALogger.LOGGER.trace("Error stopping managed connection", t);
          }
 
@@ -1514,8 +1483,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
                ActiveMQRAMessageConsumer consumer = (ActiveMQRAMessageConsumer) i.next();
                try {
                   consumer.closeConsumer();
-               }
-               catch (Throwable t) {
+               } catch (Throwable t) {
                   ActiveMQRALogger.LOGGER.trace("Error closing consumer", t);
                }
                i.remove();
@@ -1527,8 +1495,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
                ActiveMQRAMessageProducer producer = (ActiveMQRAMessageProducer) i.next();
                try {
                   producer.closeProducer();
-               }
-               catch (Throwable t) {
+               } catch (Throwable t) {
                   ActiveMQRALogger.LOGGER.trace("Error closing producer", t);
                }
                i.remove();
@@ -1644,8 +1611,7 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
          }
 
          return xares;
-      }
-      catch (ResourceException e) {
+      } catch (ResourceException e) {
          JMSException jmse = new JMSException("Unable to get XA Resource");
          jmse.initCause(e);
          throw jmse;

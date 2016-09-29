@@ -98,8 +98,7 @@ public final class BindingsImpl implements Bindings {
       }
       if (binding.isExclusive()) {
          exclusiveBindings.add(binding);
-      }
-      else {
+      } else {
          SimpleString routingName = binding.getRoutingName();
 
          List<Binding> bindings = routingNameBindingMap.get(routingName);
@@ -131,8 +130,7 @@ public final class BindingsImpl implements Bindings {
    public void removeBinding(final Binding binding) {
       if (binding.isExclusive()) {
          exclusiveBindings.remove(binding);
-      }
-      else {
+      } else {
          SimpleString routingName = binding.getRoutingName();
 
          List<Binding> bindings = routingNameBindingMap.get(routingName);
@@ -190,8 +188,7 @@ public final class BindingsImpl implements Bindings {
          Binding binding;
          try {
             binding = bindings.get(pos);
-         }
-         catch (IndexOutOfBoundsException e) {
+         } catch (IndexOutOfBoundsException e) {
             // This can occur if binding is removed while in route
             if (!bindings.isEmpty()) {
                pos = 0;
@@ -199,8 +196,7 @@ public final class BindingsImpl implements Bindings {
                length = bindings.size();
 
                continue;
-            }
-            else {
+            } else {
                break;
             }
          }
@@ -228,8 +224,7 @@ public final class BindingsImpl implements Bindings {
          theBinding.route(message, context);
 
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -283,11 +278,9 @@ public final class BindingsImpl implements Bindings {
 
          if (ids != null) {
             routeFromCluster(message, context, ids);
-         }
-         else if (groupingHandler != null && groupRouting && groupId != null) {
+         } else if (groupingHandler != null && groupRouting && groupId != null) {
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
-         }
-         else {
+         } else {
             if (logger.isTraceEnabled()) {
                logger.trace("Routing message " + message + " on binding=" + this);
             }
@@ -344,8 +337,7 @@ public final class BindingsImpl implements Bindings {
          Binding binding;
          try {
             binding = bindings.get(pos);
-         }
-         catch (IndexOutOfBoundsException e) {
+         } catch (IndexOutOfBoundsException e) {
             // This can occur if binding is removed while in route
             if (!bindings.isEmpty()) {
                pos = 0;
@@ -353,8 +345,7 @@ public final class BindingsImpl implements Bindings {
                length = bindings.size();
 
                continue;
-            }
-            else {
+            } else {
                break;
             }
          }
@@ -370,8 +361,7 @@ public final class BindingsImpl implements Bindings {
                pos = incrementPos(pos, length);
 
                break;
-            }
-            else {
+            } else {
                //https://issues.jboss.org/browse/HORNETQ-1254 When !routeWhenNoConsumers,
                // the localQueue should always have the priority over the secondary bindings
                if (lastLowPriorityBinding == -1 || messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) && binding instanceof LocalQueueBinding) {
@@ -388,8 +378,7 @@ public final class BindingsImpl implements Bindings {
             if (lastLowPriorityBinding != -1) {
                try {
                   theBinding = bindings.get(lastLowPriorityBinding);
-               }
-               catch (IndexOutOfBoundsException e) {
+               } catch (IndexOutOfBoundsException e) {
                   // This can occur if binding is removed while in route
                   if (!bindings.isEmpty()) {
                      pos = 0;
@@ -397,8 +386,7 @@ public final class BindingsImpl implements Bindings {
                      lastLowPriorityBinding = -1;
 
                      continue;
-                  }
-                  else {
+                  } else {
                      break;
                   }
                }
@@ -465,8 +453,7 @@ public final class BindingsImpl implements Bindings {
             }
 
             routeAndCheckNull(message, context, resp, theBinding, groupId, tries);
-         }
-         else {
+         } else {
             // ok, we need to find the binding and route it
             Binding chosen = locateBinding(resp.getChosenClusterName(), bindings);
 
@@ -494,8 +481,7 @@ public final class BindingsImpl implements Bindings {
       // and let's route it
       if (theBinding != null) {
          theBinding.route(message, context);
-      }
-      else {
+      } else {
          if (resp != null) {
             groupingHandler.forceRemove(resp.getGroupId(), resp.getClusterName());
          }
@@ -504,8 +490,7 @@ public final class BindingsImpl implements Bindings {
          //in this case all we can do is remove it and try again.
          if (tries < MAX_GROUP_RETRY) {
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, tries + 1);
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.impossibleToRouteGrouped();
             route(message, context, false);
          }
@@ -590,12 +575,10 @@ public final class BindingsImpl implements Bindings {
          if (binding != null) {
             if (idsToAckList.contains(bindingID)) {
                binding.routeWithAck(message, context);
-            }
-            else {
+            } else {
                binding.route(message, context);
             }
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.bindingNotFound(bindingID, message.toString(), this.toString());
          }
       }

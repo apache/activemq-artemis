@@ -81,28 +81,24 @@ public class DeflaterReader extends InputStream {
                deflater.end();
                compressDone = true;
                break;
-            }
-            else if (deflater.needsInput()) {
+            } else if (deflater.needsInput()) {
                // read some data from inputstream
                int m = input.read(readBuffer);
 
                if (m == -1) {
                   deflater.finish();
                   isFinished = true;
-               }
-               else {
+               } else {
                   if (bytesRead != null) {
                      bytesRead.addAndGet(m);
                   }
                   deflater.setInput(readBuffer, 0, m);
                }
-            }
-            else {
+            } else {
                deflater.finish();
                isFinished = true;
             }
-         }
-         else {
+         } else {
             read += n;
             offset += n;
             len -= n;

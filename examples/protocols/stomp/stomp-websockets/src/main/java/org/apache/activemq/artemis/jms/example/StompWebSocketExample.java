@@ -46,8 +46,7 @@ public class StompWebSocketExample {
          System.in.read();
          TextMessage message = session.createTextMessage("Server stopping!");
          producer.send(message);
-      }
-      finally {
+      } finally {
          if (connection != null) {
             connection.close();
          }

@@ -34,6 +34,7 @@ import org.junit.rules.ExternalResource;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class ThreadLeakCheckRule extends ExternalResource {
+
    private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
@@ -79,26 +80,22 @@ public class ThreadLeakCheckRule extends ExternalResource {
                   forceGC();
                   try {
                      Thread.sleep(500);
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                   }
                }
             }
 
             if (failed) {
                Assert.fail("Thread leaked");
-            }
-            else if (failedOnce) {
+            } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
             }
 
-         }
-         else {
+         } else {
             enabled = true;
          }
-      }
-      finally {
+      } finally {
          // clearing just to help GC
          previousThreads = null;
       }
@@ -125,16 +122,14 @@ public class ThreadLeakCheckRule extends ExternalResource {
          System.runFinalization();
          try {
             finalized.await(100, TimeUnit.MILLISECONDS);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
       }
 
       if (dumbReference.get() != null) {
          failedGCCalls++;
          log.info("It seems that GC is disabled at your VM");
-      }
-      else {
+      } else {
          // a success would reset the count
          failedGCCalls = 0;
       }
@@ -154,8 +149,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
          System.gc();
          try {
             Thread.sleep(500);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
       }
    }
@@ -174,7 +168,6 @@ public class ThreadLeakCheckRule extends ExternalResource {
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
 
       if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
-
 
          for (Thread aliveThread : postThreads.keySet()) {
             if (aliveThread.isAlive() && !isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
@@ -197,10 +190,8 @@ public class ThreadLeakCheckRule extends ExternalResource {
          }
       }
 
-
       return failedThread;
    }
-
 
    /**
     * if it's an expected thread... we will just move along ignoring it
@@ -216,50 +207,39 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
       if (threadName.contains("SunPKCS11")) {
          return true;
-      }
-      else if (threadName.contains("Attach Listener")) {
+      } else if (threadName.contains("Attach Listener")) {
          return true;
-      }
-      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
+      } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
          return true;
-      }
-      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("ClassCache Reaper")) {
+      } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("ClassCache Reaper")) {
          return true;
-      }
-      else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
+      } else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
          return true;
-      }
-      else if (threadName.contains("globalEventExecutor")) {
+      } else if (threadName.contains("globalEventExecutor")) {
          return true;
-      }
-      else if (threadName.contains("threadDeathWatcher")) {
+      } else if (threadName.contains("threadDeathWatcher")) {
          return true;
-      }
-      else if (threadName.contains("netty-threads")) {
+      } else if (threadName.contains("netty-threads")) {
          // This is ok as we use EventLoopGroup.shutdownGracefully() which will shutdown things with a bit of delay
          // if the EventLoop's are still busy.
          return true;
-      }
-      else if (threadName.contains("threadDeathWatcher")) {
+      } else if (threadName.contains("threadDeathWatcher")) {
          //another netty thread
          return true;
-      }
-      else if (threadName.contains("Abandoned connection cleanup thread")) {
+      } else if (threadName.contains("Abandoned connection cleanup thread")) {
          // MySQL Engine checks for abandoned connections
          return true;
-      }
-      else if (threadName.contains("hawtdispatch")) {
+      } else if (threadName.contains("hawtdispatch")) {
          // Static workers used by MQTT client.
          return true;
-      }
-      else {
+      } else {
          for (StackTraceElement element : thread.getStackTrace()) {
             if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
                return true;
             }
          }
 
-         for (String known: knownThreads) {
+         for (String known : knownThreads) {
             if (threadName.contains(known)) {
                return true;
             }
@@ -268,7 +248,6 @@ public class ThreadLeakCheckRule extends ExternalResource {
          return false;
       }
    }
-
 
    protected static class DumbReference {
 

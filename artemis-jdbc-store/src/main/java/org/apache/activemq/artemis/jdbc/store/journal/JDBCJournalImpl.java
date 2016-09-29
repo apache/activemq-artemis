@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.jdbc.store.journal;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,8 +29,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.sql.DataSource;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -48,7 +47,6 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.jboss.logging.Logger;
 
 public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
-
 
    private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
 
@@ -85,14 +83,22 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    // Sequence ID for journal records
    private final AtomicLong seq = new AtomicLong(0);
 
-   public JDBCJournalImpl(DataSource dataSource, SQLProvider provider, String tableName, ScheduledExecutorService scheduledExecutorService, Executor completeExecutor) {
+   public JDBCJournalImpl(DataSource dataSource,
+                          SQLProvider provider,
+                          String tableName,
+                          ScheduledExecutorService scheduledExecutorService,
+                          Executor completeExecutor) {
       super(dataSource, provider);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
       this.completeExecutor = completeExecutor;
    }
 
-   public JDBCJournalImpl(String jdbcUrl, String jdbcDriverClass, SQLProvider sqlProvider, ScheduledExecutorService scheduledExecutorService, Executor completeExecutor) {
+   public JDBCJournalImpl(String jdbcUrl,
+                          String jdbcDriverClass,
+                          SQLProvider sqlProvider,
+                          ScheduledExecutorService scheduledExecutorService,
+                          Executor completeExecutor) {
       super(sqlProvider, jdbcUrl, jdbcDriverClass);
       records = new ArrayList<>();
       this.scheduledExecutorService = scheduledExecutorService;
@@ -190,8 +196,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                   break;
             }
          }
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          executeCallbacks(recordRef, success);
          return 0;
       }
@@ -205,16 +210,14 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
          connection.commit();
          success = true;
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          performRollback(recordRef);
       }
 
       try {
          if (success)
             cleanupTxRecords(deletedRecords, committedTransactions);
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          e.printStackTrace();
       }
 
@@ -271,8 +274,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
                transactions.remove(txH.transactionID);
             }
          }
-      }
-      catch (Exception sqlE) {
+      } catch (Exception sqlE) {
          ActiveMQJournalLogger.LOGGER.error("Error performing rollback", sqlE);
       }
    }
@@ -326,12 +328,10 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          RecordInfo info = new RecordInfo(record.getId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
          if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
             txHolder.recordsToDelete.add(info);
-         }
-         else {
+         } else {
             txHolder.recordInfos.add(info);
          }
-      }
-      else {
+      } else {
          txHolder.prepared = true;
       }
    }
@@ -344,12 +344,10 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          RecordInfo info = new RecordInfo(record.getTxId(), record.getRecordType(), new byte[0], record.isUpdate(), record.getCompactCount());
          if (record.getRecordType() == JDBCJournalRecord.DELETE_RECORD_TX) {
             txHolder.recordsToDelete.remove(info);
-         }
-         else {
+         } else {
             txHolder.recordInfos.remove(info);
          }
-      }
-      else {
+      } else {
          txHolder.prepared = false;
       }
    }
@@ -670,8 +668,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       try (ResultSet rs = countJournalRecords.executeQuery()) {
          rs.next();
          count = rs.getInt(1);
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
          return -1;
       }
       return count;

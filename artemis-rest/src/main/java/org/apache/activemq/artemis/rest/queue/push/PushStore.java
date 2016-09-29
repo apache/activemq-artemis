@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.queue.push;
 
-import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
-
 import java.util.List;
+
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public interface PushStore {
 

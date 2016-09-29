@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,16 @@
  */
 package org.apache.activemq;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.SslBrokerService;
@@ -50,14 +49,12 @@ public class ActiveMQSslConnectionFactoryTest extends CombinationTestSupport {
       // Try our best to close any previously opend connection.
       try {
          connection.close();
-      }
-      catch (Throwable ignore) {
+      } catch (Throwable ignore) {
       }
       // Try our best to stop any previously started broker.
       try {
          broker.stop();
-      }
-      catch (Throwable ignore) {
+      } catch (Throwable ignore) {
       }
    }
 
@@ -152,8 +149,7 @@ public class ActiveMQSslConnectionFactoryTest extends CombinationTestSupport {
       cf.setTrustStorePassword("wrongPassword");
       try {
          connection = (ActiveMQConnection) cf.createConnection();
-      }
-      catch (javax.jms.JMSException ignore) {
+      } catch (javax.jms.JMSException ignore) {
          // Expected exception
          LOG.info("Expected java.io.Exception [" + ignore + "]");
       }
@@ -174,8 +170,7 @@ public class ActiveMQSslConnectionFactoryTest extends CombinationTestSupport {
       cf.setTrustStorePassword("password");
       try {
          connection = (ActiveMQConnection) cf.createConnection();
-      }
-      catch (javax.jms.JMSException ignore) {
+      } catch (javax.jms.JMSException ignore) {
          // Expected exception
          LOG.info("Expected SSLHandshakeException [" + ignore + "]");
       }

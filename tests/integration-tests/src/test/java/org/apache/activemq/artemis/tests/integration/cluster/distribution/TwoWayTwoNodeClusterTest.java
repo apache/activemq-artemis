@@ -125,8 +125,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
             waitForTopology(servers[0], 2, -1, 2000);
             waitForTopology(servers[1], 2, -1, 2000);
          }
-      }
-      finally {
+      } finally {
          Thread.currentThread().setName(name);
       }
 

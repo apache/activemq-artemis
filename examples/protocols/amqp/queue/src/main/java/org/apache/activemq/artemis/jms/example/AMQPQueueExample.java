@@ -56,8 +56,7 @@ public class AMQPQueueExample {
          TextMessage m = (TextMessage) consumer.receive(5000);
          System.out.println("message = " + m.getText());
 
-      }
-      finally {
+      } finally {
          if (connection != null) {
             // Step 9. close the connection
             connection.close();

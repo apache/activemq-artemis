@@ -73,8 +73,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
       }
       try {
          closeProducer();
-      }
-      finally {
+      } finally {
          session.removeProducer(this);
       }
    }
@@ -118,8 +117,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
          if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -146,8 +144,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
          if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -187,8 +184,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
          if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -214,8 +210,7 @@ public class ActiveMQRAMessageProducer implements MessageProducer {
          if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }

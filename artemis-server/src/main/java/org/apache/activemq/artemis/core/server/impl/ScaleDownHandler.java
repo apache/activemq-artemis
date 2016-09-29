@@ -102,7 +102,10 @@ public class ScaleDownHandler {
       return num;
    }
 
-   public long scaleDownMessages(ClientSessionFactory sessionFactory, SimpleString nodeId, String user, String password) throws Exception {
+   public long scaleDownMessages(ClientSessionFactory sessionFactory,
+                                 SimpleString nodeId,
+                                 String user,
+                                 String password) throws Exception {
       long messageCount = 0;
       targetNodeId = nodeId != null ? nodeId.toString() : getTargetNodeId(sessionFactory);
 
@@ -127,8 +130,7 @@ public class ScaleDownHandler {
 
             if (address.toString().startsWith("sf.")) {
                messageCount += scaleDownSNF(address, queues, producer);
-            }
-            else {
+            } else {
                messageCount += scaleDownRegularMessages(address, queues, session, producer);
             }
 
@@ -176,8 +178,7 @@ public class ScaleDownHandler {
                      if (controlEntry.getKey() == loopQueue) {
                         // no need to lookup on itself, we just add it
                         queuesFound.add(controlEntry.getValue());
-                     }
-                     else if (controlEntry.getValue().lookup(messageReference)) {
+                     } else if (controlEntry.getValue().lookup(messageReference)) {
                         logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
                         queuesFound.add(controlEntry.getValue());
                      }
@@ -196,8 +197,7 @@ public class ScaleDownHandler {
                   if (logger.isDebugEnabled()) {
                      if (messageReference.isPaged()) {
                         logger.debug("*********************<<<<< Scaling down pdgmessage " + message);
-                     }
-                     else {
+                     } else {
                         logger.debug("*********************<<<<< Scaling down message " + message);
                      }
                   }
@@ -223,8 +223,7 @@ public class ScaleDownHandler {
          }
 
          return messageCount;
-      }
-      finally {
+      } finally {
          pageStore.enableCleanup();
          pageStore.getCursorProvider().scheduleCleanup();
       }
@@ -242,8 +241,7 @@ public class ScaleDownHandler {
 
       if (queueOnTarget) {
          propertyEnd = targetNodeId;
-      }
-      else {
+      } else {
          propertyEnd = address.toString().substring(address.toString().lastIndexOf("."));
       }
 
@@ -283,8 +281,7 @@ public class ScaleDownHandler {
 
                if (queueOnTarget) {
                   message.putBytesProperty(MessageImpl.HDR_ROUTE_TO_IDS, oldRouteToIDs);
-               }
-               else {
+               } else {
                   message.putBytesProperty(MessageImpl.HDR_SCALEDOWN_TO_IDS, oldRouteToIDs);
                }
 
@@ -337,8 +334,7 @@ public class ScaleDownHandler {
 
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
-                  }
-                  else {
+                  } else {
                      queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddress());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
@@ -349,8 +345,7 @@ public class ScaleDownHandler {
                   }
                   queueIds.getA().add(queueID);
                }
-            }
-            else if (operation instanceof RefsOperation) {
+            } else if (operation instanceof RefsOperation) {
                RefsOperation refsOperation = (RefsOperation) operation;
                List<MessageReference> refs = refsOperation.getReferencesToAcknowledge();
                for (MessageReference ref : refs) {
@@ -361,8 +356,7 @@ public class ScaleDownHandler {
 
                   if (queueIDs.containsKey(queueName)) {
                      queueID = queueIDs.get(queueName);
-                  }
-                  else {
+                  } else {
                      queueID = createQueueIfNecessaryAndGetID(queueCreateSession, queue, message.getAddress());
                      queueIDs.put(queueName, queueID);  // store it so we don't have to look it up every time
                   }
@@ -409,7 +403,7 @@ public class ScaleDownHandler {
       try (ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
            ClientProducer producer = session.createProducer(managementAddress)) {
          //todo - https://issues.jboss.org/browse/HORNETQ-1336
-         for (Map.Entry<SimpleString,List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
+         for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
             ClientMessage message = session.createMessage(false);
             List<Pair<byte[], Long>> list = entry.getValue();
             String[] array = new String[list.size()];
@@ -545,8 +539,7 @@ public class ScaleDownHandler {
             if (subscription.contains((PagedReference) reference)) {
                return true;
             }
-         }
-         else {
+         } else {
 
             if (lastRef != null && lastRef.getMessage().equals(reference.getMessage())) {
                lastRef = null;
@@ -579,8 +572,7 @@ public class ScaleDownHandler {
 
                   if (initialRef == null) {
                      initialRef = lastRef;
-                  }
-                  else {
+                  } else {
                      if (initialRef.equals(lastRef)) {
                         if (!memoryIterator.hasNext()) {
                            // if by coincidence we are at the end of the iterator, we just reset the iterator

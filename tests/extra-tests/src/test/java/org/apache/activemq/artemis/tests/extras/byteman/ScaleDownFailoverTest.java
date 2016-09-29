@@ -164,8 +164,7 @@ public class ScaleDownFailoverTest extends ClusterTestBase {
                   }
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }

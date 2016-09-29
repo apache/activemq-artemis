@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -37,10 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
 
 @RunWith(value = Parameterized.class)
 public class ScaleDownTest extends ClusterTestBase {
@@ -519,8 +519,7 @@ public class ScaleDownTest extends ClusterTestBase {
          if (i % 2 == 0) {
             message = consumers[0].getConsumer().receive(250);
             compare = "0";
-         }
-         else {
+         } else {
             message = consumers[1].getConsumer().receive(250);
             compare = "1";
          }

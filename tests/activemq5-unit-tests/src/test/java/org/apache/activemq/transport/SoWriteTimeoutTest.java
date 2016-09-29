@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.transport;
 
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
@@ -95,8 +94,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
       try {
          session.commit();
          fail("expect commit to fail as server has aborted writeTimeout connection");
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
    }
 
@@ -153,8 +151,7 @@ public class SoWriteTimeoutTest extends JmsTestSupport {
             stompConnection.send("jms.queue." + dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
          }
          fail("expected send to fail with timeout out connection");
-      }
-      catch (SocketException expected) {
+      } catch (SocketException expected) {
          LOG.info("got exception on send after timeout: " + expected);
       }
    }

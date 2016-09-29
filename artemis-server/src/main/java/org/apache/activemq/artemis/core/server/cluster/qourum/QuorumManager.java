@@ -199,8 +199,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
             for (VoteRunnable runnable : runnables) {
                executor.submit(runnable);
             }
-         }
-         else {
+         } else {
             quorumVote.allVotesCast(clusterController.getDefaultClusterTopology());
          }
       }
@@ -302,22 +301,18 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
             if (vote.isRequestServerVote()) {
                vote = clusterControl.sendQuorumVote(quorumVote.getName(), vote);
                quorumVote.vote(vote);
-            }
-            else {
+            } else {
                quorumVote.vote(vote);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             Vote vote = quorumVote.notConnected();
             quorumVote.vote(vote);
-         }
-         finally {
+         } finally {
             try {
                if (clusterControl != null) {
                   clusterControl.close();
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                //ignore
             }
             QuorumManager.this.votingComplete(quorumVote);

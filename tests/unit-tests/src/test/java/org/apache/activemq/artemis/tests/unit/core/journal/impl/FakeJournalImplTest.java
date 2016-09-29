@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 public class FakeJournalImplTest extends JournalImplTestUnit {
 

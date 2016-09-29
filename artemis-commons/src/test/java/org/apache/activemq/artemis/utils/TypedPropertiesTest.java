@@ -41,8 +41,7 @@ public class TypedPropertiesTest {
             byte[] expectedBytes = (byte[]) expectedValue;
             byte[] actualBytes = (byte[]) actualValue;
             Assert.assertArrayEquals(expectedBytes, actualBytes);
-         }
-         else {
+         } else {
             Assert.assertEquals(expectedValue, actualValue);
          }
       }

@@ -32,8 +32,7 @@ public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
          for (ClientSession session : sessions) {
             waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
          }
-      }
-      else {
+      } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(waitFailure, sessions);
@@ -45,8 +44,7 @@ public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
          for (ClientSession session : sessions) {
             waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
          }
-      }
-      else {
+      } else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(sessions);

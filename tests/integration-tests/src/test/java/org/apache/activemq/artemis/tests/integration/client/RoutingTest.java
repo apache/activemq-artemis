@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -165,11 +165,9 @@ public class RoutingTest extends ActiveMQTestBase {
          ClientMessage clientMessage = sendSession.createMessage(false);
          if (i % 3 == 0) {
             clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
-         }
-         else if (i % 3 == 1) {
+         } else if (i % 3 == 1) {
             clientMessage.putIntProperty(new SimpleString("x"), 1);
-         }
-         else {
+         } else {
             clientMessage.putBooleanProperty(new SimpleString("b"), false);
          }
          p.send(clientMessage);

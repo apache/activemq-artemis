@@ -29,23 +29,23 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,9 +57,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{
-         {"JCEKS"},
-         {"JKS"}});
+      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
    }
 
    public CoreClientOverTwoWaySSLTest(String storeType) {
@@ -119,8 +117,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
                   Assert.assertNotNull(sslHandler.engine().getSession());
                   Assert.assertNotNull(sslHandler.engine().getSession().getPeerCertificateChain());
                }
-            }
-            catch (SSLPeerUnverifiedException e) {
+            } catch (SSLPeerUnverifiedException e) {
                Assert.fail(e.getMessage());
             }
          }
@@ -219,8 +216,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       try {
          ClientSessionFactory sf = createSessionFactory(locator);
          fail("Creating a session here should fail due to a certificate with a CN that doesn't match the host name.");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
    }
@@ -236,11 +232,9 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       try {
          createSessionFactory(locator);
          Assert.fail();
-      }
-      catch (ActiveMQNotConnectedException se) {
+      } catch (ActiveMQNotConnectedException se) {
          //ok
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
    }

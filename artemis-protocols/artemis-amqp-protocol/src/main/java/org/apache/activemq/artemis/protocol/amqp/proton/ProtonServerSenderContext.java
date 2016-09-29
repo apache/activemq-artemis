@@ -22,15 +22,17 @@ import java.util.Objects;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
-import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.util.CreditsSemaphore;
+import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.qpid.proton.amqp.DescribedType;
@@ -52,8 +54,6 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.jboss.logging.Logger;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
-import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
@@ -71,7 +71,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    protected boolean closed = false;
    protected final AMQPSessionCallback sessionSPI;
    protected CreditsSemaphore creditsSemaphore = new CreditsSemaphore(0);
-
 
    public ProtonServerSenderContext(AMQPConnectionContext connection,
                                     Sender sender,
@@ -113,8 +112,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             sessionSPI.startSender(brokerConsumer);
          }
          //protonSession.getServerSession().receiveConsumerCredits(consumerID, -1);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorStartingConsumer(e.getMessage());
       }
    }
@@ -142,8 +140,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             // Validate the Selector.
             try {
                SelectorParser.parse(selector);
-            }
-            catch (FilterException e) {
+            } catch (FilterException e) {
                close(new ErrorCondition(AmqpError.INVALID_FIELD, e.getMessage()));
                return;
             }
@@ -162,8 +159,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             String noLocalFilter = ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME.toString() + "<>'" + remoteContainerId + "'";
             if (selector != null) {
                selector += " AND " + noLocalFilter;
-            }
-            else {
+            } else {
                selector = noLocalFilter;
             }
          }
@@ -188,12 +184,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             source.setDistributionMode(COPY);
             source.setCapabilities(TOPIC);
             sender.setSource(source);
-         }
-         else {
+         } else {
             throw new ActiveMQAMQPNotFoundException("Unknown subscription link: " + sender.getName());
          }
-      }
-      else {
+      } else {
          if (source.getDynamic()) {
             //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
@@ -201,19 +195,16 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             try {
                sessionSPI.createTemporaryQueue(queue);
                //protonSession.getServerSession().createQueue(queue, queue, null, true, false);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
             }
             source.setAddress(queue);
-         }
-         else {
+         } else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
             if (isPubSub) {
                // if we are a subscription and durable create a durable queue using the container id and link name
-               if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) ||
-                                TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
+               if (TerminusDurability.UNSETTLED_STATE.equals(source.getDurable()) || TerminusDurability.CONFIGURATION.equals(source.getDurable())) {
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
                   queue = clientId + ":" + pubId;
@@ -223,35 +214,29 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                      // If a client reattaches to a durable subscription with a different no-local filter value, selector
                      // or address then we must recreate the queue (JMS semantics).
 
-                     if (!Objects.equals(result.getFilterString(), SimpleString.toSimpleString(selector)) ||
-                        (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
+                     if (!Objects.equals(result.getFilterString(), SimpleString.toSimpleString(selector)) || (sender.getSource() != null && !sender.getSource().getAddress().equals(result.getAddress().toString()))) {
                         if (result.getConsumerCount() == 0) {
                            sessionSPI.deleteQueue(queue);
                            sessionSPI.createDurableQueue(source.getAddress(), queue, selector);
-                        }
-                        else {
+                        } else {
                            throw new ActiveMQAMQPIllegalStateException("Unable to recreate subscription, consumers already exist");
                         }
                      }
-                  }
-                  else {
+                  } else {
                      sessionSPI.createDurableQueue(source.getAddress(), queue, selector);
                   }
                   source.setAddress(queue);
-               }
-               //otherwise we are a volatile subscription
-               else {
+               } else {
+                  //otherwise we are a volatile subscription
                   queue = java.util.UUID.randomUUID().toString();
                   try {
                      sessionSPI.createTemporaryQueue(source.getAddress(), queue, selector);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
                   }
                   source.setAddress(queue);
                }
-            }
-            else {
+            } else {
                queue = source.getAddress();
             }
             if (queue == null) {
@@ -262,11 +247,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                if (!sessionSPI.queueQuery(queue, !isPubSub).isExists()) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
-            }
-            catch (ActiveMQAMQPNotFoundException e) {
+            } catch (ActiveMQAMQPNotFoundException e) {
                throw e;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
@@ -274,8 +257,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          boolean browseOnly = !isPubSub && source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
          try {
             brokerConsumer = sessionSPI.createSender(this, queue, isPubSub ? null : selector, browseOnly);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
          }
       }
@@ -300,8 +282,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       try {
          sessionSPI.closeSender(brokerConsumer);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
@@ -323,8 +304,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                QueueQueryResult result = sessionSPI.queueQuery(queueName, false);
                if (result.isExists() && source.getDynamic()) {
                   sessionSPI.deleteQueue(queueName);
-               }
-               else {
+               } else {
                   String clientId = connection.getRemoteContainer();
                   String pubId = sender.getName();
                   String queue = clientId + ":" + pubId;
@@ -338,8 +318,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                }
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
@@ -373,36 +352,29 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   // from dealer, a perf hit but a must
                   try {
                      sessionSPI.ack(tx, brokerConsumer, message);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
                   }
                }
             }
-         }
-         else if (remoteState instanceof Accepted) {
+         } else if (remoteState instanceof Accepted) {
             //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
             // from dealer, a perf hit but a must
             try {
                sessionSPI.ack(null, brokerConsumer, message);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
             }
-         }
-         else if (remoteState instanceof Released) {
+         } else if (remoteState instanceof Released) {
             try {
                sessionSPI.cancel(brokerConsumer, message, false);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
-         }
-         else if (remoteState instanceof Rejected || remoteState instanceof Modified) {
+         } else if (remoteState instanceof Rejected || remoteState instanceof Modified) {
             try {
                sessionSPI.cancel(brokerConsumer, message, true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
          }
@@ -416,8 +388,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             sender.offer(1);
          }
 
-      }
-      else {
+      } else {
          //todo not sure if we need to do anything here
       }
    }
@@ -440,8 +411,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       try {
          // This can be done a lot better here
          serverMessage = sessionSPI.encodeMessage(message, deliveryCount);
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          log.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
@@ -461,12 +431,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
       return false;
    }
+
    protected int performSend(ProtonJMessage serverMessage, Object context) {
       if (!creditsSemaphore.tryAcquire()) {
          try {
             creditsSemaphore.acquire();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             // nothing to be done here.. we just keep going
             throw new IllegalStateException(e.getMessage(), e);
@@ -495,8 +465,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
             if (preSettle) {
                delivery.settle();
-            }
-            else {
+            } else {
                sender.advance();
             }
          }
@@ -504,8 +473,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          connection.flush();
 
          return size;
-      }
-      finally {
+      } finally {
          nettyBuffer.release();
       }
    }

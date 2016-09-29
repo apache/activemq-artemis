@@ -29,8 +29,7 @@ public class PerfListener extends PerfBase {
          PerfParams params = PerfBase.getParams(fileName);
 
          new PerfListener(params).run();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }

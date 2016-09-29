@@ -89,11 +89,9 @@ public class JMSContextTest extends ActiveMQRATestBase {
       try {
          jmsctx.createContext(JMSContext.AUTO_ACKNOWLEDGE);
          fail("expected JMSRuntimeException");
-      }
-      catch (JMSRuntimeException e) {
+      } catch (JMSRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("wrong exception thrown: " + e);
       }
    }
@@ -104,11 +102,9 @@ public class JMSContextTest extends ActiveMQRATestBase {
       try {
          jmsctx.createContext(JMSContext.AUTO_ACKNOWLEDGE);
          fail("expected JMSRuntimeException");
-      }
-      catch (JMSRuntimeException e) {
+      } catch (JMSRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("wrong exception thrown: " + e);
       }
    }
@@ -118,8 +114,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
       try {
          qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
          fail();
-      }
-      catch (JMSRuntimeException e) {
+      } catch (JMSRuntimeException e) {
          //pass
       }
    }
@@ -136,8 +131,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
       try {
          qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
          fail();
-      }
-      catch (JMSRuntimeException e) {
+      } catch (JMSRuntimeException e) {
          //pass
       }
    }

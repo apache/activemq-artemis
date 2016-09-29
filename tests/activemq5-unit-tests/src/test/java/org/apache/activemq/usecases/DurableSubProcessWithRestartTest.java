@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,13 @@
  */
 package org.apache.activemq.usecases;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,14 +33,6 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
@@ -50,6 +46,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class DurableSubProcessWithRestartTest {
 
@@ -106,8 +105,7 @@ public class DurableSubProcessWithRestartTest {
 
             restartBroker();
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          exit("ProcessTest.testProcess failed.", e);
       }
 
@@ -126,8 +124,7 @@ public class DurableSubProcessWithRestartTest {
 
          restartCount++;
          LOG.info("Broker restarted. count: " + restartCount);
-      }
-      finally {
+      } finally {
          processLock.writeLock().unlock();
       }
    }
@@ -164,13 +161,11 @@ public class DurableSubProcessWithRestartTest {
                processLock.readLock().lock();
                try {
                   send();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("Server.run failed", e);
          }
       }
@@ -313,8 +308,7 @@ public class DurableSubProcessWithRestartTest {
                   processLock.readLock().lock();
                   try {
                      createNewClient();
-                  }
-                  finally {
+                  } finally {
                      processLock.readLock().unlock();
                   }
                }
@@ -322,8 +316,7 @@ public class DurableSubProcessWithRestartTest {
                int size = clients.size();
                sleepRandom(size * 3 * 1000, size * 6 * 1000);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("ClientManager.run failed.", e);
          }
       }
@@ -428,8 +421,7 @@ public class DurableSubProcessWithRestartTest {
                processLock.readLock().lock();
                try {
                   process(online.next());
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
@@ -442,8 +434,7 @@ public class DurableSubProcessWithRestartTest {
                // housekeeper should sweep these abandoned subscriptions
                houseKeeper.abandonedSubscriptions.add(conClientId);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit(toString() + " failed.", e);
          }
 
@@ -486,14 +477,12 @@ public class DurableSubProcessWithRestartTest {
 
                   inTransaction = false;
                   transCount = 0;
-               }
-               else {
+               } else {
                   inTransaction = true;
                   transCount++;
                }
             } while (true);
-         }
-         finally {
+         } finally {
             sess.close();
             con.close();
 
@@ -511,8 +500,7 @@ public class DurableSubProcessWithRestartTest {
          if (Boolean.TRUE.equals(message.getObjectProperty("COMMIT"))) {
             if (Boolean.TRUE.equals(message.getObjectProperty("RELEVANT")))
                waitingList.add(message);
-         }
-         else {
+         } else {
             String messageType = message.getStringProperty("TYPE");
             if (clientType.isRelevant(messageType))
                waitingList.add(message);
@@ -542,8 +530,7 @@ public class DurableSubProcessWithRestartTest {
 
             if (processed != null)
                processed.add(receivedId);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("" + this + ".onClientMessage failed.\r\n" + " received: " + message + "\r\n" + "   server: " + serverMessage, e);
          }
       }
@@ -612,15 +599,12 @@ public class DurableSubProcessWithRestartTest {
                processLock.readLock().lock();
                try {
                   sweep();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
-            }
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                break;
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                Exception log = new Exception("HouseKeeper failed.", e);
                log.printStackTrace();
             }
@@ -639,11 +623,9 @@ public class DurableSubProcessWithRestartTest {
                sweeped.add(clientId);
                closed++;
             }
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             LOG.info("Ex on destroy sub " + ignored);
-         }
-         finally {
+         } finally {
             abandonedSubscriptions.removeAll(sweeped);
          }
 

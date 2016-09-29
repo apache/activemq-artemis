@@ -99,8 +99,7 @@ public class MessageWithReadResolveTest extends JMSTestCase {
          this.id = id;
          if (useSimpleObject) {
             clazz = String.class;
-         }
-         else {
+         } else {
             clazz = TestEnum.class;
          }
       }

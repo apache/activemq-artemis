@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import java.util.ArrayList;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
@@ -26,6 +24,7 @@ import javax.jms.QueueConnection;
 import javax.jms.TopicConnection;
 import javax.jms.XAConnection;
 import javax.naming.InitialContext;
+import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;

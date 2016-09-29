@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.integration.aerogear;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ConnectorService;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class AeroGearConnectorServiceFactory implements ConnectorServiceFactory {
 

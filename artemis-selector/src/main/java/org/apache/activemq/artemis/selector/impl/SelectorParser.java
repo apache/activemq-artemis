@@ -38,11 +38,9 @@ public class SelectorParser {
       Object result = cache.get(sql);
       if (result instanceof FilterException) {
          throw (FilterException) result;
-      }
-      else if (result instanceof BooleanExpression) {
+      } else if (result instanceof BooleanExpression) {
          return (BooleanExpression) result;
-      }
-      else {
+      } else {
          String actual = sql;
          boolean convertStringExpressions = false;
          boolean hyphenatedProps = false;
@@ -78,20 +76,17 @@ public class SelectorParser {
             if (hyphenatedProps) {
                HyphenatedParser parser = new HyphenatedParser(new StringReader(actual));
                e = parser.JmsSelector();
-            }
-            else {
+            } else {
                StrictParser parser = new StrictParser(new StringReader(actual));
                e = parser.JmsSelector();
             }
             cache.put(sql, e);
             return e;
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             FilterException fe = new FilterException(actual, e);
             cache.put(sql, fe);
             throw fe;
-         }
-         finally {
+         } finally {
             if (convertStringExpressions) {
                ComparisonExpression.CONVERT_STRING_EXPRESSIONS.remove();
             }

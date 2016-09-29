@@ -99,8 +99,7 @@ public class QueueSelectorExample {
 
          if (!result.get())
             throw new IllegalStateException();
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();
@@ -135,8 +134,7 @@ class SimpleMessageListener implements MessageListener {
          if (!colorProp.equals(name) && !name.equals("any")) {
             result.set(false);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
          result.set(false);
       }

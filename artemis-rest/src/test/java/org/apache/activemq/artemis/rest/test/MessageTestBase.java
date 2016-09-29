@@ -37,8 +37,7 @@ public class MessageTestBase {
    static {
       try {
          executorField = BaseClientResponse.class.getDeclaredField("executor");
-      }
-      catch (NoSuchFieldException e) {
+      } catch (NoSuchFieldException e) {
          throw new RuntimeException(e);
       }
       executorField.setAccessible(true);
@@ -61,8 +60,7 @@ public class MessageTestBase {
    public static Link getLinkByTitle(LinkStrategy strategy, ClientResponse response, String title) {
       if (strategy instanceof LinkHeaderLinkStrategy) {
          return response.getLinkHeader().getLinkByTitle(title);
-      }
-      else {
+      } else {
          String headerName = "msg-" + title;
          String href = (String) response.getHeaders().getFirst(headerName);
          if (href == null)
@@ -71,8 +69,7 @@ public class MessageTestBase {
          Link l = new Link(title, null, href, null, null);
          try {
             l.setExecutor((ClientExecutor) executorField.get(response));
-         }
-         catch (IllegalAccessException e) {
+         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
          }
          return l;

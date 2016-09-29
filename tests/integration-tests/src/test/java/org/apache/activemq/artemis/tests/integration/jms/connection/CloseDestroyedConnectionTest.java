@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.Session;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
@@ -32,11 +37,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.Session;
 
 public class CloseDestroyedConnectionTest extends JMSTestBase {
 
@@ -73,8 +73,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
       try {
          cs.createConsumer(address);
          fail("the address from the TemporaryTopic still exists!");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          assertEquals("expecting 'queue does not exist'", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType());
       }
    }

@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.utils.ConcurrentUtil;
 import org.jboss.logging.Logger;
 
 public final class ChannelImpl implements Channel {
+
    private static final Logger logger = Logger.getLogger(ChannelImpl.class);
 
    public enum CHANNEL_ID {
@@ -84,7 +85,9 @@ public final class ChannelImpl implements Channel {
 
    private volatile long id;
 
-   /** This is used in */
+   /**
+    * This is used in
+    */
    private final AtomicInteger reconnectID = new AtomicInteger(0);
 
    private ChannelHandler handler;
@@ -135,8 +138,7 @@ public final class ChannelImpl implements Channel {
 
       if (confWindowSize != -1) {
          resendCache = new ConcurrentLinkedQueue<>();
-      }
-      else {
+      } else {
          resendCache = null;
       }
 
@@ -205,8 +207,7 @@ public final class ChannelImpl implements Channel {
          response = new ActiveMQExceptionMessage(ActiveMQClientMessageBundle.BUNDLE.unblockingACall(cause));
 
          sendCondition.signal();
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -245,12 +246,10 @@ public final class ChannelImpl implements Channel {
             while (failingOver) {
                failoverCondition.await();
             }
-         }
-         else if (!ConcurrentUtil.await(failoverCondition, connection.getBlockingCallFailoverTimeout())) {
+         } else if (!ConcurrentUtil.await(failoverCondition, connection.getBlockingCallFailoverTimeout())) {
             logger.debug(timeoutMsg);
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new ActiveMQInterruptedException(e);
       }
    }
@@ -285,8 +284,7 @@ public final class ChannelImpl implements Channel {
             if (resendCache != null && packet.isRequiresConfirmations()) {
                addResendPacket(packet);
             }
-         }
-         finally {
+         } finally {
             lock.unlock();
          }
 
@@ -321,7 +319,9 @@ public final class ChannelImpl implements Channel {
     * The expectedPacket will be used to filter out undesirable packets that would belong to previous calls.
     */
    @Override
-   public Packet sendBlocking(final Packet packet, final int reconnectID, byte expectedPacket) throws ActiveMQException {
+   public Packet sendBlocking(final Packet packet,
+                              final int reconnectID,
+                              byte expectedPacket) throws ActiveMQException {
       String interceptionResult = invokeInterceptors(packet, interceptors, connection);
 
       if (interceptionResult != null) {
@@ -371,8 +371,7 @@ public final class ChannelImpl implements Channel {
             while (!closed && (response == null || (response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket)) && toWait > 0) {
                try {
                   sendCondition.await(toWait, TimeUnit.MILLISECONDS);
-               }
-               catch (InterruptedException e) {
+               } catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
                }
 
@@ -404,8 +403,7 @@ public final class ChannelImpl implements Channel {
 
                throw e;
             }
-         }
-         finally {
+         } finally {
             lock.unlock();
          }
 
@@ -437,8 +435,7 @@ public final class ChannelImpl implements Channel {
                if (!callNext) {
                   return interceptor.getClass().getName();
                }
-            }
-            catch (final Throwable e) {
+            } catch (final Throwable e) {
                ActiveMQClientLogger.LOGGER.errorCallingInterceptor(e, interceptor);
             }
          }
@@ -608,8 +605,7 @@ public final class ChannelImpl implements Channel {
          }
 
          return;
-      }
-      else {
+      } else {
          if (packet.isResponse()) {
             confirm(packet);
 
@@ -618,12 +614,10 @@ public final class ChannelImpl implements Channel {
             try {
                response = packet;
                sendCondition.signal();
-            }
-            finally {
+            } finally {
                lock.unlock();
             }
-         }
-         else if (handler != null) {
+         } else if (handler != null) {
             handler.handlePacket(packet);
          }
       }
@@ -648,8 +642,8 @@ public final class ChannelImpl implements Channel {
 
       if (logger.isTraceEnabled()) {
          logger.trace("ChannelImpl::clearUpTo lastReceived commandID=" + lastReceivedCommandID +
-                                              " first commandID=" + firstStoredCommandID +
-                                              " number to clear " + numberToClear);
+                         " first commandID=" + firstStoredCommandID +
+                         " number to clear " + numberToClear);
       }
 
       for (int i = 0; i < numberToClear; i++) {

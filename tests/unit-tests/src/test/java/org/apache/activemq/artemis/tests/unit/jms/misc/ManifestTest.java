@@ -16,23 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.misc;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
+import javax.jms.ConnectionMetaData;
 import java.io.File;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.jms.ConnectionMetaData;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ManifestTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------

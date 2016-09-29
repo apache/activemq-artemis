@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,46 +25,46 @@ import static org.junit.Assert.assertTrue;
 
 public class LockFileTest {
 
-    @Test
-    public void testNoDeleteOnUnlockIfNotLocked() throws Exception {
+   @Test
+   public void testNoDeleteOnUnlockIfNotLocked() throws Exception {
 
-        File lockFile = new File(IOHelper.getDefaultDataDirectory(), "lockToTest1");
-        IOHelper.mkdirs(lockFile.getParentFile());
-        lockFile.createNewFile();
+      File lockFile = new File(IOHelper.getDefaultDataDirectory(), "lockToTest1");
+      IOHelper.mkdirs(lockFile.getParentFile());
+      lockFile.createNewFile();
 
-        LockFile underTest = new LockFile(lockFile, true);
+      LockFile underTest = new LockFile(lockFile, true);
 
-        underTest.lock();
+      underTest.lock();
 
-        lockFile.delete();
+      lockFile.delete();
 
-        assertFalse("no longer valid", underTest.keepAlive());
+      assertFalse("no longer valid", underTest.keepAlive());
 
-        // a slave gets in
-        lockFile.createNewFile();
+      // a slave gets in
+      lockFile.createNewFile();
 
-        underTest.unlock();
+      underTest.unlock();
 
-        assertTrue("file still exists after unlock when not locked", lockFile.exists());
+      assertTrue("file still exists after unlock when not locked", lockFile.exists());
 
-    }
+   }
 
-    @Test
-    public void testDeleteOnUnlockIfLocked() throws Exception {
+   @Test
+   public void testDeleteOnUnlockIfLocked() throws Exception {
 
-        File lockFile = new File(IOHelper.getDefaultDataDirectory(), "lockToTest2");
-        IOHelper.mkdirs(lockFile.getParentFile());
-        lockFile.createNewFile();
+      File lockFile = new File(IOHelper.getDefaultDataDirectory(), "lockToTest2");
+      IOHelper.mkdirs(lockFile.getParentFile());
+      lockFile.createNewFile();
 
-        LockFile underTest = new LockFile(lockFile, true);
+      LockFile underTest = new LockFile(lockFile, true);
 
-        underTest.lock();
+      underTest.lock();
 
-        assertTrue("valid", underTest.keepAlive());
+      assertTrue("valid", underTest.keepAlive());
 
-        underTest.unlock();
+      underTest.unlock();
 
-        assertFalse("file deleted on unlock", lockFile.exists());
+      assertFalse("file deleted on unlock", lockFile.exists());
 
-    }
+   }
 }

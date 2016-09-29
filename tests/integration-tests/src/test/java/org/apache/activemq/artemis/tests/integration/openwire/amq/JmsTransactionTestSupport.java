@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -28,6 +25,8 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -570,8 +569,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       try {
          message.setStringProperty("foo", "def");
          fail("Cannot change properties of the object!");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          System.out.println("Caught expected exception: " + e);
          e.printStackTrace();
       }
@@ -645,19 +643,16 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
             try {
                rollbackTx();
                resendPhase = true;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
-      }
-      else {
+      } else {
          ackMessages.add(message);
          if (ackMessages.size() == MESSAGE_COUNT) {
             try {
                commitTx();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

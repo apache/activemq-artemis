@@ -63,8 +63,7 @@ public class AerogearExample {
          System.out.println("now check your mobile app and press enter");
 
          System.in.read();
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

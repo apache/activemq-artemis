@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.util;
 
 import javax.transaction.xa.Xid;
+
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
 public class RandomUtil extends org.apache.activemq.artemis.utils.RandomUtil {

@@ -33,8 +33,7 @@ public class ExampleListener implements MessageListener {
    public void onMessage(Message message) {
       try {
          lastMessage = ((TextMessage) message).getText();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
       System.out.println("MESSAGE RECEIVED: " + lastMessage);

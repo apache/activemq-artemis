@@ -20,9 +20,9 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 
@@ -55,8 +55,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          return configuration.getName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -66,8 +65,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          return configuration.getBroadcastPeriod();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -84,8 +82,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
          }
 
          return ret;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -95,8 +92,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          return JsonUtil.toJsonArray(configuration.getConnectorInfos()).toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -110,8 +106,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
             return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getGroupAddress();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -124,8 +119,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
             return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getGroupPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -138,8 +132,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
             return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getLocalBindPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -151,8 +144,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          return broadcastGroup.isStarted();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -162,8 +154,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          broadcastGroup.start();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -173,8 +164,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
       clearIO();
       try {
          broadcastGroup.stop();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }

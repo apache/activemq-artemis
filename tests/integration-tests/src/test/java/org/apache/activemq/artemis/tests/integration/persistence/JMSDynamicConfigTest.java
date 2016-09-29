@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Test;
-
-import java.util.ArrayList;
-
 import javax.naming.NamingException;
+import java.util.ArrayList;
 
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Test;
 
 public class JMSDynamicConfigTest extends JMSTestBase {
 
@@ -59,8 +57,7 @@ public class JMSDynamicConfigTest extends JMSTestBase {
       try {
          namingContext.lookup("tst");
          fail("failure expected");
-      }
-      catch (NamingException excepted) {
+      } catch (NamingException excepted) {
       }
 
       jmsServer.stop();
@@ -71,8 +68,7 @@ public class JMSDynamicConfigTest extends JMSTestBase {
       try {
          namingContext.lookup("tst");
          fail("failure expected");
-      }
-      catch (NamingException excepted) {
+      } catch (NamingException excepted) {
       }
    }
 

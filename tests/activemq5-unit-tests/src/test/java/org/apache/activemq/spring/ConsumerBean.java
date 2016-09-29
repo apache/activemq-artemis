@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.spring;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -79,8 +78,7 @@ public class ConsumerBean extends Assert implements MessageListener {
             while (hasReceivedMessage()) {
                messages.wait(4000);
             }
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             LOG.info("Caught: " + e);
          }
       }
@@ -111,8 +109,7 @@ public class ConsumerBean extends Assert implements MessageListener {
                if (hasReceivedMessages(messageCount) || System.currentTimeMillis() > endTime) {
                   break;
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                LOG.info("Caught: " + e);
             }
             maxRemainingMessageCount = Math.max(0, messageCount - messages.size());

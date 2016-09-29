@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -119,11 +118,9 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
          public void run() {
             try {
                expectedMessage = queueConsumer.receive(100);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.trace("receive() exits with an exception", e);
-            }
-            finally {
+            } finally {
                latch.countDown();
             }
          }
@@ -148,11 +145,9 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                long t1 = System.currentTimeMillis();
                expectedMessage = queueConsumer.receive(timeToWaitForReceive);
                effectiveReceiveTime = System.currentTimeMillis() - t1;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.trace("receive() exits with an exception", e);
-            }
-            finally {
+            } finally {
                receiverLatch.countDown();
             }
          }
@@ -180,12 +175,10 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                   testFailed = true;
                   return;
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.error("This exception will fail the test", e);
                testFailed = true;
-            }
-            finally {
+            } finally {
                senderLatch.countDown();
             }
          }
@@ -246,16 +239,13 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                if (expectedMessage == null) {
                   received.set(false);
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                log.trace("receive() exits with an exception", e);
                ProxyAssertSupport.fail();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                log.trace("receive() exits with a throwable", t);
                ProxyAssertSupport.fail();
-            }
-            finally {
+            } finally {
                latch.countDown();
             }
          }

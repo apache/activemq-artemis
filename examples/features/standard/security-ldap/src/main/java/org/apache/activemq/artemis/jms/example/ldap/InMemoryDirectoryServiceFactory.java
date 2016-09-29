@@ -23,7 +23,6 @@ import java.util.List;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.schema.LdapComparator;
@@ -65,8 +64,7 @@ public class InMemoryDirectoryServiceFactory implements DirectoryServiceFactory 
    public InMemoryDirectoryServiceFactory() {
       try {
          directoryService = new DefaultDirectoryService();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       directoryService.setShutdownHookEnabled(false);
@@ -100,8 +98,7 @@ public class InMemoryDirectoryServiceFactory implements DirectoryServiceFactory 
       if (instanceLayout.getInstanceDirectory().exists()) {
          try {
             FileUtils.deleteDirectory(instanceLayout.getInstanceDirectory());
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
             LOG.warn("couldn't delete the instance directory before initializing the DirectoryService", e);
          }
       }
@@ -109,11 +106,7 @@ public class InMemoryDirectoryServiceFactory implements DirectoryServiceFactory 
 
       // EhCache in disabled-like-mode
       Configuration ehCacheConfig = new Configuration();
-      CacheConfiguration defaultCache = new CacheConfiguration("default", 1)
-         .eternal(false)
-         .timeToIdleSeconds(30)
-         .timeToLiveSeconds(30)
-         .overflowToDisk(false);
+      CacheConfiguration defaultCache = new CacheConfiguration("default", 1).eternal(false).timeToIdleSeconds(30).timeToLiveSeconds(30).overflowToDisk(false);
       ehCacheConfig.addDefaultCache(defaultCache);
       CacheService cacheService = new CacheService(new CacheManager(ehCacheConfig));
       directoryService.setCacheService(cacheService);
@@ -141,10 +134,7 @@ public class InMemoryDirectoryServiceFactory implements DirectoryServiceFactory 
       }
 
       // Init system partition
-      Partition systemPartition = partitionFactory.createPartition(directoryService.getSchemaManager(), directoryService
-         .getDnFactory(), "system", ServerDNConstants.SYSTEM_DN, 500, new File(directoryService
-         .getInstanceLayout()
-         .getPartitionsDirectory(), "system"));
+      Partition systemPartition = partitionFactory.createPartition(directoryService.getSchemaManager(), directoryService.getDnFactory(), "system", ServerDNConstants.SYSTEM_DN, 500, new File(directoryService.getInstanceLayout().getPartitionsDirectory(), "system"));
       systemPartition.setSchemaManager(directoryService.getSchemaManager());
       partitionFactory.addIndex(systemPartition, SchemaConstants.OBJECT_CLASS_AT, 100);
       directoryService.setSystemPartition(systemPartition);

@@ -43,8 +43,7 @@ public class XMLConfigurationUtil {
          double val = XMLUtil.parseDouble(nl.item(0));
          validator.validate(name, val);
          return val;
-      }
-      else {
+      } else {
          validator.validate(name, def);
          return def;
       }
@@ -59,8 +58,7 @@ public class XMLConfigurationUtil {
          String val = nl.item(0).getTextContent().trim();
          validator.validate(name, val);
          return val;
-      }
-      else {
+      } else {
          validator.validate(name, def);
          return def;
       }
@@ -75,8 +73,7 @@ public class XMLConfigurationUtil {
          long val = XMLUtil.parseLong(nl.item(0));
          validator.validate(name, val);
          return val;
-      }
-      else {
+      } else {
          validator.validate(name, def);
          return def;
       }
@@ -91,8 +88,7 @@ public class XMLConfigurationUtil {
          int val = XMLUtil.parseInt(nl.item(0));
          validator.validate(name, val);
          return val;
-      }
-      else {
+      } else {
          validator.validate(name, def);
          return def;
       }
@@ -102,8 +98,7 @@ public class XMLConfigurationUtil {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
          return XMLUtil.parseBoolean(nl.item(0));
-      }
-      else {
+      } else {
          return def;
       }
    }
@@ -112,8 +107,7 @@ public class XMLConfigurationUtil {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
          return true;
-      }
-      else {
+      } else {
          return false;
       }
    }

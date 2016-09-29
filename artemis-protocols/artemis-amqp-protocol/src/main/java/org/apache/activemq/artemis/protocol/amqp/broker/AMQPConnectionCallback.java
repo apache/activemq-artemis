@@ -30,15 +30,21 @@ import io.netty.channel.ChannelFutureListener;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
-import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
+import org.apache.activemq.artemis.protocol.amqp.sasl.AnonymousServerSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASL;
+import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
+import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -46,14 +52,9 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.jboss.logging.Logger;
-import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
-import org.apache.activemq.artemis.protocol.amqp.sasl.ServerSASL;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
-import org.apache.activemq.artemis.protocol.amqp.proton.handler.ExtCapability;
-import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 
 public class AMQPConnectionCallback implements FailureListener, CloseListener {
+
    private static final Logger logger = Logger.getLogger(AMQPConnectionCallback.class);
 
    private ConcurrentMap<XidImpl, Transaction> transactions = new ConcurrentHashMap<>();
@@ -92,8 +93,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
       if (isSupportsAnonymous()) {
          result = new ServerSASL[]{new PlainSASL(manager.getServer().getSecurityStore()), new AnonymousServerSASL()};
-      }
-      else {
+      } else {
          result = new ServerSASL[]{new PlainSASL(manager.getServer().getSecurityStore())};
       }
 
@@ -105,8 +105,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       try {
          manager.getServer().getSecurityStore().authenticate(null, null, null);
          supportsAnonymous = true;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // authentication failed so no anonymous support
       }
       return supportsAnonymous;
@@ -119,13 +118,11 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
          }
          connection.close();
          amqpConnection.close();
-      }
-      finally {
+      } finally {
          for (Transaction tx : transactions.values()) {
             try {
                tx.rollback();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                logger.warn(e.getMessage(), e);
             }
          }
@@ -135,8 +132,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public Executor getExeuctor() {
       if (protonConnectionDelegate != null) {
          return protonConnectionDelegate.getExecutor();
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -172,8 +168,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       if (amqpConnection.isSyncOnFlush()) {
          try {
             latch.await(5, TimeUnit.SECONDS);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -245,7 +240,6 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       transactions.remove(xid);
    }
 
-
    protected XidImpl newXID() {
       return newXID(UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
@@ -253,8 +247,5 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    protected XidImpl newXID(byte[] bytes) {
       return new XidImpl("amqp".getBytes(), 1, bytes);
    }
-
-
-
 
 }

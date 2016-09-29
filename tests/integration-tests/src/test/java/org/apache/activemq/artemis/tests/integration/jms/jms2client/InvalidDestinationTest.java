@@ -62,21 +62,17 @@ public class InvalidDestinationTest extends JMSTestBase {
 
       try {
          producer.send(invalidDestination, expTextMessage);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          producer.send(invalidDestination, message);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
@@ -85,131 +81,105 @@ public class InvalidDestinationTest extends JMSTestBase {
       om.setObject(sb);
       try {
          producer.send(invalidDestination, om);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          producer.send(invalidDestination, bytesMsgSend);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          producer.send(invalidDestination, mapMsgSend);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createConsumer(invalidDestination);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createConsumer(invalidDestination, "lastMessage = TRUE");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createConsumer(invalidDestination, "lastMessage = TRUE", false);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createDurableConsumer(invalidTopic, "InvalidDestinationRuntimeException");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createDurableConsumer(invalidTopic, "InvalidDestinationRuntimeException", "lastMessage = TRUE", false);
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createSharedDurableConsumer(invalidTopic, "InvalidDestinationRuntimeException");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createSharedDurableConsumer(invalidTopic, "InvalidDestinationRuntimeException", "lastMessage = TRUE");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.unsubscribe("InvalidSubscriptionName");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createSharedConsumer(invalidTopic, "InvalidDestinationRuntimeException");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
 
       try {
          context.createSharedConsumer(invalidTopic, "InvalidDestinationRuntimeException", "lastMessage = TRUE");
-      }
-      catch (InvalidDestinationRuntimeException e) {
+      } catch (InvalidDestinationRuntimeException e) {
          //pass
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail("Expected InvalidDestinationRuntimeException, received " + e);
       }
    }
@@ -226,86 +196,69 @@ public class InvalidDestinationTest extends JMSTestBase {
 
          try {
             session.createDurableSubscriber(invalidTopic, "InvalidDestinationException");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createDurableSubscriber(invalidTopic, "InvalidDestinationException", "lastMessage = TRUE", false);
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          System.out.println("Testing Session.createDurableConsumer(Topic, String) for InvalidDestinationException");
          try {
             session.createDurableConsumer(invalidTopic, "InvalidDestinationException");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createDurableConsumer(invalidTopic, "InvalidDestinationException", "lastMessage = TRUE", false);
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createSharedConsumer(invalidTopic, "InvalidDestinationException");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createSharedConsumer(invalidTopic, "InvalidDestinationException", "lastMessage = TRUE");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createSharedDurableConsumer(invalidTopic, "InvalidDestinationException");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
 
          try {
             session.createSharedDurableConsumer(invalidTopic, "InvalidDestinationException", "lastMessage = TRUE");
-         }
-         catch (InvalidDestinationException e) {
+         } catch (InvalidDestinationException e) {
             //pass
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             fail("Expected InvalidDestinationException, received " + e);
          }
-      }
-      finally {
+      } finally {
          conn.close();
       }
    }

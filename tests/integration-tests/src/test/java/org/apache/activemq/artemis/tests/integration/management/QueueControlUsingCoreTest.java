@@ -36,8 +36,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          public void flushExecutor() {
             try {
                proxy.invokeOperation("flushExecutor");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw new RuntimeException(e.getMessage(), e);
             }
          }
@@ -314,7 +313,13 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
-         public String sendMessage(Map<String, String> headers, int type, String body, String userID, boolean durable, String user, String password) throws Exception {
+         public String sendMessage(Map<String, String> headers,
+                                   int type,
+                                   String body,
+                                   String userID,
+                                   boolean durable,
+                                   String user,
+                                   String password) throws Exception {
             return (String) proxy.invokeOperation("sendMessage", headers, type, body, userID, durable, user, password);
          }
 

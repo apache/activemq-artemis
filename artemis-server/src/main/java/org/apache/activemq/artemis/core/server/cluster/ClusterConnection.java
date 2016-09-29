@@ -80,5 +80,4 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    long getCallTimeout();
 
-
 }

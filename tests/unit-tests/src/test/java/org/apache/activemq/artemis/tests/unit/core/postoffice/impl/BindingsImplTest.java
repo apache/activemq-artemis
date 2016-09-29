@@ -16,17 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.server.impl.RefsOperation;
-import org.junit.Test;
-
+import javax.transaction.xa.Xid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.transaction.xa.Xid;
-
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -37,10 +32,13 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Test;
 
 public class BindingsImplTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
@@ -82,8 +80,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
          public void run() {
             try {
                bind.removeBinding(fake);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -95,8 +92,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       for (int i = 0; i < 100; i++) {
          if (route) {
             bind.route(new ServerMessageImpl(i, 100), new RoutingContextImpl(new FakeTransaction()));
-         }
-         else {
+         } else {
             bind.redistribute(new ServerMessageImpl(i, 100), queue, new RoutingContextImpl(new FakeTransaction()));
          }
       }

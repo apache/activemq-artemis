@@ -37,8 +37,7 @@ public abstract class AbstractMechanism implements Mechanism {
 
       if (getPriority() < other.getPriority()) {
          return -1;
-      }
-      else if (getPriority() > other.getPriority()) {
+      } else if (getPriority() > other.getPriority()) {
          return 1;
       }
 

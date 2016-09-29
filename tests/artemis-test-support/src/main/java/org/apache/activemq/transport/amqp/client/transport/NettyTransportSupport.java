@@ -81,8 +81,7 @@ public class NettyTransportSupport {
 
          context.init(keyMgrs, trustManagers, new SecureRandom());
          return context;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Failed to create SSLContext: {}", e, e);
          throw e;
       }
@@ -117,8 +116,7 @@ public class NettyTransportSupport {
       SSLEngine engine = null;
       if (remote == null) {
          engine = context.createSSLEngine();
-      }
-      else {
+      } else {
          engine = context.createSSLEngine(remote.getHost(), remote.getPort());
       }
 
@@ -142,8 +140,7 @@ public class NettyTransportSupport {
          List<String> configuredProtocols = Arrays.asList(options.getEnabledProtocols());
          LOG.trace("Configured protocols from transport options: {}", configuredProtocols);
          enabledProtocols.addAll(configuredProtocols);
-      }
-      else {
+      } else {
          List<String> engineProtocols = Arrays.asList(engine.getEnabledProtocols());
          LOG.trace("Default protocols from the SSLEngine: {}", engineProtocols);
          enabledProtocols.addAll(engineProtocols);
@@ -168,8 +165,7 @@ public class NettyTransportSupport {
          List<String> configuredCipherSuites = Arrays.asList(options.getEnabledCipherSuites());
          LOG.trace("Configured cipher suites from transport options: {}", configuredCipherSuites);
          enabledCipherSuites.addAll(configuredCipherSuites);
-      }
-      else {
+      } else {
          List<String> engineCipherSuites = Arrays.asList(engine.getEnabledCipherSuites());
          LOG.trace("Default cipher suites from the SSLEngine: {}", engineCipherSuites);
          enabledCipherSuites.addAll(engineCipherSuites);
@@ -229,8 +225,7 @@ public class NettyTransportSupport {
 
       if (alias == null) {
          return fact.getKeyManagers();
-      }
-      else {
+      } else {
          validateAlias(keyStore, alias);
          return wrapKeyManagers(alias, fact.getKeyManagers());
       }

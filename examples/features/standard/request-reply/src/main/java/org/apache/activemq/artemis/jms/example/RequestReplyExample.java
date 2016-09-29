@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -32,6 +29,8 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple JMS example that shows how to use Request/Replay style messaging.
@@ -118,8 +117,7 @@ public class RequestReplyExample {
 
          // Step 19. Shutdown the request server
          server.shutdown();
-      }
-      finally {
+      } finally {
          // Step 20. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();
@@ -191,8 +189,7 @@ class SimpleRequestServer implements MessageListener {
          replyProducer.send(replyDestination, replyMessage);
 
          System.out.println("Reply sent");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
    }

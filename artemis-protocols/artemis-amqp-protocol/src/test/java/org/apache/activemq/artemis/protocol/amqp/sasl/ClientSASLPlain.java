@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 /**
  * This will generate what a client would generate for bytes on Plain sasl. Used on test
  */
-public class ClientSASLPlain  {
+public class ClientSASLPlain {
 
    private String username;
    private String password;

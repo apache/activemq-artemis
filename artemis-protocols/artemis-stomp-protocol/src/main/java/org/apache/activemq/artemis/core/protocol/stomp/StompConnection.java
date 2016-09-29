@@ -111,8 +111,7 @@ public final class StompConnection implements RemotingConnection {
       StompFrame frame = null;
       try {
          frame = frameHandler.decode(buffer);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          switch (e.getCode()) {
             case ActiveMQStompException.INVALID_EOL_V10:
                if (version != null)
@@ -258,8 +257,7 @@ public final class StompConnection implements RemotingConnection {
          if (queueCreator != null) {
             queueCreator.create(SimpleString.toSimpleString(queue));
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
       }
    }
@@ -400,8 +398,7 @@ public final class StompConnection implements RemotingConnection {
       for (final FailureListener listener : listenersClone) {
          try {
             listener.connectionFailed(me, false);
-         }
-         catch (final Throwable t) {
+         } catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -416,8 +413,7 @@ public final class StompConnection implements RemotingConnection {
       for (final CloseListener listener : listenersClone) {
          try {
             listener.connectionClosed();
-         }
-         catch (final Throwable t) {
+         } catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -435,8 +431,7 @@ public final class StompConnection implements RemotingConnection {
 
       if (acceptVersion == null) {
          this.version = StompVersions.V1_0;
-      }
-      else {
+      } else {
          StringTokenizer tokenizer = new StringTokenizer(acceptVersion, ",");
          Set<String> requestVersions = new HashSet<>(tokenizer.countTokens());
          while (tokenizer.hasMoreTokens()) {
@@ -445,14 +440,11 @@ public final class StompConnection implements RemotingConnection {
 
          if (requestVersions.contains(StompVersions.V1_2.toString())) {
             this.version = StompVersions.V1_2;
-         }
-         else if (requestVersions.contains(StompVersions.V1_1.toString())) {
+         } else if (requestVersions.contains(StompVersions.V1_1.toString())) {
             this.version = StompVersions.V1_1;
-         }
-         else if (requestVersions.contains(StompVersions.V1_0.toString())) {
+         } else if (requestVersions.contains(StompVersions.V1_0.toString())) {
             this.version = StompVersions.V1_0;
-         }
-         else {
+         } else {
             //not a supported version!
             ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion).setHandler(frameHandler);
             error.addHeader(Stomp.Headers.Error.VERSION, manager.getSupportedVersionsAsErrorVersion());
@@ -508,8 +500,7 @@ public final class StompConnection implements RemotingConnection {
          }
 
          reply = frameHandler.handleFrame(request);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          reply = e.getFrame();
       }
 
@@ -544,12 +535,10 @@ public final class StompConnection implements RemotingConnection {
       try {
          if (txID == null) {
             session = manager.getSession(this);
-         }
-         else {
+         } else {
             session = manager.getTransactedSession(this, txID);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
       }
 
@@ -574,12 +563,10 @@ public final class StompConnection implements RemotingConnection {
       try {
          if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
             stompSession.sendInternal(message, false);
-         }
-         else {
+         } else {
             stompSession.sendInternalLarge(message, false);
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorSendMessage(message, e).setHandler(frameHandler);
       }
    }
@@ -597,11 +584,9 @@ public final class StompConnection implements RemotingConnection {
    protected void beginTransaction(String txID) throws ActiveMQStompException {
       try {
          manager.beginTransaction(this, txID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorBeginTx(txID, e).setHandler(frameHandler);
       }
    }
@@ -609,8 +594,7 @@ public final class StompConnection implements RemotingConnection {
    public void commitTransaction(String txID) throws ActiveMQStompException {
       try {
          manager.commitTransaction(this, txID);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorCommitTx(txID, e).setHandler(frameHandler);
       }
    }
@@ -618,11 +602,9 @@ public final class StompConnection implements RemotingConnection {
    public void abortTransaction(String txID) throws ActiveMQStompException {
       try {
          manager.abortTransaction(this, txID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorAbortTx(txID, e).setHandler(frameHandler);
       }
    }
@@ -638,8 +620,7 @@ public final class StompConnection implements RemotingConnection {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
          if (selector == null) {
             selector = noLocalFilter;
-         }
-         else {
+         } else {
             selector += " AND " + noLocalFilter;
          }
       }
@@ -651,8 +632,7 @@ public final class StompConnection implements RemotingConnection {
       String subscriptionID = null;
       if (id != null) {
          subscriptionID = id;
-      }
-      else {
+      } else {
          if (destination == null) {
             throw BUNDLE.noDestination().setHandler(frameHandler);
          }
@@ -661,11 +641,9 @@ public final class StompConnection implements RemotingConnection {
 
       try {
          manager.createSubscription(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorCreatSubscription(subscriptionID, e).setHandler(frameHandler);
       }
    }
@@ -673,11 +651,9 @@ public final class StompConnection implements RemotingConnection {
    public void unsubscribe(String subscriptionID, String durableSubscriptionName) throws ActiveMQStompException {
       try {
          manager.unsubscribe(this, subscriptionID, durableSubscriptionName);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorUnsubscrib(subscriptionID, e).setHandler(frameHandler);
       }
    }
@@ -685,11 +661,9 @@ public final class StompConnection implements RemotingConnection {
    public void acknowledge(String messageID, String subscriptionID) throws ActiveMQStompException {
       try {
          manager.acknowledge(this, messageID, subscriptionID);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          throw e;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw BUNDLE.errorAck(messageID, e).setHandler(frameHandler);
       }
    }

@@ -68,8 +68,7 @@ public class ActiveMQPushStrategy extends UriTemplateStrategy {
          try {
             initialize();
             initialized = true;
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize.", e);
          }
       }

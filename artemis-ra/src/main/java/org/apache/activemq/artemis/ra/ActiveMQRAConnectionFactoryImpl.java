@@ -83,8 +83,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
          if (ActiveMQRAConnectionFactoryImpl.trace) {
             ActiveMQRALogger.LOGGER.trace("Created new ConnectionManager=" + this.cm);
          }
-      }
-      else {
+      } else {
          this.cm = cm;
       }
 
@@ -120,8 +119,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       if (reference == null) {
          try {
             reference = new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ConnectionFactoryObjectFactory.class.getCanonicalName(), null);
-         }
-         catch (NamingException e) {
+         } catch (NamingException e) {
             ActiveMQRALogger.LOGGER.errorCreatingReference(e);
          }
       }
@@ -432,13 +430,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       conn.setPassword(password);
       try {
          validateUser(conn);
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          JMSSecurityRuntimeException e2 = new JMSSecurityRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
@@ -463,13 +459,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       conn.setPassword(password);
       try {
          validateUser(conn);
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          JMSSecurityRuntimeException e2 = new JMSSecurityRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          JMSRuntimeException e2 = new JMSRuntimeException(e.getMessage());
          e2.initCause(e);
          throw e2;

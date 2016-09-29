@@ -93,19 +93,15 @@ public class AddressImpl implements Address {
          if (currMatch.equals(WildcardAddressManager.SINGLE_WORD_SIMPLESTRING)) {
             pos++;
             matchPos++;
-         }
-         else if (currMatch.equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING)) {
+         } else if (currMatch.equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING)) {
             if (matchPos == addressParts.length - 1) {
                pos++;
                matchPos++;
-            }
-            else if (next == null) {
+            } else if (next == null) {
                return false;
-            }
-            else if (matchPos == add.getAddressParts().length - 1) {
+            } else if (matchPos == add.getAddressParts().length - 1) {
                return true;
-            }
-            else {
+            } else {
                nextToMatch = add.getAddressParts()[matchPos + 1];
                while (curr != null) {
                   if (curr.equals(nextToMatch)) {
@@ -120,8 +116,7 @@ public class AddressImpl implements Address {
                }
                matchPos++;
             }
-         }
-         else {
+         } else {
             if (!curr.equals(currMatch)) {
                return false;
             }

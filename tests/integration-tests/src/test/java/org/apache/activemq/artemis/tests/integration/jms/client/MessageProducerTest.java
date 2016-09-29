@@ -48,12 +48,10 @@ public class MessageProducerTest extends JMSTestBase {
          try {
             producer.send(m);
             Assert.fail("must not be reached");
-         }
-         catch (UnsupportedOperationException cause) {
+         } catch (UnsupportedOperationException cause) {
             // expected
          }
-      }
-      finally {
+      } finally {
          session.close();
       }
    }
@@ -69,19 +67,16 @@ public class MessageProducerTest extends JMSTestBase {
          try {
             producer.send(queue2, m);
             Assert.fail("must not be reached");
-         }
-         catch (UnsupportedOperationException cause) {
+         } catch (UnsupportedOperationException cause) {
             // expected
          }
          try {
             producer.send(queue, m);
             Assert.fail("tck7 requires an UnsupportedOperationException " + "even if the destination is the same as the default one");
-         }
-         catch (UnsupportedOperationException cause) {
+         } catch (UnsupportedOperationException cause) {
             // expected
          }
-      }
-      finally {
+      } finally {
          session.close();
       }
    }

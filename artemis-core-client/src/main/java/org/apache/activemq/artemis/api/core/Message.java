@@ -53,7 +53,8 @@ public interface Message {
 
    /**
     * the actual time the message was expired.
-    * * *  */
+    * * *
+    */
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    /**
@@ -584,7 +585,6 @@ public interface Message {
     * @return Returns the message in Map form, useful when encoding to JSON
     */
    Map<String, Object> toMap();
-
 
    /**
     * @return Returns the message properties in Map form, useful when encoding to JSON

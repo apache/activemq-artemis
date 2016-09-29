@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:

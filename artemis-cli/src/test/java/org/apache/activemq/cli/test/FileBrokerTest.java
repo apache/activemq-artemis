@@ -60,8 +60,7 @@ public class FileBrokerTest {
          Assert.assertNotNull(activeMQServer);
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
-      }
-      finally {
+      } finally {
          if (broker != null) {
             broker.stop();
          }
@@ -82,8 +81,7 @@ public class FileBrokerTest {
          Assert.assertNotNull(activeMQServer);
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
-      }
-      finally {
+      } finally {
          assert broker != null;
          broker.stop();
       }
@@ -124,13 +122,11 @@ public class FileBrokerTest {
          try {
             producer.send(session.createMessage(true));
             fail("Should throw a security exception");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
          }
 
          locator.close();
-      }
-      finally {
+      } finally {
          assert broker != null;
          broker.stop();
          if (path != null) {

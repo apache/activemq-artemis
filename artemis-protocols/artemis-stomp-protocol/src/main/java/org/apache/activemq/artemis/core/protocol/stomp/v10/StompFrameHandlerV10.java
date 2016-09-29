@@ -20,8 +20,8 @@ import javax.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
+import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
@@ -37,7 +37,9 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 
 public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener {
 
-   public StompFrameHandlerV10(StompConnection connection, ScheduledExecutorService scheduledExecutorService, ExecutorFactory factory) {
+   public StompFrameHandlerV10(StompConnection connection,
+                               ScheduledExecutorService scheduledExecutorService,
+                               ExecutorFactory factory) {
       super(connection, scheduledExecutorService, factory);
       decoder = new StompDecoder(this);
       decoder.init();
@@ -73,8 +75,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
          if (requestID != null) {
             response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
          }
-      }
-      else {
+      } else {
          //not valid
          response = new StompFrameV10(Stomp.Responses.ERROR);
          String responseText = "Security Error occurred: User name [" + login + "] or password is invalid";
@@ -102,8 +103,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String subscriptionID = null;
       if (id != null) {
          subscriptionID = id;
-      }
-      else {
+      } else {
          if (destination == null) {
             ActiveMQStompException error = BUNDLE.needIDorDestination().setHandler(this);
             response = error.getFrame();
@@ -114,8 +114,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
 
       try {
          connection.unsubscribe(subscriptionID, durableSubscriptionName);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          return e.getFrame();
       }
       return response;
@@ -134,8 +133,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
 
       try {
          connection.acknowledge(messageID, null);
-      }
-      catch (ActiveMQStompException e) {
+      } catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 

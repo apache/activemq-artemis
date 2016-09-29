@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.usecases;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,18 +40,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import junit.framework.Test;
 
@@ -74,7 +73,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
    public void initCombosForTestSendRateWithActivatingConsumers() throws Exception {
       addCombinationValues("defaultPersistenceAdapter", new Object[]{PersistenceAdapterChoice.KahaDB, PersistenceAdapterChoice.LevelDB,
                              /* too slow for hudson - PersistenceAdapterChoice.JDBC,*/
-                              PersistenceAdapterChoice.MEM});
+         PersistenceAdapterChoice.MEM});
    }
 
    public void testSendRateWithActivatingConsumers() throws Exception {
@@ -113,8 +112,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
                   consumer.setMessageListener(listener);
                   consumers.put(consumer, listener);
                }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.error("failed to start consumer", e);
             }
          }
@@ -156,7 +154,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
    public void x_initCombosForTestSendWithInactiveAndActiveConsumers() throws Exception {
       addCombinationValues("defaultPersistenceAdapter", new Object[]{PersistenceAdapterChoice.KahaDB, PersistenceAdapterChoice.LevelDB,
                              /* too slow for hudson - PersistenceAdapterChoice.JDBC,*/
-                              PersistenceAdapterChoice.MEM});
+         PersistenceAdapterChoice.MEM});
    }
 
    public void x_testSendWithInactiveAndActiveConsumers() throws Exception {
@@ -275,8 +273,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
          msg.setText(initText + str);
 
          // Do not pad message text
-      }
-      else {
+      } else {
          msg.setText(initText);
       }
 
@@ -297,8 +294,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
          Connection conn = iter.next();
          try {
             conn.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
       }
       broker.stop();
@@ -364,8 +360,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
 
          try {
             priority = message.getJMSPriority();
-         }
-         catch (JMSException ignored) {
+         } catch (JMSException ignored) {
          }
 
          if (!messageLists.containsKey(priority)) {
@@ -377,8 +372,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport {
             firstReceipt = duration;
             firstReceiptLatch.countDown();
             LOG.info("First receipt in " + firstReceipt + "ms");
-         }
-         else if (count.get() % batchSize == 0) {
+         } else if (count.get() % batchSize == 0) {
             LOG.info("Consumed " + count.get() + " in " + batchReceiptAccumulator + "ms" + ", priority:" + priority);
             batchReceiptAccumulator = 0;
          }

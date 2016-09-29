@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.rest.topic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TopicServiceManager extends DestinationServiceManager {
 
@@ -88,8 +88,7 @@ public class TopicServiceManager extends DestinationServiceManager {
          defaultDurable = topicDeployment.isDurableSend();
          if (query.isExists()) {
             defaultDurable = query.isDurable();
-         }
-         else {
+         } else {
             session.createQueue(queueName, queueName, topicDeployment.isDurableSend());
          }
       }
@@ -106,8 +105,7 @@ public class TopicServiceManager extends DestinationServiceManager {
       }
       try {
          sessionFactory.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 }

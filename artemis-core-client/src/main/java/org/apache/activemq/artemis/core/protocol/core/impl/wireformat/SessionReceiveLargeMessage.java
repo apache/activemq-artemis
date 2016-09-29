@@ -137,8 +137,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       if (message == null) {
          if (other.message != null)
             return false;
-      }
-      else if (!message.equals(other.message))
+      } else if (!message.equals(other.message))
          return false;
       return true;
    }

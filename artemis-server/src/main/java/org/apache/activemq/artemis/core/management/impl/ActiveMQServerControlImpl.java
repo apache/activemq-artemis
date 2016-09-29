@@ -141,8 +141,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.isStarted();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -154,8 +153,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getVersion().getFullVersion();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -167,8 +165,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getHAPolicy().isBackup();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -180,8 +177,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getHAPolicy().isSharedStore();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -193,8 +189,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getBindingsDirectory();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -205,8 +200,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames().size()]);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -218,8 +212,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames().size()]);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -231,8 +224,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getOutgoingInterceptorClassNames().toArray(new String[configuration.getOutgoingInterceptorClassNames().size()]);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -244,8 +236,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferSize_AIO() : configuration.getJournalBufferSize_NIO();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -257,8 +248,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferTimeout_AIO() : configuration.getJournalBufferTimeout_NIO();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -273,8 +263,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (haPolicy instanceof SharedStoreSlavePolicy) {
             ((SharedStoreSlavePolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -288,12 +277,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          HAPolicy haPolicy = server.getHAPolicy();
          if (haPolicy instanceof SharedStoreSlavePolicy) {
             return ((SharedStoreSlavePolicy) haPolicy).isFailoverOnServerShutdown();
-         }
-         else {
+         } else {
             return false;
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -305,8 +292,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalMaxIO_AIO() : configuration.getJournalMaxIO_NIO();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -318,8 +304,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalDirectory();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -331,8 +316,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalFileSize();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -344,8 +328,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalMinFiles();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -357,8 +340,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalCompactMinFiles();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -370,8 +352,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalCompactPercentage();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -383,8 +364,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isPersistenceEnabled();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -396,8 +376,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getJournalType().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -409,8 +388,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getPagingDirectory();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -422,8 +400,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getScheduledThreadPoolMaxSize();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -435,8 +412,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getThreadPoolMaxSize();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -448,8 +424,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getSecurityInvalidationInterval();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -461,8 +436,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isClustered();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -474,8 +448,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isCreateBindingsDir();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -487,8 +460,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isCreateJournalDir();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -500,8 +472,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isJournalSyncNonTransactional();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -513,8 +484,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isJournalSyncTransactional();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -526,8 +496,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isSecurityEnabled();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -539,8 +508,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isAsyncConnectionExecutionEnabled();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -552,8 +520,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getDiskScanPeriod();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -565,8 +532,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getMaxDiskUsage();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -578,8 +544,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getGlobalMaxSize();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -591,8 +556,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), new SimpleString(filterString), true, false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -609,8 +573,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
 
          server.deployQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -622,8 +585,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, true, false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -635,8 +597,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), null, durable, false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -656,8 +617,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          server.createQueue(SimpleString.toSimpleString(address), new SimpleString(name), filter, durable, false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -676,8 +636,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -689,8 +648,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getUptime();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -702,8 +660,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getUptimeMillis();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -715,8 +672,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.isReplicaSync();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -735,8 +691,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -750,8 +705,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          SimpleString queueName = new SimpleString(name);
 
          server.destroyQueue(queueName, null, true);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -763,8 +717,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getConnectionCount();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -776,8 +729,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getTotalConnectionCount();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -789,8 +741,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getTotalMessageCount();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -802,8 +753,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getTotalMessagesAdded();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -815,8 +765,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getTotalMessagesAcknowledged();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -828,8 +777,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return server.getTotalConsumerCount();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -841,8 +789,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          setMessageCounterEnabled(true);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -854,8 +801,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          setMessageCounterEnabled(false);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -867,8 +813,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          messageCounterManager.resetAllCounters();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -880,8 +825,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          messageCounterManager.resetAllCounterHistories();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -893,8 +837,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.isMessageCounterEnabled();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -906,8 +849,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return messageCounterManager.getSamplePeriod();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -927,8 +869,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (messageCounterManager != null && newPeriod != messageCounterManager.getSamplePeriod()) {
             messageCounterManager.reschedule(newPeriod);
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -940,8 +881,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return messageCounterManager.getMaxDayCount();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -956,8 +896,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(count);
          }
          messageCounterManager.setMaxDayCount(count);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -987,8 +926,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             s[i++] = dateFormat.format(creation) + " base64: " + XidImpl.toBase64String(xid) + " " + xid.toString();
          }
          return s;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1028,8 +966,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             txDetailListJson.add(detail.toJSON());
          }
          return txDetailListJson.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1111,8 +1048,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return html.toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1130,8 +1066,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             s[i++] = XidImpl.toBase64String(xid);
          }
          return s;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1149,8 +1084,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             s[i++] = XidImpl.toBase64String(xid);
          }
          return s;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1174,8 +1108,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          return false;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1200,8 +1133,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          return false;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1220,8 +1152,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             remoteAddresses[i++] = connection.getRemoteAddress();
          }
          return remoteAddresses;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -1242,8 +1173,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          return remoteConnections.toArray(new String[remoteConnections.size()]);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -1267,8 +1197,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return closed;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
 
@@ -1304,11 +1233,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                }
             }
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.failedToCloseConsumerConnectionsForAddress(address, e);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
       return closed;
@@ -1338,8 +1265,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                }
             }
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
       return closed;
@@ -1358,8 +1284,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             connectionIDs[i++] = connection.getID().toString();
          }
          return connectionIDs;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1377,8 +1302,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             sessionIDs[i++] = serverSession.getName();
          }
          return sessionIDs;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1409,17 +1333,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          Set<RemotingConnection> connections = server.getRemotingService().getConnections();
 
          for (RemotingConnection connection : connections) {
-            JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
-               .add("connectionID", connection.getID().toString())
-               .add("clientAddress", connection.getRemoteAddress())
-               .add("creationTime", connection.getCreationTime())
-               .add("implementation", connection.getClass().getSimpleName())
-               .add("sessionCount", server.getSessions(connection.getID().toString()).size());
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("connectionID", connection.getID().toString()).add("clientAddress", connection.getRemoteAddress()).add("creationTime", connection.getCreationTime()).add("implementation", connection.getClass().getSimpleName()).add("sessionCount", server.getSessions(connection.getID().toString()).size());
             array.add(obj);
          }
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1434,10 +1352,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          List<ServerSession> sessions = server.getSessions(connectionID);
          for (ServerSession sess : sessions) {
-            JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
-               .add("sessionID", sess.getName())
-               .add("creationTime", sess.getCreationTime())
-               .add("consumerCount", sess.getServerConsumers().size());
+            JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("sessionID", sess.getName()).add("creationTime", sess.getCreationTime()).add("consumerCount", sess.getServerConsumers().size());
 
             if (sess.getValidatedUser() != null) {
                obj.add("principal", sess.getValidatedUser());
@@ -1445,8 +1360,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
             array.add(obj);
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
       return array.build().toString();
@@ -1477,8 +1391,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1503,21 +1416,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
 
    private JsonObject toJSONObject(ServerConsumer consumer) throws Exception {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
-         .add("consumerID", consumer.getID())
-         .add("connectionID", consumer.getConnectionID().toString())
-         .add("sessionID", consumer.getSessionID())
-         .add("queueName", consumer.getQueue().getName().toString())
-         .add("browseOnly", consumer.isBrowseOnly())
-         .add("creationTime", consumer.getCreationTime())
-         .add("deliveringCount", consumer.getDeliveringMessages().size());
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("deliveringCount", consumer.getDeliveringMessages().size());
       if (consumer.getFilter() != null) {
          obj.add("filter", consumer.getFilter().getFilterString().toString());
       }
@@ -1547,8 +1452,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return ret;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1566,8 +1470,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return array.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1605,8 +1508,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles);
 
          storageManager.storeSecurityRoles(persistedRoles);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1619,8 +1521,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          server.getSecurityRepository().removeMatch(addressMatch);
          storageManager.deleteSecurityRoles(new SimpleString(addressMatch));
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1642,8 +1543,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             objRoles[i++] = new Object[]{role.getName(), CheckType.SEND.hasRole(role), CheckType.CONSUME.hasRole(role), CheckType.CREATE_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_DURABLE_QUEUE.hasRole(role), CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), CheckType.MANAGE.hasRole(role)};
          }
          return objRoles;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1661,8 +1561,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             json.add(role.toJson());
          }
          return json.build().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1681,27 +1580,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (addressSettings.getExpiryAddress() != null) {
          settings.add("expiryAddress", addressSettings.getExpiryAddress().toString());
       }
-      return settings
-         .add("expiryDelay", addressSettings.getExpiryDelay())
-         .add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts())
-         .add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize())
-         .add("maxSizeBytes", addressSettings.getMaxSizeBytes())
-         .add("pageSizeBytes", addressSettings.getPageSizeBytes())
-         .add("redeliveryDelay", addressSettings.getRedeliveryDelay())
-         .add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier())
-         .add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay())
-         .add("redistributionDelay", addressSettings.getRedistributionDelay())
-         .add("lastValueQueue", addressSettings.isLastValueQueue())
-         .add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute())
-         .add("addressFullMessagePolicy", policy)
-         .add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold())
-         .add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod())
-         .add("slowConsumerPolicy", consumerPolicy)
-         .add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues())
-         .add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues())
-         .add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics())
-         .add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics())
-         .build().toString();
+      return settings.add("expiryDelay", addressSettings.getExpiryDelay()).add("maxDeliveryAttempts", addressSettings.getMaxDeliveryAttempts()).add("pageCacheMaxSize", addressSettings.getPageCacheMaxSize()).add("maxSizeBytes", addressSettings.getMaxSizeBytes()).add("pageSizeBytes", addressSettings.getPageSizeBytes()).add("redeliveryDelay", addressSettings.getRedeliveryDelay()).add("redeliveryMultiplier", addressSettings.getRedeliveryMultiplier()).add("maxRedeliveryDelay", addressSettings.getMaxRedeliveryDelay()).add("redistributionDelay", addressSettings.getRedistributionDelay()).add("lastValueQueue", addressSettings.isLastValueQueue()).add("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute()).add("addressFullMessagePolicy", policy).add("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold()).add("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod()).add("slowConsumerPolicy", consumerPolicy).add("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues()).add("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues()).add("autoCreateJmsTopics", addressSettings.isAutoCreateJmsTopics()).add("autoDeleteJmsTopics", addressSettings.isAutoDeleteJmsTopics()).build().toString();
    }
 
    @Override
@@ -1754,28 +1633,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setSendToDLAOnNoRoute(sendToDLAOnNoRoute);
       if (addressFullMessagePolicy == null) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("PAGE")) {
+      } else if (addressFullMessagePolicy.equalsIgnoreCase("PAGE")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("DROP")) {
+      } else if (addressFullMessagePolicy.equalsIgnoreCase("DROP")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
-      }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("BLOCK")) {
+      } else if (addressFullMessagePolicy.equalsIgnoreCase("BLOCK")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-      }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("FAIL")) {
+      } else if (addressFullMessagePolicy.equalsIgnoreCase("FAIL")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
       }
       addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
       addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
       if (slowConsumerPolicy == null) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
-      }
-      else if (slowConsumerPolicy.equalsIgnoreCase("NOTIFY")) {
+      } else if (slowConsumerPolicy.equalsIgnoreCase("NOTIFY")) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
-      }
-      else if (slowConsumerPolicy.equalsIgnoreCase("KILL")) {
+      } else if (slowConsumerPolicy.equalsIgnoreCase("KILL")) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
       }
       addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
@@ -1809,8 +1682,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             // on that case we ask the groupinghandler to replay its send in case it's waiting for the information
             handler.resendPending();
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1829,8 +1701,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1849,8 +1720,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName);
          server.deployDivert(config);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1862,8 +1732,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.destroyDivert(SimpleString.toSimpleString(name));
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1882,8 +1751,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
 
          return names;
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -1912,38 +1780,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         BridgeConfiguration config = new BridgeConfiguration()
-            .setName(name)
-            .setQueueName(queueName)
-            .setForwardingAddress(forwardingAddress)
-            .setFilterString(filterString)
-            .setTransformerClassName(transformerClassName)
-            .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-            .setRetryInterval(retryInterval)
-            .setRetryIntervalMultiplier(retryIntervalMultiplier)
-            .setInitialConnectAttempts(initialConnectAttempts)
-            .setReconnectAttempts(reconnectAttempts)
-            .setUseDuplicateDetection(useDuplicateDetection)
-            .setConfirmationWindowSize(confirmationWindowSize)
-            .setProducerWindowSize(producerWindowSize)
-            .setHA(ha)
-            .setUser(user)
-            .setPassword(password);
+         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
-         }
-         else {
+         } else {
             config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
          }
 
          server.deployBridge(config);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
-
 
    @Override
    public void createBridge(final String name,
@@ -1968,33 +1817,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
 
       try {
-         BridgeConfiguration config = new BridgeConfiguration()
-            .setName(name)
-            .setQueueName(queueName)
-            .setForwardingAddress(forwardingAddress)
-            .setFilterString(filterString)
-            .setTransformerClassName(transformerClassName)
-            .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-            .setRetryInterval(retryInterval)
-            .setRetryIntervalMultiplier(retryIntervalMultiplier)
-            .setInitialConnectAttempts(initialConnectAttempts)
-            .setReconnectAttempts(reconnectAttempts)
-            .setUseDuplicateDetection(useDuplicateDetection)
-            .setConfirmationWindowSize(confirmationWindowSize)
-            .setHA(ha)
-            .setUser(user)
-            .setPassword(password);
+         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
 
          if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
-         }
-         else {
+         } else {
             config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
          }
 
          server.deployBridge(config);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2006,8 +1838,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          server.destroyBridge(name);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2029,8 +1860,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          for (Object id : ids) {
             duplicateIDCache.addToCache(((String) id).getBytes(), null);
          }
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2068,8 +1898,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          broadcaster.removeNotificationListener(listener, filter, handback);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2079,8 +1908,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          broadcaster.removeNotificationListener(listener);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2092,8 +1920,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          broadcaster.addNotificationListener(listener, filter, handback);
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -2118,8 +1945,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (isStarted()) {
          if (configuration.isMessageCounterEnabled() && !enable) {
             stopMessageCounters();
-         }
-         else if (!configuration.isMessageCounterEnabled() && enable) {
+         } else if (!configuration.isMessageCounterEnabled() && enable) {
             startMessageCounters();
          }
       }

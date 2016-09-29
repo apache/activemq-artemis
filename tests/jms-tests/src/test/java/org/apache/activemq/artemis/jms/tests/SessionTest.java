@@ -112,8 +112,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          sess.createQueue("QueueThatDoesNotExist");
          ProxyAssertSupport.fail();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
       }
       conn.close();
    }
@@ -126,8 +125,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          s.createQueue("TestQueue");
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
@@ -144,8 +142,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          sess.createQueue("TestTopic");
          ProxyAssertSupport.fail("should throw JMSException");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // OK
       }
       conn.close();
@@ -178,8 +175,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          sess.createTopic("TopicThatDoesNotExist");
          ProxyAssertSupport.fail("should throw JMSException");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // OK
       }
       conn.close();
@@ -193,8 +189,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          s.createTopic("TestTopic");
          ProxyAssertSupport.fail("should throw IllegalStateException");
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
@@ -208,8 +203,7 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          sess.createTopic("TestQueue");
          ProxyAssertSupport.fail("should throw JMSException");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // OK
       }
       conn.close();
@@ -244,8 +238,7 @@ public class SessionTest extends ActiveMQServerTestCase {
          public void run() {
             try {
                m = consumer.receive(3000);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                exceptionThrown = true;
             }
          }
@@ -290,15 +283,13 @@ public class SessionTest extends ActiveMQServerTestCase {
       try {
          sess.rollback();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
 
       try {
          sess.commit();
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.IllegalStateException e) {
+      } catch (javax.jms.IllegalStateException e) {
       }
 
       conn.close();

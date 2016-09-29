@@ -16,21 +16,20 @@
  */
 package org.apache.activemq.network;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.jms.MessageProducer;
 import javax.jms.TemporaryQueue;
+import java.lang.reflect.Field;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnection;
 import org.apache.activemq.broker.TransportConnector;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>

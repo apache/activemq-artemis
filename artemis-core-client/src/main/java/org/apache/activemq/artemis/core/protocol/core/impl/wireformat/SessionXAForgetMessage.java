@@ -78,8 +78,7 @@ public class SessionXAForgetMessage extends PacketImpl {
       if (xid == null) {
          if (other.xid != null)
             return false;
-      }
-      else if (!xid.equals(other.xid))
+      } else if (!xid.equals(other.xid))
          return false;
       return true;
    }

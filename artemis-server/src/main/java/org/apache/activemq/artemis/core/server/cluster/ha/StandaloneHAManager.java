@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.ha;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 /*
 * this implementation doesn't really do anything at the minute but this may change so Im leaving it here, Andy...

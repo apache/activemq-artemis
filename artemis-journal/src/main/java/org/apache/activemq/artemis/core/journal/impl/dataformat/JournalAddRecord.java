@@ -49,8 +49,7 @@ public class JournalAddRecord extends JournalInternalRecord {
    public void encode(final ActiveMQBuffer buffer) {
       if (add) {
          buffer.writeByte(JournalImpl.ADD_RECORD);
-      }
-      else {
+      } else {
          buffer.writeByte(JournalImpl.UPDATE_RECORD);
       }
 

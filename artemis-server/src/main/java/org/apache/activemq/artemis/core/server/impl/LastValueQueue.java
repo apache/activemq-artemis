@@ -81,16 +81,14 @@ public class LastValueQueue extends QueueImpl {
 
             replaceLVQMessage(ref, hr);
 
-         }
-         else {
+         } else {
             hr = new HolderReference(prop, ref);
 
             map.put(prop, hr);
 
             super.addTail(hr, direct);
          }
-      }
-      else {
+      } else {
          super.addTail(ref, direct);
       }
    }
@@ -107,29 +105,25 @@ public class LastValueQueue extends QueueImpl {
                // We need to overwrite the old ref with the new one and ack the old one
 
                replaceLVQMessage(ref, hr);
-            }
-            else {
+            } else {
                // We keep the current ref and ack the one we are returning
 
                super.referenceHandled();
 
                try {
                   super.acknowledge(ref);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
                }
             }
-         }
-         else {
+         } else {
             hr = new HolderReference(prop, ref);
 
             map.put(prop, hr);
 
             super.addHead(hr, scheduling);
          }
-      }
-      else {
+      } else {
          super.addHead(ref, scheduling);
       }
    }
@@ -141,14 +135,12 @@ public class LastValueQueue extends QueueImpl {
 
       try {
          oldRef.acknowledge();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorAckingOldReference(e);
       }
 
       hr.setReference(ref);
    }
-
 
    @Override
    protected void refRemoved(MessageReference ref) {
@@ -339,8 +331,7 @@ public class LastValueQueue extends QueueImpl {
          if (other.map != null) {
             return false;
          }
-      }
-      else if (!map.equals(other.map)) {
+      } else if (!map.equals(other.map)) {
          return false;
       }
       return true;

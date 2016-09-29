@@ -17,6 +17,14 @@
 
 package org.apache.activemq.artemis.tests.performance.storage;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -37,14 +45,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class PersistMultiThreadTest extends ActiveMQTestBase {
 
@@ -178,12 +178,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
                   deletes.add(deleteID);
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
             errors.incrementAndGet();
-         }
-         finally {
+         } finally {
             finish.countDown();
          }
 
@@ -238,12 +236,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
                storage.storeAcknowledge(1, deleteID);
                storage.deleteMessage(deleteID);
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace(System.out);
             errors.incrementAndGet();
-         }
-         finally {
+         } finally {
             System.err.println("Finished the delete loop!!!! deleted " + deletesNr);
          }
       }

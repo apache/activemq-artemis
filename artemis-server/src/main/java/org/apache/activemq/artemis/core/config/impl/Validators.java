@@ -55,8 +55,7 @@ public final class Validators {
          Number val = (Number) value;
          if (val.doubleValue() > 0) {
             // OK
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
          }
       }
@@ -78,8 +77,7 @@ public final class Validators {
          Number val = (Number) value;
          if (val.doubleValue() >= 0) {
             // OK
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(name, val);
          }
       }
@@ -91,8 +89,7 @@ public final class Validators {
          Number val = (Number) value;
          if (val.doubleValue() == -1 || val.doubleValue() > 0) {
             // OK
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanMinusOne(name, val);
          }
       }
@@ -104,8 +101,7 @@ public final class Validators {
          Number val = (Number) value;
          if (val.doubleValue() == -1 || val.doubleValue() >= 0) {
             // OK
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZeroOrMinusOne(name, val);
          }
       }
@@ -117,8 +113,7 @@ public final class Validators {
          Number val = (Number) value;
          if (val.intValue() >= Thread.MIN_PRIORITY && val.intValue() <= Thread.MAX_PRIORITY) {
             // OK
-         }
-         else {
+         } else {
             throw ActiveMQMessageBundle.BUNDLE.mustbeBetween(name, Thread.MIN_PRIORITY, Thread.MAX_PRIORITY, value);
          }
       }

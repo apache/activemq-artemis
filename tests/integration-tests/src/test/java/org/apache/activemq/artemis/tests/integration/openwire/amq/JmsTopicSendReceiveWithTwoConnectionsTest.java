@@ -54,8 +54,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
       if (topic) {
          consumerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE);
          producerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE);
-      }
-      else {
+      } else {
          consumerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
          producerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }

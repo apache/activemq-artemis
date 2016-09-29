@@ -208,7 +208,6 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * it is returned immediately otherwise this methods return null without waiting.
     *
     * @return a newly received message or null if there is no currently available message.
-    *
     * @throws Exception if an error occurs during the receive attempt.
     */
    public AmqpMessage receiveNoWait() throws Exception {
@@ -220,7 +219,6 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * Request a remote peer send a Message to this client waiting until one arrives.
     *
     * @return the pulled AmqpMessage or null if none was pulled from the remote.
-    *
     * @throws IOException if an error occurs
     */
    public AmqpMessage pull() throws IOException {
@@ -273,8 +271,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
                   // Await the message arrival
                   pullRequest = request;
-               }
-               else if (timeoutMills == 0) {
+               } else if (timeoutMills == 0) {
                   // If we have no credit then we need to issue some so that we can
                   // try to fulfill the request, then drain down what is there to
                   // ensure we consume what is available and remove all credit.
@@ -286,8 +283,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                   // Drain immediately and wait for the message(s) to arrive,
                   // or a flow indicating removal of the remaining credit.
                   stop(request);
-               }
-               else if (timeoutMills > 0) {
+               } else if (timeoutMills > 0) {
                   // If we have no credit then we need to issue some so that we can
                   // try to fulfill the request, then drain down what is there to
                   // ensure we consume what is available and remove all credit.
@@ -303,8 +299,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                }
 
                session.pumpToProtonTransport(request);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -333,8 +328,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                getEndpoint().flow(credit);
                session.pumpToProtonTransport(request);
                request.onSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -361,8 +355,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                getEndpoint().drain(credit);
                session.pumpToProtonTransport(request);
                request.onSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -387,8 +380,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
             try {
                stop(request);
                session.pumpToProtonTransport(request);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -414,11 +406,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
     * caller.  This allows for an accepted message to be involved in a transaction that is
     * being managed by some other session other than the one that created this receiver.
     *
-    * @param delivery
-    *        the Delivery instance to accept.
-    * @param session
-    *        the session under which the message is being accepted.
-    *
+    * @param delivery the Delivery instance to accept.
+    * @param session  the session under which the message is being accepted.
     * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(final Delivery delivery, final AmqpSession session) throws IOException {
@@ -454,16 +443,14 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                         delivery.settle();
                         session.getTransactionContext().registerTxConsumer(AmqpReceiver.this);
                      }
-                  }
-                  else {
+                  } else {
                      delivery.disposition(Accepted.getInstance());
                      delivery.settle();
                   }
                }
                session.pumpToProtonTransport(request);
                request.onSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -505,8 +492,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                   session.pumpToProtonTransport(request);
                }
                request.onSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -541,8 +527,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                   session.pumpToProtonTransport(request);
                }
                request.onSuccess();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                request.onFailure(e);
             }
          }
@@ -627,8 +612,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       receiver.setTarget(target);
       if (isPresettle()) {
          receiver.setSenderSettleMode(SenderSettleMode.SETTLED);
-      }
-      else {
+      } else {
          receiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
       }
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
@@ -644,8 +628,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       org.apache.qpid.proton.amqp.transport.Source s = getEndpoint().getRemoteSource();
       if (s != null) {
          super.doOpenCompletion();
-      }
-      else {
+      } else {
          // No link terminus was created, the peer will now detach/close us.
       }
    }
@@ -666,8 +649,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       org.apache.qpid.proton.amqp.transport.Source s = getEndpoint().getRemoteSource();
       if (s != null) {
          return super.getOpenAbortException();
-      }
-      else {
+      } else {
          // No link terminus was created, the peer has detach/closed us, create IDE.
          return new InvalidDestinationException("Link creation was refused");
       }
@@ -677,8 +659,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    protected void doOpenInspection() {
       try {
          getStateInspector().inspectOpenedResource(getReceiver());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -687,8 +668,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    protected void doClosedInspection() {
       try {
          getStateInspector().inspectClosedResource(getReceiver());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -697,8 +677,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    protected void doDetachedInspection() {
       try {
          getStateInspector().inspectDetachedResource(getReceiver());
-      }
-      catch (Throwable error) {
+      } catch (Throwable error) {
          getStateInspector().markAsInvalid(error.getMessage());
       }
    }
@@ -711,8 +690,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          source.setExpiryPolicy(TerminusExpiryPolicy.NEVER);
          source.setDurable(TerminusDurability.UNSETTLED_STATE);
          source.setDistributionMode(COPY);
-      }
-      else {
+      } else {
          source.setDurable(TerminusDurability.NONE);
          source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
       }
@@ -748,18 +726,15 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                LOG.trace("{} has incoming Message(s).", this);
                try {
                   processDelivery(incoming);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   throw IOExceptionSupport.create(e);
                }
                getEndpoint().advance();
-            }
-            else {
+            } else {
                LOG.trace("{} has a partial incoming Message(s), deferring.", this);
                incoming = null;
             }
-         }
-         else {
+         } else {
             // We have exhausted the locally queued messages on this link.
             // Check if we tried to stop and have now run out of credit.
             if (getEndpoint().getRemoteCredit() <= 0) {
@@ -778,8 +753,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       Message message = null;
       try {
          message = decodeIncomingMessage(incoming);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.warn("Error on transform: {}", e.getMessage());
          deliveryFailed(incoming, true);
          return;
@@ -836,12 +810,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          Message protonMessage = Message.Factory.create();
          protonMessage.decode(messageBytes, 0, messageBytes.length);
          return protonMessage;
-      }
-      finally {
+      } finally {
          try {
             stream.close();
-         }
-         catch (IOException e) {
+         } catch (IOException e) {
          }
       }
    }
@@ -863,13 +835,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          if (receiver.getQueued() == 0) {
             // We have no remote credit and all the deliveries have been processed.
             request.onSuccess();
-         }
-         else {
+         } else {
             // There are still deliveries to process, wait for them to be.
             stopRequest = request;
          }
-      }
-      else {
+      } else {
          // TODO: We don't actually want the additional messages that could be sent while
          // draining. We could explicitly reduce credit first, or possibly use 'echo' instead
          // of drain if it was supported. We would first need to understand what happens

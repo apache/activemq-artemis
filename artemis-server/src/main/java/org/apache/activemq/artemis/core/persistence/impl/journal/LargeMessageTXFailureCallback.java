@@ -54,8 +54,7 @@ public class LargeMessageTXFailureCallback implements TransactionFailureCallback
             try {
                LargeServerMessage serverMessage = journalStorageManager.parseLargeMessage(messages, buff);
                serverMessage.decrementDelayDeletionCount();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.journalError(e);
             }
          }

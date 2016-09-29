@@ -16,12 +16,11 @@
  */
 package org.objectweb.jtests.jms.conform.message.properties;
 
-import java.util.Enumeration;
-
 import javax.jms.ConnectionMetaData;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import java.util.Enumeration;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,8 +50,7 @@ public class JMSXPropertyTest extends PTPTestCase {
             }
          }
          Assert.assertTrue("JMSXGroupID property is not supported", found);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -74,8 +72,7 @@ public class JMSXPropertyTest extends PTPTestCase {
          TextMessage msg = (TextMessage) m;
          Assert.assertEquals(groupID, msg.getStringProperty("JMSXGroupID"));
          Assert.assertEquals("testSupportsJMSXGroupID_1", msg.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
       }
    }
@@ -145,11 +142,9 @@ public class JMSXPropertyTest extends PTPTestCase {
          // ... so it has been delivered a second time
          jmsxDeliveryCount = msg.getIntProperty("JMSXDeliveryCount");
          Assert.assertEquals(2, jmsxDeliveryCount);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          fail(e);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          fail(e);
       }
    }

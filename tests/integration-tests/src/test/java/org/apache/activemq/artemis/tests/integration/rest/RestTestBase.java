@@ -54,8 +54,7 @@ public class RestTestBase extends JMSTestBase {
       if (server != null) {
          try {
             server.stop();
-         }
-         catch (Throwable t) {
+         } catch (Throwable t) {
             t.printStackTrace();
          }
       }
@@ -79,8 +78,7 @@ public class RestTestBase extends JMSTestBase {
       WebAppContext webapp = new WebAppContext();
       if (contextPath.startsWith("/")) {
          webapp.setContextPath(contextPath);
-      }
-      else {
+      } else {
          webapp.setContextPath("/" + contextPath);
       }
       webapp.setWar(warFile.getAbsolutePath());

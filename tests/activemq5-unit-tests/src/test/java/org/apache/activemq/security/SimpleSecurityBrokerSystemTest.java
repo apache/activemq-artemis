@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.security;
 
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.security.Principal;
@@ -38,11 +45,6 @@ import org.apache.activemq.jaas.GroupPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-
 /**
  * Tests that the broker allows/fails access to destinations based on the
  * security policy installed on the broker.
@@ -59,8 +61,7 @@ public class SimpleSecurityBrokerSystemTest extends SecurityTestSupport {
    static {
       try {
          WILDCARD = (Principal) DefaultAuthorizationMap.createGroupPrincipal("*", GroupPrincipal.class.getName());
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          LOG.error("Failed to make wildcard principal", e);
       }
    }

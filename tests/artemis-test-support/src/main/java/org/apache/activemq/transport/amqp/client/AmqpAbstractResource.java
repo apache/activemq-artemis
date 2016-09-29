@@ -73,8 +73,7 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
          }
 
          request.onSuccess();
-      }
-      else {
+      } else {
          this.closeRequest = request;
          doDetach();
       }
@@ -91,8 +90,7 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
          }
 
          request.onSuccess();
-      }
-      else {
+      } else {
          this.closeRequest = request;
          doClose();
       }
@@ -215,8 +213,7 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
       if (isAwaitingClose()) {
          LOG.debug("{} is now closed: ", this);
          closed();
-      }
-      else {
+      } else {
          remotelyClosed(connection);
       }
    }
@@ -227,21 +224,18 @@ public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpRe
       if (isAwaitingClose()) {
          LOG.debug("{} is now closed: ", this);
          closed();
-      }
-      else if (isAwaitingOpen()) {
+      } else if (isAwaitingOpen()) {
          // Error on Open, create exception and signal failure.
          LOG.warn("Open of {} failed: ", this);
          Exception openError;
          if (hasRemoteError()) {
             openError = AmqpSupport.convertToException(getEndpoint().getRemoteCondition());
-         }
-         else {
+         } else {
             openError = getOpenAbortException();
          }
 
          failed(openError);
-      }
-      else {
+      } else {
          remotelyClosed(connection);
       }
    }

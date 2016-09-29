@@ -45,7 +45,7 @@ public interface Mechanism extends Comparable<Mechanism> {
       public int getValue() {
          return value;
       }
-   };
+   }
 
    /**
     * @return return the relative priority of this SASL mechanism.

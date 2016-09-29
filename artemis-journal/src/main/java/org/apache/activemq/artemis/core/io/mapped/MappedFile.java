@@ -70,15 +70,12 @@ final class MappedFile implements AutoCloseable {
             lastMappedLimit = mappedLimit;
             final int bufferPosition = (int) (offset - mappedPosition);
             return bufferPosition;
-         }
-         catch (IllegalStateException e) {
+         } catch (IllegalStateException e) {
             throw new IOException(e);
-         }
-         catch (IllegalArgumentException e) {
+         } catch (IllegalArgumentException e) {
             throw new BufferUnderflowException();
          }
-      }
-      else {
+      } else {
          final int bufferPosition = (int) (offset - lastMappedStart);
          return bufferPosition;
       }
@@ -101,12 +98,10 @@ final class MappedFile implements AutoCloseable {
       if (dst.hasMemoryAddress()) {
          final long dstAddress = dst.memoryAddress() + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, dstLength);
-      }
-      else if (dst.hasArray()) {
+      } else if (dst.hasArray()) {
          final byte[] dstArray = dst.array();
          PlatformDependent.copyMemory(srcAddress, dstArray, dstStart, dstLength);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("unsupported byte buffer");
       }
       position += dstLength;
@@ -127,8 +122,7 @@ final class MappedFile implements AutoCloseable {
       if (dst.isDirect()) {
          final long dstAddress = PlatformDependent.directBufferAddress(dst) + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, dstLength);
-      }
-      else {
+      } else {
          final byte[] dstArray = dst.array();
          PlatformDependent.copyMemory(srcAddress, dstArray, dstStart, dstLength);
       }
@@ -153,12 +147,10 @@ final class MappedFile implements AutoCloseable {
       if (dst.hasMemoryAddress()) {
          final long dstAddress = dst.memoryAddress() + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, read);
-      }
-      else if (dst.hasArray()) {
+      } else if (dst.hasArray()) {
          final byte[] dstArray = dst.array();
          PlatformDependent.copyMemory(srcAddress, dstArray, dstStart, read);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("unsupported byte buffer");
       }
       position += read;
@@ -179,8 +171,7 @@ final class MappedFile implements AutoCloseable {
       if (dst.isDirect()) {
          final long dstAddress = PlatformDependent.directBufferAddress(dst) + dstStart;
          PlatformDependent.copyMemory(srcAddress, dstAddress, read);
-      }
-      else {
+      } else {
          final byte[] dstArray = dst.array();
          PlatformDependent.copyMemory(srcAddress, dstArray, dstStart, read);
       }
@@ -199,12 +190,10 @@ final class MappedFile implements AutoCloseable {
       if (src.hasMemoryAddress()) {
          final long srcAddress = src.memoryAddress() + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
-      }
-      else if (src.hasArray()) {
+      } else if (src.hasArray()) {
          final byte[] srcArray = src.array();
          PlatformDependent.copyMemory(srcArray, srcStart, destAddress, srcLength);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("unsupported byte buffer");
       }
       position += srcLength;
@@ -224,8 +213,7 @@ final class MappedFile implements AutoCloseable {
       if (src.isDirect()) {
          final long srcAddress = PlatformDependent.directBufferAddress(src) + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
-      }
-      else {
+      } else {
          final byte[] srcArray = src.array();
          PlatformDependent.copyMemory(srcArray, srcStart, destAddress, srcLength);
       }
@@ -246,12 +234,10 @@ final class MappedFile implements AutoCloseable {
       if (src.hasMemoryAddress()) {
          final long srcAddress = src.memoryAddress() + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
-      }
-      else if (src.hasArray()) {
+      } else if (src.hasArray()) {
          final byte[] srcArray = src.array();
          PlatformDependent.copyMemory(srcArray, srcStart, destAddress, srcLength);
-      }
-      else {
+      } else {
          throw new IllegalArgumentException("unsupported byte buffer");
       }
       position += srcLength;
@@ -271,8 +257,7 @@ final class MappedFile implements AutoCloseable {
       if (src.isDirect()) {
          final long srcAddress = PlatformDependent.directBufferAddress(src) + srcStart;
          PlatformDependent.copyMemory(srcAddress, destAddress, srcLength);
-      }
-      else {
+      } else {
          final byte[] srcArray = src.array();
          PlatformDependent.copyMemory(srcArray, srcStart, destAddress, srcLength);
       }

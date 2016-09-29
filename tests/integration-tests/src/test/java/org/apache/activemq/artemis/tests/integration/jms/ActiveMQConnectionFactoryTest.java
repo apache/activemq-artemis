@@ -16,24 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -44,20 +26,34 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-
-import org.junit.Assert;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * ActiveMQConnectionFactoryTest
@@ -86,8 +82,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          Assert.fail("Should throw exception");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          // Ok
       }
       if (conn != null) {
@@ -340,15 +335,18 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          //but String always trusted
          obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), false, false);
          assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
-      }
-      finally {
+      } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
       }
    }
 
-   private Object receiveObjectMessage(String blackList, String whiteList, String qname,
-                                       Serializable obj, boolean useJndi, boolean useBrowser) throws Exception {
+   private Object receiveObjectMessage(String blackList,
+                                       String whiteList,
+                                       String qname,
+                                       Serializable obj,
+                                       boolean useJndi,
+                                       boolean useBrowser) throws Exception {
       sendObjectMessage(qname, obj);
 
       StringBuilder query = new StringBuilder("");
@@ -362,8 +360,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
             query.append("deserializationWhiteList=");
             query.append(whiteList);
          }
-      }
-      else {
+      } else {
          if (whiteList != null) {
             query.append("?deserializationWhiteList=");
             query.append(whiteList);
@@ -378,8 +375,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          props.put("connectionFactory.VmConnectionFactory", "vm://0" + query);
          Context ctx = new InitialContext(props);
          factory = (ActiveMQConnectionFactory) ctx.lookup("VmConnectionFactory");
-      }
-      else {
+      } else {
          factory = new ActiveMQConnectionFactory("vm://0" + query);
       }
       Connection connection = null;
@@ -396,24 +392,20 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
             MessageConsumer consumer = session.createConsumer(queue);
             consumer.receive(5000);
             result = objMessage.getObject();
-         }
-         else {
+         } else {
             MessageConsumer consumer = session.createConsumer(queue);
             ObjectMessage objMessage = (ObjectMessage) consumer.receive(5000);
             assertNotNull(objMessage);
             result = objMessage.getObject();
          }
          return result;
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return e;
-      }
-      finally {
+      } finally {
          if (connection != null) {
             try {
                connection.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                return e;
             }
          }
@@ -430,8 +422,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          ObjectMessage objMessage = session.createObjectMessage();
          objMessage.setObject(obj);
          producer.send(objMessage);
-      }
-      finally {
+      } finally {
          connection.close();
       }
    }
@@ -465,162 +456,139 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       try {
          cf.setClientID(clientID);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setClientFailureCheckPeriod(clientFailureCheckPeriod);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConnectionTTL(connectionTTL);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setCallTimeout(callTimeout);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setMinLargeMessageSize(minLargeMessageSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConsumerWindowSize(consumerWindowSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConsumerMaxRate(consumerMaxRate);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConfirmationWindowSize(confirmationWindowSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setProducerMaxRate(producerMaxRate);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnAcknowledge(blockOnAcknowledge);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnDurableSend(blockOnDurableSend);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setBlockOnNonDurableSend(blockOnNonDurableSend);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setAutoGroup(autoGroup);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setPreAcknowledge(preAcknowledge);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setDupsOKBatchSize(dupsOKBatchSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setTransactionBatchSize(transactionBatchSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setUseGlobalPools(useGlobalPools);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setThreadPoolMaxSize(threadPoolMaxSize);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setRetryInterval(retryInterval);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setRetryIntervalMultiplier(retryIntervalMultiplier);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
       try {
          cf.setReconnectAttempts(reconnectAttempts);
          Assert.fail("Should throw exception");
-      }
-      catch (IllegalStateException e) {
+      } catch (IllegalStateException e) {
          // OK
       }
 
@@ -683,8 +651,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       TransportConfiguration[] cfStaticConnectors = cf.getStaticConnectors();
       if (staticConnectors == null) {
          Assert.assertNull(staticConnectors);
-      }
-      else {
+      } else {
          Assert.assertEquals(staticConnectors.length, cfStaticConnectors.length);
 
          for (int i = 0; i < staticConnectors.length; i++) {

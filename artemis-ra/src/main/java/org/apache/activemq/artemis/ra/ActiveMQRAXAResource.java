@@ -79,8 +79,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
          try {
             //this resets any tx stuff, we assume here that the tm and jca layer are well behaved when it comes to this
             sessionInternal.resetIfNeeded();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             ActiveMQRALogger.LOGGER.problemResettingXASession(e);
 
             XAException xaException = new XAException(XAException.XAER_RMFAIL);
@@ -89,8 +88,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
          }
 
          xaResource.start(xid, flags);
-      }
-      finally {
+      } finally {
          managedConnection.setInManagedTx(true);
          managedConnection.unlock();
       }
@@ -112,8 +110,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
       managedConnection.lock();
       try {
          xaResource.end(xid, flags);
-      }
-      finally {
+      } finally {
          managedConnection.setInManagedTx(false);
          managedConnection.unlock();
       }
@@ -181,8 +178,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
       managedConnection.lock();
       try {
          xaResource.forget(xid);
-      }
-      finally {
+      } finally {
          managedConnection.setInManagedTx(true);
          managedConnection.setInManagedTx(false);
          managedConnection.unlock();

@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -37,14 +45,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @RunWith(value = Parameterized.class)
 public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
@@ -113,8 +113,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
             Assert.assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
             Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
-         }
-         else {
+         } else {
             Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -124,12 +123,10 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
             Assert.assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
-      }
-      finally {
+      } finally {
          try {
             server0.stop();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
          }
          server1.stop();
@@ -187,8 +184,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
             Assert.assertEquals(server1.getConfiguration().getBindingsDirectory(), backupServer0.getConfiguration().getBindingsDirectory());
             Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
-         }
-         else {
+         } else {
             Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -198,12 +194,10 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
             Assert.assertNotEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
-      }
-      finally {
+      } finally {
          try {
             server0.stop();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
          }
          server1.stop();
@@ -264,8 +258,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          Assert.assertEquals(server1.getNodeID(), backupServer0.getNodeID());
          Assert.assertEquals(server2.getNodeID(), backupServer3.getNodeID());
          Assert.assertEquals(server3.getNodeID(), backupServer2.getNodeID());
-      }
-      finally {
+      } finally {
          server0.stop();
          server1.stop();
          server2.stop();
@@ -317,8 +310,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
          if (scaleDown) {
             sssc.setScaleDownConfiguration(new ScaleDownConfiguration());
          }
-      }
-      else {
+      } else {
          ReplicatedPolicyConfiguration rpc = new ReplicatedPolicyConfiguration();
          ReplicaPolicyConfiguration rpc2 = new ReplicaPolicyConfiguration();
          haPolicy.setLiveConfig(rpc);

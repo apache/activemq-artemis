@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.topic;
 
-import org.apache.activemq.artemis.rest.queue.push.PushStore;
-
 import java.util.List;
+
+import org.apache.activemq.artemis.rest.queue.push.PushStore;
 
 public interface TopicPushStore extends PushStore {
 

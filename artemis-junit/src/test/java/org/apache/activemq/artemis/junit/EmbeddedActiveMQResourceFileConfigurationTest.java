@@ -37,7 +37,6 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server);
 
-
    @Test
    public void testConfiguredQueue() throws Exception {
       assertNotNull(TEST_QUEUE + " should exist", server.locateQueue(TEST_QUEUE));

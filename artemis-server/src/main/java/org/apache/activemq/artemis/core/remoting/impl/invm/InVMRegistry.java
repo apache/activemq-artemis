@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.invm;
 
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 public final class InVMRegistry {
 

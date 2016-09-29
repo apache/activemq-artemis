@@ -92,8 +92,7 @@ public class PreacknowledgeExample {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-      }
-      finally {
+      } finally {
          // Step 9. Be sure to close our resources!
          if (connection != null) {
             connection.close();

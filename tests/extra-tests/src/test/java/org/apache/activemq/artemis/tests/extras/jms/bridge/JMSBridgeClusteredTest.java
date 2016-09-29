@@ -130,8 +130,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
          //verify bridge still work
          sendMessages(sourceServer, sourceQueueName, NUM_MESSAGES);
          receiveMessages(targetServer, targetQueueName, batchSize);
-      }
-      finally {
+      } finally {
          if (bridge != null) {
             bridge.stop();
          }
@@ -182,8 +181,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
          //verify bridge still work
          sendMessages(sourceServer, sourceQueueName, NUM_MESSAGES);
          receiveMessages(targetServer, targetQueueName, NUM_MESSAGES, mode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE);
-      }
-      finally {
+      } finally {
          if (bridge != null) {
             bridge.stop();
          }
@@ -200,8 +198,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
                                 boolean checkDup) throws ActiveMQException {
       try {
          server.receiveMessages(queueName, num, checkDup);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          throw e;
       }
@@ -210,8 +207,7 @@ public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase {
    private void receiveMessages(ServerGroup server, String queueName, int num) throws ActiveMQException {
       try {
          server.receiveMessages(queueName, num, false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          throw e;
       }

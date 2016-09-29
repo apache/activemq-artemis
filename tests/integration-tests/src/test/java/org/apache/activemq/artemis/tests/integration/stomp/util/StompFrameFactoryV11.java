@@ -80,8 +80,7 @@ public class StompFrameFactoryV11 implements StompFrameFactory {
                      //this is a backslash
                      decodedHeader.append(b);
                      isEsc = false;
-                  }
-                  else {
+                  } else {
                      //begin escaping
                      isEsc = true;
                   }
@@ -91,8 +90,7 @@ public class StompFrameFactoryV11 implements StompFrameFactory {
                   if (isEsc) {
                      decodedHeader.append(":");
                      isEsc = false;
-                  }
-                  else {
+                  } else {
                      decodedHeader.append(b);
                   }
                   break;
@@ -101,8 +99,7 @@ public class StompFrameFactoryV11 implements StompFrameFactory {
                   if (isEsc) {
                      decodedHeader.append('\n');
                      isEsc = false;
-                  }
-                  else {
+                  } else {
                      decodedHeader.append(b);
                   }
                   break;

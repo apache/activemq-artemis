@@ -73,8 +73,7 @@ public class AutoCreateQueueClusterTest extends JMSClusteredTestBase {
          assertEquals("m1", received.getText());
 
          cons2.close();
-      }
-      finally {
+      } finally {
          conn1.close();
          conn2.close();
       }

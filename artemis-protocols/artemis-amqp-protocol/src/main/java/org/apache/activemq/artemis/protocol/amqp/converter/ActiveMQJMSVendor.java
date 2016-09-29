@@ -26,17 +26,17 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerDestination;
-import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSVendor;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSBytesMessage;
+import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMapMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSObjectMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSStreamMessage;
 import org.apache.activemq.artemis.protocol.amqp.converter.jms.ServerJMSTextMessage;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.protocol.amqp.converter.message.JMSVendor;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
 public class ActiveMQJMSVendor implements JMSVendor {
@@ -90,8 +90,7 @@ public class ActiveMQJMSVendor implements JMSVendor {
    public void setJMSXGroupID(Message message, String s) {
       try {
          message.setStringProperty("_AMQ_GROUP_ID", s);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -100,8 +99,7 @@ public class ActiveMQJMSVendor implements JMSVendor {
    public void setJMSXGroupSequence(Message message, int i) {
       try {
          message.setIntProperty("JMSXGroupSeq", i);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -110,8 +108,7 @@ public class ActiveMQJMSVendor implements JMSVendor {
    public void setJMSXDeliveryCount(Message message, long l) {
       try {
          message.setLongProperty("JMSXDeliveryCount", l);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }

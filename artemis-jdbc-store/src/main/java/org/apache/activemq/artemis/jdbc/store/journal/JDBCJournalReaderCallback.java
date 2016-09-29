@@ -106,8 +106,7 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
          for (RecordInfo txRecord : tx.recordInfos) {
             if (txRecord.isUpdate) {
                loadManager.updateRecord(txRecord);
-            }
-            else {
+            } else {
                loadManager.addRecord(txRecord);
             }
          }
@@ -132,8 +131,7 @@ public class JDBCJournalReaderCallback implements JournalReaderCallback {
          if ((!transaction.prepared && !transaction.committed) || transaction.invalid) {
             ActiveMQJournalLogger.LOGGER.uncomittedTxFound(transaction.transactionID);
             loadManager.failedTransaction(transaction.transactionID, transaction.recordInfos, transaction.recordsToDelete);
-         }
-         else if (!transaction.committed) {
+         } else if (!transaction.committed) {
             PreparedTransactionInfo info = new PreparedTransactionInfo(transaction.transactionID, transaction.extraData);
             info.getRecords().addAll(transaction.recordInfos);
             info.getRecordsToDelete().addAll(transaction.recordsToDelete);

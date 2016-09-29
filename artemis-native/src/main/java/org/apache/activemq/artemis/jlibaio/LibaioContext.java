@@ -67,12 +67,10 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          if (getNativeVersion() != EXPECTED_NATIVE_VERSION) {
             NativeLogger.LOGGER.incompatibleNativeLibrary();
             return false;
-         }
-         else {
+         } else {
             return true;
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          NativeLogger.LOGGER.debug(name + " -> error loading the native library", e);
          return false;
       }
@@ -93,8 +91,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
                }
             });
             break;
-         }
-         else {
+         } else {
             NativeLogger.LOGGER.debug("Library " + library + " not found!");
          }
       }
@@ -161,16 +158,14 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
       try {
          contexts.incrementAndGet();
          this.ioContext = newContext(queueSize);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw e;
       }
       this.queueSize = queueSize;
       totalMaxIO.addAndGet(queueSize);
       if (useSemaphore) {
          this.ioSpace = new Semaphore(queueSize);
-      }
-      else {
+      } else {
          this.ioSpace = null;
       }
    }
@@ -197,8 +192,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          if (ioSpace != null) {
             ioSpace.acquire();
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          throw new IOException(e.getMessage(), e);
       }
@@ -217,8 +211,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          if (ioSpace != null) {
             ioSpace.acquire();
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          throw new IOException(e.getMessage(), e);
       }
@@ -238,8 +231,7 @@ public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
          if (ioSpace != null) {
             try {
                ioSpace.tryAcquire(queueSize, 10, TimeUnit.SECONDS);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                NativeLogger.LOGGER.error(e);
             }
          }

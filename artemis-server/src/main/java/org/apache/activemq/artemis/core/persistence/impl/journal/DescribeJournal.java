@@ -212,13 +212,11 @@ public final class DescribeJournal {
                   out.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + ", result=" + subsCounter.getValue());
                   if (subsCounter.getValue() < 0) {
                      out.println(" #NegativeCounter!!!!");
-                  }
-                  else {
+                  } else {
                      out.println();
                   }
                   out.println();
-               }
-               else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_INC) {
+               } else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_INC) {
                   PageCountRecordInc encoding = (PageCountRecordInc) newObjectEncoding(info);
                   long queueIDForCounter = encoding.getQueueID();
 
@@ -229,8 +227,7 @@ public final class DescribeJournal {
                   out.print("#Counter queue " + queueIDForCounter + " value=" + subsCounter.getValue() + " increased by " + encoding.getValue());
                   if (subsCounter.getValue() < 0) {
                      out.println(" #NegativeCounter!!!!");
-                  }
-                  else {
+                  } else {
                      out.println();
                   }
                   out.println();
@@ -286,29 +283,24 @@ public final class DescribeJournal {
          Object o = newObjectEncoding(info);
          if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE) {
             messageCount++;
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
             ReferenceDescribe ref = (ReferenceDescribe) o;
             Integer count = messageRefCounts.get(ref.refEncoding.queueID);
             if (count == null) {
                count = 1;
                messageRefCounts.put(ref.refEncoding.queueID, count);
-            }
-            else {
+            } else {
                messageRefCounts.put(ref.refEncoding.queueID, count + 1);
             }
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
+         } else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             AckDescribe ref = (AckDescribe) o;
             Integer count = messageRefCounts.get(ref.refEncoding.queueID);
             if (count == null) {
                messageRefCounts.put(ref.refEncoding.queueID, 0);
-            }
-            else {
+            } else {
                messageRefCounts.put(ref.refEncoding.queueID, count - 1);
             }
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE) {
+         } else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE) {
             PageCountRecord encoding = (PageCountRecord) o;
             queueIDForCounter = encoding.getQueueID();
 
@@ -316,8 +308,7 @@ public final class DescribeJournal {
 
             subsCounter.loadValue(info.id, encoding.getValue());
             subsCounter.processReload();
-         }
-         else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_INC) {
+         } else if (info.getUserRecordType() == JournalRecordIds.PAGE_CURSOR_COUNTER_INC) {
             PageCountRecordInc encoding = (PageCountRecordInc) o;
             queueIDForCounter = encoding.getQueueID();
 
@@ -350,15 +341,13 @@ public final class DescribeJournal {
             out.println("- " + describeRecord(info, o));
             if (info.getUserRecordType() == 31) {
                preparedMessageCount++;
-            }
-            else if (info.getUserRecordType() == 32) {
+            } else if (info.getUserRecordType() == 32) {
                ReferenceDescribe ref = (ReferenceDescribe) o;
                Integer count = preparedMessageRefCount.get(ref.refEncoding.queueID);
                if (count == null) {
                   count = 1;
                   preparedMessageRefCount.put(ref.refEncoding.queueID, count);
-               }
-               else {
+               } else {
                   preparedMessageRefCount.put(ref.refEncoding.queueID, count + 1);
                }
             }
@@ -428,8 +417,7 @@ public final class DescribeJournal {
    private static Xid toXid(final byte[] data) {
       try {
          return XidCodecSupport.decodeXid(ActiveMQBuffers.wrappedBuffer(data));
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          return null;
       }
    }
@@ -492,8 +480,7 @@ public final class DescribeJournal {
                pageUpdate.decode(buffer);
 
                return pageUpdate;
-            }
-            else {
+            } else {
                PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                pageTransactionInfo.decode(buffer);
@@ -655,8 +642,7 @@ public final class DescribeJournal {
          if (refEncoding == null) {
             if (other.refEncoding != null)
                return false;
-         }
-         else if (!refEncoding.equals(other.refEncoding))
+         } else if (!refEncoding.equals(other.refEncoding))
             return false;
          return true;
       }

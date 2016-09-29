@@ -37,7 +37,6 @@ import org.junit.Test;
 
 public class PendingDeliveriesTest extends ClientTestBase {
 
-
    @Before
    public void createQueue() throws Exception {
       server.createQueue(SimpleString.toSimpleString("jms.queue.queue1"), SimpleString.toSimpleString("jms.queue.queue1"), null, true, false);
@@ -60,11 +59,9 @@ public class PendingDeliveriesTest extends ClientTestBase {
          System.exit(-1);
       }
 
-
       String uri = arg[0];
       String destinationName = arg[1];
       boolean cleanShutdown = Boolean.valueOf(arg[2]);
-
 
       ConnectionFactory factory;
 
@@ -93,12 +90,10 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
          System.exit(0);
 
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
          System.exit(-1);
       }
-
 
    }
 
@@ -106,8 +101,7 @@ public class PendingDeliveriesTest extends ClientTestBase {
       ConnectionFactory factory;
       if (uri.startsWith("amqp")) {
          factory = new JmsConnectionFactory(uri);
-      }
-      else {
+      } else {
          factory = new ActiveMQConnectionFactory(uri);
       }
       return factory;
@@ -134,19 +128,17 @@ public class PendingDeliveriesTest extends ClientTestBase {
          for (int i = 0; i < 100; i++) {
             Assert.assertNotNull(consumer.receive(1000));
          }
-      }
-      finally {
+      } finally {
          connection.stop();
          connection.close();
 
       }
 
       if (cf instanceof ActiveMQConnectionFactory) {
-         ((ActiveMQConnectionFactory)cf).close();
+         ((ActiveMQConnectionFactory) cf).close();
       }
 
    }
-
 
    @Test
    public void testWithtReconnect() throws Exception {
@@ -168,14 +160,12 @@ public class PendingDeliveriesTest extends ClientTestBase {
          }
 
          Assert.assertTrue(i < 100);
-      }
-      finally {
+      } finally {
          connection.stop();
          connection.close();
 
       }
    }
-
 
    @Test
    public void testCleanShutdownNoLogger() throws Exception {
@@ -192,13 +182,15 @@ public class PendingDeliveriesTest extends ClientTestBase {
       Assert.assertTrue(AssertionLoggerHandler.findText(1000, "clearing up resources"));
    }
 
-
    @Test
    public void testCleanShutdown() throws Exception {
 
    }
 
-   private void startClient(String uriToUse, String destinationName, boolean log, boolean cleanShutdown) throws Exception {
+   private void startClient(String uriToUse,
+                            String destinationName,
+                            boolean log,
+                            boolean cleanShutdown) throws Exception {
       Process process = SpawnedVMSupport.spawnVM(PendingDeliveriesTest.class.getName(), log, uriToUse, destinationName, Boolean.toString(cleanShutdown));
       Assert.assertEquals(0, process.waitFor());
    }

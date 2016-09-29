@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 /**
  * implements reliable "create", "create-next" pattern defined by REST-* Messaging specification

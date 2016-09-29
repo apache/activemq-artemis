@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -128,7 +128,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String[] libListWithDeps;
 
-
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
 
@@ -178,8 +177,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       if (!lookupHome(home.toPath())) {
          if (lookupHome(alternateHome.toPath())) {
             home = alternateHome;
-         }
-         else {
+         } else {
             getLog().error("********************************************************************************************");
             getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
             getLog().error("Use the binary distribution or build the distribution before running the examples");
@@ -204,8 +202,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       if (allowAnonymous) {
          add(listCommands, "--allow-anonymous");
-      }
-      else {
+      } else {
          add(listCommands, "--require-login");
       }
 
@@ -256,8 +253,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       FileOutputStream outputStream;
       try {
          outputStream = new FileOutputStream(commandLine);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          throw new MojoExecutionException(e.getMessage(), e);
       }
@@ -282,7 +278,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
          Set<File> files = resolveDependencies(libListWithDeps, libList);
 
-         if (!files.isEmpty() ) {
+         if (!files.isEmpty()) {
             commandLineStream.println();
             commandLineStream.println("# This is a list of files that need to be installed under ./lib.");
             commandLineStream.println("# We are copying them from your maven lib home");
@@ -300,14 +296,16 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          getLog().info("under " + commandLine.getParent());
          getLog().info("###################################################################################################");
 
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
    }
 
-   private void copyConfigurationFiles(String[] list, Path sourcePath, Path targetPath, PrintStream commandLineStream) throws IOException {
+   private void copyConfigurationFiles(String[] list,
+                                       Path sourcePath,
+                                       Path targetPath,
+                                       PrintStream commandLineStream) throws IOException {
       for (String file : list) {
          Path target = targetPath.resolve(file);
 
@@ -322,8 +320,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
             commandLineStream.println("mkdir " + target);
 
             copyConfigurationFiles(originalFile.toFile().list(), originalFile, target, commandLineStream);
-         }
-         else {
+         } else {
             getLog().debug("Copying " + file + " to " + target);
             commandLineStream.println("# copying config file " + originalFile.getFileName());
             commandLineStream.println("cp " + originalFile + " " + target);
@@ -348,7 +345,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          parent.mkdirs();
          commandLineStream.println("mkdir " + file.getParent());
       }
-
 
       commandLineStream.println("cp " + projectLib.getAbsolutePath() + " " + target);
       getLog().debug("Copying " + projectLib.getName() + " as " + target.toFile().getAbsolutePath());

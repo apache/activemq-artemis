@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.api.jms.management;
 
-
-import org.apache.activemq.artemis.api.core.JsonUtil;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
  * Helper class to create Java Objects from the
@@ -53,9 +52,7 @@ public class SubscriptionInfo {
       SubscriptionInfo[] infos = new SubscriptionInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject sub = array.getJsonObject(i);
-         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"), sub.getString("clientID", null),
-               sub.getString("name", null), sub.getBoolean("durable"), sub.getString("selector", null),
-               sub.getInt("messageCount"), sub.getInt("deliveringCount"));
+         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"), sub.getString("clientID", null), sub.getString("name", null), sub.getBoolean("durable"), sub.getString("selector", null), sub.getInt("messageCount"), sub.getInt("deliveringCount"));
          infos[i] = info;
       }
 

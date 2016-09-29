@@ -45,7 +45,9 @@ We have shared the style templates that are good for this project. If you want t
 * Select both Code Style Templates and File templates (it's the default option)
 * Select OK and restart Idea
 
-Similarly, to import inspection settings:
+Alternatively you can copy artemis-codestyle.xml under your home settings at ``IntelliJIdea15/codestyles``.
+
+#### To import inspection settings:
 
 * File->Settings->Editor->Inspections->Manage->Import
 * Select the file ./artemis-cloned-folder/etc/ide-settings/IDEA-artemis-inspections.xml

@@ -99,8 +99,7 @@ public class TopicSelectorExample2 {
 
          if (!result.get())
             throw new IllegalStateException();
-      }
-      finally {
+      } finally {
          // Step 14. Be sure to close our JMS resources!
          if (connection != null) {
             connection.close();
@@ -137,8 +136,7 @@ class SimpleMessageListener implements MessageListener {
          if (!colorProp.equals(name) && !name.equals("all")) {
             result.set(false);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
          result.set(false);
       }

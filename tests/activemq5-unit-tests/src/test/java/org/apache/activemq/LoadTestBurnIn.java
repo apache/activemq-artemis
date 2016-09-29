@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -32,6 +26,11 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 
@@ -71,11 +70,9 @@ public class LoadTestBurnIn extends JmsTestSupport {
    protected void tearDown() throws Exception {
       try {
          super.tearDown();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace(System.out);
-      }
-      finally {
+      } finally {
          LOG.info("End: " + getName());
       }
    }
@@ -119,8 +116,7 @@ public class LoadTestBurnIn extends JmsTestSupport {
       MessageConsumer consumer;
       if (durableConsumer) {
          consumer = session.createDurableSubscriber((Topic) destination, "sub1:" + System.currentTimeMillis());
-      }
-      else {
+      } else {
          consumer = session.createConsumer(destination);
       }
       profilerPause("Ready: ");
@@ -143,11 +139,9 @@ public class LoadTestBurnIn extends JmsTestSupport {
                   producer.send(m);
                }
                producer.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
-            }
-            finally {
+            } finally {
                safeClose(connection2);
                producerDoneLatch.countDown();
             }

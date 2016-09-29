@@ -36,6 +36,7 @@ import org.junit.rules.ExternalResource;
  * This will also clear Client Thread Pools from ActiveMQClient.
  */
 public class ThreadLeakCheckRule extends ExternalResource {
+
    private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
@@ -84,26 +85,22 @@ public class ThreadLeakCheckRule extends ExternalResource {
                   forceGC();
                   try {
                      Thread.sleep(500);
-                  }
-                  catch (Throwable e) {
+                  } catch (Throwable e) {
                   }
                }
             }
 
             if (failed) {
                Assert.fail("Thread leaked");
-            }
-            else if (failedOnce) {
+            } else if (failedOnce) {
                System.out.println("******************** Threads cleared after retries ********************");
                System.out.println();
             }
 
-         }
-         else {
+         } else {
             enabled = true;
          }
-      }
-      finally {
+      } finally {
          // clearing just to help GC
          previousThreads = null;
       }
@@ -130,21 +127,20 @@ public class ThreadLeakCheckRule extends ExternalResource {
          System.runFinalization();
          try {
             finalized.await(100, TimeUnit.MILLISECONDS);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
          }
       }
 
       if (dumbReference.get() != null) {
          failedGCCalls++;
          log.info("It seems that GC is disabled at your VM");
-      }
-      else {
+      } else {
          // a success would reset the count
          failedGCCalls = 0;
       }
       log.info("#test forceGC Done ");
    }
+
    public static void removeKownThread(String name) {
       knownThreads.remove(name);
    }
@@ -159,7 +155,6 @@ public class ThreadLeakCheckRule extends ExternalResource {
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
 
       if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
-
 
          for (Thread aliveThread : postThreads.keySet()) {
             if (aliveThread.isAlive() && !isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
@@ -182,10 +177,8 @@ public class ThreadLeakCheckRule extends ExternalResource {
          }
       }
 
-
       return failedThread;
    }
-
 
    /**
     * if it's an expected thread... we will just move along ignoring it
@@ -195,7 +188,7 @@ public class ThreadLeakCheckRule extends ExternalResource {
     */
    private boolean isExpectedThread(Thread thread) {
 
-      for (String known: knownThreads) {
+      for (String known : knownThreads) {
          if (thread.getName().contains(known)) {
             return true;
          }
@@ -203,7 +196,6 @@ public class ThreadLeakCheckRule extends ExternalResource {
 
       return false;
    }
-
 
    protected static class DumbReference {
 

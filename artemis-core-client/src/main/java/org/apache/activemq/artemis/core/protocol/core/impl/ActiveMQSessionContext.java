@@ -133,7 +133,6 @@ public class ActiveMQSessionContext extends SessionContext {
       this.name = name;
    }
 
-
    protected int getConfirmationWindow() {
       return confirmationWindow;
 
@@ -178,8 +177,7 @@ public class ActiveMQSessionContext extends SessionContext {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage ssm = (SessionSendMessage) packet;
             callSendAck(ssm.getHandler(), ssm.getMessage());
-         }
-         else if (packet.getType() == PacketImpl.SESS_SEND_CONTINUATION) {
+         } else if (packet.getType() == PacketImpl.SESS_SEND_CONTINUATION) {
             SessionSendContinuationMessage scm = (SessionSendContinuationMessage) packet;
             if (!scm.isContinues()) {
                callSendAck(scm.getHandler(), scm.getMessage());
@@ -190,8 +188,7 @@ public class ActiveMQSessionContext extends SessionContext {
       private void callSendAck(SendAcknowledgementHandler handler, final Message message) {
          if (handler != null) {
             handler.sendAcknowledged(message);
-         }
-         else if (sendAckHandler != null) {
+         } else if (sendAckHandler != null) {
             sendAckHandler.sendAcknowledged(message);
          }
       }
@@ -363,14 +360,11 @@ public class ActiveMQSessionContext extends SessionContext {
       Packet packet;
       if (flags == XAResource.TMSUSPEND) {
          packet = new PacketImpl(PacketImpl.SESS_XA_SUSPEND);
-      }
-      else if (flags == XAResource.TMSUCCESS) {
+      } else if (flags == XAResource.TMSUCCESS) {
          packet = new SessionXAEndMessage(xid, false);
-      }
-      else if (flags == XAResource.TMFAIL) {
+      } else if (flags == XAResource.TMFAIL) {
          packet = new SessionXAEndMessage(xid, true);
-      }
-      else {
+      } else {
          throw new XAException(XAException.XAER_INVAL);
       }
 
@@ -410,8 +404,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
       if (sendBlocking) {
          sessionChannel.sendBlocking(packet, PacketImpl.NULL_RESPONSE);
-      }
-      else {
+      } else {
          sessionChannel.sendBatched(packet);
       }
    }
@@ -439,8 +432,7 @@ public class ActiveMQSessionContext extends SessionContext {
       if (requiresResponse) {
          // When sending it blocking, only the last chunk will be blocking.
          sessionChannel.sendBlocking(chunkPacket, reconnectID, PacketImpl.NULL_RESPONSE);
-      }
-      else {
+      } else {
          sessionChannel.send(chunkPacket, reconnectID);
       }
 
@@ -448,15 +440,19 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
-   public int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException {
+   public int sendServerLargeMessageChunk(MessageInternal msgI,
+                                          long messageBodySize,
+                                          boolean sendBlocking,
+                                          boolean lastChunk,
+                                          byte[] chunk,
+                                          SendAcknowledgementHandler messageHandler) throws ActiveMQException {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket = new SessionSendContinuationMessage(msgI, chunk, !lastChunk, requiresResponse, messageBodySize, messageHandler);
 
       if (requiresResponse) {
          // When sending it blocking, only the last chunk will be blocking.
          sessionChannel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
-      }
-      else {
+      } else {
          sessionChannel.send(chunkPacket);
       }
 
@@ -471,15 +467,13 @@ public class ActiveMQSessionContext extends SessionContext {
       PacketImpl messagePacket;
       if (individual) {
          messagePacket = new SessionIndividualAcknowledgeMessage(getConsumerID(consumer), message.getMessageID(), block);
-      }
-      else {
+      } else {
          messagePacket = new SessionAcknowledgeMessage(getConsumerID(consumer), message.getMessageID(), block);
       }
 
       if (block) {
          sessionChannel.sendBlocking(messagePacket, PacketImpl.NULL_RESPONSE);
-      }
-      else {
+      } else {
          sessionChannel.sendBatched(messagePacket);
       }
    }
@@ -513,8 +507,7 @@ public class ActiveMQSessionContext extends SessionContext {
 
       if (response.isError()) {
          throw new XAException(response.getResponseCode());
-      }
-      else {
+      } else {
          return response.getResponseCode();
       }
    }
@@ -546,15 +539,12 @@ public class ActiveMQSessionContext extends SessionContext {
       Packet packet;
       if (flags == XAResource.TMJOIN) {
          packet = new SessionXAJoinMessage(xid);
-      }
-      else if (flags == XAResource.TMRESUME) {
+      } else if (flags == XAResource.TMRESUME) {
          packet = new SessionXAResumeMessage(xid);
-      }
-      else if (flags == XAResource.TMNOFLAGS) {
+      } else if (flags == XAResource.TMNOFLAGS) {
          // Don't need to flush since the previous end will have done this
          packet = new SessionXAStartMessage(xid);
-      }
-      else {
+      } else {
          throw new XAException(XAException.XAER_INVAL);
       }
 
@@ -610,8 +600,7 @@ public class ActiveMQSessionContext extends SessionContext {
          sessionChannel.replayCommands(response.getLastConfirmedCommandID());
 
          return true;
-      }
-      else {
+      } else {
          ActiveMQClientLogger.LOGGER.reconnectCreatingNewSession(sessionChannel.getID());
 
          sessionChannel.clearCommands();
@@ -636,8 +625,7 @@ public class ActiveMQSessionContext extends SessionContext {
          try {
             getCreateChannel().sendBlocking(createRequest, PacketImpl.CREATESESSION_RESP);
             retry = false;
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             // the session was created while its server was starting, retry it:
             if (e.getType() == ActiveMQExceptionType.SESSION_CREATION_REJECTED) {
                ActiveMQClientLogger.LOGGER.retryCreateSessionSeverStarting(name);
@@ -645,13 +633,11 @@ public class ActiveMQSessionContext extends SessionContext {
                // sleep a little bit to avoid spinning too much
                try {
                   Thread.sleep(10);
-               }
-               catch (InterruptedException ie) {
+               } catch (InterruptedException ie) {
                   Thread.currentThread().interrupt();
                   throw e;
                }
-            }
-            else {
+            } else {
                throw e;
             }
          }
@@ -692,8 +678,7 @@ public class ActiveMQSessionContext extends SessionContext {
          SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal), clientWindowSize);
 
          sendPacketWithoutLock(sessionChannel, packet);
-      }
-      else {
+      } else {
          // https://jira.jboss.org/browse/HORNETQ-522
          SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal), 1);
          sendPacketWithoutLock(sessionChannel, packet);
@@ -830,8 +815,7 @@ public class ActiveMQSessionContext extends SessionContext {
                   throw new IllegalStateException("Invalid packet: " + type);
                }
             }
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQClientLogger.LOGGER.failedToHandlePacket(e);
          }
 
@@ -859,20 +843,16 @@ public class ActiveMQSessionContext extends SessionContext {
          // No flow control - buffer can increase without bound! Only use with
          // caution for very fast consumers
          clientWindowSize = -1;
-      }
-      else if (windowSize == 0) {
+      } else if (windowSize == 0) {
          // Slow consumer - no buffering
          clientWindowSize = 0;
-      }
-      else if (windowSize == 1) {
+      } else if (windowSize == 1) {
          // Slow consumer = buffer 1
          clientWindowSize = 1;
-      }
-      else if (windowSize > 1) {
+      } else if (windowSize > 1) {
          // Client window size is half server window size
          clientWindowSize = windowSize >> 1;
-      }
-      else {
+      } else {
          throw ActiveMQClientMessageBundle.BUNDLE.invalidWindowSize(windowSize);
       }
 

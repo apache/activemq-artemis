@@ -58,8 +58,7 @@ public class SynchronousCloseTest extends ActiveMQTestBase {
       ServerLocator locator;
       if (isNetty()) {
          locator = createNettyNonHALocator();
-      }
-      else {
+      } else {
          locator = createInVMNonHALocator();
       }
 

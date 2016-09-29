@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -99,8 +99,7 @@ public abstract class DataStructureTestSupport extends CombinationTestSupport {
             if (!ok) {
                throw new AssertionFailedError("Arrays not equal");
             }
-         }
-         else {
+         } else {
             Object expectArray[] = (Object[]) expect;
             Object wasArray[] = (Object[]) was;
             if (expectArray.length != wasArray.length) {
@@ -111,8 +110,7 @@ public abstract class DataStructureTestSupport extends CombinationTestSupport {
             }
 
          }
-      }
-      else if (expect instanceof Command) {
+      } else if (expect instanceof Command) {
          assertEquals(expect.getClass(), was.getClass());
          Method[] methods = expect.getClass().getMethods();
          for (int i = 0; i < methods.length; i++) {
@@ -123,28 +121,22 @@ public abstract class DataStructureTestSupport extends CombinationTestSupport {
                try {
                   if (method.getName().startsWith("get")) {
                      expect.getClass().getMethod(method.getName().replaceFirst("get", "set"), new Class[]{method.getReturnType()});
-                  }
-                  else {
+                  } else {
                      expect.getClass().getMethod(method.getName().replaceFirst("is", "set"), new Class[]{method.getReturnType()});
                   }
-               }
-               catch (Throwable ignore) {
+               } catch (Throwable ignore) {
                   continue;
                }
 
                try {
                   assertEquals(method.invoke(expect, (Object) null), method.invoke(was, (Object) null));
-               }
-               catch (IllegalArgumentException e) {
-               }
-               catch (IllegalAccessException e) {
-               }
-               catch (InvocationTargetException e) {
+               } catch (IllegalArgumentException e) {
+               } catch (IllegalAccessException e) {
+               } catch (InvocationTargetException e) {
                }
             }
          }
-      }
-      else {
+      } else {
          TestCase.assertEquals(expect, was);
       }
    }

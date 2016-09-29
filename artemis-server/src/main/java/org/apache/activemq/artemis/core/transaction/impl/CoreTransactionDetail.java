@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.core.transaction.impl;
 
-import java.util.Map;
-
 import javax.transaction.xa.Xid;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.ServerMessage;

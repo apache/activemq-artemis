@@ -23,8 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 
 /**
@@ -82,8 +82,7 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
             consumerSession.createProducer(topic);
             lock.notify();
          }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          ex.printStackTrace();
          assertTrue(false);
       }

@@ -26,9 +26,9 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -101,8 +101,11 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void afterCompleteOperations(IOCallback run);
 
-   /** This is similar to afterComplete, however this only cares about the journal part. */
+   /**
+    * This is similar to afterComplete, however this only cares about the journal part.
+    */
    void afterStoreOperations(IOCallback run);
+
    /**
     * Block until the operations are done.
     * Warning: Don't use it inside an ordered executor, otherwise the system may lock up
@@ -414,7 +417,6 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
     * {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl}
     */
    void persistIdGenerator();
-
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
 }

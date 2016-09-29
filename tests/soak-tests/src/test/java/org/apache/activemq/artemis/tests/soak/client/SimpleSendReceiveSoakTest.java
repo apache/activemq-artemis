@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.soak.client;
 
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -33,6 +29,8 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 

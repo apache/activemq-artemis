@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.stress.paging;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -44,14 +52,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 public class PageCursorStressTest extends ActiveMQTestBase {
 
@@ -150,8 +150,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             Boolean property = message.getBooleanProperty("even");
             if (property == null) {
                return false;
-            }
-            else {
+            } else {
                return property.booleanValue();
             }
          }
@@ -170,8 +169,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             Boolean property = message.getBooleanProperty("even");
             if (property == null) {
                return false;
-            }
-            else {
+            } else {
                return !property.booleanValue();
             }
          }
@@ -544,8 +542,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
                   }
 
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                exceptions.incrementAndGet();
             }
@@ -563,8 +560,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
             ref = iterator.next();
             if (ref == null) {
                Thread.sleep(1000);
-            }
-            else {
+            } else {
                break;
             }
          }
@@ -803,8 +799,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       try {
          queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
          queue.pause();
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 

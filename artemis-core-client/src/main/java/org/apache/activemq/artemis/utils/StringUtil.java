@@ -25,6 +25,7 @@ public class StringUtil {
 
    /**
     * Convert a list of Strings into a single String
+    *
     * @param strList the string list
     * @param delimit the delimiter used to separate each string entry in the list
     * @return the converted string
@@ -44,6 +45,7 @@ public class StringUtil {
 
    /**
     * Convert a String into a list of String
+    *
     * @param strList the String
     * @param delimit used to separate items within the string.
     * @return the string list

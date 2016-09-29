@@ -55,8 +55,7 @@ public class PasswordMaskingUtil {
             try {
                Class<?> clazz = loader.loadClass(codecClassName);
                return (SensitiveDataCodec<String>) clazz.newInstance();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e, codecClassName);
             }
          }

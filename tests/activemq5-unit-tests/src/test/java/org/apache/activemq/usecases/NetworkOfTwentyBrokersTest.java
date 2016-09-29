@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -112,8 +112,7 @@ public class NetworkOfTwentyBrokersTest extends JmsMultipleBrokersTestSupport {
       LOG.info("Waiting for complete formation");
       try {
          Thread.sleep(20000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       verifyPeerBrokerInfos(X - 1);
@@ -126,8 +125,7 @@ public class NetworkOfTwentyBrokersTest extends JmsMultipleBrokersTestSupport {
       LOG.info("Waiting for complete stop");
       try {
          Thread.sleep(20000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       verifyPeerBrokerInfos((X / 2) - 1);
@@ -144,8 +142,7 @@ public class NetworkOfTwentyBrokersTest extends JmsMultipleBrokersTestSupport {
       LOG.info("Waiting for complete reformation");
       try {
          Thread.sleep(20000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       verifyPeerBrokerInfos(X - 1);

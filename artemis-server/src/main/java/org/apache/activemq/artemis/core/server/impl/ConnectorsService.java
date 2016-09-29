@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
@@ -27,11 +32,6 @@ import org.apache.activemq.artemis.core.server.ConnectorService;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * ConnectorsService will pool some resource for updates, e.g. Twitter, then the changes are picked
@@ -79,8 +79,7 @@ public final class ConnectorsService implements ActiveMQComponent {
       for (ConnectorService connector : connectors) {
          try {
             connector.start();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, connector.getName());
          }
       }
@@ -113,8 +112,7 @@ public final class ConnectorsService implements ActiveMQComponent {
       for (ConnectorService connector : connectors) {
          try {
             connector.stop();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getName());
          }
       }

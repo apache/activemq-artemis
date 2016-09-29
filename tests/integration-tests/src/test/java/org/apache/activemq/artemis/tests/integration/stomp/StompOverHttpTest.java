@@ -70,8 +70,7 @@ public class StompOverHttpTest extends StompTest {
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", buf);
             httpRequest.headers().add(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
             ctx.write(httpRequest, promise);
-         }
-         else {
+         } else {
             ctx.write(msg, promise);
          }
       }

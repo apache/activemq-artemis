@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,8 +75,7 @@ public abstract class DataFileGeneratorTestSupport extends TestSupport {
          URL resource = DataFileGeneratorTestSupport.class.getResource("DataFileGeneratorTestSupport.class");
          URI baseURI = new URI(resource.toString()).resolve("../../../../..");
          basedir = new File(baseURI).getCanonicalFile();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
       MODULE_BASE_DIR = basedir;
@@ -131,8 +130,7 @@ public abstract class DataFileGeneratorTestSupport extends TestSupport {
             try {
                expectedValue = method.invoke(expected, EMPTY_ARGUMENTS);
                actualValue = method.invoke(actual, EMPTY_ARGUMENTS);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                LOG.info("Failed to access property: " + name);
             }
             assertPropertyValuesEqual(message + name, comparedObjects, expectedValue, actualValue);
@@ -147,27 +145,20 @@ public abstract class DataFileGeneratorTestSupport extends TestSupport {
       String message = "Property " + name + " not equal";
       if (expectedValue == null) {
          assertNull("Property " + name + " should be null", actualValue);
-      }
-      else if (expectedValue instanceof Object[]) {
+      } else if (expectedValue instanceof Object[]) {
          assertArrayEqual(message, comparedObjects, (Object[]) expectedValue, (Object[]) actualValue);
-      }
-      else if (expectedValue.getClass().isArray()) {
+      } else if (expectedValue.getClass().isArray()) {
          assertPrimitiveArrayEqual(message, comparedObjects, expectedValue, actualValue);
-      }
-      else {
+      } else {
          if (expectedValue instanceof Exception) {
             assertExceptionsEqual(message, (Exception) expectedValue, actualValue);
-         }
-         else if (expectedValue instanceof ByteSequence) {
+         } else if (expectedValue instanceof ByteSequence) {
             assertByteSequencesEqual(message, (ByteSequence) expectedValue, actualValue);
-         }
-         else if (expectedValue instanceof DataStructure) {
+         } else if (expectedValue instanceof DataStructure) {
             assertBeansEqual(message + name, comparedObjects, expectedValue, actualValue);
-         }
-         else if (expectedValue instanceof Enumeration) {
+         } else if (expectedValue instanceof Enumeration) {
             assertEnumerationEqual(message + name, comparedObjects, (Enumeration<?>) expectedValue, (Enumeration<?>) actualValue);
-         }
-         else {
+         } else {
             assertEquals(message, expectedValue, actualValue);
          }
 
@@ -269,8 +260,7 @@ public abstract class DataFileGeneratorTestSupport extends TestSupport {
             assertEquals("Data does not match control file: " + dataFile + " at byte position " + pos, a, b);
          }
          is2.close();
-      }
-      finally {
+      } finally {
          is1.close();
       }
    }

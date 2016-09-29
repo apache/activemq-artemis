@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -29,8 +26,10 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
    // Constants -----------------------------------------------------
@@ -106,8 +105,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          received = noLocalConsumer.receive(5000);
          assertNotNull("nolocal consumer did not get message", received);
          assertEquals(text, ((TextMessage) received).getText());
-      }
-      finally {
+      } finally {
          if (defaultConn != null) {
             defaultConn.close();
          }

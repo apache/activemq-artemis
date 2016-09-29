@@ -170,8 +170,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection.close();
 
          System.err.println("Done!!!");
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          e.printStackTrace();
       }
    }
@@ -427,8 +426,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       try {
          session.createProducer(queue);
-      }
-      catch (JMSException expected) {
+      } catch (JMSException expected) {
       }
       session.close();
    }
@@ -495,8 +493,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       try {
          MessageConsumer consumer = session.createConsumer(queue);
          fail("supposed to throw an exception here");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
 
       }
    }
@@ -529,8 +526,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          messageProducer.send(session.createTextMessage("Test2"));
          assertNotNull(consumer.receive(5000));
-      }
-      finally {
+      } finally {
          if (exConn != null) {
             exConn.close();
          }
@@ -571,8 +567,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          assertEquals("This is a text message", messageReceived.getText());
-      }
-      finally {
+      } finally {
          if (exConn != null) {
             exConn.close();
          }
@@ -614,8 +609,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          assertEquals("This is a text message", messageReceived.getText());
-      }
-      finally {
+      } finally {
          if (exConn != null) {
             exConn.close();
          }
@@ -818,8 +812,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection.close();
 
          System.err.println("Done!!!");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -877,8 +870,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          }
 
          consumer.waitFor(nMsg * delay * 2);
-      }
-      finally {
+      } finally {
          sendConnection.close();
          receiveConnection.close();
       }
@@ -1021,8 +1013,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          TextMessage txt = (TextMessage) consumer.receiveNoWait();
          if (txt == null) {
             break;
-         }
-         else {
+         } else {
             duplicatedMessages = true;
             System.out.println("received in duplicate:" + txt.getText());
          }
@@ -1138,8 +1129,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       try {
          //waiting for last ack to finish
          Thread.sleep(1000);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
       }
       assertEquals(0L, binding.getQueue().getMessageCount());
    }
@@ -1154,10 +1144,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       private MessageConsumer consumer;
 
       AsyncConsumer(String queueName,
-                           Connection receiveConnection,
-                           final int ackMode,
-                           final long delay,
-                           final int expectedMsgs) throws JMSException {
+                    Connection receiveConnection,
+                    final int ackMode,
+                    final long delay,
+                    final int expectedMsgs) throws JMSException {
          this.queueName = queueName;
          this.nMsgs = expectedMsgs;
          Session session = receiveConnection.createSession(false, ackMode);
@@ -1174,16 +1164,14 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
                   //delay
                   try {
                      TimeUnit.SECONDS.sleep(delay);
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      e.printStackTrace();
                   }
                }
                if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
                   try {
                      message.acknowledge();
-                  }
-                  catch (JMSException e) {
+                  } catch (JMSException e) {
                      System.err.println("Failed to acknowledge " + message);
                      e.printStackTrace();
                   }

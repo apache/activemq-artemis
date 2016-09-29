@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,6 @@
 
 package org.apache.activemq.usecases;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -33,6 +24,11 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
@@ -45,6 +41,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class DurableSubProcessMultiRestartTest {
 
@@ -98,8 +97,7 @@ public class DurableSubProcessMultiRestartTest {
             Thread.sleep(10000);
             restartBroker();
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          exit("ProcessTest.testProcess failed.", e);
       }
 
@@ -107,8 +105,7 @@ public class DurableSubProcessMultiRestartTest {
       try {
          msgProducer.join();
          durableSubscriber.join();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          e.printStackTrace(System.out);
       }
 
@@ -120,11 +117,11 @@ public class DurableSubProcessMultiRestartTest {
       final KahaDBPersistenceAdapter pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
       assertTrue("only less than two journal files should be left: " + pa.getStore().getJournal().getFileMap().size(), Wait.waitFor(new Wait.Condition() {
 
-                    @Override
-                    public boolean isSatisified() throws Exception {
-                       return pa.getStore().getJournal().getFileMap().size() <= 2;
-                    }
-                 }, TimeUnit.MINUTES.toMillis(3)));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return pa.getStore().getJournal().getFileMap().size() <= 2;
+         }
+      }, TimeUnit.MINUTES.toMillis(3)));
 
       LOG.info("DONE.");
    }
@@ -139,8 +136,7 @@ public class DurableSubProcessMultiRestartTest {
 
          restartCount++;
          LOG.info("Broker restarted. count: " + restartCount);
-      }
-      finally {
+      } finally {
          processLock.writeLock().unlock();
       }
    }
@@ -175,14 +171,12 @@ public class DurableSubProcessMultiRestartTest {
                processLock.readLock().lock();
                try {
                   send();
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
                LOG.info("MsgProducer msgCount=" + msgCount);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit("Server.run failed", e);
          }
       }
@@ -248,24 +242,20 @@ public class DurableSubProcessMultiRestartTest {
                processLock.readLock().lock();
                try {
                   process(5000);
-               }
-               finally {
+               } finally {
                   processLock.readLock().unlock();
                }
             }
 
             unsubscribe();
 
-         }
-         catch (JMSException maybe) {
+         } catch (JMSException maybe) {
             if (maybe.getCause() instanceof IOException) {
                // ok on broker shutdown;
-            }
-            else {
+            } else {
                exit(toString() + " failed with JMSException", maybe);
             }
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             exit(toString() + " failed.", e);
          }
 
@@ -290,8 +280,7 @@ public class DurableSubProcessMultiRestartTest {
                   msgCount++;
                }
             }
-         }
-         finally {
+         } finally {
             sess.close();
             con.close();
             LOG.info(toString() + " OFFLINE.");

@@ -99,8 +99,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
             TextMessage tm = sess.createTextMessage("message" + j);
 
             producer.send(tm);
-         }
-         finally {
+         } finally {
             conn.close();
 
             jbcf.close();

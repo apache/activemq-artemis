@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -24,9 +27,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ProtonTestBase extends ActiveMQTestBase {
 
@@ -69,8 +69,7 @@ public class ProtonTestBase extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       try {
          server.stop();
-      }
-      finally {
+      } finally {
          super.tearDown();
       }
    }

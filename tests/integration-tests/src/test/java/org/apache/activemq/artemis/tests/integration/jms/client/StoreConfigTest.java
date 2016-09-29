@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -29,10 +24,13 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.NamingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Test;
 
 public class StoreConfigTest extends JMSTestBase {
 
@@ -60,8 +58,7 @@ public class StoreConfigTest extends JMSTestBase {
       try {
          jmsServer.addConnectionFactoryToBindingRegistry("np", "/someCF");
          fail("Failure expected and the API let duplicates");
-      }
-      catch (NamingException expected) {
+      } catch (NamingException expected) {
          // expected
       }
 
@@ -85,8 +82,7 @@ public class StoreConfigTest extends JMSTestBase {
       try {
          jmsServer.addConnectionFactoryToBindingRegistry("tst", "/newJNDI");
          fail("Failure expected and the API let duplicates");
-      }
-      catch (NamingException expected) {
+      } catch (NamingException expected) {
          // expected
       }
       openCon("/someCF");
@@ -300,8 +296,7 @@ public class StoreConfigTest extends JMSTestBase {
       Object obj = null;
       try {
          obj = namingContext.lookup(name);
-      }
-      catch (Exception expected) {
+      } catch (Exception expected) {
       }
 
       assertNull(obj);

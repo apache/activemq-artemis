@@ -79,8 +79,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
       if (remotingService != null && localReplicationManager != null) {
          remotingService.freeze(null, localReplicationManager.getBackupTransportConnection());
-      }
-      else if (remotingService != null) {
+      } else if (remotingService != null) {
          remotingService.freeze(null, null);
       }
    }
@@ -108,12 +107,10 @@ public class SharedNothingLiveActivation extends LiveActivation {
 
          if (activeMQServer.getIdentity() != null) {
             ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
-         }
-         else {
+         } else {
             ActiveMQServerLogger.LOGGER.serverIsLive();
          }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
          activeMQServer.callActivationFailureListeners(e);
       }
@@ -129,11 +126,9 @@ public class SharedNothingLiveActivation extends LiveActivation {
                ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
                try {
                   startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true), msg.isFailBackRequest());
-               }
-               catch (ActiveMQAlreadyReplicatingException are) {
+               } catch (ActiveMQAlreadyReplicatingException are) {
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
-               }
-               catch (ActiveMQException e) {
+               } catch (ActiveMQException e) {
                   logger.debug("Failed to process backup registration packet", e);
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
                }
@@ -182,16 +177,14 @@ public class SharedNothingLiveActivation extends LiveActivation {
                         //if we have to many backups kept or are not configured to restart just stop, otherwise restart as a backup
                         activeMQServer.stop(true);
                         ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
-//                        activeMQServer.moveServerData(replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize());
+                        //                        activeMQServer.moveServerData(replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize());
                         activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
                         activeMQServer.start();
-                     }
-                     else {
+                     } else {
                         ActiveMQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
                      }
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
                   /*
                    * The reasoning here is that the exception was either caused by (1) the
@@ -203,11 +196,9 @@ public class SharedNothingLiveActivation extends LiveActivation {
                   }
                   try {
                      ActiveMQServerImpl.stopComponent(replicationManager);
-                  }
-                  catch (Exception amqe) {
+                  } catch (Exception amqe) {
                      ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
-                  }
-                  finally {
+                  } finally {
                      synchronized (replicationLock) {
                         replicationManager = null;
                      }
@@ -272,8 +263,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
       SimpleString nodeId0;
       try {
          nodeId0 = activeMQServer.getNodeManager().readNodeId();
-      }
-      catch (ActiveMQIllegalStateException e) {
+      } catch (ActiveMQIllegalStateException e) {
          nodeId0 = null;
       }
 
@@ -287,8 +277,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
          try (ClientSessionFactoryInternal factory = locator.connectNoWarnings()) {
             // Just try connecting
             listener.latch.await(5, TimeUnit.SECONDS);
-         }
-         catch (Exception notConnected) {
+         } catch (Exception notConnected) {
             return false;
          }
 
@@ -307,8 +296,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
          //todo does this actually make any difference, we only set a different flag in the lock file which replication doesn't use
          if (permanently) {
             nodeManagerInUse.crashLiveServer();
-         }
-         else {
+         } else {
             nodeManagerInUse.pauseLiveServer();
          }
       }
@@ -347,8 +335,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
             throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
          locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
-      }
-      else {
+      } else {
          TransportConfiguration[] tcConfigs = config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors()) : null;
 
          locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(tcConfigs);

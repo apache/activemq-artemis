@@ -46,7 +46,7 @@ public interface Connection {
    /**
     * This will disable reading from the channel.
     * This is basically the same as blocking the reading.
-    * */
+    */
    void setAutoRead(boolean autoRead);
 
    /**

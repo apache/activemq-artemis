@@ -37,6 +37,7 @@ import org.jboss.logging.Logger;
  * A simple address manager that maintains the addresses and bindings.
  */
 public class SimpleAddressManager implements AddressManager {
+
    private static final Logger logger = Logger.getLogger(Page.class);
 
    /**

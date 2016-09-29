@@ -26,11 +26,11 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -136,8 +136,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
                System.out.println("Deleting " + queueName);
             }
             session.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             this.ex = e;
             e.printStackTrace();
             running = false;

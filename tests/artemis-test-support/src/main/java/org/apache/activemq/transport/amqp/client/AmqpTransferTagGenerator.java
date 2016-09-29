@@ -41,8 +41,7 @@ public final class AmqpTransferTagGenerator {
    public AmqpTransferTagGenerator(boolean pool) {
       if (pool) {
          this.tagPool = new LinkedHashSet<>();
-      }
-      else {
+      } else {
          this.tagPool = null;
       }
    }
@@ -58,12 +57,10 @@ public final class AmqpTransferTagGenerator {
          final Iterator<byte[]> iterator = tagPool.iterator();
          rc = iterator.next();
          iterator.remove();
-      }
-      else {
+      } else {
          try {
             rc = Long.toHexString(nextTagId++).getBytes("UTF-8");
-         }
-         catch (UnsupportedEncodingException e) {
+         } catch (UnsupportedEncodingException e) {
             // This should never happen since we control the input.
             throw new RuntimeException(e);
          }

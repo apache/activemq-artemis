@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class RepositoryTest extends ActiveMQTestBase {
 
@@ -217,15 +217,13 @@ public class RepositoryTest extends ActiveMQTestBase {
       try {
          repository.addMatch("hjhjhjhjh.#.hhh", "test");
          fail("expected exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // pass
       }
       try {
          repository.addMatch(null, "test");
          fail("expected exception");
-      }
-      catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
          // pass
       }
    }

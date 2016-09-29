@@ -16,17 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
-import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.junit.Test;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -41,6 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class OrderReattachTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
@@ -88,8 +86,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
                   Boolean poll = false;
                   try {
                      poll = failureQueue.poll(60, TimeUnit.SECONDS);
-                  }
-                  catch (InterruptedException e) {
+                  } catch (InterruptedException e) {
                      e.printStackTrace();
                      break;
                   }
@@ -101,13 +98,11 @@ public class OrderReattachTest extends ActiveMQTestBase {
                   // True means... fail session
                   if (poll) {
                      conn.fail(new ActiveMQNotConnectedException("poop"));
-                  }
-                  else {
+                  } else {
                      // false means... finish thread
                      break;
                   }
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -120,25 +115,21 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
       try {
          doSend2(1, sf, failureQueue);
-      }
-      finally {
+      } finally {
          try {
             session.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
 
          try {
             locator.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             //
          }
          try {
             sf.close();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
 

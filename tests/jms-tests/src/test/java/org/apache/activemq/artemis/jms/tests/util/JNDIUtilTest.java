@@ -16,15 +16,13 @@
  */
 package org.apache.activemq.artemis.jms.tests.util;
 
-import org.junit.Before;
-
-import org.junit.Test;
-
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.utils.JNDIUtil;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JNDIUtilTest extends ActiveMQServerTestCase {
    // Constants -----------------------------------------------------
@@ -44,8 +42,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
       try {
          ic.lookup("/nosuchsubcontext");
          ProxyAssertSupport.fail("the name is not supposed to be there");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          // OK
       }
 
@@ -59,8 +56,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
       try {
          ic.lookup("/doesnotexistyet");
          ProxyAssertSupport.fail("the name is not supposed to be there");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          // OK
       }
 
@@ -76,8 +72,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
       try {
          ic.lookup("doesnotexistyet");
          ProxyAssertSupport.fail("the name is not supposed to be there");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          // OK
       }
 

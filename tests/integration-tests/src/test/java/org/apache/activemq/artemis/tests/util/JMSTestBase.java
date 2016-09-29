@@ -37,7 +37,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -47,6 +46,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -170,18 +170,15 @@ public class JMSTestBase extends ActiveMQTestBase {
          for (JMSContext jmsContext : contextSet) {
             jmsContext.close();
          }
-      }
-      catch (RuntimeException ignored) {
+      } catch (RuntimeException ignored) {
          // no-op
-      }
-      finally {
+      } finally {
          contextSet.clear();
       }
       try {
          if (conn != null)
             conn.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // no-op
       }
 
@@ -246,8 +243,7 @@ public class JMSTestBase extends ActiveMQTestBase {
             msg.setIntProperty("counter", j);
             producer.send(queue, msg);
          }
-      }
-      catch (JMSException cause) {
+      } catch (JMSException cause) {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
    }
@@ -266,8 +262,7 @@ public class JMSTestBase extends ActiveMQTestBase {
             if (ack)
                message.acknowledge();
          }
-      }
-      catch (JMSException cause) {
+      } catch (JMSException cause) {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
    }

@@ -153,8 +153,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
          received.getBodyBuffer().readByte();
 
          Assert.fail("Should throw exception");
-      }
-      catch (IndexOutOfBoundsException e) {
+      } catch (IndexOutOfBoundsException e) {
          // OK
       }
    }
@@ -200,8 +199,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    protected ServerLocator createFactory() throws Exception {
       if (isNetty()) {
          return createNettyNonHALocator();
-      }
-      else {
+      } else {
          return createInVMNonHALocator();
       }
    }

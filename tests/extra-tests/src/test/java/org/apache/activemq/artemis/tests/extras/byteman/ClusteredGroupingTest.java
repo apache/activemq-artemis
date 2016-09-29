@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -32,9 +35,6 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
 public class ClusteredGroupingTest extends ClusterTestBase {
@@ -91,12 +91,10 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       try {
          try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
-         }
-         catch (ActiveMQNonExistentQueueException e) {
+         } catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
-      }
-      finally {
+      } finally {
          latch.countDown();
       }
    }
@@ -161,12 +159,10 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       try {
          try {
             sendWithProperty(1, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
-         }
-         catch (ActiveMQNonExistentQueueException e) {
+         } catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
-      }
-      finally {
+      } finally {
          latch.countDown();
       }
 
@@ -233,12 +229,10 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       try {
          try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
-         }
-         catch (ActiveMQNonExistentQueueException e) {
+         } catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
-      }
-      finally {
+      } finally {
          latch.countDown();
       }
 
@@ -313,12 +307,10 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       try {
          try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
-         }
-         catch (ActiveMQNonExistentQueueException e) {
+         } catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
-      }
-      finally {
+      } finally {
          latch.countDown();
       }
       //now restart server
@@ -349,8 +341,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
          try {
             latch2.countDown();
             latch.await();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
       }
@@ -364,8 +355,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
             try {
                latch2.countDown();
                latch.await();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
          }

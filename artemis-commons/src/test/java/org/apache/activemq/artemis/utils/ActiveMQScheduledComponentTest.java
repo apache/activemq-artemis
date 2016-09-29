@@ -34,10 +34,11 @@ import org.junit.Test;
 public class ActiveMQScheduledComponentTest {
 
    @Rule
-   public ThreadLeakCheckRule rule  = new ThreadLeakCheckRule();
+   public ThreadLeakCheckRule rule = new ThreadLeakCheckRule();
 
    ScheduledExecutorService scheduledExecutorService;
    ExecutorService executorService;
+
    @Before
    public void before() {
       scheduledExecutorService = new ScheduledThreadPoolExecutor(5);
@@ -54,15 +55,13 @@ public class ActiveMQScheduledComponentTest {
    public void testAccumulation() throws Exception {
       final AtomicInteger count = new AtomicInteger(0);
 
-
       final ActiveMQScheduledComponent local = new ActiveMQScheduledComponent(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, false) {
          @Override
          public void run() {
             if (count.get() == 0) {
                try {
                   Thread.sleep(800);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                }
             }
             count.incrementAndGet();

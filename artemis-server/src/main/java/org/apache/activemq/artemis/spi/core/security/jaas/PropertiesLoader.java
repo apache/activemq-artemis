@@ -106,8 +106,7 @@ public class PropertiesLoader {
          File baseDir = null;
          if (options.get("baseDir") != null) {
             baseDir = new File((String) options.get("baseDir"));
-         }
-         else {
+         } else {
             if (System.getProperty("java.security.auth.login.config") != null) {
                baseDir = new File(System.getProperty("java.security.auth.login.config")).getParentFile();
             }

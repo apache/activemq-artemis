@@ -123,8 +123,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       deploymentManager.addDeployable(config);
       try {
          deploymentManager.readConfiguration();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to read configuration file %s", filename), ex);
       }
       this.configuration = config;
@@ -160,8 +159,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    public void start() {
       try {
          server.start();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new RuntimeException(String.format("Exception encountered starting %s: %s", server.getClass().getName(), this.getServerName()), ex);
       }
 
@@ -183,8 +181,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       if (server != null) {
          try {
             server.stop();
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             log.warn(String.format("Exception encountered stopping %s: %s", server.getClass().getSimpleName(), this.getServerName()), ex);
          }
       }
@@ -274,8 +271,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       ActiveMQServer activeMQServer = server.getActiveMQServer();
       if (activeMQServer != null) {
          name = activeMQServer.getConfiguration().getName();
-      }
-      else if (configuration != null) {
+      } else if (configuration != null) {
          name = configuration.getName();
       }
 
@@ -340,8 +336,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       BindingQueryResult bindingQueryResult = null;
       try {
          bindingQueryResult = server.getActiveMQServer().bindingQuery(address);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new EmbeddedActiveMQResourceException(String.format("getBoundQueues( %s ) - bindingQuery( %s ) failed", address.toString(), address.toString()));
       }
       if (bindingQueryResult.isExists()) {
@@ -366,8 +361,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       Queue queue = null;
       try {
          queue = server.getActiveMQServer().createQueue(address, name, filter, isUseDurableQueue(), temporary);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create queue: queueName = %s, name = %s", address.toString(), name.toString()), ex);
       }
 
@@ -386,8 +380,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       SimpleString filter = null;
       try {
          server.getActiveMQServer().createSharedQueue(address, name, filter, user, isUseDurableQueue());
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
          throw new EmbeddedActiveMQResourceException(String.format("Failed to create shared queue: queueName = %s, name = %s, user = %s", address.toString(), name.toString(), user.toString()), ex);
       }
    }
@@ -569,8 +562,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    public void sendMessage(SimpleString address, ClientMessage message) {
       if (address == null) {
          throw new IllegalArgumentException("sendMessage failure - queueName is required");
-      }
-      else if (message == null) {
+      } else if (message == null) {
          throw new IllegalArgumentException("sendMessage failure - a ClientMessage is required");
       }
 
@@ -770,11 +762,9 @@ public class EmbeddedActiveMQResource extends ExternalResource {
          try {
             serverLocator = ActiveMQClient.createServerLocator(getVmURL());
             sessionFactory = serverLocator.createSessionFactory();
-         }
-         catch (RuntimeException runtimeEx) {
+         } catch (RuntimeException runtimeEx) {
             throw runtimeEx;
-         }
-         catch (Exception ex) {
+         } catch (Exception ex) {
             throw new EmbeddedActiveMQResourceException("Internal Client creation failure", ex);
          }
 
@@ -782,8 +772,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
             session = sessionFactory.createSession();
             producer = session.createProducer((String) null);
             session.start();
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResourceException("Internal Client creation failure", amqEx);
          }
       }
@@ -792,22 +781,18 @@ public class EmbeddedActiveMQResource extends ExternalResource {
          if (producer != null) {
             try {
                producer.close();
-            }
-            catch (ActiveMQException amqEx) {
+            } catch (ActiveMQException amqEx) {
                log.warn("ActiveMQException encountered closing InternalClient ClientProducer - ignoring", amqEx);
-            }
-            finally {
+            } finally {
                producer = null;
             }
          }
          if (session != null) {
             try {
                session.close();
-            }
-            catch (ActiveMQException amqEx) {
+            } catch (ActiveMQException amqEx) {
                log.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
-            }
-            finally {
+            } finally {
                session = null;
             }
          }
@@ -836,8 +821,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
          try {
             producer.send(address, message);
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResourceException(String.format("Failed to send message to %s", address.toString()), amqEx);
          }
       }
@@ -848,8 +832,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
          ClientConsumer consumer = null;
          try {
             consumer = session.createConsumer(address, browseOnly);
-         }
-         catch (ActiveMQException amqEx) {
+         } catch (ActiveMQException amqEx) {
             throw new EmbeddedActiveMQResourceException(String.format("Failed to create consumer for %s", address.toString()), amqEx);
          }
 
@@ -857,24 +840,19 @@ public class EmbeddedActiveMQResource extends ExternalResource {
          if (timeout > 0) {
             try {
                message = consumer.receive(timeout);
-            }
-            catch (ActiveMQException amqEx) {
+            } catch (ActiveMQException amqEx) {
                throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed", timeout, address.toString()), amqEx);
             }
-         }
-         else if (timeout == 0) {
+         } else if (timeout == 0) {
             try {
                message = consumer.receiveImmediate();
-            }
-            catch (ActiveMQException amqEx) {
+            } catch (ActiveMQException amqEx) {
                throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receiveImmediate() for %s failed", address.toString()), amqEx);
             }
-         }
-         else {
+         } else {
             try {
                message = consumer.receive();
-            }
-            catch (ActiveMQException amqEx) {
+            } catch (ActiveMQException amqEx) {
                throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive() for %s failed", address.toString()), amqEx);
             }
          }

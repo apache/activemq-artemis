@@ -20,5 +20,6 @@ package org.apache.activemq.artemis.core.server.reload;
 import java.net.URL;
 
 public interface ReloadCallback {
+
    void reload(URL uri) throws Exception;
 }

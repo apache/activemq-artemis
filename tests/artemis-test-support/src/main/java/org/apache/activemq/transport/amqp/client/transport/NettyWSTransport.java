@@ -135,11 +135,9 @@ public class NettyWSTransport implements NettyTransport {
             public void operationComplete(ChannelFuture future) throws Exception {
                if (future.isSuccess()) {
                   handleConnected(future.channel());
-               }
-               else if (future.isCancelled()) {
+               } else if (future.isCancelled()) {
                   connectionFailed(future.channel(), new IOException("Connection attempt was cancelled"));
-               }
-               else {
+               } else {
                   connectionFailed(future.channel(), IOExceptionSupport.create(future.cause()));
                }
             }
@@ -149,8 +147,7 @@ public class NettyWSTransport implements NettyTransport {
 
          // Now wait for WS protocol level handshake completion
          handshakeFuture.await();
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
          LOG.debug("Transport connection attempt was interrupted.");
          Thread.interrupted();
          failureCause = IOExceptionSupport.create(ex);
@@ -168,8 +165,7 @@ public class NettyWSTransport implements NettyTransport {
          }
 
          throw failureCause;
-      }
-      else {
+      } else {
          // Connected, allow any held async error to fire now and close the transport.
          channel.eventLoop().execute(new Runnable() {
 
@@ -240,8 +236,7 @@ public class NettyWSTransport implements NettyTransport {
       if (options == null) {
          if (isSSL()) {
             options = NettyTransportSslOptions.INSTANCE;
-         }
-         else {
+         } else {
             options = NettyTransportOptions.INSTANCE;
          }
       }
@@ -277,8 +272,7 @@ public class NettyWSTransport implements NettyTransport {
       if (port <= 0) {
          if (isSSL()) {
             port = getSslOptions().getDefaultSslPort();
-         }
-         else {
+         } else {
             port = getTransportOptions().getDefaultTcpPort();
          }
       }
@@ -316,8 +310,7 @@ public class NettyWSTransport implements NettyTransport {
                if (future.isSuccess()) {
                   LOG.trace("SSL Handshake has completed: {}", channel);
                   connectionEstablished(channel);
-               }
-               else {
+               } else {
                   LOG.trace("SSL Handshake has failed: {}", channel);
                   connectionFailed(channel, IOExceptionSupport.create(future.cause()));
                }
@@ -411,12 +404,10 @@ public class NettyWSTransport implements NettyTransport {
             LOG.trace("Firing onTransportError listener");
             if (pendingFailure != null) {
                listener.onTransportError(pendingFailure);
-            }
-            else {
+            } else {
                listener.onTransportError(cause);
             }
-         }
-         else {
+         } else {
             // Hold the first failure for later dispatch if connect succeeds.
             // This will then trigger disconnect using the first error reported.
             if (pendingFailure != null) {
@@ -454,16 +445,13 @@ public class NettyWSTransport implements NettyTransport {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
             LOG.warn("WebSocket Client received message: " + textFrame.text());
             ctx.fireExceptionCaught(new IOException("Received invalid frame over WebSocket."));
-         }
-         else if (frame instanceof BinaryWebSocketFrame) {
+         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             LOG.info("WebSocket Client received data: {} bytes", binaryFrame.content().readableBytes());
             listener.onData(binaryFrame.content());
-         }
-         else if (frame instanceof PongWebSocketFrame) {
+         } else if (frame instanceof PongWebSocketFrame) {
             LOG.trace("WebSocket Client received pong");
-         }
-         else if (frame instanceof CloseWebSocketFrame) {
+         } else if (frame instanceof CloseWebSocketFrame) {
             LOG.trace("WebSocket Client received closing");
             ch.close();
          }

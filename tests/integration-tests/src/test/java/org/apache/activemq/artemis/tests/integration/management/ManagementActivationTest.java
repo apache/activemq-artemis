@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.NameNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
@@ -26,13 +33,6 @@ import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.NameNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Validates if a JMS management operations will wait until the server is activated.  If the server is not active
@@ -78,8 +78,7 @@ public class ManagementActivationTest extends FailoverTestBase {
       boolean exception = false;
       try {
          context.lookup("/myConnectionFactory");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -93,14 +92,12 @@ public class ManagementActivationTest extends FailoverTestBase {
       while (timeout > System.currentTimeMillis()) {
          try {
             factory = (ConnectionFactory) context.lookup("/myConnectionFactory");
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             // ignored.printStackTrace();
          }
          if (factory == null) {
             Thread.sleep(100);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -115,8 +112,7 @@ public class ManagementActivationTest extends FailoverTestBase {
       boolean exception = false;
       try {
          context.lookup("/myQueue");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -130,14 +126,12 @@ public class ManagementActivationTest extends FailoverTestBase {
       while (timeout > System.currentTimeMillis()) {
          try {
             queue = (Queue) context.lookup("/myQueue");
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             // ignored.printStackTrace();
          }
          if (queue == null) {
             Thread.sleep(100);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -152,8 +146,7 @@ public class ManagementActivationTest extends FailoverTestBase {
       boolean exception = false;
       try {
          context.lookup("/myTopic");
-      }
-      catch (NameNotFoundException e) {
+      } catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -167,14 +160,12 @@ public class ManagementActivationTest extends FailoverTestBase {
       while (timeout > System.currentTimeMillis()) {
          try {
             topic = (Topic) context.lookup("/myTopic");
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
             // ignored.printStackTrace();
          }
          if (topic == null) {
             Thread.sleep(100);
-         }
-         else {
+         } else {
             break;
          }
       }
@@ -196,8 +187,7 @@ public class ManagementActivationTest extends FailoverTestBase {
          boolean exception = false;
          try {
             backupJmsServer.destroyConnectionFactory("fakeConnectionFactory");
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             exception = true;
          }
 
@@ -219,8 +209,7 @@ public class ManagementActivationTest extends FailoverTestBase {
       boolean exception = false;
       try {
          backupJmsServer.removeQueueFromBindingRegistry("fakeQueue");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          exception = true;
       }
 
@@ -238,8 +227,7 @@ public class ManagementActivationTest extends FailoverTestBase {
       boolean exception = false;
       try {
          backupJmsServer.removeTopicFromBindingRegistry("fakeTopic");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          exception = true;
       }
 

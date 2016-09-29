@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import javax.json.JsonObject;
 import java.text.DateFormat;
 import java.util.Date;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.utils.JsonLoader;
-
-import javax.json.JsonObject;
 
 import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
@@ -62,18 +61,7 @@ public final class MessageCounterInfo {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
       String lastAddTimestamp = dateFormat.format(new Date(counter.getLastAddedMessageTime()));
       String updateTimestamp = dateFormat.format(new Date(counter.getLastUpdate()));
-      return JsonLoader.createObjectBuilder()
-         .add("destinationName", nullSafe(counter.getDestinationName()))
-         .add("destinationSubscription", nullSafe(counter.getDestinationSubscription()))
-         .add("destinationDurable", counter.isDestinationDurable())
-         .add("count", counter.getCount())
-         .add("countDelta", counter.getCountDelta())
-         .add("messageCount", counter.getMessageCount())
-         .add("messageCountDelta", counter.getMessageCountDelta())
-         .add("lastAddTimestamp", lastAddTimestamp)
-         .add("updateTimestamp", updateTimestamp)
-         .build()
-         .toString();
+      return JsonLoader.createObjectBuilder().add("destinationName", nullSafe(counter.getDestinationName())).add("destinationSubscription", nullSafe(counter.getDestinationSubscription())).add("destinationDurable", counter.isDestinationDurable()).add("count", counter.getCount()).add("countDelta", counter.getCountDelta()).add("messageCount", counter.getMessageCount()).add("messageCountDelta", counter.getMessageCountDelta()).add("lastAddTimestamp", lastAddTimestamp).add("updateTimestamp", updateTimestamp).build().toString();
    }
 
    /**

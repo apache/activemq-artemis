@@ -39,7 +39,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
    @Test
    public void testSimpleMessageReceivedOnQueueWithSecurityFails() throws Exception {
       SecurityConfiguration emptyConfiguration = new SecurityConfiguration();
-      ((ActiveMQJAASSecurityManager)server.getSecurityManager()).setConfiguration(emptyConfiguration);
+      ((ActiveMQJAASSecurityManager) server.getSecurityManager()).setConfiguration(emptyConfiguration);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);

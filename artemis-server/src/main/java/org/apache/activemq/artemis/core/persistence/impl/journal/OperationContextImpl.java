@@ -58,8 +58,7 @@ public class OperationContextImpl implements OperationContext {
       if (token == null) {
          if (executorFactory == null) {
             return null;
-         }
-         else {
+         } else {
             token = new OperationContextImpl(executorFactory.getExecutor());
             OperationContextImpl.threadLocalContext.set(token);
          }
@@ -145,8 +144,7 @@ public class OperationContextImpl implements OperationContext {
             if (storeOnlyTasks == null) {
                storeOnlyTasks = new LinkedList<>();
             }
-         }
-         else {
+         } else {
             if (tasks == null) {
                tasks = new LinkedList<>();
                minimalReplicated = replicationLineUp.intValue();
@@ -166,16 +164,13 @@ public class OperationContextImpl implements OperationContext {
                // No need to use an executor here or a context switch
                // there are no actions pending.. hence we can just execute the task directly on the same thread
                executeNow = true;
-            }
-            else {
+            } else {
                execute(completion);
             }
-         }
-         else {
+         } else {
             if (storeOnly) {
                storeOnlyTasks.add(new TaskHolder(completion));
-            }
-            else {
+            } else {
                tasks.add(new TaskHolder(completion));
             }
          }
@@ -218,8 +213,7 @@ public class OperationContextImpl implements OperationContext {
                execute(holder.task);
 
                iter.remove();
-            }
-            else {
+            } else {
                // End of list here. No other task will be completed after this
                break;
             }
@@ -240,14 +234,12 @@ public class OperationContextImpl implements OperationContext {
                   // If any IO is done inside the callback, it needs to be done on a new context
                   OperationContextImpl.clearContext();
                   task.done();
-               }
-               finally {
+               } finally {
                   executorsPending.decrementAndGet();
                }
             }
          });
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.errorExecutingAIOCallback(e);
          executorsPending.decrementAndGet();
          task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(), "It wasn't possible to complete IO operation - " + e.getMessage());
@@ -317,8 +309,7 @@ public class OperationContextImpl implements OperationContext {
       if (timeout == 0) {
          waitCallback.waitCompletion();
          return true;
-      }
-      else {
+      } else {
          return waitCallback.waitCompletion(timeout);
       }
    }

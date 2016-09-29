@@ -20,9 +20,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
+import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public class PushSubscription extends PushConsumer {
@@ -50,16 +50,13 @@ public class PushSubscription extends PushConsumer {
          session = factory.createSession();
 
          session.deleteQueue(subscriptionName);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          ActiveMQRestLogger.LOGGER.errorDeletingSubscriberQueue(e);
-      }
-      finally {
+      } finally {
          try {
             if (session != null)
                session.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
       }
    }

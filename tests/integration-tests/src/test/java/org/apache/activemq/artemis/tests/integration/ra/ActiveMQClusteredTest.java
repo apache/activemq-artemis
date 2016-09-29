@@ -142,7 +142,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
          managedConnections.add(mc);
          ActiveMQConnectionFactory cf1 = mc.getConnectionFactory();
 
-         while (!((ServerLocatorImpl)cf1.getServerLocator()).isReceivedTopology()) {
+         while (!((ServerLocatorImpl) cf1.getServerLocator()).isReceivedTopology()) {
             Thread.sleep(50);
          }
 
@@ -156,8 +156,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
          assertTrue(server.getConnectionCount() >= (CONNECTION_COUNT / 2));
          assertTrue(secondaryServer.getConnectionCount() >= (CONNECTION_COUNT / 2));
-      }
-      finally {
+      } finally {
          for (Session s : sessions) {
             s.close();
          }

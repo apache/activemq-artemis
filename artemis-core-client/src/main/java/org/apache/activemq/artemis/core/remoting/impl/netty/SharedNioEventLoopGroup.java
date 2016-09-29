@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.FutureListener;
-import io.netty.util.concurrent.ImmediateEventExecutor;
-import io.netty.util.concurrent.Promise;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ScheduledFuture;
@@ -31,6 +23,14 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.ImmediateEventExecutor;
+import io.netty.util.concurrent.Promise;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 public class SharedNioEventLoopGroup extends NioEventLoopGroup {
 
@@ -58,8 +58,7 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
          if (f != null) {
             f.cancel(false);
          }
-      }
-      else {
+      } else {
          instance = new SharedNioEventLoopGroup(numThreads, AccessController.doPrivileged(new PrivilegedAction<ThreadFactory>() {
             @Override
             public ThreadFactory run() {
@@ -95,8 +94,7 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup {
                         public void operationComplete(Future future) throws Exception {
                            if (future.isSuccess()) {
                               terminationPromise.setSuccess(null);
-                           }
-                           else {
+                           } else {
                               terminationPromise.setFailure(future.cause());
                            }
                         }

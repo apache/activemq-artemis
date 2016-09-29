@@ -125,8 +125,7 @@ public class PersistentPushQueueConsumerTest {
          Assert.assertEquals(204, res.getStatus());
 
          manager.getQueueManager().getPushStore().removeAll();
-      }
-      finally {
+      } finally {
          shutdown();
       }
    }
@@ -194,8 +193,7 @@ public class PersistentPushQueueConsumerTest {
          response.releaseConnection();
 
          manager.getQueueManager().getPushStore().removeAll();
-      }
-      finally {
+      } finally {
          shutdown();
       }
    }

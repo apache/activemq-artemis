@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -36,6 +34,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.junit.Test;
 
 public class FailoverOnFlowControlTest extends FailoverTestBase {
 
@@ -61,11 +60,9 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
                   try {
                      InVMConnection.setFlushEnabled(false);
                      crash(false, sessionList.get(0));
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      e.printStackTrace();
-                  }
-                  finally {
+                  } finally {
                      InVMConnection.setFlushEnabled(true);
                   }
                   return false;

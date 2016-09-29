@@ -128,8 +128,7 @@ public abstract class PTPTestCase extends JMSTestCase {
          senderConnection.start();
          receiverConnection.start();
          // end of client step
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -146,11 +145,9 @@ public abstract class PTPTestCase extends JMSTestCase {
 
          admin.deleteQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.deleteQueue(PTPTestCase.QUEUE_NAME);
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
          ignored.printStackTrace();
-      }
-      finally {
+      } finally {
          senderQueue = null;
          sender = null;
          senderQCF = null;

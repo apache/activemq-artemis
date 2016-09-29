@@ -161,21 +161,17 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
       try {
          setup();
-      }
-      catch (ResourceException e) {
+      } catch (ResourceException e) {
          try {
             destroy();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
 
          throw e;
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          try {
             destroy();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
          }
          throw new ResourceException("Error during setup", t);
       }
@@ -232,8 +228,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          if (connection != null) {
             connection.stop();
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          ActiveMQRALogger.LOGGER.trace("Ignored error stopping connection", t);
       }
 
@@ -263,8 +258,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
       try {
          connection.setExceptionListener(null);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          ActiveMQRALogger.LOGGER.debug("Error unsetting the exception listener " + this, e);
       }
       if (connection != null) {
@@ -296,8 +290,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
             if (xaSession != null) {
                xaSession.close();
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             ActiveMQRALogger.LOGGER.debug("Error closing session " + this, e);
          }
 
@@ -305,8 +298,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          if (connectionFactory != null) {
             ra.closeConnectionFactory(mcf.getProperties());
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          throw new ResourceException("Could not properly close the session and connection", e);
       }
    }
@@ -356,8 +348,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          ActiveMQRASession h = (ActiveMQRASession) obj;
          h.setManagedConnection(this);
          handles.add(h);
-      }
-      else {
+      } else {
          throw new IllegalStateException("ManagedConnection in an illegal state");
       }
    }
@@ -376,8 +367,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
                   throw new javax.jms.IllegalStateException("Transaction " + tx + " not active");
                }
             }
-         }
-         catch (SystemException e) {
+         } catch (SystemException e) {
             JMSException jmsE = new javax.jms.IllegalStateException("Unexpected exception on the Transaction ManagerTransaction");
             jmsE.initCause(e);
             throw jmsE;
@@ -415,8 +405,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          if (lock.tryLock(tryLock.intValue(), TimeUnit.SECONDS) == false) {
             throw new ResourceAllocationException("Unable to obtain lock in " + tryLock + " seconds: " + this);
          }
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          throw new ResourceAllocationException("Interrupted attempting lock: " + this);
       }
    }
@@ -588,8 +577,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
       try {
          connection.setExceptionListener(null);
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          ActiveMQRALogger.LOGGER.debug("Unable to unset exception listener", e);
       }
 
@@ -610,8 +598,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          }
 
          return xaSession.getSession();
-      }
-      else {
+      } else {
          if (ActiveMQRAManagedConnection.trace) {
             ActiveMQRALogger.LOGGER.trace("getSession() -> non XA session " + nonXAsession);
          }
@@ -764,8 +751,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          if (cri.getType() == ActiveMQRAConnectionFactory.TOPIC_CONNECTION) {
             if (userName != null && password != null) {
                connection = (ActiveMQXAConnection) connectionFactory.createXATopicConnection(userName, password);
-            }
-            else {
+            } else {
                connection = (ActiveMQXAConnection) connectionFactory.createXATopicConnection();
             }
 
@@ -774,12 +760,10 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
             xaSession = connection.createXATopicSession();
             nonXAsession = connection.createNonXATopicSession(transacted, acknowledgeMode);
 
-         }
-         else if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION) {
+         } else if (cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION) {
             if (userName != null && password != null) {
                connection = (ActiveMQXAConnection) connectionFactory.createXAQueueConnection(userName, password);
-            }
-            else {
+            } else {
                connection = (ActiveMQXAConnection) connectionFactory.createXAQueueConnection();
             }
 
@@ -788,12 +772,10 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
             xaSession = connection.createXAQueueSession();
             nonXAsession = connection.createNonXAQueueSession(transacted, acknowledgeMode);
 
-         }
-         else {
+         } else {
             if (userName != null && password != null) {
                connection = (ActiveMQXAConnection) connectionFactory.createXAConnection(userName, password);
-            }
-            else {
+            } else {
                connection = (ActiveMQXAConnection) connectionFactory.createXAConnection();
             }
 
@@ -803,8 +785,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
             nonXAsession = connection.createNonXASession(transacted, acknowledgeMode);
          }
 
-      }
-      catch (JMSException je) {
+      } catch (JMSException je) {
          throw new ResourceException(je.getMessage(), je);
       }
    }

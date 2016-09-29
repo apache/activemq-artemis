@@ -52,13 +52,18 @@ public interface ActiveMQSecurityManager3 extends ActiveMQSecurityManager {
     * This method is called instead of
     * {@link ActiveMQSecurityManager#validateUserAndRole(String, String, Set, CheckType)}.
     *
-    * @param user      the user
-    * @param password  the user's password
-    * @param roles     the user's roles
-    * @param checkType which permission to validate
-    * @param address   the address for which to perform authorization
-    * @param connection   the user's connection
+    * @param user       the user
+    * @param password   the user's password
+    * @param roles      the user's roles
+    * @param checkType  which permission to validate
+    * @param address    the address for which to perform authorization
+    * @param connection the user's connection
     * @return the name of the validated user or null if the user isn't validated
     */
-   String validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType, String address, RemotingConnection connection);
+   String validateUserAndRole(String user,
+                              String password,
+                              Set<Role> roles,
+                              CheckType checkType,
+                              String address,
+                              RemotingConnection connection);
 }

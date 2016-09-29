@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,12 @@
  */
 package org.apache.activemq;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Test;
 
@@ -73,11 +73,9 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
             try {
                useConnection(connection2);
                fail("Should have thrown InvalidClientIDException on attempt" + i);
-            }
-            catch (InvalidClientIDException e) {
+            } catch (InvalidClientIDException e) {
                LOG.info("Caught expected: " + e);
-            }
-            finally {
+            } finally {
                connection2.close();
             }
          }
@@ -87,8 +85,7 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
          connection.close();
          connection = connectionFactory.createConnection();
          useConnection(connection);
-      }
-      finally {
+      } finally {
          log4jLogger.removeAppender(appender);
       }
       assertFalse("failed on unexpected log event", failed.get());

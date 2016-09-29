@@ -19,4 +19,5 @@ package org.apache.blacklist;
 import java.io.Serializable;
 
 public class ABadClass implements Serializable {
+
 }

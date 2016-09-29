@@ -1,5 +1,4 @@
 /**
- *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,7 +16,7 @@
  */
 package org.apache.activemq.openwire.v9;
 
-import org.apache.activemq.command.*;
+import org.apache.activemq.command.MessagePull;
 
 /**
  * Test case for the OpenWire marshalling for MessagePull

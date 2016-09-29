@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.activemq.command.MessageId;
-import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
-import org.apache.activemq.store.kahadb.disk.page.PageFile;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -36,7 +27,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.command.MessageId;
+import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
+import org.apache.activemq.store.kahadb.disk.page.PageFile;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTestBase {
 
@@ -343,8 +346,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
 
                session.close();
                con.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                exceptions.add(e);
             }
@@ -367,8 +369,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
          public void run() {
             try {
                sendSession.commit();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
                exceptions.add(e);
             }
@@ -446,8 +447,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
                   session.close();
                   con.close();
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                exceptions.add(e);
             }
@@ -470,8 +470,7 @@ public class DurableSubscriptionOfflineTest extends DurableSubscriptionOfflineTe
                sendSession.commit();
                LOG.info("committed: " + messageCount);
                con.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                exceptions.add(e);
             }

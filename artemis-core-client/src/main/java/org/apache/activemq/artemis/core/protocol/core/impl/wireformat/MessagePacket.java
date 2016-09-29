@@ -40,5 +40,4 @@ public abstract class MessagePacket extends PacketImpl implements MessagePacketI
       return super.getParentString() + ", message=" + message;
    }
 
-
 }

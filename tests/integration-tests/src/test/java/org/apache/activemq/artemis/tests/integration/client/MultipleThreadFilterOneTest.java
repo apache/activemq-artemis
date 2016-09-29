@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -33,6 +29,9 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
@@ -83,17 +82,14 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
       public void run() {
          try {
             sendMessages(numberOfMessages / 2);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
-         }
-         finally {
+         } finally {
             try {
                prodSession.close();
                locator.close();
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                ignored.printStackTrace();
             }
 
@@ -165,12 +161,10 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
             Assert.assertNull(consumer.receiveImmediate());
 
             consumerSession.commit();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
-         }
-         finally {
+         } finally {
             close();
 
          }
@@ -183,8 +177,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          try {
             consumerSession.close();
             locator.close();
-         }
-         catch (Throwable ignored) {
+         } catch (Throwable ignored) {
             ignored.printStackTrace();
          }
       }
@@ -217,8 +210,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
       if (isPaging) {
          server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
-      }
-      else {
+      } else {
          server = createServer(true, isNetty);
       }
 
@@ -271,8 +263,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
          waitForNotPaging(server.locateQueue(new SimpleString("Q1")));
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
    }

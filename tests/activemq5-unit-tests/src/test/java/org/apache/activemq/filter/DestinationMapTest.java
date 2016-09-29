@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
-
-import junit.framework.TestCase;
 
 public class DestinationMapTest extends TestCase {
 
@@ -412,11 +412,9 @@ public class DestinationMapTest extends TestCase {
       List expectedList = null;
       if (expected == null) {
          expectedList = Collections.EMPTY_LIST;
-      }
-      else if (expected instanceof List) {
+      } else if (expected instanceof List) {
          expectedList = (List) expected;
-      }
-      else {
+      } else {
          expectedList = new ArrayList();
          expectedList.add(expected);
       }

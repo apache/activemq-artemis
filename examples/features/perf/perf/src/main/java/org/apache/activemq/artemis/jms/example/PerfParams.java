@@ -181,7 +181,6 @@ public class PerfParams implements Serializable {
       this.libraryType = libraryType;
    }
 
-
    public void setLibraryType(String libraryType) {
       this.libraryType = ClientLibraryType.valueOf(libraryType);
    }

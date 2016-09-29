@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -29,9 +32,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
 
@@ -123,13 +123,11 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
                   session.commit();
                }
             }
-         }
-         catch (Exception expected) {
+         } catch (Exception expected) {
             expected.printStackTrace();
          }
 
-      }
-      finally {
+      } finally {
          locator.close();
       }
       assertEquals("Process didn't end as expected", 1, process.waitFor());
@@ -169,13 +167,11 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
 
             session.close();
 
-         }
-         finally {
+         } finally {
             locator.close();
          }
 
-      }
-      finally {
+      } finally {
          server.stop();
       }
 

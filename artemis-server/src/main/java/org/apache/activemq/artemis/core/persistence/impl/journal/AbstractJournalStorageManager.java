@@ -184,7 +184,9 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    protected final Set<Long> largeMessagesToDelete = new HashSet<>();
 
-   public AbstractJournalStorageManager(final Configuration config, final ExecutorFactory executorFactory, final ScheduledExecutorService scheduledExecutorService) {
+   public AbstractJournalStorageManager(final Configuration config,
+                                        final ExecutorFactory executorFactory,
+                                        final ScheduledExecutorService scheduledExecutorService) {
       this(config, executorFactory, scheduledExecutorService, null);
    }
 
@@ -212,6 +214,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    /**
     * Called during initialization.  Used by implementations to setup Journals, Stores etc...
+    *
     * @param config
     * @param criticalErrorListener
     */
@@ -241,8 +244,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
             digest = md.digest();
          }
          return Base64.encodeBytes(digest);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -315,15 +317,13 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
    // Non transactional operations
 
-
    @Override
    public void confirmPendingLargeMessageTX(final Transaction tx, long messageID, long recordID) throws Exception {
       readLock();
       try {
          installLargeMessageConfirmationOnTX(tx, recordID);
          messageJournal.appendDeleteRecordTransactional(tx.getID(), recordID, new DeleteEncoding(JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, messageID));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -336,8 +336,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecord(recordID, true, getContext());
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -356,12 +355,10 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
          if (message.isLargeMessage()) {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, new LargeMessageEncoding((LargeServerMessage) message), false, getContext(false));
-         }
-         else {
+         } else {
             messageJournal.appendAddRecord(message.getMessageID(), JournalRecordIds.ADD_MESSAGE, message, false, getContext(false));
          }
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -371,8 +368,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecord(messageID, JournalRecordIds.ADD_REF, new RefEncoding(queueID), last && syncNonTransactional, getContext(last && syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -392,8 +388,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecord(messageID, JournalRecordIds.ACKNOWLEDGE_REF, new RefEncoding(queueID), syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -405,8 +400,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          long ackID = idGenerator.generateID();
          position.setRecordID(ackID);
          messageJournal.appendAddRecord(ackID, JournalRecordIds.ACKNOWLEDGE_CURSOR, new CursorAckRecordEncoding(queueID, position), syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -420,8 +414,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          // increasing chances of losing deletes.
          // The StorageManager should verify messages without references
          messageJournal.appendDeleteRecord(messageID, false, getContext(false));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -432,8 +425,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding, syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -445,8 +437,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          DuplicateIDEncoding encoding = new DuplicateIDEncoding(address, duplID);
 
          messageJournal.appendAddRecord(recordID, JournalRecordIds.DUPLICATE_ID, encoding, syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -456,8 +447,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecord(recordID, syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -474,13 +464,11 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       try {
          if (message.isLargeMessage()) {
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_LARGE_MESSAGE, new LargeMessageEncoding(((LargeServerMessage) message)));
-         }
-         else {
+         } else {
             messageJournal.appendAddRecordTransactional(txID, message.getMessageID(), JournalRecordIds.ADD_MESSAGE, message);
          }
 
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -491,8 +479,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       try {
          pageTransaction.setRecordID(generateID());
          messageJournal.appendAddRecordTransactional(txID, pageTransaction.getRecordID(), JournalRecordIds.PAGE_TRANSACTION, pageTransaction);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -504,8 +491,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecordTransactional(txID, pageTransaction.getRecordID(), JournalRecordIds.PAGE_TRANSACTION, new PageUpdateTXEncoding(pageTransaction.getTransactionID(), depages));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -515,8 +501,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecord(pageTransaction.getRecordID(), JournalRecordIds.PAGE_TRANSACTION, new PageUpdateTXEncoding(pageTransaction.getTransactionID(), depages), syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -526,8 +511,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecordTransactional(txID, messageID, JournalRecordIds.ADD_REF, new RefEncoding(queueID));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -539,8 +523,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecordTransactional(txID, messageID, JournalRecordIds.ACKNOWLEDGE_REF, new RefEncoding(queueID));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -552,8 +535,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          long ackID = idGenerator.generateID();
          position.setRecordID(ackID);
          messageJournal.appendAddRecordTransactional(txID, ackID, JournalRecordIds.ACKNOWLEDGE_CURSOR, new CursorAckRecordEncoding(queueID, position));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -575,8 +557,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecordTransactional(txID, ackID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -594,8 +575,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
          messageJournal.appendAddRecord(id, JournalRecordIds.HEURISTIC_COMPLETION, new HeuristicCompletionEncoding(xid, isCommit), true, getContext(true));
          return id;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -606,8 +586,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       try {
 
          messageJournal.appendDeleteRecord(id, true, getContext(true));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -617,8 +596,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecord(recordID, false);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -630,8 +608,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       try {
 
          messageJournal.appendUpdateRecordTransactional(txID, ref.getMessage().getMessageID(), JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME, encoding);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -641,8 +618,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendPrepareRecord(txID, new XidEncoding(xid), syncTransactional, getContext(syncTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -678,8 +654,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
              */
             getContext(true).done();
          }
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -689,8 +664,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendRollbackRecord(txID, syncTransactional, getContext(syncTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -705,8 +679,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.DUPLICATE_ID, encoding);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -721,8 +694,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecordTransactional(txID, recordID, JournalRecordIds.DUPLICATE_ID, encoding);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -732,8 +704,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecordTransactional(txID, recordID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -754,8 +725,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendUpdateRecord(ref.getMessage().getMessageID(), JournalRecordIds.UPDATE_DELIVERY_COUNT, updateInfo, syncNonTransactional, getContext(syncNonTransactional));
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -769,8 +739,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          addressSetting.setStoreId(id);
          bindingsJournal.appendAddRecord(id, JournalRecordIds.ADDRESS_SETTING_RECORD, addressSetting, true);
          mapPersistedAddressSettings.put(addressSetting.getAddressMatch(), addressSetting);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -795,8 +764,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          persistedRoles.setStoreId(id);
          bindingsJournal.appendAddRecord(id, JournalRecordIds.SECURITY_RECORD, persistedRoles, true);
          mapPersistedRoles.put(persistedRoles.getAddressMatch(), persistedRoles);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -806,8 +774,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendAddRecord(journalID, JournalRecordIds.ID_COUNTER_RECORD, BatchingIDGenerator.createIDEncodingSupport(id), true);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -817,8 +784,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendDeleteRecord(journalD, false);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -830,8 +796,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          readLock();
          try {
             bindingsJournal.appendDeleteRecord(oldSetting.getStoreId(), false);
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -844,8 +809,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          readLock();
          try {
             bindingsJournal.appendDeleteRecord(oldRoles.getStoreId(), false);
-         }
-         finally {
+         } finally {
             readUnLock();
          }
       }
@@ -942,8 +906,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (message == null) {
                      ActiveMQServerLogger.LOGGER.cannotFindMessage(record.id);
-                  }
-                  else {
+                  } else {
                      queueMessages.put(messageID, new AddMessageRecord(message));
                   }
 
@@ -960,8 +923,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (queueMessages == null) {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueue(encoding.queueID, messageID);
-                  }
-                  else {
+                  } else {
                      AddMessageRecord rec = queueMessages.remove(messageID);
 
                      if (rec == null) {
@@ -982,14 +944,12 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (queueMessages == null) {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueDelCount(encoding.queueID);
-                  }
-                  else {
+                  } else {
                      AddMessageRecord rec = queueMessages.get(messageID);
 
                      if (rec == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindMessageDelCount(messageID);
-                     }
-                     else {
+                     } else {
                         rec.setDeliveryCount(encoding.count);
                      }
                   }
@@ -1005,8 +965,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                      PageTransactionInfo pageTX = pagingManager.getTransaction(pageUpdate.pageTX);
 
                      pageTX.onUpdate(pageUpdate.recods, null, null);
-                  }
-                  else {
+                  } else {
                      PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                      pageTransactionInfo.decode(buff);
@@ -1029,15 +988,13 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (queueMessages == null) {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueScheduled(encoding.queueID, messageID);
-                  }
-                  else {
+                  } else {
 
                      AddMessageRecord rec = queueMessages.get(messageID);
 
                      if (rec == null) {
                         ActiveMQServerLogger.LOGGER.cannotFindMessage(messageID);
-                     }
-                     else {
+                     } else {
                         rec.setScheduledDeliveryTime(encoding.scheduledDeliveryTime);
                      }
                   }
@@ -1077,8 +1034,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (sub != null) {
                      sub.reloadACK(encoding.position);
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
 
@@ -1095,8 +1051,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (sub != null) {
                      sub.getCounter().loadValue(record.id, encoding.getValue());
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.getQueueID());
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
@@ -1113,8 +1068,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (sub != null) {
                      sub.getCounter().loadInc(record.id, encoding.getValue());
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPageCursor(encoding.getQueueID());
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
@@ -1132,8 +1086,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
 
                   if (sub != null) {
                      sub.reloadPageCompletion(encoding.position);
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.cantFindQueueOnPageComplete(encoding.queueID);
                      messageJournal.appendDeleteRecord(record.id, false);
                   }
@@ -1200,8 +1153,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          journalLoader.postLoad(messageJournal, resourceManager, duplicateIDMap);
          journalLoaded = true;
          return info;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1239,8 +1191,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendAddRecord(groupBinding.getId(), JournalRecordIds.GROUP_RECORD, groupingEncoding, true);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1250,8 +1201,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendDeleteRecordTransactional(tx, groupBinding.getId());
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1271,8 +1221,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendAddRecordTransactional(tx, binding.getID(), JournalRecordIds.QUEUE_BINDING_RECORD, bindingEncoding);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1282,8 +1231,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          bindingsJournal.appendDeleteRecordTransactional(tx, queueBindingID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1295,8 +1243,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          long recordID = idGenerator.generateID();
          messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value));
          return recordID;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1308,8 +1255,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          final long recordID = idGenerator.generateID();
          messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_INC, new PageCountRecordInc(queueID, value), true, getContext());
          return recordID;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1321,8 +1267,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          final long recordID = idGenerator.generateID();
          messageJournal.appendAddRecordTransactional(txID, recordID, JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE, new PageCountRecord(queueID, value));
          return recordID;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1337,8 +1282,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          // on the counter
          messageJournal.appendAddRecord(recordID, JournalRecordIds.PAGE_CURSOR_PENDING_COUNTER, pendingInc, true);
          return recordID;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1348,8 +1292,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecordTransactional(txID, recordID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1359,8 +1302,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecordTransactional(txID, recordID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1370,8 +1312,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.appendDeleteRecordTransactional(txID, recordID);
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1396,23 +1337,18 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
             PersistentQueueBindingEncoding bindingEncoding = newBindingEncoding(id, buffer);
 
             queueBindingInfos.add(bindingEncoding);
-         }
-         else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
+         } else if (rec == JournalRecordIds.ID_COUNTER_RECORD) {
             idGenerator.loadState(record.id, buffer);
-         }
-         else if (rec == JournalRecordIds.GROUP_RECORD) {
+         } else if (rec == JournalRecordIds.GROUP_RECORD) {
             GroupingEncoding encoding = newGroupEncoding(id, buffer);
             groupingInfos.add(encoding);
-         }
-         else if (rec == JournalRecordIds.ADDRESS_SETTING_RECORD) {
+         } else if (rec == JournalRecordIds.ADDRESS_SETTING_RECORD) {
             PersistedAddressSetting setting = newAddressEncoding(id, buffer);
             mapPersistedAddressSettings.put(setting.getAddressMatch(), setting);
-         }
-         else if (rec == JournalRecordIds.SECURITY_RECORD) {
+         } else if (rec == JournalRecordIds.SECURITY_RECORD) {
             PersistedRoles roles = newSecurityRecord(id, buffer);
             mapPersistedRoles.put(roles.getAddressMatch(), roles);
-         }
-         else {
+         } else {
             throw new IllegalStateException("Invalid record type " + rec);
          }
       }
@@ -1428,8 +1364,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
       readLock();
       try {
          messageJournal.lineUpContext(getContext());
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1533,8 +1468,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          info[1] = messageJournal.loadInternalOnly();
 
          return info;
-      }
-      finally {
+      } finally {
          readUnLock();
       }
    }
@@ -1572,8 +1506,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
          try {
             confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
             largeServerMessage.setPendingRecordID(-1);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
@@ -1666,8 +1599,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   if (record.isUpdate) {
                      PageTransactionInfo pgTX = pagingManager.getTransaction(pageTransactionInfo.getTransactionID());
                      pgTX.reloadUpdate(this, pagingManager, tx, pageTransactionInfo.getNumberOfMessages());
-                  }
-                  else {
+                  } else {
                      pageTransactionInfo.setCommitted(false);
 
                      tx.putProperty(TransactionPropertyIndexes.PAGE_TRANSACTION, pageTransactionInfo);
@@ -1709,8 +1641,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   if (sub != null) {
                      sub.reloadPreparedACK(tx, encoding.position);
                      referencesToAck.add(new PagedReferenceImpl(encoding.position, null, sub));
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.queueID);
                   }
                   break;
@@ -1731,8 +1662,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
                   if (sub != null) {
                      sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue());
                      sub.notEmpty();
-                  }
-                  else {
+                  } else {
                      ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.getQueueID());
                   }
 
@@ -1775,8 +1705,7 @@ public abstract class AbstractJournalStorageManager implements StorageManager {
    OperationContext getContext(final boolean sync) {
       if (sync) {
          return getContext();
-      }
-      else {
+      } else {
          return DummyOperationContext.getInstance();
       }
    }

@@ -116,8 +116,7 @@ public class HAPolicyAutoBackupExample {
 
             System.out.println("Got message: " + message0.getText() + " from node 1");
          }
-      }
-      finally {
+      } finally {
          // Step 17. Be sure to close our resources!
 
          if (connection0 != null) {

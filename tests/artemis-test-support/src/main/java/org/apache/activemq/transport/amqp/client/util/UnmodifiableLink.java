@@ -166,8 +166,7 @@ public class UnmodifiableLink implements Link {
       if (next != null) {
          if (next instanceof Sender) {
             next = new UnmodifiableSender((Sender) next);
-         }
-         else {
+         } else {
             next = new UnmodifiableReceiver((Receiver) next);
          }
       }

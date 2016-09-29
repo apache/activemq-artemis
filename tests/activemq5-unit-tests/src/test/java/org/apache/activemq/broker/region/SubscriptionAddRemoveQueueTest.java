@@ -6,7 +6,22 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +47,8 @@
  */
 package org.apache.activemq.broker.region;
 
+import javax.jms.InvalidSelectorException;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,8 +57,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.jms.InvalidSelectorException;
-import javax.management.ObjectName;
+
+import junit.framework.TestCase;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
@@ -61,7 +78,6 @@ import org.apache.activemq.filter.MessageEvaluationContext;
 import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.store.MessageStore;
 import org.apache.activemq.thread.TaskRunnerFactory;
-import junit.framework.TestCase;
 
 public class SubscriptionAddRemoveQueueTest extends TestCase {
 
@@ -111,8 +127,7 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
                   msg.setDestination(destination);
                   msg.setMessageId(new MessageId(producerIdAndIncrement + ":0:" + id.getAndIncrement()));
                   queue.send(producerBrokerExchange, msg);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   fail("unexpected exception in sendMessage, ex:" + e);
                }
@@ -126,8 +141,7 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
             for (Subscription sub : subs) {
                try {
                   queue.removeSubscription(context, sub, 0);
-               }
-               catch (Exception e) {
+               } catch (Exception e) {
                   e.printStackTrace();
                   fail("unexpected exception in removeSubscription, ex:" + e);
                }
@@ -177,8 +191,7 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
    public class SimpleImmediateDispatchSubscription implements Subscription, LockOwner {
 
       private SubscriptionStatistics subscriptionStatistics = new SubscriptionStatistics();
-      List<MessageReference> dispatched =
-              Collections.synchronizedList(new ArrayList<MessageReference>());
+      List<MessageReference> dispatched = Collections.synchronizedList(new ArrayList<MessageReference>());
 
       @Override
       public long getPendingMessageSize() {
@@ -186,14 +199,13 @@ public class SubscriptionAddRemoveQueueTest extends TestCase {
       }
 
       @Override
-      public void acknowledge(ConnectionContext context, MessageAck ack)
-              throws Exception {
+      public void acknowledge(ConnectionContext context, MessageAck ack) throws Exception {
       }
 
       @Override
       public void add(MessageReference node) throws Exception {
          // immediate dispatch
-         QueueMessageReference  qmr = (QueueMessageReference)node;
+         QueueMessageReference qmr = (QueueMessageReference) node;
          qmr.lock(this);
          dispatched.add(qmr);
       }

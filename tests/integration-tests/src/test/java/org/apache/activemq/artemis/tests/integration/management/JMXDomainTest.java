@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -25,9 +28,6 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class JMXDomainTest extends ManagementTestBase {
 

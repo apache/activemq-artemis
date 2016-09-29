@@ -213,8 +213,7 @@ public class ResourceManagerImpl implements ResourceManager {
          for (Transaction failedTransaction : timedoutTransactions) {
             try {
                failedTransaction.rollback();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorTimingOutTX(e, failedTransaction.getXid());
             }
          }

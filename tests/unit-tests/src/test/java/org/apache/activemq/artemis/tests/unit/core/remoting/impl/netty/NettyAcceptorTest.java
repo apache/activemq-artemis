@@ -25,14 +25,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -56,8 +56,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
    public void tearDown() throws Exception {
       try {
          ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
-      }
-      finally {
+      } finally {
          if (pool2 != null)
             pool2.shutdownNow();
          super.tearDown();

@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,18 +25,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class AlignedJournalImplTest extends ActiveMQTestBase {
 
@@ -131,8 +128,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
             Assert.assertEquals("Position " + i, (byte) 2, buffer.get(i));
          }
 
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
       }
    }
 
@@ -143,8 +139,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       try {
          journalImpl = new JournalImpl(2000, 2, 2, 0, 0, factory, "tt", "tt", 1000);
          Assert.fail("Expected IllegalArgumentException");
-      }
-      catch (IllegalArgumentException ignored) {
+      } catch (IllegalArgumentException ignored) {
          // expected
       }
 
@@ -236,8 +231,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
             for (int j = 0; j < 5; j++) {
                Assert.assertEquals((byte) i, recordItem.data[j]);
             }
-         }
-         else {
+         } else {
             Assert.assertEquals((i - 10) * 100L, recordItem.id);
             Assert.assertEquals(i - 10, recordItem.getUserRecordType());
             Assert.assertTrue(recordItem.isUpdate);
@@ -381,8 +375,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          UnitTestLogger.LOGGER.warn(e);
       }
 
@@ -430,8 +423,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          UnitTestLogger.LOGGER.debug("Expected exception " + e, e);
       }
 
@@ -1144,8 +1136,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
                   queueDelete.offer(i);
                }
                finishedOK.incrementAndGet();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -1165,8 +1156,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
                   journalImpl.appendDeleteRecord(toDelete, false);
                }
                finishedOK.incrementAndGet();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

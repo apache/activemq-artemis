@@ -22,11 +22,14 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 public class TopicRestMessageContext extends RestMessageContext {
+
    public static final String PREFIX_TOPIC = "/topics/jms.topic.";
 
    private boolean durableSub;
 
-   public TopicRestMessageContext(RestAMQConnection restAMQConnection, String topic, boolean durable) throws IOException {
+   public TopicRestMessageContext(RestAMQConnection restAMQConnection,
+                                  String topic,
+                                  boolean durable) throws IOException {
       super(restAMQConnection, topic);
       this.durableSub = durable;
    }
@@ -48,8 +51,7 @@ public class TopicRestMessageContext extends RestMessageContext {
       if (this.durableSub || !this.autoAck) {
          String extraOpt = "durable=" + this.durableSub + "&autoAck=" + this.autoAck;
          response = connection.post(pullUri, "application/x-www-form-urlencoded", extraOpt);
-      }
-      else {
+      } else {
          response = connection.post(pullUri);
       }
 
@@ -65,12 +67,10 @@ public class TopicRestMessageContext extends RestMessageContext {
             if (header != null) {
                contextMap.put(KEY_MSG_ACK_NEXT, header.getValue());
             }
-         }
-         else {
+         } else {
             throw new IllegalStateException("Failed to init pull consumer " + ResponseUtil.getDetails(response));
          }
-      }
-      finally {
+      } finally {
          response.close();
       }
    }

@@ -135,8 +135,7 @@ public class ClusterStaticOnewayExample {
 
             System.out.println("Got message: " + message2.getText() + " from node " + con2Node);
          }
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our resources!
 
          if (initialConnection != null) {

@@ -137,8 +137,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          checkFill(sf, 512);
 
          checkFill(sf, 512 * 4);
-      }
-      finally {
+      } finally {
          sf.close();
       }
    }
@@ -339,12 +338,10 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
          ActiveMQTestBase.assertEqualsByteArrays(bytes1, rbytes1);
 
-      }
-      finally {
+      } finally {
          try {
             sf.close();
-         }
-         catch (Exception ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -373,8 +370,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
          sf.write(wrapBuffer(bytes1), true);
 
          Assert.fail("Should throw exception");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
 
       sf.open();

@@ -78,11 +78,9 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
          if (mc.getSession().getTransacted()) {
             mc.getSession().commit();
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          throw new ResourceException("Could not commit LocalTransaction", e);
-      }
-      finally {
+      } finally {
          //mc.setInManagedTx(false);
          mc.unlock();
       }
@@ -104,11 +102,9 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
          if (mc.getSession().getTransacted()) {
             mc.getSession().rollback();
          }
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
          throw new ResourceException("Could not rollback LocalTransaction", ex);
-      }
-      finally {
+      } finally {
          //mc.setInManagedTx(false);
          mc.unlock();
       }

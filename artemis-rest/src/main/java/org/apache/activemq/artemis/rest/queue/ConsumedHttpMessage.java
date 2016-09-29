@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-
 import javax.ws.rs.core.Response;
+
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 
 public class ConsumedHttpMessage extends ConsumedMessage {
 
@@ -36,8 +36,7 @@ public class ConsumedHttpMessage extends ConsumedMessage {
          if (size > 0) {
             data = new byte[size];
             message.getBodyBuffer().readBytes(data);
-         }
-         else {
+         } else {
             data = new byte[0];
          }
       }

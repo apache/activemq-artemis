@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,14 +21,13 @@ package org.apache.activemq.broker.region.cursors;
  *
  */
 
-import java.util.Date;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -126,8 +125,7 @@ public class StoreBasedCursorTest extends TestCase {
             TextMessage message = session.createTextMessage(createMessageText(i));
             producer.send(message);
          }
-      }
-      catch (javax.jms.ResourceAllocationException e) {
+      } catch (javax.jms.ResourceAllocationException e) {
          e.printStackTrace();
          fail(e.getMessage() + " num msgs = " + i + ". percentUsage = " + broker.getSystemUsage().getMemoryUsage().getPercentUsage());
       }

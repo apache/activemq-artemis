@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -36,6 +29,12 @@ import javax.jms.XATopicConnection;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerRegistry;
@@ -65,14 +64,12 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       // Try our best to close any previously opend connection.
       try {
          connection.close();
-      }
-      catch (Throwable ignore) {
+      } catch (Throwable ignore) {
       }
       // Try our best to stop any previously started broker.
       try {
          broker.stop();
-      }
-      catch (Throwable ignore) {
+      } catch (Throwable ignore) {
       }
       super.tearDown();
    }
@@ -170,21 +167,18 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
          assertTrue(resource1.isSameRM(resource2));
          session1.close();
          session2.close();
-      }
-      finally {
+      } finally {
          if (connection1 != null) {
             try {
                connection1.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore
             }
          }
          if (connection2 != null) {
             try {
                connection2.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore
             }
          }
@@ -213,21 +207,18 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
          assertTrue(resource1.isSameRM(session1a.getXAResource()));
          session1.close();
          session2.close();
-      }
-      finally {
+      } finally {
          if (connection1 != null) {
             try {
                connection1.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore
             }
          }
          if (connection2 != null) {
             try {
                connection2.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore
             }
          }
@@ -268,13 +259,11 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
          resource.commit(tid, true);
          session.close();
 
-      }
-      finally {
+      } finally {
          if (connection1 != null) {
             try {
                connection1.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                // ignore
             }
          }
@@ -449,22 +438,19 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       try {
          session.commit();
          fail("expect exception after close");
-      }
-      catch (javax.jms.IllegalStateException expected) {
+      } catch (javax.jms.IllegalStateException expected) {
       }
 
       try {
          session.rollback();
          fail("expect exception after close");
-      }
-      catch (javax.jms.IllegalStateException expected) {
+      } catch (javax.jms.IllegalStateException expected) {
       }
 
       try {
          session.getTransacted();
          fail("expect exception after close");
-      }
-      catch (javax.jms.IllegalStateException expected) {
+      } catch (javax.jms.IllegalStateException expected) {
       }
    }
 
@@ -483,8 +469,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       try {
          resource.rollback(tid);
          fail("Expected xa exception on no tx");
-      }
-      catch (XAException expected) {
+      } catch (XAException expected) {
          LOG.info("got expected xa", expected);
          assertEquals("no tx", XAException.XAER_NOTA, expected.errorCode);
       }
@@ -516,8 +501,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
             try {
                connection.processPrepareTransaction(new TransactionInfo(connectionId, new XATransactionId(tid), TransactionInfo.PREPARE));
                fail("did not get expected excepton on missing transaction, it must be still there in error!");
-            }
-            catch (IllegalStateException expectedOnNoTransaction) {
+            } catch (IllegalStateException expectedOnNoTransaction) {
             }
          }
       }
@@ -529,8 +513,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
       try {
          transactionBroker.getTransaction(null, new XATransactionId(tid), false);
          fail("expected exception on tx not found");
-      }
-      catch (XAException expectedOnNotFound) {
+      } catch (XAException expectedOnNotFound) {
       }
    }
 

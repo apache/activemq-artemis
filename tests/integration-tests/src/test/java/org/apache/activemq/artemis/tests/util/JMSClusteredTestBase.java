@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import java.util.ArrayList;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -32,13 +39,6 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.Before;
-
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import java.util.ArrayList;
 
 public class JMSClusteredTestBase extends ActiveMQTestBase {
 

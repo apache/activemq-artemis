@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,20 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.network;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -39,6 +25,16 @@ import javax.jms.Session;
 import javax.management.ObjectName;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -55,6 +51,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FailoverStaticNetworkTest {
 
@@ -215,8 +214,7 @@ public class FailoverStaticNetworkTest {
          public void run() {
             try {
                slave.start();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
                errors.add(e);
             }
@@ -260,8 +258,7 @@ public class FailoverStaticNetworkTest {
          public void run() {
             try {
                slave.start();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -358,8 +355,7 @@ public class FailoverStaticNetworkTest {
                   // restart after peer taken over
                   brokerA1.waitUntilStarted();
                }
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
                LOG.info("A create/start, unexpected: " + ignored, ignored);
             }
          }
@@ -389,8 +385,7 @@ public class FailoverStaticNetworkTest {
                   // restart after peer taken over
                   brokerA.waitUntilStarted();
                }
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
                LOG.info("A1 create/start, unexpected: " + ignored, ignored);
             }
          }
@@ -445,8 +440,7 @@ public class FailoverStaticNetworkTest {
       });
       try {
          consConn.close();
-      }
-      catch (JMSException ignored) {
+      } catch (JMSException ignored) {
       }
       assertTrue("consumer on A got message", gotMessage);
    }

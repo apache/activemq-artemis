@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,17 @@
  */
 package org.apache.activemq.usecases;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.TestSupport;
@@ -263,8 +266,7 @@ public class DurableSubscriptionUnsubscribeTest extends TestSupport {
          try {
             broker.getManagementContext().getObjectInstance(sub);
             count++;
-         }
-         catch (InstanceNotFoundException ignore) {
+         } catch (InstanceNotFoundException ignore) {
             // this should happen
          }
       }

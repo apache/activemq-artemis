@@ -179,8 +179,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
          try {
             latch2.countDown();
             latch.await();
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
       }
@@ -194,8 +193,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
             try {
                latch2.countDown();
                latch.await();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                e.printStackTrace();
             }
          }

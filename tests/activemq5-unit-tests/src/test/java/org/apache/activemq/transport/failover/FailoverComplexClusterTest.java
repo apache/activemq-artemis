@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
 
    private static final int NUMBER_OF_CLIENTS = 30;
    private final List<ActiveMQConnection> connections = new ArrayList<>();
-
 
    @Before
    public void setUp() throws Exception {
@@ -116,7 +115,6 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
       Thread.sleep(3000);
       runTests(false, null, null, null);
    }
-
 
    /**
     * Tests a 3 broker configuration to ensure that the backup is random and
@@ -425,8 +423,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
                double count = clientConnectionCounts.get(key);
                count += 1.0;
                clientConnectionCounts.put(key, count);
-            }
-            else {
+            } else {
                clientConnectionCounts.put(key, 1.0);
             }
          }
@@ -437,8 +434,7 @@ public class FailoverComplexClusterTest extends OpenwireArtemisBaseTest {
          double count = clientConnectionCounts.get(key);
          double percentage = count / total;
          if (percentage < minimumPercentage || percentage > maximumPercentage) {
-            errorMsgs.add("Connections distribution expected to be within range [ " + minimumPercentage
-                    + ", " + maximumPercentage + "].  Actuall distribution was " + percentage + " for connection " + key);
+            errorMsgs.add("Connections distribution expected to be within range [ " + minimumPercentage + ", " + maximumPercentage + "].  Actuall distribution was " + percentage + " for connection " + key);
          }
          if (errorMsgs.size() > 0) {
             for (String err : errorMsgs) {

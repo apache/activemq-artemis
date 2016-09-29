@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import javax.json.JsonArray;
+
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-
-import javax.json.JsonArray;
 
 /**
  * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
@@ -130,8 +130,7 @@ public final class ManagementHelper {
          JsonArray jsonArray = JsonUtil.toJSONArray(parameters);
 
          paramString = jsonArray.toString();
-      }
-      else {
+      } else {
          paramString = null;
       }
 
@@ -149,8 +148,7 @@ public final class ManagementHelper {
          JsonArray jsonArray = JsonUtil.readJsonArray(jsonString);
 
          return JsonUtil.fromJsonArray(jsonArray);
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -181,8 +179,7 @@ public final class ManagementHelper {
          JsonArray jsonArray = JsonUtil.toJSONArray(new Object[]{result});
 
          resultString = jsonArray.toString();
-      }
-      else {
+      } else {
          resultString = null;
       }
 
@@ -202,8 +199,7 @@ public final class ManagementHelper {
       if (jsonString != null) {
          JsonArray jsonArray = JsonUtil.readJsonArray(jsonString);
          return JsonUtil.fromJsonArray(jsonArray);
-      }
-      else {
+      } else {
          return null;
       }
    }
@@ -218,19 +214,18 @@ public final class ManagementHelper {
       return getResult(message, null);
    }
 
-      /**
-       * Returns the result of an operation invocation or an attribute value.
-       * <br>
-       * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-       * and the result will be a String corresponding to the server exception.
-       */
+   /**
+    * Returns the result of an operation invocation or an attribute value.
+    * <br>
+    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
+    * and the result will be a String corresponding to the server exception.
+    */
    public static Object getResult(final Message message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
 
       if (res != null) {
          return JsonUtil.convertJsonValue(res[0], desiredType);
-      }
-      else {
+      } else {
          return null;
       }
    }

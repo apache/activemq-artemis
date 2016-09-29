@@ -179,8 +179,7 @@ public class UUIDTimer {
           */
          if (mClockCounter < UUIDTimer.kClockMultiplier) { // yup, still have room
             systime = mLastUsedTimestamp;
-         }
-         else { // nope, have to roll over to next value and maybe wait
+         } else { // nope, have to roll over to next value and maybe wait
             long actDiff = mLastUsedTimestamp - systime;
             long origTime = systime;
             systime = mLastUsedTimestamp + 1L;
@@ -205,8 +204,7 @@ public class UUIDTimer {
                UUIDTimer.slowDown(origTime, actDiff);
             }
          }
-      }
-      else {
+      } else {
          /*
           * Clock has advanced normally; just need to make sure counter is reset
           * to a low value (need not be 0; good to leave a small residual to
@@ -271,14 +269,11 @@ public class UUIDTimer {
 
       if (ratio < 2L) { // 200 msecs or less
          delay = 1L;
-      }
-      else if (ratio < 10L) { // 1 second or less
+      } else if (ratio < 10L) { // 1 second or less
          delay = 2L;
-      }
-      else if (ratio < 600L) { // 1 minute or less
+      } else if (ratio < 600L) { // 1 minute or less
          delay = 3L;
-      }
-      else {
+      } else {
          delay = 5L;
       }
       // Logger.logWarning("Need to wait for "+delay+" milliseconds; virtual
@@ -288,8 +283,7 @@ public class UUIDTimer {
       do {
          try {
             Thread.sleep(delay);
-         }
-         catch (InterruptedException ie) {
+         } catch (InterruptedException ie) {
          }
          delay = 1L;
          /*

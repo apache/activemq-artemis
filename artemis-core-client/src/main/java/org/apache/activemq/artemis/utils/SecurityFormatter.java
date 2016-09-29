@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.artemis.core.security.Role;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.activemq.artemis.core.security.Role;
 
 public class SecurityFormatter {
 

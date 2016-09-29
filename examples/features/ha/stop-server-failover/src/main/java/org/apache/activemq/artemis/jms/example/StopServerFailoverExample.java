@@ -90,8 +90,7 @@ public class StopServerFailoverExample {
          // backup server has occurred
          try {
             message0.acknowledge();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             System.err.println("Got exception while acknowledging message: " + e.getMessage());
          }
 
@@ -101,8 +100,7 @@ public class StopServerFailoverExample {
             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
-      }
-      finally {
+      } finally {
          // Step 13. Be sure to close our resources!
 
          if (connection != null) {

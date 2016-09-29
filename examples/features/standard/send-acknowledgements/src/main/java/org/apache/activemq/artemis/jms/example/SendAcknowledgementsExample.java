@@ -90,8 +90,7 @@ public class SendAcknowledgementsExample {
 
             System.out.println("Sent message " + i);
          }
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

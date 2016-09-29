@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -34,6 +28,11 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.activemq.util.Wait;
 import org.junit.After;
@@ -70,8 +69,7 @@ public class JmsTempDestinationTest {
          Connection conn = iter.next();
          try {
             conn.close();
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
          }
          iter.remove();
       }
@@ -107,8 +105,7 @@ public class JmsTempDestinationTest {
       try {
          consumer = otherSession.createConsumer(queue);
          Assert.fail("Send should fail since temp destination should be used from another connection");
-      }
-      catch (InvalidDestinationException e) {
+      } catch (InvalidDestinationException e) {
          Assert.assertTrue("failed to throw an exception", true);
       }
 
@@ -249,8 +246,7 @@ public class JmsTempDestinationTest {
          message = session.createTextMessage("Hello");
          producer.send(message);
          Assert.fail("Send should fail since temp destination should not exist anymore.");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
    }
@@ -302,8 +298,7 @@ public class JmsTempDestinationTest {
          message = session.createTextMessage("Hello");
          producer.send(message);
          Assert.fail("Send should fail since temp destination should not exist anymore.");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          Assert.assertTrue("failed to throw an exception", true);
       }
    }
@@ -329,8 +324,7 @@ public class JmsTempDestinationTest {
       try {
          queue.delete();
          Assert.fail("Should fail as Subscribers are active");
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          Assert.assertTrue("failed to throw an exception", true);
       }
    }

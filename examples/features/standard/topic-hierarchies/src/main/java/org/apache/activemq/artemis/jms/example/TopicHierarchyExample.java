@@ -102,8 +102,7 @@ public class TopicHierarchyExample {
          }
 
          System.out.println("Didn't received any more message: " + message);
-      }
-      finally {
+      } finally {
          // Step 12. Be sure to close our resources!
          if (connection != null) {
             connection.close();

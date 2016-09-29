@@ -15,5 +15,7 @@
  * limitations under the License.
  */
 
-/** Contains useful classes for spawning process from client classes */
+/**
+ * Contains useful classes for spawning process from client classes
+ */
 package org.apache.activemq.artemis.cli.process;

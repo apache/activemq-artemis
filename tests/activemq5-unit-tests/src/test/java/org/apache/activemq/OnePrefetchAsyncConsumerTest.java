@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionConsumer;
@@ -31,6 +28,8 @@ import javax.jms.ServerSession;
 import javax.jms.ServerSessionPool;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -189,8 +188,7 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
                      LOG.debug("About to call session.commit");
                      session.commit();
                      LOG.debug("Commit completed");
-                  }
-                  catch (JMSException e) {
+                  } catch (JMSException e) {
                      LOG.error("In start", e);
                   }
                   pool.serverSessionInUse = false;
@@ -213,17 +211,14 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
                // computation logic in PrefetchSubscription to get here
                success.set(true);
                completed.set(true);
-            }
-            else if (text.equals("Msg2")) {
+            } else if (text.equals("Msg2")) {
                // simulate long message processing so that Msg3 comes when Msg2 is still being
                // processed and thus the single ServerSession is in use
                TimeUnit.SECONDS.sleep(4);
             }
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             LOG.error("in onMessage", e);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             LOG.error("in onMessage", e);
          }
       }

@@ -82,8 +82,7 @@ public class SSLDualAuthenticationExample {
          System.out.println("Received message: " + messageReceived.getText());
 
          initialContext.close();
-      }
-      finally {
+      } finally {
          // Step 15. Be sure to close our JMS resources!
          if (initialContext != null) {
             initialContext.close();

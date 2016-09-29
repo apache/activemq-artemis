@@ -104,8 +104,7 @@ public class JournalFileImpl implements JournalFile {
 
       if (count == null) {
          return 0;
-      }
-      else {
+      } else {
          return count.intValue();
       }
    }
@@ -152,8 +151,7 @@ public class JournalFileImpl implements JournalFile {
    public String toString() {
       try {
          return "JournalFileImpl: (" + file.getFileName() + " id = " + fileID + ", recordID = " + recordID + ")";
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          e.printStackTrace();
          return "Error:" + e.toString();
       }

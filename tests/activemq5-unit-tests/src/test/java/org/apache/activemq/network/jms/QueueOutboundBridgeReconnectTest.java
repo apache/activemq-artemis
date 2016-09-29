@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.network.jms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -33,6 +24,9 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -41,6 +35,11 @@ import org.apache.activemq.util.Wait;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * These test cases are used to verify that queue outbound bridge connections get
@@ -232,13 +231,11 @@ public class QueueOutboundBridgeReconnectTest {
       disposeConsumerConnections();
       try {
          stopProducerBroker();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
       try {
          stopConsumerBroker();
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
    }
 
@@ -247,8 +244,7 @@ public class QueueOutboundBridgeReconnectTest {
          Connection connection = iter.next();
          try {
             connection.close();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
          }
       }
    }
@@ -327,12 +323,10 @@ public class QueueOutboundBridgeReconnectTest {
          TextMessage message = session.createTextMessage();
          message.setText(text);
          producer.send(message);
-      }
-      finally {
+      } finally {
          try {
             connection.close();
-         }
-         catch (Throwable ignore) {
+         } catch (Throwable ignore) {
          }
       }
    }

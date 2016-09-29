@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.component;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
@@ -33,11 +38,6 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class WebServerComponent implements ExternalComponent {
 
@@ -75,8 +75,7 @@ public class WebServerComponent implements ExternalComponent {
 
          connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
 
-      }
-      else {
+      } else {
          connector = new ServerConnector(server);
       }
       connector.setPort(uri.getPort());
@@ -86,8 +85,7 @@ public class WebServerComponent implements ExternalComponent {
 
       handlers = new HandlerList();
 
-      Path warDir = Paths.get(artemisHome != null ? artemisHome : ".")
-              .resolve( webServerConfig.path ).toAbsolutePath();
+      Path warDir = Paths.get(artemisHome != null ? artemisHome : ".").resolve(webServerConfig.path).toAbsolutePath();
 
       if (webServerConfig.apps != null) {
          for (AppDTO app : webServerConfig.apps) {
@@ -134,8 +132,7 @@ public class WebServerComponent implements ExternalComponent {
       WebAppContext webapp = new WebAppContext();
       if (url.startsWith("/")) {
          webapp.setContextPath(url);
-      }
-      else {
+      } else {
          webapp.setContextPath("/" + url);
       }
 

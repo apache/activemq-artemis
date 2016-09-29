@@ -30,13 +30,11 @@ import org.apache.activemq.artemis.utils.FileUtil;
 
 public class SpawnedJMSServer {
 
-
    public static ActiveMQServer server;
    public static JMSServerManager serverManager;
 
    // Using files may be useful for debugging (through print-data for instance)
    private static final boolean useFiles = false;
-
 
    public static void main(final String[] args) throws Exception {
       try {
@@ -57,14 +55,12 @@ public class SpawnedJMSServer {
                stopServer();
                System.out.println("Server stopped");
                System.exit(0);
-            }
-            else {
+            } else {
                // stop anyway but with an error status
                System.exit(1);
             }
          }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          t.printStackTrace();
          String allStack = t.getCause().getMessage() + "|";
          StackTraceElement[] stackTrace = t.getCause().getStackTrace();

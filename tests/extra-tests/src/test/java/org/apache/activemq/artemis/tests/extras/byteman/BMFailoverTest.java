@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
@@ -46,10 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
 @RunWith(BMUnitRunner.class)
 public class BMFailoverTest extends FailoverTestBase {
 
@@ -72,14 +72,12 @@ public class BMFailoverTest extends FailoverTestBase {
       if (!stopped) {
          try {
             serverToStop.getServer().stop(true);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
          try {
             Thread.sleep(2000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
          stopped = true;
@@ -130,18 +128,15 @@ public class BMFailoverTest extends FailoverTestBase {
       try {
          //top level prepare
          session.end(xid, XAResource.TMSUCCESS);
-      }
-      catch (XAException e) {
+      } catch (XAException e) {
          try {
             //top level abort
             session.end(xid, XAResource.TMFAIL);
-         }
-         catch (XAException e1) {
+         } catch (XAException e1) {
             try {
                //rollback
                session.rollback(xid);
-            }
-            catch (XAException e2) {
+            } catch (XAException e2) {
             }
          }
       }
@@ -209,8 +204,7 @@ public class BMFailoverTest extends FailoverTestBase {
       try {
          //this may fail but thats ok, it depends on the race and when failover actually happens
          xaSessionRec.end(xidRec, XAResource.TMSUCCESS);
-      }
-      catch (XAException ignore) {
+      } catch (XAException ignore) {
       }
 
       //we always reset the client on the RA
@@ -269,8 +263,7 @@ public class BMFailoverTest extends FailoverTestBase {
       try {
          session.commit();
          fail("should have thrown an exception");
-      }
-      catch (ActiveMQTransactionOutcomeUnknownException e) {
+      } catch (ActiveMQTransactionOutcomeUnknownException e) {
          //pass
       }
       sendMessages(session, producer, 10);
@@ -309,11 +302,9 @@ public class BMFailoverTest extends FailoverTestBase {
       try {
          session.commit();
          fail("should have thrown an exception");
-      }
-      catch (ActiveMQTransactionOutcomeUnknownException e) {
+      } catch (ActiveMQTransactionOutcomeUnknownException e) {
          //pass
-      }
-      catch (ActiveMQTransactionRolledBackException e1) {
+      } catch (ActiveMQTransactionRolledBackException e1) {
          //pass
       }
       Queue bindable = (Queue) backupServer.getServer().getPostOffice().getBinding(FailoverTestBase.ADDRESS).getBindable();

@@ -37,15 +37,17 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
 
-/** This is to make sure we use the proper classLoader to load JSon libraries.
- * This is equivalent to using {@link javax.json.Json} */
+/**
+ * This is to make sure we use the proper classLoader to load JSon libraries.
+ * This is equivalent to using {@link javax.json.Json}
+ */
 public class JsonLoader {
 
    private static final JsonProvider provider;
+
    static {
       provider = loadProvider();
    }
-
 
    private static JsonProvider loadProvider() {
       return AccessController.doPrivileged(new PrivilegedAction<JsonProvider>() {
@@ -55,16 +57,13 @@ public class JsonLoader {
             try {
                Thread.currentThread().setContextClassLoader(JsonLoader.class.getClassLoader());
                return JsonProvider.provider();
-            }
-            finally {
+            } finally {
                Thread.currentThread().setContextClassLoader(originalLoader);
             }
          }
       });
 
    }
-
-
 
    public static JsonParser createParser(Reader reader) {
       return provider.createParser(reader);
@@ -125,6 +124,5 @@ public class JsonLoader {
    public static JsonBuilderFactory createBuilderFactory(Map<String, ?> config) {
       return provider.createBuilderFactory(config);
    }
-
 
 }

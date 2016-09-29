@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -25,6 +23,8 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -98,8 +98,7 @@ public class DispatchMultipleConsumersTest extends TestCase {
       try {
          producerLatch.await();
          consumerLatch.await();
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
          fail("test interrupted!");
       }
    }
@@ -113,8 +112,7 @@ public class DispatchMultipleConsumersTest extends TestCase {
          for (int i = 0; i < consumerCount; i++) {
             new ConsumerThread(conn, "ConsumerThread" + i);
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          logger.error("Failed to start consumers", e);
       }
    }
@@ -139,8 +137,7 @@ public class DispatchMultipleConsumersTest extends TestCase {
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             consumer = session.createConsumer(dest);
             start();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             logger.error("Failed to start consumer thread:" + name, e);
          }
       }
@@ -160,12 +157,10 @@ public class DispatchMultipleConsumersTest extends TestCase {
                   if (nullCount > 10) {
                      //assume that we are not getting any more messages
                      break;
-                  }
-                  else {
+                  } else {
                      continue;
                   }
-               }
-               else {
+               } else {
                   nullCount = 0;
                }
                Thread.sleep(100);
@@ -173,18 +168,15 @@ public class DispatchMultipleConsumersTest extends TestCase {
                   logger.trace("Message received:" + msg.getJMSMessageID());
                }
                msgCount++;
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                logger.error("Failed to consume:", e);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                logger.error("Interrupted!", e);
             }
          }
          try {
             consumer.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             logger.error("Failed to close consumer " + getName(), e);
          }
          consumedCount.addAndGet(msgCount);
@@ -211,8 +203,7 @@ public class DispatchMultipleConsumersTest extends TestCase {
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             producer = session.createProducer(dest);
             start();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             logger.error("Failed to start producer thread:" + name, e);
          }
       }
@@ -226,11 +217,9 @@ public class DispatchMultipleConsumersTest extends TestCase {
                Thread.sleep(500);
             }
             conn.close();
-         }
-         catch (JMSException e) {
+         } catch (JMSException e) {
             logger.error(e.getMessage(), e);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             logger.error("Interrupted!", e);
          }
          sentCount.addAndGet(i);

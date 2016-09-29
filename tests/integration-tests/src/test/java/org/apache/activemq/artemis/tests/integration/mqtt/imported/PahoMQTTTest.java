@@ -81,12 +81,10 @@ public class PahoMQTTTest extends MQTTTestSupport {
                   }
                   client.disconnect();
                   client.close();
-               }
-               catch (Throwable e) {
+               } catch (Throwable e) {
                   e.printStackTrace();
                   asyncError.set(e);
-               }
-               finally {
+               } finally {
                   disconnectDoneLatch.countDown();
                }
             }

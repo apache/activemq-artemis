@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.registry;
 
-import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
-import org.apache.activemq.artemis.utils.JNDIUtil;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.JNDIUtil;
 
 public class JndiBindingRegistry implements BindingRegistry {
 
@@ -40,12 +40,10 @@ public class JndiBindingRegistry implements BindingRegistry {
       try {
          if (context == null) {
             return null;
-         }
-         else {
+         } else {
             return context.lookup(name);
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          return null;
       }
    }
@@ -54,8 +52,7 @@ public class JndiBindingRegistry implements BindingRegistry {
    public boolean bind(String name, Object obj) {
       try {
          return bindToJndi(name, obj);
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
@@ -66,8 +63,7 @@ public class JndiBindingRegistry implements BindingRegistry {
          if (context != null) {
             context.unbind(name);
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
       }
    }
 
@@ -77,8 +73,7 @@ public class JndiBindingRegistry implements BindingRegistry {
          if (context != null) {
             context.close();
          }
-      }
-      catch (NamingException e) {
+      } catch (NamingException e) {
       }
    }
 
@@ -89,8 +84,7 @@ public class JndiBindingRegistry implements BindingRegistry {
          int sepIndex = jndiName.lastIndexOf('/');
          if (sepIndex == -1) {
             parentContext = "";
-         }
-         else {
+         } else {
             parentContext = jndiName.substring(0, sepIndex);
          }
          jndiNameInContext = jndiName.substring(sepIndex + 1);
@@ -99,8 +93,7 @@ public class JndiBindingRegistry implements BindingRegistry {
 
             //JMSServerManagerImpl.log.warn("Binding for " + jndiName + " already exists");
             return false;
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             // OK
          }
 

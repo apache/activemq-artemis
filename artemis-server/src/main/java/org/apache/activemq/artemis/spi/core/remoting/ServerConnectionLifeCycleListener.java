@@ -19,4 +19,5 @@ package org.apache.activemq.artemis.spi.core.remoting;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
 public interface ServerConnectionLifeCycleListener extends BaseConnectionLifeCycleListener<ProtocolManager> {
+
 }

@@ -16,21 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BackupAuthenticationTest extends FailoverTestBase {
 
@@ -85,8 +83,7 @@ public class BackupAuthenticationTest extends FailoverTestBase {
       public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
             latch.countDown();
-         }
-         else if (packet.getType() == PacketImpl.CLUSTER_CONNECT) {
+         } else if (packet.getType() == PacketImpl.CLUSTER_CONNECT) {
             latch.countDown();
          }
          return true;

@@ -49,7 +49,7 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper 
       //this.productVersion = VersionLoader.getVersion().getFullVersion();
       this.productVersion = (String) properties.get(ACTIVEMQ_PRODUCT_VERSION);
 
-      String jndiName =  (String) properties.get(ACTIVEMQ_JNDI_NAME);
+      String jndiName = (String) properties.get(ACTIVEMQ_JNDI_NAME);
       String nodeId = "NodeId:" + properties.get(ACTIVEMQ_NODE_ID);
 
       this.jndiNameNodeId = jndiName == null ? nodeId : jndiName + " " + nodeId;

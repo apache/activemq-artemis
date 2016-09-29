@@ -64,19 +64,16 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
             try {
                if (timeout != -1L) {
                   ConcurrentUtil.await(condition, timeout);
-               }
-               else {
+               } else {
                   while (untriedConnectors.isEmpty()) {
                      condition.await();
                   }
                }
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
 
             }
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -91,8 +88,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
             untriedConnectors.put(topologyMember.getNodeId(), connector);
             condition.signal();
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -112,8 +108,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
          if (untriedConnectors.size() > 0) {
             condition.signal();
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -133,8 +128,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
             nodeID = iterator.next();
          }
          return untriedConnectors.get(nodeID);
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
    }
@@ -148,8 +142,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
          if (tc != null) {
             triedConnectors.put(nodeID, tc);
          }
-      }
-      finally {
+      } finally {
          lock.unlock();
       }
       super.notifyRegistrationFailed(alreadyReplicating);

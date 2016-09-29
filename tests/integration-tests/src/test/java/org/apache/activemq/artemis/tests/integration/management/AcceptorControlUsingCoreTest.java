@@ -60,8 +60,7 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
          public void reload() {
             try {
                proxy.invokeOperation("reload");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                e.printStackTrace();
             }
          }

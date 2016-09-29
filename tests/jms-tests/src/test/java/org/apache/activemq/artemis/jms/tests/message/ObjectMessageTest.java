@@ -78,8 +78,7 @@ public class ObjectMessageTest extends MessageTestBase {
          ProxyAssertSupport.assertNotSame(testObject.getClass(), testObject2.getClass());
          ProxyAssertSupport.assertNotSame(testObject.getClass().getClassLoader(), testObject2.getClass().getClassLoader());
          ProxyAssertSupport.assertSame(testClassLoader, testObject2.getClass().getClassLoader());
-      }
-      finally {
+      } finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 

@@ -58,8 +58,7 @@ public class InflaterWriter extends OutputStream {
          writePointer = 0;
          try {
             doWrite();
-         }
-         catch (DataFormatException e) {
+         } catch (DataFormatException e) {
             IOException ie = new IOException("Error decompressing data");
             ie.initCause(e);
             throw ie;
@@ -78,8 +77,7 @@ public class InflaterWriter extends OutputStream {
                n = inflater.inflate(outputBuffer);
             }
             output.close();
-         }
-         catch (DataFormatException e) {
+         } catch (DataFormatException e) {
             IOException io = new IOException(e.getMessage());
             io.initCause(e);
             throw io;

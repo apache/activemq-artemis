@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.usecases;
-
-import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -29,6 +25,9 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Date;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -79,13 +78,11 @@ public final class QueueRepeaterTest extends TestCase {
                LOG.info("consumer received message :" + receivedText);
                consumerSession.commit();
                LOG.info("committed transaction");
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                try {
                   consumerSession.rollback();
                   LOG.info("rolled back transaction");
-               }
-               catch (JMSException e1) {
+               } catch (JMSException e1) {
                   LOG.info(e1.toString());
                   e1.printStackTrace();
                }
@@ -103,8 +100,7 @@ public final class QueueRepeaterTest extends TestCase {
          tm.setText("Hello, " + new Date());
          producer.send(tm);
          LOG.info("producer sent message :" + tm.getText());
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
       }
 

@@ -47,8 +47,7 @@ public class JMSSecurityTest extends JMSTestBase {
       try {
          JMSContext ctx = cf.createContext("Idont", "exist");
          ctx.close();
-      }
-      catch (JMSSecurityRuntimeException e) {
+      } catch (JMSSecurityRuntimeException e) {
          // expected
       }
       JMSContext ctx = cf.createContext("IDo", "Exist");
@@ -63,8 +62,7 @@ public class JMSSecurityTest extends JMSTestBase {
          QueueConnection queueC = ((QueueConnectionFactory) cf).createQueueConnection("IDont", "Exist");
          fail("supposed to throw exception");
          queueC.close();
-      }
-      catch (JMSSecurityException e) {
+      } catch (JMSSecurityException e) {
          // expected
       }
       JMSContext ctx = cf.createContext("IDo", "Exist");

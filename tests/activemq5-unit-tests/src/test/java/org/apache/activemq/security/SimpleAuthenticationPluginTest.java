@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.security;
 
-import java.net.URI;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
@@ -26,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TemporaryTopic;
 import javax.management.ObjectName;
+import java.net.URI;
 
 import junit.framework.Test;
 
@@ -95,8 +94,7 @@ public class SimpleAuthenticationPluginTest extends SecurityTestSupport {
          TemporaryTopic temp = sess.createTemporaryTopic();
          name += ",Destination=" + temp.getTopicName().replaceAll(":", "_");
          fail("Should have failed creating a temp topic");
-      }
-      catch (Exception ignore) {
+      } catch (Exception ignore) {
       }
 
       ObjectName objName = new ObjectName(name);
@@ -104,8 +102,7 @@ public class SimpleAuthenticationPluginTest extends SecurityTestSupport {
       try {
          System.out.println(mbean.getName());
          fail("Shouldn't have created a temp topic");
-      }
-      catch (Exception ignore) {
+      } catch (Exception ignore) {
       }
    }
 
@@ -115,10 +112,8 @@ public class SimpleAuthenticationPluginTest extends SecurityTestSupport {
       try {
          connection.start();
          fail("Should throw JMSSecurityException");
-      }
-      catch (JMSSecurityException jmsEx) {
-      }
-      catch (Exception e) {
+      } catch (JMSSecurityException jmsEx) {
+      } catch (Exception e) {
          LOG.info("Expected JMSSecurityException but was: {}", e.getClass());
          fail("Should throw JMSSecurityException");
       }

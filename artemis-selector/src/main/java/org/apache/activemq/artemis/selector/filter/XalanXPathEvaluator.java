@@ -66,8 +66,7 @@ public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator {
             NodeIterator iterator = cachedXPathAPI.selectNodeIterator(doc, xpath);
             return (iterator.nextNode() != null);
          }
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
          return false;
       }
    }

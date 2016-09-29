@@ -310,8 +310,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
          ActiveMQRAManagedConnectionFactory other = (ActiveMQRAManagedConnectionFactory) obj;
 
          return mcfProperties.equals(other.getProperties()) && ra.equals(other.getResourceAdapter());
-      }
-      else {
+      } else {
          return false;
       }
    }
@@ -671,8 +670,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       if (info == null) {
          // Create a default one
          return new ActiveMQRAConnectionRequestInfo(ra.getProperties(), mcfProperties.getType());
-      }
-      else {
+      } else {
          // Fill the one with any defaults
          info.setDefaults(ra.getProperties());
          return info;

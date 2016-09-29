@@ -32,12 +32,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.rest.queue.DestinationSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.DestinationSettings;
 import org.apache.activemq.artemis.rest.queue.PostMessage;
 import org.apache.activemq.artemis.rest.queue.PostMessageDupsOk;
 import org.apache.activemq.artemis.rest.queue.PostMessageNoDups;
@@ -69,22 +69,18 @@ public class TopicDestinationsResource {
             if (!query.isExists()) {
                session.createQueue(topicName, topicName, "__AMQX=-1", true);
 
-            }
-            else {
+            } else {
                throw new WebApplicationException(Response.status(412).type("text/plain").entity("Queue already exists.").build());
             }
-         }
-         finally {
+         } finally {
             try {
                session.close();
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
          }
          URI uri = uriInfo.getRequestUriBuilder().path(topicName).build();
          return Response.created(uri).build();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          if (e instanceof WebApplicationException)
             throw (WebApplicationException) e;
          throw new WebApplicationException(e, Response.serverError().type("text/plain").entity("Failed to create queue.").build());
@@ -106,12 +102,10 @@ public class TopicDestinationsResource {
             boolean defaultDurable = queueSettings.isDurableSend() || query.isDurable();
 
             topic = createTopicResource(name, defaultDurable, queueSettings.getConsumerSessionTimeoutSeconds(), queueSettings.isDuplicatesAllowed());
-         }
-         finally {
+         } finally {
             try {
                session.close();
-            }
-            catch (ActiveMQException e) {
+            } catch (ActiveMQException e) {
             }
          }
       }
@@ -145,8 +139,7 @@ public class TopicDestinationsResource {
       PostMessage sender = null;
       if (duplicates) {
          sender = new PostMessageDupsOk();
-      }
-      else {
+      } else {
          sender = new PostMessageNoDups();
       }
       sender.setDefaultDurable(defaultDurable);

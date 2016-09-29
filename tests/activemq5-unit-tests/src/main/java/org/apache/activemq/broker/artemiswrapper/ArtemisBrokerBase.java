@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -465,8 +465,7 @@ public abstract class ArtemisBrokerBase implements Broker {
    protected Configuration createDefaultConfig(final boolean netty) throws Exception {
       if (netty) {
          return createDefaultConfig(new HashMap<String, Object>(), NETTY_ACCEPTOR_FACTORY);
-      }
-      else {
+      } else {
          return createDefaultConfig(new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY);
       }
    }
@@ -530,8 +529,7 @@ public abstract class ArtemisBrokerBase implements Broker {
    protected static JournalType getDefaultJournalType() {
       if (LibaioContext.isLoaded()) {
          return JournalType.ASYNCIO;
-      }
-      else {
+      } else {
          return JournalType.NIO;
       }
    }
@@ -593,8 +591,7 @@ public abstract class ArtemisBrokerBase implements Broker {
          while (files == null && (attempts < num)) {
             try {
                Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
             files = directory.list();
             attempts++;
@@ -611,8 +608,7 @@ public abstract class ArtemisBrokerBase implements Broker {
       return directory.delete();
    }
 
-   public ActiveMQServer getServer()
-   {
+   public ActiveMQServer getServer() {
       return server;
    }
 

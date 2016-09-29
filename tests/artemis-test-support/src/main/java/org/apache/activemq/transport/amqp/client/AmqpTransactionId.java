@@ -88,8 +88,7 @@ public class AmqpTransactionId {
          if (other.txId != null) {
             return false;
          }
-      }
-      else if (!txId.equals(other.txId)) {
+      } else if (!txId.equals(other.txId)) {
          return false;
       }
 

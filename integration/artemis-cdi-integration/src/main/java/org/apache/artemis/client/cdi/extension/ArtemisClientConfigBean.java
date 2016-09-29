@@ -19,9 +19,6 @@
 
 package org.apache.artemis.client.cdi.extension;
 
-import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
-import org.apache.artemis.client.cdi.configuration.DefaultArtemisClientConfigurationImpl;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
@@ -30,6 +27,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
+import org.apache.artemis.client.cdi.configuration.DefaultArtemisClientConfigurationImpl;
 
 import static java.util.Collections.emptySet;
 

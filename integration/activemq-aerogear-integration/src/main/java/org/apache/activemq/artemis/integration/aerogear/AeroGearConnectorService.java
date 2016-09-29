@@ -272,10 +272,9 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
       if (handled) {
          reference.acknowledge();
          return HandleStatus.HANDLED;
-      }
-      //if we have been stopped we must return no match as we have been removed as a consumer,
-      // anything else will cause an exception
-      else if (!started) {
+      } else if (!started) {
+         //if we have been stopped we must return no match as we have been removed as a consumer,
+         // anything else will cause an exception
          return HandleStatus.NO_MATCH;
       }
       //we must be reconnecting
@@ -288,18 +287,15 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
          handled = false;
          if (statusCode == 401) {
             ActiveMQAeroGearLogger.LOGGER.reply401();
-         }
-         else if (statusCode == 404) {
+         } else if (statusCode == 404) {
             ActiveMQAeroGearLogger.LOGGER.reply404();
-         }
-         else {
+         } else {
             ActiveMQAeroGearLogger.LOGGER.replyUnknown(statusCode);
          }
 
          queue.removeConsumer(this);
          started = false;
-      }
-      else {
+      } else {
          handled = true;
       }
    }
@@ -328,13 +324,11 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
             reconnecting = false;
             ActiveMQAeroGearLogger.LOGGER.connected(endpoint);
             queue.deliverAsync();
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             retryAttempt++;
             if (retryAttempts == -1 || retryAttempt < retryAttempts) {
                scheduledThreadPool.schedule(this, retryInterval, TimeUnit.SECONDS);
-            }
-            else {
+            } else {
                ActiveMQAeroGearLogger.LOGGER.unableToReconnect(retryAttempt);
                started = false;
             }

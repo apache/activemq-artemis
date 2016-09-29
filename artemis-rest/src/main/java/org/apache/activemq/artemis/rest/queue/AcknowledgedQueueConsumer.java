@@ -34,9 +34,9 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.util.Constants;
 import org.apache.activemq.artemis.rest.util.LinkStrategy;
-import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 public class AcknowledgedQueueConsumer extends QueueConsumer {
 
@@ -136,12 +136,10 @@ public class AcknowledgedQueueConsumer extends QueueConsumer {
             ack.acknowledge();
             //System.out.println("Acknowledge message: " + ack.getMessage());
             ack.getMessage().acknowledge();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
-      }
-      else {
+      } else {
          ack.unacknowledge();
          unacknowledge();
       }
@@ -179,22 +177,18 @@ public class AcknowledgedQueueConsumer extends QueueConsumer {
 
       try {
          createSession();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          shutdown();
          throw new RuntimeException(e);
 
-      }
-      finally {
+      } finally {
          try {
             old.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
          try {
             oldSession.close();
-         }
-         catch (ActiveMQException e) {
+         } catch (ActiveMQException e) {
          }
       }
    }

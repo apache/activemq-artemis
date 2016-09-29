@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,15 @@
  */
 package org.apache.activemq.util;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.*;
 
 public class ConsumerThread extends Thread {
 
@@ -47,23 +52,19 @@ public class ConsumerThread extends Thread {
             if (msg != null) {
                LOG.info("Received " + received + ": " + ((TextMessage) msg).getText());
                received++;
-            }
-            else {
+            } else {
                if (breakOnNull) {
                   break;
                }
             }
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          e.printStackTrace();
-      }
-      finally {
+      } finally {
          if (consumer != null) {
             try {
                consumer.close();
-            }
-            catch (JMSException e) {
+            } catch (JMSException e) {
                e.printStackTrace();
             }
          }

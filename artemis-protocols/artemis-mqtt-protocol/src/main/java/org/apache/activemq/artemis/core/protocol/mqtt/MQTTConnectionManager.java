@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.Set;
+import java.util.UUID;
+
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -25,9 +28,6 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * MQTTConnectionMananager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
@@ -96,12 +96,7 @@ public class MQTTConnectionManager {
       String id = UUIDGenerator.getInstance().generateStringUUID();
       ActiveMQServer server = session.getServer();
 
-      ServerSession serverSession = server.createSession(id, username, password,
-                                                         ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                         session.getConnection(), MQTTUtil.SESSION_AUTO_COMMIT_SENDS,
-                                                         MQTTUtil.SESSION_AUTO_COMMIT_ACKS, MQTTUtil.SESSION_PREACKNOWLEDGE,
-                                                         MQTTUtil.SESSION_XA, null, session.getSessionCallback(),
-                                                         MQTTUtil.SESSION_AUTO_CREATE_QUEUE);
+      ServerSession serverSession = server.createSession(id, username, password, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, session.getConnection(), MQTTUtil.SESSION_AUTO_COMMIT_SENDS, MQTTUtil.SESSION_AUTO_COMMIT_ACKS, MQTTUtil.SESSION_PREACKNOWLEDGE, MQTTUtil.SESSION_XA, null, session.getSessionCallback(), MQTTUtil.SESSION_AUTO_CREATE_QUEUE);
       return (ServerSessionImpl) serverSession;
    }
 
@@ -122,8 +117,7 @@ public class MQTTConnectionManager {
          session.stop();
          session.getConnection().disconnect(false);
          session.getConnection().destroy();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          /* FIXME Failure during disconnect would leave the session state in an unrecoverable state.  We should handle
          errors more gracefully.
           */
@@ -144,8 +138,7 @@ public class MQTTConnectionManager {
          if (cleanSession) {
             MQTTSession.SESSIONS.remove(clientId);
             return new MQTTSessionState(clientId);
-         }
-         else {
+         } else {
             /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
             a new one. */
             MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
@@ -155,8 +148,7 @@ public class MQTTConnectionManager {
                   Thread.sleep(1000);
                }
                return state;
-            }
-            else {
+            } else {
                state = new MQTTSessionState(clientId);
                MQTTSession.SESSIONS.put(clientId, state);
                return state;
@@ -170,14 +162,14 @@ public class MQTTConnectionManager {
          // [MQTT-3.1.3-7] [MQTT-3.1.3-6] If client does not specify a client ID and clean session is set to 1 create it.
          if (cleanSession) {
             clientId = UUID.randomUUID().toString();
-         }
-         else {
+         } else {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
             return null;
          }
-      }
-      // If the client ID is not unique (i.e. it has already registered) then do not accept it.
-      else if (!CONNECTED_CLIENTS.add(clientId)) {
+      } else if (!CONNECTED_CLIENTS.add(clientId)) {
+         // ^^^ If the client ID is not unique (i.e. it has already registered) then do not accept it.
+
+
          // [MQTT-3.1.3-9] Return ID Rejected if server rejects the client ID
          return null;
       }

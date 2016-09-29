@@ -53,8 +53,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return configuration.getAddress();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -64,8 +63,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return configuration.getFilterString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -75,8 +73,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return configuration.getForwardingAddress();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -86,8 +83,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return divert.getRoutingName().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -97,8 +93,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return configuration.getTransformerClassName();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -108,8 +103,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return divert.getUniqueName().toString();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }
@@ -119,8 +113,7 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          return divert.isExclusive();
-      }
-      finally {
+      } finally {
          blockOnIO();
       }
    }

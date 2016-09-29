@@ -200,8 +200,7 @@ public abstract class MessageImpl implements MessageInternal {
       buffer.writeNullableSimpleString(address);
       if (userID == null) {
          buffer.writeByte(DataConstants.NULL);
-      }
-      else {
+      } else {
          buffer.writeByte(DataConstants.NOT_NULL);
          buffer.writeBytes(userID.asBytes());
       }
@@ -221,8 +220,7 @@ public abstract class MessageImpl implements MessageInternal {
          byte[] bytes = new byte[16];
          buffer.readBytes(bytes);
          userID = new UUID(UUID.TYPE_TIME_BASED, bytes);
-      }
-      else {
+      } else {
          userID = null;
       }
       type = buffer.readByte();
@@ -448,7 +446,6 @@ public abstract class MessageImpl implements MessageInternal {
       // otherwise the buffer would be reset through the listener
       tmpbodyBuffer.setMessage(this);
       this.bodyBuffer = tmpbodyBuffer;
-
 
    }
 
@@ -804,8 +801,7 @@ public abstract class MessageImpl implements MessageInternal {
 
       if (str == null) {
          return null;
-      }
-      else {
+      } else {
          return str.toString();
       }
    }
@@ -916,8 +912,7 @@ public abstract class MessageImpl implements MessageInternal {
          bodyBuffer.readBytes(buffer2);
          bodyBuffer.readerIndex(readerIndex2);
          return "ServerMessage@" + Integer.toHexString(System.identityHashCode(this)) + "[writerIndex=" + buffer.writerIndex() + ",capacity=" + buffer.capacity() + ",bodyStart=" + getEndOfBodyPosition() + " buffer=" + ByteUtil.bytesToHex(buffer1, 1) + ", bodyBuffer=" + ByteUtil.bytesToHex(buffer2, 1);
-      }
-      else {
+      } else {
          return "ServerMessage@" + Integer.toHexString(System.identityHashCode(this)) + "[writerIndex=" + buffer.writerIndex() + ",capacity=" + buffer.capacity() + ",bodyStart=" + getEndOfBodyPosition() + " buffer=" + ByteUtil.bytesToHex(buffer1, 1);
       }
 
@@ -955,8 +950,7 @@ public abstract class MessageImpl implements MessageInternal {
          if ((bodySize + 4) > buffer.capacity()) {
             buffer.setIndex(0, bodySize);
             buffer.writeInt(0);
-         }
-         else {
+         } else {
             buffer.setIndex(0, bodySize + DataConstants.SIZE_INT);
          }
 

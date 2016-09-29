@@ -82,7 +82,6 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
    private static final String PRINCIPAL = "uid=admin,ou=system";
    private static final String CREDENTIALS = "secret";
 
-
    public LDAPSecurityTest() {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
@@ -99,13 +98,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       testDir = temporaryFolder.getRoot().getAbsolutePath();
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
-      Configuration configuration = new ConfigurationImpl()
-         .setSecurityEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
-         .setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false))
-         .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false))
-         .setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false))
-         .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
+      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 
@@ -151,8 +144,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
          session.close();
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception");
       }
@@ -168,8 +160,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          cf.createSession("first", "badpassword", false, true, true, false, 0);
          Assert.fail("should throw exception here");
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
          // ignore
       }
 
@@ -196,8 +187,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -205,8 +195,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          session.deleteQueue(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -214,8 +203,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -223,8 +211,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -233,8 +220,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -242,8 +228,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -252,8 +237,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -261,8 +245,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          // ignore
       }
 
@@ -287,8 +270,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       // CREATE_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
@@ -296,8 +278,7 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       // DELETE_DURABLE_QUEUE
       try {
          session.deleteQueue(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
@@ -305,16 +286,14 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       // CREATE_NON_DURABLE_QUEUE
       try {
          session.createQueue(ADDRESS, NON_DURABLE_QUEUE, false);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // DELETE_NON_DURABLE_QUEUE
       try {
          session.deleteQueue(NON_DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -324,16 +303,14 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientProducer producer = session.createProducer(ADDRESS);
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CONSUME
       try {
          session.createConsumer(DURABLE_QUEUE);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
@@ -341,16 +318,14 @@ public class LDAPSecurityTest extends AbstractLdapTestUnit {
       try {
          ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
          producer.send(session.createMessage(true));
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 
       // CONSUME
       try {
          session.createConsumer(DURABLE_QUEUE, true);
-      }
-      catch (ActiveMQException e) {
+      } catch (ActiveMQException e) {
          Assert.fail("should not throw exception here");
       }
 

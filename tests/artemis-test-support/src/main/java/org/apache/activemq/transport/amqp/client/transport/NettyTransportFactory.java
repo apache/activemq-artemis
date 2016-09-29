@@ -46,8 +46,7 @@ public final class NettyTransportFactory {
 
       if (!remoteURI.getScheme().equalsIgnoreCase("ssl") && !remoteURI.getScheme().equalsIgnoreCase("wss")) {
          transportOptions = NettyTransportOptions.INSTANCE.clone();
-      }
-      else {
+      } else {
          transportOptions = NettyTransportSslOptions.INSTANCE.clone();
       }
 

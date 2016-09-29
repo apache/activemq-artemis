@@ -138,8 +138,7 @@ public class NodeManagerTest extends ActiveMQTestBase {
       for (Thread thread : threads) {
          try {
             thread.join(5000);
-         }
-         catch (InterruptedException e) {
+         } catch (InterruptedException e) {
             //
          }
          if (thread.isAlive()) {
@@ -171,8 +170,7 @@ public class NodeManagerTest extends ActiveMQTestBase {
       public void run() {
          try {
             action.performWork(manager);
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             this.e = e;
          }
       }

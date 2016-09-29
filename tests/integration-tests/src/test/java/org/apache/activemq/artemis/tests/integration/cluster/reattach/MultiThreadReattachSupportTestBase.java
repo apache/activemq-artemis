@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -29,11 +34,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase {
 
@@ -102,8 +102,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
             public void run() {
                try {
                   test.run(sf, threadNum);
-               }
-               catch (Throwable t) {
+               } catch (Throwable t) {
                   throwable = t;
 
                   log.error("Failed to run test", t);
@@ -216,8 +215,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
          if (failOnCreateConnection) {
             InVMConnector.numberOfFailures = 1;
             InVMConnector.failOnCreateConnection = true;
-         }
-         else {
+         } else {
             conn.fail(new ActiveMQNotConnectedException("blah"));
          }
 

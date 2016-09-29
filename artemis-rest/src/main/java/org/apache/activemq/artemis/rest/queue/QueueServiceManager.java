@@ -22,8 +22,8 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
-import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
+import org.apache.activemq.artemis.rest.queue.push.PushStore;
 
 public class QueueServiceManager extends DestinationServiceManager {
 
@@ -102,8 +102,7 @@ public class QueueServiceManager extends DestinationServiceManager {
       try {
          timeoutTask.stop();
          sessionFactory.close();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
       }
    }
 }

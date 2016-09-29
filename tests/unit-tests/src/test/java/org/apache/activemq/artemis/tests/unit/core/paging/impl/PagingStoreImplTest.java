@@ -412,8 +412,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                   final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
                   if (storeImpl.page(msg, ctx2.getTransaction(), ctx2.getContextListing(storeImpl.getStoreName()), lock)) {
                      buffers.put(id, msg);
-                  }
-                  else {
+                  } else {
                      break;
                   }
 
@@ -423,12 +422,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      firstTime = false;
                   }
                }
-            }
-            catch (Exception e1) {
+            } catch (Exception e1) {
                e1.printStackTrace();
                this.e = e1;
-            }
-            finally {
+            } finally {
                aliveProducers.decrementAndGet();
             }
          }
@@ -450,8 +447,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      readPages.add(page);
                   }
                }
-            }
-            catch (Exception e1) {
+            } catch (Exception e1) {
                e1.printStackTrace();
                this.e = e1;
             }
@@ -659,8 +655,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                      producedLatch.countDown();
                   }
                }
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.add(e);
             }
@@ -695,15 +690,13 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
                      page.close();
                      page.delete(null);
-                  }
-                  else {
+                  } else {
                      System.out.println("Depaged!!!! numerOfMessages = " + msgsRead + " of " + NUMBER_OF_MESSAGES);
                      Thread.sleep(500);
                   }
                }
 
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                errors.add(e);
             }

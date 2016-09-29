@@ -58,8 +58,7 @@ public class Reclaimer {
 
             if (outstandingNeg) {
                continue; // Move to next file as we already know that this file can't be reclaimed because criterion 2)
-            }
-            else {
+            } else {
                currentFile.setNegReclaimCriteria();
             }
          }
@@ -78,10 +77,9 @@ public class Reclaimer {
                }
             }
 
-            if (negCount < posCount ) {
+            if (negCount < posCount) {
                logger.tracef("%s can't be reclaimed because there are not enough negatives %d", currentFile, negCount);
-            }
-            else {
+            } else {
                logger.tracef("%s can be reclaimed", currentFile);
                currentFile.setPosReclaimCriteria();
             }

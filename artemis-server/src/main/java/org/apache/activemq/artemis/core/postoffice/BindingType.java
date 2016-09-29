@@ -30,14 +30,11 @@ public enum BindingType {
    public int toInt() {
       if (equals(BindingType.LOCAL_QUEUE)) {
          return BindingType.LOCAL_QUEUE_INDEX;
-      }
-      else if (equals(BindingType.REMOTE_QUEUE)) {
+      } else if (equals(BindingType.REMOTE_QUEUE)) {
          return BindingType.REMOTE_QUEUE_INDEX;
-      }
-      else if (equals(BindingType.DIVERT)) {
+      } else if (equals(BindingType.DIVERT)) {
          return BindingType.DIVERT_INDEX;
-      }
-      else {
+      } else {
          throw ActiveMQMessageBundle.BUNDLE.cannotConvertToInt();
       }
    }

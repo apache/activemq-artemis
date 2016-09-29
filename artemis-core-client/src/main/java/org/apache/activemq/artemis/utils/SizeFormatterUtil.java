@@ -36,12 +36,10 @@ public class SizeFormatterUtil {
       if (s > SizeFormatterUtil.oneGiB) {
          s /= SizeFormatterUtil.oneGiB;
          suffix = "GiB";
-      }
-      else if (s > SizeFormatterUtil.oneMiB) {
+      } else if (s > SizeFormatterUtil.oneMiB) {
          s /= SizeFormatterUtil.oneMiB;
          suffix = "MiB";
-      }
-      else if (s > SizeFormatterUtil.oneKiB) {
+      } else if (s > SizeFormatterUtil.oneKiB) {
          s /= SizeFormatterUtil.oneKiB;
          suffix = "kiB";
       }

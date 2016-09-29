@@ -95,8 +95,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
          if (ActiveMQRATopicPublisher.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -122,8 +121,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
          if (ActiveMQRATopicPublisher.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -167,8 +165,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
          if (ActiveMQRATopicPublisher.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }
@@ -195,8 +192,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
          if (ActiveMQRATopicPublisher.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
-      }
-      finally {
+      } finally {
          session.unlock();
       }
    }

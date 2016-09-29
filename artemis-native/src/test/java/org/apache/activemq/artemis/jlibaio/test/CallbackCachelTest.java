@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.jlibaio.test;
 
 import java.util.HashSet;
 
-import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
+import org.apache.activemq.artemis.jlibaio.util.CallbackCache;
 import org.junit.Assert;
 import org.junit.Test;
 

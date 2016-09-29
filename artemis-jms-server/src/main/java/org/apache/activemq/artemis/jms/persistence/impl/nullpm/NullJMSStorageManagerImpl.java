@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public class NullJMSStorageManagerImpl implements JMSStorageManager {

@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -136,9 +136,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    private ActiveMQServer createServerForMQTT() throws Exception {
-      Configuration defaultConfig = createDefaultConfig(true)
-              .setIncomingInterceptorClassNames(singletonList(MQTTIncomingInterceptor.class.getName()))
-              .setOutgoingInterceptorClassNames(singletonList(MQTTOutoingInterceptor.class.getName()));
+      Configuration defaultConfig = createDefaultConfig(true).setIncomingInterceptorClassNames(singletonList(MQTTIncomingInterceptor.class.getName())).setOutgoingInterceptorClassNames(singletonList(MQTTOutoingInterceptor.class.getName()));
       return createServer(true, defaultConfig);
    }
 
@@ -196,8 +194,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected void initializeConnection(MQTTClientProvider provider) throws Exception {
       if (!isUseSSL()) {
          provider.connect("tcp://localhost:" + port);
-      }
-      else {
+      } else {
          SSLContext ctx = SSLContext.getInstance("TLS");
          ctx.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
          provider.setSslContext(ctx);
@@ -245,8 +242,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          try {
             task.run();
             return;
-         }
-         catch (Throwable e) {
+         } catch (Throwable e) {
             long remaining = deadline - System.currentTimeMillis();
             if (remaining <= 0) {
                if (e instanceof RuntimeException) {
@@ -275,8 +271,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    protected MQTT createMQTTConnection(String clientId, boolean clean) throws Exception {
       if (isUseSSL()) {
          return createMQTTSslConnection(clientId, clean);
-      }
-      else {
+      } else {
          return createMQTTTcpConnection(clientId, clean);
       }
    }

@@ -24,17 +24,17 @@ import java.util.List;
 import io.airlift.airline.Cli;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.messages.Browse;
-import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.Create;
-import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
-import org.apache.activemq.artemis.cli.commands.destination.DeleteDestination;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
-import org.apache.activemq.artemis.cli.commands.destination.HelpDestination;
 import org.apache.activemq.artemis.cli.commands.Kill;
-import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
+import org.apache.activemq.artemis.cli.commands.destination.CreateDestination;
+import org.apache.activemq.artemis.cli.commands.destination.DeleteDestination;
+import org.apache.activemq.artemis.cli.commands.destination.HelpDestination;
+import org.apache.activemq.artemis.cli.commands.messages.Browse;
+import org.apache.activemq.artemis.cli.commands.messages.Consumer;
+import org.apache.activemq.artemis.cli.commands.messages.Producer;
 import org.apache.activemq.artemis.cli.commands.tools.CompactJournal;
 import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
@@ -73,25 +73,21 @@ public class Artemis {
    public static Object execute(File artemisHome, File artemisInstance, String... args) throws Exception {
       try {
          return internalExecute(artemisHome, artemisInstance, args);
-      }
-      catch (ConfigurationException configException) {
+      } catch (ConfigurationException configException) {
          System.err.println(configException.getMessage());
          System.out.println();
          System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
          return configException;
-      }
-      catch (CLIException cliException) {
+      } catch (CLIException cliException) {
          System.err.println(cliException.getMessage());
          return cliException;
-      }
-      catch (NullPointerException e) {
+      } catch (NullPointerException e) {
          // Yeah.. I really meant System.err..
          // this is the CLI and System.out and System.err are common places for interacting with the user
          // this is a programming error that must be visualized and corrected
          e.printStackTrace();
          return e;
-      }
-      catch (RuntimeException re) {
+      } catch (RuntimeException re) {
          System.err.println(re.getMessage());
          System.out.println();
 
@@ -102,8 +98,10 @@ public class Artemis {
       }
    }
 
-   /** This method is used to validate exception returns.
-    *  Useful on test cases */
+   /**
+    * This method is used to validate exception returns.
+    * Useful on test cases
+    */
    public static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
@@ -122,22 +120,16 @@ public class Artemis {
 
    private static Cli.CliBuilder<Action> builder(File artemisInstance) {
       String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
-      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line")
-              .withCommand(HelpAction.class)
-              .withCommand(Producer.class)
-              .withCommand(Consumer.class)
-              .withCommand(Browse.class)
-              .withDefaultCommand(HelpAction.class);
+      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Consumer.class).withCommand(Browse.class).withDefaultCommand(HelpAction.class);
 
       builder.withGroup("destination").withDescription("Destination tools group (create|delete) (example ./artemis destination create)").
-            withDefaultCommand(HelpDestination.class).withCommands(CreateDestination.class, DeleteDestination.class);
+         withDefaultCommand(HelpDestination.class).withCommands(CreateDestination.class, DeleteDestination.class);
 
       if (instance != null) {
          builder.withGroup("data").withDescription("data tools group (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
          builder = builder.withCommands(Run.class, Stop.class, Kill.class);
-      }
-      else {
+      } else {
          builder.withGroup("data").withDescription("data tools group (print) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(PrintData.class);
          builder = builder.withCommand(Create.class);

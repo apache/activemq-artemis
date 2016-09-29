@@ -61,7 +61,6 @@ public class FileIOUtilTest {
       file2.open();
       file2.writeDirect(buffer, true);
 
-
       // This is allocating a reusable buffer to perform the copy, just like it's used within LargeMessageInSync
       buffer = ByteBuffer.allocate(4 * 1024);
 
@@ -82,6 +81,5 @@ public class FileIOUtilTest {
       System.out.println("Test result::");
 
    }
-
 
 }

@@ -301,8 +301,7 @@ public class ManagementServiceImpl implements ManagementService {
          String name = acceptor.substring(ResourceNames.CORE_ACCEPTOR.length());
          try {
             unregisterAcceptor(name);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -389,21 +388,18 @@ public class ManagementServiceImpl implements ManagementService {
             ManagementHelper.storeResult(reply, result);
 
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, true);
-         }
-         catch (Exception e) {
+         } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.managementOperationError(e, operation, resourceName);
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
             String exceptionMessage;
             if (e instanceof InvocationTargetException) {
                exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
-            }
-            else {
+            } else {
                exceptionMessage = e.getMessage();
             }
             ManagementHelper.storeResult(reply, exceptionMessage);
          }
-      }
-      else {
+      } else {
          String attribute = message.getStringProperty(ManagementHelper.HDR_ATTRIBUTE);
 
          if (attribute != null) {
@@ -413,15 +409,13 @@ public class ManagementServiceImpl implements ManagementService {
                ManagementHelper.storeResult(reply, result);
 
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, true);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.managementAttributeError(e, attribute, resourceName);
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
                String exceptionMessage;
                if (e instanceof InvocationTargetException) {
                   exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
-               }
-               else {
+               } else {
                   exceptionMessage = e.getMessage();
                }
                ManagementHelper.storeResult(reply, exceptionMessage);
@@ -551,8 +545,7 @@ public class ManagementServiceImpl implements ManagementService {
             for (ObjectName on : registeredNames) {
                try {
                   mbeanServer.unregisterMBean(on);
-               }
-               catch (Exception ignore) {
+               } catch (Exception ignore) {
                }
             }
          }
@@ -604,8 +597,8 @@ public class ManagementServiceImpl implements ManagementService {
    public void sendNotification(final Notification notification) throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("Sending Notification = " + notification +
-                                              ", notificationEnabled=" + notificationsEnabled +
-                                              " messagingServerControl=" + messagingServerControl);
+                         ", notificationEnabled=" + notificationsEnabled +
+                         " messagingServerControl=" + messagingServerControl);
       }
       // This needs to be synchronized since we need to ensure notifications are processed in strict sequence
       synchronized (this) {
@@ -619,8 +612,7 @@ public class ManagementServiceImpl implements ManagementService {
                for (NotificationListener listener : listeners) {
                   try {
                      listener.onNotification(notification);
-                  }
-                  catch (Exception e) {
+                  } catch (Exception e) {
                      // Exception thrown from one listener should not stop execution of others
                      ActiveMQServerLogger.LOGGER.errorCallingNotifListener(e);
                   }
@@ -684,18 +676,15 @@ public class ManagementServiceImpl implements ManagementService {
          String upperCaseAttribute = attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
          try {
             method = resource.getClass().getMethod("get" + upperCaseAttribute, new Class[0]);
-         }
-         catch (NoSuchMethodException nsme) {
+         } catch (NoSuchMethodException nsme) {
             try {
                method = resource.getClass().getMethod("is" + upperCaseAttribute, new Class[0]);
-            }
-            catch (NoSuchMethodException nsme2) {
+            } catch (NoSuchMethodException nsme2) {
                throw ActiveMQMessageBundle.BUNDLE.noGetterMethod(attribute);
             }
          }
          return method.invoke(resource, new Object[0]);
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
          throw new IllegalStateException("Problem while retrieving attribute " + attribute, t);
       }
    }
@@ -732,8 +721,7 @@ public class ManagementServiceImpl implements ManagementService {
                   paramTypes[i] == Integer.TYPE && params[i].getClass() == Integer.class ||
                   paramTypes[i] == Boolean.TYPE && params[i].getClass() == Boolean.class) {
                   // parameter match
-               }
-               else {
+               } else {
                   match = false;
                   break; // parameter check loop
                }

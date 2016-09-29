@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
 
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -35,11 +40,6 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScheduledMessageTest extends ActiveMQTestBase {
 
@@ -773,8 +773,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
                }
                session.close();
                sf.close();
-            }
-            catch (Throwable e) {
+            } catch (Throwable e) {
                e.printStackTrace();
                count.set(-1);
             }
@@ -864,8 +863,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
          session.end(xid, XAResource.TMSUCCESS);
          session.prepare(xid);
          session.commit(xid, false);
-      }
-      else {
+      } else {
          session.commit();
       }
 

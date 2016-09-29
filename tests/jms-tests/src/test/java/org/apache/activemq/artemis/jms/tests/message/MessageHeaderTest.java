@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests.message;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -36,6 +30,11 @@ import javax.jms.TextMessage;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.File;
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -189,8 +188,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m1.setObjectProperty("myIllegal", new Object());
          ProxyAssertSupport.fail();
-      }
-      catch (javax.jms.MessageFormatException e) {
+      } catch (javax.jms.MessageFormatException e) {
       }
 
       queueProducer.send(m1);
@@ -212,57 +210,49 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.setBooleanProperty("myBool", myBool);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setByteProperty("myByte", myByte);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setShortProperty("myShort", myShort);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setIntProperty("myInt", myInt);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setLongProperty("myLong", myLong);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setFloatProperty("myFloat", myFloat);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setDoubleProperty("myDouble", myDouble);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       try {
          m2.setStringProperty("myString", myString);
          ProxyAssertSupport.fail();
-      }
-      catch (MessageNotWriteableException e) {
+      } catch (MessageNotWriteableException e) {
       }
 
       ProxyAssertSupport.assertTrue(m2.propertyExists("myBool"));
@@ -304,43 +294,37 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getByteProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getIntProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLongProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myBool");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // byte property can be read as short, int, long or String
@@ -353,22 +337,19 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getBooleanProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myByte");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // short property can be read as int, long or String
@@ -380,29 +361,25 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getByteProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myShort");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // int property can be read as long or String
@@ -413,36 +390,31 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getShortProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myInt");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // long property can be read as String
@@ -452,43 +424,37 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getIntProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getDoubleProperty("myLong");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // float property can be read as double or String
@@ -499,36 +465,31 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getIntProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getLongProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myFloat");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       // double property can be read as String
@@ -538,43 +499,37 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getIntProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getShortProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getByteProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getBooleanProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
-      }
-      catch (MessageFormatException e) {
+      } catch (MessageFormatException e) {
       }
 
       m2.clearProperties();
@@ -609,38 +564,32 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       try {
          m3.getByteProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getShortProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getIntProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getLongProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getFloatProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
       try {
          m3.getDoubleProperty("myIllegal");
          ProxyAssertSupport.fail();
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
       }
    }
 

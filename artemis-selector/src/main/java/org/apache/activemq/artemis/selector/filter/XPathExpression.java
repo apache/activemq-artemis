@@ -33,8 +33,7 @@ public final class XPathExpression implements BooleanExpression {
                return new XalanXPathEvaluator(xpath);
             }
          };
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
       }
    }
 

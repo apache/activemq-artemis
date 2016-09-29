@@ -137,8 +137,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       if (inTx) {
          assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
-      }
-      else {
+      } else {
          assertEquals(Session.AUTO_ACKNOWLEDGE, s.getAcknowledgeMode());
       }
       s.close();
@@ -146,8 +145,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
       s = queueConnection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
       if (inTx) {
          assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
-      }
-      else {
+      } else {
          assertEquals(Session.DUPS_OK_ACKNOWLEDGE, s.getAcknowledgeMode());
       }
       s.close();
@@ -158,13 +156,11 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
          s = queueConnection.createSession(false, Session.SESSION_TRANSACTED);
          if (inTx) {
             assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
-         }
-         else {
+         } else {
             fail("didn't get expected exception creating session with SESSION_TRANSACTED mode ");
          }
          s.close();
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          if (inTx) {
             fail("shouldn't throw exception " + e);
          }
@@ -174,12 +170,10 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
          s = queueConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          if (inTx) {
             assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
-         }
-         else {
+         } else {
             fail("didn't get expected exception creating session with CLIENT_ACKNOWLEDGE mode");
          }
-      }
-      catch (JMSException e) {
+      } catch (JMSException e) {
          if (inTx) {
             fail("shouldn't throw exception " + e);
          }

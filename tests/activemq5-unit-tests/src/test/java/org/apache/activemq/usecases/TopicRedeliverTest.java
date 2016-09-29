@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.usecases;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -28,6 +27,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.test.TestSupport;
 import org.apache.activemq.util.IdGenerator;
@@ -91,9 +91,9 @@ public class TopicRedeliverTest extends TestSupport {
       sent2.setStringProperty("str", "3");
       producer.send(sent3);
 
-      TextMessage msgTest = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      TextMessage msgTest = (TextMessage) consumer.receive(RECEIVE_TIMEOUT);
       System.out.println("msgTest::" + msgTest + " // " + msgTest.getText());
-      TextMessage rec2 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      TextMessage rec2 = (TextMessage) consumer.receive(RECEIVE_TIMEOUT);
       System.out.println("msgTest::" + rec2 + " // " + rec2.getText());
       assertNull(consumer.receiveNoWait());
 
@@ -104,10 +104,10 @@ public class TopicRedeliverTest extends TestSupport {
       sent4.setText("msg4");
       producer.send(sent4);
 
-      TextMessage rec4 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      TextMessage rec4 = (TextMessage) consumer.receive(RECEIVE_TIMEOUT);
       assertTrue(rec4.equals(sent4));
       consumerSession.recover();
-      rec4 = (TextMessage)consumer.receive(RECEIVE_TIMEOUT);
+      rec4 = (TextMessage) consumer.receive(RECEIVE_TIMEOUT);
       assertTrue(rec4.equals(sent4));
       assertTrue(rec4.getJMSRedelivered());
       rec4.acknowledge();
@@ -129,8 +129,7 @@ public class TopicRedeliverTest extends TestSupport {
       MessageConsumer consumer = null;
       if (topic) {
          consumer = consumerSession.createDurableSubscriber((Topic) destination, "TESTRED");
-      }
-      else {
+      } else {
          consumer = consumerSession.createConsumer(destination);
       }
       Session producerSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -171,8 +170,7 @@ public class TopicRedeliverTest extends TestSupport {
       MessageConsumer consumer = null;
       if (topic) {
          consumer = consumerSession.createConsumer(destination);
-      }
-      else {
+      } else {
          consumer = consumerSession.createConsumer(destination);
       }
       Session producerSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -216,8 +214,7 @@ public class TopicRedeliverTest extends TestSupport {
       MessageConsumer consumer = null;
       if (topic) {
          consumer = consumerSession.createDurableSubscriber((Topic) destination, "TESTRED");
-      }
-      else {
+      } else {
          consumer = consumerSession.createConsumer(destination);
       }
       Session producerSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
