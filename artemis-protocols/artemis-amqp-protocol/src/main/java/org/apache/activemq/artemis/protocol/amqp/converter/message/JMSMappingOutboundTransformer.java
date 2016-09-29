@@ -67,16 +67,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
    public static final byte TEMP_QUEUE_TYPE = 0x02;
    public static final byte TEMP_TOPIC_TYPE = 0x03;
 
-   // Deprecated legacy values used by old QPid AMQP 1.0 JMS client.
-
-   public static final Symbol LEGACY_JMS_DEST_TYPE_MSG_ANNOTATION = Symbol.valueOf("x-opt-to-type");
-   public static final Symbol LEGACY_JMS_REPLY_TO_TYPE_MSG_ANNOTATION = Symbol.valueOf("x-opt-reply-type");
-
-   public static final String LEGACY_QUEUE_TYPE = "queue";
-   public static final String LEGACY_TOPIC_TYPE = "topic";
-   public static final String LEGACY_TEMP_QUEUE_TYPE = "temporary,queue";
-   public static final String LEGACY_TEMP_TOPIC_TYPE = "temporary,topic";
-
    public JMSMappingOutboundTransformer(JMSVendor vendor) {
       super(vendor);
    }
@@ -184,9 +174,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             maMap = new HashMap<>();
          }
          maMap.put(JMS_DEST_TYPE_MSG_ANNOTATION, destinationType(msg.getJMSDestination()));
-
-         // Deprecated: used by legacy QPid AMQP 1.0 JMS client
-         maMap.put(LEGACY_JMS_DEST_TYPE_MSG_ANNOTATION, destinationAttributes(msg.getJMSDestination()));
       }
       if (msg.getJMSReplyTo() != null) {
          props.setReplyTo(vendor.toAddress(msg.getJMSReplyTo()));
@@ -194,9 +181,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
             maMap = new HashMap<>();
          }
          maMap.put(JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationType(msg.getJMSReplyTo()));
-
-         // Deprecated: used by legacy QPid AMQP 1.0 JMS client
-         maMap.put(LEGACY_JMS_REPLY_TO_TYPE_MSG_ANNOTATION, destinationAttributes(msg.getJMSReplyTo()));
       }
       if (msg.getJMSCorrelationID() != null) {
          String correlationId = msg.getJMSCorrelationID();
@@ -334,29 +318,6 @@ public class JMSMappingOutboundTransformer extends OutboundTransformer {
          }
          else {
             return TOPIC_TYPE;
-         }
-      }
-
-      throw new IllegalArgumentException("Unknown Destination Type passed to JMS Transformer.");
-   }
-
-   // Used by legacy QPid AMQP 1.0 JMS client.
-   @Deprecated
-   private static String destinationAttributes(Destination destination) {
-      if (destination instanceof Queue) {
-         if (destination instanceof TemporaryQueue) {
-            return LEGACY_TEMP_QUEUE_TYPE;
-         }
-         else {
-            return LEGACY_QUEUE_TYPE;
-         }
-      }
-      else if (destination instanceof Topic) {
-         if (destination instanceof TemporaryTopic) {
-            return LEGACY_TEMP_TOPIC_TYPE;
-         }
-         else {
-            return LEGACY_TOPIC_TYPE;
          }
       }
 
