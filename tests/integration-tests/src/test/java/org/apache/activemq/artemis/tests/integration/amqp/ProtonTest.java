@@ -496,6 +496,29 @@ public class ProtonTest extends ProtonTestBase {
    }
 
    @Test
+   public void testObjectMessage() throws Throwable {
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Queue queue = createQueue(address);
+      MessageProducer p = session.createProducer(queue);
+      ArrayList list = new ArrayList();
+      list.add("aString");
+      ObjectMessage objectMessage = session.createObjectMessage(list);
+      p.send(objectMessage);
+      session.close();
+
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer cons = session.createConsumer(queue);
+      connection.start();
+
+      objectMessage = (ObjectMessage) cons.receive(5000);
+      assertNotNull(objectMessage);
+      list = (ArrayList) objectMessage.getObject();
+      assertEquals(list.get(0), "aString");
+      connection.close();
+   }
+
+   @Test
    public void testResourceLimitExceptionOnAddressFull() throws Exception {
       setAddressFullBlockPolicy();
       String destinationAddress = address + 1;
