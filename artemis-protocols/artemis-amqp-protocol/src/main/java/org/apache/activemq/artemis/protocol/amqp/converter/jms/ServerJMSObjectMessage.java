@@ -73,9 +73,10 @@ public class ServerJMSObjectMessage extends ServerJMSMessage implements ObjectMe
       int size = getInnerMessage().getBodyBuffer().readInt();
       byte[] bytes = new byte[size];
       getInnerMessage().getBodyBuffer().readBytes(bytes);
-      ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bytes));
-      ois.setWhiteList(DEFAULT_WHITELIST);
-      ois.setBlackList(DEFAULT_BLACKLIST);
-      object = (Serializable) ois.readObject();
+      try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bytes))) {
+         ois.setWhiteList(DEFAULT_WHITELIST);
+         ois.setBlackList(DEFAULT_BLACKLIST);
+         object = (Serializable) ois.readObject();
+      }
    }
 }
