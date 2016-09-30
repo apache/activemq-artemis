@@ -73,9 +73,10 @@ public class InMemorySchemaPartition extends AbstractLdifPartition {
       for (String resourcePath : new TreeSet<>(resMap.keySet())) {
          if (resourcePath.endsWith(".ldif")) {
             URL resource = DefaultSchemaLdifExtractor.getUniqueResource(resourcePath, "Schema LDIF file");
-            LdifReader reader = new LdifReader(resource.openStream());
-            LdifEntry ldifEntry = reader.next();
-            reader.close();
+            LdifEntry ldifEntry;
+            try (LdifReader reader = new LdifReader(resource.openStream())) {
+               ldifEntry = reader.next();
+            }
 
             Entry entry = new DefaultEntry(schemaManager, ldifEntry.getEntry());
             // add mandatory attributes

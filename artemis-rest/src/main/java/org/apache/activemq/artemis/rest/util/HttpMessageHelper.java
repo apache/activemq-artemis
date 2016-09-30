@@ -74,8 +74,7 @@ public class HttpMessageHelper {
             message.getBodyBuffer().readBytes(body);
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
             Object obj = null;
-            try {
-               ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
+            try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais)) {
                if (jmsOptions != null) {
                   ois.setBlackList(jmsOptions.getDeserializationBlackList());
                   ois.setWhiteList(jmsOptions.getDeserializationWhiteList());
