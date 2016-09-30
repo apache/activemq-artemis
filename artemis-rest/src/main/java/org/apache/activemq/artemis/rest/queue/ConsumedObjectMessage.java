@@ -45,8 +45,7 @@ public class ConsumedObjectMessage extends ConsumedMessage {
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
-            try {
-               ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
+            try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais)) {
                if (options != null) {
                   ois.setWhiteList(options.getDeserializationWhiteList());
                   ois.setBlackList(options.getDeserializationBlackList());
