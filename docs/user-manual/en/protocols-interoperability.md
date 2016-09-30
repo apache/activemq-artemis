@@ -138,7 +138,7 @@ specific features into Apache ActiveMQ Artemis.
 
 ### Connection Monitoring
 
-OpenWire has a few paramters to control how each connection is monitored, they are:
+OpenWire has a few parameters to control how each connection is monitored, they are:
 
 * maxInactivityDuration:
 It specifies the time (milliseconds) after which the connection is closed by the broker if no data was received.
